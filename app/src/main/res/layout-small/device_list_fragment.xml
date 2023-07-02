@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="@style/Mp02.Signal.Background">
+
+    <FrameLayout
+        android:id="@+id/progress_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLargeInverse"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:progressTint="@color/white"
+            android:padding="10dp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/link_device_nav"
+        style="@style/Mp02.Signal.Text.CommonTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="50dp"
+        android:text="@string/device_list_fragment__link_new_device" />
+
+    <ListView android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:divider="@color/white_not_focus"
+        android:dividerHeight="1sp"
+        android:listSelector="@drawable/listview_background_selector"
+        tools:listitem="@layout/device_list_item_view" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="15dp"
+        android:gravity="center_horizontal"
+        android:text="@string/device_list_fragment__no_devices_linked"
+        android:textAppearance="@style/TextAppearance.Signal.Body2"
+        android:textColor="@color/white_not_focus" />
+
+</LinearLayout>

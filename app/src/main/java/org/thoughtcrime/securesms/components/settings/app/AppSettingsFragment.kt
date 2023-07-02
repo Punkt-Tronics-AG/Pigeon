@@ -61,6 +61,13 @@ class AppSettingsFragment : DSLSettingsFragment(R.string.text_secure_normal__men
       )
 
       clickPref(
+        title = DSLSettingsText.from(R.string.preferences__linked_devices),
+        onClick = {
+          Navigation.findNavController(requireView()).navigate(R.id.action_appSettingsFragment_to_deviceActivity)
+        }
+      )
+
+      clickPref(
         title = DSLSettingsText.from(R.string.AccountSettingsFragment__account),
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_accountSettingsFragment)
@@ -108,15 +115,6 @@ class AppSettingsFragment : DSLSettingsFragment(R.string.text_secure_normal__men
           Navigation.findNavController(requireView()).navigate(R.id.action_appSettingsFragment_to_aboutFragment)
         }
       )
-
-      if (isSignalVersion()) {
-        clickPref(
-          title = DSLSettingsText.from(R.string.preferences__linked_devices),
-          onClick = {
-            findNavController().safeNavigate(R.id.action_appSettingsFragment_to_deviceActivity)
-          }
-        )
-      }
     }
   }
 
