@@ -228,7 +228,14 @@
             app:emoji_maxLength="1000"
             app:measureLastLine="true"
             app:scaleEmojis="true"
+            app:emoji_renderSpoilers="true"
             tools:text="Mango pickle lorem ipsum" />
+
+        <ViewStub
+            android:id="@+id/conversation_item_join_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/conversation_item_join_button" />
 
         <ViewStub
             android:id="@+id/conversation_item_call_to_action_stub"

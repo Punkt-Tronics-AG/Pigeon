@@ -32,6 +32,7 @@ import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.signalservice.api.KbsPinData;
 import org.whispersystems.signalservice.api.KeyBackupSystemNoDataException;
 import org.whispersystems.signalservice.api.kbs.PinHashUtil;
+import org.whispersystems.signalservice.api.push.ServiceIdType;
 import org.whispersystems.signalservice.api.push.exceptions.IncorrectCodeException;
 import org.whispersystems.signalservice.internal.ServiceResponse;
 import org.whispersystems.signalservice.internal.contacts.entities.TokenResponse;
@@ -331,7 +332,7 @@ public final class RegistrationViewModel extends BaseRegistrationViewModel {
                                       boolean        setRegistrationLockEnabled = verifyResponse.getKbsData() != null;
 
                                       if (!setRegistrationLockEnabled) {
-                                        verifyResponse = new VerifyResponse(processor.getResult().getVerifyAccountResponse(), pinData, pin);
+                                        verifyResponse = new VerifyResponse(processor.getResult().getVerifyAccountResponse(), pinData, pin, verifyResponse.getAciPreKeyCollection(), verifyResponse.getPniPreKeyCollection());
                                       }
 
                                       return registrationRepository.registerAccount(registrationData, verifyResponse, setRegistrationLockEnabled)

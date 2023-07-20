@@ -236,6 +236,8 @@
     <string name="CommunicationActions_call">Bellen</string>
     <string name="CommunicationActions_insecure_call">Onbeveiligde oproep</string>
     <string name="CommunicationActions_carrier_charges_may_apply">Je mobielentelefonie-aanbieder brengt misschien extra kosten in rekening. Het nummer dat je wil bellen is niet geregistreerd bij Signal. Deze oproep zal via het telefonienetwerk lopen, niet over internet.</string>
+    <string name="CommunicationActions_cant_join_call">Kan niet deelnemen aan gesprek</string>
+    <string name="CommunicationActions_this_call_link_is_no_longer_valid">De oproeplink is niet langer geldig.</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -315,7 +317,9 @@
     <!-- Dialog error message shown when user can\'t download a their own video message via a linked device due to a permanent failure (e.g., unable to decrypt) -->
     <string name="ConversationItem_cant_download_video_you_will_need_to_send_it_again">Kan video niet downloaden. Je zal het opnieuw moeten verzenden.</string>
     <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp will go from \'11m\' to \'edited 11m\' -->
-    <string name="ConversationItem_edited_timestamp_footer">bewerkt %1$s</string>
+    <string name="ConversationItem_edited_timestamp_footer">Bewerkt %1$s</string>
+    <!-- Displayed if the link preview in the conversation item is for a call link call -->
+    <string name="ConversationItem__join_call">Aan oproep deelnemen</string>
 
     <!-- ConversationActivity -->
     <string name="ConversationActivity_add_attachment">Bijlage toevoegen</string>
@@ -503,6 +507,9 @@
     <string name="ConversationFragment__content_description_back_button">Ga terug.</string>
     <!-- Label for a button displayed in the conversation toolbar to open the main screen of the app. -->
     <string name="ConversationFragment__content_description_launch_signal_button">Signal openen</string>
+    <!-- Dialog title shown when more than one contact in a group conversation is no longer verified -->
+    <string name="ConversationFragment__no_longer_verified">Niet langer geverifieerd</string>
+
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Filter verwijderen</string>
     <!-- Notice on chat list when no unread chats are available, centered on display -->
@@ -876,6 +883,8 @@
     <string name="LinkPreviewView_no_link_preview_available">Geen voorbeeldafbeelding beschikbaar</string>
     <string name="LinkPreviewView_this_group_link_is_not_active">Deze groepslink is niet actief</string>
     <string name="LinkPreviewView_domain_date">%1$s · %2$s</string>
+    <!-- Description for Call Link url previews -->
+    <string name="LinkPreviewView__use_this_link_to_join_a_signal_call">Gebruik deze link om deel te nemen aan een Signal-oproep</string>
 
     <!-- LinkPreviewRepository -->
     <plurals name="LinkPreviewRepository_d_members">
@@ -942,7 +951,7 @@
 
     <!-- ManageGroupActivity -->
     <string name="ManageGroupActivity_who_can_add_new_members">Wie mogen nieuwe leden toevoegen?</string>
-    <string name="ManageGroupActivity_who_can_edit_this_groups_info">Wie mogen de groepsinformatie aanpassen?</string>
+    <string name="ManageGroupActivity_who_can_edit_this_groups_info">Wie mogen de groepsinformatie bewerken?</string>
 
     <plurals name="ManageGroupActivity_added">
         <item quantity="one">%1$d persoon toegevoegd.</item>
@@ -957,7 +966,7 @@
     <string name="ManageGroupActivity_failed_to_update_the_group_please_retry_later">Het bijwerken van de groep is mislukt. Probeer het later opnieuw</string>
     <string name="ManageGroupActivity_failed_to_update_the_group_due_to_a_network_error_please_retry_later">Het bijwerken van de groep is mislukt vanwege een netwerkfout. Probeer het later opnieuw</string>
 
-    <string name="ManageGroupActivity_edit_name_and_picture">Naam en afbeelding aanpassen</string>
+    <string name="ManageGroupActivity_edit_name_and_picture">Naam en afbeelding bewerken</string>
     <string name="ManageGroupActivity_legacy_group">Verouderde groep</string>
     <string name="ManageGroupActivity_legacy_group_learn_more">Dit is een verouderde groep. Om nieuwe functionaliteiten zoals groepsbeheer te kunnen gebruiken moet je een nieuwe groep aanmaken.</string>
     <string name="ManageGroupActivity_legacy_group_upgrade">Dit is een verouderde groep; om nieuwe functionaliteiten te kunnen gebruiken zoals @vermeldingen en beheerders,</string>
@@ -983,7 +992,7 @@
     <string name="ManageProfileFragment_your_username">Je gebruikersnaam</string>
     <string name="ManageProfileFragment_failed_to_set_avatar">Instellen van profielfoto is mislukt</string>
     <string name="ManageProfileFragment_badges">Badges</string>
-    <string name="ManageProfileFragment__edit_photo">Profielfoto aanpassen</string>
+    <string name="ManageProfileFragment__edit_photo">Profielfoto bewerken</string>
     <!-- Snackbar message after creating username -->
     <string name="ManageProfileFragment__username_created">Gebruikersnaam gecreëerd.</string>
     <!-- Snackbar message after copying username -->
@@ -1104,7 +1113,7 @@
     <string name="ImageEditorHud_draw_to_blur_additional_faces_or_areas">Teken om meer gezichten of gebieden te vervagen</string>
 
     <!-- InputPanel -->
-    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">Tik en houd vast om een audiobericht op te nemen, laat los om te verzenden</string>
+    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">Houd vast om audio op te nemen, laat los en verstuur</string>
     <!-- Message shown if the user tries to switch a conversation from Signal to SMS -->
     <string name="InputPanel__sms_messaging_is_no_longer_supported_in_signal">Sms-berichten worden niet langer ondersteund in Signal.</string>
     <!-- When editing a message, label shown above the text input field in the composer -->
@@ -1210,10 +1219,7 @@
     <string name="MessageQuotesBottomSheet_replies">Reacties</string>
 
     <!-- NotificationBarManager -->
-    <string name="NotificationBarManager_signal_call_in_progress">Je zit nog in een Signal-oproep</string>
     <string name="NotificationBarManager__establishing_signal_call">Signal-oproep aan het opzetten</string>
-    <string name="NotificationBarManager__incoming_signal_call">Inkomende Signal-oproep</string>
-    <string name="NotificationBarManager__incoming_signal_group_call">Binnenkomende Signal-groepsoproep</string>
     <!-- Temporary notification shown when starting the calling service -->
     <string name="NotificationBarManager__starting_signal_call_service">Signal-oproepen starten</string>
     <string name="NotificationBarManager__stopping_signal_call_service">Signal-oproep-ondersteuning wordt gestopt</string>
@@ -1383,14 +1389,14 @@
     <string name="MessageRecord_the_group_group_avatar_has_been_changed">De groepsafbeelding is aangepast.</string>
 
     <!-- GV2 attribute access level change -->
-    <string name="MessageRecord_you_changed_who_can_edit_group_info_to_s">Je hebt de instelling voor wie de groepsinformatie kan wijzigen op ‘%1$s’ ingesteld.</string>
-    <string name="MessageRecord_s_changed_who_can_edit_group_info_to_s">%1$s heeft de instelling voor wie de groepsinformatie kan wijzigen op ‘%2$s’ ingesteld.</string>
-    <string name="MessageRecord_who_can_edit_group_info_has_been_changed_to_s">De instelling voor wie de groepsinformatie kan aanpassen is op ‘%1$s’ ingesteld.</string>
+    <string name="MessageRecord_you_changed_who_can_edit_group_info_to_s">Je hebt de instelling voor wie de groepsinformatie kan bewerken op ‘%1$s’ ingesteld.</string>
+    <string name="MessageRecord_s_changed_who_can_edit_group_info_to_s">%1$s heeft de instelling voor wie de groepsinformatie kan bewerken op ‘%2$s’ ingesteld.</string>
+    <string name="MessageRecord_who_can_edit_group_info_has_been_changed_to_s">De instelling voor wie de groepsinformatie kan bewerken is op ‘%1$s’ ingesteld.</string>
 
     <!-- GV2 membership access level change -->
-    <string name="MessageRecord_you_changed_who_can_edit_group_membership_to_s">Je hebt de instelling voor wie de groepslidmaatschap kan aanpassen op ‘%1$s’ ingesteld.</string>
-    <string name="MessageRecord_s_changed_who_can_edit_group_membership_to_s">%1$s heeft de instelling voor wie de groepslidmaatschap kan aanpassen op ‘%2$s’ ingesteld.</string>
-    <string name="MessageRecord_who_can_edit_group_membership_has_been_changed_to_s">De instelling voor wie de groepslidmaatschap kan aanpassen is op ‘%1$s’ ingesteld.</string>
+    <string name="MessageRecord_you_changed_who_can_edit_group_membership_to_s">Je hebt de instelling voor wie de groepslidmaatschap kan bewerken op ‘%1$s’ ingesteld.</string>
+    <string name="MessageRecord_s_changed_who_can_edit_group_membership_to_s">%1$s heeft de instelling voor wie de groepslidmaatschap kan bewerken op ‘%2$s’ ingesteld.</string>
+    <string name="MessageRecord_who_can_edit_group_membership_has_been_changed_to_s">De instelling voor wie de groepslidmaatschap kan bewerken is op ‘%1$s’ ingesteld.</string>
 
     <!-- GV2 announcement group change -->
     <string name="MessageRecord_you_allow_all_members_to_send">Je hebt de groepsinstellingen aangepast om alle groepsleden de mogelijkheid te geven om berichten te verzenden en oproepen te beginnen.</string>
@@ -1477,12 +1483,14 @@
 
     <!-- Group Calling update messages -->
     <string name="MessageRecord_s_started_a_group_call_s">%1$s heeft een groepsoproep gestart · %2$s</string>
+    <string name="MessageRecord_you_started_a_group_call_s">Je hebt een groepsoproep gestart · %1$s</string>
     <string name="MessageRecord_s_is_in_the_group_call_s">%1$s is in deze groepsoproep aanwezig · %2$s</string>
     <string name="MessageRecord_you_are_in_the_group_call_s1">Je neemt deel aan een groepsoproep · %1$s</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s en %2$s zijn in deze groepsoproep aanwezig · %3$s</string>
     <string name="MessageRecord_group_call_s">Groepsoproep · %1$s</string>
 
     <string name="MessageRecord_s_started_a_group_call">%1$s heeft een groepsoproep gestart</string>
+    <string name="MessageRecord_you_started_a_group_call">Je hebt een groepsoproep gestart</string>
     <string name="MessageRecord_s_is_in_the_group_call">%1$s is in deze groepsoproep aanwezig</string>
     <string name="MessageRecord_you_are_in_the_group_call">Je neemt deel aan de groepsoproep</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s en %2$s zijn in deze groepsoproep aanwezig</string>
@@ -1620,8 +1628,8 @@
         <item quantity="other">Je hebt nog %1$d pogingen resterend. Wanneer je geen pogingen meer over hebt, dan kun je nog wel een nieuwe pincode aanmaken. Je kunt Signal dan wel weer registreren met dit telefoonnummer, maar sommige instellingen zoals je profielnaam, -foto en -omschrijving zullen dan verloren gaan.</item>
     </plurals>
     <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signal-registratratie - Ik heb hulp nodig bij de Signal-pincode op een Android apparaat</string>
-    <string name="PinRestoreEntryFragment_enter_alphanumeric_pin">Een alfanumerieke pincode invoeren</string>
-    <string name="PinRestoreEntryFragment_enter_numeric_pin">Een numerieke pincode invoeren</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="PinRestoreEntryFragment_switch_keyboard">Toetsenbord wisselen</string>
 
     <!-- PinRestoreLockedFragment -->
     <string name="PinRestoreLockedFragment_create_your_pin">Pincode aanmaken</string>
@@ -1833,7 +1841,7 @@
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">Er wordt een verificatiecode naar dit nummer gestuurd. Providertarieven kunnen van toepassing zijn.</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Je zal gebeld worden om dit telefoonnummer te verifiëren.</string>
     <string name="RegistrationActivity_is_your_phone_number_above_correct">Is je telefoonnummer hierboven correct?</string>
-    <string name="RegistrationActivity_edit_number">Telefoonnummer wijzigen</string>
+    <string name="RegistrationActivity_edit_number">Telefoonnummer bewerken</string>
     <string name="RegistrationActivity_missing_google_play_services">De Google Play Services zijn niet aanwezig</string>
     <string name="RegistrationActivity_this_device_is_missing_google_play_services">Dit apparaat bevat geen Google Play Services. Je kunt Signal nog steeds gebruiken, maar deze configuratie kan de betrouwbaarheid en prestaties verslechteren.\n\nAls je geen gevorderde gebruiker bent, geen aangepaste ROM gebruikt of denkt dat dit bericht onterecht wordt weergegeven, neem dan contact op met support@signal.org voor hulp met probleemoplossen.</string>
     <string name="RegistrationActivity_i_understand">Ik begrijp het</string>
@@ -1846,6 +1854,10 @@
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Je hebt te vaak geprobeerd dit nummer te registreren. Probeer het opnieuw over %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Het lukt niet om te verbinden met Signals servers. Ga na dat je apparaat met het internet is verbonden en probeer het opnieuw.</string>
+    <!-- A description text for an alert dialog where we do not or can not explain the error to the user. -->
+    <string name="RegistrationActivity_generic_error">Er is een onverwachte fout opgetreden.</string>
+    <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
+    <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">We konden je geen verificatiecode sturen via sms. Probeer in plaats daarvan je code via een spraakoproep te ontvangen.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">Kan geen verificatiecode aanvragen. Ga na dat je apparaat met het internet is verbonden en probeer het opnieuw.</string>
     <string name="RegistrationActivity_non_standard_number_format">Afwijkend telefoonnummerformaat</string>
@@ -1864,6 +1876,10 @@
     <string name="RegistrationActivity_we_need_to_verify_that_youre_human">Signal moet verifiëren dat je een mens bent.</string>
     <!-- An error shown when the request was valid, but due to an issue with a partner vendor, the server is unable to send an SMS code -->
     <string name="RegistrationActivity_external_service_error">Signal kon geen sms-code versturen vanwege een externe storing.</string>
+    <!-- Button label to trigger a phone call to provide the registration code, in lieu of an SMS code -->
+    <string name="RegistrationActivity_voice_call">Audio-oproep</string>
+    <!-- Dialog button to cancel the pending action and return to the previous state. -->
+    <string name="RegistrationActivity_cancel">Annuleren</string>
     <string name="RegistrationActivity_next">Volgende</string>
     <string name="RegistrationActivity_continue">Doorgaan</string>
     <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Neem je privacy met je mee.\nWees jezelf in elk bericht.</string>
@@ -1981,7 +1997,7 @@
     <string name="StickerPackPreviewActivity_failed_to_load_sticker_pack">Laden van stickerpakket mislukt</string>
 
     <!-- SubmitDebugLogActivity -->
-    <string name="SubmitDebugLogActivity_edit">Aanpassen</string>
+    <string name="SubmitDebugLogActivity_edit">Bewerken</string>
     <string name="SubmitDebugLogActivity_done">Klaar</string>
     <!-- Menu option to save a debug log file to disk. -->
     <string name="SubmitDebugLogActivity_save">Bijlage opslaan</string>
@@ -2299,7 +2315,8 @@
 
     <!-- WebRtcCallActivity -->
     <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone">Je moet Signal toestaan om de microfoon te gebruiken voor je de oproep kunt beantwoorden.</string>
-    <string name="WebRtcCallActivity_to_answer_the_call_from_s_give_signal_access_to_your_microphone">Geef Signal toegang tot je microfoon om de oproep van %1$s te beantwoorden.</string>
+    <!-- Message shown in permission dialog when attempting to answer a video call without camera or microphone permissions already granted. -->
+    <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone_and_camera">Geef Signal toegang tot je microfoon en camera om de video-oproep te beantwoorden.</string>
     <string name="WebRtcCallActivity_signal_requires_microphone_and_camera_permissions_in_order_to_make_or_receive_calls">Signal heeft toegang nodig tot de microfoon en de camera om oproepen te maken of te ontvangen, maar deze toegang is pertinent geweigerd. Ga naar de instellingen voor deze app, tik op ‘Machtigingen’ en schakel ‘Microfoon’ en ‘Camera’ in.</string>
     <string name="WebRtcCallActivity__answered_on_a_linked_device">Beantwoord vanaf een gekoppeld apparaat.</string>
     <string name="WebRtcCallActivity__declined_on_a_linked_device">Geweigerd vanaf een gekoppeld apparaat.</string>
@@ -2327,7 +2344,9 @@
     <string name="WebRtcAudioOutputToggle__speaker">Luid­spreker</string>
     <!-- Audio output option referring to an external audio device connected via wireless Bluetooth -->
     <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth</string>
-    <!-- Audio output option referring to an external headset connected via a 3.5mm headphone jack -->
+    <!-- Audio output option referring to a pair of headphones that do not contain a microphone connected via a 3.5mm headphone jack -->
+    <string name="WebRtcAudioOutputToggle__wired_headphones">Bedrade hoofdtelefoon</string>
+    <!-- Audio output option referring to an external headset that contains a microphone connected via a 3.5mm headphone jack -->
     <string name="WebRtcAudioOutputToggle__wired_headset">Bedrade headset</string>
     <!-- Audio output option referring to an external headset connected via a USB-C data cable -->
     <string name="WebRtcAudioOutputToggle__wired_headset_usb">Bedrade headset (USB)</string>
@@ -2660,7 +2679,7 @@
     <string name="EditAboutFragment_working_on_something_new">Ik werk aan iets nieuws</string>
 
     <!-- EditProfileFragment -->
-    <string name="EditProfileFragment__edit_group">Groep aanpassen</string>
+    <string name="EditProfileFragment__edit_group">Groep bewerken</string>
     <string name="EditProfileFragment__group_name">Groepsnaam</string>
     <string name="EditProfileFragment__group_description">Groepsomschrijving</string>
   <!-- Removed by excludeNonTranslatables <string name="EditProfileFragment__support_link" translatable="false">https://support.signal.org/hc/articles/360007459591</string> -->
@@ -3000,7 +3019,7 @@
     <string name="preferences_communication__censorship_circumvention_can_only_be_activated_when_connected_to_the_internet">Censuuromzeiling kan alleen worden ingeschakeld als je apparaat met het internet is verbonden.</string>
     <string name="preferences_communication__category_sealed_sender">Verzegelde afzender</string>
     <string name="preferences_communication__sealed_sender_allow_from_anyone">Van iedereen toestaan</string>
-    <string name="preferences_communication__sealed_sender_allow_from_anyone_description">Sta toe dat je berichten met een verzegelde afzender ontvangt welke afkomstig zijn van personen naar wie je nog nooit een bericht hebt verzonden en ook nooit mee in hetzelfde groepsgesprek zat. Hierdoor kunnen Signals servers nog iets minder zien, maar dit verhoogt de kans dat je ongewenste berichten ontvangt.</string>
+    <string name="preferences_communication__sealed_sender_allow_from_anyone_description">Sta toe dat je berichten met een verzegelde afzender ontvangt welke afkomstig zijn van personen naar wie je nog nooit een bericht hebt verzonden en ook nooit mee in hetzelfde groepsgesprek zat.</string>
     <string name="preferences_communication__sealed_sender_learn_more">Meer leren hierover</string>
     <string name="preferences_setup_a_username">Gebruikersnaam aanmaken</string>
     <string name="preferences_proxy">Proxy</string>
@@ -3042,7 +3061,7 @@
     <string name="PaymentsAllActivityFragment__received">Ontvangen</string>
 
     <string name="PaymentsHomeFragment__introducing_payments">Signal introduceert overschrijvingen (Bèta)</string>
-    <string name="PaymentsHomeFragment__use_signal_to_send_and_receive">Je kunt Signal ook gebruiken om een nieuw privacygericht betaalmiddel genaamd MobileCoin te verzenden en ontvangen. Als je dat wilt, schakel dan overschrijvingen in.</string>
+    <string name="PaymentsHomeFragment__use_signal_to_send_and_receive">Je kunt Signal ook gebruiken om een nieuwe privacygerichte valuta genaamd MobileCoin te versturen en ontvangen. Activeer om te beginnen.</string>
     <string name="PaymentsHomeFragment__activate_payments">Overschrijvingen inschakelen</string>
     <string name="PaymentsHomeFragment__activating_payments">Overschrijvingen aan het inschakelen …</string>
     <string name="PaymentsHomeFragment__restore_payments_account">Overschrijvingen-account herstellen</string>
@@ -3275,7 +3294,7 @@
     <!-- Button to reply to a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
     <string name="conversation_selection__menu_reply">Reageren</string>
     <!-- Button to edit a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
-    <string name="conversation_selection__menu_edit">Aanpassen</string>
+    <string name="conversation_selection__menu_edit">Bewerken</string>
     <!-- Button to save a message attachment (image, file etc.); Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_save">Bijlage opslaan</string>
     <!-- Button to retry sending a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
@@ -3326,6 +3345,8 @@
     <string name="conversation__menu_conversation_settings">Chatinstellingen</string>
     <string name="conversation__menu_add_shortcut">Aan thuisscherm toevoegen</string>
     <string name="conversation__menu_create_bubble">Bubbel aanmaken</string>
+    <!-- Overflow menu option that allows formatting of text -->
+    <string name="conversation__menu_format_text">Tekstopmaak</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">Pop-up vergroten</string>
@@ -3383,7 +3404,7 @@
 
     <!-- media_preview -->
     <string name="media_preview__save_title">Opslaan</string>
-    <string name="media_preview__edit_title">Aanpassen</string>
+    <string name="media_preview__edit_title">Bewerken</string>
 
 
     <!-- media_preview_activity -->
@@ -3424,7 +3445,9 @@
 
     <!-- BaseKbsPinFragment -->
     <string name="BaseKbsPinFragment__next">Volgende</string>
+    <!-- Button label to prompt them to create a password ("PIN") using numbers and letters rather than only numbers. -->
     <string name="BaseKbsPinFragment__create_alphanumeric_pin">Alfanumerieke pincode aanmaken</string>
+    <!-- Button label to prompt them to return to creating a numbers-only password ("PIN") -->
     <string name="BaseKbsPinFragment__create_numeric_pin">Numerieke pincode aanmaken</string>
   <!-- Removed by excludeNonTranslatables <string name="BaseKbsPinFragment__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
 
@@ -3486,8 +3509,8 @@
     <string name="RegistrationLockFragment__enter_the_pin_you_created">Voer de pincode in welke je eerder hebt aangemaakt om informatie versleuteld op te slaan op Signals servers. Dit is niet dezelfde code als de telefoonnummerverificatie-code die je per sms of telefoonoproep hebt ontvangen.</string>
     <!-- Info text shown above a pin entry text box describing what pin they should be entering. -->
     <string name="RegistrationLockFragment__enter_the_pin_you_created_for_your_account">Voer de pincode in die je voor je account hebt gemaakt.</string>
-    <string name="RegistrationLockFragment__enter_alphanumeric_pin">Een alfanumerieke pincode invoeren</string>
-    <string name="RegistrationLockFragment__enter_numeric_pin">Een numerieke pincode invoeren</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="RegistrationLockFragment__switch_keyboard">Toetsenbord wisselen</string>
     <string name="RegistrationLockFragment__incorrect_pin_try_again">Foutieve pincode, probeer het opnieuw.</string>
     <string name="RegistrationLockFragment__forgot_pin">Pincode vergeten?</string>
     <string name="RegistrationLockFragment__incorrect_pin">Foutieve pincode</string>
@@ -3527,6 +3550,20 @@
     <string name="KbsMegaphone__create_a_pin">Een pincode aanmaken</string>
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">Met een pincode wordt informatie versleuteld voor die wordt opgeslagen op Signals servers. Zelfs Signals ontwikkelaars kunnen je informatie niet inzien.</string>
     <string name="KbsMegaphone__create_pin">Pincode aanmaken</string>
+
+    <!-- CallNotificationBuilder -->
+    <!-- Displayed in a notification when a Signal voice call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_voice_call">Inkomende Signal-spraakoproep</string>
+    <!-- Displayed in a notification when a Signal video call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_video_call">Inkomende Signal-video-oproep</string>
+    <!-- Displayed in a notification when a Signal group call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_group_call">Binnenkomende Signal-groepsoproep</string>
+    <!-- Displayed in a notification when a Signal voice call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_voice_call">Lopende Signal-spraakoproep</string>
+    <!-- Displayed in a notification when a Signal video call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_video_call">Lopende Signal-video-oproep</string>
+    <!-- Displayed in a notification when a Signal group call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_group_call">Lopende Signal-groepsoproep</string>
 
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">Transportmethodepictogram</string>
@@ -3802,7 +3839,7 @@
     <string name="RecipientBottomSheet_remove_from_group">Uit de groep verwijderen</string>
 
     <string name="RecipientBottomSheet_remove_s_as_group_admin">De beheerdersbevoegdheden van %1$s intrekken?</string>
-    <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">"“%1$s” zal de groepsinformatie en groepslidmaatschap kunnen aanpassen."</string>
+    <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">"“%1$s” zal de groepsinformatie en groepslidmaatschap kunnen bewerken."</string>
 
     <string name="RecipientBottomSheet_remove_s_from_the_group">%1$s uit deze groep verwijderen?</string>
     <!-- Dialog message shown when removing someone from a group with group link being active to indicate they will not be able to rejoin -->
@@ -4059,7 +4096,7 @@
 
     <!-- PaymentsRecoveryPhraseFragment -->
     <string name="PaymentsRecoveryPhraseFragment__next">Volgende</string>
-    <string name="PaymentsRecoveryPhraseFragment__edit">Aanpassen</string>
+    <string name="PaymentsRecoveryPhraseFragment__edit">Bewerken</string>
     <string name="PaymentsRecoveryPhraseFragment__your_recovery_phrase">Jouw herstel-zin</string>
     <string name="PaymentsRecoveryPhraseFragment__write_down_the_following_d_words">Schrijf de volgende %1$d woorden op in dezelfde volgorde en bewaar ze op een veilige plaats.</string>
     <string name="PaymentsRecoveryPhraseFragment__make_sure_youve_entered">Ga na dat je je zin juist hebt ingevuld.</string>
@@ -4200,7 +4237,7 @@
     <!-- ChangeNumberConfirmFragment -->
     <string name="ChangeNumberConfirmFragment__change_number">Telefoonnummer wijzigen</string>
     <string name="ChangeNumberConfirmFragment__you_are_about_to_change_your_phone_number_from_s_to_s">Je staat op het punt het telefoonnummer waarmee je geregistreerd staat te wijzigen van %1$s naar %2$s.\n\nGa na dat het telefoonnummer hieronder juist is voordat je verder gaat.</string>
-    <string name="ChangeNumberConfirmFragment__edit_number">Onjuist telefoonnummer aanpassen</string>
+    <string name="ChangeNumberConfirmFragment__edit_number">Onjuist telefoonnummer bewerken</string>
 
     <!-- ChangeNumberRegistrationLockFragment -->
     <string name="ChangeNumberRegistrationLockFragment__signal_change_number_need_help_with_pin_for_android_v2_pin">Telefoonnummer voor Signal veranderen - Hulp nodig bij met de pincode (pincode-versie 2)</string>
@@ -4342,7 +4379,7 @@
     <string name="ChatColorSelectionFragment__auto">Auto</string>
     <string name="ChatColorSelectionFragment__use_custom_colors">Zelfgekozen kleur gebruiken</string>
     <string name="ChatColorSelectionFragment__chat_color">Chatkleur</string>
-    <string name="ChatColorSelectionFragment__edit">Aanpassen</string>
+    <string name="ChatColorSelectionFragment__edit">Bewerken</string>
     <string name="ChatColorSelectionFragment__duplicate">Kopie maken</string>
     <string name="ChatColorSelectionFragment__delete">Wissen</string>
     <string name="ChatColorSelectionFragment__delete_color">Kleur wissen</string>
@@ -4360,7 +4397,7 @@
 
     <!-- CustomChatColorCreatorFragmentPage -->
     <string name="CustomChatColorCreatorFragmentPage__save">Opslaan</string>
-    <string name="CustomChatColorCreatorFragmentPage__edit_color">Kleur aanpassen</string>
+    <string name="CustomChatColorCreatorFragmentPage__edit_color">Kleur bewerken</string>
     <plurals name="CustomChatColorCreatorFragmentPage__this_color_is_used">
         <item quantity="one">Deze kleur wordt in %1$d chat gebruikt. Wil je de wijziging ook op dat chat toepassen?</item>
         <item quantity="other">Deze kleur wordt in %1$d chats gebruikt. Wil je de wijziging ook op die chats toepassen?</item>
@@ -4468,12 +4505,12 @@
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">Groepsleden toevoegen</string>
-    <string name="PermissionsSettingsFragment__edit_group_info">Groepsinformatie aanpassen</string>
+    <string name="PermissionsSettingsFragment__edit_group_info">Groepsinformatie bewerken</string>
     <string name="PermissionsSettingsFragment__send_messages">Berichten verzenden &amp; oproepen beginnen</string>
     <string name="PermissionsSettingsFragment__all_members">Alle groepsleden</string>
     <string name="PermissionsSettingsFragment__only_admins">Uitsluitend beheerders</string>
     <string name="PermissionsSettingsFragment__who_can_add_new_members">Wie mogen nieuwe leden toevoegen?</string>
-    <string name="PermissionsSettingsFragment__who_can_edit_this_groups_info">Wie mogen de groepsinformatie aanpassen?</string>
+    <string name="PermissionsSettingsFragment__who_can_edit_this_groups_info">Wie mogen de groepsinformatie bewerken?</string>
     <string name="PermissionsSettingsFragment__who_can_send_messages">Wie mogen berichten verzenden en oproepen beginnen?</string>
 
     <!-- SoundsAndNotificationsSettingsFragment -->
@@ -4614,7 +4651,7 @@
     <string name="ImageEditorHud__write_text">Schrijf tekst</string>
     <string name="ImageEditorHud__add_a_sticker">Een sticker toevoegen</string>
     <string name="ImageEditorHud__blur">Vervagen</string>
-    <string name="ImageEditorHud__done_editing">Aanpassingen klaar</string>
+    <string name="ImageEditorHud__done_editing">Bewerkingen klaar</string>
     <string name="ImageEditorHud__clear_all">Alles wissen</string>
     <string name="ImageEditorHud__undo">Ongedaan maken</string>
     <string name="ImageEditorHud__toggle_between_marker_and_highlighter">Schakelen tussen stift en markeerstift</string>
@@ -4875,7 +4912,7 @@
     <!-- Call to action button once the profile name is edited -->
     <string name="EditNotificationProfileFragment__save">Opslaan</string>
     <!-- Title of edit notification profile screen -->
-    <string name="EditNotificationProfileFragment__edit_this_profile">Dit meldingsprofiel aanpassen</string>
+    <string name="EditNotificationProfileFragment__edit_this_profile">Dit meldingsprofiel bewerken</string>
     <!-- Error message shown when attempting to create or edit a profile name to an existing profile name -->
     <string name="EditNotificationProfileFragment__a_profile_with_this_name_already_exists">Er bestaat al een meldingsprofiel met deze naam</string>
     <!-- Preset selectable name for a profile name, shown as list in edit/create screen -->
@@ -4921,7 +4958,7 @@
     <!-- Dialog button to delete profile -->
     <string name="NotificationProfileDetails__delete">Wissen</string>
     <!-- Title/accessibility text for edit icon to edit profile emoji/name -->
-    <string name="NotificationProfileDetails__edit_notification_profile">Meldingsprofiel aanpassen</string>
+    <string name="NotificationProfileDetails__edit_notification_profile">Meldingsprofiel bewerken</string>
     <!-- Schedule description if all days are selected -->
     <string name="NotificationProfileDetails__everyday">Elke dag</string>
     <!-- Profile status on if it is the active profile -->
@@ -5231,7 +5268,7 @@
     <!-- Dialog title when deleting a custom story -->
     <!-- Dialog message when deleting a custom story -->
     <!-- Page title for editing a custom story name -->
-    <string name="EditPrivateStoryNameFragment__edit_story_name">Verhaalnaam wijzigen</string>
+    <string name="EditPrivateStoryNameFragment__edit_story_name">Verhaalnaam bewerken</string>
     <!-- Input field hint when editing a custom story name -->
     <string name="EditPrivateStoryNameFragment__story_name">Verhaalnaam</string>
     <!-- Save button label when editing a custom story name -->
@@ -5886,6 +5923,8 @@
     <string name="TextFormatting_monospace">Monospace</string>
     <!-- Popup menu label for applying spoiler style -->
     <string name="TextFormatting_spoiler">Spoiler</string>
+    <!-- Popup menu label for clearing applied formatting -->
+    <string name="TextFormatting_clear_formatting">Opmaak wissen</string>
 
     <!-- UsernameEducationFragment -->
     <!-- Continue button which takes the user to the add a username screen -->
@@ -5952,6 +5991,23 @@
     <string name="CallContextMenu__delete">Wissen</string>
 
     <!-- Call Log Fragment -->
+    <!-- Displayed when deleting call history items -->
+    <string name="CallLogFragment__deleting">Wissen…</string>
+    <!-- Displayed in a toast when a deletion fails for an unknown reason -->
+    <string name="CallLogFragment__deletion_failed">Wissen mislukt.</string>
+    <!-- Displayed as message in error dialog when can\'t delete links -->
+    <plurals name="CallLogFragment__cant_delete_call_link">
+        <item quantity="one">Link kan niet gewist worden. Controleer je verbinding en probeer het opnieuw.</item>
+        <item quantity="other">Niet alle oproeplinks konden gewist worden. Controleer je verbinding en probeer het opnieuw.</item>
+    </plurals>
+    <!-- Snackbar text after clearing the call history -->
+    <string name="CallLogFragment__cleared_call_history">Oproepgeschiedenis gewist</string>
+    <!-- Dialog title to clear all call events -->
+    <string name="CallLogFragment__clear_call_history_question">Oproepgeschiedenis wissen?</string>
+    <!-- Dialog body to clear all call events -->
+    <string name="CallLogFragment__this_will_permanently_delete_all_call_history">Hiermee wordt de oproepgeschiedenis voorgoed verwijderd</string>
+    <!-- Action bar menu item to delete all call events -->
+    <string name="CallLogFragment__clear_call_history">Wis oproepgeschiedenis</string>
     <!-- Action bar menu item to only display missed calls -->
     <string name="CallLogFragment__filter_missed_calls">Gemiste oproepen filteren</string>
     <!-- Action bar menu item to clear missed call filter -->
@@ -5966,14 +6022,12 @@
     <string name="CallLogFragment__filtered_by_missed">Gefilterd op gemist</string>
     <!-- Bottom bar option to select all call entries -->
     <string name="CallLogFragment__select_all">Alles selecteren</string>
-    <!-- Bottom bar option to delete all selected call entries -->
+    <!-- Bottom bar option to delete all selected call entries and dialog action to confirm deletion -->
     <string name="CallLogFragment__delete">Wissen</string>
     <plurals name="CallLogFragment__delete_d_calls">
         <item quantity="one">%1$d oproep verwijderen?</item>
         <item quantity="other">%1$d oproepen verwijderen?</item>
     </plurals>
-    <!-- Positive action on multi-delete protection dialog -->
-    <string name="CallLogFragment__delete_for_me">Voor mij wissen</string>
     <!-- Snackbar label after deleting call logs -->
     <plurals name="CallLogFragment__d_calls_deleted">
         <item quantity="one">%1$d oproep verwijderd</item>
@@ -6064,7 +6118,16 @@
     <string name="ChooseNavigationBarStyleFragment__compact">Compact</string>
 
     <!-- Title shown at top of bottom sheet dialog for displaying a message\'s edit history -->
-    <string name="EditMessageHistoryDialog_title">Bewerkgeschiedenis</string>
+    <string name="EditMessageHistoryDialog_title">Bewerkingsgeschiedenis</string>
+    <!-- Title of dialog shown alerting user that edit message is in beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_title">Alleen Signal-bèta</string>
+    <!-- Body of dialog shown alerting user that edit message is in beta only and only sent to beta users. -->
+    <string name="SendingEditMessageBetaOnlyDialog_body">Berichten bewerken is alleen beschikbaar voor gebruikers van Signal-bèta. Als je een bericht bewerkt, is dat alleen zichtbaar voor gebruikers van de laatste versie van Signal-bèta.</string>
+    <!-- Button to cancel sending edit message as it is beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_cancel">Annuleren</string>
+    <!-- Button to continue sending edit message despite it being beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_send">Verzend</string>
+
 
     <!-- CallLinkDetailsFragment -->
     <!-- Displayed in action bar at the top of the fragment -->

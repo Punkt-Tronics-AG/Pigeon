@@ -236,6 +236,8 @@
     <string name="CommunicationActions_call">Soita</string>
     <string name="CommunicationActions_insecure_call">Salaamaton puhelu</string>
     <string name="CommunicationActions_carrier_charges_may_apply">Operaattori saattaa veloittaa palvelusta. Valitsemaasi numeroa ei ole rekisteröity Signaliin. Tämä puhelu tehdään matkapuhelinoperaattorisi kautta, ei internetin kautta.</string>
+    <string name="CommunicationActions_cant_join_call">Puheluun liittyminen ei onnistu</string>
+    <string name="CommunicationActions_this_call_link_is_no_longer_valid">Tämä puhelulinkki ei ole enää kelvollinen.</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -315,7 +317,9 @@
     <!-- Dialog error message shown when user can\'t download a their own video message via a linked device due to a permanent failure (e.g., unable to decrypt) -->
     <string name="ConversationItem_cant_download_video_you_will_need_to_send_it_again">Videota ei voi ladata. Sinun on lähetettävä se uudelleen.</string>
     <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp will go from \'11m\' to \'edited 11m\' -->
-    <string name="ConversationItem_edited_timestamp_footer">muokattu %1$s</string>
+    <string name="ConversationItem_edited_timestamp_footer">Muokattu %1$s</string>
+    <!-- Displayed if the link preview in the conversation item is for a call link call -->
+    <string name="ConversationItem__join_call">Liity puheluun</string>
 
     <!-- ConversationActivity -->
     <string name="ConversationActivity_add_attachment">Lisää liite</string>
@@ -503,6 +507,9 @@
     <string name="ConversationFragment__content_description_back_button">Siirry takaisin.</string>
     <!-- Label for a button displayed in the conversation toolbar to open the main screen of the app. -->
     <string name="ConversationFragment__content_description_launch_signal_button">Avaa Signal</string>
+    <!-- Dialog title shown when more than one contact in a group conversation is no longer verified -->
+    <string name="ConversationFragment__no_longer_verified">Ei enää varmennettu</string>
+
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Tyhjennä suodatin</string>
     <!-- Notice on chat list when no unread chats are available, centered on display -->
@@ -876,6 +883,8 @@
     <string name="LinkPreviewView_no_link_preview_available">Linkin esikatselu ei ole saatavilla</string>
     <string name="LinkPreviewView_this_group_link_is_not_active">Tämä ryhmälinkki ei ole aktiivinen</string>
     <string name="LinkPreviewView_domain_date">%1$s · %2$s</string>
+    <!-- Description for Call Link url previews -->
+    <string name="LinkPreviewView__use_this_link_to_join_a_signal_call">Liity Signal-puheluun tämän linkin avulla</string>
 
     <!-- LinkPreviewRepository -->
     <plurals name="LinkPreviewRepository_d_members">
@@ -1104,7 +1113,7 @@
     <string name="ImageEditorHud_draw_to_blur_additional_faces_or_areas">Sumenna kasvoja tai alueita piirtämällä</string>
 
     <!-- InputPanel -->
-    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">Nauhoita ääniviesti napauttamalla pitkään, lähetä päästämällä irti</string>
+    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">Tallenna ääniviesti painamalla, lähetä vapauttamalla</string>
     <!-- Message shown if the user tries to switch a conversation from Signal to SMS -->
     <string name="InputPanel__sms_messaging_is_no_longer_supported_in_signal">Signal ei enää tue tekstiviestejä.</string>
     <!-- When editing a message, label shown above the text input field in the composer -->
@@ -1210,10 +1219,7 @@
     <string name="MessageQuotesBottomSheet_replies">Vastaukset</string>
 
     <!-- NotificationBarManager -->
-    <string name="NotificationBarManager_signal_call_in_progress">Signal-puhelu käynnissä</string>
     <string name="NotificationBarManager__establishing_signal_call">Muodostetaan Signal-puhelua</string>
-    <string name="NotificationBarManager__incoming_signal_call">Saapuva Signal-puhelu</string>
-    <string name="NotificationBarManager__incoming_signal_group_call">Saapuva Signal-ryhmäpuhelu</string>
     <!-- Temporary notification shown when starting the calling service -->
     <string name="NotificationBarManager__starting_signal_call_service">Käynnistetään Signalin puhelupalvelu</string>
     <string name="NotificationBarManager__stopping_signal_call_service">Pysäytetään Signalin puhelupalvelua</string>
@@ -1477,12 +1483,14 @@
 
     <!-- Group Calling update messages -->
     <string name="MessageRecord_s_started_a_group_call_s">%1$s aloitti ryhmäpuhelun · %2$s</string>
+    <string name="MessageRecord_you_started_a_group_call_s">Aloitit ryhmäpuhelun · %1$s</string>
     <string name="MessageRecord_s_is_in_the_group_call_s">%1$s on ryhmäpuhelussa · %2$s</string>
     <string name="MessageRecord_you_are_in_the_group_call_s1">Olet ryhmäpuhelussa · %1$s</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s ja %2$s ovat ryhmäpuhelussa · %3$s</string>
     <string name="MessageRecord_group_call_s">Ryhmäpuhelu · %1$s</string>
 
     <string name="MessageRecord_s_started_a_group_call">%1$s aloitti ryhmäpuhelun</string>
+    <string name="MessageRecord_you_started_a_group_call">Aloitit ryhmäpuhelun</string>
     <string name="MessageRecord_s_is_in_the_group_call">%1$s on ryhmäpuhelussa</string>
     <string name="MessageRecord_you_are_in_the_group_call">Olet ryhmäpuhelussa</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s ja %2$s ovat ryhmäpuhelussa</string>
@@ -1620,8 +1628,8 @@
         <item quantity="other">Sinulla on %1$d yritystä jäljellä. Jos yritykset loppuvat, voit luoda uuden tunnusluvun. Voit rekisteröidä ja käyttää tiliäsi, mutta menetät tallennetut asetukset, kuten profiilitietosi.</item>
     </plurals>
     <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signalin rekisteröinti - Tarvitsen apua tunnusluvun kanssa Androidilla</string>
-    <string name="PinRestoreEntryFragment_enter_alphanumeric_pin">Syötä aakkosnumeerinen tunnusluku</string>
-    <string name="PinRestoreEntryFragment_enter_numeric_pin">Syötä numeerinen tunnusluku</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="PinRestoreEntryFragment_switch_keyboard">Vaihda näppäimistöä</string>
 
     <!-- PinRestoreLockedFragment -->
     <string name="PinRestoreLockedFragment_create_your_pin">Valitse tunnusluku</string>
@@ -1846,6 +1854,10 @@
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Olet yrittänyt rekisteröidä tämän numeron liian monta kertaa. Yritä uudelleen, kun on kulunut %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Yhteyttä ei voitu muodostaa palveluun. Tarkista verkkoyhteytesi ja yritä uudelleen.</string>
+    <!-- A description text for an alert dialog where we do not or can not explain the error to the user. -->
+    <string name="RegistrationActivity_generic_error">Tapahtui odottamaton virhe.</string>
+    <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
+    <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">Emme voineet lähettää sinulle vahvistuskoodia tekstiviestillä. Yritä sen sijaan vastaanottaa koodi äänipuhelun välityksellä.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">Vahvistuskoodia ei voida pyytää. Tarkista verkkoyhteys ja yritä uudelleen.</string>
     <string name="RegistrationActivity_non_standard_number_format">Epästandardi numeron muoto</string>
@@ -1864,6 +1876,10 @@
     <string name="RegistrationActivity_we_need_to_verify_that_youre_human">Meidän on varmistettava, että olet ihminen.</string>
     <!-- An error shown when the request was valid, but due to an issue with a partner vendor, the server is unable to send an SMS code -->
     <string name="RegistrationActivity_external_service_error">Signal ei voinut lähettää tekstiviestikoodia ulkoisen virheen takia.</string>
+    <!-- Button label to trigger a phone call to provide the registration code, in lieu of an SMS code -->
+    <string name="RegistrationActivity_voice_call">Äänipuhelu</string>
+    <!-- Dialog button to cancel the pending action and return to the previous state. -->
+    <string name="RegistrationActivity_cancel">Peruuta</string>
     <string name="RegistrationActivity_next">Seuraava</string>
     <string name="RegistrationActivity_continue">Jatka</string>
     <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Yksityisyys aina mukana.\nOle itsesi jokaisessa viestissä.</string>
@@ -2299,7 +2315,8 @@
 
     <!-- WebRtcCallActivity -->
     <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone">Jotta voit vastata puheluun, anna Signalille lupa käyttää mikrofonia.</string>
-    <string name="WebRtcCallActivity_to_answer_the_call_from_s_give_signal_access_to_your_microphone">Jotta voit vastata yhteystiedon %1$s puheluun, anna Signalille lupa käyttää mikrofonia.</string>
+    <!-- Message shown in permission dialog when attempting to answer a video call without camera or microphone permissions already granted. -->
+    <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone_and_camera">Anna Signalille mikrofonin ja kameran käyttöoikeus, jotta voit vastata videopuheluun.</string>
     <string name="WebRtcCallActivity_signal_requires_microphone_and_camera_permissions_in_order_to_make_or_receive_calls">Signal tarvitsee luvan käyttää mikrofonia ja kameraa puheluiden soittamista ja vastaanottamista varten, mutta nämä käyttöoikeudet ovat pysyvästi evätty Signalilta. Voit muuttaa tätä menemällä sovellusten asetuksiin, valitsemalla \"Sovelluksen käyttöoikeudet\" ja laittamalla päälle \"Mikrofoni\" ja \"Kamera\".</string>
     <string name="WebRtcCallActivity__answered_on_a_linked_device">Vastattu yhdistetyllä laitteella.</string>
     <string name="WebRtcCallActivity__declined_on_a_linked_device">Hylätty yhdistetyllä laitteella.</string>
@@ -2327,7 +2344,9 @@
     <string name="WebRtcAudioOutputToggle__speaker">Kaiutin</string>
     <!-- Audio output option referring to an external audio device connected via wireless Bluetooth -->
     <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth</string>
-    <!-- Audio output option referring to an external headset connected via a 3.5mm headphone jack -->
+    <!-- Audio output option referring to a pair of headphones that do not contain a microphone connected via a 3.5mm headphone jack -->
+    <string name="WebRtcAudioOutputToggle__wired_headphones">Langalliset kuulokkeet</string>
+    <!-- Audio output option referring to an external headset that contains a microphone connected via a 3.5mm headphone jack -->
     <string name="WebRtcAudioOutputToggle__wired_headset">Langalliset kuulokkeet</string>
     <!-- Audio output option referring to an external headset connected via a USB-C data cable -->
     <string name="WebRtcAudioOutputToggle__wired_headset_usb">Langalliset kuulokkeet (USB)</string>
@@ -2885,13 +2904,13 @@
     <!-- Privacy settings payments section description -->
     <string name="preferences__payment_lock">Maksun lukitus</string>
     <string name="preferences__payments_beta">Maksut (Beta)</string>
-    <string name="preferences__conversation_length_limit">Keskustelun pituusrajoitus</string>
+    <string name="preferences__conversation_length_limit">Keskustelun viestien enimmäismäärä</string>
     <string name="preferences__keep_messages">Säilytä viestit</string>
     <string name="preferences__clear_message_history">Tyhjennä viestihistoria</string>
     <string name="preferences__linked_devices">Yhdistetyt laitteet</string>
     <string name="preferences__light_theme">Vaalea</string>
     <string name="preferences__dark_theme">Tumma</string>
-    <string name="preferences__appearance">Ulkonäkö</string>
+    <string name="preferences__appearance">Ulkoasu</string>
     <string name="preferences__theme">Teema</string>
     <string name="preferences__chat_color_and_wallpaper">Keskustelun väri ja taustakuva</string>
     <!-- Clickable settings text allowing the user to change the icon visible on their phone\'s home screen. -->
@@ -3042,7 +3061,7 @@
     <string name="PaymentsAllActivityFragment__received">Vastaanotettu</string>
 
     <string name="PaymentsHomeFragment__introducing_payments">Esittelyssä maksut (Beta)</string>
-    <string name="PaymentsHomeFragment__use_signal_to_send_and_receive">MobileCoin on uusi yksityisyyden suojaan keskittyvä digitaalinen valuutta, jota voit lähettää ja vastaanottaa Signalissa. Aloita ottamalla se käyttöön.</string>
+    <string name="PaymentsHomeFragment__use_signal_to_send_and_receive">Voit lähettää ja vastaanottaa Signalissa uutta, yksityisyyteen panostavaa digitaalista MobileCoin-valuuttaa. Aloita ottamalla se käyttöön.</string>
     <string name="PaymentsHomeFragment__activate_payments">Aktivoi maksut</string>
     <string name="PaymentsHomeFragment__activating_payments">Aktivoidaan maksut…</string>
     <string name="PaymentsHomeFragment__restore_payments_account">Palauta maksutili</string>
@@ -3326,6 +3345,8 @@
     <string name="conversation__menu_conversation_settings">Keskusteluasetukset</string>
     <string name="conversation__menu_add_shortcut">Lisätty kotinäytölle</string>
     <string name="conversation__menu_create_bubble">Luo kupla</string>
+    <!-- Overflow menu option that allows formatting of text -->
+    <string name="conversation__menu_format_text">Muotoile tekstiä</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">Suurenna ponnahdusikkuna</string>
@@ -3424,7 +3445,9 @@
 
     <!-- BaseKbsPinFragment -->
     <string name="BaseKbsPinFragment__next">Seuraava</string>
+    <!-- Button label to prompt them to create a password ("PIN") using numbers and letters rather than only numbers. -->
     <string name="BaseKbsPinFragment__create_alphanumeric_pin">Luo aakkosnumeerinen tunnusluku</string>
+    <!-- Button label to prompt them to return to creating a numbers-only password ("PIN") -->
     <string name="BaseKbsPinFragment__create_numeric_pin">Luo numeerinen tunnusluku</string>
   <!-- Removed by excludeNonTranslatables <string name="BaseKbsPinFragment__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
 
@@ -3486,8 +3509,8 @@
     <string name="RegistrationLockFragment__enter_the_pin_you_created">Syötä tilille valitsemasi tunnusluku. Se ei ole sama kuin saamasi tekstiviestivahvistuskoodi.</string>
     <!-- Info text shown above a pin entry text box describing what pin they should be entering. -->
     <string name="RegistrationLockFragment__enter_the_pin_you_created_for_your_account">Kirjoita PIN-koodi, jonka loit tiliäsi varten.</string>
-    <string name="RegistrationLockFragment__enter_alphanumeric_pin">Syötä aakkosnumeerinen tunnusluku</string>
-    <string name="RegistrationLockFragment__enter_numeric_pin">Syötä numeerinen tunnusluku</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="RegistrationLockFragment__switch_keyboard">Vaihda näppäimistöä</string>
     <string name="RegistrationLockFragment__incorrect_pin_try_again">Väärä tunnusluku, yritä uudelleen.</string>
     <string name="RegistrationLockFragment__forgot_pin">Unohditko tunnusluvun?</string>
     <string name="RegistrationLockFragment__incorrect_pin">Väärä tunnusluku</string>
@@ -3527,6 +3550,20 @@
     <string name="KbsMegaphone__create_a_pin">Luo tunnusluku</string>
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">Tunnusluvut pitävät Signaliin tallennetut tiedot salattuina</string>
     <string name="KbsMegaphone__create_pin">Luo tunnusluku</string>
+
+    <!-- CallNotificationBuilder -->
+    <!-- Displayed in a notification when a Signal voice call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_voice_call">Saapuva Signal-äänipuhelu</string>
+    <!-- Displayed in a notification when a Signal video call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_video_call">Saapuva Signal-videopuhelu</string>
+    <!-- Displayed in a notification when a Signal group call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_group_call">Saapuva Signal-ryhmäpuhelu</string>
+    <!-- Displayed in a notification when a Signal voice call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_voice_call">Signal-äänipuhelu käynnissä</string>
+    <!-- Displayed in a notification when a Signal video call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_video_call">Signal-videopuhelu käynnissä</string>
+    <!-- Displayed in a notification when a Signal group call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_group_call">Signal-ryhmäpuhelu käynnissä</string>
 
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">Tyypin kuvake</string>
@@ -5886,6 +5923,8 @@
     <string name="TextFormatting_monospace">Suhteuttamaton</string>
     <!-- Popup menu label for applying spoiler style -->
     <string name="TextFormatting_spoiler">Sumennus</string>
+    <!-- Popup menu label for clearing applied formatting -->
+    <string name="TextFormatting_clear_formatting">Poista muotoilu</string>
 
     <!-- UsernameEducationFragment -->
     <!-- Continue button which takes the user to the add a username screen -->
@@ -5952,6 +5991,23 @@
     <string name="CallContextMenu__delete">Poista</string>
 
     <!-- Call Log Fragment -->
+    <!-- Displayed when deleting call history items -->
+    <string name="CallLogFragment__deleting">Poistetaan…</string>
+    <!-- Displayed in a toast when a deletion fails for an unknown reason -->
+    <string name="CallLogFragment__deletion_failed">Poisto epäonnistui.</string>
+    <!-- Displayed as message in error dialog when can\'t delete links -->
+    <plurals name="CallLogFragment__cant_delete_call_link">
+        <item quantity="one">Linkkiä ei voi poistaa. Tarkista verkkoyhteys ja yritä uudelleen.</item>
+        <item quantity="other">Kaikkia puhelulinkkejä ei voitu poistaa. Tarkista verkkoyhteys ja yritä uudelleen.</item>
+    </plurals>
+    <!-- Snackbar text after clearing the call history -->
+    <string name="CallLogFragment__cleared_call_history">Puheluhistoria tyhjennetty</string>
+    <!-- Dialog title to clear all call events -->
+    <string name="CallLogFragment__clear_call_history_question">Tyhjennetäänkö puheluhistoria?</string>
+    <!-- Dialog body to clear all call events -->
+    <string name="CallLogFragment__this_will_permanently_delete_all_call_history">Tämä poistaa pysyvästi koko puheluhistorian</string>
+    <!-- Action bar menu item to delete all call events -->
+    <string name="CallLogFragment__clear_call_history">Tyhjennä puheluhistoria</string>
     <!-- Action bar menu item to only display missed calls -->
     <string name="CallLogFragment__filter_missed_calls">Suodata vastaamattomat puhelut</string>
     <!-- Action bar menu item to clear missed call filter -->
@@ -5966,14 +6022,12 @@
     <string name="CallLogFragment__filtered_by_missed">Suodatusperuste: Vastaamattomat</string>
     <!-- Bottom bar option to select all call entries -->
     <string name="CallLogFragment__select_all">Valitse kaikki</string>
-    <!-- Bottom bar option to delete all selected call entries -->
+    <!-- Bottom bar option to delete all selected call entries and dialog action to confirm deletion -->
     <string name="CallLogFragment__delete">Poista</string>
     <plurals name="CallLogFragment__delete_d_calls">
         <item quantity="one">Poistetaanko %1$d puhelu?</item>
         <item quantity="other">Poistetaanko %1$d puhelua?</item>
     </plurals>
-    <!-- Positive action on multi-delete protection dialog -->
-    <string name="CallLogFragment__delete_for_me">Poista minulta</string>
     <!-- Snackbar label after deleting call logs -->
     <plurals name="CallLogFragment__d_calls_deleted">
         <item quantity="one">%1$d puhelu poistettu</item>
@@ -6065,6 +6119,15 @@
 
     <!-- Title shown at top of bottom sheet dialog for displaying a message\'s edit history -->
     <string name="EditMessageHistoryDialog_title">Muokkaushistoria</string>
+    <!-- Title of dialog shown alerting user that edit message is in beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_title">Vain Signalin beetaversio</string>
+    <!-- Body of dialog shown alerting user that edit message is in beta only and only sent to beta users. -->
+    <string name="SendingEditMessageBetaOnlyDialog_body">Viestien muokkaus on käytettävissä vain Signalin beetaversiossa. Jos muokkaat viestiä, se näkyy vain Signalin uusimman beetaversion käyttäjille.</string>
+    <!-- Button to cancel sending edit message as it is beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_cancel">Peruuta</string>
+    <!-- Button to continue sending edit message despite it being beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_send">Lähetä</string>
+
 
     <!-- CallLinkDetailsFragment -->
     <!-- Displayed in action bar at the top of the fragment -->

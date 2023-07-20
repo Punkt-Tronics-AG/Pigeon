@@ -11,12 +11,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 
-import org.signal.libsignal.protocol.IdentityKey;
 import org.signal.libsignal.protocol.InvalidKeyException;
 import org.signal.libsignal.protocol.ecc.ECPublicKey;
+import org.signal.libsignal.protocol.kem.KEMPublicKey;
 import org.signal.libsignal.protocol.logging.Log;
 import org.signal.libsignal.protocol.state.PreKeyBundle;
-import org.signal.libsignal.protocol.state.PreKeyRecord;
 import org.signal.libsignal.protocol.state.SignedPreKeyRecord;
 import org.signal.libsignal.protocol.util.Pair;
 import org.signal.libsignal.usernames.BaseUsernameException;
@@ -41,6 +40,9 @@ import org.signal.storageservice.protos.groups.GroupExternalCredential;
 import org.signal.storageservice.protos.groups.GroupJoinInfo;
 import org.whispersystems.signalservice.api.account.AccountAttributes;
 import org.whispersystems.signalservice.api.account.ChangePhoneNumberRequest;
+import org.whispersystems.signalservice.api.account.PniKeyDistributionRequest;
+import org.whispersystems.signalservice.api.account.PreKeyCollection;
+import org.whispersystems.signalservice.api.account.PreKeyUpload;
 import org.whispersystems.signalservice.api.crypto.UnidentifiedAccess;
 import org.whispersystems.signalservice.api.groupsv2.CredentialResponse;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2AuthorizationString;
@@ -69,6 +71,7 @@ import org.whispersystems.signalservice.api.push.exceptions.ExternalServiceFailu
 import org.whispersystems.signalservice.api.push.exceptions.HttpConflictException;
 import org.whispersystems.signalservice.api.push.exceptions.IncorrectRegistrationRecoveryPasswordException;
 import org.whispersystems.signalservice.api.push.exceptions.InvalidTransportModeException;
+import org.whispersystems.signalservice.api.push.exceptions.MalformedRequestException;
 import org.whispersystems.signalservice.api.push.exceptions.MalformedResponseException;
 import org.whispersystems.signalservice.api.push.exceptions.MissingConfigurationException;
 import org.whispersystems.signalservice.api.push.exceptions.MustRequestNewCodeException;
@@ -82,6 +85,7 @@ import org.whispersystems.signalservice.api.push.exceptions.PushChallengeRequire
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 import org.whispersystems.signalservice.api.push.exceptions.RangeException;
 import org.whispersystems.signalservice.api.push.exceptions.RateLimitException;
+import org.whispersystems.signalservice.api.push.exceptions.RegistrationRetryException;
 import org.whispersystems.signalservice.api.push.exceptions.RemoteAttestationResponseExpiredException;
 import org.whispersystems.signalservice.api.push.exceptions.ResumeLocationInvalidException;
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException;
@@ -108,6 +112,7 @@ import org.whispersystems.signalservice.internal.configuration.SignalUrl;
 import org.whispersystems.signalservice.internal.contacts.entities.KeyBackupRequest;
 import org.whispersystems.signalservice.internal.contacts.entities.KeyBackupResponse;
 import org.whispersystems.signalservice.internal.contacts.entities.TokenResponse;
+import org.whispersystems.signalservice.internal.crypto.AttachmentDigest;
 import org.whispersystems.signalservice.internal.push.exceptions.ForbiddenException;
 import org.whispersystems.signalservice.internal.push.exceptions.GroupExistsException;
 import org.whispersystems.signalservice.internal.push.exceptions.GroupMismatchedDevicesException;
@@ -160,11 +165,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -213,10 +220,11 @@ public class PushServiceSocket {
   private static final String CHANGE_NUMBER_PATH         = "/v2/accounts/number";
   private static final String IDENTIFIER_REGISTERED_PATH = "/v1/accounts/account/%s";
   private static final String REQUEST_ACCOUNT_DATA_PATH  = "/v2/accounts/data_report";
+  private static final String PNI_KEY_DISTRUBTION_PATH   = "/v2/accounts/phone_number_identity_key_distribution";
 
   private static final String PREKEY_METADATA_PATH      = "/v2/keys?identity=%s";
-  private static final String PREKEY_PATH               = "/v2/keys/%s?identity=%s";
-  private static final String PREKEY_DEVICE_PATH        = "/v2/keys/%s/%s";
+  private static final String PREKEY_PATH               = "/v2/keys?identity=%s";
+  private static final String PREKEY_DEVICE_PATH        = "/v2/keys/%s/%s?pq=true";
   private static final String SIGNED_PREKEY_PATH        = "/v2/keys/signed?identity=%s";
 
   private static final String PROVISIONING_CODE_PATH    = "/v1/devices/provisioning/code";
@@ -386,22 +394,47 @@ public class PushServiceSocket {
     }
   }
 
-  public VerifyAccountResponse submitRegistrationRequest(@Nullable String sessionId, @Nullable String recoveryPassword, AccountAttributes attributes, boolean skipDeviceTransfer) throws IOException {
+  public VerifyAccountResponse submitRegistrationRequest(@Nullable String sessionId, @Nullable String recoveryPassword, AccountAttributes attributes, PreKeyCollection aciPreKeys, PreKeyCollection pniPreKeys, @Nullable String fcmToken, boolean skipDeviceTransfer) throws IOException {
     String path = REGISTRATION_PATH;
     if (sessionId == null && recoveryPassword == null) {
       throw new IllegalArgumentException("Neither Session ID nor Recovery Password provided.");
-
     }
 
     if (sessionId != null && recoveryPassword != null) {
       throw new IllegalArgumentException("You must supply one and only one of either: Session ID, or Recovery Password.");
     }
-    RegistrationSessionRequestBody body;
-    if (sessionId != null) {
-      body = new RegistrationSessionRequestBody(sessionId, null, attributes, skipDeviceTransfer);
+
+    GcmRegistrationId gcmRegistrationId;
+    if (attributes.getFetchesMessages()) {
+      gcmRegistrationId = null;
     } else {
-      body = new RegistrationSessionRequestBody(null, recoveryPassword, attributes, skipDeviceTransfer);
+      gcmRegistrationId = new GcmRegistrationId(fcmToken, true);
     }
+
+    final SignedPreKeyEntity aciSignedPreKey = new SignedPreKeyEntity(Objects.requireNonNull(aciPreKeys.getSignedPreKey()).getId(),
+                                                                      aciPreKeys.getSignedPreKey().getKeyPair().getPublicKey(),
+                                                                      aciPreKeys.getSignedPreKey().getSignature());
+    final SignedPreKeyEntity pniSignedPreKey = new SignedPreKeyEntity(Objects.requireNonNull(pniPreKeys.getSignedPreKey()).getId(),
+                                                                      pniPreKeys.getSignedPreKey().getKeyPair().getPublicKey(),
+                                                                      pniPreKeys.getSignedPreKey().getSignature());
+    final KyberPreKeyEntity aciLastResortKyberPreKey = new KyberPreKeyEntity(Objects.requireNonNull(aciPreKeys.getLastResortKyberPreKey()).getId(),
+                                                                             aciPreKeys.getLastResortKyberPreKey().getKeyPair().getPublicKey(),
+                                                                             aciPreKeys.getLastResortKyberPreKey().getSignature());
+    final KyberPreKeyEntity pniLastResortKyberPreKey = new KyberPreKeyEntity(Objects.requireNonNull(pniPreKeys.getLastResortKyberPreKey()).getId(),
+                                                                             pniPreKeys.getLastResortKyberPreKey().getKeyPair().getPublicKey(),
+                                                                             pniPreKeys.getLastResortKyberPreKey().getSignature());
+    RegistrationSessionRequestBody body = new RegistrationSessionRequestBody(sessionId,
+                                                                             recoveryPassword,
+                                                                             attributes,
+                                                                             Base64.encodeBytesWithoutPadding(aciPreKeys.getIdentityKey().serialize()),
+                                                                             Base64.encodeBytesWithoutPadding(pniPreKeys.getIdentityKey().serialize()),
+                                                                             aciSignedPreKey,
+                                                                             pniSignedPreKey,
+                                                                             aciLastResortKyberPreKey,
+                                                                             pniLastResortKyberPreKey,
+                                                                             gcmRegistrationId,
+                                                                             skipDeviceTransfer,
+                                                                             true);
 
     String response = makeServiceRequest(path, "POST", JsonUtil.toJson(body), NO_HEADERS, new RegistrationSessionResponseHandler(), Optional.empty());
     return JsonUtil.fromJson(response, VerifyAccountResponse.class);
@@ -429,11 +462,11 @@ public class PushServiceSocket {
     return JsonUtil.fromJsonResponse(body, CdsiAuthResponse.class);
   }
 
-  public String getSvr2Authorization() throws IOException {
+  public AuthCredentials getSvr2Authorization() throws IOException {
     String          body        = makeServiceRequest(SVR2_AUTH, "GET", null);
     AuthCredentials credentials = JsonUtil.fromJsonResponse(body, AuthCredentials.class);
 
-    return credentials.asBasic();
+    return credentials;
   }
 
   public VerifyAccountResponse changeNumber(@Nonnull ChangePhoneNumberRequest changePhoneNumberRequest)
@@ -443,6 +476,13 @@ public class PushServiceSocket {
     String responseBody = makeServiceRequest(CHANGE_NUMBER_PATH, "PUT", requestBody);
 
     return JsonUtil.fromJson(responseBody, VerifyAccountResponse.class);
+  }
+
+  public VerifyAccountResponse distributePniKeys(@NonNull PniKeyDistributionRequest distributionRequest) throws IOException {
+    String request  = JsonUtil.toJson(distributionRequest);
+    String response = makeServiceRequest(PNI_KEY_DISTRUBTION_PATH, "PUT", request);
+
+    return JsonUtil.fromJson(response, VerifyAccountResponse.class);
   }
 
   public void setAccountAttributes(@Nonnull AccountAttributes accountAttributes)
@@ -474,7 +514,7 @@ public class PushServiceSocket {
                        JsonUtil.toJson(new ProvisioningMessage(Base64.encodeBytes(body))));
   }
 
-  public void registerGcmId(String gcmRegistrationId) throws IOException {
+  public void registerGcmId(@Nonnull String gcmRegistrationId) throws IOException {
     GcmRegistrationId registration = new GcmRegistrationId(gcmRegistrationId, true);
     makeServiceRequest(REGISTER_GCM_PATH, "PUT", JsonUtil.toJson(registration));
   }
@@ -612,67 +652,113 @@ public class PushServiceSocket {
     makeServiceRequest(String.format(UUID_ACK_MESSAGE_PATH, uuid), "DELETE", null);
   }
 
-  public void registerPreKeys(ServiceIdType serviceIdType,
-                              IdentityKey identityKey,
-                              SignedPreKeyRecord signedPreKey,
-                              List<PreKeyRecord> records)
+  public void registerPreKeys(PreKeyUpload preKeyUpload)
       throws IOException
   {
-    List<PreKeyEntity> entities = new LinkedList<>();
+    SignedPreKeyEntity      signedPreKey          = null;
+    List<PreKeyEntity>      oneTimeEcPreKeys      = null;
+    KyberPreKeyEntity       lastResortKyberPreKey = null;
+    List<KyberPreKeyEntity> oneTimeKyberPreKeys   = null;
 
-    try {
-      for (PreKeyRecord record : records) {
-        PreKeyEntity entity = new PreKeyEntity(record.getId(),
-            record.getKeyPair().getPublicKey());
-
-        entities.add(entity);
-      }
-    } catch (InvalidKeyException e) {
-      throw new AssertionError("unexpected invalid key", e);
+    if (preKeyUpload.getSignedPreKey() != null) {
+      signedPreKey = new SignedPreKeyEntity(preKeyUpload.getSignedPreKey().getId(),
+                                            preKeyUpload.getSignedPreKey().getKeyPair().getPublicKey(),
+                                            preKeyUpload.getSignedPreKey().getSignature());
     }
 
-    SignedPreKeyEntity signedPreKeyEntity = new SignedPreKeyEntity(signedPreKey.getId(),
-                                                                   signedPreKey.getKeyPair().getPublicKey(),
-                                                                   signedPreKey.getSignature());
+    if (preKeyUpload.getOneTimeEcPreKeys() != null) {
+      oneTimeEcPreKeys = preKeyUpload
+          .getOneTimeEcPreKeys()
+          .stream()
+          .map(it -> {
+            try {
+              return new PreKeyEntity(it.getId(), it.getKeyPair().getPublicKey());
+            } catch (InvalidKeyException e) {
+              throw new AssertionError("unexpected invalid key", e);
+            }
+          })
+          .collect(Collectors.toList());
+    }
 
-    makeServiceRequest(String.format(Locale.US, PREKEY_PATH, "", serviceIdType.queryParam()),
+    if (preKeyUpload.getLastResortKyberPreKey() != null) {
+      lastResortKyberPreKey = new KyberPreKeyEntity(preKeyUpload.getLastResortKyberPreKey().getId(),
+                                                    preKeyUpload.getLastResortKyberPreKey().getKeyPair().getPublicKey(),
+                                                    preKeyUpload.getLastResortKyberPreKey().getSignature());
+    }
+
+    if (preKeyUpload.getOneTimeKyberPreKeys() != null) {
+      oneTimeKyberPreKeys = preKeyUpload
+          .getOneTimeKyberPreKeys()
+          .stream()
+          .map(it -> new KyberPreKeyEntity(it.getId(), it.getKeyPair().getPublicKey(), it.getSignature()))
+          .collect(Collectors.toList());
+    }
+
+    makeServiceRequest(String.format(Locale.US, PREKEY_PATH, preKeyUpload.getServiceIdType().queryParam()),
                        "PUT",
-                       JsonUtil.toJson(new PreKeyState(entities, signedPreKeyEntity, identityKey)));
+                       JsonUtil.toJson(new PreKeyState(preKeyUpload.getIdentityKey(),
+                                                       signedPreKey,
+                                                       oneTimeEcPreKeys,
+                                                       lastResortKyberPreKey,
+                                                       oneTimeKyberPreKeys)));
   }
 
-  public int getAvailablePreKeys(ServiceIdType serviceIdType) throws IOException {
-    String       path         = String.format(PREKEY_METADATA_PATH, serviceIdType.queryParam());
-    String       responseText = makeServiceRequest(path, "GET", null);
-    PreKeyStatus preKeyStatus = JsonUtil.fromJson(responseText, PreKeyStatus.class);
+  public OneTimePreKeyCounts getAvailablePreKeys(ServiceIdType serviceIdType) throws IOException {
+    String              path         = String.format(PREKEY_METADATA_PATH, serviceIdType.queryParam());
+    String              responseText = makeServiceRequest(path, "GET", null);
+    OneTimePreKeyCounts preKeyStatus = JsonUtil.fromJson(responseText, OneTimePreKeyCounts.class);
 
-    return preKeyStatus.getCount();
+    return preKeyStatus;
   }
 
+  /**
+   * Retrieves prekeys. If the specified device is the primary (i.e. deviceId 1), it will retrieve prekeys
+   * for all devices. If it is not a primary, it will only contain the prekeys for that specific device.
+   */
   public List<PreKeyBundle> getPreKeys(SignalServiceAddress destination,
                                        Optional<UnidentifiedAccess> unidentifiedAccess,
-                                       int deviceIdInteger)
+                                       int deviceId)
+      throws IOException
+  {
+    return getPreKeysBySpecifier(destination, unidentifiedAccess, deviceId == 1 ? "*" : String.valueOf(deviceId));
+  }
+
+  /**
+   * Retrieves a prekey for a specific device.
+   */
+  public PreKeyBundle getPreKey(SignalServiceAddress destination, int deviceId) throws IOException {
+    List<PreKeyBundle> bundles = getPreKeysBySpecifier(destination, Optional.empty(), String.valueOf(deviceId));
+
+    if (bundles.size() > 0) {
+      return bundles.get(0);
+    } else {
+      throw new IOException("No prekeys available!");
+    }
+  }
+
+  private List<PreKeyBundle> getPreKeysBySpecifier(SignalServiceAddress destination,
+                                                   Optional<UnidentifiedAccess> unidentifiedAccess,
+                                                   String deviceSpecifier)
       throws IOException
   {
     try {
-      String deviceId = String.valueOf(deviceIdInteger);
+      String path = String.format(PREKEY_DEVICE_PATH, destination.getIdentifier(), deviceSpecifier);
 
-      if (deviceId.equals("1"))
-        deviceId = "*";
-
-      String path = String.format(PREKEY_DEVICE_PATH, destination.getIdentifier(), deviceId);
-
-      Log.d(TAG, "Fetching prekeys for " + destination.getIdentifier() + "." + deviceId + ", i.e. GET " + path);
+      Log.d(TAG, "Fetching prekeys for " + destination.getIdentifier() + "." + deviceSpecifier + ", i.e. GET " + path);
 
       String             responseText = makeServiceRequest(path, "GET", null, NO_HEADERS, NO_HANDLER, unidentifiedAccess);
       PreKeyResponse     response     = JsonUtil.fromJson(responseText, PreKeyResponse.class);
       List<PreKeyBundle> bundles      = new LinkedList<>();
 
       for (PreKeyResponseItem device : response.getDevices()) {
-        ECPublicKey preKey                = null;
-        ECPublicKey signedPreKey          = null;
-        byte[]      signedPreKeySignature = null;
-        int         preKeyId              = -1;
-        int         signedPreKeyId        = -1;
+        ECPublicKey  preKey                = null;
+        ECPublicKey  signedPreKey          = null;
+        byte[]       signedPreKeySignature = null;
+        int          preKeyId              = PreKeyBundle.NULL_PRE_KEY_ID;
+        int          signedPreKeyId        = PreKeyBundle.NULL_PRE_KEY_ID;
+        int          kyberPreKeyId         = PreKeyBundle.NULL_PRE_KEY_ID;
+        KEMPublicKey kyberPreKey           = null;
+        byte[]       kyberPreKeySignature  = null;
 
         if (device.getSignedPreKey() != null) {
           signedPreKey          = device.getSignedPreKey().getPublicKey();
@@ -685,60 +771,28 @@ public class PushServiceSocket {
           preKey   = device.getPreKey().getPublicKey();
         }
 
-        bundles.add(new PreKeyBundle(device.getRegistrationId(), device.getDeviceId(), preKeyId,
-            preKey, signedPreKeyId, signedPreKey, signedPreKeySignature,
-            response.getIdentityKey()));
+        if (device.getKyberPreKey() != null) {
+          kyberPreKey          = device.getKyberPreKey().getPublicKey();
+          kyberPreKeyId        = device.getKyberPreKey().getKeyId();
+          kyberPreKeySignature = device.getKyberPreKey().getSignature();
+        }
+
+        bundles.add(new PreKeyBundle(device.getRegistrationId(),
+                                     device.getDeviceId(),
+                                     preKeyId,
+                                     preKey,
+                                     signedPreKeyId,
+                                     signedPreKey,
+                                     signedPreKeySignature,
+                                     response.getIdentityKey(),
+                                     kyberPreKeyId,
+                                     kyberPreKey,
+                                     kyberPreKeySignature));
       }
 
       return bundles;
     } catch (NotFoundException nfe) {
       throw new UnregisteredUserException(destination.getIdentifier(), nfe);
-    }
-  }
-
-  public PreKeyBundle getPreKey(SignalServiceAddress destination, int deviceId) throws IOException {
-    try {
-      String path = String.format(PREKEY_DEVICE_PATH, destination.getIdentifier(), String.valueOf(deviceId));
-
-      String         responseText = makeServiceRequest(path, "GET", null);
-      PreKeyResponse response     = JsonUtil.fromJson(responseText, PreKeyResponse.class);
-
-      if (response.getDevices() == null || response.getDevices().size() < 1)
-        throw new IOException("Empty prekey list");
-
-      PreKeyResponseItem device                = response.getDevices().get(0);
-      ECPublicKey        preKey                = null;
-      ECPublicKey        signedPreKey          = null;
-      byte[]             signedPreKeySignature = null;
-      int                preKeyId              = -1;
-      int                signedPreKeyId        = -1;
-
-      if (device.getPreKey() != null) {
-        preKeyId = device.getPreKey().getKeyId();
-        preKey   = device.getPreKey().getPublicKey();
-      }
-
-      if (device.getSignedPreKey() != null) {
-        signedPreKeyId        = device.getSignedPreKey().getKeyId();
-        signedPreKey          = device.getSignedPreKey().getPublicKey();
-        signedPreKeySignature = device.getSignedPreKey().getSignature();
-      }
-
-      return new PreKeyBundle(device.getRegistrationId(), device.getDeviceId(), preKeyId, preKey,
-                              signedPreKeyId, signedPreKey, signedPreKeySignature, response.getIdentityKey());
-    } catch (NotFoundException nfe) {
-      throw new UnregisteredUserException(destination.getIdentifier(), nfe);
-    }
-  }
-
-  public SignedPreKeyEntity getCurrentSignedPreKey(ServiceIdType serviceIdType) throws IOException {
-    try {
-      String path         = String.format(SIGNED_PREKEY_PATH, serviceIdType.queryParam());
-      String responseText = makeServiceRequest(path, "GET", null);
-      return JsonUtil.fromJson(responseText, SignedPreKeyEntity.class);
-    } catch (NotFoundException e) {
-      Log.w(TAG, e);
-      return null;
     }
   }
 
@@ -1293,7 +1347,7 @@ public class PushServiceSocket {
     }
   }
 
-  public byte[] uploadGroupV2Avatar(byte[] avatarCipherText, AvatarUploadAttributes uploadAttributes)
+  public AttachmentDigest uploadGroupV2Avatar(byte[] avatarCipherText, AvatarUploadAttributes uploadAttributes)
       throws IOException
   {
     return uploadToCdn0(AVATAR_UPLOAD_PATH, uploadAttributes.getAcl(), uploadAttributes.getKey(),
@@ -1306,17 +1360,17 @@ public class PushServiceSocket {
                        null, null);
   }
 
-  public Pair<Long, byte[]> uploadAttachment(PushAttachmentData attachment, AttachmentV2UploadAttributes uploadAttributes)
+  public Pair<Long, AttachmentDigest> uploadAttachment(PushAttachmentData attachment, AttachmentV2UploadAttributes uploadAttributes)
       throws PushNetworkException, NonSuccessfulResponseCodeException
   {
-    long   id     = Long.parseLong(uploadAttributes.getAttachmentId());
-    byte[] digest = uploadToCdn0(ATTACHMENT_UPLOAD_PATH, uploadAttributes.getAcl(), uploadAttributes.getKey(),
-                                uploadAttributes.getPolicy(), uploadAttributes.getAlgorithm(),
-                                uploadAttributes.getCredential(), uploadAttributes.getDate(),
-                                uploadAttributes.getSignature(), attachment.getData(),
-                                "application/octet-stream", attachment.getDataSize(),
-                                attachment.getOutputStreamFactory(), attachment.getListener(),
-                                attachment.getCancelationSignal());
+    long             id     = Long.parseLong(uploadAttributes.getAttachmentId());
+    AttachmentDigest digest = uploadToCdn0(ATTACHMENT_UPLOAD_PATH, uploadAttributes.getAcl(), uploadAttributes.getKey(),
+                                           uploadAttributes.getPolicy(), uploadAttributes.getAlgorithm(),
+                                           uploadAttributes.getCredential(), uploadAttributes.getDate(),
+                                           uploadAttributes.getSignature(), attachment.getData(),
+                                           "application/octet-stream", attachment.getDataSize(),
+                                           attachment.getOutputStreamFactory(), attachment.getListener(),
+                                           attachment.getCancelationSignal());
 
     return new Pair<>(id, digest);
   }
@@ -1330,7 +1384,7 @@ public class PushServiceSocket {
                                    System.currentTimeMillis() + CDN2_RESUMABLE_LINK_LIFETIME_MILLIS);
   }
 
-  public byte[] uploadAttachment(PushAttachmentData attachment) throws IOException {
+  public AttachmentDigest uploadAttachment(PushAttachmentData attachment) throws IOException {
 
     if (attachment.getResumableUploadSpec() == null || attachment.getResumableUploadSpec().getExpirationTimestamp() < System.currentTimeMillis()) {
       throw new ResumeLocationInvalidException();
@@ -1420,11 +1474,11 @@ public class PushServiceSocket {
     }
   }
 
-  private byte[] uploadToCdn0(String path, String acl, String key, String policy, String algorithm,
-                              String credential, String date, String signature,
-                              InputStream data, String contentType, long length,
-                              OutputStreamFactory outputStreamFactory, ProgressListener progressListener,
-                              CancelationSignal cancelationSignal)
+  private AttachmentDigest uploadToCdn0(String path, String acl, String key, String policy, String algorithm,
+                                        String credential, String date, String signature,
+                                        InputStream data, String contentType, long length,
+                                        OutputStreamFactory outputStreamFactory, ProgressListener progressListener,
+                                        CancelationSignal cancelationSignal)
       throws PushNetworkException, NonSuccessfulResponseCodeException
   {
     ConnectionHolder connectionHolder = getRandom(cdnClientsMap.get(0), random);
@@ -1464,7 +1518,7 @@ public class PushServiceSocket {
     }
 
     try (Response response = call.execute()) {
-      if (response.isSuccessful()) return file.getTransmittedDigest();
+      if (response.isSuccessful()) return file.getAttachmentDigest();
       else                         throw new NonSuccessfulResponseCodeException(response.code(), "Response: " + response);
     } catch (PushNetworkException | NonSuccessfulResponseCodeException e) {
       throw e;
@@ -1525,7 +1579,7 @@ public class PushServiceSocket {
     }
   }
 
-  private byte[] uploadToCdn2(String resumableUrl, InputStream data, String contentType, long length, OutputStreamFactory outputStreamFactory, ProgressListener progressListener, CancelationSignal cancelationSignal) throws IOException {
+  private AttachmentDigest uploadToCdn2(String resumableUrl, InputStream data, String contentType, long length, OutputStreamFactory outputStreamFactory, ProgressListener progressListener, CancelationSignal cancelationSignal) throws IOException {
     ConnectionHolder connectionHolder = getRandom(cdnClientsMap.get(2), random);
     OkHttpClient     okHttpClient     = connectionHolder.getClient()
                                                         .newBuilder()
@@ -1541,7 +1595,7 @@ public class PushServiceSocket {
       try (NowhereBufferedSink buffer = new NowhereBufferedSink()) {
         file.writeTo(buffer);
       }
-      return file.getTransmittedDigest();
+      return file.getAttachmentDigest();
     }
 
     Request.Builder request = new Request.Builder().url(buildConfiguredUrl(connectionHolder, resumableUrl))
@@ -1559,7 +1613,7 @@ public class PushServiceSocket {
     }
 
     try (Response response = call.execute()) {
-      if (response.isSuccessful()) return file.getTransmittedDigest();
+      if (response.isSuccessful()) return file.getAttachmentDigest();
       else                         throw new NonSuccessfulResponseCodeException(response.code(), "Response: " + response);
     } catch (PushNetworkException | NonSuccessfulResponseCodeException e) {
       throw e;
@@ -2245,22 +2299,6 @@ public class PushServiceSocket {
       return readBodyJson(response.body(), clazz);
   }
 
-  private static class GcmRegistrationId {
-
-    @JsonProperty
-    private String gcmRegistrationId;
-
-    @JsonProperty
-    private boolean webSocketChannel;
-
-    public GcmRegistrationId() {}
-
-    public GcmRegistrationId(String gcmRegistrationId, boolean webSocketChannel) {
-      this.gcmRegistrationId = gcmRegistrationId;
-      this.webSocketChannel  = webSocketChannel;
-    }
-  }
-
   public enum VerificationCodeTransport { SMS, VOICE }
 
   private static class RegistrationLock {
@@ -2538,7 +2576,10 @@ public class PushServiceSocket {
 
     @Override
     public void handle(int responseCode, ResponseBody body) throws NonSuccessfulResponseCodeException, PushNetworkException {
-      if (responseCode == 403) {
+
+      if (responseCode == 400) {
+        throw new MalformedRequestException();
+      } else if (responseCode == 403) {
         throw new IncorrectRegistrationRecoveryPasswordException();
       } else if (responseCode == 404) {
         throw new NoSuchSessionException();
@@ -2557,13 +2598,17 @@ public class PushServiceSocket {
         } else {
           throw new HttpConflictException();
         }
-      } else if (responseCode == 502) {
+      } else if (responseCode == 418) {
+        throw new InvalidTransportModeException();
+      } else if (responseCode == 429) {
+        throw new RegistrationRetryException();
+      } else if (responseCode == 440) {
         VerificationCodeFailureResponseBody response;
         try {
           response = JsonUtil.fromJson(body.string(), VerificationCodeFailureResponseBody.class);
         } catch (IOException e) {
           Log.e(TAG, "Unable to read response body.", e);
-          throw new NonSuccessfulResponseCodeException(502);
+          throw new NonSuccessfulResponseCodeException(responseCode);
         }
         throw new ExternalServiceFailureException(response.getPermanentFailure(), response.getReason());
       }
@@ -2600,7 +2645,9 @@ public class PushServiceSocket {
   }
 
   private static class RegistrationCodeRequestResponseHandler implements ResponseCodeHandler {
-    @Override public void handle(int responseCode, ResponseBody body) throws NonSuccessfulResponseCodeException, PushNetworkException {
+    @Override
+    public void handle(int responseCode, ResponseBody body) throws NonSuccessfulResponseCodeException, PushNetworkException {
+
       switch (responseCode) {
         case 400:
           throw new InvalidTransportModeException();
@@ -2622,13 +2669,13 @@ public class PushServiceSocket {
           } else {
             throw new HttpConflictException();
           }
-        case 502:
+        case 440:
           VerificationCodeFailureResponseBody codeFailureResponse;
           try {
             codeFailureResponse = JsonUtil.fromJson(body.string(), VerificationCodeFailureResponseBody.class);
           } catch (IOException e) {
             Log.e(TAG, "Unable to read response body.", e);
-            throw new NonSuccessfulResponseCodeException(502);
+            throw new NonSuccessfulResponseCodeException(responseCode);
           }
 
           throw new ExternalServiceFailureException(codeFailureResponse.getPermanentFailure(), codeFailureResponse.getReason());

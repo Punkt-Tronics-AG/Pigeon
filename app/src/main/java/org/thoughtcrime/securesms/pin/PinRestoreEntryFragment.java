@@ -15,12 +15,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.autofill.HintConstants;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.LoggingFragment;
@@ -52,7 +53,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   private View                           skipButton;
   private CircularProgressMaterialButton pinButton;
   private TextView                       errorLabel;
-  private TextView                       keyboardToggle;
+  private MaterialButton                 keyboardToggle;
   private PinRestoreViewModel            viewModel;
   private ProgressBar                    pigeonProgressBar;
 
@@ -105,12 +106,12 @@ public class PinRestoreEntryFragment extends LoggingFragment {
     keyboardToggle.setOnClickListener((v) -> {
       PinKeyboardType keyboardType = getPinEntryKeyboardType();
 
+      keyboardToggle.setIconResource(keyboardType.getIconResource());
+
       updateKeyboard(keyboardType.getOther());
-      keyboardToggle.setText(resolveKeyboardToggleText(keyboardType));
     });
 
-    PinKeyboardType keyboardType = getPinEntryKeyboardType().getOther();
-    keyboardToggle.setText(resolveKeyboardToggleText(keyboardType));
+    keyboardToggle.setIconResource(getPinEntryKeyboardType().getOther().getIconResource());
   }
 
   private void initViewModel() {
@@ -123,7 +124,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   private void presentTriesRemaining(PinRestoreViewModel.TriesRemaining triesRemaining) {
     if (triesRemaining.hasIncorrectGuess()) {
       if (triesRemaining.getCount() == 1) {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                        .setTitle(R.string.PinRestoreEntryFragment_incorrect_pin)
                        .setMessage(getResources().getQuantityString(R.plurals.PinRestoreEntryFragment_you_have_d_attempt_remaining, triesRemaining.getCount(), triesRemaining.getCount()))
                        .setPositiveButton(android.R.string.ok, null)
@@ -135,7 +136,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
     } else {
       if (triesRemaining.getCount() == 1) {
         helpButton.setVisibility(View.VISIBLE);
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                        .setMessage(getResources().getQuantityString(R.plurals.PinRestoreEntryFragment_you_have_d_attempt_remaining, triesRemaining.getCount(), triesRemaining.getCount()))
                        .setPositiveButton(android.R.string.ok, null)
                        .show();
@@ -200,7 +201,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   }
 
   private void onNeedHelpClicked() {
-    new AlertDialog.Builder(requireContext())
+    new MaterialAlertDialogBuilder(requireContext())
                    .setTitle(R.string.PinRestoreEntryFragment_need_help)
                    .setMessage(getString(R.string.PinRestoreEntryFragment_your_pin_is_a_d_digit_code, KbsConstants.MINIMUM_PIN_LENGTH))
                    .setPositiveButton(R.string.PinRestoreEntryFragment_create_new_pin, ((dialog, which) -> {
@@ -222,7 +223,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   }
 
   private void onSkipClicked() {
-    new AlertDialog.Builder(requireContext())
+    new MaterialAlertDialogBuilder(requireContext())
                    .setTitle(R.string.PinRestoreEntryFragment_skip_pin_entry)
                    .setMessage(R.string.PinRestoreEntryFragment_if_you_cant_remember_your_pin)
                    .setPositiveButton(R.string.PinRestoreEntryFragment_create_new_pin, (dialog, which) -> {
@@ -267,14 +268,6 @@ public class PinRestoreEntryFragment extends LoggingFragment {
                                          : InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
 
     pinEntry.getText().clear();
-  }
-
-  private @StringRes static int resolveKeyboardToggleText(@NonNull PinKeyboardType keyboard) {
-    if (keyboard == PinKeyboardType.ALPHA_NUMERIC) {
-      return R.string.PinRestoreEntryFragment_enter_alphanumeric_pin;
-    } else {
-      return R.string.PinRestoreEntryFragment_enter_numeric_pin;
-    }
   }
 
   private void enableAndFocusPinEntry() {

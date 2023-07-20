@@ -35,6 +35,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge.PulseRequest
 import org.thoughtcrime.securesms.conversation.ConversationItem
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.ThemeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
@@ -161,7 +162,6 @@ class MultiselectItemDecoration(
   /**
    * Draws the background shade.
    */
-  @Suppress("DEPRECATION")
   override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
     val adapter = parent.adapter as ConversationAdapterBridge
 
@@ -396,9 +396,11 @@ class MultiselectItemDecoration(
         }
       }
 
-      canvas.clipPath(path)
-      canvas.drawShade()
-      canvas.restore()
+      if (!SignalStore.internalValues().useConversationFragmentV2()) {
+        canvas.clipPath(path)
+        canvas.drawShade()
+        canvas.restore()
+      }
     }
   }
 
@@ -414,9 +416,11 @@ class MultiselectItemDecoration(
         }
       }
 
-      canvas.clipPath(path, Region.Op.DIFFERENCE)
-      canvas.drawShade()
-      canvas.restore()
+      if (!SignalStore.internalValues().useConversationFragmentV2()) {
+        canvas.clipPath(path, Region.Op.DIFFERENCE)
+        canvas.drawShade()
+        canvas.restore()
+      }
     }
   }
 

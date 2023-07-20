@@ -236,6 +236,8 @@
     <string name="CommunicationActions_call">დარეკვა</string>
     <string name="CommunicationActions_insecure_call">არასაიმედო ზარი</string>
     <string name="CommunicationActions_carrier_charges_may_apply">ოპერატორის საფასური შეიძლება იქნას დარიცხული. ნომერი, რომლზეც რეკავ, არ არის Signal-ში რეგისტრირებული. ეს ზარი იქნება განხორციელებული შენი ოპრატორის მეშვეობით, და არა ინტერნეტით.</string>
+    <string name="CommunicationActions_cant_join_call">ზარზე შესვლა ვერ მოხერხდა</string>
+    <string name="CommunicationActions_this_call_link_is_no_longer_valid">ზარის ეს ბმული ვალიდური აღარაა.</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -316,6 +318,8 @@
     <string name="ConversationItem_cant_download_video_you_will_need_to_send_it_again">ვიდეოს გადმოწერა ვერ მოხერხდა. მისი თავიდან გაგზავნა მოგიწევს.</string>
     <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp will go from \'11m\' to \'edited 11m\' -->
     <string name="ConversationItem_edited_timestamp_footer">რედაქტირებულია %1$s</string>
+    <!-- Displayed if the link preview in the conversation item is for a call link call -->
+    <string name="ConversationItem__join_call">ზარზე შესვლა</string>
 
     <!-- ConversationActivity -->
     <string name="ConversationActivity_add_attachment">მიმაგრება</string>
@@ -503,6 +507,9 @@
     <string name="ConversationFragment__content_description_back_button">უკან გასვლა.</string>
     <!-- Label for a button displayed in the conversation toolbar to open the main screen of the app. -->
     <string name="ConversationFragment__content_description_launch_signal_button">Signal-ის გახსნა</string>
+    <!-- Dialog title shown when more than one contact in a group conversation is no longer verified -->
+    <string name="ConversationFragment__no_longer_verified">ვერიფიცირებული აღარაა</string>
+
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">ფილტრის გასუფთავება</string>
     <!-- Notice on chat list when no unread chats are available, centered on display -->
@@ -876,6 +883,8 @@
     <string name="LinkPreviewView_no_link_preview_available">ბმულის წინასწარი ნახვა არაა ხელმისაწვდომი</string>
     <string name="LinkPreviewView_this_group_link_is_not_active">ჯგუფის ეს ბმული არ არის აქტიური</string>
     <string name="LinkPreviewView_domain_date">%1$s · %2$s</string>
+    <!-- Description for Call Link url previews -->
+    <string name="LinkPreviewView__use_this_link_to_join_a_signal_call">გამოიყენე ეს ბმული Signal-ის ზარზე შესასვლელად</string>
 
     <!-- LinkPreviewRepository -->
     <plurals name="LinkPreviewRepository_d_members">
@@ -1104,7 +1113,7 @@
     <string name="ImageEditorHud_draw_to_blur_additional_faces_or_areas">გასაბუნდოვანებლად მოხაზე სახეები ან არეალები</string>
 
     <!-- InputPanel -->
-    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">ხმოვანი შეტყობინების ჩასაწერად დააჭირე და გეჭიროს, გასაგზავნად გაუშვი</string>
+    <string name="InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send">ხმოვანი წერილის ჩასაწერად გეჭიროს, გასაგზავნად გაუშვი</string>
     <!-- Message shown if the user tries to switch a conversation from Signal to SMS -->
     <string name="InputPanel__sms_messaging_is_no_longer_supported_in_signal">SMS მიმოწერები Signal-ში აღარ არის ხელმისაწვდომი.</string>
     <!-- When editing a message, label shown above the text input field in the composer -->
@@ -1210,10 +1219,7 @@
     <string name="MessageQuotesBottomSheet_replies">პასუხები</string>
 
     <!-- NotificationBarManager -->
-    <string name="NotificationBarManager_signal_call_in_progress">Signal-ის ზარი მიმდინარეობს</string>
     <string name="NotificationBarManager__establishing_signal_call">ვახორციელებთ Signal-ის ზარს</string>
-    <string name="NotificationBarManager__incoming_signal_call">Signal-ის შემომავალი ზარი</string>
-    <string name="NotificationBarManager__incoming_signal_group_call">Signal-ის შემომავალი ჯგუფური ზარი</string>
     <!-- Temporary notification shown when starting the calling service -->
     <string name="NotificationBarManager__starting_signal_call_service">ვიწყებთ Signal-ის სერვისის ზარს</string>
     <string name="NotificationBarManager__stopping_signal_call_service">ვაჩერებთ Signal-ის სერვისის ზარს</string>
@@ -1477,12 +1483,14 @@
 
     <!-- Group Calling update messages -->
     <string name="MessageRecord_s_started_a_group_call_s">%1$s-მა ჯგუფური ზარი წამოიწყო · %2$s</string>
+    <string name="MessageRecord_you_started_a_group_call_s">შენ დიწყე ჯგუფური ზარი · %1$s</string>
     <string name="MessageRecord_s_is_in_the_group_call_s">%1$s ჯგუფურ ზარზეა · %2$s</string>
     <string name="MessageRecord_you_are_in_the_group_call_s1">ჯგუფურ ზარზე ხარ · %1$s</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s და %2$s ჯგუფურ ზარზე არიან · %3$s</string>
     <string name="MessageRecord_group_call_s">ჯგუფური ზარი · %1$s</string>
 
     <string name="MessageRecord_s_started_a_group_call">%1$s-მა ჯგუფური ზარი წამოიწყო</string>
+    <string name="MessageRecord_you_started_a_group_call">შენ დაიწყე ჯგუფური ზარი</string>
     <string name="MessageRecord_s_is_in_the_group_call">%1$s ჯგუფურ ზარზეა</string>
     <string name="MessageRecord_you_are_in_the_group_call">ჯგუფურ ზარზე ხარ</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s და %2$s ჯგუფურ ზარზე არიან</string>
@@ -1620,8 +1628,8 @@
         <item quantity="other">დაგრჩა %1$d მცდელობა. თუ მცდელობები ამოგეწურება, შეგიძლია ახალი პინ-კოდი შექმნა. შეგიძლია დარეგისტრირდე და გამოიყენო შენი ანგარიში, მაგრამ დაკარგავ ზოგიერთ შენახულ პარამეტრს, მაგალითად, შენი პროფილის ინფორმაციას.</item>
     </plurals>
     <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signal-ის რეგისტრაცია - საჭიროა დახმარება Android-ის პინ-კოდთან დაკავშირებით</string>
-    <string name="PinRestoreEntryFragment_enter_alphanumeric_pin">შეიყვანე ანბანურ-ციფრული პინ-კოდი</string>
-    <string name="PinRestoreEntryFragment_enter_numeric_pin">შეიყვანე ციფრული პინ-კოდი</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="PinRestoreEntryFragment_switch_keyboard">კლავიატურის გადართვა</string>
 
     <!-- PinRestoreLockedFragment -->
     <string name="PinRestoreLockedFragment_create_your_pin">შექმენი შენი პინ-კოდი</string>
@@ -1846,6 +1854,10 @@
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">ამ ნომრის დარეგისტრირება ზედმეტად ბევრჯერ სცადე. გთხოვთ, %1$s-ში თავიდან სცადო.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">სერვისთან დაკავშირება შეუძლებელია. გთხოვთ, შეამოწმოთ ქსელის კავშირი და ხელახლა სცადოთ.</string>
+    <!-- A description text for an alert dialog where we do not or can not explain the error to the user. -->
+    <string name="RegistrationActivity_generic_error">მოულოდნელ ხარვეზს გადავაწყდით.</string>
+    <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
+    <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">SMS-ით ვერიფიკაციის კოდი ვერ გამოგიგზავნეთ. სცადე კოდი ხმოვანი ზარით მიიღო.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">ვერიფიკაციის კოდის მოთხოვნა შეუძლებელია. გთხოვთ, შეამოწმო შენი ქსელის კავშირი და თავიდან სცადო.</string>
     <string name="RegistrationActivity_non_standard_number_format">ნომრის არასტანდარტული ფორმატი</string>
@@ -1864,6 +1876,10 @@
     <string name="RegistrationActivity_we_need_to_verify_that_youre_human">უნდა შევამოწმოთ, რომ ნამდვილად ადამიანი ხართ.</string>
     <!-- An error shown when the request was valid, but due to an issue with a partner vendor, the server is unable to send an SMS code -->
     <string name="RegistrationActivity_external_service_error">Signal-მა SMS კოდის გაგზავნა გარე ხარვეზის გამო ვერ შეძლო.</string>
+    <!-- Button label to trigger a phone call to provide the registration code, in lieu of an SMS code -->
+    <string name="RegistrationActivity_voice_call">ხმოვანი ზარი</string>
+    <!-- Dialog button to cancel the pending action and return to the previous state. -->
+    <string name="RegistrationActivity_cancel">გაუქმება</string>
     <string name="RegistrationActivity_next">შემდეგი</string>
     <string name="RegistrationActivity_continue">გაგრძელება</string>
     <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">გაითვალისწინეთ კონფიდენციალურობა.\nიყავით საკუთარი თავი ყველა შეტყობინებაში.</string>
@@ -2299,7 +2315,8 @@
 
     <!-- WebRtcCallActivity -->
     <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone">ზარზე პასუხისთვის მიეცი Signal-ს წვდომა შენს მიკროფონზე.</string>
-    <string name="WebRtcCallActivity_to_answer_the_call_from_s_give_signal_access_to_your_microphone">%1$s-ის ზარზე პასუხისთვის მიეცი Signal-ს წვდომა შენს მიკროფონზე.</string>
+    <!-- Message shown in permission dialog when attempting to answer a video call without camera or microphone permissions already granted. -->
+    <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone_and_camera">მიეცი Signal-ს წვდომა შენს მიკროფონსა და კამერაზე, რათა ვიდეო ზარს უპასუხო.</string>
     <string name="WebRtcCallActivity_signal_requires_microphone_and_camera_permissions_in_order_to_make_or_receive_calls">ზარების განსახორციელებლად ან მისაღებად Signal-ს მიკროფონსა და კამერაზე წვდომის ნებართვა სჭირდება, მაგრამ ისინი სამუდამოდ იქნა უარყოფილია. გთხოვთ, შეხვიდე აპის პარამეტრებში, აირჩიო „ნებართვები“ და ჩართო „მიკროფონი“ და „კამერა“.</string>
     <string name="WebRtcCallActivity__answered_on_a_linked_device">ზარი მიღებულია დაკავშირებულ მოწყობილობაზე.</string>
     <string name="WebRtcCallActivity__declined_on_a_linked_device">ზარი უარყოფილია დაკავშირებულ მოწყობილობაზე.</string>
@@ -2327,7 +2344,9 @@
     <string name="WebRtcAudioOutputToggle__speaker">სპიკერი</string>
     <!-- Audio output option referring to an external audio device connected via wireless Bluetooth -->
     <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth-ი</string>
-    <!-- Audio output option referring to an external headset connected via a 3.5mm headphone jack -->
+    <!-- Audio output option referring to a pair of headphones that do not contain a microphone connected via a 3.5mm headphone jack -->
+    <string name="WebRtcAudioOutputToggle__wired_headphones">სადენიანი ყურსასმენები</string>
+    <!-- Audio output option referring to an external headset that contains a microphone connected via a 3.5mm headphone jack -->
     <string name="WebRtcAudioOutputToggle__wired_headset">სადენიანი ყურსასმენი</string>
     <!-- Audio output option referring to an external headset connected via a USB-C data cable -->
     <string name="WebRtcAudioOutputToggle__wired_headset_usb">სადენიანი ყურსასმენი (USB)</string>
@@ -3326,6 +3345,8 @@
     <string name="conversation__menu_conversation_settings">ჩატის პარამეტრები</string>
     <string name="conversation__menu_add_shortcut">მთავარ გვერდზე დამატება</string>
     <string name="conversation__menu_create_bubble">ბაბლის შექმნა</string>
+    <!-- Overflow menu option that allows formatting of text -->
+    <string name="conversation__menu_format_text">ტექსტის ფორმატირება</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">ფანჯრის გაფართოება</string>
@@ -3424,7 +3445,9 @@
 
     <!-- BaseKbsPinFragment -->
     <string name="BaseKbsPinFragment__next">შემდეგი</string>
+    <!-- Button label to prompt them to create a password ("PIN") using numbers and letters rather than only numbers. -->
     <string name="BaseKbsPinFragment__create_alphanumeric_pin">შექმენი ანბანურ-ციფრული პინ-კოდი</string>
+    <!-- Button label to prompt them to return to creating a numbers-only password ("PIN") -->
     <string name="BaseKbsPinFragment__create_numeric_pin">შექმენი ციფრული პინ-კოდი</string>
   <!-- Removed by excludeNonTranslatables <string name="BaseKbsPinFragment__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
 
@@ -3486,8 +3509,8 @@
     <string name="RegistrationLockFragment__enter_the_pin_you_created">შეიყვანე შენი მონაცემებისთვის შექმნილი პინ-კოდი. ის განსხვავდება შენი SMS ვერიფიკაციის კოდისგან.</string>
     <!-- Info text shown above a pin entry text box describing what pin they should be entering. -->
     <string name="RegistrationLockFragment__enter_the_pin_you_created_for_your_account">შეიყვანე შენი ანგარიშისთვის შექმნილი პინ-კოდი.</string>
-    <string name="RegistrationLockFragment__enter_alphanumeric_pin">შეიყვანე ანბანურ-ციფრული პინ-კოდი</string>
-    <string name="RegistrationLockFragment__enter_numeric_pin">შეიყვანე ციფრული პინ-კოდი</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="RegistrationLockFragment__switch_keyboard">კლავიატურის გადართვა</string>
     <string name="RegistrationLockFragment__incorrect_pin_try_again">არასწორი პინ-კოდი. ხელახლა სცადე.</string>
     <string name="RegistrationLockFragment__forgot_pin">დაგავიწყდა პინ-კოდი?</string>
     <string name="RegistrationLockFragment__incorrect_pin">არასწორი პინ-კოდი</string>
@@ -3527,6 +3550,20 @@
     <string name="KbsMegaphone__create_a_pin">შექმენი პინ-კოდი</string>
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">პინ-კოდები Signal-ით შენახულ ინფორმაციას დაშიფრულად ინახავენ.</string>
     <string name="KbsMegaphone__create_pin">პინ-კოდის შექმნა</string>
+
+    <!-- CallNotificationBuilder -->
+    <!-- Displayed in a notification when a Signal voice call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_voice_call">Signal-ის შემომავალი ხმოვანი ზარი</string>
+    <!-- Displayed in a notification when a Signal video call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_video_call">Signal-ის შემომავალი ვიდეო ზარი</string>
+    <!-- Displayed in a notification when a Signal group call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_group_call">Signal-ის შემომავალი ჯგუფური ზარი</string>
+    <!-- Displayed in a notification when a Signal voice call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_voice_call">Signal-ის მიმდინარე ხმოვანი ზარი</string>
+    <!-- Displayed in a notification when a Signal video call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_video_call">Signal-ის მიმდინარე ვიდეო ზარი</string>
+    <!-- Displayed in a notification when a Signal group call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_group_call">Signal-ის მიმდინარე ჯგუფის ზარი</string>
 
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">გადატანის ხატულა</string>
@@ -5886,6 +5923,8 @@
     <string name="TextFormatting_monospace">მონოგამოსივრცული</string>
     <!-- Popup menu label for applying spoiler style -->
     <string name="TextFormatting_spoiler">სპოილერი</string>
+    <!-- Popup menu label for clearing applied formatting -->
+    <string name="TextFormatting_clear_formatting">ფორმატირების გასუფთავება</string>
 
     <!-- UsernameEducationFragment -->
     <!-- Continue button which takes the user to the add a username screen -->
@@ -5952,6 +5991,23 @@
     <string name="CallContextMenu__delete">წაშლა</string>
 
     <!-- Call Log Fragment -->
+    <!-- Displayed when deleting call history items -->
+    <string name="CallLogFragment__deleting">მიმდინარეობს წაშლა…</string>
+    <!-- Displayed in a toast when a deletion fails for an unknown reason -->
+    <string name="CallLogFragment__deletion_failed">წაშლა ვერ მოხერხდა.</string>
+    <!-- Displayed as message in error dialog when can\'t delete links -->
+    <plurals name="CallLogFragment__cant_delete_call_link">
+        <item quantity="one">ბმულის წაშლა ვერ მოხერხდა. შეამოწმე შენი ინტერნეტ კავშირი და თავიდან სცადე.</item>
+        <item quantity="other">ყველა ბმულის წაშლა ვერ მოხერხდა. შეამოწმე შენი ინტერნეტ კავშირი და თავიდან სცადე.</item>
+    </plurals>
+    <!-- Snackbar text after clearing the call history -->
+    <string name="CallLogFragment__cleared_call_history">ზარების ისტორია წაშლილია</string>
+    <!-- Dialog title to clear all call events -->
+    <string name="CallLogFragment__clear_call_history_question">წავშალოთ ზარების ისტორია?</string>
+    <!-- Dialog body to clear all call events -->
+    <string name="CallLogFragment__this_will_permanently_delete_all_call_history">ეს სამუდამოდ წაშლის ზარების მთელ ისტორიას</string>
+    <!-- Action bar menu item to delete all call events -->
+    <string name="CallLogFragment__clear_call_history">ზარების ისტორიის წაშლა</string>
     <!-- Action bar menu item to only display missed calls -->
     <string name="CallLogFragment__filter_missed_calls">გამოტოვებული ზარების გაფილტვრა</string>
     <!-- Action bar menu item to clear missed call filter -->
@@ -5966,14 +6022,12 @@
     <string name="CallLogFragment__filtered_by_missed">გაფილტრულია გამოტოვებულის მიხედვით</string>
     <!-- Bottom bar option to select all call entries -->
     <string name="CallLogFragment__select_all">ყველას მონიშვნა</string>
-    <!-- Bottom bar option to delete all selected call entries -->
+    <!-- Bottom bar option to delete all selected call entries and dialog action to confirm deletion -->
     <string name="CallLogFragment__delete">წაშლა</string>
     <plurals name="CallLogFragment__delete_d_calls">
         <item quantity="one">წავშალოთ %1$d ზარი?</item>
         <item quantity="other">წავშალოთ %1$d ზარი?</item>
     </plurals>
-    <!-- Positive action on multi-delete protection dialog -->
-    <string name="CallLogFragment__delete_for_me">ჩემთვის წაშლა</string>
     <!-- Snackbar label after deleting call logs -->
     <plurals name="CallLogFragment__d_calls_deleted">
         <item quantity="one">წაშლილია %1$d ზარი</item>
@@ -6065,6 +6119,15 @@
 
     <!-- Title shown at top of bottom sheet dialog for displaying a message\'s edit history -->
     <string name="EditMessageHistoryDialog_title">რედაქტირების ისტორია</string>
+    <!-- Title of dialog shown alerting user that edit message is in beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_title">შესაძლებელია მხოლოდ Signal-ის ბეტა ვერსიაში</string>
+    <!-- Body of dialog shown alerting user that edit message is in beta only and only sent to beta users. -->
+    <string name="SendingEditMessageBetaOnlyDialog_body">შეტყობინებების რედაქტირება მხოლოდ Signal-ის ბეტა ვერსიის მომხმარებლებს შეუძლიათ. თუ ამ შეტყობინებას დაარედაქტირებ, მას მხოლოდ Signal-ის უახლესი ბეტა ვერსიის მომხმარებლები ნახავენ.</string>
+    <!-- Button to cancel sending edit message as it is beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_cancel">გაუქმება</string>
+    <!-- Button to continue sending edit message despite it being beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_send">გაგზავნა</string>
+
 
     <!-- CallLinkDetailsFragment -->
     <!-- Displayed in action bar at the top of the fragment -->

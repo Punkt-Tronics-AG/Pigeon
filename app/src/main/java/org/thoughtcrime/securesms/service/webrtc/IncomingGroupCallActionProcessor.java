@@ -119,7 +119,7 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
 
     currentState = WebRtcVideoUtil.initializeVideo(context, webRtcInteractor.getCameraEventListener(), currentState, RemotePeer.GROUP_CALL_ID.longValue());
 
-    webRtcInteractor.setCallInProgressNotification(TYPE_INCOMING_RINGING, remotePeerGroup);
+    webRtcInteractor.setCallInProgressNotification(TYPE_INCOMING_RINGING, remotePeerGroup, true);
     webRtcInteractor.updatePhoneState(LockManager.PhoneState.INTERACTIVE);
     webRtcInteractor.initializeAudioForCall();
 
@@ -189,7 +189,7 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
     try {
       groupCall.setOutgoingAudioMuted(true);
       groupCall.setOutgoingVideoMuted(true);
-      groupCall.setBandwidthMode(NetworkUtil.getCallingBandwidthMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
+      groupCall.setDataMode(NetworkUtil.getCallingDataMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
 
       Log.i(TAG, "Connecting to group call: " + currentState.getCallInfoState().getCallRecipient().getId());
       groupCall.connect();
@@ -207,7 +207,7 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
                                .enableVideoOnCreate(answerWithVideo)
                                .build();
 
-    webRtcInteractor.setCallInProgressNotification(TYPE_INCOMING_CONNECTING, currentState.getCallInfoState().getCallRecipient());
+    webRtcInteractor.setCallInProgressNotification(TYPE_INCOMING_CONNECTING, currentState.getCallInfoState().getCallRecipient(), true);
     webRtcInteractor.updatePhoneState(WebRtcUtil.getInCallPhoneState(context));
     webRtcInteractor.initializeAudioForCall();
 
@@ -215,7 +215,7 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
       groupCall.setOutgoingVideoSource(currentState.getVideoState().requireLocalSink(), currentState.getVideoState().requireCamera());
       groupCall.setOutgoingVideoMuted(answerWithVideo);
       groupCall.setOutgoingAudioMuted(!currentState.getLocalDeviceState().isMicrophoneEnabled());
-      groupCall.setBandwidthMode(NetworkUtil.getCallingBandwidthMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
+      groupCall.setDataMode(NetworkUtil.getCallingDataMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
 
       groupCall.join();
     } catch (CallException e) {
@@ -223,7 +223,7 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
     }
 
     return currentState.builder()
-                       .actionProcessor(new GroupJoiningActionProcessor(webRtcInteractor))
+                       .actionProcessor(MultiPeerActionProcessorFactory.GroupActionProcessorFactory.INSTANCE.createJoiningActionProcessor(webRtcInteractor))
                        .changeCallInfoState()
                        .callState(WebRtcViewModel.State.CALL_OUTGOING)
                        .groupCallState(WebRtcViewModel.GroupCallState.CONNECTED_AND_JOINING)

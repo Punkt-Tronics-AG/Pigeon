@@ -235,6 +235,8 @@
     <string name="CommunicationActions_call">Gọi</string>
     <string name="CommunicationActions_insecure_call">Cuộc gọi không bảo mật</string>
     <string name="CommunicationActions_carrier_charges_may_apply">Có thể tốn cước phí. Số điện thoại bạn đang gọi chưa được đăng kí với Signal. Cuộc gọi này sẽ được thực hiện qua nhà cung cấp dịch vụ viễn thông, không qua internet.</string>
+    <string name="CommunicationActions_cant_join_call">Không thể tham gia cuộc gọi</string>
+    <string name="CommunicationActions_this_call_link_is_no_longer_valid">Đường dẫn cuộc gọi không còn hiệu lực.</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -314,7 +316,9 @@
     <!-- Dialog error message shown when user can\'t download a their own video message via a linked device due to a permanent failure (e.g., unable to decrypt) -->
     <string name="ConversationItem_cant_download_video_you_will_need_to_send_it_again">Không thể tải video xuống. Bạn cần gửi lại.</string>
     <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp will go from \'11m\' to \'edited 11m\' -->
-    <string name="ConversationItem_edited_timestamp_footer">đã chỉnh sửa %1$s</string>
+    <string name="ConversationItem_edited_timestamp_footer">Đã chỉnh sửa %1$s</string>
+    <!-- Displayed if the link preview in the conversation item is for a call link call -->
+    <string name="ConversationItem__join_call">Tham gia cuộc gọi</string>
 
     <!-- ConversationActivity -->
     <string name="ConversationActivity_add_attachment">Thêm tệp đính kèm</string>
@@ -495,6 +499,9 @@
     <string name="ConversationFragment__content_description_back_button">Quay lại.</string>
     <!-- Label for a button displayed in the conversation toolbar to open the main screen of the app. -->
     <string name="ConversationFragment__content_description_launch_signal_button">Mở Signal</string>
+    <!-- Dialog title shown when more than one contact in a group conversation is no longer verified -->
+    <string name="ConversationFragment__no_longer_verified">Không còn được xác minh</string>
+
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Bỏ lọc</string>
     <!-- Notice on chat list when no unread chats are available, centered on display -->
@@ -848,6 +855,8 @@
     <string name="LinkPreviewView_no_link_preview_available">Xem trước liên kết không khả dụng</string>
     <string name="LinkPreviewView_this_group_link_is_not_active">Đường dẫn nhóm không khả dụng</string>
     <string name="LinkPreviewView_domain_date">%1$s · %2$s</string>
+    <!-- Description for Call Link url previews -->
+    <string name="LinkPreviewView__use_this_link_to_join_a_signal_call">Sử dụng đường dẫn này để tham gia cuộc gọi Signal</string>
 
     <!-- LinkPreviewRepository -->
     <plurals name="LinkPreviewRepository_d_members">
@@ -1167,10 +1176,7 @@
     <string name="MessageQuotesBottomSheet_replies">Câu trả lời</string>
 
     <!-- NotificationBarManager -->
-    <string name="NotificationBarManager_signal_call_in_progress">Đang tiến hành cuộc gọi Signal</string>
     <string name="NotificationBarManager__establishing_signal_call">Đang thiết lập cuộc gọi Signal</string>
-    <string name="NotificationBarManager__incoming_signal_call">Cuộc gọi đến Signal</string>
-    <string name="NotificationBarManager__incoming_signal_group_call">Đang có cuộc gọi nhóm Signal đến</string>
     <!-- Temporary notification shown when starting the calling service -->
     <string name="NotificationBarManager__starting_signal_call_service">Đang khởi động dịch vụ gọi thoại Signal</string>
     <string name="NotificationBarManager__stopping_signal_call_service">Dừng dịch vụ gọi thoại Signal</string>
@@ -1426,12 +1432,14 @@
 
     <!-- Group Calling update messages -->
     <string name="MessageRecord_s_started_a_group_call_s">%1$s đã bắt đầu cuộc gọi nhóm · %2$s</string>
+    <string name="MessageRecord_you_started_a_group_call_s">Bạn đã bắt đầu cuộc gọi nhóm · %1$s</string>
     <string name="MessageRecord_s_is_in_the_group_call_s">%1$s đang trong cuộc gọi nhóm · %2$s</string>
     <string name="MessageRecord_you_are_in_the_group_call_s1">Bạn đang trong cuộc gọi nhóm · %1$s</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s và %2$s đang trong cuộc gọi nhóm · %3$s</string>
     <string name="MessageRecord_group_call_s">Cuộc gọi nhóm · %1$s</string>
 
     <string name="MessageRecord_s_started_a_group_call">%1$s đã bắt đầu cuộc gọi nhóm</string>
+    <string name="MessageRecord_you_started_a_group_call">Bạn đã bắt đầu cuộc gọi nhóm</string>
     <string name="MessageRecord_s_is_in_the_group_call">%1$s đang trong cuộc gọi nhóm</string>
     <string name="MessageRecord_you_are_in_the_group_call">Bạn đang trong cuộc gọi nhóm</string>
     <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s và %2$s đang trong cuộc gọi nhóm</string>
@@ -1561,8 +1569,8 @@
         <item quantity="other">Bạn còn %1$d lần thử. Nếu bạn hết lần thử, bạn có thể tạo PIN mới. Bạn có thể đăng kí và dùng tài khoản của bạn nhưng sẽ mất một số dữ liệu như thông tin hồ sơ.</item>
     </plurals>
     <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Đăng kí Signal - Cần giúp đỡ về PIN trên Android</string>
-    <string name="PinRestoreEntryFragment_enter_alphanumeric_pin">Nhập mã PIN gồm chữ và số</string>
-    <string name="PinRestoreEntryFragment_enter_numeric_pin">Nhập mã PIN bao gồm số</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="PinRestoreEntryFragment_switch_keyboard">Đổi bàn phím</string>
 
     <!-- PinRestoreLockedFragment -->
     <string name="PinRestoreLockedFragment_create_your_pin">Tạo mã PIN của bạn</string>
@@ -1781,6 +1789,10 @@
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Bạn đã thử đăng ký số này quá nhiều lần. Vui lòng thử lại trong %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Không thể kết nối với dịch vụ. Vui lòng kiểm tra đuờng truyền mạng và thử lại.</string>
+    <!-- A description text for an alert dialog where we do not or can not explain the error to the user. -->
+    <string name="RegistrationActivity_generic_error">Đã xảy ra lỗi không mong muốn.</string>
+    <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
+    <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">Chúng tôi không thể gửi cho bạn mã xác minh thông qua tin nhắn SMS. Thử nhận mã của bạn qua cuộc gọi thoại.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">Không thể yêu cầu mã xác minh. Vui lòng kiểm tra kết nối mạng của bạn và thử lại.</string>
     <string name="RegistrationActivity_non_standard_number_format">Định dạng số không chuẩn</string>
@@ -1798,6 +1810,10 @@
     <string name="RegistrationActivity_we_need_to_verify_that_youre_human">Chúng tôi cần kiểm tra bạn là người hay robot.</string>
     <!-- An error shown when the request was valid, but due to an issue with a partner vendor, the server is unable to send an SMS code -->
     <string name="RegistrationActivity_external_service_error">Signal không thể gửi mã SMS vì một lỗi từ bên ngoài.</string>
+    <!-- Button label to trigger a phone call to provide the registration code, in lieu of an SMS code -->
+    <string name="RegistrationActivity_voice_call">Gọi thoại</string>
+    <!-- Dialog button to cancel the pending action and return to the previous state. -->
+    <string name="RegistrationActivity_cancel">Hủy</string>
     <string name="RegistrationActivity_next">Tiếp</string>
     <string name="RegistrationActivity_continue">Tiếp tục</string>
     <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Mang quyền riêng tư luôn bên bạn.\nHãy là chính mình trong từng tin nhắn.</string>
@@ -2229,7 +2245,8 @@
 
     <!-- WebRtcCallActivity -->
     <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone">Để trả lời cuộc gọi, hãy cho phép Signal truy cập microphone.</string>
-    <string name="WebRtcCallActivity_to_answer_the_call_from_s_give_signal_access_to_your_microphone">Để trả lời cuộc gọi từ %1$s, vui lòng cấp quyền truy cập Micro cho Signal.</string>
+    <!-- Message shown in permission dialog when attempting to answer a video call without camera or microphone permissions already granted. -->
+    <string name="WebRtcCallActivity_to_answer_the_call_give_signal_access_to_your_microphone_and_camera">Để trả lời cuộc gọi video, cho phép Signal truy cập microphone và camera.</string>
     <string name="WebRtcCallActivity_signal_requires_microphone_and_camera_permissions_in_order_to_make_or_receive_calls">Signal cần quyền truy cập Micro và Máy ảnh để nhận cuộc gọi và gọi, nhưng đã bị từ chối vĩnh viễn. Vui lòng mở cài đặt ứng dụng, chọn \"Quyền\" và bật \"Micro\" và \"Máy ảnh\"</string>
     <string name="WebRtcCallActivity__answered_on_a_linked_device">Đã trả lời trên một thiết bị liên kết.</string>
     <string name="WebRtcCallActivity__declined_on_a_linked_device">Đã từ chối trên một thiết bị liên kết.</string>
@@ -2257,7 +2274,9 @@
     <string name="WebRtcAudioOutputToggle__speaker">Loa</string>
     <!-- Audio output option referring to an external audio device connected via wireless Bluetooth -->
     <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth</string>
-    <!-- Audio output option referring to an external headset connected via a 3.5mm headphone jack -->
+    <!-- Audio output option referring to a pair of headphones that do not contain a microphone connected via a 3.5mm headphone jack -->
+    <string name="WebRtcAudioOutputToggle__wired_headphones">Tai nghe có dây</string>
+    <!-- Audio output option referring to an external headset that contains a microphone connected via a 3.5mm headphone jack -->
     <string name="WebRtcAudioOutputToggle__wired_headset">Tai nghe có dây</string>
     <!-- Audio output option referring to an external headset connected via a USB-C data cable -->
     <string name="WebRtcAudioOutputToggle__wired_headset_usb">Tai nghe có dây (USB)</string>
@@ -2804,7 +2823,7 @@
     <!-- Privacy settings payments section description -->
     <string name="preferences__payment_lock">Khóa thanh toán</string>
     <string name="preferences__payments_beta">Thanh toán (Beta)</string>
-    <string name="preferences__conversation_length_limit">Giới hạn độ dài cuộc trò chuyện</string>
+    <string name="preferences__conversation_length_limit">Số lượng tin nhắn tối đa trong một cuộc trò chuyện</string>
     <string name="preferences__keep_messages">Giữ tin nhắn</string>
     <string name="preferences__clear_message_history">Xóa lịch sử tin nhắn</string>
     <string name="preferences__linked_devices">Các thiết bị được liên kết</string>
@@ -3243,6 +3262,8 @@
     <string name="conversation__menu_conversation_settings">Cài đặt cuộc trò chuyện</string>
     <string name="conversation__menu_add_shortcut">Thêm vào màn hình chính</string>
     <string name="conversation__menu_create_bubble">Tạo bong bóng</string>
+    <!-- Overflow menu option that allows formatting of text -->
+    <string name="conversation__menu_format_text">Định dạng văn bản</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">Nới rộng khung popup</string>
@@ -3340,7 +3361,9 @@
 
     <!-- BaseKbsPinFragment -->
     <string name="BaseKbsPinFragment__next">Tiếp</string>
+    <!-- Button label to prompt them to create a password ("PIN") using numbers and letters rather than only numbers. -->
     <string name="BaseKbsPinFragment__create_alphanumeric_pin">Tạo mã PIN bao gồm chữ và số</string>
+    <!-- Button label to prompt them to return to creating a numbers-only password ("PIN") -->
     <string name="BaseKbsPinFragment__create_numeric_pin">Tạo mã PIN bao gồm số</string>
   <!-- Removed by excludeNonTranslatables <string name="BaseKbsPinFragment__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
 
@@ -3400,8 +3423,8 @@
     <string name="RegistrationLockFragment__enter_the_pin_you_created">Nhập mã PIN bạn đã tạo cho tài khoản. Mã này khác với mã xác minh SMS của bạn.</string>
     <!-- Info text shown above a pin entry text box describing what pin they should be entering. -->
     <string name="RegistrationLockFragment__enter_the_pin_you_created_for_your_account">Nhập mã PIN bạn đã tạo cho tài khoản của mình.</string>
-    <string name="RegistrationLockFragment__enter_alphanumeric_pin">Nhập mã PIN gồm chữ và số</string>
-    <string name="RegistrationLockFragment__enter_numeric_pin">Nhập mã PIN bao gồm số</string>
+    <!-- Button label to prompt the user to switch between an alphanumeric and numeric-only keyboards -->
+    <string name="RegistrationLockFragment__switch_keyboard">Đổi bàn phím</string>
     <string name="RegistrationLockFragment__incorrect_pin_try_again">PIN không đúng. Hãy thử lại.</string>
     <string name="RegistrationLockFragment__forgot_pin">Quên mã PIN?</string>
     <string name="RegistrationLockFragment__incorrect_pin">Mã PIN không chính xác</string>
@@ -3436,6 +3459,20 @@
     <string name="KbsMegaphone__create_a_pin">Tạo mã PIN</string>
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">Mã PIN giúp dữ liệu lưu trữ với Signal được bảo mật.</string>
     <string name="KbsMegaphone__create_pin">Tạo mã PIN</string>
+
+    <!-- CallNotificationBuilder -->
+    <!-- Displayed in a notification when a Signal voice call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_voice_call">Cuộc gọi thoại Signal đến</string>
+    <!-- Displayed in a notification when a Signal video call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_video_call">Cuộc gọi video Signal đến</string>
+    <!-- Displayed in a notification when a Signal group call is ringing -->
+    <string name="CallNotificationBuilder__incoming_signal_group_call">Đang có cuộc gọi nhóm Signal đến</string>
+    <!-- Displayed in a notification when a Signal voice call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_voice_call">Đang gọi thoại Signal</string>
+    <!-- Displayed in a notification when a Signal video call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_video_call">Đang gọi video Signal</string>
+    <!-- Displayed in a notification when a Signal group call is in progress -->
+    <string name="CallNotificationBuilder__ongoing_signal_group_call">Đang gọi nhóm Signal</string>
 
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">Biểu tượng chuyển tải</string>
@@ -5763,6 +5800,8 @@
     <string name="TextFormatting_monospace">Đơn cách</string>
     <!-- Popup menu label for applying spoiler style -->
     <string name="TextFormatting_spoiler">Spoiler</string>
+    <!-- Popup menu label for clearing applied formatting -->
+    <string name="TextFormatting_clear_formatting">Xóa định dạng</string>
 
     <!-- UsernameEducationFragment -->
     <!-- Continue button which takes the user to the add a username screen -->
@@ -5829,6 +5868,22 @@
     <string name="CallContextMenu__delete">Xóa</string>
 
     <!-- Call Log Fragment -->
+    <!-- Displayed when deleting call history items -->
+    <string name="CallLogFragment__deleting">Đang xóa…</string>
+    <!-- Displayed in a toast when a deletion fails for an unknown reason -->
+    <string name="CallLogFragment__deletion_failed">Xóa không thành công.</string>
+    <!-- Displayed as message in error dialog when can\'t delete links -->
+    <plurals name="CallLogFragment__cant_delete_call_link">
+        <item quantity="other">Không thể xóa một số đường dẫn cuộc gọi. Vui lòng kiểm tra kết nối mạng và thử lại.</item>
+    </plurals>
+    <!-- Snackbar text after clearing the call history -->
+    <string name="CallLogFragment__cleared_call_history">Đã xóa lịch sử cuộc gọi</string>
+    <!-- Dialog title to clear all call events -->
+    <string name="CallLogFragment__clear_call_history_question">Xóa lịch sử cuộc gọi?</string>
+    <!-- Dialog body to clear all call events -->
+    <string name="CallLogFragment__this_will_permanently_delete_all_call_history">Thao tác này sẽ xóa vĩnh viễn tất cả lịch sử cuộc gọi</string>
+    <!-- Action bar menu item to delete all call events -->
+    <string name="CallLogFragment__clear_call_history">Xóa lịch sử cuộc gọi</string>
     <!-- Action bar menu item to only display missed calls -->
     <string name="CallLogFragment__filter_missed_calls">Lọc cuộc gọi nhỡ</string>
     <!-- Action bar menu item to clear missed call filter -->
@@ -5843,13 +5898,11 @@
     <string name="CallLogFragment__filtered_by_missed">Đã lọc cuộc gọi nhỡ</string>
     <!-- Bottom bar option to select all call entries -->
     <string name="CallLogFragment__select_all">Chọn tất cả</string>
-    <!-- Bottom bar option to delete all selected call entries -->
+    <!-- Bottom bar option to delete all selected call entries and dialog action to confirm deletion -->
     <string name="CallLogFragment__delete">Xóa</string>
     <plurals name="CallLogFragment__delete_d_calls">
         <item quantity="other">Xóa %1$d cuộc gọi?</item>
     </plurals>
-    <!-- Positive action on multi-delete protection dialog -->
-    <string name="CallLogFragment__delete_for_me">Xóa cho tôi</string>
     <!-- Snackbar label after deleting call logs -->
     <plurals name="CallLogFragment__d_calls_deleted">
         <item quantity="other">Đã xóa %1$d cuộc gọi</item>
@@ -5940,6 +5993,15 @@
 
     <!-- Title shown at top of bottom sheet dialog for displaying a message\'s edit history -->
     <string name="EditMessageHistoryDialog_title">Lịch sử chỉnh sửa</string>
+    <!-- Title of dialog shown alerting user that edit message is in beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_title">Chỉ có trên bản beta của Signal</string>
+    <!-- Body of dialog shown alerting user that edit message is in beta only and only sent to beta users. -->
+    <string name="SendingEditMessageBetaOnlyDialog_body">Tính năng sửa tin nhắn chỉ khả dụng cho người dùng bản beta của Signal. Nếu bạn sửa một tin nhắn, nội dung sau khi thay đổi sẽ chỉ hiển thị với người dùng bản beta mới nhất của Signal.</string>
+    <!-- Button to cancel sending edit message as it is beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_cancel">Hủy</string>
+    <!-- Button to continue sending edit message despite it being beta only -->
+    <string name="SendingEditMessageBetaOnlyDialog_send">Gửi</string>
+
 
     <!-- CallLinkDetailsFragment -->
     <!-- Displayed in action bar at the top of the fragment -->

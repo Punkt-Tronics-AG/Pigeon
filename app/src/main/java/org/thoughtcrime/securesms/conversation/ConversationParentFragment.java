@@ -59,6 +59,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
@@ -458,6 +459,7 @@ public class ConversationParentFragment extends Fragment
   private GroupCallViewModel           groupCallViewModel;
   private VoiceRecorderWakeLock        voiceRecorderWakeLock;
   private DraftViewModel               draftViewModel;
+  private KeyboardPagerViewModel       keyboardPagerViewModel;
   private VoiceNoteMediaController     voiceNoteMediaController;
   private VoiceNotePlayerView          voiceNotePlayerView;
   private Material3OnScrollHelper      material3OnScrollHelper;
@@ -483,7 +485,7 @@ public class ConversationParentFragment extends Fragment
   private Callback             callback;
   private RecentEmojiPageModel recentEmojis;
 
-  private ConversationOptionsMenu.Provider menuProvider;
+  private Set<KeyboardPage> previousPages;
 
   private MaterialButton pigeonGroupCall;
   private MaterialButton pigeonCall;
@@ -514,7 +516,6 @@ public class ConversationParentFragment extends Fragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     disposables.bindTo(getViewLifecycleOwner());
-    menuProvider = new ConversationOptionsMenu.Provider(this, disposables);
     SpoilerAnnotation.resetRevealedSpoilers();
 
     if (requireActivity() instanceof Callback) {
@@ -536,7 +537,7 @@ public class ConversationParentFragment extends Fragment
 
     voiceNoteMediaController = new VoiceNoteMediaController(requireActivity(), true);
     voiceRecorderWakeLock    = new VoiceRecorderWakeLock(requireActivity());
-    bluetoothVoiceNoteUtil   = BluetoothVoiceNoteUtil.Companion.create(requireContext(), this::beginRecording, this::onBluetoothPermissionDenied);
+    bluetoothVoiceNoteUtil   = BluetoothVoiceNoteUtil.Companion.create(requireContext(), this::onBluetoothConnectionAttempt, this::onBluetoothPermissionDenied);
 
     // TODO [alex] LargeScreenSupport -- Should be removed once we move to multi-pane layout.
     new FullscreenHelper(requireActivity()).showSystemUI();
@@ -594,10 +595,6 @@ public class ConversationParentFragment extends Fragment
       }
     };
     requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
-
-    if (isSearchRequested && savedInstanceState == null) {
-      menuProvider.onCreateMenu(toolbar.getMenu(), requireActivity().getMenuInflater());
-    }
 
     sendButton.post(() -> sendButton.triggerSelectedChangedEvent());
   }
@@ -758,9 +755,13 @@ public class ConversationParentFragment extends Fragment
       }, nothing -> onRecipientChanged(recipient.get()));
       break;
     case PICK_LOCATION:
-      SignalPlace place = new SignalPlace(PlacePickerActivity.addressFromData(data));
-      attachmentManager.setLocation(place, getCurrentMediaConstraints());
-      draftViewModel.setLocationDraft(place);
+      if (data.getData() != null) {
+        SignalPlace place = new SignalPlace(PlacePickerActivity.addressFromData(data));
+        attachmentManager.setLocation(place, data.getData());
+        draftViewModel.setLocationDraft(place);
+      } else {
+        Log.w(TAG, "Location missing thumbnail");
+      }
       break;
     case SMS_DEFAULT:
       viewModel.updateSecurityInfo();
@@ -885,6 +886,7 @@ public class ConversationParentFragment extends Fragment
         }
 
         composeText.addTextChangedListener(typingTextWatcher);
+        composeText.setStylingChangedListener(typingTextWatcher);
         composeText.setSelection(composeText.length(), composeText.length());
       }
     });
@@ -1006,7 +1008,7 @@ public class ConversationParentFragment extends Fragment
     if (!isSearchRequested && getActivity() != null) {
       optionsMenuDebouncer.publish(() -> {
         if (getActivity() != null) {
-          menuProvider.onCreateMenu(toolbar.getMenu(), requireActivity().getMenuInflater());
+          toolbar.invalidateMenu();
         }
       });
     }
@@ -1760,7 +1762,7 @@ public class ConversationParentFragment extends Fragment
       reminderView.get().setOnActionClickListener(this::handleReminderAction);
     } else if (ServiceOutageReminder.isEligible(context)) {
       ApplicationDependencies.getJobManager().add(new ServiceOutageDetectionJob());
-      reminderView.get().showReminder(new ServiceOutageReminder(context));
+      reminderView.get().showReminder(new ServiceOutageReminder());
     } else if (SignalStore.account().isRegistered()                 &&
                TextSecurePreferences.isShowInviteReminders(context) &&
                !viewModel.isPushAvailable()                         &&
@@ -1770,14 +1772,14 @@ public class ConversationParentFragment extends Fragment
       reminderView.get().setOnDismissListener(() -> inviteReminderModel.dismissReminder());
       reminderView.get().showReminder(inviteReminder.get());
     } else if (actionableRequestingMembers != null && actionableRequestingMembers > 0) {
-      reminderView.get().showReminder(PendingGroupJoinRequestsReminder.create(context, actionableRequestingMembers));
+      reminderView.get().showReminder(new PendingGroupJoinRequestsReminder(actionableRequestingMembers));
       reminderView.get().setOnActionClickListener(id -> {
         if (id == R.id.reminder_action_review_join_requests) {
           startActivity(ManagePendingAndRequestingMembersActivity.newIntent(context, getRecipient().getGroupId().get().requireV2()));
         }
       });
     } else if (gv1MigrationSuggestions != null && gv1MigrationSuggestions.size() > 0 && recipient.get().isPushV2Group()) {
-      reminderView.get().showReminder(new GroupsV1MigrationSuggestionsReminder(context, gv1MigrationSuggestions));
+      reminderView.get().showReminder(new GroupsV1MigrationSuggestionsReminder(gv1MigrationSuggestions));
       reminderView.get().setOnActionClickListener(actionId -> {
         if (actionId == R.id.reminder_action_gv1_suggestion_add_members) {
           GroupsV1MigrationSuggestionsDialog.show(requireActivity(), recipient.get().requireGroupId().requireV2(), gv1MigrationSuggestions);
@@ -1788,12 +1790,12 @@ public class ConversationParentFragment extends Fragment
       reminderView.get().setOnDismissListener(() -> {
       });
     } else if (isInBubble() && !SignalStore.tooltips().hasSeenBubbleOptOutTooltip() && Build.VERSION.SDK_INT > 29) {
-      reminderView.get().showReminder(new BubbleOptOutReminder(context));
+      reminderView.get().showReminder(new BubbleOptOutReminder());
       reminderView.get().setOnActionClickListener(actionId -> {
         SignalStore.tooltips().markBubbleOptOutTooltipSeen();
         reminderView.get().hide();
 
-        if (actionId == R.id.reminder_action_turn_off) {
+        if (actionId == R.id.reminder_action_bubble_turn_off) {
           Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
               .putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().getPackageName())
               .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -2285,8 +2287,8 @@ public class ConversationParentFragment extends Fragment
   }
 
   protected void initializeActionBar() {
+    toolbar.addMenuProvider(new ConversationOptionsMenu.Provider(this, disposables));
     invalidateOptionsMenu();
-    toolbar.setOnMenuItemClickListener(menuProvider::onMenuItemSelected);
     toolbar.setNavigationContentDescription(R.string.ConversationFragment__content_description_back_button);
     if (isInBubble()) {
       toolbar.setNavigationIcon(DrawableUtil.tint(ContextUtil.requireDrawable(requireContext(), R.drawable.ic_notification),
@@ -2358,7 +2360,7 @@ public class ConversationParentFragment extends Fragment
   }
 
   private void initializeStickerObserver() {
-    StickerSearchRepository repository = new StickerSearchRepository(requireContext());
+    StickerSearchRepository repository = new StickerSearchRepository();
 
     stickerViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) new ConversationStickerViewModel.Factory(requireActivity().getApplication(), repository))
                                          .get(ConversationStickerViewModel.class);
@@ -2418,7 +2420,6 @@ public class ConversationParentFragment extends Fragment
     inlineQueryViewModel = new ViewModelProvider(requireActivity()).get(InlineQueryViewModel.class);
 
     inlineQueryResultsController = new InlineQueryResultsController(
-        requireContext(),
         inlineQueryViewModel,
         inputPanel,
         (ViewGroup) requireView(),
@@ -2557,6 +2558,11 @@ public class ConversationParentFragment extends Fragment
                 .setText(R.string.ConversationActivity__tap_here_to_start_a_group_call)
                 .setOnDismissListener(() -> SignalStore.tooltips().markGroupCallingTooltipSeen())
                 .show(TooltipPopup.POSITION_BELOW);
+  }
+
+  @Override
+  public void handleFormatText(@IdRes int id) {
+    composeText.handleFormatText(id);
   }
 
   private void showStickerIntroductionTooltip() {
@@ -2917,7 +2923,7 @@ public class ConversationParentFragment extends Fragment
   }
 
   private void initializeMediaKeyboardProviders() {
-    KeyboardPagerViewModel keyboardPagerViewModel = new ViewModelProvider(requireActivity()).get(KeyboardPagerViewModel.class);
+    keyboardPagerViewModel = new ViewModelProvider(requireActivity()).get(KeyboardPagerViewModel.class);
 
     switch (TextSecurePreferences.getMediaKeyboardMode(requireContext())) {
       case EMOJI:
@@ -3359,14 +3365,14 @@ public class ConversationParentFragment extends Fragment
     Reminder reminder = new ExpiredBuildReminder(requireContext());
 
     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-        .setMessage(reminder.getText())
+        .setMessage(reminder.getText(requireContext()))
         .setPositiveButton(android.R.string.ok, (d, w) -> d.dismiss());
 
     List<Reminder.Action> actions = reminder.getActions();
     if (actions.size() == 1) {
       Reminder.Action action = actions.get(0);
 
-      builder.setNeutralButton(action.getTitle(), (d, i) -> {
+      builder.setNeutralButton(action.getTitle(requireContext()), (d, i) -> {
         if (action.getActionId() == R.id.reminder_action_update_now) {
           PlayStoreUtil.openPlayStoreOrOurApkDownloadPage(requireContext());
         }
@@ -3494,6 +3500,11 @@ public class ConversationParentFragment extends Fragment
       } else {
         Log.e(TAG, "Unable to instantiate BluetoothVoiceNoteUtil.");
       }
+  }
+
+  private Unit onBluetoothConnectionAttempt(Boolean success) {
+    beginRecording();
+    return Unit.INSTANCE;
   }
 
   private Unit beginRecording() {
@@ -3870,6 +3881,11 @@ public class ConversationParentFragment extends Fragment
   }
 
   @Override
+  public boolean isTextHighlighted() {
+    return composeText.isTextHighlighted();
+  }
+
+  @Override
   public void showExpiring(@NonNull Recipient recipient) {
     titleView.showExpiring(recipient);
   }
@@ -3916,6 +3932,7 @@ public class ConversationParentFragment extends Fragment
     public void onError(Throwable t) {
       Toast.makeText(requireContext(), R.string.ConversationActivity_unable_to_record_audio, Toast.LENGTH_LONG).show();
       Log.e(TAG, "Error in RecordingSession.", t);
+      recordingSession.discardRecording();
       recordingSession.dispose();
       recordingSession = null;
     }
@@ -4052,7 +4069,7 @@ public class ConversationParentFragment extends Fragment
     }
   }
 
-  private class ComposeTextWatcher extends SimpleTextWatcher {
+  private class ComposeTextWatcher extends SimpleTextWatcher implements ComposeText.StylingChangedListener {
 
     private boolean typingStatusEnabled = true;
 
@@ -4092,6 +4109,11 @@ public class ConversationParentFragment extends Fragment
 
     public void setTypingStatusEnabled(boolean enabled) {
       this.typingStatusEnabled = enabled;
+    }
+
+    @Override
+    public void onStylingChanged() {
+      handleSaveDraftOnTextChange(composeText.getTextTrimmed());
     }
   }
 
@@ -4405,6 +4427,11 @@ public class ConversationParentFragment extends Fragment
       return;
     }
 
+    if (SignalStore.uiHints().hasNotSeenEditMessageBetaAlert()) {
+      Dialogs.showEditMessageBetaDialog(requireContext(), this::handleSendEditMessage);
+      return;
+    }
+
     MessageRecord editMessage = inputPanel.getEditMessage();
     if (editMessage == null) {
       Log.w(TAG, "No edit message found, forcing exit");
@@ -4428,12 +4455,19 @@ public class ConversationParentFragment extends Fragment
   @Override
   public void onEnterEditMode() {
     updateToggleButtonState();
+    previousPages = keyboardPagerViewModel.pages().getValue();
+    keyboardPagerViewModel.setOnlyPage(KeyboardPage.EMOJI);
+    onKeyboardChanged(KeyboardPage.EMOJI);
   }
 
   @Override
   public void onExitEditMode() {
     updateToggleButtonState();
     draftViewModel.deleteMessageEditDraft();
+    if (previousPages != null) {
+      keyboardPagerViewModel.setPages(previousPages);
+      previousPages = null;
+    }
   }
 
   @Override
@@ -4592,7 +4626,7 @@ public class ConversationParentFragment extends Fragment
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setIcon(R.drawable.ic_warning);
-        builder.setTitle("No longer verified");
+        builder.setTitle(R.string.ConversationFragment__no_longer_verified);
         builder.setItems(unverifiedNames, (dialog, which) -> {
           startActivity(VerifyIdentityActivity.newIntent(requireContext(), unverifiedIdentities.get(which), false));
         });

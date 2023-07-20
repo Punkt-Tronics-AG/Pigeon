@@ -30,11 +30,11 @@ import org.thoughtcrime.securesms.jobs.PushProcessMessageJobV2
 import org.thoughtcrime.securesms.jobs.UnableToStartException
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.messages.MessageDecryptor.FollowUpOperation
-import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.groupId
 import org.thoughtcrime.securesms.messages.protocol.BufferedProtocolStore
 import org.thoughtcrime.securesms.notifications.NotificationChannels
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.AppForegroundObserver
+import org.thoughtcrime.securesms.util.SignalLocalMetrics
 import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.util.UuidUtil
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
@@ -48,6 +48,7 @@ import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.math.round
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -87,9 +88,9 @@ class IncomingMessageObserver(private val context: Application) {
 
   private val lock: ReentrantLock = ReentrantLock()
   private val connectionNecessarySemaphore = Semaphore(0)
-  private val networkConnectionListener = NetworkConnectionListener(context) { isNetworkAvailable ->
+  private val networkConnectionListener = NetworkConnectionListener(context) { isNetworkUnavailable ->
     lock.withLock {
-      if (isNetworkAvailable()) {
+      if (isNetworkUnavailable()) {
         Log.w(TAG, "Lost network connection. Shutting down our websocket connections and resetting the drained state.")
         decryptionDrained = false
         disconnect()
@@ -412,10 +413,11 @@ class IncomingMessageObserver(private val context: Application) {
                   }
                 }
                 val duration = System.currentTimeMillis() - startTime
-                Log.d(TAG, "Decrypted ${batch.size} envelopes in $duration ms (~${duration / batch.size} ms per message)")
+                val timePerMessage: Float = duration / batch.size.toFloat()
+                Log.d(TAG, "Decrypted ${batch.size} envelopes in $duration ms (~${round(timePerMessage * 100) / 100} ms per message)")
               }
-
               attempts = 0
+              SignalLocalMetrics.PushWebsocketFetch.onProcessedBatch()
 
               if (!hasMore && !decryptionDrained) {
                 Log.i(TAG, "Decryptions newly-drained.")

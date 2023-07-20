@@ -69,12 +69,15 @@ import com.google.common.collect.Sets;
 import org.signal.core.util.DimensionUnit;
 import org.signal.core.util.StringUtil;
 import org.signal.core.util.logging.Log;
+import org.signal.ringrtc.CallLinkRootKey;
 import org.thoughtcrime.securesms.BindableConversationItem;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.badges.BadgeImageView;
 import org.thoughtcrime.securesms.badges.gifts.GiftMessageView;
 import org.thoughtcrime.securesms.badges.gifts.OpenableGift;
+import org.thoughtcrime.securesms.calls.links.CallLinkJoinButton;
+import org.thoughtcrime.securesms.calls.links.CallLinks;
 import org.thoughtcrime.securesms.components.AlertView;
 import org.thoughtcrime.securesms.components.AudioView;
 import org.thoughtcrime.securesms.components.AvatarImageView;
@@ -130,6 +133,7 @@ import org.thoughtcrime.securesms.recipients.RecipientForeverObserver;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.revealable.ViewOnceMessageView;
 import org.thoughtcrime.securesms.util.DateUtils;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.InterceptableLongClickCopyLinkSpan;
 import org.thoughtcrime.securesms.util.LinkUtil;
 import org.thoughtcrime.securesms.util.LongClickMovementMethod;
@@ -227,6 +231,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   private           Stub<LinkPreviewView>                   linkPreviewStub;
   private           Stub<BorderlessImageView>               stickerStub;
   private           Stub<ViewOnceMessageView>               revealableStub;
+  private           Stub<CallLinkJoinButton>                joinCallLinkStub;
   private           Stub<Button>                            callToActionStub;
   private           Stub<GiftMessageView>                   giftViewStub;
   private           Stub<PaymentMessageView>                paymentViewStub;
@@ -326,6 +331,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     this.linkPreviewStub           = new Stub<>(findViewById(R.id.link_preview_stub));
     this.stickerStub               = new Stub<>(findViewById(R.id.sticker_view_stub));
     this.revealableStub            = new Stub<>(findViewById(R.id.revealable_view_stub));
+    this.joinCallLinkStub          = ViewUtil.findStubById(this, R.id.conversation_item_join_button);
     this.callToActionStub          = ViewUtil.findStubById(this, R.id.conversation_item_call_to_action_stub);
     this.groupSenderHolder         = findViewById(R.id.group_sender_holder);
     this.quoteView                 = findViewById(R.id.quote_view);
@@ -1101,6 +1107,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (linkPreviewStub.resolved()) linkPreviewStub.get().setVisibility(GONE);
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (callToActionStub.resolved()) callToActionStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       revealableStub.get().setMessage((MmsMessageRecord) messageRecord, hasWallpaper);
@@ -1145,11 +1152,24 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       //noinspection ConstantConditions
       LinkPreview linkPreview = ((MmsMessageRecord) messageRecord).getLinkPreviews().get(0);
 
+      if (FeatureFlags.adHocCalling()) {
+        CallLinkRootKey callLinkRootKey = CallLinks.parseUrl(linkPreview.getUrl());
+        if (callLinkRootKey != null) {
+          joinCallLinkStub.setVisibility(View.VISIBLE);
+          joinCallLinkStub.get().setTextColor(messageRecord.isOutgoing() ? R.color.signal_colorOnCustom : R.color.signal_colorOnSurface);
+          joinCallLinkStub.get().setJoinClickListener(v -> {
+            if (eventListener != null) {
+              eventListener.onJoinCallLink(callLinkRootKey);
+            }
+          });
+        }
+      }
+
       if (hasBigImageLinkPreview(messageRecord)) {
         mediaThumbnailStub.require().setVisibility(VISIBLE);
         mediaThumbnailStub.require().setMinimumThumbnailWidth(readDimen(R.dimen.media_bubble_min_width_with_content));
         mediaThumbnailStub.require().setMaximumThumbnailHeight(readDimen(R.dimen.media_bubble_max_height));
-        mediaThumbnailStub.require().setImageResource(glideRequests, Collections.singletonList(new ImageSlide(context, linkPreview.getThumbnail().get())), showControls, false);
+        mediaThumbnailStub.require().setImageResource(glideRequests, Collections.singletonList(new ImageSlide(linkPreview.getThumbnail().get())), showControls, false);
         mediaThumbnailStub.require().setThumbnailClickListener(new LinkPreviewThumbnailClickListener());
         mediaThumbnailStub.require().setDownloadClickListener(downloadClickListener);
         mediaThumbnailStub.require().setOnLongClickListener(passthroughClickListener);
@@ -1758,7 +1778,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   }
 
   private void setHasBeenQuoted(@NonNull ConversationMessage message) {
-    if (message.hasBeenQuoted() && !isCondensedMode() && quotedIndicator != null && batchSelected.isEmpty() && displayMode != ConversationItemDisplayMode.EXTRA_CONDENSED) {
+    if (message.hasBeenQuoted() && !isCondensedMode() && quotedIndicator != null && batchSelected.isEmpty() && displayMode != ConversationItemDisplayMode.EDIT_HISTORY) {
       quotedIndicator.setVisibility(VISIBLE);
       quotedIndicator.setOnClickListener(quotedIndicatorClickListener);
     } else if (quotedIndicator != null) {
@@ -1885,7 +1905,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
     int background;
 
-    if (isSingularMessage(current, previous, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EXTRA_CONDENSED) {
+    if (isSingularMessage(current, previous, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EDIT_HISTORY) {
       if (current.isOutgoing()) {
         background = R.drawable.message_bubble_background_sent_alone;
         outliner.setRadius(bigRadius);
@@ -1981,11 +2001,11 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     int spacingTop    = readDimen(context, R.dimen.conversation_vertical_message_spacing_collapse);
     int spacingBottom = spacingTop;
 
-    if (isStartOfMessageCluster(current, previous, isGroupThread) && (displayMode != ConversationItemDisplayMode.EXTRA_CONDENSED || next.isEmpty())) {
+    if (isStartOfMessageCluster(current, previous, isGroupThread) && (displayMode != ConversationItemDisplayMode.EDIT_HISTORY || next.isEmpty())) {
       spacingTop = readDimen(context, R.dimen.conversation_vertical_message_spacing_default);
     }
 
-    if (isEndOfMessageCluster(current, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EXTRA_CONDENSED) {
+    if (isEndOfMessageCluster(current, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EDIT_HISTORY) {
       spacingBottom = readDimen(context, R.dimen.conversation_vertical_message_spacing_default);
     }
 
@@ -2639,7 +2659,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
     message = R.string.ConversationItem_click_to_approve_unencrypted_dialog_message;
 
-    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
     builder.setTitle(title);
 
     if (message > -1) builder.setMessage(message);

@@ -479,12 +479,10 @@ public class WebRtcCallView extends ConstraintLayout {
 
   @Override
   public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-    if (android.os.Build.VERSION.SDK_INT >= 20) {
-      navBarBottomInset = WindowInsetsCompat.toWindowInsetsCompat(insets).getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+    navBarBottomInset = WindowInsetsCompat.toWindowInsetsCompat(insets).getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
 
-      if (lastState != null) {
-        updateCallParticipants(lastState);
-      }
+    if (lastState != null) {
+      updateCallParticipants(lastState);
     }
 
     return super.onApplyWindowInsets(insets);
@@ -495,9 +493,9 @@ public class WebRtcCallView extends ConstraintLayout {
     if ((visible & SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
       if (controls.adjustForFold()) {
         pictureInPictureGestureHelper.clearVerticalBoundaries();
-        pictureInPictureGestureHelper.setTopVerticalBoundary(largeHeader.getTop());
+        pictureInPictureGestureHelper.setTopVerticalBoundary(getPipBarrier().getTop());
       } else {
-        pictureInPictureGestureHelper.setTopVerticalBoundary(largeHeader.getBottom());
+        pictureInPictureGestureHelper.setTopVerticalBoundary(getPipBarrier().getBottom());
         pictureInPictureGestureHelper.setBottomVerticalBoundary(videoToggle.getTop());
       }
     } else {
@@ -695,6 +693,14 @@ public class WebRtcCallView extends ConstraintLayout {
 
   private void setStatus(@StringRes int statusRes) {
     setStatus(getContext().getString(statusRes));
+  }
+
+  private @NonNull View getPipBarrier() {
+    if (collapsedToolbar.isEnabled()) {
+      return collapsedToolbar;
+    } else {
+      return largeHeader;
+    }
   }
 
   public void setStatusFromHangupType(@NonNull HangupMessage.Type hangupType) {

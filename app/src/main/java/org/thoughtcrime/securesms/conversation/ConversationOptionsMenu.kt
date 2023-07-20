@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.conversation
 
+import android.text.SpannableString
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -63,7 +64,7 @@ internal object ConversationOptionsMenu {
       }
 
       if (isPushAvailable) {
-        if (recipient!!.expiresInSeconds > 0) {
+        if (recipient.expiresInSeconds > 0) {
           if (!isInActiveGroup) {
             menuInflater.inflate(R.menu.conversation_expiring_on, menu)
           }
@@ -76,13 +77,13 @@ internal object ConversationOptionsMenu {
         }
       }
 
-      if (recipient?.isGroup == false) {
+      if (!recipient.isGroup) {
         if (isPushAvailable) {
           menuInflater.inflate(R.menu.conversation_callable_secure, menu)
         } else if (!recipient.isReleaseNotes && SignalStore.misc().smsExportPhase.allowSmsFeatures()) {
           menuInflater.inflate(R.menu.conversation_callable_insecure, menu)
         }
-      } else if (recipient?.isGroup == true) {
+      } else if (recipient.isGroup) {
         if (isActiveV2Group) {
           menuInflater.inflate(R.menu.conversation_callable_groupv2, menu)
           if (hasActiveGroupCall) {
@@ -104,21 +105,21 @@ internal object ConversationOptionsMenu {
 
       menuInflater.inflate(R.menu.conversation, menu)
 
-      if (isInMessageRequest && !recipient!!.isBlocked) {
+      if (isInMessageRequest && !recipient.isBlocked) {
         hideMenuItem(menu, R.id.menu_conversation_settings)
       }
 
-      if (recipient?.isGroup == false && !isPushAvailable && !recipient.isReleaseNotes) {
+      if (!recipient.isGroup && !isPushAvailable && !recipient.isReleaseNotes) {
         menuInflater.inflate(R.menu.conversation_insecure, menu)
       }
 
-      if (recipient?.isMuted == true) menuInflater.inflate(R.menu.conversation_muted, menu) else menuInflater.inflate(R.menu.conversation_unmuted, menu)
+      if (recipient.isMuted) menuInflater.inflate(R.menu.conversation_muted, menu) else menuInflater.inflate(R.menu.conversation_unmuted, menu)
 
-      if (recipient?.isGroup == false && recipient.contactUri == null && !recipient.isReleaseNotes && !recipient.isSelf && recipient.hasE164()) {
+      if (!recipient.isGroup && (recipient.contactUri == null) && !recipient.isReleaseNotes && !recipient.isSelf && recipient.hasE164()) {
         menuInflater.inflate(R.menu.conversation_add_to_contacts, menu)
       }
 
-      if (recipient != null && recipient.isSelf) {
+      if (recipient.isSelf) {
         if (isPushAvailable) {
           hideMenuItem(menu, R.id.menu_call_secure)
           hideMenuItem(menu, R.id.menu_video_secure)
@@ -128,7 +129,7 @@ internal object ConversationOptionsMenu {
         hideMenuItem(menu, R.id.menu_mute_notifications)
       }
 
-      if (recipient?.isBlocked == true) {
+      if (recipient.isBlocked) {
         if (isPushAvailable) {
           hideMenuItem(menu, R.id.menu_call_secure)
           hideMenuItem(menu, R.id.menu_video_secure)
@@ -140,7 +141,7 @@ internal object ConversationOptionsMenu {
         hideMenuItem(menu, R.id.menu_mute_notifications)
       }
 
-      if (recipient?.isReleaseNotes == true) {
+      if (recipient.isReleaseNotes) {
         hideMenuItem(menu, R.id.menu_add_shortcut)
       }
 
@@ -149,7 +150,7 @@ internal object ConversationOptionsMenu {
       if (isActiveV2Group) {
         hideMenuItem(menu, R.id.menu_mute_notifications)
         hideMenuItem(menu, R.id.menu_conversation_settings)
-      } else if (recipient?.isGroup == true) {
+      } else if (recipient.isGroup) {
         hideMenuItem(menu, R.id.menu_conversation_settings)
       }
 
@@ -165,7 +166,21 @@ internal object ConversationOptionsMenu {
         hideMenuItem(menu, R.id.menu_view_media)
       }
 
+      menu.findItem(R.id.menu_format_text_submenu).subMenu?.clearHeader()
+      menu.findItem(R.id.edittext_bold).applyTitleSpan(MessageStyler.boldStyle())
+      menu.findItem(R.id.edittext_italic).applyTitleSpan(MessageStyler.italicStyle())
+      menu.findItem(R.id.edittext_strikethrough).applyTitleSpan(MessageStyler.strikethroughStyle())
+      menu.findItem(R.id.edittext_monospace).applyTitleSpan(MessageStyler.monoStyle())
+
       callback.onOptionsMenuCreated(menu)
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+      super.onPrepareMenu(menu)
+      val formatText = menu.findItem(R.id.menu_format_text_submenu)
+      if (formatText != null) {
+        formatText.isVisible = callback.isTextHighlighted()
+      }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -189,6 +204,12 @@ internal object ConversationOptionsMenu {
         R.id.menu_expiring_messages_off, R.id.menu_expiring_messages -> callback.handleSelectMessageExpiration()
         R.id.menu_create_bubble -> callback.handleCreateBubble()
         R.id.home -> callback.handleGoHome()
+        R.id.edittext_bold,
+        R.id.edittext_italic,
+        R.id.edittext_strikethrough,
+        R.id.edittext_monospace,
+        R.id.edittext_spoiler,
+        R.id.edittext_clear_formatting -> callback.handleFormatText(menuItem.itemId)
         else -> return false
       }
 
@@ -199,6 +220,10 @@ internal object ConversationOptionsMenu {
       if (menu.findItem(menuItem) != null) {
         menu.findItem(menuItem).isVisible = false
       }
+    }
+
+    private fun MenuItem.applyTitleSpan(span: Any) {
+      title = SpannableString(title).apply { setSpan(span, 0, length, MessageStyler.SPAN_FLAGS) }
     }
   }
 
@@ -224,6 +249,7 @@ internal object ConversationOptionsMenu {
    */
   interface Callback {
     fun getSnapshot(): Snapshot
+    fun isTextHighlighted(): Boolean
 
     fun onOptionsMenuCreated(menu: Menu)
 
@@ -248,5 +274,6 @@ internal object ConversationOptionsMenu {
     fun showExpiring(recipient: Recipient)
     fun clearExpiring()
     fun showGroupCallingTooltip()
+    fun handleFormatText(@IdRes id: Int)
   }
 }
