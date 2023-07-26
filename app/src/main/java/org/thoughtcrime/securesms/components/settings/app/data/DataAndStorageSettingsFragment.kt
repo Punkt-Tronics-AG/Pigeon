@@ -127,13 +127,14 @@ class DataAndStorageSettingsFragment : DSLSettingsFragment(R.string.preferences_
       if (isSignalVersion()) {
         sectionHeaderPref(R.string.preferences_proxy)
 
-      clickPref(
-        title = DSLSettingsText.from(R.string.preferences_use_proxy),
-        summary = DSLSettingsText.from(if (state.isProxyEnabled) R.string.preferences_on else R.string.preferences_off),
-        onClick = {
-          Navigation.findNavController(requireView()).safeNavigate(R.id.action_dataAndStorageSettingsFragment_to_editProxyFragment)
-        }
-      )
+        clickPref(
+          title = DSLSettingsText.from(R.string.preferences_use_proxy),
+          summary = DSLSettingsText.from(if (state.isProxyEnabled) R.string.preferences_on else R.string.preferences_off),
+          onClick = {
+            Navigation.findNavController(requireView()).safeNavigate(R.id.action_dataAndStorageSettingsFragment_to_editProxyFragment)
+          }
+        )
+      }
     }
   }
 }
