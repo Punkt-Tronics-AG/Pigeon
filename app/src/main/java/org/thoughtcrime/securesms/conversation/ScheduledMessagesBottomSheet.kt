@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.StreamUtil
+import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.concurrent.SimpleTask
 import org.signal.core.util.dp
 import org.signal.core.util.logging.Log
@@ -45,7 +46,6 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.BottomSheetUtil.requireCoordinatorLayout
-import org.thoughtcrime.securesms.util.LifecycleDisposable
 import org.thoughtcrime.securesms.util.StickyHeaderDecoration
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.fragments.requireListener
@@ -92,8 +92,8 @@ class ScheduledMessagesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment
 
     val colorizer = Colorizer()
 
-    messageAdapter = ConversationAdapter(requireContext(), viewLifecycleOwner, GlideApp.with(this), Locale.getDefault(), ConversationAdapterListener(), conversationRecipient, colorizer).apply {
-      setCondensedMode(true)
+    messageAdapter = ConversationAdapter(requireContext(), viewLifecycleOwner, GlideApp.with(this), Locale.getDefault(), ConversationAdapterListener(), conversationRecipient.hasWallpaper(), colorizer).apply {
+      setCondensedMode(ConversationItemDisplayMode.CONDENSED)
       setScheduledMessagesMode(true)
     }
 
@@ -147,24 +147,23 @@ class ScheduledMessagesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment
     return callback
   }
 
-  private fun showScheduledMessageContextMenu(view: View, messageRecord: MessageRecord) {
+  private fun showScheduledMessageContextMenu(view: View, conversationMessage: ConversationMessage) {
     SignalContextMenu.Builder(view, requireCoordinatorLayout())
       .offsetX(12.dp)
       .offsetY(12.dp)
       .preferredVerticalPosition(SignalContextMenu.VerticalPosition.ABOVE)
-      .show(getMenuActionItems(messageRecord))
+      .show(getMenuActionItems(conversationMessage))
   }
 
-  private fun getMenuActionItems(messageRecord: MessageRecord): List<ActionItem> {
-    val message = ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(requireContext(), messageRecord)
-    val canCopy = message.multiselectCollection.toSet().any { it !is Attachments && messageRecord.body.isNotEmpty() }
+  private fun getMenuActionItems(message: ConversationMessage): List<ActionItem> {
+    val canCopy = message.multiselectCollection.toSet().any { it !is Attachments && message.messageRecord.body.isNotEmpty() }
     val items: MutableList<ActionItem> = ArrayList()
-    items.add(ActionItem(R.drawable.symbol_trash_24, resources.getString(R.string.conversation_selection__menu_delete), action = { handleDeleteMessage(messageRecord) }))
+    items.add(ActionItem(R.drawable.symbol_trash_24, resources.getString(R.string.conversation_selection__menu_delete), action = { handleDeleteMessage(message.messageRecord) }))
     if (canCopy) {
       items.add(ActionItem(R.drawable.symbol_copy_android_24, resources.getString(R.string.conversation_selection__menu_copy), action = { handleCopyMessage(message) }))
     }
-    items.add(ActionItem(R.drawable.symbol_send_24, resources.getString(R.string.ScheduledMessagesBottomSheet_menu_send_now), action = { handleSendMessageNow(messageRecord) }))
-    items.add(ActionItem(R.drawable.symbol_calendar_24, resources.getString(R.string.ScheduledMessagesBottomSheet_menu_reschedule), action = { handleRescheduleMessage(messageRecord) }))
+    items.add(ActionItem(R.drawable.symbol_send_24, resources.getString(R.string.ScheduledMessagesBottomSheet_menu_send_now), action = { handleSendMessageNow(message.messageRecord) }))
+    items.add(ActionItem(R.drawable.symbol_calendar_24, resources.getString(R.string.ScheduledMessagesBottomSheet_menu_reschedule), action = { handleRescheduleMessage(message.messageRecord) }))
     return items
   }
 
@@ -214,14 +213,14 @@ class ScheduledMessagesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment
       try {
         PartAuthority.getAttachmentStream(requireContext(), textSlide.uri!!).use { stream ->
           val body = StreamUtil.readFullyAsString(stream)
-          return ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(requireContext(), message.messageRecord, body)
+          return ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(requireContext(), message.messageRecord, body, message.threadRecipient)
             .getDisplayBody(requireContext())
         }
       } catch (e: IOException) {
         Log.w(TAG, "Failed to read text slide data.")
       }
     }
-    return ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(requireContext(), message.messageRecord).getDisplayBody(requireContext())
+    return ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(requireContext(), message.messageRecord, message.threadRecipient).getDisplayBody(requireContext())
   }
 
   private fun deleteMessage(messageId: Long) {
@@ -249,8 +248,8 @@ class ScheduledMessagesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment
       callback.getConversationAdapterListener().onQuoteClicked(messageRecord)
     }
 
-    override fun onScheduledIndicatorClicked(view: View, messageRecord: MessageRecord) {
-      showScheduledMessageContextMenu(view, messageRecord)
+    override fun onScheduledIndicatorClicked(view: View, conversationMessage: ConversationMessage) {
+      showScheduledMessageContextMenu(view, conversationMessage)
     }
 
     override fun onGroupMemberClicked(recipientId: RecipientId, groupId: GroupId) {
@@ -276,6 +275,7 @@ class ScheduledMessagesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment
     override fun onViewGiftBadgeClicked(messageRecord: MessageRecord) = Unit
     override fun onActivatePaymentsClicked() = Unit
     override fun onSendPaymentClicked(recipientId: RecipientId) = Unit
+    override fun onEditedIndicatorClicked(messageRecord: MessageRecord) = Unit
   }
 
   companion object {

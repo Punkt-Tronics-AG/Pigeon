@@ -28,6 +28,7 @@ import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.loaders.DeviceListLoader;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.devicelist.Device;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.task.ProgressDialogAsyncTask;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
@@ -78,6 +79,7 @@ public class DeviceListFragment extends ListFragment
 
     if (isSignalVersion()) {
       this.empty             = view.findViewById(R.id.empty);
+      this.progressContainer = view.findViewById(R.id.progress_container);
       this.addDeviceButton   = view.findViewById(R.id.add_device);
       this.addDeviceButton.setOnClickListener(this);
     }
@@ -99,10 +101,6 @@ public class DeviceListFragment extends ListFragment
 
   public void setAddDeviceButtonListener(Button.OnClickListener listener) {
     this.addDeviceButtonListener = listener;
-  }
-
-  public void setAddDeviceViewListener(View.OnClickListener listener) {
-    this.mAddDeviceViewListener = listener;
   }
 
   @Override
@@ -128,7 +126,9 @@ public class DeviceListFragment extends ListFragment
       if (data.isEmpty()) {
         empty.setVisibility(View.VISIBLE);
         TextSecurePreferences.setMultiDevice(getActivity(), false);
+        SignalStore.misc().setHasLinkedDevices(false);
       } else {
+        SignalStore.misc().setHasLinkedDevices(true);
         empty.setVisibility(View.GONE);
       }
     }
@@ -141,8 +141,8 @@ public class DeviceListFragment extends ListFragment
 
   @Override
   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    final String deviceName = ((DeviceListItem)view).getDeviceName();
-    final long   deviceId   = ((DeviceListItem)view).getDeviceId();
+    final String deviceName = ((DeviceListItem) view).getDeviceName();
+    final long   deviceId   = ((DeviceListItem) view).getDeviceId();
 
     if (isSignalVersion()) {
       AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
@@ -173,7 +173,7 @@ public class DeviceListFragment extends ListFragment
       AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
       builder.setMessage(R.string.DeviceListActivity_network_connection_failed);
       builder.setPositiveButton(R.string.DeviceListActivity_try_again,
-          (dialog, which) -> getLoaderManager().restartLoader(0, null, DeviceListFragment.this));
+                                (dialog, which) -> getLoaderManager().restartLoader(0, null, DeviceListFragment.this));
 
       builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> requireActivity().onBackPressed());
       builder.setOnCancelListener(dialog -> requireActivity().onBackPressed());

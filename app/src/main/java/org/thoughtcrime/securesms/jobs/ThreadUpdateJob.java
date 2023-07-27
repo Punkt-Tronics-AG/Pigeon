@@ -9,11 +9,18 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 
+/**
+ * A job that effectively debounces thread updates through a combination of having a max instance count
+ * and sleeping at the end of the job to make sure it takes a minimum amount of time.
+ */
 public final class ThreadUpdateJob extends BaseJob {
 
   public static final String KEY = "ThreadUpdateJob";
 
   private static final String KEY_THREAD_ID = "thread_id";
+
+  private static final long DEBOUNCE_INTERVAL = 500;
+  private static final long DEBOUNCE_INTERVAL_WITH_BACKLOG = 3000;
 
   private final long threadId;
 
@@ -31,7 +38,9 @@ public final class ThreadUpdateJob extends BaseJob {
   }
 
   public static void enqueue(long threadId) {
-    ApplicationDependencies.getJobManager().add(new ThreadUpdateJob(threadId));
+    SignalDatabase.runPostSuccessfulTransaction(KEY + threadId, () -> {
+      ApplicationDependencies.getJobManager().add(new ThreadUpdateJob(threadId));
+    });
   }
 
   @Override
@@ -47,7 +56,9 @@ public final class ThreadUpdateJob extends BaseJob {
   @Override
   protected void onRun() throws Exception {
     SignalDatabase.threads().update(threadId, true);
-    ThreadUtil.sleep(1000);
+    if (!ApplicationDependencies.getIncomingMessageObserver().getDecryptionDrained()) {
+      ThreadUtil.sleep(DEBOUNCE_INTERVAL_WITH_BACKLOG);
+    }
   }
 
   @Override

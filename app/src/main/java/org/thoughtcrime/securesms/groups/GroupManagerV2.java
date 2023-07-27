@@ -294,10 +294,15 @@ final class GroupManagerV2 {
         throw new GroupChangeFailedException(e);
       }
 
-      GroupMasterKey masterKey        = groupSecretParams.getMasterKey();
-      GroupId.V2     groupId          = groupDatabase.create(masterKey, decryptedGroup);
-      RecipientId    groupRecipientId = SignalDatabase.recipients().getOrInsertFromGroupId(groupId);
-      Recipient      groupRecipient   = Recipient.resolved(groupRecipientId);
+      GroupMasterKey masterKey = groupSecretParams.getMasterKey();
+      GroupId.V2     groupId   = groupDatabase.create(masterKey, decryptedGroup);
+
+      if (groupId == null) {
+        throw new GroupChangeFailedException("Unable to create group, group already exists");
+      }
+
+      RecipientId              groupRecipientId = SignalDatabase.recipients().getOrInsertFromGroupId(groupId);
+      Recipient                groupRecipient   = Recipient.resolved(groupRecipientId);
 
       AvatarHelper.setAvatar(context, groupRecipientId, avatar != null ? new ByteArrayInputStream(avatar) : null);
       groupDatabase.onAvatarUpdated(groupId, avatar != null);
@@ -792,11 +797,19 @@ final class GroupManagerV2 {
     }
 
     @WorkerThread
-    void updateLocalToServerRevision(int revision, long timestamp, @Nullable byte[] signedGroupChange)
+    GroupsV2StateProcessor.GroupUpdateResult updateLocalToServerRevision(int revision, long timestamp, @Nullable GroupSecretParams groupSecretParams, @Nullable byte[] signedGroupChange)
         throws IOException, GroupNotAMemberException
     {
-      new GroupsV2StateProcessor(context).forGroup(serviceIds, groupMasterKey)
-                                         .updateLocalGroupToRevision(revision, timestamp, getDecryptedGroupChange(signedGroupChange));
+      return new GroupsV2StateProcessor(context).forGroup(serviceIds, groupMasterKey, groupSecretParams)
+                                                .updateLocalGroupToRevision(revision, timestamp, getDecryptedGroupChange(signedGroupChange));
+    }
+
+    @WorkerThread
+    GroupsV2StateProcessor.GroupUpdateResult updateLocalToServerRevision(int revision, long timestamp, @NonNull Optional<GroupRecord> localRecord, @Nullable GroupSecretParams groupSecretParams, @Nullable byte[] signedGroupChange)
+        throws IOException, GroupNotAMemberException
+    {
+      return new GroupsV2StateProcessor(context).forGroup(serviceIds, groupMasterKey, groupSecretParams)
+                                                .updateLocalGroupToRevision(revision, timestamp, localRecord, getDecryptedGroupChange(signedGroupChange));
     }
 
     @WorkerThread
@@ -808,7 +821,7 @@ final class GroupManagerV2 {
     }
 
     private DecryptedGroupChange getDecryptedGroupChange(@Nullable byte[] signedGroupChange) {
-      if (signedGroupChange != null) {
+      if (signedGroupChange != null && signedGroupChange.length > 0) {
         GroupsV2Operations.GroupOperations groupOperations = groupsV2Operations.forGroup(GroupSecretParams.deriveFromMasterKey(groupMasterKey));
 
         try {
@@ -924,11 +937,11 @@ final class GroupManagerV2 {
         alreadyAMember = true;
       }
 
-      Optional<GroupRecord> unmigratedV1Group = groupDatabase.getGroupV1ByExpectedV2(groupId);
+      GroupRecord unmigratedV1Group = GroupsV1MigratedCache.getV1GroupByV2Id(groupId);
 
-      if (unmigratedV1Group.isPresent()) {
+      if (unmigratedV1Group != null) {
         Log.i(TAG, "Group link was for a migrated V1 group we know about! Migrating it and using that as the base.");
-        GroupsV1MigrationUtil.performLocalMigration(context, unmigratedV1Group.get().getId().requireV1());
+        GroupsV1MigrationUtil.performLocalMigration(context, unmigratedV1Group.getId().requireV1());
       }
 
       DecryptedGroup decryptedGroup = createPlaceholderGroup(joinInfo, requestToJoin);
@@ -946,8 +959,20 @@ final class GroupManagerV2 {
           }
         }
       } else {
-        groupDatabase.create(groupMasterKey, decryptedGroup);
-        Log.i(TAG, "Created local group with placeholder");
+        GroupId.V2 groupId = groupDatabase.create(groupMasterKey, decryptedGroup);
+        if (groupId != null) {
+          Log.i(TAG, "Created local group with placeholder");
+        } else {
+          Log.i(TAG, "Create placeholder failed, group suddenly present locally, attempting to apply change");
+          if (decryptedChange != null) {
+            try {
+              groupsV2StateProcessor.forGroup(SignalStore.account().getServiceIds(), groupMasterKey)
+                                    .updateLocalGroupToRevision(decryptedChange.getRevision(), System.currentTimeMillis(), decryptedChange);
+            } catch (GroupNotAMemberException e) {
+              Log.w(TAG, "Unable to apply join change to existing group", e);
+            }
+          }
+        }
       }
 
       RecipientId groupRecipientId = SignalDatabase.recipients().getOrInsertFromGroupId(groupId);
@@ -1290,7 +1315,7 @@ final class GroupManagerV2 {
           long threadId = MessageSender.send(context, outgoingMessage, -1, MessageSender.SendType.SIGNAL, null, null);
           return new RecipientAndThread(groupRecipient, threadId);
         } else {
-          long threadId = SignalDatabase.threads().getOrCreateValidThreadId(outgoingMessage.getRecipient(), -1, outgoingMessage.getDistributionType());
+          long threadId = SignalDatabase.threads().getOrCreateValidThreadId(outgoingMessage.getThreadRecipient(), -1, outgoingMessage.getDistributionType());
           try {
             long messageId = SignalDatabase.messages().insertMessageOutbox(outgoingMessage, threadId, false, null);
             SignalDatabase.messages().markAsSent(messageId, true);

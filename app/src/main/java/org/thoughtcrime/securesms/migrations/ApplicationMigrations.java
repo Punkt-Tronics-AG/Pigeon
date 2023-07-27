@@ -12,7 +12,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
-import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -123,9 +122,18 @@ public class ApplicationMigrations {
     static final int SYSTEM_NAME_RESYNC            = 78;
     static final int RECOVERY_PASSWORD_SYNC        = 79;
     static final int DECRYPTIONS_DRAINED           = 80;
+    static final int REBUILD_MESSAGE_FTS_INDEX_3   = 81;
+    static final int TO_FROM_RECIPIENTS            = 82;
+    static final int REBUILD_MESSAGE_FTS_INDEX_4   = 83;
+    static final int INDEX_DATABASE_MIGRATION      = 84;
+    static final int ACCOUNT_CONSISTENCY_CHECK     = 85;
+    static final int BACKUP_JITTER                 = 86;
+    static final int PREKEY_SYNC                   = 87;
+    static final int DEDUPE_DB_MIGRATION           = 88;
+    static final int DEDUPE_DB_MIGRATION_2         = 89;
   }
 
-  public static final int CURRENT_VERSION = 80;
+  public static final int CURRENT_VERSION = 89;
 
   /**
    * This *must* be called after the {@link JobManager} has been instantiated, but *before* the call
@@ -545,6 +553,42 @@ public class ApplicationMigrations {
 
     if (lastSeenVersion < Version.DECRYPTIONS_DRAINED) {
       jobs.put(Version.DECRYPTIONS_DRAINED, new DecryptionsDrainedMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.REBUILD_MESSAGE_FTS_INDEX_3) {
+      jobs.put(Version.REBUILD_MESSAGE_FTS_INDEX_3, new RebuildMessageSearchIndexMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.TO_FROM_RECIPIENTS) {
+      jobs.put(Version.TO_FROM_RECIPIENTS, new DatabaseMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.REBUILD_MESSAGE_FTS_INDEX_4) {
+      jobs.put(Version.REBUILD_MESSAGE_FTS_INDEX_4, new RebuildMessageSearchIndexMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.INDEX_DATABASE_MIGRATION) {
+      jobs.put(Version.INDEX_DATABASE_MIGRATION, new DatabaseMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.ACCOUNT_CONSISTENCY_CHECK) {
+      jobs.put(Version.ACCOUNT_CONSISTENCY_CHECK, new AccountConsistencyMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.BACKUP_JITTER) {
+      jobs.put(Version.BACKUP_JITTER, new BackupJitterMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.PREKEY_SYNC) {
+      jobs.put(Version.PREKEY_SYNC, new PreKeysSyncMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.DEDUPE_DB_MIGRATION) {
+      jobs.put(Version.DEDUPE_DB_MIGRATION, new DatabaseMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.DEDUPE_DB_MIGRATION_2) {
+      jobs.put(Version.DEDUPE_DB_MIGRATION_2, new DatabaseMigrationJob());
     }
 
     return jobs;

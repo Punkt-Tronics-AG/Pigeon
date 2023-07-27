@@ -13,6 +13,7 @@ import com.annimon.stream.Stream;
 
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.database.CallLinkTable;
 import org.thoughtcrime.securesms.database.DistributionListTables;
 import org.thoughtcrime.securesms.database.GroupTable;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
@@ -87,7 +88,7 @@ public final class LiveRecipient {
    * @return An rx-flavored {@link Observable}.
    */
   public @NonNull Observable<Recipient> observable() {
-    return subject.distinctUntilChanged(Recipient::hasSameContent);
+    return subject;
   }
 
   /**
@@ -194,7 +195,9 @@ public final class LiveRecipient {
       details = getGroupRecipientDetails(record);
     } else if (record.getDistributionListId() != null) {
       details = getDistributionListRecipientDetails(record);
-    } else {
+    } else if (record.getCallLinkRoomId() != null) {
+      details = getCallLinkRecipientDetails(record);
+    }else {
       details = RecipientDetails.forIndividual(context, record);
     }
 
@@ -216,10 +219,10 @@ public final class LiveRecipient {
         avatarId = Optional.of(groupRecord.get().getAvatarId());
       }
 
-      return new RecipientDetails(title, null,  avatarId, false, false, record.getRegistered(), record, members, false);
+      return new RecipientDetails(title, null,  avatarId, false, false, record.getRegistered(), record, members, false, groupRecord.get().isActive());
     }
 
-    return new RecipientDetails(null, null, Optional.empty(), false, false, record.getRegistered(), record, null, false);
+    return new RecipientDetails(null, null, Optional.empty(), false, false, record.getRegistered(), record, null, false, false);
   }
 
   @WorkerThread
@@ -235,6 +238,19 @@ public final class LiveRecipient {
     }
 
     return RecipientDetails.forDistributionList(null, null, record);
+  }
+
+  @WorkerThread
+  private @NonNull RecipientDetails getCallLinkRecipientDetails(@NonNull RecipientRecord record) {
+    CallLinkTable.CallLink callLink = SignalDatabase.callLinks().getCallLinkByRoomId(Objects.requireNonNull(record.getCallLinkRoomId()));
+
+    if (callLink != null) {
+      String name = callLink.getState().getName();
+
+      return RecipientDetails.forCallLink(name, record);
+    }
+
+    return RecipientDetails.forCallLink(null, record);
   }
 
   synchronized void set(@NonNull Recipient recipient) {

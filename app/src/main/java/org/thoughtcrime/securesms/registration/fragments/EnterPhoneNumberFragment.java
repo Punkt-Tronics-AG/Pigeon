@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -35,6 +34,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import org.signal.core.util.ThreadUtil;
+import org.signal.core.util.concurrent.LifecycleDisposable;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.LoggingFragment;
 import org.thoughtcrime.securesms.R;
@@ -47,7 +47,6 @@ import org.thoughtcrime.securesms.registration.viewmodel.RegistrationViewModel;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.Debouncer;
 import org.thoughtcrime.securesms.util.Dialogs;
-import org.thoughtcrime.securesms.util.LifecycleDisposable;
 import org.thoughtcrime.securesms.util.PlayServicesUtil;
 import org.thoughtcrime.securesms.util.SupportEmailUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -209,8 +208,7 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
   }
 
   private void onE164EnteredSuccessfully(@NonNull Context context, boolean fcmSupported) {
-    register.setSpinning();
-    disableAllEntries();
+    enterInProgressUiState();
 
     Disposable disposable = viewModel.canEnterSkipSmsFlow()
                                      .observeOn(AndroidSchedulers.mainThread())
@@ -260,19 +258,32 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
         }
         debouncer.clear();
       });
+
+      task.addOnCanceledListener(() -> {
+        if (!handled.getAndSet(true)) {
+          Log.w(TAG, "SMS listener registration canceled.");
+          requestVerificationCode(Mode.SMS_WITHOUT_LISTENER);
+        } else {
+          Log.w(TAG, "SMS listener registration canceled after timeout.");
+        }
+        debouncer.clear();
+      });
+
     } else {
       Log.i(TAG, "FCM is not supported, using no SMS listener");
       requestVerificationCode(Mode.SMS_WITHOUT_LISTENER);
     }
   }
 
-  private void disableAllEntries() {
+  private void enterInProgressUiState() {
+    register.setSpinning();
     countryCode.setEnabled(false);
     number.setEnabled(false);
     cancel.setVisibility(View.GONE);
   }
 
-  private void enableAllEntries() {
+  private void exitInProgressUiState() {
+    register.cancelSpinning();
     countryCode.setEnabled(true);
     number.setEnabled(true);
     if (viewModel.isReregister()) {
@@ -310,7 +321,8 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
                                       Log.i(TAG, "The server did not accept the information.", processor.getError());
                                       showErrorDialog(register.getContext(), getString(R.string.RegistrationActivity_we_need_to_verify_that_youre_human));
                                     } else if (processor instanceof RegistrationSessionProcessor.RegistrationSessionProcessorForVerification
-                                               && ((RegistrationSessionProcessor.RegistrationSessionProcessorForVerification) processor).externalServiceFailure()) {
+                                               && ((RegistrationSessionProcessor.RegistrationSessionProcessorForVerification) processor).externalServiceFailure())
+                                    {
                                       Log.w(TAG, "The server reported a failure with an external service.", processor.getError());
                                       showErrorDialog(register.getContext(), getString(R.string.RegistrationActivity_external_service_error));
                                     } else {
@@ -318,8 +330,7 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
                                       showErrorDialog(register.getContext(), getString(R.string.RegistrationActivity_unable_to_connect_to_service));
                                     }
 
-                                    register.cancelSpinning();
-                                    enableAllEntries();
+                                    exitInProgressUiState();
                                   });
 
     disposables.add(request);
@@ -331,9 +342,9 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
 
   private String formatMillisecondsToString(long milliseconds) {
     long totalSeconds = milliseconds / 1000;
-    long HH = totalSeconds / 3600;
-    long MM = (totalSeconds % 3600) / 60;
-    long SS = totalSeconds % 60;
+    long HH           = totalSeconds / 3600;
+    long MM           = (totalSeconds % 3600) / 60;
+    long SS           = totalSeconds % 60;
     return String.format(Locale.getDefault(), "%02d:%02d:%02d", HH, MM, SS);
   }
 
@@ -372,7 +383,7 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
   }
 
   private void checkIfSessionIsInProgressAndAdvance(@NonNull String sessionE164) {
-    NavController  navController  = NavHostFragment.findNavController(this);
+    NavController navController = NavHostFragment.findNavController(this);
     Disposable request = viewModel.validateSession(sessionE164)
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .subscribe(processor -> {
@@ -435,13 +446,26 @@ public final class EnterPhoneNumberFragment extends LoggingFragment implements R
                                    @NonNull String e164number,
                                    @NonNull Runnable onConfirmed)
   {
-    showConfirmNumberDialogIfTranslated(context,
-                                        R.string.RegistrationActivity_a_verification_code_will_be_sent_to,
-                                        e164number,
-                                        () -> {
-                                          ViewUtil.hideKeyboard(context, number.getEditText());
-                                          onConfirmed.run();
-                                        },
-                                        () -> ViewUtil.focusAndMoveCursorToEndAndOpenKeyboard(this.number.getEditText()));
+    enterInProgressUiState();
+
+    disposables.add(
+        viewModel.canEnterSkipSmsFlow()
+                 .observeOn(AndroidSchedulers.mainThread())
+                 .subscribe(canSkipSms -> showConfirmNumberDialogIfTranslated(context,
+                                                                              viewModel.hasUserSkippedReRegisterFlow() ? R.string.RegistrationActivity_additional_verification_required
+                                                                                                                       : R.string.RegistrationActivity_phone_number_verification_dialog_title,
+                                                                              canSkipSms ? null
+                                                                                         : R.string.RegistrationActivity_a_verification_code_will_be_sent_to_this_number,
+                                                                              e164number,
+                                                                              () -> {
+                                                                                exitInProgressUiState();
+                                                                                ViewUtil.hideKeyboard(context, number.getEditText());
+                                                                                onConfirmed.run();
+                                                                              },
+                                                                              () -> {
+                                                                                exitInProgressUiState();
+                                                                                ViewUtil.focusAndMoveCursorToEndAndOpenKeyboard(this.number.getEditText());
+                                                                              }))
+    );
   }
 }

@@ -37,6 +37,21 @@ import org.thoughtcrime.securesms.database.helpers.migration.V178_ReportingToken
 import org.thoughtcrime.securesms.database.helpers.migration.V179_CleanupDanglingMessageSendLogMigration
 import org.thoughtcrime.securesms.database.helpers.migration.V180_RecipientNicknameMigration
 import org.thoughtcrime.securesms.database.helpers.migration.V181_ThreadTableForeignKeyCleanup
+import org.thoughtcrime.securesms.database.helpers.migration.V182_CallTableMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V183_CallLinkTableMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V184_CallLinkReplaceIndexMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V185_MessageRecipientsAndEditMessageMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V186_ForeignKeyIndicesMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V187_MoreForeignKeyIndexesMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V188_FixMessageRecipientsAndEditMessageMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V189_CreateCallLinkTableColumnsAndRebuildFKReference
+import org.thoughtcrime.securesms.database.helpers.migration.V190_UniqueMessageMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V191_UniqueMessageMigrationV2
+import org.thoughtcrime.securesms.database.helpers.migration.V192_CallLinkTableNullableRootKeys
+import org.thoughtcrime.securesms.database.helpers.migration.V193_BackCallLinksWithRecipient
+import org.thoughtcrime.securesms.database.helpers.migration.V194_KyberPreKeyMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V195_GroupMemberForeignKeyMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V196_BackCallLinksWithRecipientV2
 
 /**
  * Contains all of the database migrations for [SignalDatabase]. Broken into a separate file for cleanliness.
@@ -45,7 +60,7 @@ object SignalDatabaseMigrations {
 
   val TAG: String = Log.tag(SignalDatabaseMigrations.javaClass)
 
-  const val DATABASE_VERSION = 181
+  const val DATABASE_VERSION = 196
 
   @JvmStatic
   fun migrate(context: Application, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -179,6 +194,66 @@ object SignalDatabaseMigrations {
 
     if (oldVersion < 181) {
       V181_ThreadTableForeignKeyCleanup.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 182) {
+      V182_CallTableMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 183) {
+      V183_CallLinkTableMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 184) {
+      V184_CallLinkReplaceIndexMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 185) {
+      V185_MessageRecipientsAndEditMessageMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 186) {
+      V186_ForeignKeyIndicesMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 187) {
+      V187_MoreForeignKeyIndexesMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 188) {
+      V188_FixMessageRecipientsAndEditMessageMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 189) {
+      V189_CreateCallLinkTableColumnsAndRebuildFKReference.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 190) {
+      V190_UniqueMessageMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 191) {
+      V191_UniqueMessageMigrationV2.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 192) {
+      V192_CallLinkTableNullableRootKeys.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 193) {
+      V193_BackCallLinksWithRecipient.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 194) {
+      V194_KyberPreKeyMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 195) {
+      V195_GroupMemberForeignKeyMigration.migrate(context, db, oldVersion, newVersion)
+    }
+
+    if (oldVersion < 196) {
+      V196_BackCallLinksWithRecipientV2.migrate(context, db, oldVersion, newVersion)
     }
   }
 

@@ -28,7 +28,6 @@ import org.signal.core.util.requireLong
 import org.signal.core.util.requireNonNullString
 import org.signal.core.util.requireString
 import org.signal.core.util.select
-import org.signal.core.util.toSingleLine
 import org.signal.core.util.update
 import org.signal.core.util.withinTransaction
 import org.signal.libsignal.zkgroup.groups.GroupMasterKey
@@ -45,6 +44,7 @@ import org.thoughtcrime.securesms.groups.BadGroupIdException
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.groups.GroupId.Push
 import org.thoughtcrime.securesms.groups.GroupMigrationMembershipChange
+import org.thoughtcrime.securesms.groups.GroupsV1MigratedCache
 import org.thoughtcrime.securesms.groups.v2.processing.GroupsV2StateProcessor
 import org.thoughtcrime.securesms.jobs.RequestGroupV2InfoJob
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -61,6 +61,7 @@ import java.security.SecureRandom
 import java.util.Optional
 import java.util.UUID
 import java.util.stream.Collectors
+import javax.annotation.CheckReturnValue
 
 class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseTable(context, databaseHelper), RecipientIdDatabaseReference {
 
@@ -135,7 +136,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       "CREATE UNIQUE INDEX IF NOT EXISTS group_recipient_id_index ON $TABLE_NAME ($RECIPIENT_ID);",
       "CREATE UNIQUE INDEX IF NOT EXISTS expected_v2_id_index ON $TABLE_NAME ($EXPECTED_V2_ID);",
       "CREATE UNIQUE INDEX IF NOT EXISTS group_distribution_id_index ON $TABLE_NAME($DISTRIBUTION_ID);"
-    )
+    ) + MembershipTable.CREATE_INDEXES
 
     private val GROUP_PROJECTION = arrayOf(
       GROUP_ID,
@@ -171,7 +172,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
             WHERE ${MembershipTable.TABLE_NAME}.${MembershipTable.GROUP_ID} = $TABLE_NAME.$GROUP_ID
         ) as $MEMBER_GROUP_CONCAT
       FROM $TABLE_NAME          
-    """.toSingleLine()
+    """
 
     val CREATE_TABLES = arrayOf(CREATE_TABLE, MembershipTable.CREATE_TABLE)
   }
@@ -190,10 +191,14 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
         CREATE TABLE $TABLE_NAME (
             $ID INTEGER PRIMARY KEY,
             $GROUP_ID TEXT NOT NULL,
-            $RECIPIENT_ID INTEGER NOT NULL,
+            $RECIPIENT_ID INTEGER NOT NULL REFERENCES ${RecipientTable.TABLE_NAME} (${RecipientTable.ID}) ON DELETE CASCADE,
             UNIQUE($GROUP_ID, $RECIPIENT_ID)
         )
-      """.toSingleLine()
+      """
+
+      val CREATE_INDEXES = arrayOf(
+        "CREATE INDEX IF NOT EXISTS group_membership_recipient_id ON $TABLE_NAME ($RECIPIENT_ID)"
+      )
     }
   }
 
@@ -213,38 +218,22 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       .query(select, query.whereArgs)
       .use { cursor ->
         return if (cursor.moveToFirst()) {
-          var refreshCursor = false
           val groupRecord = getGroup(cursor)
           if (groupRecord.isPresent && RemappedRecords.getInstance().areAnyRemapped(groupRecord.get().members)) {
             val groupId = groupRecord.get().id
             val remaps = RemappedRecords.getInstance().buildRemapDescription(groupRecord.get().members)
             Log.w(TAG, "Found a group with remapped recipients in it's membership list! Updating the list. GroupId: $groupId, Remaps: $remaps", true)
 
-            val oldToNew: List<Pair<RecipientId, RecipientId?>> = groupRecord.get().members.map {
-              it to RemappedRecords.getInstance().getRecipient(it).orElse(null)
-            }.filterNot { (old, new) -> new == null || old == new }
+            val oldToNew: List<Pair<RecipientId, RecipientId>> = groupRecord.get().members
+              .map { it to RemappedRecords.getInstance().getRecipient(it).orElse(null) }
+              .filterNot { (old, new) -> new == null || old == new }
 
-            var updateCount = 0
             if (oldToNew.isNotEmpty()) {
               writableDatabase.withinTransaction { db ->
-                for ((old, new) in oldToNew) {
-                  updateCount += db.update(MembershipTable.TABLE_NAME)
-                    .values(MembershipTable.RECIPIENT_ID to new!!.serialize())
-                    .where("${MembershipTable.GROUP_ID} = ? AND ${MembershipTable.RECIPIENT_ID} = ?", groupId, old)
-                    .run()
-                }
+                oldToNew.forEach { remapRecipient(it.first, it.second) }
               }
             }
 
-            if (updateCount > 0) {
-              Log.i(TAG, "Successfully updated $updateCount rows. GroupId: $groupId, Remaps: $remaps", true)
-              refreshCursor = true
-            } else {
-              Log.w(TAG, "Failed to update any rows. GroupId: $groupId, Remaps: $remaps", true)
-            }
-          }
-
-          if (refreshCursor) {
             readableDatabase.query(select, query.whereArgs).use { refreshedCursor ->
               if (refreshedCursor.moveToFirst()) {
                 getGroup(refreshedCursor)
@@ -285,6 +274,15 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
    */
   fun getGroupV1ByExpectedV2(gv2Id: GroupId.V2): Optional<GroupRecord> {
     return getGroup(SqlUtil.Query("$TABLE_NAME.$EXPECTED_V2_ID = ?", buildArgs(gv2Id)))
+  }
+
+  /**
+   * @return A gv1 group whose expected v2 ID matches the one provided or a gv2 group whose ID matches the one provided.
+   *
+   * If a gv1 group is present, it will be returned first.
+   */
+  fun getGroupV1OrV2ByExpectedV2(gv2Id: GroupId.V2): Optional<GroupRecord> {
+    return getGroup(SqlUtil.Query("$TABLE_NAME.$EXPECTED_V2_ID = ? OR $TABLE_NAME.$GROUP_ID = ? ORDER BY $TABLE_NAME.$EXPECTED_V2_ID DESC", buildArgs(gv2Id, gv2Id)))
   }
 
   fun getGroupByDistributionId(distributionId: DistributionId): Optional<GroupRecord> {
@@ -347,7 +345,10 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
   }
 
   fun isUnknownGroup(groupId: GroupId): Boolean {
-    val group = getGroup(groupId)
+    return isUnknownGroup(getGroup(groupId))
+  }
+
+  fun isUnknownGroup(group: Optional<GroupRecord>): Boolean {
     if (!group.isPresent) {
       return true
     }
@@ -371,7 +372,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       WHERE $ACTIVE = 1 AND ${MembershipTable.TABLE_NAME}.${MembershipTable.RECIPIENT_ID} IN (${subquery.where})
       GROUP BY ${MembershipTable.TABLE_NAME}.${MembershipTable.GROUP_ID}
       ORDER BY $TITLE COLLATE NOCASE ASC
-    """.toSingleLine()
+    """
 
     return databaseHelper.signalReadableDatabase.query(statement, subquery.whereArgs)
   }
@@ -383,7 +384,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       $JOINED_GROUP_SELECT
       WHERE ${query.where}
       ORDER BY $TITLE COLLATE NOCASE ASC
-    """.trimIndent()
+    """
 
     val cursor = databaseHelper.signalReadableDatabase.query(statement, query.whereArgs)
     return Reader(cursor)
@@ -432,7 +433,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       FROM ${MembershipTable.TABLE_NAME}
       INNER JOIN $TABLE_NAME ON ${MembershipTable.TABLE_NAME}.${MembershipTable.GROUP_ID} = $TABLE_NAME.$GROUP_ID
       WHERE $query
-    """.trimIndent()
+    """
 
     return Reader(readableDatabase.query(selection, queryArgs))
   }
@@ -444,7 +445,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       INNER JOIN ${ThreadTable.TABLE_NAME} ON ${ThreadTable.TABLE_NAME}.${ThreadTable.RECIPIENT_ID} = $TABLE_NAME.$RECIPIENT_ID
       WHERE ${query.where} 
       ORDER BY ${ThreadTable.TABLE_NAME}.${ThreadTable.DATE} DESC
-    """.toSingleLine()
+    """
 
     return Reader(databaseHelper.signalReadableDatabase.rawQuery(sql, query.whereArgs))
   }
@@ -534,7 +535,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
         ) as $MEMBER_GROUP_CONCAT
         FROM $TABLE_NAME
         WHERE $MEMBER_GROUP_CONCAT = ?
-    """.toSingleLine()
+    """
 
     return readableDatabase.rawQuery(statement, buildArgs(joinedTestMembers)).use { cursor ->
       if (cursor.moveToNext()) {
@@ -577,7 +578,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       FROM ${MembershipTable.TABLE_NAME}
       INNER JOIN $TABLE_NAME ON ${MembershipTable.TABLE_NAME}.${MembershipTable.GROUP_ID} = $TABLE_NAME.$GROUP_ID
       LEFT JOIN ${ThreadTable.TABLE_NAME} ON $TABLE_NAME.$RECIPIENT_ID = ${ThreadTable.TABLE_NAME}.${ThreadTable.RECIPIENT_ID}
-    """.toSingleLine()
+    """
 
     var query = "${MembershipTable.TABLE_NAME}.${MembershipTable.RECIPIENT_ID} = ?"
     var args = buildArgs(recipientId)
@@ -650,31 +651,36 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
     }
   }
 
-  fun create(groupId: GroupId.V1, title: String?, members: Collection<RecipientId>, avatar: SignalServiceAttachmentPointer?, relay: String?) {
+  @CheckReturnValue
+  fun create(groupId: GroupId.V1, title: String?, members: Collection<RecipientId>, avatar: SignalServiceAttachmentPointer?, relay: String?): Boolean {
     if (groupExists(groupId.deriveV2MigrationGroupId())) {
       throw LegacyGroupInsertException(groupId)
     }
 
-    create(groupId, title, members, avatar, relay, null, null)
+    return create(groupId, title, members, avatar, relay, null, null)
   }
 
-  fun create(groupId: GroupId.Mms, title: String?, members: Collection<RecipientId>) {
-    create(groupId, if (title.isNullOrEmpty()) null else title, members, null, null, null, null)
+  @CheckReturnValue
+  fun create(groupId: GroupId.Mms, title: String?, members: Collection<RecipientId>): Boolean {
+    return create(groupId, if (title.isNullOrEmpty()) null else title, members, null, null, null, null)
   }
 
   @JvmOverloads
-  fun create(groupMasterKey: GroupMasterKey, groupState: DecryptedGroup, force: Boolean = false): GroupId.V2 {
+  @CheckReturnValue
+  fun create(groupMasterKey: GroupMasterKey, groupState: DecryptedGroup, force: Boolean = false): GroupId.V2? {
     val groupId = GroupId.v2(groupMasterKey)
 
-    if (!force && getGroupV1ByExpectedV2(groupId).isPresent) {
+    if (!force && GroupsV1MigratedCache.hasV1Group(groupId)) {
       throw MissedGroupMigrationInsertException(groupId)
     } else if (force) {
       Log.w(TAG, "Forcing the creation of a group even though we already have a V1 ID!")
     }
 
-    create(groupId, groupState.title, emptyList(), null, null, groupMasterKey, groupState)
-
-    return groupId
+    return if (create(groupId = groupId, title = groupState.title, memberCollection = emptyList(), avatar = null, relay = null, groupMasterKey = groupMasterKey, groupState = groupState)) {
+      groupId
+    } else {
+      null
+    }
   }
 
   /**
@@ -683,7 +689,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
    */
   fun fixMissingMasterKey(groupMasterKey: GroupMasterKey) {
     val groupId = GroupId.v2(groupMasterKey)
-    if (getGroupV1ByExpectedV2(groupId).isPresent) {
+    if (GroupsV1MigratedCache.hasV1Group(groupId)) {
       Log.w(TAG, "There already exists a V1 group that should be migrated into this group. But if the recipient already exists, there's not much we can do here.")
     }
 
@@ -715,6 +721,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
   /**
    * @param groupMasterKey null for V1, must be non-null for V2 (presence dictates group version).
    */
+  @CheckReturnValue
   private fun create(
     groupId: GroupId,
     title: String?,
@@ -723,7 +730,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
     relay: String?,
     groupMasterKey: GroupMasterKey?,
     groupState: DecryptedGroup?
-  ) {
+  ): Boolean {
     val membershipValues = mutableListOf<ContentValues>()
     val groupRecipientId = recipients.getOrInsertFromGroupId(groupId)
     val members: List<RecipientId> = memberCollection.toSet().sorted()
@@ -778,16 +785,20 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
       }
     }
 
-    writableDatabase.withinTransaction { db ->
-      db.insert(TABLE_NAME, null, values)
-      SqlUtil.buildBulkInsert(
-        MembershipTable.TABLE_NAME,
-        arrayOf(MembershipTable.GROUP_ID, MembershipTable.RECIPIENT_ID),
-        membershipValues
-      )
-        .forEach {
-          db.execSQL(it.where, it.whereArgs)
-        }
+    writableDatabase.beginTransaction()
+    try {
+      val result: Long = writableDatabase.insert(TABLE_NAME, null, values)
+      if (result < 1) {
+        Log.w(TAG, "Unable to create group, group record already exists")
+        return false
+      }
+
+      for (query in SqlUtil.buildBulkInsert(MembershipTable.TABLE_NAME, arrayOf(MembershipTable.GROUP_ID, MembershipTable.RECIPIENT_ID), membershipValues)) {
+        writableDatabase.execSQL(query.where, query.whereArgs)
+      }
+      writableDatabase.setTransactionSuccessful()
+    } finally {
+      writableDatabase.endTransaction()
     }
 
     if (groupState != null && groupState.hasDisappearingMessagesTimer()) {
@@ -800,6 +811,8 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
 
     Recipient.live(groupRecipientId).refresh()
     notifyConversationListListeners()
+
+    return true
   }
 
   fun update(groupId: GroupId.V1, title: String?, avatar: SignalServiceAttachmentPointer?) {
@@ -1101,13 +1114,31 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
   }
 
   override fun remapRecipient(fromId: RecipientId, toId: RecipientId) {
-    writableDatabase
-      .update(MembershipTable.TABLE_NAME)
-      .values(RECIPIENT_ID to toId.serialize())
-      .where("${MembershipTable.RECIPIENT_ID} = ?", fromId)
-      .run(conflictStrategy = SQLiteDatabase.CONFLICT_IGNORE)
+    // Remap all recipients that would not result in conflicts
+    writableDatabase.execSQL(
+      """
+        UPDATE ${MembershipTable.TABLE_NAME} AS parent
+        SET ${MembershipTable.RECIPIENT_ID} = ?
+        WHERE
+          ${MembershipTable.RECIPIENT_ID} = ?
+          AND NOT EXISTS (
+            SELECT 1
+            FROM ${MembershipTable.TABLE_NAME} child
+            WHERE 
+              child.${MembershipTable.RECIPIENT_ID} = ?
+              AND parent.${MembershipTable.GROUP_ID} = child.${MembershipTable.GROUP_ID}
+          )
+      """,
+      buildArgs(toId, fromId, toId)
+    )
 
-    for (group in getGroupsContainingMember(fromId, false, true)) {
+    // Delete the remaining fromId's (the only remaining ones should be those in groups where the toId is already present)
+    writableDatabase
+      .delete(MembershipTable.TABLE_NAME)
+      .where("${MembershipTable.RECIPIENT_ID} = ?", fromId)
+      .run()
+
+    for (group in getGroupsContainingMember(fromId, pushOnly = false, includeInactive = true)) {
       if (group.isV2Group) {
         removeUnmigratedV1Members(group.id.requireV2(), listOf(fromId))
       }
@@ -1275,7 +1306,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
           SELECT ${MessageTable.TABLE_NAME}.${MessageTable.DATE_RECEIVED} 
           FROM ${MessageTable.TABLE_NAME} 
           WHERE 
-           ${MessageTable.TABLE_NAME}.${MessageTable.RECIPIENT_ID} = ${ThreadTable.TABLE_NAME}.${ThreadTable.RECIPIENT_ID} AND 
+           ${MessageTable.TABLE_NAME}.${MessageTable.FROM_RECIPIENT_ID} = ${ThreadTable.TABLE_NAME}.${ThreadTable.RECIPIENT_ID} AND 
            ${MessageTable.STORY_TYPE} > 1 
           ORDER BY ${MessageTable.TABLE_NAME}.${MessageTable.DATE_RECEIVED} DESC 
           LIMIT 1
@@ -1291,7 +1322,7 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseT
           )
         ) 
       ORDER BY active_timestamp DESC
-    """.toSingleLine()
+    """
 
     return readableDatabase
       .query(query)

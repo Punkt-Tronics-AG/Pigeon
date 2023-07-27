@@ -49,7 +49,7 @@ public final class LiveRecipientCache {
   private final AtomicBoolean                warmedUp;
 
   public LiveRecipientCache(@NonNull Context context) {
-    this(context, ThreadUtil.trace(new FilteredExecutor(SignalExecutors.newCachedBoundedExecutor("signal-recipients", ThreadUtil.PRIORITY_UI_BLOCKING_THREAD, 1, 4, 15), () -> !SignalDatabase.inTransaction())));
+    this(context, new FilteredExecutor(SignalExecutors.newCachedBoundedExecutor("signal-recipients", ThreadUtil.PRIORITY_UI_BLOCKING_THREAD, 1, 4, 15), () -> !SignalDatabase.inTransaction()));
   }
 
   @VisibleForTesting
@@ -168,7 +168,9 @@ public final class LiveRecipientCache {
       }
 
       if (selfId == null) {
+        Log.i(TAG, "Creating self for the first time.");
         selfId = recipientTable.getAndPossiblyMerge(localAci, localE164);
+        recipientTable.updatePendingSelfData(selfId);
       }
 
       synchronized (localRecipientId) {

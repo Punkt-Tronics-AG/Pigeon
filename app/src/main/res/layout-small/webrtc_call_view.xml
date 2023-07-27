@@ -15,6 +15,17 @@
         android:orientation="vertical"
         android:visibility="gone">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/webrtc_call_view_toolbar_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/signal_m3_toolbar_height"
+            android:minHeight="@dimen/signal_m3_toolbar_height"
+            android:visibility="gone"
+            app:menu="@menu/webrtc_toolbar_menu"
+            app:navigationIcon="@drawable/ic_arrow_left_24"
+            app:subtitleTextAppearance="@style/Signal.Text.BodyMedium"
+            app:titleTextAppearance="@style/Signal.Text.TitleMedium" />
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/fold_top_guideline"
             android:layout_width="0dp"
@@ -380,41 +391,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/fold_show_participants_menu_counter_wrapper"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/webrtc_call_view_toolbar_no_text"
             android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:background="@drawable/light_selectable_list_item_background"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:clickable="true"
+            android:focusableInTouchMode="true"
             android:descendantFocusability="blocksDescendants"
-            android:gravity="center"
-            android:minWidth="48dp"
+            android:background="@drawable/light_selectable_list_item_background"
             android:nextFocusUp="@id/call_screen_audio_mic_toggle_label"
-            android:nextFocusDown="@id/fold_show_participants_menu_counter_wrapper"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:visibility="gone"
+            android:nextFocusDown="@id/webrtc_call_view_toolbar_no_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                app:srcCompat="@drawable/ic_group_solid_24"
-                app:tint="@color/core_white" />
-
-            <TextView
-                android:id="@+id/fold_show_participants_menu_counter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/core_white"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                tools:text="0" />
-
-        </LinearLayout>
+            app:menu="@menu/webrtc_toolbar_menu" />
 
         <include
             layout="@layout/webrtc_call_view_header_large"
@@ -595,7 +585,7 @@
             android:focusable="true"
             android:text="@string/mute"
             android:nextFocusUp="@id/call_screen_speaker_toggle_label"
-            android:nextFocusDown="@id/fold_show_participants_menu_counter_wrapper"
+            android:nextFocusDown="@id/webrtc_call_view_toolbar_no_text"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/call_screen_speaker_toggle_label"

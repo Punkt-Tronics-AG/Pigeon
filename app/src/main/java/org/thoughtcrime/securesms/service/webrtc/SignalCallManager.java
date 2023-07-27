@@ -30,8 +30,8 @@ import org.signal.ringrtc.Remote;
 import org.signal.storageservice.protos.groups.GroupExternalCredential;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
-import org.thoughtcrime.securesms.database.GroupTable;
 import org.thoughtcrime.securesms.database.CallTable;
+import org.thoughtcrime.securesms.database.GroupTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
@@ -39,6 +39,8 @@ import org.thoughtcrime.securesms.events.GroupCallPeekEvent;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.GroupManager;
+import org.thoughtcrime.securesms.jobmanager.JobManager;
+import org.thoughtcrime.securesms.jobs.CallSyncEventJob;
 import org.thoughtcrime.securesms.jobs.GroupCallUpdateSendJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
@@ -50,6 +52,7 @@ import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.ringrtc.CameraEventListener;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.ringrtc.RemotePeer;
+import org.thoughtcrime.securesms.service.webrtc.links.SignalCallLinkManager;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcEphemeralState;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
 import org.thoughtcrime.securesms.util.AppForegroundObserver;
@@ -58,6 +61,7 @@ import org.thoughtcrime.securesms.util.RecipientAccessList;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.rx.RxStore;
+import org.thoughtcrime.securesms.webrtc.CallNotificationBuilder;
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager;
 import org.thoughtcrime.securesms.webrtc.locks.LockManager;
 import org.webrtc.PeerConnection;
@@ -78,6 +82,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -223,7 +228,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     process((s, p) -> p.handleSetMuteAudio(s, enabled));
   }
 
-  public void setMuteVideo(boolean enabled) {
+  public void setEnableVideo(boolean enabled) {
     process((s, p) -> p.handleSetEnableVideo(s, enabled));
   }
 
@@ -317,7 +322,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     process((s, p) -> p.handleBluetoothPermissionDenied(s));
   }
 
-  public void selectAudioDevice(@NonNull SignalAudioManager.AudioDevice desiredDevice) {
+  public void selectAudioDevice(@NonNull SignalAudioManager.ChosenAudioDeviceIdentifier desiredDevice) {
     process((s, p) -> p.handleSetUserAudioDevice(s, desiredDevice));
   }
 
@@ -349,8 +354,8 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
           Long threadId = SignalDatabase.threads().getThreadIdFor(group.getId());
 
           if (threadId != null) {
-            SignalDatabase.messages()
-                          .updatePreviousGroupCall(threadId,
+            SignalDatabase.calls()
+                          .updateGroupCallFromPeek(threadId,
                                                    peekInfo.getEraId(),
                                                    peekInfo.getJoinedMembers(),
                                                    WebRtcUtil.isCallFull(peekInfo));
@@ -410,7 +415,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   }
 
   public boolean startCallCardActivityIfPossible() {
-    if (Build.VERSION.SDK_INT >= 29 && !ApplicationDependencies.getAppForegroundObserver().isForegrounded()) {
+    if (Build.VERSION.SDK_INT >= CallNotificationBuilder.API_LEVEL_CALL_STYLE) {
       return false;
     }
 
@@ -815,6 +820,12 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   }
 
   @Override
+  public void onCameraStopped() {
+    Log.i(TAG, "Camera error. Muting video.");
+    setEnableVideo(false);
+  }
+
+  @Override
   public void onForeground() {
     process((s, p) -> {
       WebRtcViewModel.State          callState      = s.getCallInfoState().getCallState();
@@ -831,34 +842,35 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
 
   public void insertMissedCall(@NonNull RemotePeer remotePeer, long timestamp, boolean isVideoOffer) {
     CallTable.Call call = SignalDatabase.calls()
-                                        .updateCall(remotePeer.getCallId().longValue(), CallTable.Event.MISSED);
+                                        .updateOneToOneCall(remotePeer.getCallId().longValue(), CallTable.Event.MISSED);
 
     if (call == null) {
       CallTable.Type type = isVideoOffer ? CallTable.Type.VIDEO_CALL : CallTable.Type.AUDIO_CALL;
 
       SignalDatabase.calls()
-                    .insertCall(remotePeer.getCallId().longValue(), timestamp, remotePeer.getId(), type, CallTable.Direction.INCOMING, CallTable.Event.MISSED);
+                    .insertOneToOneCall(remotePeer.getCallId().longValue(), timestamp, remotePeer.getId(), type, CallTable.Direction.INCOMING, CallTable.Event.MISSED);
     }
   }
 
   public void insertReceivedCall(@NonNull RemotePeer remotePeer, boolean isVideoOffer) {
     CallTable.Call call = SignalDatabase.calls()
-                                        .updateCall(remotePeer.getCallId().longValue(), CallTable.Event.ACCEPTED);
+                                        .updateOneToOneCall(remotePeer.getCallId().longValue(), CallTable.Event.ACCEPTED);
 
     if (call == null) {
       CallTable.Type type = isVideoOffer ? CallTable.Type.VIDEO_CALL : CallTable.Type.AUDIO_CALL;
 
       SignalDatabase.calls()
-                    .insertCall(remotePeer.getCallId().longValue(), System.currentTimeMillis(), remotePeer.getId(), type, CallTable.Direction.INCOMING, CallTable.Event.ACCEPTED);
+                    .insertOneToOneCall(remotePeer.getCallId().longValue(), System.currentTimeMillis(), remotePeer.getId(), type, CallTable.Direction.INCOMING, CallTable.Event.ACCEPTED);
     }
   }
 
   public void retrieveTurnServers(@NonNull RemotePeer remotePeer) {
+    List<PeerConnection.IceServer> iceServers = new LinkedList<>();
+
     networkExecutor.execute(() -> {
       try {
         TurnServerInfo turnServerInfo = ApplicationDependencies.getSignalServiceAccountManager().getTurnServerInfo();
 
-        List<PeerConnection.IceServer> iceServers = new LinkedList<>();
         for (String url : turnServerInfo.getUrls()) {
           if (url.startsWith("turn")) {
             iceServers.add(PeerConnection.IceServer.builder(url)
@@ -869,6 +881,10 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
             iceServers.add(PeerConnection.IceServer.builder(url).createIceServer());
           }
         }
+      } catch (IOException e) {
+        Log.w(TAG, "Using fallback. Unable to retrieve turn servers: " + e);
+      } finally {
+        // Append fallback stun server
         iceServers.add(PeerConnection.IceServer.builder("stun:stun1.l.google.com:19302").createIceServer());
 
         process((s, p) -> {
@@ -880,24 +896,36 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
           Log.w(TAG, "Ignoring received turn servers for incorrect call id. requesting_call_id: " + remotePeer.getCallId() + " current_call_id: " + (activePeer != null ? activePeer.getCallId() : "null"));
           return s;
         });
-      } catch (IOException e) {
-        Log.w(TAG, "Unable to retrieve turn servers: ", e);
-        process((s, p) -> p.handleSetupFailure(s, remotePeer.getCallId()));
       }
     });
   }
 
-  public void sendGroupCallUpdateMessage(@NonNull Recipient recipient, @Nullable String groupCallEraId) {
-    SignalExecutors.BOUNDED.execute(() -> ApplicationDependencies.getJobManager().add(GroupCallUpdateSendJob.create(recipient.getId(), groupCallEraId)));
+  public void sendGroupCallUpdateMessage(@NonNull Recipient recipient, @Nullable String groupCallEraId, boolean isIncoming, boolean isJoinEvent) {
+    SignalExecutors.BOUNDED.execute(() -> {
+      GroupCallUpdateSendJob updateSendJob = GroupCallUpdateSendJob.create(recipient.getId(), groupCallEraId);
+      JobManager.Chain       chain         = ApplicationDependencies.getJobManager().startChain(updateSendJob);
+
+      if (isJoinEvent && groupCallEraId != null) {
+        chain.then(CallSyncEventJob.createForJoin(
+            recipient.getId(),
+            CallId.fromEra(groupCallEraId).longValue(),
+            isIncoming
+        ));
+      } else if (isJoinEvent) {
+        Log.w(TAG, "Can't send join event sync message without an era id.");
+      }
+
+      chain.enqueue();
+    });
   }
 
   public void updateGroupCallUpdateMessage(@NonNull RecipientId groupId, @Nullable String groupCallEraId, @NonNull Collection<UUID> joinedMembers, boolean isCallFull) {
-    SignalExecutors.BOUNDED.execute(() -> SignalDatabase.messages().insertOrUpdateGroupCall(groupId,
-                                                                                       Recipient.self().getId(),
-                                                                                       System.currentTimeMillis(),
-                                                                                       groupCallEraId,
-                                                                                       joinedMembers,
-                                                                                       isCallFull));
+    SignalExecutors.BOUNDED.execute(() -> SignalDatabase.calls().insertOrUpdateGroupCallFromLocalEvent(groupId,
+                                                                                                       Recipient.self().getId(),
+                                                                                                       System.currentTimeMillis(),
+                                                                                                       groupCallEraId,
+                                                                                                       joinedMembers,
+                                                                                                       isCallFull));
   }
 
   public void sendCallMessage(@NonNull final RemotePeer remotePeer,
@@ -935,7 +963,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   public void sendAcceptedCallEventSyncMessage(@NonNull RemotePeer remotePeer, boolean isOutgoing, boolean isVideoCall) {
     SignalDatabase
         .calls()
-        .updateCall(remotePeer.getCallId().longValue(), CallTable.Event.ACCEPTED);
+        .updateOneToOneCall(remotePeer.getCallId().longValue(), CallTable.Event.ACCEPTED);
 
     if (TextSecurePreferences.isMultiDevice(context)) {
       networkExecutor.execute(() -> {
@@ -952,7 +980,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   public void sendNotAcceptedCallEventSyncMessage(@NonNull RemotePeer remotePeer, boolean isOutgoing, boolean isVideoCall) {
     SignalDatabase
         .calls()
-        .updateCall(remotePeer.getCallId().longValue(), CallTable.Event.NOT_ACCEPTED);
+        .updateOneToOneCall(remotePeer.getCallId().longValue(), CallTable.Event.NOT_ACCEPTED);
 
     if (TextSecurePreferences.isMultiDevice(context)) {
       networkExecutor.execute(() -> {
@@ -964,6 +992,10 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
         }
       });
     }
+  }
+
+  public @NonNull SignalCallLinkManager getCallLinkManager() {
+    return new SignalCallLinkManager(Objects.requireNonNull(callManager));
   }
 
   private void processSendMessageFailureWithChangeDetection(@NonNull RemotePeer remotePeer,

@@ -36,6 +36,7 @@ open class SimpleEmojiTextView @JvmOverloads constructor(
         canvas.restoreToCount(checkpoint)
       }
     }
+
     super.onDraw(canvas)
   }
 
@@ -56,11 +57,12 @@ open class SimpleEmojiTextView @JvmOverloads constructor(
         EmojiProvider.emojify(newCandidates, text, this, false)
       }
 
-      val newContent = if (width == 0 || maxLines == -1) {
+      var newContent: CharSequence? = if (width == 0 || maxLines == -1) {
         newText
       } else {
         TextUtils.ellipsize(newText, paint, (adjustedWidth * maxLines).toFloat(), TextUtils.TruncateAt.END, false, null)
       }
+
       bufferType = BufferType.SPANNABLE
       super.setText(newContent, type)
     }

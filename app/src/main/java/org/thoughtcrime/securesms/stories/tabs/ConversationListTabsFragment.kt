@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.fragment.app.Fragment
@@ -13,14 +14,16 @@ import androidx.fragment.app.viewModels
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.signal.core.util.DimensionUnit
+import org.signal.core.util.concurrent.LifecycleDisposable
+import org.signal.core.util.dp
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.databinding.ConversationListTabsBinding
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.stories.Stories
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.visible
-import java.text.NumberFormat
 
 /**
  * Displays the "Chats" and "Stories" tab to a user.
@@ -28,12 +31,21 @@ import java.text.NumberFormat
 class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
 
   private val viewModel: ConversationListTabsViewModel by viewModels(ownerProducer = { requireActivity() })
+  private val disposables: LifecycleDisposable = LifecycleDisposable()
   private val binding by ViewBinderDelegate(ConversationListTabsBinding::bind)
   private var shouldBeImmediate = true
   private var pillAnimator: Animator? = null
 
+  private val largeConstraintSet: ConstraintSet = ConstraintSet()
+  private val smallConstraintSet: ConstraintSet = ConstraintSet()
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    disposables.bindTo(viewLifecycleOwner)
+
     val iconTint = ContextCompat.getColor(requireContext(), R.color.signal_colorOnSecondaryContainer)
+
+    largeConstraintSet.clone(binding.root)
+    smallConstraintSet.clone(requireContext(), R.layout.conversation_list_tabs_small)
 
     binding.chatsTabIcon.addValueCallback(
       KeyPath("**"),
@@ -64,7 +76,7 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
 
     updateTabsVisibility()
 
-    viewModel.state.observe(viewLifecycleOwner) {
+    disposables += viewModel.state.subscribeBy {
       update(it, shouldBeImmediate)
       shouldBeImmediate = false
     }
@@ -76,6 +88,14 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
   }
 
   private fun updateTabsVisibility() {
+    if (SignalStore.settings().useCompactNavigationBar) {
+      smallConstraintSet.applyTo(binding.root)
+      binding.root.minHeight = 48.dp
+    } else {
+      largeConstraintSet.applyTo(binding.root)
+      binding.root.minHeight = 80.dp
+    }
+
     listOf(
       binding.callsPill,
       binding.callsTabIcon,
@@ -84,7 +104,7 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
       binding.callsUnreadIndicator,
       binding.callsTabTouchPoint
     ).forEach {
-      it.visible = FeatureFlags.callsTab()
+      it.visible = true
     }
 
     listOf(
@@ -96,6 +116,16 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
       binding.storiesTabTouchPoint
     ).forEach {
       it.visible = Stories.isFeatureEnabled()
+    }
+
+    if (SignalStore.settings().useCompactNavigationBar) {
+      listOf(
+        binding.callsTabLabel,
+        binding.chatsTabLabel,
+        binding.storiesTabLabel
+      ).forEach {
+        it.visible = false
+      }
     }
 
     update(viewModel.stateSnapshot, true)
@@ -110,10 +140,8 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
       binding.storiesPill.isSelected = state.tab == ConversationListTab.STORIES
     }
 
-    if (FeatureFlags.callsTab()) {
-      binding.callsTabIcon.isSelected = state.tab == ConversationListTab.CALLS
-      binding.callsPill.isSelected = state.tab == ConversationListTab.CALLS
-    }
+    binding.callsTabIcon.isSelected = state.tab == ConversationListTab.CALLS
+    binding.callsPill.isSelected = state.tab == ConversationListTab.CALLS
 
     val hasStateChange = state.tab != state.prevTab
     if (immediate) {
@@ -125,16 +153,14 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
         binding.storiesTabIcon.progress = if (state.tab == ConversationListTab.STORIES) 1f else 0f
       }
 
-      if (FeatureFlags.callsTab()) {
-        binding.callsTabIcon.pauseAnimation()
-        binding.callsTabIcon.progress = if (state.tab == ConversationListTab.CALLS) 1f else 0f
-      }
+      binding.callsTabIcon.pauseAnimation()
+      binding.callsTabIcon.progress = if (state.tab == ConversationListTab.CALLS) 1f else 0f
 
       runPillAnimation(
         0,
         listOfNotNull(
           binding.chatsPill,
-          binding.callsPill.takeIf { FeatureFlags.callsTab() },
+          binding.callsPill,
           binding.storiesPill.takeIf { Stories.isFeatureEnabled() }
         )
       )
@@ -142,7 +168,7 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
       runLottieAnimations(
         listOfNotNull(
           binding.chatsTabIcon,
-          binding.callsTabIcon.takeIf { FeatureFlags.callsTab() },
+          binding.callsTabIcon,
           binding.storiesTabIcon.takeIf { Stories.isFeatureEnabled() }
         )
       )
@@ -151,7 +177,7 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
         150,
         listOfNotNull(
           binding.chatsPill,
-          binding.callsPill.takeIf { FeatureFlags.callsTab() },
+          binding.callsPill,
           binding.storiesPill.takeIf { Stories.isFeatureEnabled() }
         )
       )
@@ -165,10 +191,8 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
       binding.storiesUnreadIndicator.text = if (state.hasFailedStory) "!" else formatCount(state.unreadStoriesCount)
     }
 
-    if (FeatureFlags.callsTab()) {
-      binding.callsUnreadIndicator.visible = state.unreadCallsCount > 0
-      binding.callsUnreadIndicator.text = formatCount(state.unreadCallsCount)
-    }
+    binding.callsUnreadIndicator.visible = state.unreadCallsCount > 0
+    binding.callsUnreadIndicator.text = formatCount(state.unreadCallsCount)
 
     requireView().visible = state.visibilityState.isVisible()
   }
@@ -218,6 +242,6 @@ class ConversationListTabsFragment : Fragment(R.layout.conversation_list_tabs) {
     if (count > 99L) {
       return getString(R.string.ConversationListTabs__99p)
     }
-    return NumberFormat.getInstance().format(count)
+    return count.toString()
   }
 }

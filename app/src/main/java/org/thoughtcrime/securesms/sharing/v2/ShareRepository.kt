@@ -17,9 +17,9 @@ import org.thoughtcrime.securesms.attachments.UriAttachment
 import org.thoughtcrime.securesms.conversation.MessageSendType
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediasend.Media
-import org.thoughtcrime.securesms.mediasend.MediaSendConstants
 import org.thoughtcrime.securesms.mms.MediaConstraints
 import org.thoughtcrime.securesms.providers.BlobProvider
+import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.UriUtil
 import org.thoughtcrime.securesms.util.Util
@@ -48,7 +48,9 @@ class ShareRepository(context: Context) {
     }
 
     val uri = multiShareExternal.uri
-    val mimeType = getMimeType(appContext, uri, multiShareExternal.mimeType)
+    val size = getSize(appContext, uri)
+    val name = getFileName(appContext, uri)
+    val mimeType = getMimeType(appContext, uri, multiShareExternal.mimeType, name?.substringAfterLast('.', ""))
 
     val stream: InputStream = try {
       appContext.contentResolver.openInputStream(uri)
@@ -56,9 +58,6 @@ class ShareRepository(context: Context) {
       Log.w(TAG, "Failed to read stream!", e)
       null
     } ?: return ResolvedShareData.Failure
-
-    val size = getSize(appContext, uri)
-    val name = getFileName(appContext, uri)
 
     val blobUri: Uri = try {
       BlobProvider.getInstance()
@@ -92,7 +91,7 @@ class ShareRepository(context: Context) {
     }
 
     val media: List<Media> = mimeTypes.toList()
-      .take(MediaSendConstants.MAX_PUSH)
+      .take(FeatureFlags.maxAttachmentCount())
       .map { (uri, mimeType) ->
         val stream: InputStream = try {
           appContext.contentResolver.openInputStream(uri)
@@ -142,8 +141,8 @@ class ShareRepository(context: Context) {
   companion object {
     private val TAG = Log.tag(ShareRepository::class.java)
 
-    private fun getMimeType(context: Context, uri: Uri, mimeType: String?): String {
-      var updatedMimeType = MediaUtil.getMimeType(context, uri)
+    private fun getMimeType(context: Context, uri: Uri, mimeType: String?, fileExtension: String? = null): String {
+      var updatedMimeType = MediaUtil.getMimeType(context, uri, fileExtension)
       if (updatedMimeType == null) {
         updatedMimeType = MediaUtil.getCorrectedMimeType(mimeType)
       }

@@ -23,7 +23,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.Barrier;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
@@ -33,6 +33,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatorInflaterCompat;
 import com.annimon.stream.Stream;
 
 import org.signal.core.util.DimensionUnit;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.animation.AnimationCompleteListener;
 import org.thoughtcrime.securesms.components.emoji.EmojiImageView;
@@ -42,6 +43,7 @@ import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -407,6 +409,12 @@ public final class ConversationReactionOverlay extends FrameLayout {
   }
 
   private int getInputPanelHeight(@NonNull Activity activity) {
+    if (SignalStore.internalValues().useConversationFragmentV2()) {
+      Barrier conversationBottomPanelBarrier = activity.findViewById(R.id.conversation_bottom_panel_barrier);
+
+      return activity.getResources().getDisplayMetrics().heightPixels - conversationBottomPanelBarrier.getTop();
+    }
+
     View bottomPanel = activity.findViewById(R.id.conversation_activity_panel_parent);
     View emojiDrawer = activity.findViewById(R.id.emoji_drawer);
 
@@ -427,7 +435,6 @@ public final class ConversationReactionOverlay extends FrameLayout {
     }
   }
 
-  @RequiresApi(api = 21)
   private void updateSystemUiOnShow(@NonNull Activity activity) {
     Window window   = activity.getWindow();
     int    barColor = ContextCompat.getColor(getContext(), R.color.conversation_item_selected_system_ui);
@@ -738,6 +745,10 @@ public final class ConversationReactionOverlay extends FrameLayout {
       items.add(new ActionItem(R.drawable.symbol_reply_24, getResources().getString(R.string.conversation_selection__menu_reply), () -> handleActionItemClicked(Action.REPLY)));
     }
 
+    if (FeatureFlags.editMessageSending() && menuState.shouldShowEditAction()) {
+      items.add(new ActionItem(R.drawable.symbol_edit_24, getResources().getString(R.string.conversation_selection__menu_edit), () -> handleActionItemClicked(Action.EDIT)));
+    }
+
     if (menuState.shouldShowForwardAction()) {
       items.add(new ActionItem(R.drawable.symbol_forward_24, getResources().getString(R.string.conversation_selection__menu_forward), () -> handleActionItemClicked(Action.FORWARD)));
     }
@@ -968,6 +979,7 @@ public final class ConversationReactionOverlay extends FrameLayout {
 
   public enum Action {
     REPLY,
+    EDIT,
     FORWARD,
     RESEND,
     DOWNLOAD,

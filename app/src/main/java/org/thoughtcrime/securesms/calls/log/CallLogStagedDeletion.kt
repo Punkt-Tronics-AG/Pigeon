@@ -6,6 +6,7 @@ import androidx.annotation.MainThread
  * Encapsulates a single deletion action
  */
 class CallLogStagedDeletion(
+  private val filter: CallLogFilter,
   private val stateSnapshot: CallLogSelectionState,
   private val repository: CallLogRepository
 ) {
@@ -28,15 +29,16 @@ class CallLogStagedDeletion(
     }
 
     isCommitted = true
-    val messageIds = stateSnapshot.selected()
+    val callRowIds = stateSnapshot.selected()
       .filterIsInstance<CallLogRow.Id.Call>()
-      .map { it.messageId }
+      .map { it.children }
+      .flatten()
       .toSet()
 
     if (stateSnapshot.isExclusionary()) {
-      repository.deleteAllCallLogsExcept(messageIds).subscribe()
+      repository.deleteAllCallLogsExcept(callRowIds, filter == CallLogFilter.MISSED).subscribe()
     } else {
-      repository.deleteSelectedCallLogs(messageIds).subscribe()
+      repository.deleteSelectedCallLogs(callRowIds).subscribe()
     }
   }
 }

@@ -8,6 +8,7 @@ import org.signal.core.util.concurrent.SignalExecutors
 import org.thoughtcrime.securesms.conversation.ConversationMessage
 import org.thoughtcrime.securesms.database.DatabaseObserver
 import org.thoughtcrime.securesms.database.MessageTable
+import org.thoughtcrime.securesms.database.RxDatabaseObserver
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.DistributionListId
 import org.thoughtcrime.securesms.database.model.MessageRecord
@@ -34,8 +35,10 @@ class StoriesLandingRepository(context: Context) {
 
   @Suppress("UsePropertyAccessSyntax")
   fun getStories(): Observable<List<StoriesLandingItemData>> {
-    val storyRecipients: Observable<Map<Recipient, List<StoryResult>>> = Observable.create { emitter ->
-      fun refresh() {
+    val storyRecipients: Observable<Map<Recipient, List<StoryResult>>> = RxDatabaseObserver
+      .conversationList
+      .toObservable()
+      .map {
         val myStoriesId = SignalDatabase.recipients.getOrInsertFromDistributionListId(DistributionListId.MY_STORY)
         val myStories = Recipient.resolved(myStoriesId)
 
@@ -55,20 +58,8 @@ class StoriesLandingRepository(context: Context) {
           }
         }
 
-        emitter.onNext(mapping)
+        mapping
       }
-
-      val observer = DatabaseObserver.Observer {
-        refresh()
-      }
-
-      ApplicationDependencies.getDatabaseObserver().registerConversationListObserver(observer)
-      emitter.setCancellable {
-        ApplicationDependencies.getDatabaseObserver().unregisterObserver(observer)
-      }
-
-      refresh()
-    }
 
     return storyRecipients.switchMap { map ->
       val observables = map.map { (recipient, results) ->
@@ -121,10 +112,10 @@ class StoriesLandingRepository(context: Context) {
           hasReplies = messageRecords.any { SignalDatabase.messages.getNumberOfStoryReplies(it.id) > 0 },
           hasRepliesFromSelf = messageRecords.any { SignalDatabase.messages.hasSelfReplyInStory(it.id) },
           isHidden = sender.shouldHideStory(),
-          primaryStory = ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(context, messageRecords[primaryIndex]),
+          primaryStory = ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(context, messageRecords[primaryIndex], sender),
           secondaryStory = if (sender.isMyStory) {
             messageRecords.drop(1).firstOrNull()?.let {
-              ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(context, it)
+              ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(context, it, sender)
             }
           } else {
             null

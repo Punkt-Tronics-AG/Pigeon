@@ -39,12 +39,12 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.events.PartProgressEvent;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
+import org.thoughtcrime.securesms.jobmanager.JobTracker;
 import org.thoughtcrime.securesms.jobmanager.impl.BackoffUtil;
 import org.thoughtcrime.securesms.keyvalue.CertificateType;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader.DecryptableUri;
-import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingMessage;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.mms.QuoteModel;
@@ -67,6 +67,7 @@ import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentRemo
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServicePreview;
 import org.whispersystems.signalservice.api.messages.shared.SharedContact;
+import org.whispersystems.signalservice.api.push.ServiceId;
 import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResponseCodeException;
 import org.whispersystems.signalservice.api.push.exceptions.ProofRequiredException;
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException;
@@ -98,9 +99,18 @@ public abstract class PushSendJob extends SendJob {
 
   @Override
   protected final void onSend() throws Exception {
-    if (SignalStore.account().aciPreKeys().getSignedPreKeyFailureCount() > 5) {
-      PreKeysSyncJob.enqueue(true);
-      throw new TextSecureExpiredException("Too many signed prekey rotation failures");
+    long timeSinceSignedPreKeyRotation = System.currentTimeMillis() - SignalStore.account().aciPreKeys().getLastSignedPreKeyRotationTime();
+
+    if (timeSinceSignedPreKeyRotation > PreKeysSyncJob.MAXIMUM_ALLOWED_SIGNED_PREKEY_AGE || timeSinceSignedPreKeyRotation < 0) {
+      warn(TAG, "It's been too long since rotating our signed prekey (" + timeSinceSignedPreKeyRotation + " ms)! Attempting to rotate now.");
+
+      Optional<JobTracker.JobState> state = ApplicationDependencies.getJobManager().runSynchronously(PreKeysSyncJob.create(), TimeUnit.SECONDS.toMillis(30));
+
+      if (state.isPresent() && state.get() == JobTracker.JobState.SUCCESS) {
+        log(TAG, "Successfully refreshed prekeys. Continuing.");
+      } else {
+        throw new RetryLaterException(new TextSecureExpiredException("Failed to refresh prekeys! State: " + (state.isEmpty() ? "<empty>" : state.get())));
+      }
     }
 
     if (!Recipient.self().isRegistered()) {
@@ -313,6 +323,9 @@ public abstract class PushSendJob extends SendJob {
 
   protected Optional<SignalServiceDataMessage.Quote> getQuoteFor(OutgoingMessage message) throws IOException {
     if (message.getOutgoingQuote() == null) return Optional.empty();
+    if (message.isMessageEdit()) {
+      return Optional.of(new SignalServiceDataMessage.Quote(0, ServiceId.UNKNOWN, "", null, null, SignalServiceDataMessage.Quote.Type.NORMAL, null));
+    }
 
     long                                                  quoteId              = message.getOutgoingQuote().getId();
     String                                                quoteBody            = message.getOutgoingQuote().getText();

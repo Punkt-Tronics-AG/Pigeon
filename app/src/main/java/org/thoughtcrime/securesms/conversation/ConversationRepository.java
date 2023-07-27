@@ -6,6 +6,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import org.signal.core.util.StreamUtil;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.contacts.sync.ContactDiscovery;
@@ -15,33 +16,40 @@ import org.thoughtcrime.securesms.database.RecipientTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
+import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceViewedUpdateJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
+import org.thoughtcrime.securesms.mms.PartAuthority;
+import org.thoughtcrime.securesms.mms.TextSlide;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.BubbleUtil;
 import org.thoughtcrime.securesms.util.ConversationUtil;
+import org.thoughtcrime.securesms.util.MessageRecordUtil;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-class ConversationRepository {
+public class ConversationRepository {
 
   private static final String TAG = Log.tag(ConversationRepository.class);
 
   private final Context  context;
 
-  ConversationRepository() {
+  public ConversationRepository() {
     this.context = ApplicationDependencies.getApplication();
   }
 
@@ -58,14 +66,15 @@ class ConversationRepository {
 
   @WorkerThread
   public @NonNull ConversationData getConversationData(long threadId, @NonNull Recipient conversationRecipient, int jumpToPosition) {
-    ThreadTable.ConversationMetadata metadata   = SignalDatabase.threads().getConversationMetadata(threadId);
-    int                              threadSize = SignalDatabase.messages().getMessageCountForThread(threadId);
+    ThreadTable.ConversationMetadata    metadata                       = SignalDatabase.threads().getConversationMetadata(threadId);
+    int                                 threadSize                     = SignalDatabase.messages().getMessageCountForThread(threadId);
     long                                lastSeen                       = metadata.getLastSeen();
     int                                 lastSeenPosition               = 0;
     long                                lastScrolled                   = metadata.getLastScrolled();
     int                                 lastScrolledPosition           = 0;
     boolean                             isMessageRequestAccepted       = RecipientUtil.isMessageRequestAccepted(context, threadId);
-    ConversationData.MessageRequestData messageRequestData             = new ConversationData.MessageRequestData(isMessageRequestAccepted);
+    boolean                             isConversationHidden           = RecipientUtil.isRecipientHidden(threadId);
+    ConversationData.MessageRequestData messageRequestData             = new ConversationData.MessageRequestData(isMessageRequestAccepted, isConversationHidden);
     boolean                             showUniversalExpireTimerUpdate = false;
 
     if (lastSeen > 0) {
@@ -98,7 +107,7 @@ class ConversationRepository {
       } else if (conversationRecipient.hasGroupsInCommon()) {
         recipientIsKnownOrHasGroupsInCommon = true;
       }
-      messageRequestData = new ConversationData.MessageRequestData(isMessageRequestAccepted, recipientIsKnownOrHasGroupsInCommon, isGroup);
+      messageRequestData = new ConversationData.MessageRequestData(isMessageRequestAccepted, isConversationHidden, recipientIsKnownOrHasGroupsInCommon, isGroup);
     }
 
     if (SignalStore.settings().getUniversalExpireTimer() != 0 &&
@@ -110,10 +119,10 @@ class ConversationRepository {
       showUniversalExpireTimerUpdate = true;
     }
 
-    return new ConversationData(threadId, lastSeen, lastSeenPosition, lastScrolledPosition, jumpToPosition, threadSize, messageRequestData, showUniversalExpireTimerUpdate);
+    return new ConversationData(conversationRecipient, threadId, lastSeen, lastSeenPosition, lastScrolledPosition, jumpToPosition, threadSize, messageRequestData, showUniversalExpireTimerUpdate);
   }
 
-  void markGiftBadgeRevealed(long messageId) {
+  public void markGiftBadgeRevealed(long messageId) {
     SignalExecutors.BOUNDED_IO.execute(() -> {
       List<MessageTable.MarkedMessageInfo> markedMessageInfo = SignalDatabase.messages().setOutgoingGiftsRevealed(Collections.singletonList(messageId));
       if (!markedMessageInfo.isEmpty()) {
@@ -179,8 +188,32 @@ class ConversationRepository {
                                           registeredState == RecipientTable.RegisteredState.REGISTERED && signalEnabled,
                                           Util.isDefaultSmsProvider(context),
                                           true,
-                                          hasUnexportedInsecureMessages);
+                                          hasUnexportedInsecureMessages,
+                                          SignalStore.misc().isClientDeprecated(),
+                                          TextSecurePreferences.isUnauthorizedReceived(context));
     }).subscribeOn(Schedulers.io());
+  }
+
+  @NonNull
+  public Single<ConversationMessage> resolveMessageToEdit(@NonNull ConversationMessage message) {
+    return Single.fromCallable(() -> {
+                   MessageRecord messageRecord = message.getMessageRecord();
+                   if (MessageRecordUtil.hasTextSlide(messageRecord)) {
+                     TextSlide textSlide = MessageRecordUtil.requireTextSlide(messageRecord);
+                     if (textSlide.getUri() == null) {
+                       return message;
+                     }
+
+                     try (InputStream stream = PartAuthority.getAttachmentStream(context, textSlide.getUri())) {
+                       String body = StreamUtil.readFullyAsString(stream);
+                       return ConversationMessage.ConversationMessageFactory.createWithUnresolvedData(context, messageRecord, body, message.getThreadRecipient());
+                     } catch (IOException e) {
+                       Log.w(TAG, "Failed to read text slide data.");
+                     }
+                   }
+                   return message;
+                 }).subscribeOn(Schedulers.io())
+                 .observeOn(AndroidSchedulers.mainThread());
   }
 
   Observable<Integer> getUnreadCount(long threadId, long afterTime) {

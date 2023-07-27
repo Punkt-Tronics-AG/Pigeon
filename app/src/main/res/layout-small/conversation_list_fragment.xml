@@ -39,20 +39,11 @@
             android:layout="@layout/conversation_list_reminder_view"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ViewStub
-            android:id="@+id/payments_notification"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:inflatedId="@+id/payments_notification"
-            android:layout="@layout/payment_notification_view"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/banner_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="reminder,payments_notification,voice_note_player" />
+            app:barrierDirection="bottom"/>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"

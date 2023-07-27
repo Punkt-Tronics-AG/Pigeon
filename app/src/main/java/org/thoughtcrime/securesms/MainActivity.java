@@ -29,7 +29,6 @@ import org.thoughtcrime.securesms.util.CachedInflater;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
-import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.SplashScreenUtil;
 import org.thoughtcrime.securesms.util.WindowUtil;
 
@@ -90,6 +89,7 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
     handleGroupLinkInIntent(getIntent());
     handleProxyInIntent(getIntent());
     handleSignalMeIntent(getIntent());
+    handleCallLinkInIntent(getIntent());
 
     CachedInflater.from(this).clear();
 
@@ -193,14 +193,8 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
 
   private void updateTabVisibility() {
     if (isSignalVersion()) {
-      if (Stories.isFeatureEnabled() || FeatureFlags.callsTab()) {
-        findViewById(R.id.conversation_list_tabs).setVisibility(View.VISIBLE);
-        WindowUtil.setNavigationBarColor(this, ContextCompat.getColor(this, R.color.signal_colorSurface2));
-      } else {
-        findViewById(R.id.conversation_list_tabs).setVisibility(View.GONE);
-        WindowUtil.setNavigationBarColor(this, ContextCompat.getColor(this, R.color.signal_colorBackground));
-        conversationListTabsViewModel.onChatsSelected();
-      }
+      findViewById(R.id.conversation_list_tabs).setVisibility(View.VISIBLE);
+      WindowUtil.setNavigationBarColor(this, ContextCompat.getColor(this, R.color.signal_colorSurface2));
     }
   }
 
@@ -226,6 +220,13 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
     Uri data = intent.getData();
     if (data != null) {
       CommunicationActions.handlePotentialSignalMeUrl(this, data.toString());
+    }
+  }
+
+  private void handleCallLinkInIntent(Intent intent) {
+    Uri data = intent.getData();
+    if (data != null) {
+      CommunicationActions.handlePotentialCallLinkUrl(this, data.toString());
     }
   }
 

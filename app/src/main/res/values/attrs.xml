@@ -301,7 +301,8 @@
     <declare-styleable name="WebRtcAudioOutputToggleButtonState">
         <attr name="state_speaker_on" format="boolean" />
         <attr name="state_speaker_off" format="boolean" />
-        <attr name="state_headset_selected" format="boolean" />
+        <attr name="state_bt_headset_selected" format="boolean" />
+        <attr name="state_wired_headset_selected" format="boolean" />
         <attr name="state_speaker_selected" format="boolean" />
         <attr name="state_handset_selected" format="boolean" />
     </declare-styleable>
@@ -372,5 +373,9 @@
     <declare-styleable name="AnimatedInOutImageButton">
         <attr name="rotationWhenVisible" format="float" />
         <attr name="rotationWhenHidden" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="InsetAwareConstraintLayout">
+        <attr name="animateKeyboardChanges" format="boolean" />
     </declare-styleable>
 </resources>

@@ -31,6 +31,7 @@ import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
 import org.thoughtcrime.securesms.push.SignalServiceTrustStore;
 import org.thoughtcrime.securesms.recipients.LiveRecipientCache;
 import org.thoughtcrime.securesms.revealable.ViewOnceMessageManager;
+import org.thoughtcrime.securesms.service.DeletedCallEventManager;
 import org.thoughtcrime.securesms.service.ExpiringMessageManager;
 import org.thoughtcrime.securesms.service.ExpiringStoriesManager;
 import org.thoughtcrime.securesms.service.PendingRetryReceiptManager;
@@ -53,6 +54,7 @@ import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.SignalWebSocket;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
 import org.whispersystems.signalservice.api.push.TrustStore;
+import org.whispersystems.signalservice.api.services.CallLinksService;
 import org.whispersystems.signalservice.api.services.DonationsService;
 import org.whispersystems.signalservice.api.services.ProfileService;
 import org.whispersystems.signalservice.api.util.Tls12SocketFactory;
@@ -112,6 +114,7 @@ public class ApplicationDependencies {
   private static volatile ViewOnceMessageManager       viewOnceMessageManager;
   private static volatile ExpiringStoriesManager       expiringStoriesManager;
   private static volatile ExpiringMessageManager       expiringMessageManager;
+  private static volatile DeletedCallEventManager      deletedCallEventManager;
   private static volatile Payments                     payments;
   private static volatile SignalCallManager            signalCallManager;
   private static volatile ShakeToReport                shakeToReport;
@@ -126,6 +129,7 @@ public class ApplicationDependencies {
   private static volatile SimpleExoPlayerPool          exoPlayerPool;
   private static volatile AudioManagerCompat           audioManagerCompat;
   private static volatile DonationsService             donationsService;
+  private static volatile CallLinksService             callLinksService;
   private static volatile ProfileService               profileService;
   private static volatile DeadlockDetector             deadlockDetector;
   private static volatile ClientZkReceiptOperations    clientZkReceiptOperations;
@@ -430,6 +434,18 @@ public class ApplicationDependencies {
     return expiringMessageManager;
   }
 
+  public static @NonNull DeletedCallEventManager getDeletedCallEventManager() {
+    if (deletedCallEventManager == null) {
+      synchronized (LOCK) {
+        if (deletedCallEventManager == null) {
+          deletedCallEventManager = provider.provideDeletedCallEventManager();
+        }
+      }
+    }
+
+    return deletedCallEventManager;
+  }
+
   public static @NonNull ScheduledMessageManager getScheduledMessageManager() {
     if (scheduledMessagesManager == null) {
       synchronized (LOCK) {
@@ -638,6 +654,17 @@ public class ApplicationDependencies {
     return donationsService;
   }
 
+  public static @NonNull CallLinksService getCallLinksService() {
+    if (callLinksService == null) {
+      synchronized (LOCK) {
+        if (callLinksService == null) {
+          callLinksService = provider.provideCallLinksService(getSignalServiceNetworkAccess().getConfiguration(), getGroupsV2Operations());
+        }
+      }
+    }
+    return callLinksService;
+  }
+
   public static @NonNull ProfileService getProfileService() {
     if (profileService == null) {
       synchronized (LOCK) {
@@ -691,6 +718,7 @@ public class ApplicationDependencies {
     @NonNull ViewOnceMessageManager provideViewOnceMessageManager();
     @NonNull ExpiringStoriesManager provideExpiringStoriesManager();
     @NonNull ExpiringMessageManager provideExpiringMessageManager();
+    @NonNull DeletedCallEventManager provideDeletedCallEventManager();
     @NonNull TypingStatusRepository provideTypingStatusRepository();
     @NonNull TypingStatusSender provideTypingStatusSender();
     @NonNull DatabaseObserver provideDatabaseObserver();
@@ -706,6 +734,7 @@ public class ApplicationDependencies {
     @NonNull SimpleExoPlayerPool provideExoPlayerPool();
     @NonNull AudioManagerCompat provideAndroidCallAudioManager();
     @NonNull DonationsService provideDonationsService(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations);
+    @NonNull CallLinksService provideCallLinksService(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations);
     @NonNull ProfileService provideProfileService(@NonNull ClientZkProfileOperations profileOperations, @NonNull SignalServiceMessageReceiver signalServiceMessageReceiver, @NonNull SignalWebSocket signalWebSocket);
     @NonNull DeadlockDetector provideDeadlockDetector();
     @NonNull ClientZkReceiptOperations provideClientZkReceiptOperations(@NonNull SignalServiceConfiguration signalServiceConfiguration);

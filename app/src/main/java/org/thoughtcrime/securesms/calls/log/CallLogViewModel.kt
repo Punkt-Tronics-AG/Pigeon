@@ -77,6 +77,10 @@ class CallLogViewModel(
     disposables.dispose()
   }
 
+  fun markAllCallEventsRead() {
+    callLogRepository.markAllCallEventsRead()
+  }
+
   fun selectAll() {
     callLogStore.update {
       val selectionState = CallLogSelectionState.selectAll()
@@ -92,11 +96,12 @@ class CallLogViewModel(
   }
 
   @MainThread
-  fun stageCallDeletion(call: CallLogRow.Call) {
+  fun stageCallDeletion(call: CallLogRow) {
     callLogStore.state.stagedDeletion?.commit()
     callLogStore.update {
       it.copy(
         stagedDeletion = CallLogStagedDeletion(
+          it.filter,
           CallLogSelectionState.empty().toggle(call.id),
           callLogRepository
         )
@@ -110,6 +115,7 @@ class CallLogViewModel(
     callLogStore.update {
       it.copy(
         stagedDeletion = CallLogStagedDeletion(
+          it.filter,
           it.selectionState,
           callLogRepository
         )

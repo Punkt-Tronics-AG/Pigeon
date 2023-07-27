@@ -24,7 +24,7 @@ class AccountAttributes @JsonCreator constructor(
   @JsonProperty val capabilities: Capabilities?,
   @JsonProperty val name: String?,
   @JsonProperty val pniRegistrationId: Int,
-  @JsonProperty val recoveryPassword: String?,
+  @JsonProperty val recoveryPassword: String?
 ) {
   constructor(
     signalingKey: String?,
@@ -57,10 +57,7 @@ class AccountAttributes @JsonCreator constructor(
   )
 
   data class Capabilities @JsonCreator constructor(
-    @JsonProperty val uuid: Boolean,
-    @JsonProperty("gv2-3") val gv2: Boolean,
     @JsonProperty val storage: Boolean,
-    @JsonProperty("gv1-migration") val gv1Migration: Boolean,
     @JsonProperty val senderKey: Boolean,
     @JsonProperty val announcementGroup: Boolean,
     @JsonProperty val changeNumber: Boolean,

@@ -6,6 +6,7 @@ import org.signal.libsignal.zkgroup.groups.GroupMasterKey
 import org.signal.libsignal.zkgroup.receipts.ReceiptCredentialPresentation
 import org.whispersystems.signalservice.api.InvalidMessageStructureException
 import org.whispersystems.signalservice.api.util.UuidUtil
+import org.whispersystems.signalservice.internal.push.SignalServiceProtos
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.AttachmentPointer
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.Content
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.DataMessage
@@ -25,6 +26,14 @@ import org.whispersystems.signalservice.internal.push.SignalServiceProtos.Typing
 object EnvelopeContentValidator {
 
   fun validate(envelope: Envelope, content: Content): Result {
+    if (envelope.type == Envelope.Type.PLAINTEXT_CONTENT) {
+      val result: Result? = createPlaintextResultIfInvalid(content)
+
+      if (result != null) {
+        return result
+      }
+    }
+
     return when {
       envelope.story && !content.meetsStoryFlagCriteria() -> Result.Invalid("Envelope was flagged as a story, but it did not have any story-related content!")
       content.hasDataMessage() -> validateDataMessage(envelope, content.dataMessage)
@@ -36,6 +45,7 @@ object EnvelopeContentValidator {
       content.hasStoryMessage() -> validateStoryMessage(content.storyMessage)
       content.hasPniSignatureMessage() -> Result.Valid
       content.hasSenderKeyDistributionMessage() -> Result.Valid
+      content.hasEditMessage() -> validateEditMessage(content.editMessage)
       else -> Result.Invalid("Content is empty!")
     }
   }
@@ -56,7 +66,7 @@ object EnvelopeContentValidator {
       Result.Invalid("[DataMessage] Timestamps don't match! envelope: ${envelope.timestamp}, content: ${dataMessage.timestamp}")
     }
 
-    if (dataMessage.hasQuote() && dataMessage.quote.authorUuid.isNullOrInvalidUuid()) {
+    if (dataMessage.hasQuote() && dataMessage.quote.authorUuid.isNullOrInvalidOrUnknownUuid()) {
       return Result.Invalid("[DataMessage] Invalid UUID on quote!")
     }
 
@@ -68,7 +78,7 @@ object EnvelopeContentValidator {
       return Result.Invalid("[DataMessage] Invalid AttachmentPointer on DataMessage.previewList.image!")
     }
 
-    if (dataMessage.bodyRangesList.any { it.hasMentionUuid() && it.mentionUuid.isNullOrInvalidUuid() }) {
+    if (dataMessage.bodyRangesList.any { it.hasMentionUuid() && it.mentionUuid.isNullOrInvalidOrUnknownUuid() }) {
       return Result.Invalid("[DataMessage] Invalid UUID on body range!")
     }
 
@@ -80,7 +90,7 @@ object EnvelopeContentValidator {
       if (!dataMessage.reaction.hasTargetSentTimestamp()) {
         return Result.Invalid("[DataMessage] Missing timestamp on DataMessage.reaction!")
       }
-      if (dataMessage.reaction.targetAuthorUuid.isNullOrInvalidUuid()) {
+      if (dataMessage.reaction.targetAuthorUuid.isNullOrInvalidOrUnknownUuid()) {
         return Result.Invalid("[DataMessage] Invalid UUID on DataMessage.reaction!")
       }
     }
@@ -89,7 +99,7 @@ object EnvelopeContentValidator {
       return Result.Invalid("[DataMessage] Missing timestamp on DataMessage.delete!")
     }
 
-    if (dataMessage.hasStoryContext() && dataMessage.storyContext.authorUuid.isNullOrInvalidUuid()) {
+    if (dataMessage.hasStoryContext() && dataMessage.storyContext.authorUuid.isNullOrInvalidOrUnknownUuid()) {
       return Result.Invalid("[DataMessage] Invalid UUID on DataMessage.storyContext!")
     }
 
@@ -119,6 +129,7 @@ object EnvelopeContentValidator {
       val hasDataGroup = syncMessage.sent.message?.hasGroupV2() ?: false
       val hasStoryGroup = syncMessage.sent.storyMessage?.hasGroup() ?: false
       val hasStoryManifest = syncMessage.sent.storyMessageRecipientsList.isNotEmpty()
+      val hasEditMessageGroup = syncMessage.sent.editMessage?.dataMessage?.hasGroupV2() ?: false
 
       if (hasDataGroup) {
         validateGroupContextV2(syncMessage.sent.message.groupV2, "[SyncMessage.Sent.Message]")?.let { return it }
@@ -128,8 +139,12 @@ object EnvelopeContentValidator {
         validateGroupContextV2(syncMessage.sent.storyMessage.group, "[SyncMessage.Sent.StoryMessage]")?.let { return it }
       }
 
-      if (!validAddress && !hasDataGroup && !hasStoryGroup && !hasStoryManifest) {
-        return Result.Invalid("[SyncMessage] No valid destination! Checked the destination, DataMessage.group, StoryMessage.group, and storyMessageRecipientList")
+      if (hasEditMessageGroup) {
+        validateGroupContextV2(syncMessage.sent.editMessage.dataMessage.groupV2, "[SyncMessage.Sent.EditMessage]")?.let { return it }
+      }
+
+      if (!validAddress && !hasDataGroup && !hasStoryGroup && !hasStoryManifest && !hasEditMessageGroup) {
+        return Result.Invalid("[SyncMessage] No valid destination! Checked the destination, DataMessage.group, StoryMessage.group, EditMessage.group and storyMessageRecipientList")
       }
 
       for (status in syncMessage.sent.unidentifiedStatusList) {
@@ -142,24 +157,26 @@ object EnvelopeContentValidator {
         validateDataMessage(envelope, syncMessage.sent.message)
       } else if (syncMessage.sent.hasStoryMessage()) {
         validateStoryMessage(syncMessage.sent.storyMessage)
+      } else if (syncMessage.sent.hasEditMessage()) {
+        validateEditMessage(syncMessage.sent.editMessage)
       } else {
         Result.Invalid("[SyncMessage] Empty SyncMessage.sent!")
       }
     }
 
-    if (syncMessage.readList.any { it.senderUuid.isNullOrInvalidUuid() }) {
+    if (syncMessage.readList.any { it.senderUuid.isNullOrInvalidOrUnknownUuid() }) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.readList!")
     }
 
-    if (syncMessage.viewedList.any { it.senderUuid.isNullOrInvalidUuid() }) {
+    if (syncMessage.viewedList.any { it.senderUuid.isNullOrInvalidOrUnknownUuid() }) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.viewList!")
     }
 
-    if (syncMessage.hasViewOnceOpen() && syncMessage.viewOnceOpen.senderUuid.isNullOrInvalidUuid()) {
+    if (syncMessage.hasViewOnceOpen() && syncMessage.viewOnceOpen.senderUuid.isNullOrInvalidOrUnknownUuid()) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.viewOnceOpen!")
     }
 
-    if (syncMessage.hasVerified() && syncMessage.verified.destinationUuid.isNullOrInvalidUuid()) {
+    if (syncMessage.hasVerified() && syncMessage.verified.destinationUuid.isNullOrInvalidOrUnknownUuid()) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.verified!")
     }
 
@@ -167,11 +184,11 @@ object EnvelopeContentValidator {
       return Result.Invalid("[SyncMessage] Missing packId in stickerPackOperationList!")
     }
 
-    if (syncMessage.hasBlocked() && syncMessage.blocked.uuidsList.any { it.isNullOrInvalidUuid() }) {
+    if (syncMessage.hasBlocked() && syncMessage.blocked.uuidsList.any { it.isNullOrInvalidOrUnknownUuid() }) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.blocked!")
     }
 
-    if (syncMessage.hasMessageRequestResponse() && !syncMessage.messageRequestResponse.hasGroupId() && syncMessage.messageRequestResponse.threadUuid.isNullOrInvalidUuid()) {
+    if (syncMessage.hasMessageRequestResponse() && !syncMessage.messageRequestResponse.hasGroupId() && syncMessage.messageRequestResponse.threadUuid.isNullOrInvalidOrUnknownUuid()) {
       return Result.Invalid("[SyncMessage] Invalid UUID in SyncMessage.messageRequestResponse!")
     }
 
@@ -215,6 +232,43 @@ object EnvelopeContentValidator {
     return Result.Valid
   }
 
+  private fun validateEditMessage(editMessage: SignalServiceProtos.EditMessage): Result {
+    if (!editMessage.hasDataMessage()) {
+      return Result.Invalid("[EditMessage] No data message present")
+    }
+
+    if (!editMessage.hasTargetSentTimestamp()) {
+      return Result.Invalid("[EditMessage] No targetSentTimestamp specified")
+    }
+
+    val dataMessage: DataMessage = editMessage.dataMessage
+
+    if (dataMessage.requiredProtocolVersion > DataMessage.ProtocolVersion.CURRENT_VALUE) {
+      return Result.UnsupportedDataMessage(
+        ourVersion = DataMessage.ProtocolVersion.CURRENT_VALUE,
+        theirVersion = dataMessage.requiredProtocolVersion
+      )
+    }
+
+    if (dataMessage.previewList.any { it.hasImage() && it.image.isPresentAndInvalid() }) {
+      return Result.Invalid("[EditMessage] Invalid AttachmentPointer on DataMessage.previewList.image!")
+    }
+
+    if (dataMessage.bodyRangesList.any { it.hasMentionUuid() && it.mentionUuid.isNullOrInvalidOrUnknownUuid() }) {
+      return Result.Invalid("[EditMessage] Invalid UUID on body range!")
+    }
+
+    if (dataMessage.attachmentsList.any { it.isNullOrInvalid() }) {
+      return Result.Invalid("[EditMessage] Invalid attachments!")
+    }
+
+    if (dataMessage.hasGroupV2()) {
+      validateGroupContextV2(dataMessage.groupV2, "[EditMessage]")?.let { return it }
+    }
+
+    return Result.Valid
+  }
+
   private fun AttachmentPointer?.isNullOrInvalid(): Boolean {
     return this == null || this.attachmentIdentifierCase == AttachmentPointer.AttachmentIdentifierCase.ATTACHMENTIDENTIFIER_NOT_SET
   }
@@ -225,6 +279,10 @@ object EnvelopeContentValidator {
 
   private fun String?.isValidUuid(): Boolean {
     return UuidUtil.isUuid(this)
+  }
+
+  private fun String?.isNullOrInvalidOrUnknownUuid(): Boolean {
+    return !UuidUtil.isUuid(this) || this == UuidUtil.UNKNOWN_UUID_STRING
   }
 
   private fun String?.isNullOrInvalidUuid(): Boolean {
@@ -239,6 +297,47 @@ object EnvelopeContentValidator {
       this.hasDataMessage() && this.dataMessage.hasStoryContext() && this.dataMessage.hasGroupV2() -> true
       this.hasDataMessage() && this.dataMessage.hasDelete() -> true
       else -> false
+    }
+  }
+
+  private fun createPlaintextResultIfInvalid(content: Content): Result? {
+    val errors: MutableList<String> = mutableListOf()
+
+    if (!content.hasDecryptionErrorMessage()) {
+      errors += "Missing DecryptionErrorMessage"
+    }
+    if (content.hasStoryMessage()) {
+      errors += "Unexpected StoryMessage"
+    }
+    if (content.hasSenderKeyDistributionMessage()) {
+      errors += "Unexpected SenderKeyDistributionMessage"
+    }
+    if (content.hasCallMessage()) {
+      errors += "Unexpected CallMessage"
+    }
+    if (content.hasEditMessage()) {
+      errors += "Unexpected EditMessage"
+    }
+    if (content.hasNullMessage()) {
+      errors += "Unexpected NullMessage"
+    }
+    if (content.hasPniSignatureMessage()) {
+      errors += "Unexpected PniSignatureMessage"
+    }
+    if (content.hasReceiptMessage()) {
+      errors += "Unexpected ReceiptMessage"
+    }
+    if (content.hasSyncMessage()) {
+      errors += "Unexpected SyncMessage"
+    }
+    if (content.hasTypingMessage()) {
+      errors += "Unexpected TypingMessage"
+    }
+
+    return if (errors.isNotEmpty()) {
+      Result.Invalid("Invalid PLAINTEXT_CONTENT! Errors: $errors")
+    } else {
+      null
     }
   }
 

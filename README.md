@@ -25,11 +25,17 @@ The form and manner of this distribution makes it eligible for export under the 
 
 ## License
 
+<<<<<<< HEAD
+Copyright 2013-2023 Signal
+
+Licensed under the GNU AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
+=======
 Copyright 2013-2022 Signal 
 Copyright 2023 Punkt Tronics AG
  
 Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
   
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public Licence as published by the Free Software Foundation, version 3 of the Licence.
+>>>>>>> d5be54d449 (Update README.md)
 
 This program is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public Licence for more details.

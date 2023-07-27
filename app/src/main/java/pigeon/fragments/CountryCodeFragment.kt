@@ -9,6 +9,7 @@ import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.signal.core.util.concurrent.LifecycleDisposable
 import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.databinding.PigeonFragmentRegistrationCountryCodeBinding
@@ -17,7 +18,6 @@ import org.thoughtcrime.securesms.registration.fragments.CountryPickerFragmentAr
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
 import org.thoughtcrime.securesms.registration.util.RegistrationNumberInputController
 import org.thoughtcrime.securesms.registration.viewmodel.RegistrationViewModel
-import org.thoughtcrime.securesms.util.LifecycleDisposable
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
 import pigeon.extensions.isSignalVersion

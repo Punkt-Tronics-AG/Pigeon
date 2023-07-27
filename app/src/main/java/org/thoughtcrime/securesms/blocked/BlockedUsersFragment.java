@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.thoughtcrime.securesms.BlockUnblockDialog;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.util.LifecycleDisposable;
+import org.signal.core.util.concurrent.LifecycleDisposable;
 
 import static pigeon.extensions.KotilinExtensionsKt.focusOnRight;
 

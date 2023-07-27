@@ -14,13 +14,13 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.menu.ActionItem
 import org.thoughtcrime.securesms.components.menu.SignalContextMenu
 import org.thoughtcrime.securesms.components.settings.PreferenceModel
-import org.thoughtcrime.securesms.conversation.ConversationMessage
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader
 import org.thoughtcrime.securesms.mms.GlideApp
 import org.thoughtcrime.securesms.stories.StoryTextPostModel
 import org.thoughtcrime.securesms.util.DateUtils
+import org.thoughtcrime.securesms.util.DebouncedOnClickListener
 import org.thoughtcrime.securesms.util.adapter.mapping.LayoutFactory
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingViewHolder
@@ -36,7 +36,7 @@ object MyStoriesItem {
   }
 
   class Model(
-    val distributionStory: ConversationMessage,
+    val distributionStory: MyStoriesState.DistributionStory,
     val onClick: (Model, View) -> Unit,
     val onSaveClick: (Model) -> Unit,
     val onDeleteClick: (Model) -> Unit,
@@ -104,7 +104,11 @@ object MyStoriesItem {
 
     override fun bind(model: Model) {
       storyPreview.isClickable = false
-      itemView.setOnClickListener { model.onClick(model, storyPreview) }
+      itemView.setOnClickListener(
+        DebouncedOnClickListener {
+          model.onClick(model, storyPreview)
+        }
+      )
       downloadTarget.setOnClickListener { model.onSaveClick(model) }
       moreTarget.setOnClickListener { showContextMenu(model) }
       presentDateOrStatus(model)
@@ -113,8 +117,8 @@ object MyStoriesItem {
         if (SignalStore.storyValues().viewedReceiptsEnabled) {
           viewCount.text = context.resources.getQuantityString(
             R.plurals.MyStories__d_views,
-            model.distributionStory.messageRecord.viewedReceiptCount,
-            model.distributionStory.messageRecord.viewedReceiptCount
+            model.distributionStory.views,
+            model.distributionStory.views
           )
         } else {
           viewCount.setText(R.string.StoryViewerPageFragment__views_off)
