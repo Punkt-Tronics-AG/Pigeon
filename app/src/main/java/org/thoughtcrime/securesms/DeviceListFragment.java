@@ -103,6 +103,10 @@ public class DeviceListFragment extends ListFragment
     this.addDeviceButtonListener = listener;
   }
 
+  public void setAddDeviceViewListener(View.OnClickListener listener) {
+    this.mAddDeviceViewListener = listener;
+  }
+
   @Override
   public @NonNull Loader<List<Device>> onCreateLoader(int id, Bundle args) {
     if (isSignalVersion())
