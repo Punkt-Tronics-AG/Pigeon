@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.thoughtcrime.securesms.DeviceListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    style="@style/Mp02.Signal.Background">
+
+    <TextView android:id="@+id/name"
+              android:textAppearance="?android:attr/textAppearanceMedium"
+              android:textColor="@color/mp02_listview_color_selector"
+              android:singleLine="true"
+              android:ellipsize="marquee"
+              android:layout_marginTop="8dp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              tools:text="Desktop" />
+
+    <TextView android:id="@+id/created"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:textAppearance="?android:attr/textAppearanceSmall"
+              android:textColor="@color/mp02_listview_color_selector"
+              android:fontFamily="sans-serif-light"
+              tools:text="Linked 2 July" />
+
+    <TextView android:id="@+id/active"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:textAppearance="?android:attr/textAppearanceSmall"
+              android:textColor="@color/mp02_listview_color_selector"
+              android:fontFamily="sans-serif-light"
+              android:layout_marginBottom="8dp"
+              tools:text="Last active Wed" />
+
+</org.thoughtcrime.securesms.DeviceListItem>

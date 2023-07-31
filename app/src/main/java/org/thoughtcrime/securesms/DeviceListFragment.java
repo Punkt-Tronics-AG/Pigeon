@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import pigeon.components.Mp02CustomDialog;
+
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class DeviceListFragment extends ListFragment
     implements LoaderManager.LoaderCallbacks<List<Device>>,
                ListView.OnItemClickListener, Button.OnClickListener
@@ -49,6 +55,9 @@ public class DeviceListFragment extends ListFragment
   private View                        progressContainer;
   private FloatingActionButton        addDeviceButton;
   private Button.OnClickListener      addDeviceButtonListener;
+
+  private TextView mAddDeviceView;
+  private View.OnClickListener mAddDeviceViewListener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -66,10 +75,19 @@ public class DeviceListFragment extends ListFragment
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
     View view = inflater.inflate(R.layout.device_list_fragment, container, false);
 
-    this.empty             = view.findViewById(R.id.empty);
     this.progressContainer = view.findViewById(R.id.progress_container);
-    this.addDeviceButton   = view.findViewById(R.id.add_device);
-    this.addDeviceButton.setOnClickListener(this);
+
+    if (isSignalVersion()) {
+      this.empty             = view.findViewById(R.id.empty);
+      this.progressContainer = view.findViewById(R.id.progress_container);
+      this.addDeviceButton   = view.findViewById(R.id.add_device);
+      this.addDeviceButton.setOnClickListener(this);
+    }
+
+    if (isPigeonVersion()) {
+      this.mAddDeviceView     = view.findViewById(R.id.link_device_nav);
+      this.mAddDeviceView.setOnClickListener(this);
+    }
 
     return view;
   }
@@ -85,11 +103,15 @@ public class DeviceListFragment extends ListFragment
     this.addDeviceButtonListener = listener;
   }
 
+  public void setAddDeviceViewListener(View.OnClickListener listener) {
+    this.mAddDeviceViewListener = listener;
+  }
+
   @Override
   public @NonNull Loader<List<Device>> onCreateLoader(int id, Bundle args) {
-    empty.setVisibility(View.GONE);
+    if (isSignalVersion())
+      empty.setVisibility(View.GONE);
     progressContainer.setVisibility(View.VISIBLE);
-
     return new DeviceListLoader(getActivity(), accountManager);
   }
 
@@ -104,13 +126,15 @@ public class DeviceListFragment extends ListFragment
 
     setListAdapter(new DeviceListAdapter(getActivity(), R.layout.device_list_item_view, data, locale));
 
-    if (data.isEmpty()) {
-      empty.setVisibility(View.VISIBLE);
-      TextSecurePreferences.setMultiDevice(getActivity(), false);
-      SignalStore.misc().setHasLinkedDevices(false);
-    } else {
-      SignalStore.misc().setHasLinkedDevices(true);
-      empty.setVisibility(View.GONE);
+    if (isSignalVersion()) {
+      if (data.isEmpty()) {
+        empty.setVisibility(View.VISIBLE);
+        TextSecurePreferences.setMultiDevice(getActivity(), false);
+        SignalStore.misc().setHasLinkedDevices(false);
+      } else {
+        SignalStore.misc().setHasLinkedDevices(true);
+        empty.setVisibility(View.GONE);
+      }
     }
   }
 
@@ -121,27 +145,62 @@ public class DeviceListFragment extends ListFragment
 
   @Override
   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    final String deviceName = ((DeviceListItem)view).getDeviceName();
-    final long   deviceId   = ((DeviceListItem)view).getDeviceId();
+    final String deviceName = ((DeviceListItem) view).getDeviceName();
+    final long   deviceId   = ((DeviceListItem) view).getDeviceId();
 
-    AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
-    builder.setTitle(getString(R.string.DeviceListActivity_unlink_s, deviceName));
-    builder.setMessage(R.string.DeviceListActivity_by_unlinking_this_device_it_will_no_longer_be_able_to_send_or_receive);
-    builder.setNegativeButton(android.R.string.cancel, null);
-    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> handleDisconnectDevice(deviceId));
-    builder.show();
+    if (isSignalVersion()) {
+      AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+      builder.setTitle(getString(R.string.DeviceListActivity_unlink_s, deviceName));
+      builder.setMessage(R.string.DeviceListActivity_by_unlinking_this_device_it_will_no_longer_be_able_to_send_or_receive);
+      builder.setNegativeButton(android.R.string.cancel, null);
+      builder.setPositiveButton(android.R.string.ok, (dialog, which) -> handleDisconnectDevice(deviceId));
+      builder.show();
+    }
+
+    if (isPigeonVersion()) {
+      final String titleText = getString(R.string.DeviceListActivity_unlink_s, deviceName);
+      final String bodyText  = getString(R.string.DeviceListActivity_by_unlinking_this_device_it_will_no_longer_be_able_to_send_or_receive);
+
+      Mp02CustomDialog dialog = new Mp02CustomDialog(requireContext());
+      dialog.setMessage(titleText + '\n' + bodyText);
+      dialog.setNegativeListener(android.R.string.cancel, null);
+      dialog.setPositiveListener(android.R.string.ok, () -> {
+        handleDisconnectDevice(deviceId);
+        dialog.dismiss();
+      });
+      dialog.show();
+    }
   }
 
   private void handleLoaderFailed() {
-    AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
-    builder.setMessage(R.string.DeviceListActivity_network_connection_failed);
-    builder.setPositiveButton(R.string.DeviceListActivity_try_again,
-        (dialog, which) -> getLoaderManager().restartLoader(0, null, DeviceListFragment.this));
+    if (isSignalVersion()) {
+      AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+      builder.setMessage(R.string.DeviceListActivity_network_connection_failed);
+      builder.setPositiveButton(R.string.DeviceListActivity_try_again,
+                                (dialog, which) -> getLoaderManager().restartLoader(0, null, DeviceListFragment.this));
 
-    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> requireActivity().onBackPressed());
-    builder.setOnCancelListener(dialog -> requireActivity().onBackPressed());
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> requireActivity().onBackPressed());
+      builder.setOnCancelListener(dialog -> requireActivity().onBackPressed());
 
-    builder.show();
+      builder.show();
+    }
+
+    if (isPigeonVersion()) {
+      Mp02CustomDialog dialog = new Mp02CustomDialog(requireContext());
+      dialog.setMessage(getString(R.string.DeviceListActivity_network_failed));
+      dialog.setPositiveListener(R.string.DeviceListActivity_try_again, () -> {
+        getLoaderManager().restartLoader(0, null, DeviceListFragment.this);
+      });
+
+      dialog.setNegativeListener(android.R.string.cancel, () -> {
+        requireActivity().onBackPressed();
+      });
+      dialog.setBackKeyListener(() -> {
+        requireActivity().onBackPressed();
+      });
+
+      dialog.show();
+    }
   }
 
   @SuppressLint("StaticFieldLeak")
@@ -175,7 +234,11 @@ public class DeviceListFragment extends ListFragment
 
   @Override
   public void onClick(View v) {
-    if (addDeviceButtonListener != null) addDeviceButtonListener.onClick(v);
+    if (isSignalVersion())
+      if (addDeviceButtonListener != null) addDeviceButtonListener.onClick(v);
+
+    if (isPigeonVersion())
+      if (mAddDeviceViewListener != null) mAddDeviceViewListener.onClick(v);
   }
 
   private static class DeviceListAdapter extends ArrayAdapter<Device> {

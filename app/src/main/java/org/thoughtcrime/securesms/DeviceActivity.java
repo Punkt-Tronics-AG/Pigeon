@@ -44,6 +44,9 @@ import org.whispersystems.signalservice.internal.push.DeviceLimitExceededExcepti
 
 import java.io.IOException;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class DeviceActivity extends PassphraseRequiredActivity
     implements Button.OnClickListener, ScanListener, DeviceLinkFragment.LinkClickedListener
 {
@@ -78,11 +81,18 @@ public class DeviceActivity extends PassphraseRequiredActivity
     this.deviceListFragment = new DeviceListFragment();
     this.deviceLinkFragment = new DeviceLinkFragment();
 
-    this.deviceListFragment.setAddDeviceButtonListener(this);
+    if (isSignalVersion())
+      this.deviceListFragment.setAddDeviceButtonListener(this);
+    if (isPigeonVersion())
+      this.deviceListFragment.setAddDeviceViewListener(this);
     this.deviceAddFragment.setScanListener(this);
 
     if (getIntent().getBooleanExtra("add", false)) {
-      initFragment(R.id.fragment_container, deviceAddFragment, dynamicLanguage.getCurrentLocale());
+      if (isSignalVersion())
+        initFragment(R.id.fragment_container, deviceAddFragment, dynamicLanguage.getCurrentLocale());
+
+      if (isPigeonVersion())
+        initFragment(R.id.fragment_container, deviceLinkFragment, dynamicLanguage.getCurrentLocale());
     } else {
       initFragment(R.id.fragment_container, deviceListFragment, dynamicLanguage.getCurrentLocale());
     }
@@ -119,18 +129,28 @@ public class DeviceActivity extends PassphraseRequiredActivity
 
   @Override
   public void onClick(View v) {
-    Permissions.with(this)
-               .request(Manifest.permission.CAMERA)
-               .ifNecessary()
-               .withPermanentDenialDialog(getString(R.string.DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code))
-               .onAllGranted(() -> {
-                 getSupportFragmentManager().beginTransaction()
-                                            .replace(R.id.fragment_container, deviceAddFragment)
-                                            .addToBackStack(null)
-                                            .commitAllowingStateLoss();
-               })
-               .onAnyDenied(() -> Toast.makeText(this, R.string.DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission, Toast.LENGTH_LONG).show())
-               .execute();
+    if (isSignalVersion()) {
+      Permissions.with(this)
+                 .request(Manifest.permission.CAMERA)
+                 .ifNecessary()
+                 .withPermanentDenialDialog(getString(R.string.DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code))
+                 .onAllGranted(() -> {
+                   getSupportFragmentManager().beginTransaction()
+                                              .replace(R.id.fragment_container, deviceAddFragment)
+                                              .addToBackStack(null)
+                                              .commitAllowingStateLoss();
+                 })
+                 .onAnyDenied(() -> Toast.makeText(this, R.string.DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission, Toast.LENGTH_LONG).show())
+                 .execute();
+    }
+
+    if (isPigeonVersion()) {
+      deviceLinkFragment.setLinkClickedListener(null, DeviceActivity.this);
+      getSupportFragmentManager().beginTransaction()
+                                 .replace(R.id.fragment_container, deviceLinkFragment)
+                                 .addToBackStack(null)
+                                 .commitAllowingStateLoss();
+    }
   }
 
   @Override
@@ -151,8 +171,8 @@ public class DeviceActivity extends PassphraseRequiredActivity
                                  .addSharedElement(deviceAddFragment.getDevicesImage(), "devices")
                                  .replace(R.id.fragment_container, deviceLinkFragment)
                                  .commit();
-
     });
+
   }
 
   @SuppressLint("MissingSuperCall")
