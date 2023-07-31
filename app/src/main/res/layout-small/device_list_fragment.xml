@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:viewBindingIgnore="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     style="@style/Mp02.Signal.Background">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/progress_container"
@@ -30,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
         android:text="@string/device_list_fragment__link_new_device" />
 
     <ListView android:id="@android:id/list"
@@ -52,4 +56,6 @@
         android:textAppearance="@style/TextAppearance.Signal.Body2"
         android:textColor="@color/white_not_focus" />
 
-</LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.core.widget.NestedScrollView>

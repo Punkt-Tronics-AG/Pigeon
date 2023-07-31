@@ -41,6 +41,7 @@ import pigeon.components.Mp02CustomDialog;
 
 import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 
 public class DeviceListFragment extends ListFragment
     implements LoaderManager.LoaderCallbacks<List<Device>>,
@@ -56,7 +57,7 @@ public class DeviceListFragment extends ListFragment
   private FloatingActionButton        addDeviceButton;
   private Button.OnClickListener      addDeviceButtonListener;
 
-  private TextView mAddDeviceView;
+  private TextView             mAddDeviceView;
   private View.OnClickListener mAddDeviceViewListener;
 
   @Override
@@ -85,7 +86,9 @@ public class DeviceListFragment extends ListFragment
     }
 
     if (isPigeonVersion()) {
-      this.mAddDeviceView     = view.findViewById(R.id.link_device_nav);
+      this.mAddDeviceView = view.findViewById(R.id.link_device_nav);
+      focusOnLeft(this.mAddDeviceView);
+      this.mAddDeviceView.requestFocus();
       this.mAddDeviceView.setOnClickListener(this);
     }
 
@@ -249,16 +252,16 @@ public class DeviceListFragment extends ListFragment
     public DeviceListAdapter(Context context, int resource, List<Device> objects, Locale locale) {
       super(context, resource, objects);
       this.resource = resource;
-      this.locale = locale;
+      this.locale   = locale;
     }
 
     @Override
     public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
       if (convertView == null) {
-        convertView = ((Activity)getContext()).getLayoutInflater().inflate(resource, parent, false);
+        convertView = ((Activity) getContext()).getLayoutInflater().inflate(resource, parent, false);
       }
 
-      ((DeviceListItem)convertView).set(getItem(position), locale);
+      ((DeviceListItem) convertView).set(getItem(position), locale);
 
       return convertView;
     }
