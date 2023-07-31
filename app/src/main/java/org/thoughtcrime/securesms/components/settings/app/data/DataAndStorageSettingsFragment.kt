@@ -12,7 +12,6 @@ import org.thoughtcrime.securesms.mms.SentMediaQuality
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
-import org.thoughtcrime.securesms.webrtc.CallBandwidthMode
 import pigeon.extensions.isSignalVersion
 import org.thoughtcrime.securesms.webrtc.CallDataMode
 import kotlin.math.abs
