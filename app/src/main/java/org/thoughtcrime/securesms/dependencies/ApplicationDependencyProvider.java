@@ -7,6 +7,7 @@ import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.preference.PreferenceManager;
 
 import org.signal.core.util.Hex;
 import org.signal.core.util.ThreadUtil;
@@ -101,6 +102,8 @@ import java.security.KeyStore;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import pigeon.viewmodels.IntervalSettingsViewModel;
 
 /**
  * Implementation of {@link ApplicationDependencies.Provider} that provides real app dependencies.
@@ -412,6 +415,9 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @NonNull WebSocketFactory provideWebSocketFactory(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull SignalWebSocketHealthMonitor healthMonitor) {
+
+    int pigeonIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 30);
+
     return new WebSocketFactory() {
       @Override
       public WebSocketConnection createWebSocket() {
@@ -420,7 +426,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
                                        Optional.of(new DynamicCredentialsProvider()),
                                        BuildConfig.SIGNAL_AGENT,
                                        healthMonitor,
-                                       Stories.isFeatureEnabled());
+                                       Stories.isFeatureEnabled(),
+                                       pigeonIntervalTime);
       }
 
       @Override
@@ -430,7 +437,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
                                        Optional.empty(),
                                        BuildConfig.SIGNAL_AGENT,
                                        healthMonitor,
-                                       Stories.isFeatureEnabled());
+                                       Stories.isFeatureEnabled(),
+                                       pigeonIntervalTime);
       }
     };
   }

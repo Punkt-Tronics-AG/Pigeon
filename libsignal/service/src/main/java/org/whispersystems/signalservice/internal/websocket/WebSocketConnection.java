@@ -59,7 +59,7 @@ import static org.whispersystems.signalservice.internal.websocket.WebSocketProto
 public class WebSocketConnection extends WebSocketListener {
 
   private static final String TAG                       = WebSocketConnection.class.getSimpleName();
-  public  static final int    KEEPALIVE_TIMEOUT_SECONDS = 30;
+  public static        int    KEEPALIVE_TIMEOUT_SECONDS = 30;
 
   private final LinkedList<WebSocketRequestMessage> incomingRequests = new LinkedList<>();
   private final Map<Long, OutgoingRequest>          outgoingRequests = new HashMap<>();
@@ -85,8 +85,10 @@ public class WebSocketConnection extends WebSocketListener {
                              Optional<CredentialsProvider> credentialsProvider,
                              String signalAgent,
                              HealthMonitor healthMonitor,
-                             boolean allowStories) {
-    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories);
+                             boolean allowStories,
+                             int pigeonIntervalTime)
+  {
+    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonIntervalTime);
   }
 
   public WebSocketConnection(String name,
@@ -95,8 +97,10 @@ public class WebSocketConnection extends WebSocketListener {
                              String signalAgent,
                              HealthMonitor healthMonitor,
                              String extraPathUri,
-                             boolean allowStories)
+                             boolean allowStories,
+                             int pigeonIntervalTime)
   {
+    setupPigeonIntervalTime(pigeonIntervalTime);
     this.name                = "[" + name + ":" + System.identityHashCode(this) + "]";
     this.trustStore          = serviceConfiguration.getSignalServiceUrls()[0].getTrustStore();
     this.credentialsProvider = credentialsProvider;
@@ -116,6 +120,10 @@ public class WebSocketConnection extends WebSocketListener {
     } else {
       this.wsUri = uri + "/v1/websocket/" + extraPathUri;
     }
+  }
+
+  void setupPigeonIntervalTime(int time) {
+    KEEPALIVE_TIMEOUT_SECONDS = time;
   }
 
   public String getName() {
@@ -263,7 +271,7 @@ public class WebSocketConnection extends WebSocketListener {
 
   public synchronized void sendKeepAlive() throws IOException {
     if (client != null) {
-      log( "Sending keep alive...");
+      log("Sending keep alive...");
       long id = System.currentTimeMillis();
       byte[] message = WebSocketMessage.newBuilder()
                                        .setType(WebSocketMessage.Type.REQUEST)
