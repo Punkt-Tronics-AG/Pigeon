@@ -13,6 +13,7 @@ class IntervalSettingsViewModel(
   companion object {
     const val KEEP_ALIVE_TIME_PREF = "pref_keep_alive_time"
     const val KEEP_SLEEP_TIME_PREF = "pref_keep_sleep_time"
+    const val INCOMING_MESSAGE_TIME_PREF = "pref_incoming_message_time"
   }
 
 
@@ -30,13 +31,19 @@ class IntervalSettingsViewModel(
     getStateAndCopy()
   }
 
+  fun setIncomingMessageTime(resultSet: Int) {
+    sharedPreferences.edit().putInt(INCOMING_MESSAGE_TIME_PREF, resultSet).commit()
+    getStateAndCopy()
+  }
+
   private fun getStateAndCopy() {
     store.update { getState().copy(keepAliveTime = it.keepAliveTime, keepSleepTime = it.keepSleepTime) }
   }
 
   private fun getState() = IntervalSettingsState(
     keepAliveTime = sharedPreferences.getInt(KEEP_ALIVE_TIME_PREF, 30),
-    keepSleepTime = sharedPreferences.getInt(KEEP_SLEEP_TIME_PREF, 120)
+    keepSleepTime = sharedPreferences.getInt(KEEP_SLEEP_TIME_PREF, 120),
+    incomingMessageIntervalTime = sharedPreferences.getInt(INCOMING_MESSAGE_TIME_PREF, 60)
   )
 
   class Factory(

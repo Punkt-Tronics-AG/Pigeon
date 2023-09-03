@@ -53,6 +53,15 @@ class IntervalSettingsFragment : DSLSettingsFragment(R.string.Pigeon_Interval) {
           restartApp()
         }
       )
+
+      pigeonEditTextPref(
+        title = DSLSettingsText.from(R.string.Pigeon_Setup_Incoming_Message_Interval),
+        summary = DSLSettingsText.from(state.incomingMessageIntervalTime.toString()),
+        onSelected = {
+          viewModel.setIncomingMessageTime(it)
+          restartApp()
+        }
+      )
     }
   }
 
