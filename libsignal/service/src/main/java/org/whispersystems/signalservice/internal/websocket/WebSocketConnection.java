@@ -58,9 +58,12 @@ import static org.whispersystems.signalservice.internal.websocket.WebSocketProto
 
 public class WebSocketConnection extends WebSocketListener {
 
-  private static final String TAG                       = WebSocketConnection.class.getSimpleName();
-  public static        int    KEEPALIVE_TIMEOUT_SECONDS = 30;
-  public static        int    KEEPSLEEP_TIMEOUT_SECONDS = 120;
+  private static final String  TAG                       = WebSocketConnection.class.getSimpleName();
+  public static        int     KEEPALIVE_TIMEOUT_SECONDS = 30;
+  public static        int     KEEPSLEEP_TIMEOUT_SECONDS = 120;
+  public static        boolean isAlive;
+  private              int     pigeonAttempts;
+
 
   private final LinkedList<WebSocketRequestMessage> incomingRequests = new LinkedList<>();
   private final Map<Long, OutgoingRequest>          outgoingRequests = new HashMap<>();
@@ -115,6 +118,7 @@ public class WebSocketConnection extends WebSocketListener {
     this.webSocketState      = BehaviorSubject.createDefault(WebSocketConnectionState.DISCONNECTED);
     this.allowStories        = allowStories;
     this.serviceUrl          = serviceConfiguration.getSignalServiceUrls()[0];
+    this.pigeonAttempts      = 0;
 
     String uri = serviceUrl.getUrl().replace("https://", "wss://").replace("http://", "ws://");
 
@@ -222,8 +226,15 @@ public class WebSocketConnection extends WebSocketListener {
 
     long startTime = System.currentTimeMillis();
 
+//    while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
+//      Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+//    }
+
+    // For Pigeon
+
     while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
-      Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+      Util.wait(this, isAlive ? Math.min(++pigeonAttempts * 200, TimeUnit.SECONDS.toMillis(15)) : TimeUnit.SECONDS.toMillis(180));
+
     }
 
     if (incomingRequests.isEmpty() && client == null) {
