@@ -82,7 +82,8 @@ class CheckServiceReachabilityJob private constructor(params: Parameters) : Base
       null,
       "",
       Stories.isFeatureEnabled(),
-      PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 30)
+      PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30),
+      PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120)
     )
 
     try {

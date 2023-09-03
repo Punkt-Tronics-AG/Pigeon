@@ -36,12 +36,12 @@ import org.thoughtcrime.securesms.jobmanager.JobMigrator;
 import org.thoughtcrime.securesms.jobmanager.impl.FactoryJobPredicate;
 import org.thoughtcrime.securesms.jobs.FastJobStorage;
 import org.thoughtcrime.securesms.jobs.GroupCallUpdateSendJob;
+import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.JobManagerFactories;
 import org.thoughtcrime.securesms.jobs.MarkerJob;
 import org.thoughtcrime.securesms.jobs.PreKeysSyncJob;
 import org.thoughtcrime.securesms.jobs.PushDecryptMessageJob;
 import org.thoughtcrime.securesms.jobs.PushGroupSendJob;
-import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.PushProcessMessageJob;
 import org.thoughtcrime.securesms.jobs.PushProcessMessageJobV2;
 import org.thoughtcrime.securesms.jobs.ReactionSendJob;
@@ -136,17 +136,17 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @Override
   public @NonNull SignalServiceMessageSender provideSignalServiceMessageSender(@NonNull SignalWebSocket signalWebSocket, @NonNull SignalServiceDataStore protocolStore, @NonNull SignalServiceConfiguration signalServiceConfiguration) {
-      return new SignalServiceMessageSender(signalServiceConfiguration,
-                                            new DynamicCredentialsProvider(),
-                                            protocolStore,
-                                            ReentrantSessionLock.INSTANCE,
-                                            BuildConfig.SIGNAL_AGENT,
-                                            signalWebSocket,
-                                            Optional.of(new SecurityEventListener(context)),
-                                            provideGroupsV2Operations(signalServiceConfiguration).getProfileOperations(),
-                                            SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
-                                            ByteUnit.KILOBYTES.toBytes(256),
-                                            FeatureFlags.okHttpAutomaticRetry());
+    return new SignalServiceMessageSender(signalServiceConfiguration,
+                                          new DynamicCredentialsProvider(),
+                                          protocolStore,
+                                          ReentrantSessionLock.INSTANCE,
+                                          BuildConfig.SIGNAL_AGENT,
+                                          signalWebSocket,
+                                          Optional.of(new SecurityEventListener(context)),
+                                          provideGroupsV2Operations(signalServiceConfiguration).getProfileOperations(),
+                                          SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
+                                          ByteUnit.KILOBYTES.toBytes(256),
+                                          FeatureFlags.okHttpAutomaticRetry());
   }
 
   @Override
@@ -176,14 +176,14 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   @Override
   public @NonNull JobManager provideJobManager() {
     JobManager.Configuration config = new JobManager.Configuration.Builder()
-                                                                  .setJobFactories(JobManagerFactories.getJobFactories(context))
-                                                                  .setConstraintFactories(JobManagerFactories.getConstraintFactories(context))
-                                                                  .setConstraintObservers(JobManagerFactories.getConstraintObservers(context))
-                                                                  .setJobStorage(new FastJobStorage(JobDatabase.getInstance(context)))
-                                                                  .setJobMigrator(new JobMigrator(TextSecurePreferences.getJobManagerVersion(context), JobManager.CURRENT_VERSION, JobManagerFactories.getJobMigrations(context)))
-                                                                  .addReservedJobRunner(new FactoryJobPredicate(PushDecryptMessageJob.KEY, PushProcessMessageJob.KEY, PushProcessMessageJobV2.KEY, MarkerJob.KEY))
-                                                                  .addReservedJobRunner(new FactoryJobPredicate(IndividualSendJob.KEY, PushGroupSendJob.KEY, ReactionSendJob.KEY, TypingSendJob.KEY, GroupCallUpdateSendJob.KEY))
-                                                                  .build();
+        .setJobFactories(JobManagerFactories.getJobFactories(context))
+        .setConstraintFactories(JobManagerFactories.getConstraintFactories(context))
+        .setConstraintObservers(JobManagerFactories.getConstraintObservers(context))
+        .setJobStorage(new FastJobStorage(JobDatabase.getInstance(context)))
+        .setJobMigrator(new JobMigrator(TextSecurePreferences.getJobManagerVersion(context), JobManager.CURRENT_VERSION, JobManagerFactories.getJobMigrations(context)))
+        .addReservedJobRunner(new FactoryJobPredicate(PushDecryptMessageJob.KEY, PushProcessMessageJob.KEY, PushProcessMessageJobV2.KEY, MarkerJob.KEY))
+        .addReservedJobRunner(new FactoryJobPredicate(IndividualSendJob.KEY, PushGroupSendJob.KEY, ReactionSendJob.KEY, TypingSendJob.KEY, GroupCallUpdateSendJob.KEY))
+        .build();
     return new JobManager(context, config);
   }
 
@@ -262,7 +262,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   public @NonNull Payments providePayments(@NonNull SignalServiceAccountManager signalServiceAccountManager) {
     MobileCoinConfig network;
 
-    if      (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("mainnet")) network = MobileCoinConfig.getMainNet(signalServiceAccountManager);
+    if (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("mainnet")) network = MobileCoinConfig.getMainNet(signalServiceAccountManager);
     else if (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("testnet")) network = MobileCoinConfig.getTestNet(signalServiceAccountManager);
     else throw new AssertionError("Unknown network " + BuildConfig.MOBILE_COIN_ENVIRONMENT);
 
@@ -296,7 +296,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @Override
   public @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier) {
-    SleepTimer                   sleepTimer      = !SignalStore.account().isFcmEnabled() || SignalStore.internalValues().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer() ;
+    SleepTimer                   sleepTimer      = !SignalStore.account().isFcmEnabled() || SignalStore.internalValues().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
     SignalWebSocketHealthMonitor healthMonitor   = new SignalWebSocketHealthMonitor(context, sleepTimer);
     SignalWebSocket              signalWebSocket = new SignalWebSocket(provideWebSocketFactory(signalServiceConfigurationSupplier, healthMonitor));
 
@@ -416,7 +416,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @NonNull WebSocketFactory provideWebSocketFactory(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull SignalWebSocketHealthMonitor healthMonitor) {
 
-    int pigeonIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 30);
+    int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+    int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
 
     return new WebSocketFactory() {
       @Override
@@ -427,7 +428,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
                                        BuildConfig.SIGNAL_AGENT,
                                        healthMonitor,
                                        Stories.isFeatureEnabled(),
-                                       pigeonIntervalTime);
+                                       pigeonAliveIntervalTime, pigeonSleepIntervalTime);
       }
 
       @Override
@@ -438,7 +439,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
                                        BuildConfig.SIGNAL_AGENT,
                                        healthMonitor,
                                        Stories.isFeatureEnabled(),
-                                       pigeonIntervalTime);
+                                       pigeonAliveIntervalTime, pigeonSleepIntervalTime);
       }
     };
   }

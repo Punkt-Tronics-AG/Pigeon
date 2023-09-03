@@ -45,14 +45,14 @@ class IntervalSettingsFragment : DSLSettingsFragment(R.string.Pigeon_Interval) {
         }
       )
 
-//      pigeonEditTextPref(
-//        title = DSLSettingsText.from(R.string.Pigeon_Setup_Sleep_Interval),
-//        summary = DSLSettingsText.from(state.keepSleepTime.toString()),
-//        onSelected = {
-//          viewModel.setKeepSleepTime(it)
-//          restartApp()
-//        }
-//      )
+      pigeonEditTextPref(
+        title = DSLSettingsText.from(R.string.Pigeon_Setup_Sleep_Interval),
+        summary = DSLSettingsText.from(state.keepSleepTime.toString()),
+        onSelected = {
+          viewModel.setKeepSleepTime(it)
+          restartApp()
+        }
+      )
     }
   }
 

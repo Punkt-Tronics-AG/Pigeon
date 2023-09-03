@@ -60,6 +60,7 @@ public class WebSocketConnection extends WebSocketListener {
 
   private static final String TAG                       = WebSocketConnection.class.getSimpleName();
   public static        int    KEEPALIVE_TIMEOUT_SECONDS = 30;
+  public static        int    KEEPSLEEP_TIMEOUT_SECONDS = 120;
 
   private final LinkedList<WebSocketRequestMessage> incomingRequests = new LinkedList<>();
   private final Map<Long, OutgoingRequest>          outgoingRequests = new HashMap<>();
@@ -86,9 +87,10 @@ public class WebSocketConnection extends WebSocketListener {
                              String signalAgent,
                              HealthMonitor healthMonitor,
                              boolean allowStories,
-                             int pigeonIntervalTime)
+                             int pigeonAliveIntervalTime,
+                             int pigeonSleepIntervalTime)
   {
-    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonIntervalTime);
+    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonAliveIntervalTime, pigeonSleepIntervalTime);
   }
 
   public WebSocketConnection(String name,
@@ -98,9 +100,10 @@ public class WebSocketConnection extends WebSocketListener {
                              HealthMonitor healthMonitor,
                              String extraPathUri,
                              boolean allowStories,
-                             int pigeonIntervalTime)
+                             int pigeonAliveIntervalTime,
+                             int pigeonSleepIntervalTime)
   {
-    setupPigeonIntervalTime(pigeonIntervalTime);
+    setupPigeonIntervalTime(pigeonAliveIntervalTime, pigeonSleepIntervalTime);
     this.name                = "[" + name + ":" + System.identityHashCode(this) + "]";
     this.trustStore          = serviceConfiguration.getSignalServiceUrls()[0].getTrustStore();
     this.credentialsProvider = credentialsProvider;
@@ -122,8 +125,9 @@ public class WebSocketConnection extends WebSocketListener {
     }
   }
 
-  void setupPigeonIntervalTime(int time) {
-    KEEPALIVE_TIMEOUT_SECONDS = time;
+  void setupPigeonIntervalTime(int aliveTime, int sleepTime) {
+    KEEPALIVE_TIMEOUT_SECONDS = aliveTime;
+    KEEPSLEEP_TIMEOUT_SECONDS = sleepTime;
   }
 
   public String getName() {
