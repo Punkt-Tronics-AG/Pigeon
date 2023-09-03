@@ -70,6 +70,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger;
 import org.thoughtcrime.securesms.logging.PersistentLogger;
 import org.thoughtcrime.securesms.messageprocessingalarm.MessageProcessReceiver;
+import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
 import org.thoughtcrime.securesms.mms.GlideApp;
 import org.thoughtcrime.securesms.mms.SignalGlideComponents;
@@ -97,6 +98,7 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.VersionTracker;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
+import org.whispersystems.signalservice.internal.websocket.WebSocketConnection;
 
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -109,6 +111,7 @@ import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException;
 import io.reactivex.rxjava3.exceptions.UndeliverableException;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pigeon.service.ScreenListener;
 import rxdogtag2.RxDogTag;
 
 /**
@@ -218,6 +221,25 @@ public class ApplicationContext extends MultiDexApplication implements AppForegr
     Log.d(TAG, "onCreate() took " + (System.currentTimeMillis() - startTime) + " ms");
     SignalLocalMetrics.ColdStart.onApplicationCreateFinished();
     Tracer.getInstance().end("Application#onCreate()");
+
+    ScreenListener screenListener = new ScreenListener(this);
+    screenListener.begin(new ScreenListener.ScreenStateListener() {
+      @Override
+      public void onScreenOn() {
+        WebSocketConnection.isAlive = true;
+      }
+
+      @Override
+      public void onScreenOff() {
+        WebSocketConnection.isAlive = false;
+      }
+
+      @Override
+      public void onUserPresent() {
+
+      }
+    });
+
   }
 
   @Override
