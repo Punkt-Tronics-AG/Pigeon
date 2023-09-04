@@ -47,7 +47,7 @@ ktlint {
 }
 
 def canonicalVersionCode = 1238
-def canonicalVersionName = "Pigeon 2.0.0004 upon Signal 6.16.2"
+def canonicalVersionName = "Pigeon 2.0.0005 upon Signal 6.16.2"
 
 def postFixSize = 103
 def abiPostFix = ['universal'   : 0,
@@ -420,7 +420,7 @@ android {
 
                 if (postFix >= postFixSize) throw new AssertionError("postFix is too large")
 
-                output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
+                output.versionCodeOverride = 127515
             }
         }
     }
