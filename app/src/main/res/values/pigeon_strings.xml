@@ -134,6 +134,7 @@ Updated May 25, 2018\n
     <string name="Pigeon_Storage">Storage</string>
     <string name="Pigeon_Attachments">Attachments</string>
     <string name="Pigeon_preferences_only_use_a_proxy_if">Only use a proxy if you\'re not able to connect to Pigeon on mobile data or Wi-Fi.</string>
+    <string name="Pigeon_uuid">UUID</string>
 
 
 </resources>

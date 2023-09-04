@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
@@ -44,6 +45,14 @@ public class DeviceLinkFragment extends Fragment implements View.OnClickListener
     if (isPigeonVersion()) {
       mUuidInput   = container.findViewById(R.id.device_uuid_input);
       mPubKeyInput = container.findViewById(R.id.device_pubkey_input);
+      ScrollView scrollView   = container.findViewById(R.id.scroll_view);
+      mUuidInput.requestFocus();
+      mUuidInput.setOnFocusChangeListener((v, hasFocus) -> {
+        if (hasFocus){
+          scrollView.scrollTo(0,0);
+          mUuidInput.requestFocus();
+        }
+      });
     }
 
     return this.container;

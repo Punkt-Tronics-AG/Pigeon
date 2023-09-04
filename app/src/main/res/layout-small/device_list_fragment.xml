@@ -1,60 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:viewBindingIgnore="true"
+    style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/Mp02.Signal.Background">
+    tools:viewBindingIgnore="true">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/progress_container"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
+        <TextView
+            android:id="@+id/link_device_nav"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/device_list_fragment__link_new_device" />
 
-        <ProgressBar
-            style="?android:attr/progressBarStyleLargeInverse"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/white"
-            android:progressTint="@color/white"
-            android:padding="10dp" />
-    </FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/link_device_nav"
-        style="@style/Mp02.Signal.Text.CommonTextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="10dp"
-        android:text="@string/device_list_fragment__link_new_device" />
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@color/white_not_focus"
+                android:dividerHeight="1sp"
+                android:listSelector="@drawable/listview_background_selector"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/device_list_item_view" />
 
-    <ListView android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="5dp"
-        android:divider="@color/white_not_focus"
-        android:dividerHeight="1sp"
-        android:listSelector="@drawable/listview_background_selector"
-        tools:listitem="@layout/device_list_item_view" />
+            <TextView
+                android:id="@android:id/empty"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal"
+                android:text="@string/device_list_fragment__no_devices_linked"
+                android:textAppearance="@style/TextAppearance.Signal.Body2"
+                android:textColor="@color/white_not_focus"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="15dp"
-        android:gravity="center_horizontal"
-        android:text="@string/device_list_fragment__no_devices_linked"
-        android:textAppearance="@style/TextAppearance.Signal.Body2"
-        android:textColor="@color/white_not_focus" />
+            <FrameLayout
+                android:id="@+id/progress_container"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:visibility="visible"
+                android:layout_marginTop="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLargeInverse"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="center"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/white"
+                    android:padding="10dp"
+                    android:progressTint="@color/white" />
+            </FrameLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
