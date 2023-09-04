@@ -45,9 +45,9 @@ ktlint {
     version = "0.49.1"
 }
 
-def pigeonVersionCode = 127518
+def pigeonVersionCode = 127519
 def canonicalVersionCode = 1289
-def canonicalVersionName = "Pigeon 2.0.0008 upon Signal 6.25.5"
+def canonicalVersionName = "Pigeon 2.0.0009 upon Signal 6.25.5"
 
 def postFixSize = 100
 def abiPostFix = ['universal'   : 0,
