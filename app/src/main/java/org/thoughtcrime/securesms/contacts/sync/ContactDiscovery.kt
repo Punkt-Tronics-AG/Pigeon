@@ -57,16 +57,20 @@ object ContactDiscovery {
     }
 
     if (!SignalStore.registrationValues().isRegistrationComplete) {
-      Log.w(TAG, "Registration is not yet complete. Skipping, but running a routine to possibly mark it complete.")
-      RegistrationUtil.maybeMarkRegistrationComplete()
-      return
+      if (SignalStore.account().isRegistered && SignalStore.svr().lastPinCreateFailed()) {
+        Log.w(TAG, "Registration isn't complete, but only because PIN creation failed. Allowing CDS to continue.")
+      } else {
+        Log.w(TAG, "Registration is not yet complete. Skipping, but running a routine to possibly mark it complete.")
+        RegistrationUtil.maybeMarkRegistrationComplete()
+        return
+      }
     }
 
     refreshRecipients(
       context = context,
       descriptor = "refresh-all",
       refresh = {
-        ContactDiscoveryRefreshV2.refreshAll(context, useCompat = !FeatureFlags.phoneNumberPrivacy(), ignoreResults = false)
+        ContactDiscoveryRefreshV2.refreshAll(context, useCompat = FeatureFlags.cdsCompatMode())
       },
       removeSystemContactLinksIfMissing = true,
       notifyOfNewUsers = notifyOfNewUsers
@@ -83,7 +87,7 @@ object ContactDiscovery {
       context = context,
       descriptor = "refresh-multiple",
       refresh = {
-        ContactDiscoveryRefreshV2.refresh(context, recipients, useCompat = !FeatureFlags.phoneNumberPrivacy(), ignoreResults = false)
+        ContactDiscoveryRefreshV2.refresh(context, recipients, useCompat = FeatureFlags.cdsCompatMode())
       },
       removeSystemContactLinksIfMissing = false,
       notifyOfNewUsers = notifyOfNewUsers
@@ -91,14 +95,15 @@ object ContactDiscovery {
   }
 
   @JvmStatic
+  @JvmOverloads
   @Throws(IOException::class)
   @WorkerThread
-  fun refresh(context: Context, recipient: Recipient, notifyOfNewUsers: Boolean): RecipientTable.RegisteredState {
+  fun refresh(context: Context, recipient: Recipient, notifyOfNewUsers: Boolean, timeoutMs: Long? = null): RecipientTable.RegisteredState {
     val result: RefreshResult = refreshRecipients(
       context = context,
       descriptor = "refresh-single",
       refresh = {
-        ContactDiscoveryRefreshV2.refresh(context, listOf(recipient), useCompat = !FeatureFlags.phoneNumberPrivacy(), ignoreResults = false)
+        ContactDiscoveryRefreshV2.refresh(context, listOf(recipient), useCompat = FeatureFlags.cdsCompatMode(), timeoutMs = timeoutMs)
       },
       removeSystemContactLinksIfMissing = false,
       notifyOfNewUsers = notifyOfNewUsers
@@ -139,7 +144,7 @@ object ContactDiscovery {
   ): RefreshResult {
     val stopwatch = Stopwatch(descriptor)
 
-    val preExistingRegisteredIds: Set<RecipientId> = SignalDatabase.recipients.getRegistered().toSet()
+    val preExistingRegisteredIds: Set<RecipientId> = SignalDatabase.recipients.getRegistered()
     stopwatch.split("pre-existing")
 
     val result: RefreshResult = refresh()

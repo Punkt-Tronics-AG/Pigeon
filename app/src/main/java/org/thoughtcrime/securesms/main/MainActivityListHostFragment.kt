@@ -384,10 +384,12 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
       Material3OnScrollHelper(
         requireActivity(),
         listOf(_toolbarBackground),
-        listOf(_searchToolbar)
+        listOf(_searchToolbar),
+        viewLifecycleOwner
       ).attach(recyclerView)
     }
   }
+}
 
   fun showSearchBar() {
     if (::_searchToolbar.isInitialized) {

@@ -67,4 +67,7 @@
     <color name="message_focused_text_color">#80FFFFFF</color>
     <color name="message_normal_text_color">#80000000</color>
     <color name="text_primary">#81FFFFFF</color>
+
+    <color name="safety_number_card_grey">#ffEBEAE8</color>
+    <color name="safety_number_card_blue">#ff506ECD</color>
 </resources>

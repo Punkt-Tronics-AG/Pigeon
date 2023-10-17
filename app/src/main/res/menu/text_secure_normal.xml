@@ -27,8 +27,4 @@
         android:visible="false"
           android:id="@+id/menu_notification_profile" />
 
-    <item android:title="@string/Insights__title"
-          android:id="@+id/menu_insights"
-          android:visible="false" />
-
 </menu>

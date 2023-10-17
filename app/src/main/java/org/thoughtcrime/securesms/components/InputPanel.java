@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
@@ -18,7 +19,6 @@ import android.view.animation.Interpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +26,7 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -79,7 +80,7 @@ import java.util.concurrent.TimeUnit;
 
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
-public class InputPanel extends LinearLayout
+public class InputPanel extends ConstraintLayout
     implements AudioRecordingHandler,
                KeyboardAwareLinearLayout.OnKeyboardShownListener,
                EmojiEventListener,
@@ -102,10 +103,10 @@ public class InputPanel extends LinearLayout
   private SendButton      sendButton;
   private View            recordingContainer;
   private View            recordLockCancel;
-  private ViewGroup       composeContainer;
+  private View            composeContainer;
   private View            editMessageCancel;
   private ImageView       editMessageThumbnail;
-  private View            editMessageHeader;
+  private View            editMessageTitle;
 
   private MicrophoneRecorderView microphoneRecorderView;
   private SlideToCancel          slideToCancel;
@@ -141,7 +142,7 @@ public class InputPanel extends LinearLayout
   public void onFinishInflate() {
     super.onFinishInflate();
 
-    View quoteDismiss = findViewById(R.id.quote_dismiss);
+    View quoteDismiss = findViewById(R.id.quote_dismiss_stub);
 
     this.composeContainer       = findViewById(R.id.compose_bubble);
     this.stickerSuggestion      = findViewById(R.id.input_panel_sticker_suggestion);
@@ -164,10 +165,12 @@ public class InputPanel extends LinearLayout
                                                  TimeUnit.HOURS.toSeconds(1),
                                                  () -> microphoneRecorderView.cancelAction(false));
     this.editMessageCancel      = findViewById(R.id.input_panel_exit_edit_mode);
-    this.editMessageHeader      = findViewById(R.id.edit_message_compose_header);
+    this.editMessageTitle       = findViewById(R.id.edit_message_title);
     this.editMessageThumbnail   = findViewById(R.id.edit_message_thumbnail);
 
-//    this.recordLockCancel.setOnClickListener(v -> microphoneRecorderView.cancelAction(true));
+    if (isSignalVersion()) {
+    this.recordLockCancel.setOnClickListener(v -> microphoneRecorderView.cancelAction(true));
+    }
 
     if (SignalStore.settings().isPreferSystemEmoji()) {
       mediaKeyboard.setVisibility(View.GONE);
@@ -191,6 +194,8 @@ public class InputPanel extends LinearLayout
     stickerSuggestion.setAdapter(stickerSuggestionAdapter);
 
     editMessageCancel.setOnClickListener(v -> exitEditMessageMode());
+
+    quickCameraToggle.setVisibility(View.GONE);
   }
 
   public void setListener(final @NonNull Listener listener) {
@@ -198,6 +203,13 @@ public class InputPanel extends LinearLayout
 
     mediaKeyboard.setOnClickListener(v -> listener.onEmojiToggle());
     voiceNoteDraftView.setListener(listener);
+
+    if (Camera.getNumberOfCameras() > 0) {
+      quickCameraToggle.setOnClickListener(v -> listener.onQuickCameraToggleClicked());
+      quickCameraToggle.setVisibility(View.VISIBLE);
+    } else {
+      quickCameraToggle.setVisibility(View.GONE);
+    }
   }
 
   public void setMediaListener(@NonNull MediaListener listener) {
@@ -392,6 +404,7 @@ public class InputPanel extends LinearLayout
     quickAudioToggle.setColorFilter(iconTint);
     quickCameraToggle.setColorFilter(iconTint);
     if (isSignalVersion()) {
+    if (isSignalVersion()) {
       composeText.setTextColor(textColor);
       composeText.setHintTextColor(textHintColor);
       quoteView.setWallpaperEnabled(enabled);
@@ -448,13 +461,15 @@ public class InputPanel extends LinearLayout
   private void updateEditModeUi() {
     if (inEditMessageMode()) {
       ViewUtil.focusAndShowKeyboard(composeText);
-      editMessageHeader.setVisibility(View.VISIBLE);
+      editMessageTitle.setVisibility(View.VISIBLE);
+      editMessageThumbnail.setVisibility(View.VISIBLE);
       editMessageCancel.setVisibility(View.VISIBLE);
       if (listener != null) {
         listener.onEnterEditMode();
       }
     } else {
-      editMessageHeader.setVisibility(View.GONE);
+      editMessageTitle.setVisibility(View.GONE);
+      editMessageThumbnail.setVisibility(View.GONE);
       editMessageCancel.setVisibility(View.GONE);
       if (listener != null) {
         listener.onExitEditMode();
@@ -550,7 +565,9 @@ public class InputPanel extends LinearLayout
   @Override
   public void onRecordLocked() {
     slideToCancel.hide();
-//    recordLockCancel.setVisibility(View.VISIBLE);
+      if (isSignalVersion()) {
+        recordLockCancel.setVisibility(View.VISIBLE);
+      }
     fadeIn(buttonToggle);
     if (listener != null) listener.onRecorderLocked();
   }
@@ -571,7 +588,9 @@ public class InputPanel extends LinearLayout
   }
 
   private long onRecordHideEvent() {
-//    recordLockCancel.setVisibility(View.GONE);
+      if (isSignalVersion()) {
+        recordLockCancel.setVisibility(View.GONE);
+      }
 
     ListenableFuture<Void> future      = slideToCancel.hide();
     long                   elapsedTime = recordTime.hide();
@@ -734,6 +753,7 @@ public class InputPanel extends LinearLayout
     void onQuoteCleared();
     void onEnterEditMode();
     void onExitEditMode();
+    void onQuickCameraToggleClicked();
   }
 
   private static class SlideToCancel {

@@ -233,7 +233,7 @@ public final class SafetyNumberChangeDialog extends DialogFragment implements Sa
 
   @Override
   public void onViewIdentityRecord(@NonNull IdentityRecord identityRecord) {
-    startActivity(VerifyIdentityActivity.newIntent(requireContext(), identityRecord));
+    VerifyIdentityActivity.startOrShowExchangeMessagesDialog(requireContext(), identityRecord);
   }
 
   public interface Callback {

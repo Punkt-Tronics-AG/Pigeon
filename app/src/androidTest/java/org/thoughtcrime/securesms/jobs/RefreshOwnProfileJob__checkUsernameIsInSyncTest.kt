@@ -12,6 +12,7 @@ import org.signal.libsignal.usernames.Username
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.InstrumentationApplicationDependencyProvider
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.testing.Delete
 import org.thoughtcrime.securesms.testing.Get
 import org.thoughtcrime.securesms.testing.Put
 import org.thoughtcrime.securesms.testing.SignalActivityRule
@@ -31,11 +32,16 @@ class RefreshOwnProfileJob__checkUsernameIsInSyncTest {
   @After
   fun tearDown() {
     InstrumentationApplicationDependencyProvider.clearHandlers()
-    SignalStore.phoneNumberPrivacy().clearUsernameOutOfSync()
+    SignalStore.account().usernameOutOfSync = false
   }
 
   @Test
   fun givenNoLocalUsername_whenICheckUsernameIsInSync_thenIExpectNoFailures() {
+    // GIVEN
+    InstrumentationApplicationDependencyProvider.addMockWebRequestHandlers(
+      Delete("/v1/accounts/username_hash") { MockResponse().success() }
+    )
+
     // WHEN
     RefreshOwnProfileJob.checkUsernameIsInSync()
   }
@@ -72,7 +78,7 @@ class RefreshOwnProfileJob__checkUsernameIsInSyncTest {
     // THEN
     assertTrue(didReserve)
     assertTrue(didConfirm)
-    assertFalse(SignalStore.phoneNumberPrivacy().isUsernameOutOfSync)
+    assertFalse(SignalStore.account().usernameOutOfSync)
   }
 
   @Test
@@ -102,7 +108,7 @@ class RefreshOwnProfileJob__checkUsernameIsInSyncTest {
     // THEN
     assertTrue(didReserve)
     assertTrue(didConfirm)
-    assertFalse(SignalStore.phoneNumberPrivacy().isUsernameOutOfSync)
+    assertFalse(SignalStore.account().usernameOutOfSync)
   }
 
   @Test
@@ -136,7 +142,7 @@ class RefreshOwnProfileJob__checkUsernameIsInSyncTest {
     // THEN
     assertFalse(didReserve)
     assertFalse(didConfirm)
-    assertFalse(SignalStore.phoneNumberPrivacy().isUsernameOutOfSync)
+    assertFalse(SignalStore.account().usernameOutOfSync)
   }
 
   @Test
@@ -170,6 +176,6 @@ class RefreshOwnProfileJob__checkUsernameIsInSyncTest {
     // THEN
     assertTrue(didReserve)
     assertFalse(didConfirm)
-    assertTrue(SignalStore.phoneNumberPrivacy().isUsernameOutOfSync)
+    assertTrue(SignalStore.account().usernameOutOfSync)
   }
 }

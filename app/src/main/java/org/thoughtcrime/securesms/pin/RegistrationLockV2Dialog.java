@@ -50,7 +50,7 @@ public final class RegistrationLockV2Dialog {
 
           SimpleTask.run(SignalExecutors.UNBOUNDED, () -> {
             try {
-              PinState.onEnableRegistrationLockForUserWithPin();
+              SvrRepository.enableRegistrationLockForUserWithPin();
               Log.i(TAG, "Successfully enabled registration lock.");
               return true;
             } catch (IOException e) {
@@ -92,7 +92,7 @@ public final class RegistrationLockV2Dialog {
 
         SimpleTask.run(SignalExecutors.UNBOUNDED, () -> {
           try {
-            PinState.onDisableRegistrationLockForUserWithPin();
+            SvrRepository.disableRegistrationLockForUserWithPin();
             Log.i(TAG, "Successfully disabled registration lock.");
             return true;
           } catch (IOException e) {

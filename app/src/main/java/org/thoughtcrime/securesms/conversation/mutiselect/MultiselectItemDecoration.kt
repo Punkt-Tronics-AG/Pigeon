@@ -27,6 +27,7 @@ import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.SimpleColorFilter
 import com.google.android.material.animation.ArgbEvaluatorCompat
@@ -34,8 +35,8 @@ import org.signal.core.util.SetUtil
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge.PulseRequest
-import org.thoughtcrime.securesms.conversation.ConversationItem
-import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
+import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.ThemeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
@@ -124,7 +125,15 @@ class MultiselectItemDecoration(
   }
 
   private fun getCurrentSelection(parent: RecyclerView): Set<MultiselectPart> {
-    return (parent.adapter as ConversationAdapterBridge).selectedItems
+    return parent.findAdapterBridge().selectedItems
+  }
+
+  private fun RecyclerView.findAdapterBridge(): ConversationAdapterBridge {
+    return when (val parentAdapter = adapter!!) {
+      is ConversationAdapterBridge -> parentAdapter
+      is ConcatAdapter -> (parentAdapter.adapters[1] as ConversationAdapterBridge)
+      else -> error("Unexpected adapter configuration")
+    }
   }
 
   override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
@@ -156,14 +165,14 @@ class MultiselectItemDecoration(
     outRect.setEmpty()
     updateChildOffsets(parent, view)
 
-    consumePulseRequest(parent.adapter as ConversationAdapterBridge)
+    consumePulseRequest(parent.findAdapterBridge())
   }
 
   /**
    * Draws the background shade.
    */
   override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-    val adapter = parent.adapter as ConversationAdapterBridge
+    val adapter = parent.findAdapterBridge()
 
     if (adapter.selectedItems.isEmpty()) {
       drawFocusShadeUnderIfNecessary(canvas, parent)
@@ -179,8 +188,8 @@ class MultiselectItemDecoration(
       else -> ultramarine30
     }
 
-    parent.children.filterIsInstance(Multiselectable::class.java).forEach { child ->
-      updateChildOffsets(parent, child as View)
+    parent.getMultiselectableChildren().forEach { child ->
+      updateChildOffsets(parent, child.root)
 
       val parts: MultiselectCollection = child.conversationMessage.multiselectCollection
 
@@ -206,7 +215,12 @@ class MultiselectItemDecoration(
         val shadeAll = selectedParts.size == parts.size || (selectedPart is MultiselectPart.Text && child.hasNonSelectableMedia())
 
         if (shadeAll) {
-          rect.set(0, child.top, child.right, child.bottom)
+          rect.set(
+            0,
+            child.root.top - ViewUtil.getTopMargin(child.root),
+            child.root.right,
+            child.root.bottom + ViewUtil.getBottomMargin(child.root)
+          )
         } else {
           rect.set(0, child.getTopBoundaryOfMultiselectPart(selectedPart), parent.right, child.getBottomBoundaryOfMultiselectPart(selectedPart))
         }
@@ -226,7 +240,7 @@ class MultiselectItemDecoration(
    * Draws the selected check or empty circle.
    */
   override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-    val adapter = parent.adapter as ConversationAdapterBridge
+    val adapter = parent.findAdapterBridge()
     if (adapter.selectedItems.isEmpty()) {
       drawFocusShadeOverIfNecessary(canvas, parent)
     }
@@ -239,7 +253,7 @@ class MultiselectItemDecoration(
 
   private fun drawChecks(parent: RecyclerView, canvas: Canvas, adapter: ConversationAdapterBridge) {
     val drawCircleBehindSelector = chatWallpaperProvider()?.isPhoto == true
-    val multiselectChildren: Sequence<Multiselectable> = parent.children.filterIsInstance(Multiselectable::class.java)
+    val multiselectChildren: Sequence<Multiselectable> = parent.getMultiselectableChildren()
 
     val isDarkTheme = ThemeUtil.isDarkTheme(parent.context)
 
@@ -342,12 +356,13 @@ class MultiselectItemDecoration(
    * called in getItemOffsets to ensure the gutter goes away when multiselect mode ends.
    */
   private fun updateChildOffsets(parent: RecyclerView, child: View) {
-    val adapter = parent.adapter as ConversationAdapterBridge
+    val adapter = parent.findAdapterBridge()
     val isLtr = ViewUtil.isLtr(child)
+    val multiselectable: Multiselectable = resolveMultiselectable(parent, child) ?: return
 
     val isAnimatingSelection = enterExitAnimation != null && isInitialAnimation()
-    if ((isAnimatingSelection || adapter.selectedItems.isNotEmpty()) && child is Multiselectable) {
-      val target = child.getHorizontalTranslationTarget()
+    if ((isAnimatingSelection || adapter.selectedItems.isNotEmpty())) {
+      val target = multiselectable.getHorizontalTranslationTarget()
 
       if (target != null) {
         val start = if (isLtr) {
@@ -368,7 +383,7 @@ class MultiselectItemDecoration(
           -translation
         }
       }
-    } else if (child is Multiselectable) {
+    } else {
       child.translationX = 0f
     }
   }
@@ -395,12 +410,6 @@ class MultiselectItemDecoration(
           }
         }
       }
-
-      if (!SignalStore.internalValues().useConversationFragmentV2()) {
-        canvas.clipPath(path)
-        canvas.drawShade()
-        canvas.restore()
-      }
     }
   }
 
@@ -415,12 +424,6 @@ class MultiselectItemDecoration(
           path.addRect(child.left.toFloat(), child.top.toFloat(), child.right.toFloat(), child.bottom.toFloat(), Path.Direction.CW)
         }
       }
-
-      if (!SignalStore.internalValues().useConversationFragmentV2()) {
-        canvas.clipPath(path, Region.Op.DIFFERENCE)
-        canvas.drawShade()
-        canvas.restore()
-      }
     }
   }
 
@@ -429,26 +432,28 @@ class MultiselectItemDecoration(
       return
     }
 
-    for (child in parent.children) {
-      if (child is ConversationItem) {
-        path.reset()
-        canvas.save()
+    for (child in parent.getInteractableChildren()) {
+      path.reset()
+      canvas.save()
 
-        val adapterPosition = parent.getChildAdapterPosition(child)
-        val request = pulseRequestAnimators.keys.firstOrNull { it.position == adapterPosition && it.isOutgoing == child.isOutgoing } ?: continue
-        val animator = pulseRequestAnimators[request] ?: continue
-        if (!animator.isRunning) {
-          continue
-        }
+      val adapterPosition = child.getAdapterPosition(parent)
 
-        child.getSnapshotProjections(parent, false, false).use { projectionList ->
-          projectionList.forEach { it.applyToPath(path) }
-        }
+      val request = pulseRequestAnimators.keys.firstOrNull {
+        it.position == adapterPosition && it.isOutgoing == child.conversationMessage.messageRecord.isOutgoing
+      } ?: continue
 
-        canvas.clipPath(path)
-        canvas.drawColor(animator.animatedValue)
-        canvas.restore()
+      val animator = pulseRequestAnimators[request] ?: continue
+      if (!animator.isRunning) {
+        continue
       }
+
+      child.getSnapshotProjections(parent, false, false).use { projectionList ->
+        projectionList.forEach { it.applyToPath(path) }
+      }
+
+      canvas.clipPath(path)
+      canvas.drawColor(animator.animatedValue)
+      canvas.restore()
     }
   }
 
@@ -499,6 +504,7 @@ class MultiselectItemDecoration(
         animator?.end()
         multiselectPartAnimatorMap[multiselectPart] = newAnimator
       }
+
       Difference.REMOVED -> {
         val newAnimator = ValueAnimator.ofFloat(animator?.animatedFraction ?: 1f, 0f).apply {
           duration = 150L
@@ -558,6 +564,24 @@ class MultiselectItemDecoration(
       pulseRequestAnimators[pulseRequest]?.cancel()
       pulseRequestAnimators[pulseRequest] = PulseAnimator(pulseColor).apply { start() }
     }
+  }
+
+  private fun RecyclerView.getMultiselectableChildren(): Sequence<Multiselectable> {
+    return if (FeatureFlags.useTextOnlyConversationItemV2()) {
+      children.map { getChildViewHolder(it) }.filterIsInstance<Multiselectable>()
+    } else {
+      children.filterIsInstance<Multiselectable>()
+    }
+  }
+
+  private fun RecyclerView.getInteractableChildren(): Sequence<InteractiveConversationElement> {
+    return children.map { getChildViewHolder(it) }.filterIsInstance<InteractiveConversationElement>() + children.filterIsInstance<InteractiveConversationElement>()
+  }
+
+  private fun resolveMultiselectable(parent: RecyclerView, child: View): Multiselectable? {
+    val multiselectable = parent.getChildViewHolder(child) as? Multiselectable
+
+    return multiselectable ?: child as? Multiselectable
   }
 
   private class PulseAnimator(pulseColor: Int) {

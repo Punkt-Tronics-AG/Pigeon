@@ -8,6 +8,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.jobmanager.impl.BackoffUtil;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +38,8 @@ public abstract class Job {
   private final Parameters parameters;
 
   private int  runAttempt;
-  private long nextRunAttemptTime;
+  private long lastRunAttemptTime;
+  private long nextBackoffInterval;
 
   private volatile boolean canceled;
 
@@ -58,8 +61,12 @@ public abstract class Job {
     return runAttempt;
   }
 
-  public final long getNextRunAttemptTime() {
-    return nextRunAttemptTime;
+  public final long getLastRunAttemptTime() {
+    return lastRunAttemptTime;
+  }
+
+  public final long getNextBackoffInterval() {
+    return nextBackoffInterval;
   }
 
   public final @Nullable byte[] getInputData() {
@@ -84,14 +91,25 @@ public abstract class Job {
   }
 
   /** Should only be invoked by {@link JobController} */
-  final void setNextRunAttemptTime(long nextRunAttemptTime) {
-    this.nextRunAttemptTime = nextRunAttemptTime;
+  final void setLastRunAttemptTime(long lastRunAttemptTime) {
+    this.lastRunAttemptTime = lastRunAttemptTime;
+  }
+
+  /** Should only be invoked by {@link JobController} */
+  final void setNextBackoffInterval(long nextBackoffInterval) {
+    this.nextBackoffInterval = nextBackoffInterval;
   }
 
   /** Should only be invoked by {@link JobController} */
   final void cancel() {
     this.canceled = true;
   }
+
+  /** Provides a default exponential backoff given the current run attempt. */
+  protected final long defaultBackoff() {
+    return BackoffUtil.exponentialBackoff(runAttempt + 1, FeatureFlags.getDefaultMaxBackoff());
+  }
+
 
   @WorkerThread
   final void onSubmit() {
@@ -196,7 +214,6 @@ public abstract class Job {
       return new Result(ResultType.FAILURE, runtimeException, null, INVALID_BACKOFF);
     }
 
-    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
     public boolean isSuccess() {
       return resultType == ResultType.SUCCESS;
     }

@@ -38,7 +38,6 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
-import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.HapticFeedbackConstants;
@@ -55,14 +54,14 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.util.LinkifyCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.media3.common.MediaItem;
+import androidx.recyclerview.widget.ConcatAdapter;
+import androidx.recyclerview.widget.ConversationLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.annimon.stream.Stream;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Sets;
 
@@ -98,6 +97,8 @@ import org.thoughtcrime.securesms.conversation.colors.Colorizer;
 import org.thoughtcrime.securesms.conversation.mutiselect.MultiselectCollection;
 import org.thoughtcrime.securesms.conversation.mutiselect.MultiselectPart;
 import org.thoughtcrime.securesms.conversation.ui.payment.PaymentMessageView;
+import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement;
+import org.thoughtcrime.securesms.conversation.v2.items.V2ConversationItemUtils;
 import org.thoughtcrime.securesms.database.AttachmentTable;
 import org.thoughtcrime.securesms.database.MediaTable;
 import org.thoughtcrime.securesms.database.MessageTable;
@@ -135,8 +136,8 @@ import org.thoughtcrime.securesms.revealable.ViewOnceMessageView;
 import org.thoughtcrime.securesms.util.DateUtils;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.InterceptableLongClickCopyLinkSpan;
-import org.thoughtcrime.securesms.util.LinkUtil;
 import org.thoughtcrime.securesms.util.LongClickMovementMethod;
+import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.MessageRecordUtil;
 import org.thoughtcrime.securesms.util.PlaceholderURLSpan;
 import org.thoughtcrime.securesms.util.Projection;
@@ -173,9 +174,10 @@ import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
  * @author Moxie Marlinspike
  */
 
-public final class  ConversationItem extends RelativeLayout implements BindableConversationItem,
+public final class ConversationItem extends RelativeLayout implements BindableConversationItem,
                                                                       RecipientForeverObserver,
-                                                                      OpenableGift
+                                                                      OpenableGift,
+                                                                      InteractiveConversationElement
 {
   private static final String TAG = Log.tag(ConversationItem.class);
 
@@ -244,6 +246,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
   private final PassthroughClickListener        passthroughClickListener        = new PassthroughClickListener();
   private final AttachmentDownloadClickListener downloadClickListener           = new AttachmentDownloadClickListener();
+  private final ProgressWheelClickListener      progressWheelClickListener      = new ProgressWheelClickListener();
   private final SlideClickPassthroughListener   singleDownloadClickListener     = new SlideClickPassthroughListener(downloadClickListener);
   private final SharedContactEventListener      sharedContactEventListener      = new SharedContactEventListener();
   private final SharedContactClickListener      sharedContactClickListener      = new SharedContactClickListener();
@@ -265,6 +268,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   private boolean            hasWallpaper;
   private float              lastYDownRelativeToThis;
   private ProjectionList     colorizerProjections = new ProjectionList(3);
+  private boolean            isBound              = false;
 
   private final Runnable shrinkBubble = new Runnable() {
     @Override
@@ -347,6 +351,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     this.scheduledIndicator        = findViewById(R.id.scheduled_indicator);
 
     setOnClickListener(new ClickListener(null));
+
     bodyText.setOnLongClickListener(passthroughClickListener);
     bodyText.setOnClickListener(passthroughClickListener);
     footer.setOnTouchDelegateChangedListener(touchDelegateChangedListener);
@@ -369,8 +374,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
                    @NonNull Colorizer colorizer,
                    @NonNull ConversationItemDisplayMode displayMode)
   {
-    if (this.author != null) this.author.removeForeverObserver(this);
-    if (this.conversationRecipient != null) this.conversationRecipient.removeForeverObserver(this);
+    unbind();
 
     lastYDownRelativeToThis = 0;
 
@@ -390,9 +394,6 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     this.colorizer             = colorizer;
     this.displayMode           = displayMode;
     this.previousMessage       = previousMessageRecord;
-
-    this.author.observeForever(this);
-    this.conversationRecipient.observeForever(this);
 
     setGutterSizes(messageRecord, groupThread);
     setMessageShape(messageRecord, previousMessageRecord, nextMessageRecord, groupThread);
@@ -416,6 +417,15 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     if (audioViewStub.resolved()) {
       audioViewStub.get().setOnLongClickListener(passthroughClickListener);
     }
+
+    isBound = true;
+    this.author.observeForever(this);
+    this.conversationRecipient.observeForever(this);
+  }
+
+  @Override
+  public void setParentScrolling(boolean isParentScrolling) {
+    bodyBubble.setParentScrolling(isParentScrolling);
   }
 
   @Override
@@ -514,6 +524,8 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       return;
     }
 
+    reactionsView.setBubbleWidth(bodyBubble.getWidth());
+
     boolean needsMeasure = false;
 
     if (hasQuote(messageRecord)) {
@@ -556,22 +568,22 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
         int minSize         = Math.min(maxBubbleWidth, Math.max(bodyText.getMeasuredWidth() + ViewUtil.dpToPx(6) + footerWidth + bodyMargins, bodyBubble.getMeasuredWidth()));
 
         if (hasQuote(messageRecord) && sizeWithMargins < availableWidth) {
-          ViewUtil.setTopMargin(footer, collapsedTopMargin);
-          ViewUtil.setBottomMargin(footer, collapsedBottomMargin);
+          ViewUtil.setTopMargin(footer, collapsedTopMargin, false);
+          ViewUtil.setBottomMargin(footer, collapsedBottomMargin, false);
           needsMeasure   = true;
           updatingFooter = true;
         } else if (sizeWithMargins != bodyText.getMeasuredWidth() && sizeWithMargins <= minSize) {
           bodyBubble.getLayoutParams().width = minSize;
-          ViewUtil.setTopMargin(footer, collapsedTopMargin);
-          ViewUtil.setBottomMargin(footer, collapsedBottomMargin);
+          ViewUtil.setTopMargin(footer, collapsedTopMargin, false);
+          ViewUtil.setBottomMargin(footer, collapsedBottomMargin, false);
           needsMeasure   = true;
           updatingFooter = true;
         }
       }
 
       if (!updatingFooter && !messageRecord.isFailed() && bodyText.getLastLineWidth() + ViewUtil.dpToPx(6) + footerWidth <= bodyText.getMeasuredWidth()) {
-        ViewUtil.setTopMargin(footer, collapsedTopMargin);
-        ViewUtil.setBottomMargin(footer, collapsedBottomMargin);
+        ViewUtil.setTopMargin(footer, collapsedTopMargin, false);
+        ViewUtil.setBottomMargin(footer, collapsedBottomMargin, false);
         updatingFooter = true;
         needsMeasure   = true;
       }
@@ -579,8 +591,8 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
     int defaultTopMarginForRecord = getDefaultTopMarginForRecord(messageRecord, defaultTopMargin, defaultBottomMargin);
     if (!updatingFooter && ViewUtil.getTopMargin(footer) != defaultTopMarginForRecord) {
-      ViewUtil.setTopMargin(footer, defaultTopMarginForRecord);
-      ViewUtil.setBottomMargin(footer, defaultBottomMargin);
+      ViewUtil.setTopMargin(footer, defaultTopMarginForRecord, false);
+      ViewUtil.setBottomMargin(footer, defaultBottomMargin, false);
       needsMeasure = true;
     }
 
@@ -633,6 +645,10 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
   @Override
   public void onRecipientChanged(@NonNull Recipient modified) {
+    if (!isBound) {
+      return;
+    }
+
     if (conversationRecipient.getId().equals(modified.getId())) {
       setBubbleState(messageRecord, modified, modified.hasWallpaper(), colorizer);
 
@@ -690,15 +706,20 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
   @Override
   public void unbind() {
+    isBound = false;
+
     if (author != null) {
       author.removeForeverObserver(this);
     }
+
     if (conversationRecipient != null) {
       conversationRecipient.removeForeverObserver(this);
     }
 
     bodyBubble.setVideoPlayerProjection(null);
     bodyBubble.setQuoteViewProjection(null);
+
+    glideRequests = null;
   }
 
   @Override
@@ -930,7 +951,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     if(isPigeonVersion()){
       return true;
     }
-    return displayMode == ConversationItemDisplayMode.CONDENSED;
+    return displayMode instanceof ConversationItemDisplayMode.Condensed;
   }
 
   /**
@@ -1064,10 +1085,10 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
       if (conversationMessage.getBottomButton() != null) {
         callToActionStub.get().setVisibility(View.VISIBLE);
-        callToActionStub.get().setText(conversationMessage.getBottomButton().getLabel());
+        callToActionStub.get().setText(conversationMessage.getBottomButton().label);
         callToActionStub.get().setOnClickListener(v -> {
           if (eventListener != null) {
-            eventListener.onCallToAction(conversationMessage.getBottomButton().getAction());
+            eventListener.onCallToAction(conversationMessage.getBottomButton().action);
           }
         });
       } else if (callToActionStub.resolved()) {
@@ -1108,6 +1129,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
       if (callToActionStub.resolved()) callToActionStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       revealableStub.get().setMessage((MmsMessageRecord) messageRecord, hasWallpaper);
@@ -1126,6 +1148,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       sharedContactStub.get().setContact(((MediaMmsMessageRecord) messageRecord).getSharedContacts().get(0), glideRequests, locale);
@@ -1147,6 +1170,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       //noinspection ConstantConditions
@@ -1156,7 +1180,8 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
         CallLinkRootKey callLinkRootKey = CallLinks.parseUrl(linkPreview.getUrl());
         if (callLinkRootKey != null) {
           joinCallLinkStub.setVisibility(View.VISIBLE);
-          joinCallLinkStub.get().setTextColor(messageRecord.isOutgoing() ? R.color.signal_colorOnCustom : R.color.signal_colorOnSurface);
+          joinCallLinkStub.get().setTextColor(messageRecord.isOutgoing() ? R.color.signal_colorOnCustom : R.color.signal_colorPrimary);
+          joinCallLinkStub.get().setStrokeColor(messageRecord.isOutgoing() ? R.color.signal_colorOnCustom : R.color.signal_colorOutline);
           joinCallLinkStub.get().setJoinClickListener(v -> {
             if (eventListener != null) {
               eventListener.onJoinCallLink(callLinkRootKey);
@@ -1172,6 +1197,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
         mediaThumbnailStub.require().setImageResource(glideRequests, Collections.singletonList(new ImageSlide(linkPreview.getThumbnail().get())), showControls, false);
         mediaThumbnailStub.require().setThumbnailClickListener(new LinkPreviewThumbnailClickListener());
         mediaThumbnailStub.require().setDownloadClickListener(downloadClickListener);
+        mediaThumbnailStub.require().setProgressWheelClickListener(progressWheelClickListener);
         mediaThumbnailStub.require().setOnLongClickListener(passthroughClickListener);
 
         linkPreviewStub.get().setLinkPreview(glideRequests, linkPreview, false);
@@ -1183,7 +1209,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
         ViewUtil.updateLayoutParamsIfNonNull(groupSenderHolder, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ViewUtil.setTopMargin(linkPreviewStub.get(), 0);
       } else {
-        linkPreviewStub.get().setLinkPreview(glideRequests, linkPreview, true, !isContentCondensed());
+        linkPreviewStub.get().setLinkPreview(glideRequests, linkPreview, true, !isContentCondensed(), displayMode.getScheduleMessageMode());
         linkPreviewStub.get().setDownloadClickedListener(downloadClickListener);
         setLinkPreviewCorners(messageRecord, previousRecord, nextRecord, isGroupThread, false);
         ViewUtil.updateLayoutParams(bodyText, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1208,6 +1234,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       audioViewStub.get().setAudio(Objects.requireNonNull(((MediaMmsMessageRecord) messageRecord).getSlideDeck().getAudioSlide()), new AudioViewCallbacks(), showControls, true);
@@ -1235,13 +1262,14 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       //noinspection ConstantConditions
       documentViewStub.get().setDocument(
           ((MediaMmsMessageRecord) messageRecord).getSlideDeck().getDocumentSlide(),
           showControls,
-          displayMode != ConversationItemDisplayMode.DETAILED
+          displayMode != ConversationItemDisplayMode.Detailed.INSTANCE
       );
       documentViewStub.get().setDocumentClickListener(new ThumbnailClickListener());
       documentViewStub.get().setDownloadClickListener(singleDownloadClickListener);
@@ -1263,6 +1291,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (linkPreviewStub.resolved()) linkPreviewStub.get().setVisibility(GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       if (hasSticker(messageRecord)) {
@@ -1294,6 +1323,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       List<Slide> thumbnailSlides = ((MmsMessageRecord) messageRecord).getSlideDeck().getThumbnailSlides();
@@ -1307,6 +1337,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
                                                     false);
       mediaThumbnailStub.require().setThumbnailClickListener(new ThumbnailClickListener());
       mediaThumbnailStub.require().setDownloadClickListener(downloadClickListener);
+      mediaThumbnailStub.require().setProgressWheelClickListener(progressWheelClickListener);
       mediaThumbnailStub.require().setOnLongClickListener(passthroughClickListener);
       mediaThumbnailStub.require().setOnClickListener(passthroughClickListener);
       mediaThumbnailStub.require().showShade(messageRecord.isDisplayBodyEmpty(getContext()) && !hasExtraText(messageRecord));
@@ -1348,6 +1379,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (linkPreviewStub.resolved()) linkPreviewStub.get().setVisibility(GONE);
       if (stickerStub.resolved()) stickerStub.get().setVisibility(GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       MmsMessageRecord mmsMessageRecord = (MmsMessageRecord) messageRecord;
@@ -1364,6 +1396,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
 
       MediaMmsMessageRecord mediaMmsMessageRecord = (MediaMmsMessageRecord) messageRecord;
 
@@ -1380,6 +1413,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       if (stickerStub.resolved()) stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved()) revealableStub.get().setVisibility(View.GONE);
       if (giftViewStub.resolved()) giftViewStub.get().setVisibility(View.GONE);
+      if (joinCallLinkStub.resolved()) joinCallLinkStub.get().setVisibility(View.GONE);
       paymentViewStub.setVisibility(View.GONE);
 
       ViewUtil.updateLayoutParams(bodyText, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1528,7 +1562,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   private void linkifyMessageBody(@NonNull Spannable messageBody,
                                   boolean shouldLinkifyAllLinks)
   {
-    linkifyUrlLinks(messageBody, shouldLinkifyAllLinks, urlClickListener);
+    V2ConversationItemUtils.linkifyUrlLinks(messageBody, shouldLinkifyAllLinks, urlClickListener);
 
     if (conversationMessage.hasStyleLinks()) {
       for (PlaceholderURLSpan placeholder : messageBody.getSpans(0, messageBody.length(), PlaceholderURLSpan.class)) {
@@ -1546,28 +1580,6 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     List<Annotation> mentionAnnotations = MentionAnnotation.getMentionAnnotations(messageBody);
     for (Annotation annotation : mentionAnnotations) {
       messageBody.setSpan(new MentionClickableSpan(RecipientId.from(annotation.getValue())), messageBody.getSpanStart(annotation), messageBody.getSpanEnd(annotation), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-  }
-
-  @VisibleForTesting
-  static void linkifyUrlLinks(@NonNull Spannable messageBody, boolean shouldLinkifyAllLinks, @NonNull UrlClickHandler urlClickHandler) {
-    int     linkPattern = Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS;
-    boolean hasLinks    = LinkifyCompat.addLinks(messageBody, shouldLinkifyAllLinks ? linkPattern : 0);
-
-    if (hasLinks) {
-      Stream.of(messageBody.getSpans(0, messageBody.length(), URLSpan.class))
-            .filterNot(url -> LinkUtil.isLegalUrl(url.getURL()))
-            .forEach(messageBody::removeSpan);
-
-      URLSpan[] urlSpans = messageBody.getSpans(0, messageBody.length(), URLSpan.class);
-
-      for (URLSpan urlSpan : urlSpans) {
-        int     start = messageBody.getSpanStart(urlSpan);
-        int     end   = messageBody.getSpanEnd(urlSpan);
-        URLSpan span  = new InterceptableLongClickCopyLinkSpan(urlSpan.getURL(), urlClickHandler);
-        messageBody.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        messageBody.removeSpan(urlSpan);
-      }
     }
   }
 
@@ -1647,17 +1659,17 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       }
 
       if (!isFooterVisible(current, next, isGroupThread) && isStoryReaction(current)) {
-        ViewUtil.setBottomMargin(quoteView, (int) DimensionUnit.DP.toPixels(8));
+        ViewUtil.setBottomMargin(quoteView, (int) DimensionUnit.DP.toPixels(8), false);
       } else {
-        ViewUtil.setBottomMargin(quoteView, 0);
+        ViewUtil.setBottomMargin(quoteView, 0, false);
       }
 
       if (mediaThumbnailStub.resolved()) {
-        ViewUtil.setTopMargin(mediaThumbnailStub.require(), readDimen(R.dimen.message_bubble_top_padding));
+        ViewUtil.setTopMargin(mediaThumbnailStub.require(), readDimen(R.dimen.message_bubble_top_padding), false);
       }
 
       if (linkPreviewStub.resolved() && !hasBigImageLinkPreview(current)) {
-        ViewUtil.setTopMargin(linkPreviewStub.get(), readDimen(R.dimen.message_bubble_top_padding));
+        ViewUtil.setTopMargin(linkPreviewStub.get(), readDimen(R.dimen.message_bubble_top_padding), false);
       }
     } else {
       if (quoteView != null) {
@@ -1666,7 +1678,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
       int topMargin = (current.isOutgoing() || !startOfCluster || !groupThread) ? 0 : readDimen(R.dimen.message_bubble_top_image_margin);
       if (mediaThumbnailStub.resolved()) {
-        ViewUtil.setTopMargin(mediaThumbnailStub.require(), topMargin);
+        ViewUtil.setTopMargin(mediaThumbnailStub.require(), topMargin, false);
       }
     }
   }
@@ -1697,7 +1709,8 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   }
 
   private void setReactionsWithWidth(@NonNull MessageRecord current, int width) {
-    reactionsView.setReactions(current.getReactions(), width);
+    reactionsView.setReactions(current.getReactions());
+    reactionsView.setBubbleWidth(width);
     reactionsView.setOnClickListener(v -> {
       if (eventListener == null) return;
 
@@ -1778,7 +1791,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   }
 
   private void setHasBeenQuoted(@NonNull ConversationMessage message) {
-    if (message.hasBeenQuoted() && !isCondensedMode() && quotedIndicator != null && batchSelected.isEmpty() && displayMode != ConversationItemDisplayMode.EDIT_HISTORY) {
+    if (message.hasBeenQuoted() && !isCondensedMode() && quotedIndicator != null && batchSelected.isEmpty() && displayMode != ConversationItemDisplayMode.EditHistory.INSTANCE) {
       quotedIndicator.setVisibility(VISIBLE);
       quotedIndicator.setOnClickListener(quotedIndicatorClickListener);
     } else if (quotedIndicator != null) {
@@ -1801,7 +1814,11 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
   }
 
   private boolean forceFooter(@NonNull MessageRecord messageRecord) {
-    return hasAudio(messageRecord) || MessageRecordUtil.isEditMessage(messageRecord);
+    return hasAudio(messageRecord) || MessageRecordUtil.isEditMessage(messageRecord) || displayMode == ConversationItemDisplayMode.EditHistory.INSTANCE;
+  }
+
+  private boolean forceGroupHeader(@NonNull MessageRecord messageRecord) {
+    return displayMode == ConversationItemDisplayMode.EditHistory.INSTANCE;
   }
 
   private ConversationItemFooter getActiveFooter(@NonNull MessageRecord messageRecord) {
@@ -1847,13 +1864,14 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       contactPhotoHolder.setVisibility(VISIBLE);
 
       if (!previous.isPresent() || previous.get().isUpdate() || !current.getFromRecipient().equals(previous.get().getFromRecipient()) ||
-          !DateUtils.isSameDay(previous.get().getTimestamp(), current.getTimestamp()) || !isWithinClusteringTime(current, previous.get()))
+          !DateUtils.isSameDay(previous.get().getTimestamp(), current.getTimestamp()) || !isWithinClusteringTime(current, previous.get()) || forceGroupHeader(current))
       {
         groupSenderHolder.setVisibility(VISIBLE);
 
         if (hasWallpaper && hasNoBubble(current)) {
           groupSenderHolder.setBackgroundResource(R.drawable.wallpaper_bubble_background_tintable_11);
-          //groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
+          if (is)
+          groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
         } else {
           groupSenderHolder.setBackground(null);
         }
@@ -1861,7 +1879,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
         groupSenderHolder.setVisibility(GONE);
       }
 
-      if (!next.isPresent() || next.get().isUpdate() || !current.getFromRecipient().equals(next.get().getFromRecipient()) || !isWithinClusteringTime(current, next.get())) {
+      if (!next.isPresent() || next.get().isUpdate() || !current.getFromRecipient().equals(next.get().getFromRecipient()) || !isWithinClusteringTime(current, next.get()) || forceGroupHeader(current)) {
         contactPhoto.setVisibility(VISIBLE);
         badgeImageView.setVisibility(VISIBLE);
       } else {
@@ -1905,7 +1923,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
 
     int background;
 
-    if (isSingularMessage(current, previous, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EDIT_HISTORY) {
+    if (isSingularMessage(current, previous, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EditHistory.INSTANCE) {
       if (current.isOutgoing()) {
         background = R.drawable.message_bubble_background_sent_alone;
         outliner.setRadius(bigRadius);
@@ -2001,11 +2019,11 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     int spacingTop    = readDimen(context, R.dimen.conversation_vertical_message_spacing_collapse);
     int spacingBottom = spacingTop;
 
-    if (isStartOfMessageCluster(current, previous, isGroupThread) && (displayMode != ConversationItemDisplayMode.EDIT_HISTORY || next.isEmpty())) {
+    if (isStartOfMessageCluster(current, previous, isGroupThread) && (displayMode != ConversationItemDisplayMode.EditHistory.INSTANCE || next.isEmpty())) {
       spacingTop = readDimen(context, R.dimen.conversation_vertical_message_spacing_default);
     }
 
-    if (isEndOfMessageCluster(current, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EDIT_HISTORY) {
+    if (isEndOfMessageCluster(current, next, isGroupThread) || displayMode == ConversationItemDisplayMode.EditHistory.INSTANCE) {
       spacingBottom = readDimen(context, R.dimen.conversation_vertical_message_spacing_default);
     }
 
@@ -2026,7 +2044,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     if (messageRecord.isMms()) {
       TextSlide slide = ((MmsMessageRecord) messageRecord).getSlideDeck().getTextSlide();
 
-      if (slide != null && slide.asAttachment().getTransferState() == AttachmentTable.TRANSFER_PROGRESS_DONE) {
+      if (slide != null && (slide.asAttachment().getTransferState() == AttachmentTable.TRANSFER_PROGRESS_DONE || MessageRecordUtil.isScheduled(messageRecord))) {
         message = getResources().getString(R.string.ConversationItem_read_more);
         action  = () -> eventListener.onMoreTextClicked(conversationRecipient.getId(), messageRecord.getId(), messageRecord.isMms());
       } else if (slide != null && slide.asAttachment().getTransferState() == AttachmentTable.TRANSFER_PROGRESS_STARTED) {
@@ -2136,10 +2154,12 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     return getSnapshotProjections(coordinateRoot, true, true);
   }
 
+  @Override
   public @NonNull ProjectionList getSnapshotProjections(@NonNull ViewGroup coordinateRoot, boolean clipOutMedia) {
     return getSnapshotProjections(coordinateRoot, clipOutMedia, true);
   }
 
+  @Override
   public @NonNull ProjectionList getSnapshotProjections(@NonNull ViewGroup coordinateRoot, boolean clipOutMedia, boolean outgoingOnly) {
     colorizerProjections.clear();
 
@@ -2284,6 +2304,54 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     return AnimationSign.get(ViewUtil.isLtr(this), messageRecord.isOutgoing());
   }
 
+  @Override
+  public @Nullable View getQuotedIndicatorView() {
+    return quotedIndicator;
+  }
+
+  @Override
+  public @NonNull View getReplyView() {
+    return reply;
+  }
+
+  @Override
+  public @Nullable View getContactPhotoHolderView() {
+    return contactPhotoHolder;
+  }
+
+  @Override
+  public @Nullable View getBadgeImageView() {
+    return badgeImageView;
+  }
+
+  @NonNull @Override public List<View> getBubbleViews() {
+    return Collections.singletonList(bodyBubble);
+  }
+
+  @Override
+  public int getAdapterPosition(@NonNull RecyclerView recyclerView) {
+    return recyclerView.getChildViewHolder(this).getBindingAdapterPosition();
+  }
+
+  @Override
+  public @NonNull ViewGroup getRoot() {
+    return this;
+  }
+
+  @Override
+  public @NonNull View getBubbleView() {
+    return bodyBubble;
+  }
+
+  @Override
+  public void invalidateChatColorsDrawable(@NonNull ViewGroup coordinateRoot) {
+    // Intentionally left blank.
+  }
+
+  @Override public @Nullable SnapshotStrategy getSnapshotStrategy() {
+    return null;
+  }
+
   private class SharedContactEventListener implements SharedContactView.EventListener {
     @Override
     public void onAddToContactsClicked(@NonNull Contact contact) {
@@ -2401,6 +2469,20 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
     }
   }
 
+  private class ProgressWheelClickListener implements SlideClickListener {
+
+    @Override
+    public void onClick(View v, Slide slide) {
+      final boolean isIncremental        = slide.asAttachment().getIncrementalDigest() != null;
+      final boolean contentTypeSupported = MediaUtil.isVideoType(slide.getContentType());
+      if (FeatureFlags.instantVideoPlayback() && isIncremental && contentTypeSupported) {
+        launchMediaPreview(v, slide);
+      } else {
+        Log.d(TAG, "Non-eligible slide clicked: " + "\tisIncremental: " + isIncremental + "\tcontentTypeSupported: " + contentTypeSupported);
+      }
+    }
+  }
+
   private class SlideClickPassthroughListener implements SlideClickListener {
 
     private final SlidesClickedListener original;
@@ -2434,34 +2516,7 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
       } else if (!canPlayContent && mediaItem != null && eventListener != null) {
         eventListener.onPlayInlineContent(conversationMessage);
       } else if (MediaPreviewV2Fragment.isContentTypeSupported(slide.getContentType()) && slide.getUri() != null) {
-        if (eventListener == null) {
-          return;
-        }
-
-        MediaIntentFactory.MediaPreviewArgs args = new MediaIntentFactory.MediaPreviewArgs(
-            messageRecord.getThreadId(),
-            messageRecord.getTimestamp(),
-            slide.getUri(),
-            slide.getContentType(),
-            slide.asAttachment().getSize(),
-            slide.getCaption().orElse(null),
-            false,
-            false,
-            false,
-            false,
-            MediaTable.Sorting.Newest,
-            slide.isVideoGif(),
-            new MediaIntentFactory.SharedElementArgs(
-                slide.asAttachment().getWidth(),
-                slide.asAttachment().getHeight(),
-                mediaThumbnailStub.require().getCorners().getTopLeft(),
-                mediaThumbnailStub.require().getCorners().getTopRight(),
-                mediaThumbnailStub.require().getCorners().getBottomRight(),
-                mediaThumbnailStub.require().getCorners().getBottomLeft()
-            ),
-            false);
-        MediaPreviewCache.INSTANCE.setDrawable(((ThumbnailView) v).getImageDrawable());
-        eventListener.goToMediaPreview(ConversationItem.this, v, args);
+        launchMediaPreview(v, slide);
       } else if (slide.getUri() != null) {
         Log.i(TAG, "Clicked: " + slide.getUri() + " , " + slide.getContentType());
         Uri publicUri = PartAuthority.getAttachmentPublicUri(slide.getUri());
@@ -2496,6 +2551,47 @@ public final class  ConversationItem extends RelativeLayout implements BindableC
             .show();
       }
     }
+  }
+
+  private void launchMediaPreview(View v, Slide slide) {
+    if (eventListener == null) {
+      Log.w(TAG, "Could not launch media preview for item: eventListener was null");
+      return;
+    }
+
+    Uri mediaUri = slide.getUri();
+
+    if (mediaUri == null) {
+      Log.w(TAG, "Could not launch media preview for item: uri was null");
+      return;
+    }
+
+    MediaIntentFactory.MediaPreviewArgs args = new MediaIntentFactory.MediaPreviewArgs(
+        messageRecord.getThreadId(),
+        messageRecord.getTimestamp(),
+        mediaUri,
+        slide.getContentType(),
+        slide.asAttachment().getSize(),
+        slide.getCaption().orElse(null),
+        false,
+        false,
+        false,
+        false,
+        MediaTable.Sorting.Newest,
+        slide.isVideoGif(),
+        new MediaIntentFactory.SharedElementArgs(
+            slide.asAttachment().getWidth(),
+            slide.asAttachment().getHeight(),
+            mediaThumbnailStub.require().getCorners().getTopLeft(),
+            mediaThumbnailStub.require().getCorners().getTopRight(),
+            mediaThumbnailStub.require().getCorners().getBottomRight(),
+            mediaThumbnailStub.require().getCorners().getBottomLeft()
+        ),
+        false);
+    if (v instanceof ThumbnailView) {
+      MediaPreviewCache.INSTANCE.setDrawable(((ThumbnailView) v).getImageDrawable());
+    }
+    eventListener.goToMediaPreview(ConversationItem.this, v, args);
   }
 
   private class PassthroughClickListener implements View.OnLongClickListener, View.OnClickListener {

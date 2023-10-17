@@ -121,6 +121,7 @@ class AdvancedPrivacySettingsFragment : DSLSettingsFragment(R.string.preferences
               android.R.string.ok
             ) { _, _ -> viewModel.disablePushMessages() }
           }
+
           if (isSignalVersion()) {
             val icon: Drawable = requireNotNull(ContextCompat.getDrawable(builder.context, R.drawable.symbol_info_24))
             icon.setBounds(0, 0, ViewUtil.dpToPx(32), ViewUtil.dpToPx(32))
@@ -132,13 +133,14 @@ class AdvancedPrivacySettingsFragment : DSLSettingsFragment(R.string.preferences
             title.compoundDrawablePadding = padding / 2
             TextViewCompat.setTextAppearance(title, R.style.TextAppearance_Signal_Title2_MaterialDialog)
             TextViewCompat.setCompoundDrawablesRelative(title, icon, null, null, null)
+
             builder
               .setCustomTitle(title)
+              .setOnDismissListener { viewModel.refresh() }
               .show()
           } else {
             builder.show()
           }
-
         } else {
           startActivity(RegistrationNavigationActivity.newIntentForReRegistration(requireContext()))
         }

@@ -24,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import org.signal.core.util.concurrent.LifecycleDisposable;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.webrtc.CallParticipantsState;
 import org.thoughtcrime.securesms.components.webrtc.WebRtcCallViewModel;
@@ -39,6 +40,8 @@ public class CallParticipantsListDialog extends BottomSheetDialogFragment {
 
   private RecyclerView                participantList;
   private CallParticipantsListAdapter adapter;
+
+  private final LifecycleDisposable lifecycleDisposable = new LifecycleDisposable();
 
   public static void show(@NonNull FragmentManager manager) {
     CallParticipantsListDialog fragment = new CallParticipantsListDialog();
@@ -104,14 +107,13 @@ public class CallParticipantsListDialog extends BottomSheetDialogFragment {
   }
 
   @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     final WebRtcCallViewModel viewModel = new ViewModelProvider(requireActivity()).get(WebRtcCallViewModel.class);
 
     initializeList();
 
-    viewModel.getCallParticipantsState().observe(getViewLifecycleOwner(), this::updateList);
+    lifecycleDisposable.bindTo(getViewLifecycleOwner());
+    lifecycleDisposable.add(viewModel.getCallParticipantsState().subscribe(this::updateList));
   }
 
   private void initializeList() {

@@ -66,9 +66,7 @@ class MediaPreviewRepository {
 
           for (i in 0..limit) {
             val element = MediaTable.MediaRecord.from(cursor)
-            if (element != null) {
-              mediaRecords.add(element)
-            }
+            mediaRecords.add(element)
             if (!cursor.moveToNext()) {
               break
             }
@@ -110,7 +108,7 @@ class MediaPreviewRepository {
       stopwatch.split("get recipient ID")
 
       stopwatch.stop(TAG)
-      ConversationIntents.createBuilder(context, recipientId, threadId)
+      ConversationIntents.createBuilderSync(context, recipientId, threadId)
         .withStartingPosition(messagePosition)
         .build()
     }

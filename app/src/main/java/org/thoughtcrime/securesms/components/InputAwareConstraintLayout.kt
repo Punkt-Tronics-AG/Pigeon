@@ -25,6 +25,7 @@ class InputAwareConstraintLayout @JvmOverloads constructor(
 
   private var inputId: Int? = null
   private var input: Fragment? = null
+  private var wasKeyboardVisibleBeforeToggle: Boolean = false
 
   val isInputShowing: Boolean
     get() = input != null
@@ -37,7 +38,13 @@ class InputAwareConstraintLayout @JvmOverloads constructor(
     hideInput(resetKeyboardGuideline = false)
   }
 
-  fun toggleInput(fragmentCreator: FragmentCreator, imeTarget: EditText, showSoftKeyOnHide: Boolean = false) {
+  fun hideAll(imeTarget: EditText) {
+    wasKeyboardVisibleBeforeToggle = false
+    ViewUtil.hideKeyboard(context, imeTarget)
+    hideInput(resetKeyboardGuideline = true)
+  }
+
+  fun toggleInput(fragmentCreator: FragmentCreator, imeTarget: EditText, showSoftKeyOnHide: Boolean = wasKeyboardVisibleBeforeToggle) {
     if (fragmentCreator.id == inputId) {
       if (showSoftKeyOnHide) {
         showSoftkey(imeTarget)
@@ -45,6 +52,7 @@ class InputAwareConstraintLayout @JvmOverloads constructor(
         hideInput(resetKeyboardGuideline = true)
       }
     } else {
+      wasKeyboardVisibleBeforeToggle = isKeyboardShowing
       hideInput(resetKeyboardGuideline = false)
       showInput(fragmentCreator, imeTarget)
     }
@@ -52,6 +60,16 @@ class InputAwareConstraintLayout @JvmOverloads constructor(
 
   fun hideInput() {
     hideInput(resetKeyboardGuideline = true)
+    wasKeyboardVisibleBeforeToggle = false
+  }
+
+  fun hideKeyboard(imeTarget: EditText, keepHeightOverride: Boolean = false) {
+    if (isKeyboardShowing) {
+      if (keepHeightOverride) {
+        overrideKeyboardGuidelineWithPreviousHeight()
+      }
+      ViewUtil.hideKeyboard(context, imeTarget)
+    }
   }
 
   private fun showInput(fragmentCreator: FragmentCreator, imeTarget: EditText) {

@@ -24,8 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.signal.core.util.logging.Log;
-import org.signal.libsignal.usernames.BaseUsernameException;
-import org.signal.libsignal.usernames.Username;
 import org.thoughtcrime.securesms.AvatarPreviewActivity;
 import org.thoughtcrime.securesms.LoggingFragment;
 import org.thoughtcrime.securesms.R;
@@ -48,7 +46,6 @@ import org.thoughtcrime.securesms.util.UsernameUtil;
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
-import org.whispersystems.util.Base64UrlSafe;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -257,7 +254,6 @@ public class ManageProfileFragment extends LoggingFragment {
       binding.manageProfileUsernameShare.setVisibility(View.GONE);
     } else {
       binding.manageProfileUsername.setText(username);
-      binding.manageProfileUsernameSubtitle.setText(UsernameUtil.generateLink(username));
       binding.manageProfileUsernameShare.setVisibility(View.VISIBLE);
     }
   }
@@ -328,7 +324,7 @@ public class ManageProfileFragment extends LoggingFragment {
     disposables.add(disposable);
   }
 
-  private void handleUsernameDeletionResult(@NonNull UsernameEditRepository.UsernameDeleteResult usernameDeleteResult) {
+  private void handleUsernameDeletionResult(@NonNull UsernameRepository.UsernameDeleteResult usernameDeleteResult) {
     switch (usernameDeleteResult) {
       case SUCCESS:
         Snackbar.make(requireView(), R.string.ManageProfileFragment__username_deleted, Snackbar.LENGTH_SHORT).show();

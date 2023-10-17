@@ -88,10 +88,6 @@ public class AttachmentCipherOutputStream extends DigestingOutputStream {
     }
   }
 
-  public static long getCiphertextLength(long plaintextLength) {
-    return 16 + (((plaintextLength / 16) +1) * 16) + 32;
-  }
-
   private Mac initializeMac() {
     try {
       return Mac.getInstance("HmacSHA256");

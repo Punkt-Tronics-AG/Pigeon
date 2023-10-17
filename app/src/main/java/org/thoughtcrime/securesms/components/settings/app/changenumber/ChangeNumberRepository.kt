@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import okio.ByteString.Companion.toByteString
 import org.signal.core.util.logging.Log
 import org.signal.libsignal.protocol.IdentityKeyPair
 import org.signal.libsignal.protocol.SignalProtocolAddress
@@ -17,25 +18,23 @@ import org.thoughtcrime.securesms.crypto.PreKeyUtil
 import org.thoughtcrime.securesms.database.IdentityTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.databaseprotos.PendingChangeNumberMetadata
-import org.thoughtcrime.securesms.database.model.toProtoByteString
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob
 import org.thoughtcrime.securesms.keyvalue.CertificateType
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.pin.KbsRepository
-import org.thoughtcrime.securesms.pin.KeyBackupSystemWrongPinException
-import org.thoughtcrime.securesms.pin.TokenData
+import org.thoughtcrime.securesms.pin.SvrRepository
+import org.thoughtcrime.securesms.pin.SvrWrongPinException
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.registration.VerifyResponse
+import org.thoughtcrime.securesms.registration.viewmodel.SvrAuthCredentialSet
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
-import org.whispersystems.signalservice.api.KbsPinData
-import org.whispersystems.signalservice.api.KeyBackupSystemNoDataException
 import org.whispersystems.signalservice.api.SignalServiceAccountManager
 import org.whispersystems.signalservice.api.SignalServiceMessageSender
+import org.whispersystems.signalservice.api.SvrNoDataException
 import org.whispersystems.signalservice.api.account.ChangePhoneNumberRequest
 import org.whispersystems.signalservice.api.account.PreKeyUpload
-import org.whispersystems.signalservice.api.push.PNI
-import org.whispersystems.signalservice.api.push.ServiceId
+import org.whispersystems.signalservice.api.kbs.MasterKey
+import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.push.ServiceIdType
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.push.SignedPreKeyEntity
@@ -43,7 +42,7 @@ import org.whispersystems.signalservice.internal.ServiceResponse
 import org.whispersystems.signalservice.internal.push.KyberPreKeyEntity
 import org.whispersystems.signalservice.internal.push.OutgoingPushMessage
 import org.whispersystems.signalservice.internal.push.RegistrationSessionMetadataResponse
-import org.whispersystems.signalservice.internal.push.SignalServiceProtos.SyncMessage
+import org.whispersystems.signalservice.internal.push.SyncMessage
 import org.whispersystems.signalservice.internal.push.VerifyAccountResponse
 import org.whispersystems.signalservice.internal.push.WhoAmIResponse
 import org.whispersystems.signalservice.internal.push.exceptions.MismatchedDevicesException
@@ -143,7 +142,7 @@ class ChangeNumberRepository(
 
       VerifyResponse.from(
         response = changeNumberResponse,
-        kbsData = null,
+        masterKey = null,
         pin = null,
         aciPreKeyCollection = null,
         pniPreKeyCollection = null
@@ -156,18 +155,18 @@ class ChangeNumberRepository(
     sessionId: String,
     newE164: String,
     pin: String,
-    tokenData: TokenData
+    svrAuthCredentials: SvrAuthCredentialSet
   ): Single<ServiceResponse<VerifyResponse>> {
     return Single.fromCallable {
-      val kbsData: KbsPinData
+      val masterKey: MasterKey
       val registrationLock: String
 
       try {
-        kbsData = KbsRepository.restoreMasterKey(pin, tokenData.enclave, tokenData.basicAuth, tokenData.tokenResponse)!!
-        registrationLock = kbsData.masterKey.deriveRegistrationLock()
-      } catch (e: KeyBackupSystemWrongPinException) {
+        masterKey = SvrRepository.restoreMasterKeyPreRegistration(svrAuthCredentials, pin)
+        registrationLock = masterKey.deriveRegistrationLock()
+      } catch (e: SvrWrongPinException) {
         return@fromCallable ServiceResponse.forExecutionError(e)
-      } catch (e: KeyBackupSystemNoDataException) {
+      } catch (e: SvrNoDataException) {
         return@fromCallable ServiceResponse.forExecutionError(e)
       } catch (e: IOException) {
         return@fromCallable ServiceResponse.forExecutionError(e)
@@ -199,7 +198,7 @@ class ChangeNumberRepository(
 
       VerifyResponse.from(
         response = changeNumberResponse,
-        kbsData = kbsData,
+        masterKey = masterKey,
         pin = pin,
         aciPreKeyCollection = null,
         pniPreKeyCollection = null
@@ -243,7 +242,7 @@ class ChangeNumberRepository(
       throw AssertionError("No change number metadata")
     }
 
-    val originalPni = ServiceId.fromByteString(metadata.previousPni)
+    val originalPni = PNI.parseOrThrow(metadata.previousPni)
 
     if (originalPni == pni) {
       Log.i(TAG, "No change has occurred, PNI is unchanged: $pni")
@@ -276,6 +275,7 @@ class ChangeNumberRepository(
 
       pniProtocolStore.identities().saveIdentityWithoutSideEffects(
         Recipient.self().id,
+        pni,
         pniProtocolStore.identityKeyPair.publicKey,
         IdentityTable.VerifiedStatus.VERIFIED,
         true,
@@ -367,13 +367,13 @@ class ChangeNumberRepository(
 
         // Device Messages
         if (deviceId != primaryDeviceId) {
-          val pniChangeNumber = SyncMessage.PniChangeNumber.newBuilder()
-            .setIdentityKeyPair(pniIdentity.serialize().toProtoByteString())
-            .setSignedPreKey(signedPreKeyRecord.serialize().toProtoByteString())
-            .setLastResortKyberPreKey(lastResortKyberPreKeyRecord.serialize().toProtoByteString())
-            .setRegistrationId(pniRegistrationId)
-            .setNewE164(newE164)
-            .build()
+          val pniChangeNumber = SyncMessage.PniChangeNumber(
+            identityKeyPair = pniIdentity.serialize().toByteString(),
+            signedPreKey = signedPreKeyRecord.serialize().toByteString(),
+            lastResortKyberPreKey = lastResortKyberPreKeyRecord.serialize().toByteString(),
+            registrationId = pniRegistrationId,
+            newE164 = newE164
+          )
 
           deviceMessages += messageSender.getEncryptedSyncPniInitializeDeviceMessage(deviceId, pniChangeNumber)
         }
@@ -391,12 +391,12 @@ class ChangeNumberRepository(
       pniRegistrationIds.mapKeys { it.key.toString() }
     )
 
-    val metadata = PendingChangeNumberMetadata.newBuilder()
-      .setPreviousPni(SignalStore.account().pni!!.toByteString())
-      .setPniIdentityKeyPair(pniIdentity.serialize().toProtoByteString())
-      .setPniRegistrationId(pniRegistrationIds[primaryDeviceId]!!)
-      .setPniSignedPreKeyId(devicePniSignedPreKeys[primaryDeviceId]!!.keyId)
-      .build()
+    val metadata = PendingChangeNumberMetadata(
+      previousPni = SignalStore.account().pni!!.toByteString(),
+      pniIdentityKeyPair = pniIdentity.serialize().toByteString(),
+      pniRegistrationId = pniRegistrationIds[primaryDeviceId]!!,
+      pniSignedPreKeyId = devicePniSignedPreKeys[primaryDeviceId]!!.keyId
+    )
 
     return ChangeNumberRequestData(request, metadata)
   }
