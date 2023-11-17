@@ -119,6 +119,7 @@ public class WebRtcCallView extends ConstraintLayout {
   private ControlsListener              controlsListener;
   private RecipientId                   recipientId;
   private ImageView                     answer;
+  private ImageView                     answerWithoutVideo;
   private TextView                      answerWithoutVideoLabel;
   private ImageView                     cameraDirectionToggle;
   private AccessibleToggleButton        ringToggle;

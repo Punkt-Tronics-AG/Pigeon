@@ -1870,8 +1870,9 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
         if (hasWallpaper && hasNoBubble(current)) {
           groupSenderHolder.setBackgroundResource(R.drawable.wallpaper_bubble_background_tintable_11);
-          if (is)
-          groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
+          if (isSignalVersion()) {
+            groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
+          }
         } else {
           groupSenderHolder.setBackground(null);
         }

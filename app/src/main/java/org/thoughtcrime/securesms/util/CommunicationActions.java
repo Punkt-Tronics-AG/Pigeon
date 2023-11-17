@@ -96,7 +96,7 @@ public class CommunicationActions {
                 .setCancelable(true)
                 .show();
             } else {
-              startCallInternal(callContext, recipient, false);
+              startCallInternal(callContext, recipient, false, false);
             }
           }
         }

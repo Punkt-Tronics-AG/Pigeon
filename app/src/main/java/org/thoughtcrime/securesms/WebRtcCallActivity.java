@@ -894,8 +894,6 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
       }
     }
 
-    boolean enableVideo = event.getLocalParticipant().getCameraState().getCameraCount() > 0 && enableVideoIfAvailable;
-
     viewModel.updateFromWebRtcViewModel(event, enableVideo);
 
     if (enableVideo) {

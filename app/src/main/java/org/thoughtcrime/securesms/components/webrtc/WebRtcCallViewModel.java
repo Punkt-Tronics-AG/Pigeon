@@ -252,7 +252,8 @@ public class WebRtcCallViewModel extends ViewModel {
         events.setValue(new Event.ShowSwipeToSpeakerHint());
       }
 
-    participantsState.onNext(CallParticipantsState.update(participantsState.getValue(), page));
+      participantsState.onNext(CallParticipantsState.update(participantsState.getValue(), page));
+    }
   }
 
   public void onLocalPictureInPictureClicked() {

@@ -73,18 +73,7 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <FrameLayout
-            android:id="@+id/conversation_list_item_summary_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/conversation_list_item_name"
-            app:layout_constraintStart_toStartOf="@id/conversation_list_item_name"
-            app:layout_constraintTop_toBottomOf="@id/conversation_list_item_name"
-            android:focusable="false"
-            android:paddingEnd="1dp"
-            android:visibility="gone">
-
-            <org.thoughtcrime.securesms.components.emoji.SimpleEmojiTextView
+        <org.thoughtcrime.securesms.components.emoji.EmojiTextView
                 android:id="@+id/conversation_list_item_summary"
                 style="@style/Signal.Text.Preview"
                 android:layout_width="match_parent"
@@ -102,8 +91,6 @@
                 android:layout_marginTop="4dp"
                 android:visibility="visible"
                 app:typingIndicator_tint="@color/signal_icon_tint_secondary" />
-
-        </FrameLayout>
 
         <org.thoughtcrime.securesms.components.ThumbnailView
             android:id="@+id/conversation_list_item_thumbnail"
