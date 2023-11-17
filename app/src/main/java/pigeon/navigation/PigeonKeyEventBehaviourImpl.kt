@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.conversationlist.ConversationListFragment
+import org.thoughtcrime.securesms.conversation.v2.ConversationFragment
 import org.thoughtcrime.securesms.registration.fragments.CaptchaFragment
 
 class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
@@ -27,10 +27,9 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
   override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager) {
     when (event.keyCode) {
       KeyEvent.KEYCODE_CALL -> {
-        //todo fix me
-        val conversationParentFragment = fragmentManager.fragments.find { it is ConversationListFragment }
-        if (conversationParentFragment != null && conversationParentFragment is ConversationListFragment && event.action == KeyEvent.ACTION_UP) {
-          conversationParentFragment.onKeycodeCallPressed()
+        val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }
+        if (conversationFragment != null && conversationFragment is ConversationFragment && event.action == KeyEvent.ACTION_UP) {
+          conversationFragment.onKeycodeCallPressed()
           return
         }
       }

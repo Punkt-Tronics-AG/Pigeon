@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.provider.Browser
 import android.provider.Settings
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.Menu
@@ -4138,5 +4139,26 @@ class ConversationFragment :
           .addTo(disposables)
       }
     }
+  }
+
+  fun onKeycodeCallPressed() {
+    composeText.clearFocus()
+    Log.d(TAG, "input type: " + composeText.inputType)
+    val rawText = composeText.textTrimmed.toString()
+    // todo fixMe
+//    if (rawText.isEmpty() && !attachmentManager.isAttachmentPresent) {
+//      if (pigeonGroupCall.getVisibility() == View.VISIBLE) {
+//        handleVideo()
+//        return
+//      }
+//      if (pigeonCall.getVisibility() == View.VISIBLE) {
+//        handleDial(true)
+//        return
+//      }
+//    }
+//    sendButtonListener.onClick(composeText)
+    composeText.inputType = InputType.TYPE_CLASS_TEXT
+    composeText.requestFocus()
+    inputPanel.postDelayed({ inputPanel.visibility = View.VISIBLE }, 500L)
   }
 }
