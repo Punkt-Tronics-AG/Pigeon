@@ -389,7 +389,6 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
       ).attach(recyclerView)
     }
   }
-}
 
   fun showSearchBar() {
     if (::_searchToolbar.isInitialized) {

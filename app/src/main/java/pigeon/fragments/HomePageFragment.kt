@@ -97,7 +97,7 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
     SignalExecutors.BOUNDED.execute {
       val messageIds = threads.setAllThreadsRead()
       ApplicationDependencies.getMessageNotifier().updateNotification(context)
-      MarkReadReceiver.process(context, messageIds)
+      MarkReadReceiver.process(messageIds)
     }
   }
 }

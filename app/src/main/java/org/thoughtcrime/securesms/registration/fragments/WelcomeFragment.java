@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.registration.fragments;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -15,8 +14,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -260,7 +257,7 @@ public final class WelcomeFragment extends LoggingFragment {
           SafeNavigation.safeNavigate(NavHostFragment.findNavController(fragment),
                                       actionSkipRestore);
         } else {
-          SafeNavigation.safeNavigate(NavHostFragment.findNavController(this),
+          SafeNavigation.safeNavigate(NavHostFragment.findNavController(fragment),
                                       WelcomeFragmentDirections.actionPigeonSkipRestore());
         }
       } else {

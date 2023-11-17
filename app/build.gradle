@@ -456,7 +456,7 @@ android {
 dependencies {
     implementation libs.androidx.fragment.ktx
     lintChecks project(':lintchecks')
-    implementation files("libs/ringrtc-android-2.28.1.aar")
+    implementation files("libs/ringrtc-android-2.31.2.aar")
 
     coreLibraryDesugaring libs.android.tools.desugar
 

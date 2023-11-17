@@ -228,7 +228,7 @@
                 </TableRow>
             </TableLayout>
 
-            <TextView
+            <org.thoughtcrime.securesms.util.views.LearnMoreTextView
                 android:id="@+id/description"
                 style="@style/Signal.Text.BodyMedium"
                 android:layout_width="match_parent"
@@ -238,7 +238,7 @@
                 android:layout_marginEnd="30dp"
                 android:gravity="center"
                 android:lineSpacingExtra="3sp"
-                android:text="@string/verify_display_fragment__to_verify_the_security_of_your_end_to_end_encryption_with_s"
+                android:text="@string/verify_display_fragment__pnp_verify_safety_numbers_explanation_with_s"
                 android:textColor="@color/white"
                 android:textColorLink="@color/white_not_focus" />
         </LinearLayout>

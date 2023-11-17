@@ -383,8 +383,8 @@ public class InputPanel extends ConstraintLayout
     final int textHintColor;
 
     if (enabled) {
-      iconTint = getContext().getResources().getColor(R.color.signal_colorOnSurface);
-      textColor = getContext().getResources().getColor(R.color.signal_colorOnSurface);
+      iconTint      = getContext().getResources().getColor(R.color.signal_colorOnSurface);
+      textColor     = getContext().getResources().getColor(R.color.signal_colorOnSurface);
       textHintColor = getContext().getResources().getColor(R.color.signal_colorOnSurfaceVariant);
 
       setBackground(null);
@@ -392,8 +392,8 @@ public class InputPanel extends ConstraintLayout
       quickAudioToggle.setColorFilter(iconTint);
       quickCameraToggle.setColorFilter(iconTint);
     } else {
-      iconTint = getContext().getResources().getColor(R.color.signal_colorOnSurface);
-      textColor = getContext().getResources().getColor(R.color.signal_colorOnSurface);
+      iconTint      = getContext().getResources().getColor(R.color.signal_colorOnSurface);
+      textColor     = getContext().getResources().getColor(R.color.signal_colorOnSurface);
       textHintColor = getContext().getResources().getColor(R.color.signal_colorOnSurfaceVariant);
 
       setBackground(new ColorDrawable(getContext().getResources().getColor(R.color.signal_colorSurface)));
@@ -404,10 +404,11 @@ public class InputPanel extends ConstraintLayout
     quickAudioToggle.setColorFilter(iconTint);
     quickCameraToggle.setColorFilter(iconTint);
     if (isSignalVersion()) {
-    if (isSignalVersion()) {
-      composeText.setTextColor(textColor);
-      composeText.setHintTextColor(textHintColor);
-      quoteView.setWallpaperEnabled(enabled);
+      if (isSignalVersion()) {
+        composeText.setTextColor(textColor);
+        composeText.setHintTextColor(textHintColor);
+        quoteView.setWallpaperEnabled(enabled);
+      }
     }
   }
 

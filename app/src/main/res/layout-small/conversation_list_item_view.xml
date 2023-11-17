@@ -71,7 +71,6 @@
             android:focusable="false"
             android:paddingTop="2dp"
             android:visibility="gone"
-            app:useSmallIcon="true"
             tools:visibility="visible" />
 
         <FrameLayout
