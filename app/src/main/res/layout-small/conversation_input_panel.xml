@@ -5,298 +5,474 @@
     android:id="@+id/bottom_panel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/signal_background_primary"
+    android:layout_gravity="bottom"
     android:clipChildren="false"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/input_panel_sticker_suggestion"
         android:layout_width="0dp"
-        android:layout_height="90dp"
-        android:background="@color/signal_background_secondary"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/input_panel_exit_edit_mode"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="14dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="2dp"
-        android:background="@drawable/circle_tintable"
-        android:backgroundTint="@color/signal_colorOnSurfaceVariant"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:scaleType="center"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/symbol_x_24"
-        app:tint="@color/signal_colorOnPrimary"
-        tools:visibility="gone" />
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-    <View
-        android:id="@id/compose_bubble"
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/compose_bubble_top_elements"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="edit_message_title,edit_message_thumbnail,quote_view,link_preview" />
+
+        <View
+            android:id="@id/compose_bubble"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_toggle"
+            app:layout_constraintStart_toEndOf="@id/input_panel_exit_edit_mode"
+            app:layout_constraintTop_toBottomOf="@id/input_panel_sticker_suggestion" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/edit_message_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:drawablePadding="6dp"
+            android:text="@string/InputPanel_edit_message"
+            android:textAppearance="@style/Signal.Text.LabelLarge"
+            android:textColor="@color/signal_colorOnSurface"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/symbol_edit_compact_16"
+            app:drawableTint="@color/signal_colorOnSurface"
+            app:layout_constraintEnd_toStartOf="@+id/edit_message_thumbnail"
+            app:layout_constraintStart_toStartOf="@id/compose_bubble"
+            app:layout_constraintTop_toTopOf="@id/compose_bubble"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/input_panel_exit_edit_mode"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/circle_tintable"
+            android:backgroundTint="@color/signal_colorOnSurfaceVariant"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/symbol_x_24"
+            app:tint="@color/signal_colorOnPrimary"
+            tools:visibility="gone" />
+
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/compose_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_toggle"
-        app:layout_constraintStart_toEndOf="@id/input_panel_exit_edit_mode"
-        app:layout_constraintTop_toBottomOf="@id/input_panel_sticker_suggestion" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/edit_message_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:drawablePadding="6dp"
-        android:text="@string/InputPanel_edit_message"
-        android:textAppearance="@style/Signal.Text.LabelLarge"
-        android:textColor="@color/signal_colorOnSurface"
-        android:visibility="gone"
-        app:drawableStartCompat="@drawable/symbol_edit_compact_16"
-        app:drawableTint="@color/signal_colorOnSurface"
-        app:layout_constraintEnd_toStartOf="@+id/edit_message_thumbnail"
-        app:layout_constraintStart_toStartOf="@id/compose_bubble"
-        app:layout_constraintTop_toTopOf="@id/compose_bubble"
-        tools:visibility="visible" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/edit_message_thumbnail"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/edit_message_title"
-        app:layout_constraintEnd_toEndOf="@id/compose_bubble"
-        app:layout_constraintStart_toEndOf="@id/edit_message_title"
-        app:layout_constraintTop_toTopOf="@id/edit_message_title"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Signal.EditMessageMediaThumbnail"
-        tools:src="@tools:sample/avatars"
-        tools:visibility="visible" />
-
-    <org.thoughtcrime.securesms.components.QuoteView
-        android:id="@+id/quote_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="6dp"
-        android:layout_marginTop="6dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/compose_bubble"
-        app:layout_constraintStart_toStartOf="@+id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@+id/edit_message_title"
-        app:message_type="preview"
-        app:quote_colorPrimary="@color/signal_text_primary"
-        app:quote_colorSecondary="@color/signal_text_primary"
-        tools:visibility="visible" />
-
-    <org.thoughtcrime.securesms.components.LinkPreviewView
-        android:id="@+id/link_preview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="6dp"
-        android:layout_marginTop="6dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/compose_bubble"
-        app:layout_constraintStart_toStartOf="@+id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@+id/quote_view"
-        app:linkpreview_type="compose" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/compose_bubble_top_elements"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="edit_message_title,edit_message_thumbnail,quote_view,link_preview" />
-
-    <org.thoughtcrime.securesms.components.emoji.EmojiToggle
-        android:id="@+id/emoji_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/conversation_compose_height"
-        android:layout_gravity="bottom"
-        android:background="@null"
-        android:contentDescription="@string/conversation_activity__emoji_toggle_description"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintStart_toStartOf="@id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements"
-        app:tint="@color/signal_colorOnSurfaceVariant" />
-
-    <org.thoughtcrime.securesms.components.ComposeText
-        android:id="@+id/embedded_text_editor"
-        style="@style/ComposeEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:minHeight="@dimen/conversation_compose_height"
-        android:nextFocusRight="@+id/send_button"
-        android:nextFocusForward="@+id/send_button"
-        android:paddingVertical="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toStartOf="@id/attachment_barrier"
-        app:layout_constraintStart_toEndOf="@id/emoji_toggle"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements"
-        tools:hint="Send TextSecure message">
-
-        <requestFocus />
-    </org.thoughtcrime.securesms.components.ComposeText>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/attachment_barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="start"
-        app:constraint_referenced_ids="quick_attachment_toggle,inline_attachment_container" />
-
-    <org.thoughtcrime.securesms.components.HidingLinearLayout
-        android:id="@+id/quick_attachment_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="right|end"
+        android:clickable="true"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toEndOf="@id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
 
-        <ImageButton
-            android:id="@+id/quick_camera_toggle"
-            android:layout_width="24dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
+        <LinearLayout
+            android:id="@+id/edit_message_compose_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
-            android:background="@null"
-            android:contentDescription="@string/conversation_activity__quick_attachment_drawer_toggle_camera_description"
-            android:foreground="?selectableItemBackgroundBorderless"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_camera_24"
-            app:tint="@color/signal_colorOnSurfaceVariant" />
+            android:visibility="gone">
 
-        <org.thoughtcrime.securesms.components.MicrophoneRecorderView
-            android:id="@+id/recorder_view"
-            android:layout_width="24dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="12dp"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawablePadding="6dp"
+                android:text="@string/InputPanel_edit_message"
+                android:textAppearance="@style/Signal.Text.LabelLarge"
+                android:textColor="@color/signal_colorOnSurface"
+                app:drawableStartCompat="@drawable/symbol_edit_compact_16"
+                app:drawableTint="@color/signal_colorOnSurface" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/edit_message_thumbnail"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Signal.EditMessageMediaThumbnail"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:clipChildren="false"
-            android:clipToPadding="false"
-            tools:visibility="gone">
+            android:clipToPadding="false">
 
-            <include layout="@layout/microphone_recorder_view" />
+                <org.thoughtcrime.securesms.components.LinkPreviewView
+                    android:id="@+id/link_preview"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:visibility="gone"
+                    app:linkpreview_type="compose" />
 
-        </org.thoughtcrime.securesms.components.MicrophoneRecorderView>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
-    </org.thoughtcrime.securesms.components.HidingLinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
 
-    <org.thoughtcrime.securesms.components.HidingLinearLayout
-        android:id="@+id/inline_attachment_container"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="right|end"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toEndOf="@id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements">
+                        <org.thoughtcrime.securesms.components.emoji.EmojiToggle
+                            android:id="@+id/emoji_toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/conversation_compose_height"
+                            android:layout_gravity="bottom"
+                            android:background="@null"
+                            android:contentDescription="@string/conversation_activity__emoji_toggle_description"
+                            android:foreground="?attr/selectableItemBackgroundBorderless"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
+                            app:layout_constraintStart_toStartOf="@id/compose_bubble"
+                            app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements"
+                            app:tint="@color/signal_colorOnSurfaceVariant" />
 
-        <ImageButton
-            android:id="@+id/inline_attachment_button"
-            android:layout_width="24dp"
-            android:layout_height="@dimen/conversation_compose_height"
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/conversation_compose_height" />
+
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+
+                            <org.thoughtcrime.securesms.components.HidingLinearLayout
+                                android:id="@+id/quick_attachment_toggle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="right|end"
+                                android:clipChildren="false"
+                                android:clipToPadding="false">
+
+                                <ImageButton
+                                    android:id="@+id/quick_camera_toggle"
+                                    android:layout_width="24dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="16dp"
+                                    android:background="?selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/conversation_activity__quick_attachment_drawer_toggle_camera_description"
+                                    android:scaleType="fitCenter"
+                                    app:srcCompat="@drawable/ic_camera_24"
+                                    app:tint="@color/signal_colorOnSurfaceVariant" />
+
+                                <org.thoughtcrime.securesms.components.MicrophoneRecorderView
+                                    android:id="@+id/recorder_view"
+                                    android:layout_width="24dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="8dp"
+                                    android:clipChildren="false"
+                                    android:clipToPadding="false">
+
+                                    <include layout="@layout/microphone_recorder_view" />
+
+                                </org.thoughtcrime.securesms.components.MicrophoneRecorderView>
+
+                            </org.thoughtcrime.securesms.components.HidingLinearLayout>
+
+                            <org.thoughtcrime.securesms.components.HidingLinearLayout
+                                android:id="@+id/inline_attachment_container"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_gravity="right|end"
+                                android:visibility="gone">
+
+                                <ImageButton
+                                    android:id="@+id/inline_attachment_button"
+                                    android:layout_width="24dp"
+                                    android:layout_height="@dimen/conversation_compose_height"
+                                    android:layout_gravity="bottom"
+                                    android:layout_marginEnd="12dp"
+                                    android:background="?selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/ConversationActivity_add_attachment"
+                                    android:scaleType="fitCenter"
+                                    app:srcCompat="@drawable/ic_plus_24"
+                                    app:tint="@color/signal_colorOnSurface" />
+
+                            </org.thoughtcrime.securesms.components.HidingLinearLayout>
+
+                        </FrameLayout>
+
+                    </LinearLayout>
+
+                    <include layout="@layout/recording_layout" />
+
+                    <org.thoughtcrime.securesms.conversation.VoiceNoteDraftView
+                        android:id="@+id/voice_note_draft_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/conversation_compose_height"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </FrameLayout>
+        </FrameLayout>
+
+        <org.thoughtcrime.securesms.components.AnimatingToggle
+            android:id="@+id/button_toggle"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
             android:layout_gravity="bottom"
-            android:layout_marginEnd="12dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="@string/ConversationActivity_add_attachment"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_plus_24"
-            app:tint="@color/signal_colorOnSurface" />
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/circle_tintable">
 
-    </org.thoughtcrime.securesms.components.HidingLinearLayout>
+            <ImageButton
+                android:id="@+id/attach_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_touch_highlight_background"
+                android:contentDescription="@string/ConversationActivity_add_attachment"
+                android:padding="9dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_plus_24"
+                app:tint="@color/conversation_send_button_tint" />
 
-    <include
-        layout="@layout/recording_layout"
-        android:layout_width="0dp"
+            <ImageButton
+                android:id="@+id/send_edit_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_touch_highlight_background"
+                android:contentDescription="@string/ConversationActivity_send_edit"
+                android:nextFocusLeft="@+id/embedded_text_editor"
+                android:padding="9dp"
+                android:scaleType="fitCenter"
+                app:tint="@color/conversation_send_button_tint"
+                app:srcCompat="@drawable/symbol_check_24" />
+
+            <org.thoughtcrime.securesms.components.SendButton
+                android:id="@+id/send_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_touch_highlight_background"
+                android:contentDescription="@string/conversation_activity__send"
+                android:padding="9dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_send_unlock_24"
+                app:tint="@color/conversation_send_button_tint" />
+
+        </org.thoughtcrime.securesms.components.AnimatingToggle>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toEndOf="@id/compose_bubble"
-        app:layout_constraintStart_toStartOf="@id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements"
-        tools:visibility="gone" />
+        android:background="@color/core_grey_95"
+        android:orientation="vertical">
 
-    <org.thoughtcrime.securesms.conversation.VoiceNoteDraftView
-        android:id="@+id/voice_note_draft_view"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/conversation_compose_height"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toEndOf="@id/compose_bubble"
-        app:layout_constraintStart_toStartOf="@id/compose_bubble"
-        app:layout_constraintTop_toBottomOf="@id/compose_bubble_top_elements"
-        tools:visibility="gone" />
-
-    <org.thoughtcrime.securesms.components.AnimatingToggle
-        android:id="@+id/button_toggle"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="bottom"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="2dp"
-        android:background="@drawable/circle_tintable"
-        app:layout_constraintBottom_toBottomOf="@id/compose_bubble"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageButton
-            android:id="@+id/attach_button"
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/prime_buttons"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/circle_touch_highlight_background"
-            android:contentDescription="@string/ConversationActivity_add_attachment"
-            android:nextFocusLeft="@+id/embedded_text_editor"
-            android:padding="9dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/symbol_plus_24"
-            app:tint="@color/conversation_send_button_tint" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
 
-        <ImageButton
-            android:id="@+id/send_edit_button"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/pigeon_compose_background"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical">
+
+                <org.thoughtcrime.securesms.components.QuoteView
+                    android:id="@+id/quote_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:focusable="false"
+                    android:visibility="gone"
+                    app:message_type="preview"
+                    app:quote_colorPrimary="@color/signal_text_primary"
+                    app:quote_colorSecondary="@color/signal_text_primary"
+                    tools:visibility="visible" />
+
+                <org.thoughtcrime.securesms.components.ComposeText
+                    android:id="@+id/embedded_text_editor"
+                    style="@style/PigeonComposeEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:descendantFocusability="afterDescendants"
+                    android:imeOptions="actionDone"
+                    android:nextFocusRight="@+id/send_text"
+                    android:nextFocusForward="@+id/send_button"
+                    android:padding="8dp"
+                    android:singleLine="false"
+                    android:textCursorDrawable="@drawable/mp02_cursor_style"
+                    tools:hint="Send TextSecure message"
+                    tools:visibility="visible">
+
+                    <requestFocus />
+                </org.thoughtcrime.securesms.components.ComposeText>
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/attachment_barrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="start"
+                    app:constraint_referenced_ids="quick_attachment_toggle,inline_attachment_container" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/send_text"
+                style="@style/Mp02.Signal.Text.CommonTextButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:defaultFocusHighlightEnabled="false"
+                android:gravity="center"
+                android:textColor="@color/mp02_common_text_button"
+                android:nextFocusUp="@id/embedded_text_editor"
+                android:nextFocusDown="@id/send_text"
+                android:paddingLeft="25dp"
+                android:paddingBottom="@dimen/pigeon_small_margin"
+                android:text="@string/conversation_activity__send"
+                android:textSize="25sp"
+                tools:ignore="UnusedAttribute" />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/extra_buttons"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/circle_touch_highlight_background"
-            android:contentDescription="@string/ConversationActivity_send_edit"
-            android:nextFocusLeft="@+id/embedded_text_editor"
-            android:padding="9dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/symbol_check_24"
-            app:tint="@color/conversation_send_button_tint" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        <org.thoughtcrime.securesms.components.SendButton
-            android:id="@+id/send_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/circle_touch_highlight_background"
-            android:contentDescription="@string/conversation_activity__send"
-            android:nextFocusLeft="@+id/embedded_text_editor"
-            android:padding="9dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_send_unlock_24"
-            app:tint="@color/conversation_send_button_tint" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/send_text_2"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="25dp"
+                android:nextFocusUp="@id/send_text_2"
+                android:nextFocusDown="@id/voice"
+                android:text="@string/conversation_activity__send"
+                android:visibility="visible"
+                tools:visibility="visible" />
 
-    </org.thoughtcrime.securesms.components.AnimatingToggle>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/voice"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusUp="@id/send_text_2"
+                android:nextFocusDown="@id/conversation_call"
+                android:paddingStart="25dp"
+                android:text="@string/conversation__menu_voice_message"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/conversation_call"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusUp="@id/voice"
+                android:nextFocusDown="@id/conversation_group_call"
+                android:paddingStart="25dp"
+                android:text="@string/conversation_callable_insecure__menu_call"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/conversation_group_call"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusUp="@id/conversation_call"
+                android:nextFocusDown="@id/conversation_settings"
+                android:paddingStart="25dp"
+                android:text="@string/MessageRecord_group_call"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/conversation_settings"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusUp="@id/conversation_group_call"
+                android:nextFocusDown="@id/secure_session"
+                android:paddingStart="25dp"
+                android:text="@string/conversation__menu_conversation_settings"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/secure_session"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:nextFocusUp="@id/conversation_settings"
+                android:nextFocusDown="@id/secure_session"
+                android:paddingStart="25dp"
+                android:text="@string/ThreadRecord_secure_session_reset"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </LinearLayout>
 
 </org.thoughtcrime.securesms.components.InputPanel>
