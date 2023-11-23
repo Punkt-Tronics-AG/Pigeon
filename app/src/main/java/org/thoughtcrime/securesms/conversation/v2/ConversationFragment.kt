@@ -45,6 +45,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -67,6 +68,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ConversationLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
@@ -326,6 +328,7 @@ import java.util.Optional
 import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.milliseconds
 
+
 /**
  * A single unified fragment for Conversations.
  */
@@ -492,6 +495,20 @@ class ConversationFragment :
   private var menuProvider: ConversationOptionsMenu.Provider? = null
   private var scrollListener: ScrollListener? = null
 
+  private var pigeonGroupCall: MaterialButton? = null
+  private var pigeonCall: MaterialButton? = null
+  private var pigeonSettings: MaterialButton? = null
+  private var secureSession: MaterialButton? = null
+
+  private var primaryLayout: LinearLayoutCompat? = null
+  private var extraLayout: LinearLayoutCompat? = null
+  private var send2: MaterialButton? = null
+
+  private val myRT: TextView? = null
+  private var voice: MaterialButton? = null
+
+  private var extraScreenIsShowed = false
+
   private val jumpAndPulseScrollStrategy = object : ScrollToPositionDelegate.ScrollStrategy {
     override fun performScroll(recyclerView: RecyclerView, layoutManager: LinearLayoutManager, position: Int, smooth: Boolean) {
       ScrollToPositionDelegate.JumpToPositionStrategy.performScroll(recyclerView, layoutManager, position, smooth)
@@ -586,7 +603,7 @@ class ConversationFragment :
     ToolbarDependentMarginListener(binding.toolbar)
     initializeMediaKeyboard()
 
-    binding.conversationVideoContainer.setClipToOutline(true)
+    binding.conversationVideoContainer.clipToOutline = true
 
     SpoilerAnnotation.resetRevealedSpoilers()
 
@@ -595,6 +612,60 @@ class ConversationFragment :
     inputPanel.setMediaListener(InputPanelMediaListener())
 
     ChatColorsDrawable.attach(binding.conversationItemRecycler)
+
+    pigeonGroupCall = view.findViewById(R.id.conversation_group_call)
+    pigeonCall      = view.findViewById(R.id.conversation_call)
+    pigeonSettings  = view.findViewById(R.id.conversation_settings)
+    secureSession   = view.findViewById(R.id.secure_session)
+    voice           = view.findViewById(R.id.voice)
+    primaryLayout   = view.findViewById(R.id.prime_buttons)
+    extraLayout     = view.findViewById(R.id.extra_buttons)
+    send2           = view.findViewById(R.id.send_text_2)
+
+//    pigeonGroupCall?.setOnClickListener { v -> handleVideo() }
+//    pigeonCall.setOnClickListener { v -> handleDial(true) }
+//    secureSession.setOnClickListener { v -> handleResetSecureSession() }
+//    voice.setOnClickListener { v -> sendVoiceMessage() }
+
+    send2?.setOnClickListener { v: View? ->
+      (view.findViewById(R.id.send_text) as TextView).performClick()
+      primaryLayout?.visibility = View.VISIBLE
+      extraLayout?.visibility = View.GONE
+      extraScreenIsShowed = false
+      composeText.requestFocus()
+    }
+
+    (view.findViewById(R.id.send_text)as TextView).setOnKeyListener { v, keyCode, event ->
+      if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+        primaryLayout?.visibility = View.GONE
+        extraLayout?.visibility = View.VISIBLE
+        extraScreenIsShowed = false
+        send2?.requestFocus()
+        return@setOnKeyListener true
+      }
+      false
+    }
+
+    send2?.setOnKeyListener { v: View?, keyCode: Int, event: KeyEvent ->
+      if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.action == KeyEvent.ACTION_UP) {
+        if (!extraScreenIsShowed) {
+          extraScreenIsShowed = true
+          return@setOnKeyListener false
+        }
+        primaryLayout?.visibility = View.VISIBLE
+        extraLayout?.visibility = View.GONE
+        composeText.requestFocus()
+        return@setOnKeyListener true
+      } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+        extraScreenIsShowed = false
+      }
+      false
+    }
+
+    (view.findViewById(R.id.send_text) as TextView).setOnClickListener {
+      binding.conversationInputPanel.sendButton.performClick();
+      composeText.requestFocus()
+    }
   }
 
   override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -1888,7 +1959,7 @@ class ConversationFragment :
   private fun handleRecentSafetyNumberChange(changedRecords: List<IdentityRecord>) {
     val recipient = viewModel.recipientSnapshot ?: return
     SafetyNumberBottomSheet
-      .forIdentityRecordsAndDestination(changedRecords, RecipientSearchKey(recipient.getId(), false))
+      .forIdentityRecordsAndDestination(changedRecords, RecipientSearchKey(recipient.id, false))
       .show(childFragmentManager)
   }
 
@@ -1987,7 +2058,7 @@ class ConversationFragment :
 
     if (menuState.shouldShowSaveAttachmentAction()) {
       items.add(
-        ActionItem(R.drawable.symbol_save_android_24, getResources().getString(R.string.conversation_selection__menu_save)) {
+        ActionItem(R.drawable.symbol_save_android_24, resources.getString(R.string.conversation_selection__menu_save)) {
           handleSaveAttachment(getSelectedConversationMessage().messageRecord as MediaMmsMessageRecord)
           actionMode?.finish()
         }
@@ -1996,7 +2067,7 @@ class ConversationFragment :
 
     if (menuState.shouldShowCopyAction()) {
       items.add(
-        ActionItem(R.drawable.symbol_copy_android_24, getResources().getString(R.string.conversation_selection__menu_copy)) {
+        ActionItem(R.drawable.symbol_copy_android_24, resources.getString(R.string.conversation_selection__menu_copy)) {
           handleCopyMessage(selectedParts)
           actionMode?.finish()
         }
@@ -2005,7 +2076,7 @@ class ConversationFragment :
 
     if (menuState.shouldShowDetailsAction()) {
       items.add(
-        ActionItem(R.drawable.symbol_info_24, getResources().getString(R.string.conversation_selection__menu_message_details)) {
+        ActionItem(R.drawable.symbol_info_24, resources.getString(R.string.conversation_selection__menu_message_details)) {
           handleDisplayDetails(getSelectedConversationMessage())
           actionMode?.finish()
         }
@@ -2014,7 +2085,7 @@ class ConversationFragment :
 
     if (menuState.shouldShowDeleteAction()) {
       items.add(
-        ActionItem(R.drawable.symbol_trash_24, getResources().getString(R.string.conversation_selection__menu_delete)) {
+        ActionItem(R.drawable.symbol_trash_24, resources.getString(R.string.conversation_selection__menu_delete)) {
           handleDeleteMessages(selectedParts)
           actionMode?.finish()
         }
@@ -2454,7 +2525,7 @@ class ConversationFragment :
       if (adapter.selectedItems.isEmpty()) {
         actionMode?.finish()
       } else {
-        actionMode?.setTitle(calculateSelectedItemCount())
+        actionMode?.title = calculateSelectedItemCount()
       }
     }
 
@@ -2935,7 +3006,7 @@ class ConversationFragment :
               override fun onHide() {
                 binding.conversationItemRecycler.suppressLayout(false)
                 if (selectedConversationModel.audioUri != null) {
-                  getVoiceNoteMediaController().resumePlayback(selectedConversationModel.audioUri, messageRecord.getId())
+                  getVoiceNoteMediaController().resumePlayback(selectedConversationModel.audioUri, messageRecord.id)
                 }
 
                 if (activity != null) {
