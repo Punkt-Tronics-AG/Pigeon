@@ -35,10 +35,8 @@ import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.util.UuidUtil
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import org.whispersystems.signalservice.api.websocket.WebSocketUnavailableException
-import org.whispersystems.signalservice.internal.push.SignalServiceProtos
-import pigeon.viewmodels.IntervalSettingsViewModel
-import java.util.*
 import org.whispersystems.signalservice.internal.push.Envelope
+import pigeon.viewmodels.IntervalSettingsViewModel
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit

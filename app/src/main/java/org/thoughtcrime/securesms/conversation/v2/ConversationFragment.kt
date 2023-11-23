@@ -672,14 +672,14 @@ class ConversationFragment :
   private fun sendVoiceMessage() {
     inputPanel.onRecordPressed()
     myRecordTime?.visibility = View.VISIBLE
-    voice!!.text = getString(R.string.conversation__menu_voice_message_send)
-    voice!!.setOnClickListener { v: View? -> stopVoiceMessage() }
+    voice?.text = getString(R.string.conversation__menu_voice_message_send)
+    voice?.setOnClickListener { v: View? -> stopVoiceMessage() }
   }
 
   private fun stopVoiceMessage() {
     inputPanel.onRecordReleased()
-    voice!!.text = getString(R.string.conversation__menu_voice_message)
-    voice!!.setOnClickListener { v: View? -> sendVoiceMessage() }
+    voice?.text = getString(R.string.conversation__menu_voice_message)
+    voice?.setOnClickListener { v: View? -> sendVoiceMessage() }
   }
 
   override fun onViewStateRestored(savedInstanceState: Bundle?) {
