@@ -504,7 +504,7 @@ class ConversationFragment :
   private var extraLayout: LinearLayoutCompat? = null
   private var send2: MaterialButton? = null
 
-  private val myRT: TextView? = null
+  private var myRecordTime: TextView? = null
   private var voice: MaterialButton? = null
 
   private var extraScreenIsShowed = false
@@ -621,11 +621,12 @@ class ConversationFragment :
     primaryLayout   = view.findViewById(R.id.prime_buttons)
     extraLayout     = view.findViewById(R.id.extra_buttons)
     send2           = view.findViewById(R.id.send_text_2)
+    myRecordTime    = view.findViewById(R.id.record_time)
 
 //    pigeonGroupCall?.setOnClickListener { v -> handleVideo() }
 //    pigeonCall.setOnClickListener { v -> handleDial(true) }
 //    secureSession.setOnClickListener { v -> handleResetSecureSession() }
-//    voice.setOnClickListener { v -> sendVoiceMessage() }
+    voice?.setOnClickListener { v -> sendVoiceMessage() }
 
     send2?.setOnClickListener { v: View? ->
       (view.findViewById(R.id.send_text) as TextView).performClick()
@@ -666,6 +667,19 @@ class ConversationFragment :
       binding.conversationInputPanel.sendButton.performClick();
       composeText.requestFocus()
     }
+  }
+
+  private fun sendVoiceMessage() {
+    inputPanel.onRecordPressed()
+    myRecordTime?.visibility = View.VISIBLE
+    voice!!.text = getString(R.string.conversation__menu_voice_message_send)
+    voice!!.setOnClickListener { v: View? -> stopVoiceMessage() }
+  }
+
+  private fun stopVoiceMessage() {
+    inputPanel.onRecordReleased()
+    voice!!.text = getString(R.string.conversation__menu_voice_message)
+    voice!!.setOnClickListener { v: View? -> sendVoiceMessage() }
   }
 
   override fun onViewStateRestored(savedInstanceState: Bundle?) {
