@@ -64,6 +64,15 @@ class DSLConfiguration {
     children.add(preference)
   }
 
+  fun pigeonEditTextPref(
+    title: DSLSettingsText,
+    summary: DSLSettingsText?,
+    onSelected: (Int) -> Unit
+  ) {
+    val preference = PigeonEditTextPreference(title, summary, onSelected)
+    children.add(preference)
+  }
+
   fun asyncSwitchPref(
     title: DSLSettingsText,
     isEnabled: Boolean = true,
@@ -280,6 +289,16 @@ class MultiSelectListPreference(
     return super.areContentsTheSame(newItem) &&
       listItems.contentEquals(newItem.listItems) &&
       selected.contentEquals(newItem.selected)
+  }
+}
+
+class PigeonEditTextPreference(
+  override val title: DSLSettingsText,
+  override val summary: DSLSettingsText?,
+  val onSelected: (Int) -> Unit
+) : PreferenceModel<PigeonEditTextPreference>(title = title, summary = summary) {
+  override fun areContentsTheSame(newItem: PigeonEditTextPreference): Boolean {
+    return super.areContentsTheSame(newItem)
   }
 }
 

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import kotlinx.collections.immutable.toImmutableSet
 import org.signal.core.util.ThreadUtil
 import org.signal.core.util.concurrent.SignalExecutors
@@ -34,6 +35,9 @@ import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.util.UuidUtil
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import org.whispersystems.signalservice.api.websocket.WebSocketUnavailableException
+import org.whispersystems.signalservice.internal.push.SignalServiceProtos
+import pigeon.viewmodels.IntervalSettingsViewModel
+import java.util.*
 import org.whispersystems.signalservice.internal.push.Envelope
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Semaphore
@@ -58,8 +62,10 @@ class IncomingMessageObserver(private val context: Application) {
     private val TAG = Log.tag(IncomingMessageObserver::class.java)
 
     /** How long we wait for the websocket to time out before we try to connect again. */
-    private val websocketReadTimeout: Long
-      get() = if (censored) 30.seconds.inWholeMilliseconds else 1.minutes.inWholeMilliseconds
+    private var websocketReadTimeout: Long = 60
+      //      get() = if (censored) 30.seconds.inWholeMilliseconds else 1.minutes.inWholeMilliseconds
+      // For pigeon
+
 
     /** How long a keep-alive token is allowed to keep the websocket open for. These are usually used for calling + FCM messages. */
     private val keepAliveTokenMaxAge: Long
@@ -107,6 +113,8 @@ class IncomingMessageObserver(private val context: Application) {
     private set
 
   init {
+    websocketReadTimeout = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.INCOMING_MESSAGE_TIME_PREF, 60).seconds.inWholeMilliseconds
+
     if (INSTANCE_COUNT.incrementAndGet() != 1) {
       throw AssertionError("Multiple observers!")
     }

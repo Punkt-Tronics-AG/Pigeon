@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:viewBindingIgnore="true">
+
+    <EditText
+        android:id="@+id/title"
+        style="@style/Mp02.Signal.Text.CommonTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:maxLength="3"
+        android:layout_marginHorizontal="@dimen/pigeon_normal_margin"
+        android:textColor="@color/black"
+        android:inputType="numberSigned|textNoSuggestions"
+        android:focusableInTouchMode="true"
+        android:textAlignment="viewStart"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Message font size" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

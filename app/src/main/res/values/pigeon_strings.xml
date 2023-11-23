@@ -134,6 +134,11 @@ Updated May 25, 2018\n
     <string name="Pigeon_Storage">Storage</string>
     <string name="Pigeon_Attachments">Attachments</string>
     <string name="Pigeon_preferences_only_use_a_proxy_if">Only use a proxy if you\'re not able to connect to Pigeon on mobile data or Wi-Fi.</string>
+    <string name="Pigeon_Interval">Interval</string>
+    <string name="Pigeon_Setup_Interval">Setup intervals</string>
+    <string name="Pigeon_Setup_Alive_Interval">Keep alive timeout seconds</string>
+    <string name="Pigeon_Setup_Sleep_Interval">Keep sleep timeout seconds</string>
+    <string name="Pigeon_Setup_Incoming_Message_Interval">Incoming message interval timeout seconds</string>
     <string name="Pigeon_uuid">UUID</string>
 
 

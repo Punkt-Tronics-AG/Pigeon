@@ -132,6 +132,13 @@ class AppSettingsFragment : DSLSettingsFragment(
     return configure {
 
       clickPref(
+        title = DSLSettingsText.from(R.string.Pigeon_Interval),
+        onClick = {
+          findNavController().safeNavigate(R.id.action_appSettingsFragment_to_pigeonIntervalSettingsFragment)
+        }
+      )
+
+      clickPref(
         title = DSLSettingsText.from(R.string.Pigeon_Settings_profile),
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_manageProfileActivity)

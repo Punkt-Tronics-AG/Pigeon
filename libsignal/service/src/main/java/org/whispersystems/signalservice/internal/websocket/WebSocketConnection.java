@@ -55,6 +55,11 @@ public class WebSocketConnection extends WebSocketListener {
 
   private static final String TAG                         = WebSocketConnection.class.getSimpleName();
   public  static final int    KEEPALIVE_FREQUENCY_SECONDS = 30;
+  public static        int     KEEPALIVE_TIMEOUT_SECONDS = 30;
+  public static        int     KEEPSLEEP_TIMEOUT_SECONDS = 120;
+  public static        boolean isAlive;
+  private              int     pigeonAttempts;
+
 
   private final LinkedList<WebSocketRequestMessage> incomingRequests = new LinkedList<>();
   private final Map<Long, OutgoingRequest>          outgoingRequests = new HashMap<>();
@@ -81,8 +86,11 @@ public class WebSocketConnection extends WebSocketListener {
                              Optional<CredentialsProvider> credentialsProvider,
                              String signalAgent,
                              HealthMonitor healthMonitor,
-                             boolean allowStories) {
-    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories);
+                             boolean allowStories,
+                             int pigeonAliveIntervalTime,
+                             int pigeonSleepIntervalTime)
+  {
+    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonAliveIntervalTime, pigeonSleepIntervalTime);
   }
 
   public WebSocketConnection(String name,
@@ -91,8 +99,11 @@ public class WebSocketConnection extends WebSocketListener {
                              String signalAgent,
                              HealthMonitor healthMonitor,
                              String extraPathUri,
-                             boolean allowStories)
+                             boolean allowStories,
+                             int pigeonAliveIntervalTime,
+                             int pigeonSleepIntervalTime)
   {
+    setupPigeonIntervalTime(pigeonAliveIntervalTime, pigeonSleepIntervalTime);
     this.name                = "[" + name + ":" + System.identityHashCode(this) + "]";
     this.trustStore          = serviceConfiguration.getSignalServiceUrls()[0].getTrustStore();
     this.credentialsProvider = credentialsProvider;
@@ -106,6 +117,7 @@ public class WebSocketConnection extends WebSocketListener {
     this.serviceUrls         = serviceConfiguration.getSignalServiceUrls();
     this.extraPathUri        = extraPathUri;
     this.random              = new SecureRandom();
+    this.pigeonAttempts      = 0;
   }
 
   public String getName() {
@@ -121,6 +133,11 @@ public class WebSocketConnection extends WebSocketListener {
     } else {
       return new Pair<>(serviceUrl, uri + "/v1/websocket/" + extraPathUri);
     }
+  }
+
+  void setupPigeonIntervalTime(int aliveTime, int sleepTime) {
+    KEEPALIVE_TIMEOUT_SECONDS = aliveTime;
+    KEEPSLEEP_TIMEOUT_SECONDS = sleepTime;
   }
 
   public synchronized Observable<WebSocketConnectionState> connect() {
@@ -214,8 +231,15 @@ public class WebSocketConnection extends WebSocketListener {
 
     long startTime = System.currentTimeMillis();
 
+//    while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
+//      Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+//    }
+
+    // For Pigeon
+
     while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
-      Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+      Util.wait(this, isAlive ? Math.min(++pigeonAttempts * 200, TimeUnit.SECONDS.toMillis(15)) : TimeUnit.SECONDS.toMillis(180));
+
     }
 
     if (incomingRequests.isEmpty() && client == null) {

@@ -19,6 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.KEEPALIVE_TIMEOUT_SECONDS;
+import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.KEEPSLEEP_TIMEOUT_SECONDS;
+import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.isAlive;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 /**
  * Monitors the health of the identified and unidentified WebSockets. If either one appears to be
  * unhealthy, will trigger restarting both.
@@ -154,33 +159,58 @@ public final class SignalWebSocketHealthMonitor implements HealthMonitor {
     private volatile boolean shouldKeepRunning = true;
 
     public void run() {
-      identified.lastKeepAliveReceived   = System.currentTimeMillis();
-      unidentified.lastKeepAliveReceived = System.currentTimeMillis();
+      if (isSignalVersion()) {
+        identified.lastKeepAliveReceived   = System.currentTimeMillis();
+        unidentified.lastKeepAliveReceived = System.currentTimeMillis();
 
-      long keepAliveSendTime = System.currentTimeMillis();
-      while (shouldKeepRunning && isKeepAliveNecessary()) {
-        try {
-          long nextKeepAliveSendTime = (keepAliveSendTime + KEEP_ALIVE_SEND_CADENCE);
-          sleepUntil(nextKeepAliveSendTime);
+        long keepAliveSendTime = System.currentTimeMillis();
+        while (shouldKeepRunning && isKeepAliveNecessary()) {
+          try {
+            long nextKeepAliveSendTime = (keepAliveSendTime + KEEP_ALIVE_SEND_CADENCE);
+            sleepUntil(nextKeepAliveSendTime);
 
-          if (shouldKeepRunning && isKeepAliveNecessary()) {
-            keepAliveSendTime = System.currentTimeMillis();
-            signalWebSocket.sendKeepAlive();
-          }
-
-          final long responseRequiredTime = keepAliveSendTime + KEEP_ALIVE_TIMEOUT;
-          sleepUntil(responseRequiredTime);
-
-          if (shouldKeepRunning && isKeepAliveNecessary()) {
-            if (identified.lastKeepAliveReceived < keepAliveSendTime || unidentified.lastKeepAliveReceived < keepAliveSendTime) {
-              Log.w(TAG, "Missed keep alives, identified last: " + identified.lastKeepAliveReceived +
-                         " unidentified last: " + unidentified.lastKeepAliveReceived +
-                         " needed by: " + responseRequiredTime);
-              signalWebSocket.forceNewWebSockets();
+            if (shouldKeepRunning && isKeepAliveNecessary()) {
+              keepAliveSendTime = System.currentTimeMillis();
+              signalWebSocket.sendKeepAlive();
             }
+
+            final long responseRequiredTime = keepAliveSendTime + KEEP_ALIVE_TIMEOUT;
+            sleepUntil(responseRequiredTime);
+
+            if (shouldKeepRunning && isKeepAliveNecessary()) {
+              if (identified.lastKeepAliveReceived < keepAliveSendTime || unidentified.lastKeepAliveReceived < keepAliveSendTime) {
+                Log.w(TAG, "Missed keep alives, identified last: " + identified.lastKeepAliveReceived +
+                           " unidentified last: " + unidentified.lastKeepAliveReceived +
+                           " needed by: " + responseRequiredTime);
+                signalWebSocket.forceNewWebSockets();
+              }
+            }
+          } catch (Throwable e) {
+            Log.w(TAG, e);
           }
-        } catch (Throwable e) {
-          Log.w(TAG, e);
+        }
+      } else {
+        identified.lastKeepAliveReceived   = System.currentTimeMillis();
+        unidentified.lastKeepAliveReceived = System.currentTimeMillis();
+
+        while (shouldKeepRunning && isKeepAliveNecessary()) {
+          try {
+            sleepTimer.sleep(TimeUnit.SECONDS.toMillis(isAlive ? KEEPALIVE_TIMEOUT_SECONDS : KEEPSLEEP_TIMEOUT_SECONDS));
+            if (shouldKeepRunning && isKeepAliveNecessary()) {
+              long keepAliveRequiredSinceTime = System.currentTimeMillis() - MAX_TIME_SINCE_SUCCESSFUL_KEEP_ALIVE;
+
+              if (identified.lastKeepAliveReceived < keepAliveRequiredSinceTime || unidentified.lastKeepAliveReceived < keepAliveRequiredSinceTime) {
+                Log.w(TAG, "Missed keep alives, identified last: " + identified.lastKeepAliveReceived +
+                           " unidentified last: " + unidentified.lastKeepAliveReceived +
+                           " needed by: " + keepAliveRequiredSinceTime);
+                signalWebSocket.forceNewWebSockets();
+              } else {
+                signalWebSocket.sendKeepAlive();
+              }
+            }
+          } catch (Throwable e) {
+            Log.w(TAG, e);
+          }
         }
       }
     }

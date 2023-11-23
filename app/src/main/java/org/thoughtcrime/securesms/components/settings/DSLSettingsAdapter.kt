@@ -6,11 +6,14 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.Discouraged
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.DialogCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -44,6 +47,9 @@ class DSLSettingsAdapter : MappingAdapter() {
     registerFactory(SectionHeaderPreference::class.java, LayoutFactory(::SectionHeaderPreferenceViewHolder, R.layout.dsl_section_header))
     registerFactory(SwitchPreference::class.java, LayoutFactory(::SwitchPreferenceViewHolder, R.layout.dsl_switch_preference_item))
     registerFactory(RadioPreference::class.java, LayoutFactory(::RadioPreferenceViewHolder, R.layout.dsl_radio_preference_item))
+    if (isPigeonVersion()) {
+      registerFactory(PigeonEditTextPreference::class.java, LayoutFactory(::PigeonEditTextPreferenceViewHolder, R.layout.dsl_preference_item))
+    }
     Text.register(this)
     Space.register(this)
     Button.register(this)
@@ -63,7 +69,7 @@ abstract class PreferenceViewHolder<T : PreferenceModel<T>>(itemView: View) : Ma
       it.isEnabled = model.isEnabled
     }
 
-    if (isPigeonVersion()){
+    if (isPigeonVersion()) {
       itemView.focusOnLeft()
     }
 
@@ -115,8 +121,8 @@ class LearnMoreTextPreferenceViewHolder(itemView: View) : PreferenceViewHolder<L
 class ClickPreferenceViewHolder(itemView: View) : PreferenceViewHolder<ClickPreference>(itemView) {
   override fun bind(model: ClickPreference) {
     super.bind(model)
-    if (isPigeonVersion()){
-      itemView.alpha = if (model.isEnabled){
+    if (isPigeonVersion()) {
+      itemView.alpha = if (model.isEnabled) {
         1.0f
       } else {
         0.5f
@@ -183,6 +189,36 @@ class RadioListPreferenceViewHolder(itemView: View) : PreferenceViewHolder<Radio
   }
 }
 
+class PigeonEditTextPreferenceViewHolder(itemView: View) : PreferenceViewHolder<PigeonEditTextPreference>(itemView) {
+  override fun bind(model: PigeonEditTextPreference) {
+    super.bind(model)
+
+    val summaryValue = model.summary?.resolve(context)
+
+    itemView.setOnClickListener {
+      val dialog: AlertDialog = MaterialAlertDialogBuilder(context)
+        .setTitle(model.title.resolve(context))
+        .setView(R.layout.pigeon_dsl_edit_text_preference_item)
+        .setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+        .setPositiveButton(android.R.string.ok) { d, _ ->
+          val text = (d as? AlertDialog)?.findViewById<EditText>(R.id.title)?.text?.toString()
+          val value = text?.toIntOrNull()
+          if (value != null && value > 0) {
+            model.onSelected(value)
+            d.dismiss()
+          }
+        }
+        .show()
+
+      val editText = DialogCompat.requireViewById(dialog, R.id.title) as EditText
+      editText.setText(summaryValue)
+      editText.post {
+        editText.setSelection(editText.text.toString().length)
+      }
+    }
+  }
+}
+
 class MultiSelectListPreferenceViewHolder(itemView: View) : PreferenceViewHolder<MultiSelectListPreference>(itemView) {
   override fun bind(model: MultiSelectListPreference) {
     super.bind(model)
@@ -237,8 +273,8 @@ class SwitchPreferenceViewHolder(itemView: View) : PreferenceViewHolder<SwitchPr
     switchWidget.isEnabled = model.isEnabled
     switchWidget.isChecked = model.isChecked
 
-    if (isPigeonVersion()){
-      itemView.alpha = if (model.isEnabled){
+    if (isPigeonVersion()) {
+      itemView.alpha = if (model.isEnabled) {
         1.0f
       } else {
         0.5f
