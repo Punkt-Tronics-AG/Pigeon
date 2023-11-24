@@ -171,8 +171,21 @@ public final class WelcomeFragment extends LoggingFragment {
 
   private void onContinueClicked() {
     if (Permissions.isRuntimePermissionsRequired()) {
-      SafeNavigation.safeNavigate(NavHostFragment.findNavController(this),
-                                  WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.CONTINUE));
+      if (isSignalVersion()) {
+        SafeNavigation.safeNavigate(NavHostFragment.findNavController(this),
+                                    WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.CONTINUE));
+      } else {
+        continueClicked(
+            this,
+            viewModel,
+            (Runnable) () -> {
+            },
+            (Runnable) () -> {
+            },
+            GrantPermissionsFragmentDirections.actionSkipRestore(),
+            GrantPermissionsFragmentDirections.actionRestore()
+        );
+      }
     } else {
       gatherInformationAndContinue(
           this,
@@ -187,8 +200,16 @@ public final class WelcomeFragment extends LoggingFragment {
 
   private void onRestoreFromBackupClicked() {
     if (Permissions.isRuntimePermissionsRequired()) {
-      SafeNavigation.safeNavigate(NavHostFragment.findNavController(this),
-                                  WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.RESTORE_BACKUP));
+      if (isSignalVersion()) {
+        SafeNavigation.safeNavigate(NavHostFragment.findNavController(this),
+                                    WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.RESTORE_BACKUP));
+      } else  {
+        restoreFromBackupClicked(
+            this,
+            viewModel,
+            GrantPermissionsFragmentDirections.actionTransferOrRestore()
+        );
+      }
     } else {
       gatherInformationAndChooseBackup(this, viewModel, WelcomeFragmentDirections.actionTransferOrRestore());
     }

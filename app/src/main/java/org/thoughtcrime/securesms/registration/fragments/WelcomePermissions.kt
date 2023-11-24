@@ -7,6 +7,7 @@ package org.thoughtcrime.securesms.registration.fragments
 
 import android.Manifest
 import android.os.Build
+import pigeon.extensions.isSignalVersion
 
 /**
  * Handles welcome permissions instead of having to do weird giant if statements.
@@ -48,6 +49,17 @@ object WelcomePermissions {
 
   @JvmStatic
   fun getWelcomePermissions(isUserBackupSelectionRequired: Boolean): Array<String> {
-    return Permissions.values().map { it.getPermissions(isUserBackupSelectionRequired) }.flatten().toTypedArray()
+    if (isSignalVersion()) {
+      return Permissions.values().map { it.getPermissions(isUserBackupSelectionRequired) }.flatten().toTypedArray()
+    } else {
+      return  arrayOf(Manifest.permission.WRITE_CONTACTS,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.READ_SMS,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_PHONE_NUMBERS);
+    }
   }
 }
