@@ -76,8 +76,8 @@
         <org.thoughtcrime.securesms.components.emoji.EmojiTextView
                 android:id="@+id/conversation_list_item_summary"
                 style="@style/Signal.Text.Preview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/white"
@@ -86,8 +86,8 @@
 
             <org.thoughtcrime.securesms.components.TypingIndicatorView
                 android:id="@+id/conversation_list_item_typing_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="4dp"
                 android:visibility="visible"
                 app:typingIndicator_tint="@color/signal_icon_tint_secondary" />
@@ -123,8 +123,8 @@
 
                 <FrameLayout
                     android:id="@+id/conversation_list_item_status_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="0dp"
+                    android:layout_height="0dp">
 
                     <org.thoughtcrime.securesms.components.DeliveryStatusView
                         android:id="@+id/conversation_list_item_status"
@@ -217,8 +217,8 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/conversation_list_item_unread_mentions_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="12dp"
         android:background="@drawable/pigeon_unread_count_background"
         android:focusable="false"
