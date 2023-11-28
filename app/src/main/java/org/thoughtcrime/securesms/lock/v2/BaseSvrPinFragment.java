@@ -31,6 +31,7 @@ import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 import org.thoughtcrime.securesms.util.views.LearnMoreTextView;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> extends LoggingFragment {
 
@@ -71,7 +72,9 @@ public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> 
     viewModel.getKeyboard().observe(getViewLifecycleOwner(), keyboardType -> {
       updateKeyboard(keyboardType);
       keyboardToggle.setText(resolveKeyboardToggleText(keyboardType));
-      keyboardToggle.setIconResource(keyboardType.getOther().getIconResource());
+      if(isSignalVersion()) {
+        keyboardToggle.setIconResource(keyboardType.getOther().getIconResource());
+      }
     });
 
     description.setOnLinkClickListener(v -> {

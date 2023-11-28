@@ -105,8 +105,10 @@ public abstract class BaseEnterSmsCodeFragment<ViewModel extends BaseRegistratio
     resendSmsCountDown   = view.findViewById(R.id.resend_sms_count_down);
     wrongNumber          = view.findViewById(R.id.wrong_number);
     bottomSheetButton    = view.findViewById(R.id.having_trouble_button);
+
     pigeonCodeView       = view.findViewById(R.id.verification_code);
     pigeonOptionButton   = view.findViewById(R.id.pigeon_option_button);
+    pigeonOptionButton.setTag(false);
 
     new SignalStrengthPhoneStateListener(this, this);
 
