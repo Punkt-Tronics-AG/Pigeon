@@ -16,6 +16,7 @@ import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.util.BottomSheetUtil;
 import org.thoughtcrime.securesms.util.WindowUtil;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 /**
  * A bottom sheet to be shown when we need to prompt the user to fill out a reCAPTCHA.
@@ -57,7 +58,9 @@ public final class RecaptchaProofBottomSheetFragment extends BottomSheetDialogFr
     Log.i(TAG, "Showing reCAPTCHA proof bottom sheet.");
 
     if (manager.findFragmentByTag(tag) == null) {
-      BottomSheetUtil.show(manager, tag, this);
+//      if (isSignalVersion()) {
+        BottomSheetUtil.show(manager, tag, this);
+//      }
     } else {
       Log.i(TAG, "Ignoring repeat show.");
     }

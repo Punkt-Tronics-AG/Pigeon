@@ -1470,6 +1470,14 @@ class ConversationFragment :
       handleVideoCall()
     }
 
+    viewModel.recipient.subscribeBy {
+      pigeonSettings?.visibility = if (it.isGroup) View.VISIBLE else View.GONE
+      pigeonGroupCall?.visibility = if (it.isGroup) View.VISIBLE else View.GONE
+      pigeonCall?.visibility = if (!it.isGroup) View.VISIBLE else View.GONE
+      secureSession?.visibility = if (!it.isGroup) View.VISIBLE else View.GONE
+      pigeonSettings?.setOnClickListener { _: View? -> optionsMenuCallback.handleConversationSettings() }
+    }
+
     disposables += groupCallViewModel
       .state
       .distinctUntilChanged()
@@ -1477,6 +1485,7 @@ class ConversationFragment :
         binding.conversationGroupCallJoin.visible = it.ongoingCall
         binding.conversationGroupCallJoin.setText(if (it.hasCapacity) R.string.ConversationActivity_join else R.string.ConversationActivity_full)
         invalidateOptionsMenu()
+        it.activeV2Group
       }
   }
 
