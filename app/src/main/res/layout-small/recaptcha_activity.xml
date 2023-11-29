@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <WebView
+        android:id="@+id/recaptcha_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/mouse_cursor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="31px"
+        android:layout_marginTop="100px"
+        android:background="#00ffffff"
+        android:elevation="2dp"
+        android:rotation="225"
+        android:text="@string/RegistrationActivity_pigeon_captcha_mouse_cursor"
+        android:textColor="#ff000000"
+        android:textSize="30px"
+        android:visibility="visible" />
+
+</FrameLayout>

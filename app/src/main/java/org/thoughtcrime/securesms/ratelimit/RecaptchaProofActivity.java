@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -26,6 +28,12 @@ import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 
 import java.io.IOException;
 
+import pigeon.navigation.KeyEventBehaviour;
+import pigeon.navigation.PigeonKeyEventBehaviourImpl;
+import pigeon.navigation.captcha.CaptchaCursorHandler;
+
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 /**
  * Asks the user to solve a reCAPTCHA. If successful, triggers resends of all relevant message jobs.
  */
@@ -35,6 +43,10 @@ public class RecaptchaProofActivity extends PassphraseRequiredActivity {
   private static final String RECAPTCHA_SCHEME = "signalcaptcha://";
 
   private final DynamicTheme dynamicTheme = new DynamicTheme();
+
+  private CaptchaCursorHandler cursorHandler;
+
+  private final KeyEventBehaviour keyEventBehaviour = new PigeonKeyEventBehaviourImpl();
 
   public static @NonNull Intent getIntent(@NonNull Context context) {
     return new Intent(context, RecaptchaProofActivity.class);
@@ -52,8 +64,12 @@ public class RecaptchaProofActivity extends PassphraseRequiredActivity {
 
     setContentView(R.layout.recaptcha_activity);
 
-    requireSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    requireSupportActionBar().setTitle(R.string.RecaptchaProofActivity_complete_verification);
+    if (isSignalVersion()) {
+      requireSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      requireSupportActionBar().setTitle(R.string.RecaptchaProofActivity_complete_verification);
+    }else {
+      requireSupportActionBar().hide();
+    }
 
     WebView webView = findViewById(R.id.recaptcha_webview);
     webView.getSettings().setJavaScriptEnabled(true);
@@ -71,6 +87,9 @@ public class RecaptchaProofActivity extends PassphraseRequiredActivity {
     });
 
     webView.loadUrl(BuildConfig.RECAPTCHA_PROOF_URL);
+
+    View cursor = findViewById(R.id.mouse_cursor);
+    cursorHandler = new CaptchaCursorHandler(webView, cursor);
   }
 
   @Override
@@ -86,6 +105,19 @@ public class RecaptchaProofActivity extends PassphraseRequiredActivity {
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  @Override public boolean dispatchKeyEvent(KeyEvent event) {
+    if (isSignalVersion()){
+      return super.dispatchKeyEvent(event);
+    }
+
+    keyEventBehaviour.dispatchKeyEvent(event, getSupportFragmentManager(), this);
+    return super.dispatchKeyEvent(event);
+  }
+
+  public void onKeyDown(int keyCode, int action) {
+    cursorHandler.onKeyDown(keyCode, action);
   }
 
   private void handleToken(@NonNull String token) {

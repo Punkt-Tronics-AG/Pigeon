@@ -97,7 +97,7 @@ public final class RegistrationNavigationActivity extends AppCompatActivity {
       return super.dispatchKeyEvent(event);
     }
 
-    keyEventBehaviour.dispatchKeyEvent(event, getSupportFragmentManager());
+    keyEventBehaviour.dispatchKeyEvent(event, getSupportFragmentManager(), this);
     return super.dispatchKeyEvent(event);
   }
 

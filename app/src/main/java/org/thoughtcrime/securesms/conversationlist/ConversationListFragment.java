@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -494,8 +495,12 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     SignalProxyUtil.startListeningToWebsocket();
 
     if (SignalStore.rateLimit().needsRecaptcha()) {
-      Log.i(TAG, "Recaptcha required.");
-      RecaptchaProofBottomSheetFragment.show(getChildFragmentManager());
+      if (requireActivity().findViewById(R.id.pre_loader).getVisibility() != View.VISIBLE) {
+        Log.i(TAG, "Recaptcha required.");
+        RecaptchaProofBottomSheetFragment.show(getChildFragmentManager());
+      } else {
+        new Handler().postDelayed(() -> RecaptchaProofBottomSheetFragment.show(getChildFragmentManager()), 3000);
+      }
     }
 
     Badge                              expiredBadge                       = SignalStore.donationsValues().getExpiredBadge();
