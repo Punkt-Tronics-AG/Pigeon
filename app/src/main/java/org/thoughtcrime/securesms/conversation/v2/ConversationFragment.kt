@@ -194,6 +194,7 @@ import org.thoughtcrime.securesms.conversation.v2.groups.ConversationGroupViewMo
 import org.thoughtcrime.securesms.conversation.v2.items.ChatColorsDrawable
 import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
 import org.thoughtcrime.securesms.conversation.v2.keyboard.AttachmentKeyboardFragment
+import org.thoughtcrime.securesms.crypto.SecurityEvent
 import org.thoughtcrime.securesms.database.DraftTable
 import org.thoughtcrime.securesms.database.model.IdentityRecord
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord
@@ -323,6 +324,7 @@ import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
+import pigeon.permissions.PigeonRationaleDialog
 import java.util.Locale
 import java.util.Optional
 import java.util.concurrent.ExecutionException
@@ -623,9 +625,9 @@ class ConversationFragment :
     send2           = view.findViewById(R.id.send_text_2)
     myRecordTime    = view.findViewById(R.id.record_time)
 
-//    pigeonGroupCall?.setOnClickListener { v -> handleVideo() }
-//    pigeonCall.setOnClickListener { v -> handleDial(true) }
-//    secureSession.setOnClickListener { v -> handleResetSecureSession() }
+    pigeonGroupCall?.setOnClickListener { v -> optionsMenuCallback.handleVideo() }
+    pigeonCall?.setOnClickListener { v -> optionsMenuCallback.handleDial(true) }
+    secureSession?.setOnClickListener { v -> handleResetSecureSession() }
     voice?.setOnClickListener { v -> sendVoiceMessage() }
 
     send2?.setOnClickListener { v: View? ->
@@ -667,6 +669,42 @@ class ConversationFragment :
       binding.conversationInputPanel.sendButton.performClick();
       composeText.requestFocus()
     }
+  }
+
+  private fun handleResetSecureSession() {
+    val rationaleDialogMessage = getString(R.string.ConversationActivity_reset_secure_session_question) + getString(R.string.ConversationActivity_this_may_help_if_youre_having_encryption_problems)
+    val dialog = PigeonRationaleDialog.createNonMsgDialog(
+      requireContext(),
+      rationaleDialogMessage,
+      R.string.ConversationActivity_reset,
+      android.R.string.cancel,
+      {
+        if (viewModel.recipientSnapshot != null && viewModel.recipientSnapshot?.isGroup == false) {
+          val context: Context = requireContext()
+//          val database = messages
+//          val endSessionMessage:OutgoingMessage =  endSessionMessage(viewModel.recipientSnapshot!!, System.currentTimeMillis())
+          if (viewModel.recipientSnapshot?.isGroup == false) {
+            ApplicationDependencies.getProtocolStore().aci().deleteAllSessions(viewModel.recipientSnapshot!!.requireServiceId().toString())
+            SecurityEvent.broadcastSecurityUpdateEvent(context)
+            Toast.makeText(context, R.string.conversation_secure_verified__menu_reset_secure_session, Toast.LENGTH_SHORT).show()
+
+//              long messageId = 0;
+//              try {
+//                messageId = database.insertMessageOutbox(endMessage,
+//                                                              threadId,
+//                                                              false,
+//                                                              null);
+//              } catch (MmsException e) {
+//                throw new RuntimeException(e);
+//              }
+//              database.markAsSent(messageId, true);
+//              SignalDatabase.threads().update(threadId, true);
+          }
+        }
+      },
+      null,
+      null)
+    dialog.show()
   }
 
   private fun sendVoiceMessage() {
