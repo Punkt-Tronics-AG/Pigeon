@@ -33,7 +33,7 @@ ktlint {
     version = "0.49.1"
 }
 
-def pigeonVersionCode = 127521
+def pigeonVersionCode = 127522
 def canonicalVersionCode = 1337
 def canonicalVersionName = "Pigeon 2.0.0011 upon Signal 6.34.5"
 
