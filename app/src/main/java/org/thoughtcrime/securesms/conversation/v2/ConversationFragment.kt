@@ -4277,18 +4277,17 @@ class ConversationFragment :
     composeText.clearFocus()
     Log.d(TAG, "input type: " + composeText.inputType)
     val rawText = composeText.textTrimmed.toString()
-    // todo fixMe
-//    if (rawText.isEmpty() && !attachmentManager.isAttachmentPresent) {
-//      if (pigeonGroupCall.getVisibility() == View.VISIBLE) {
-//        handleVideo()
-//        return
-//      }
-//      if (pigeonCall.getVisibility() == View.VISIBLE) {
-//        handleDial(true)
-//        return
-//      }
-//    }
-//    sendButtonListener.onClick(composeText)
+    if (rawText.isEmpty() && !attachmentManager.isAttachmentPresent) {
+      if (pigeonGroupCall?.visibility == View.VISIBLE) {
+        optionsMenuCallback.handleVideo()
+        return
+      }
+      if (pigeonCall?.visibility == View.VISIBLE) {
+        optionsMenuCallback.handleDial(true)
+        return
+      }
+    }
+    sendButton.performClick()
     composeText.inputType = InputType.TYPE_CLASS_TEXT
     composeText.requestFocus()
     inputPanel.postDelayed({ inputPanel.visibility = View.VISIBLE }, 500L)
