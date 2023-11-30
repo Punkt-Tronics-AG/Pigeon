@@ -324,12 +324,12 @@ import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
+import pigeon.extensions.isPigeonVersion
 import pigeon.permissions.PigeonRationaleDialog
 import java.util.Locale
 import java.util.Optional
 import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.milliseconds
-
 
 /**
  * A single unified fragment for Conversations.
@@ -670,8 +670,7 @@ class ConversationFragment :
       composeText.requestFocus()
     }
   }
-
-  private fun handleResetSecureSession() {
+  private  fun handleResetSecureSession() {
     val rationaleDialogMessage = getString(R.string.ConversationActivity_reset_secure_session_question) + getString(R.string.ConversationActivity_this_may_help_if_youre_having_encryption_problems)
     val dialog = PigeonRationaleDialog.createNonMsgDialog(
       requireContext(),
@@ -2541,6 +2540,15 @@ class ConversationFragment :
 
       val timestamp = MarkReadHelper.getLatestTimestamp(adapter, layoutManager)
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
+
+      if(isPigeonVersion()){
+        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        if (position== 0) {
+          binding.conversationInputPanel.root.isVisible = true
+          return
+        }
+        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
+      }
     }
 
     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -2548,6 +2556,15 @@ class ConversationFragment :
         scrollDateHeaderHelper.show()
       } else {
         scrollDateHeaderHelper.hide()
+      }
+
+      if (isPigeonVersion()){
+        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        if (position== 0) {
+          binding.conversationInputPanel.root.isVisible = true
+          return
+        }
+        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
       }
     }
 

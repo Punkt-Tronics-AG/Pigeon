@@ -56,6 +56,7 @@ import org.thoughtcrime.securesms.util.hasExtraText
 import org.thoughtcrime.securesms.util.hasNoBubble
 import org.thoughtcrime.securesms.util.isScheduled
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 import java.util.Locale
 
 /**
@@ -160,7 +161,9 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       binding.body.setMentionBackgroundTint(ContextCompat.getColor(context, R.color.transparent_black_25))
     }
 
-    binding.bodyWrapper.background = bodyBubbleDrawable
+    if(isSignalVersion()) {
+      binding.bodyWrapper.background = bodyBubbleDrawable
+    }
     binding.bodyWrapper.layoutTransition = bodyBubbleLayoutTransition
 
     binding.footerBackground.background = footerDrawable
@@ -577,10 +580,12 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       else -> alert.setNone()
     }
 
-    if (conversationContext.hasWallpaper()) {
-      alert.setBackgroundResource(R.drawable.wallpaper_message_decoration_background)
-    } else {
-      alert.background = null
+    if (isSignalVersion()) {
+      if (conversationContext.hasWallpaper()) {
+        alert.setBackgroundResource(R.drawable.wallpaper_message_decoration_background)
+      } else {
+        alert.background = null
+      }
     }
   }
 
