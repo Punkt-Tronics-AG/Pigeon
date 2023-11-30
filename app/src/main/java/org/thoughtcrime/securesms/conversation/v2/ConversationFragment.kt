@@ -330,6 +330,10 @@ import java.util.Locale
 import java.util.Optional
 import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.milliseconds
+import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
+
+
+
 
 /**
  * A single unified fragment for Conversations.
@@ -2986,9 +2990,25 @@ class ConversationFragment :
 
     override fun onItemLongClick(itemView: View, item: MultiselectPart) {
       Log.d(TAG, "onItemLongClick")
+      val messageRecord: MessageRecord = item.getMessageRecord()
+
+      if (isPigeonVersion()){
+        if (messageRecord.isSecure &&
+          !messageRecord.isRemoteDelete &&
+          !messageRecord.isUpdate &&
+          viewModel.recipientSnapshot?.isBlocked() == false &&
+          (viewModel.recipientSnapshot?.isGroup()  == false|| viewModel.recipientSnapshot?.isActiveGroup() == true) &&
+          adapter.selectedItems.isEmpty()){
+          val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
+          startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)
+//          (adapter as ConversationAdapterV2).toggleSelection(item)
+          clearFocusedItem()
+        }
+        return
+      }
+
       if (actionMode != null) return
 
-      val messageRecord = item.getMessageRecord()
       val recipient = viewModel.recipientSnapshot ?: return
 
       if (isUnopenedGift(itemView, messageRecord)) {
