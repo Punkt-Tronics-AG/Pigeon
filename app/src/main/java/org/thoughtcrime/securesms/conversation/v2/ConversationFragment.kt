@@ -86,6 +86,7 @@ import org.signal.core.util.PendingIntentFlags
 import org.signal.core.util.Result
 import org.signal.core.util.ThreadUtil
 import org.signal.core.util.concurrent.LifecycleDisposable
+import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.concurrent.addTo
 import org.signal.core.util.dp
 import org.signal.core.util.logging.Log
@@ -331,8 +332,7 @@ import java.util.Optional
 import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.milliseconds
 import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
-
-
+import java.util.stream.Collectors
 
 
 /**
@@ -466,6 +466,8 @@ class ConversationFragment :
   private val voiceNotePlayerListener: VoiceNotePlayerView.Listener by lazy {
     VoiceNotePlayerViewListener()
   }
+
+  private var selectedConversationMessage: ConversationMessage? = null
 
   private val conversationTooltips = ConversationTooltips(this)
   private val colorizer = Colorizer()
@@ -674,6 +676,36 @@ class ConversationFragment :
       composeText.requestFocus()
     }
   }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+    super.onActivityResult(requestCode, resultCode, data)
+    Log.w("PIGEON", "$requestCode | $resultCode")
+    if (selectedConversationMessage == null || requestCode != ConversationSubMenuActivity.Companion.HANDLE_SUBMENU){
+      return
+    }
+    if (resultCode == ConversationSubMenuActivity.HANDLE_REPLY_MESSAGE){
+      handleReplyToMessage(selectedConversationMessage!!)
+    } else if (resultCode == ConversationSubMenuActivity.Companion.HANDLE_FORWARD){
+      handleForwardMessageParts(selectedConversationMessage!!.getMultiselectCollection().toSet())
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_TAKE_BACK_MESSAGE){
+      handleDeleteMessagesAsPigeonApplication(selectedConversationMessage!!.getMultiselectCollection().toSet())
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_REACT){
+      //todo
+    }
+  }
+
+  private fun handleDeleteMessagesAsPigeonApplication(multiselectParts: Set<MultiselectPart>){
+    val messageRecords = com.annimon.stream.Stream.of(multiselectParts).map(MultiselectPart::getMessageRecord).collect(com.annimon.stream.Collectors.toSet<MessageRecord>())
+    val deleteForEveryone = java.lang.Runnable {
+      SignalExecutors.BOUNDED.execute {
+        for (message in messageRecords) {
+          MessageSender.sendRemoteDelete(message.id)
+        }
+      }
+    }
+    deleteForEveryone.run()
+  }
+
   private  fun handleResetSecureSession() {
     val rationaleDialogMessage = getString(R.string.ConversationActivity_reset_secure_session_question) + getString(R.string.ConversationActivity_this_may_help_if_youre_having_encryption_problems)
     val dialog = PigeonRationaleDialog.createNonMsgDialog(
@@ -3001,7 +3033,7 @@ class ConversationFragment :
           adapter.selectedItems.isEmpty()){
           val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
           startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)
-//          (adapter as ConversationAdapterV2).toggleSelection(item)
+          selectedConversationMessage = item.conversationMessage
           clearFocusedItem()
         }
         return
