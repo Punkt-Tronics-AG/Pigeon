@@ -142,7 +142,9 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     }
 
     binding.root.setOnLongClickListener {
-      conversationContext.clickListener.onItemLongClick(binding.root, getMultiselectPartForLatestTouch())
+      if (isSignalVersion()) {
+        conversationContext.clickListener.onItemLongClick(binding.root, getMultiselectPartForLatestTouch())
+      }
 
       true
     }
