@@ -40,6 +40,7 @@ import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 import kotlin.math.max
@@ -83,8 +84,12 @@ class VerifyDisplayFragment : Fragment(), OnScrollChangedListener {
     initializeViewModel()
 
     binding.safetyNumberUpdatingBannerText.text = getString(R.string.verify_display_fragment__safety_numbers_are_updating_banner_no_learn_more)
+    if (isSignalVersion()){
     binding.safetyNumberUpdatingBannerText.setLink("https://signal.org/redirect/safety-numbers")
     binding.safetyNumberUpdatingBannerText.setLinkColor(ContextCompat.getColor(requireContext(), R.color.signal_colorPrimary))
+    } else {
+      binding.safetyNumberUpdatingBannerText.setLearnMoreVisible(false);
+    }
 
     updateVerifyButton(requireArguments().getBoolean(VERIFIED_STATE, false), false)
 
@@ -325,8 +330,12 @@ class VerifyDisplayFragment : Fragment(), OnScrollChangedListener {
 
   private fun setRecipientText(recipient: Recipient) {
     binding.description.text = getString(R.string.verify_display_fragment__pnp_verify_safety_numbers_explanation_with_s, recipient.getDisplayName(requireContext()))
-    binding.description.setLink("https://signal.org/redirect/safety-numbers")
-    binding.description.setLinkColor(ContextCompat.getColor(requireContext(), R.color.signal_colorPrimary))
+    if (isSignalVersion()){
+       binding.description.setLink("https://signal.org/redirect/safety-numbers")
+      binding.description.setLinkColor(ContextCompat.getColor(requireContext(), R.color.signal_colorPrimary))
+      } else {
+        binding.description.setLearnMoreVisible(false)
+    }
   }
 
   private fun updateVerifyButton(verified: Boolean, update: Boolean) {

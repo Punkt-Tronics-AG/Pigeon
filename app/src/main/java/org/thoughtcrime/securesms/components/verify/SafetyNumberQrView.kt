@@ -34,6 +34,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.qr.QrCodeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 import java.nio.charset.Charset
 import java.util.Locale
 
@@ -133,14 +134,18 @@ class SafetyNumberQrView : ConstraintLayout {
 
   fun setSafetyNumberType(newType: Boolean) {
     if (newType) {
-      ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_dark_colorOnSurface)))
-      setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_blue))
+      if (isSignalVersion()) {
+        ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_dark_colorOnSurface)))
+        setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_blue))
+      }
       codes.forEach {
         it.setTextColor(ContextCompat.getColor(context, R.color.signal_light_colorOnPrimary))
       }
     } else {
-      ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_light_colorOnSurface)))
-      setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_grey))
+      if (isSignalVersion()){
+        ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_light_colorOnSurface)))
+        setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_grey))
+      }
       codes.forEach {
         it.setTextColor(ContextCompat.getColor(context, R.color.signal_light_colorOnSurfaceVariant))
       }
