@@ -34,6 +34,7 @@ import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.views.Stub
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Responsible for showing the various "banner" views at the top of a conversation
@@ -89,6 +90,9 @@ class ConversationBannerView @JvmOverloads constructor(
   }
 
   fun showUnverifiedBanner(identityRecords: IdentityRecordList) {
+    if (isPigeonVersion()){
+      return;
+    }
     show(
       stub = unverifiedBannerStub
     ) {

@@ -24,6 +24,7 @@ import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.NetworkUtil
 import org.thoughtcrime.securesms.util.SupportEmailUtil
+import pigeon.extensions.isPigeonVersion
 
 class DebugLogsPromptDialogFragment : FixedRoundedCornerBottomSheetDialogFragment() {
 
@@ -32,6 +33,9 @@ class DebugLogsPromptDialogFragment : FixedRoundedCornerBottomSheetDialogFragmen
 
     @JvmStatic
     fun show(activity: AppCompatActivity, purpose: Purpose) {
+      if (isPigeonVersion()){
+        return
+      }
       if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
         return
       }
