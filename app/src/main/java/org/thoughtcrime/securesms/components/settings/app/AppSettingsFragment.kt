@@ -39,8 +39,8 @@ import org.thoughtcrime.securesms.util.adapter.mapping.LayoutFactory
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingViewHolder
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
-import pigeon.extensions.isSignalVersion
 import org.thoughtcrime.securesms.util.views.Stub
+import pigeon.extensions.isSignalVersion
 
 class AppSettingsFragment : DSLSettingsFragment(
   titleId = R.string.text_secure_normal__menu_settings,
@@ -132,13 +132,6 @@ class AppSettingsFragment : DSLSettingsFragment(
     return configure {
 
       clickPref(
-        title = DSLSettingsText.from(R.string.Pigeon_Interval),
-        onClick = {
-          findNavController().safeNavigate(R.id.action_appSettingsFragment_to_pigeonIntervalSettingsFragment)
-        }
-      )
-
-      clickPref(
         title = DSLSettingsText.from(R.string.Pigeon_Settings_profile),
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_manageProfileActivity)
@@ -170,6 +163,13 @@ class AppSettingsFragment : DSLSettingsFragment(
         title = DSLSettingsText.from(R.string.preferences__privacy),
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
+        }
+      )
+
+      clickPref(
+        title = DSLSettingsText.from(R.string.Pigeon_Interval),
+        onClick = {
+          findNavController().safeNavigate(R.id.action_appSettingsFragment_to_pigeonIntervalSettingsFragment)
         }
       )
 
