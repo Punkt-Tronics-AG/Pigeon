@@ -100,7 +100,9 @@ class SafetyNumberQrView : ConstraintLayout {
 
     outlineProvider = object : ViewOutlineProvider() {
       override fun getOutline(view: View, outline: Outline) {
-        outline.setRoundRect(0, 0, view.width, view.height, 24.dp.toFloat())
+        if (isSignalVersion()) {
+          outline.setRoundRect(0, 0, view.width, view.height, 24.dp.toFloat())
+        }
       }
     }
 
@@ -134,18 +136,15 @@ class SafetyNumberQrView : ConstraintLayout {
 
   fun setSafetyNumberType(newType: Boolean) {
     if (newType) {
-      if (isSignalVersion()) {
         ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_dark_colorOnSurface)))
         setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_blue))
-      }
       codes.forEach {
         it.setTextColor(ContextCompat.getColor(context, R.color.signal_light_colorOnPrimary))
       }
     } else {
-      if (isSignalVersion()){
         ImageViewCompat.setImageTintList(shareButton, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.signal_light_colorOnSurface)))
         setBackgroundColor(ContextCompat.getColor(context, R.color.safety_number_card_grey))
-      }
+
       codes.forEach {
         it.setTextColor(ContextCompat.getColor(context, R.color.signal_light_colorOnSurfaceVariant))
       }

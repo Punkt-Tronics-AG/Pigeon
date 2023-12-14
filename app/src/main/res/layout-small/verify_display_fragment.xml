@@ -49,10 +49,10 @@
 
     <View
         android:id="@+id/divider"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
-        android:layout_marginTop="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/safety_number_updating_banner_text" />
 
     <androidx.constraintlayout.widget.Group
@@ -74,12 +74,11 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:background="@color/black"
         app:layout_constraintTop_toBottomOf="@id/header_barrier"
         app:layout_constraintBottom_toTopOf="@id/verify_button_container">
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical">
@@ -88,7 +87,7 @@
                 android:id="@+id/verify_view_pager"
                 android:layout_marginTop="0dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"/>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/dot_indicators"
@@ -105,12 +104,15 @@
                 android:id="@+id/description"
                 style="@style/Signal.Text.BodyMedium"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="30dp"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:lineSpacingExtra="3sp"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:text="@string/verify_display_fragment__pnp_verify_safety_numbers_explanation_with_s"
                 android:textColor="@color/white"
                 android:textColorLink="@color/white_not_focus"/>
