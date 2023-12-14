@@ -265,6 +265,7 @@ import org.thoughtcrime.securesms.mms.VideoSlide
 import org.thoughtcrime.securesms.notifications.v2.ConversationId
 import org.thoughtcrime.securesms.payments.preferences.PaymentsActivity
 import org.thoughtcrime.securesms.permissions.Permissions
+import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
 import org.thoughtcrime.securesms.profiles.spoofing.ReviewCardDialogFragment
 import org.thoughtcrime.securesms.providers.BlobProvider
 import org.thoughtcrime.securesms.ratelimit.RecaptchaProofBottomSheetFragment
@@ -331,8 +332,6 @@ import java.util.Locale
 import java.util.Optional
 import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.milliseconds
-import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
-import java.util.stream.Collectors
 
 
 /**
@@ -637,7 +636,15 @@ class ConversationFragment :
     voice?.setOnClickListener { v -> sendVoiceMessage() }
 
     send2?.setOnClickListener { v: View? ->
-      (view.findViewById(R.id.send_text) as TextView).performClick()
+      if (composeText.text.isNullOrBlank()){
+        if (pigeonGroupCall?.visible != true) {
+          optionsMenuCallback.handleDial(true)
+        } else {
+          optionsMenuCallback.handleVideo()
+        }
+      } else {
+        (view.findViewById(R.id.send_text) as TextView).performClick()
+      }
       primaryLayout?.visibility = View.VISIBLE
       extraLayout?.visibility = View.GONE
       extraScreenIsShowed = false
