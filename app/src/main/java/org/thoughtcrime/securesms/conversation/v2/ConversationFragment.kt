@@ -636,15 +636,7 @@ class ConversationFragment :
     voice?.setOnClickListener { v -> sendVoiceMessage() }
 
     send2?.setOnClickListener { v: View? ->
-      if (composeText.text.isNullOrBlank()){
-        if (pigeonGroupCall?.visible != true) {
-          optionsMenuCallback.handleDial(true)
-        } else {
-          optionsMenuCallback.handleVideo()
-        }
-      } else {
-        (view.findViewById(R.id.send_text) as TextView).performClick()
-      }
+      (view.findViewById(R.id.send_text) as TextView).performClick()
       primaryLayout?.visibility = View.VISIBLE
       extraLayout?.visibility = View.GONE
       extraScreenIsShowed = false

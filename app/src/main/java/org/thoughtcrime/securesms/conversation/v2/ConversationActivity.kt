@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.conversation.v2
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.Window
 import androidx.activity.viewModels
@@ -16,6 +17,9 @@ import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.conversation.ConversationIntents
 import org.thoughtcrime.securesms.util.Debouncer
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
+import pigeon.extensions.isSignalVersion
+import pigeon.navigation.KeyEventBehaviour
+import pigeon.navigation.PigeonKeyEventBehaviourImpl
 import java.util.concurrent.TimeUnit
 
 /**
@@ -29,6 +33,8 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
 
   private val theme = DynamicNoActionBarTheme()
   private val transitionDebouncer: Debouncer = Debouncer(150, TimeUnit.MILLISECONDS)
+  private val keyEventBehaviour: KeyEventBehaviour = PigeonKeyEventBehaviourImpl()
+
 
   override val voiceNoteMediaController = VoiceNoteMediaController(this, true)
 
@@ -58,6 +64,14 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
     if (savedInstanceState == null) {
       replaceFragment()
     }
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+    if (isSignalVersion()) {
+      return super.dispatchKeyEvent(event)
+    }
+    keyEventBehaviour.dispatchConversationKeyEvent(event!!, supportFragmentManager)
+    return super.dispatchKeyEvent(event)
   }
 
   override fun onResume() {
