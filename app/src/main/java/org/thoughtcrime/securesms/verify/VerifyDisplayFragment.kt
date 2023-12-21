@@ -40,6 +40,7 @@ import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import java.nio.charset.StandardCharsets
 import java.util.Locale
@@ -94,6 +95,9 @@ class VerifyDisplayFragment : Fragment(), OnScrollChangedListener {
     updateVerifyButton(requireArguments().getBoolean(VERIFIED_STATE, false), false)
 
     binding.verifyButton.setOnClickListener { updateVerifyButton(!currentVerifiedState, true) }
+    if (isPigeonVersion()){
+      binding.verifyButton.requestFocus()
+    }
     binding.scrollView.viewTreeObserver?.addOnScrollChangedListener(this)
     binding.toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
     binding.toolbar.setTitle(R.string.AndroidManifest__verify_safety_number)
@@ -137,7 +141,13 @@ class VerifyDisplayFragment : Fragment(), OnScrollChangedListener {
           .show()
         return@observe
       }
-      safetyNumberAdapter.setFingerprints(fingerprints)
+      if (isSignalVersion()) {
+        safetyNumberAdapter.setFingerprints(fingerprints)
+      } else {
+        if (fingerprints.isNotEmpty()) {
+          safetyNumberAdapter.setFingerprints(fingerprints.subList(0, 1))
+        }
+      }
     }
     binding.verifyViewPager.currentItem = selectedFingerPrint
   }

@@ -34,7 +34,6 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.qr.QrCodeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
-import pigeon.extensions.isSignalVersion
 import java.nio.charset.Charset
 import java.util.Locale
 
@@ -100,9 +99,7 @@ class SafetyNumberQrView : ConstraintLayout {
 
     outlineProvider = object : ViewOutlineProvider() {
       override fun getOutline(view: View, outline: Outline) {
-        if (isSignalVersion()) {
           outline.setRoundRect(0, 0, view.width, view.height, 24.dp.toFloat())
-        }
       }
     }
 
