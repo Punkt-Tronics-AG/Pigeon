@@ -52,15 +52,12 @@ import org.thoughtcrime.securesms.jobs.AttachmentCompressionJob;
 import org.thoughtcrime.securesms.jobs.AttachmentCopyJob;
 import org.thoughtcrime.securesms.jobs.AttachmentMarkUploadedJob;
 import org.thoughtcrime.securesms.jobs.AttachmentUploadJob;
-import org.thoughtcrime.securesms.jobs.MmsSendJob;
 import org.thoughtcrime.securesms.jobs.ProfileKeySendJob;
 import org.thoughtcrime.securesms.jobs.PushDistributionListSendJob;
 import org.thoughtcrime.securesms.jobs.PushGroupSendJob;
 import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.ReactionSendJob;
 import org.thoughtcrime.securesms.jobs.RemoteDeleteSendJob;
-import org.thoughtcrime.securesms.jobs.ResumableUploadSpecJob;
-import org.thoughtcrime.securesms.jobs.SmsSendJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.mediasend.Media;
@@ -233,10 +230,14 @@ public class MessageSender {
       Recipient recipient         = message.getThreadRecipient();
       long      messageId         = database.insertMessageOutbox(applyUniversalExpireTimerIfNecessary(context, recipient, message, allocatedThreadId), allocatedThreadId, sendType != SendType.SIGNAL, insertListener);
 
-      if (message.getThreadRecipient().isGroup() && message.getAttachments().isEmpty() && message.getLinkPreviews().isEmpty() && message.getSharedContacts().isEmpty()) {
-        SignalLocalMetrics.GroupMessageSend.onInsertedIntoDatabase(messageId, metricId);
+      if (message.getThreadRecipient().isGroup()) {
+        if (message.getAttachments().isEmpty() && message.getLinkPreviews().isEmpty() && message.getSharedContacts().isEmpty()) {
+          SignalLocalMetrics.GroupMessageSend.onInsertedIntoDatabase(messageId, metricId);
+        } else {
+          SignalLocalMetrics.GroupMessageSend.cancel(messageId);
+        }
       } else {
-        SignalLocalMetrics.GroupMessageSend.cancel(metricId);
+        SignalLocalMetrics.IndividualMessageSend.onInsertedIntoDatabase(messageId, metricId);
       }
 
       sendMessageInternal(context, recipient, sendType, messageId, Collections.emptyList(), message.getScheduledDate() > 0);
@@ -345,7 +346,7 @@ public class MessageSender {
           List<AttachmentId> attachmentIds     = new ArrayList<>(preUploadAttachmentIds.size());
 
           for (int i = 0; i < preUploadAttachments.size(); i++) {
-            AttachmentId attachmentId = attachmentDatabase.insertAttachmentForPreUpload(preUploadAttachments.get(i)).getAttachmentId();
+            AttachmentId attachmentId = attachmentDatabase.insertAttachmentForPreUpload(preUploadAttachments.get(i)).attachmentId;
             attachmentCopies.get(i).add(attachmentId);
             attachmentIds.add(attachmentId);
           }
@@ -418,17 +419,15 @@ public class MessageSender {
       AttachmentTable    attachmentDatabase = SignalDatabase.attachments();
       DatabaseAttachment databaseAttachment = attachmentDatabase.insertAttachmentForPreUpload(attachment);
 
-      Job compressionJob         = AttachmentCompressionJob.fromAttachment(databaseAttachment, false, -1);
-      Job resumableUploadSpecJob = new ResumableUploadSpecJob();
-      Job uploadJob              = new AttachmentUploadJob(databaseAttachment.getAttachmentId());
+      Job compressionJob = AttachmentCompressionJob.fromAttachment(databaseAttachment, false, -1);
+      Job uploadJob      = new AttachmentUploadJob(databaseAttachment.attachmentId);
 
       ApplicationDependencies.getJobManager()
                              .startChain(compressionJob)
-                             .then(resumableUploadSpecJob)
                              .then(uploadJob)
                              .enqueue();
 
-      return new PreUploadResult(media, databaseAttachment.getAttachmentId(), Arrays.asList(compressionJob.getId(), resumableUploadSpecJob.getId(), uploadJob.getId()));
+      return new PreUploadResult(media, databaseAttachment.attachmentId, Arrays.asList(compressionJob.getId(), uploadJob.getId()));
     } catch (MmsException e) {
       Log.w(TAG, "preUploadPushAttachment() - Failed to upload!", e);
       return null;
@@ -535,10 +534,8 @@ public class MessageSender {
       sendDistributionList(context, recipient, messageId, Collections.emptySet(), uploadJobIds);
     } else if (sendType == SendType.SIGNAL && isPushMediaSend(context, recipient)) {
       sendMediaPush(context, recipient, messageId, uploadJobIds);
-    } else if (sendType == SendType.MMS) {
-      sendMms(context, messageId);
     } else {
-      sendSms(recipient, messageId);
+      Log.w(TAG, "Unknown send type!");
     }
   }
 
@@ -573,16 +570,6 @@ public class MessageSender {
     } else {
       PushDistributionListSendJob.enqueue(context, jobManager, messageId, recipient.getId(), filterRecipientIds);
     }
-  }
-
-  private static void sendMms(Context context, long messageId) {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
-    MmsSendJob.enqueue(context, jobManager, messageId);
-  }
-
-  private static void sendSms(Recipient recipient, long messageId) {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
-    jobManager.add(new SmsSendJob(messageId, recipient));
   }
 
   private static boolean isPushMediaSend(Context context, Recipient recipient) {
@@ -648,7 +635,7 @@ public class MessageSender {
                                                              .toList();
 
       List<AttachmentMarkUploadedJob> fakeUploadJobs = Stream.of(attachments)
-                                                             .map(a -> new AttachmentMarkUploadedJob(messageId, ((DatabaseAttachment) a).getAttachmentId()))
+                                                             .map(a -> new AttachmentMarkUploadedJob(messageId, ((DatabaseAttachment) a).attachmentId))
                                                              .toList();
 
       ApplicationDependencies.getJobManager().startChain(compressionJobs)
@@ -726,7 +713,7 @@ public class MessageSender {
 
     @Override
     public @NonNull String toString() {
-      return "{ID: " + attachmentId.getRowId() + ", URI: " + media.getUri() + ", Jobs: " + jobIds.stream().map(j -> "JOB::" + j).collect(Collectors.toList()) + "}";
+      return "{ID: " + attachmentId.id + ", URI: " + media.getUri() + ", Jobs: " + jobIds.stream().map(j -> "JOB::" + j).collect(Collectors.toList()) + "}";
     }
   }
 

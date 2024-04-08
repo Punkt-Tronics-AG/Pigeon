@@ -1,11 +1,13 @@
 package org.thoughtcrime.securesms.contacts.paged
 
 import android.content.Context
+import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -28,8 +30,9 @@ import org.thoughtcrime.securesms.contacts.avatars.GeneratedContactPhoto
 import org.thoughtcrime.securesms.database.model.DistributionListPrivacyMode
 import org.thoughtcrime.securesms.database.model.StoryViewState
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter
 import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.util.ContextUtil
+import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.adapter.mapping.LayoutFactory
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModel
@@ -397,19 +400,41 @@ open class ContactSearchAdapter(
     private val checkbox: CheckBox = itemView.findViewById(R.id.check_box)
     private val name: FromTextView = itemView.findViewById(R.id.name)
     private val number: TextView = itemView.findViewById(R.id.number)
+    private val headerGroup: View = itemView.findViewById(R.id.contact_header)
+    private val headerText: TextView = itemView.findViewById(R.id.section_header)
 
     override fun bind(model: UnknownRecipientModel) {
       checkbox.visible = displayCheckBox
       checkbox.isSelected = false
-      name.setText(
-        when (model.data.mode) {
-          ContactSearchConfiguration.NewRowMode.NEW_CALL -> R.string.contact_selection_list__new_call
-          ContactSearchConfiguration.NewRowMode.NEW_CONVERSATION -> R.string.contact_selection_list__unknown_contact
-          ContactSearchConfiguration.NewRowMode.BLOCK -> R.string.contact_selection_list__unknown_contact_block
-          ContactSearchConfiguration.NewRowMode.ADD_TO_GROUP -> R.string.contact_selection_list__unknown_contact_add_to_group
-        }
-      )
-      number.text = model.data.query
+      val nameText = when (model.data.mode) {
+        ContactSearchConfiguration.NewRowMode.NEW_CALL -> R.string.contact_selection_list__new_call
+        ContactSearchConfiguration.NewRowMode.NEW_CONVERSATION -> -1
+        ContactSearchConfiguration.NewRowMode.BLOCK -> R.string.contact_selection_list__unknown_contact_block
+        ContactSearchConfiguration.NewRowMode.ADD_TO_GROUP -> R.string.contact_selection_list__unknown_contact_add_to_group
+      }
+
+      if (nameText > 0) {
+        name.setText(nameText)
+        number.text = model.data.query
+        number.visible = true
+      } else {
+        name.text = model.data.query
+        number.visible = false
+      }
+
+      if (model.data.mode == ContactSearchConfiguration.NewRowMode.NEW_CONVERSATION) {
+        headerGroup.visible = true
+        headerText.setText(
+          if (model.data.sectionKey == ContactSearchConfiguration.SectionKey.PHONE_NUMBER) {
+            R.string.FindByActivity__find_by_phone_number
+          } else {
+            R.string.FindByActivity__find_by_username
+          }
+        )
+      } else {
+        headerGroup.visible = false
+      }
+
       itemView.setOnClickListener {
         onClick.onClicked(itemView, model.data, false)
       }
@@ -443,8 +468,7 @@ open class ContactSearchAdapter(
         number.text = recipient.combinedAboutAndEmoji
         number.visible = true
       } else if (displayOptions.displaySecondaryInformation == DisplaySecondaryInformation.ALWAYS && recipient.hasE164()) {
-        number.text = PhoneNumberFormatter.prettyPrint(recipient.requireE164())
-        number.visible = true
+        number.visible = false
       } else {
         super.bindNumberField(model)
       }
@@ -509,7 +533,19 @@ open class ContactSearchAdapter(
       }
 
       itemView.focusOnLeft()
-      name.setText(getRecipient(model))
+      val recipient = getRecipient(model)
+      val suffix: CharSequence? = if (recipient.isSystemContact && !recipient.showVerified()) {
+        SpannableStringBuilder().apply {
+          val drawable = ContextUtil.requireDrawable(context, R.drawable.symbol_person_circle_24).apply {
+            setTint(ContextCompat.getColor(context, R.color.signal_colorOnSurface))
+          }
+          SpanUtil.appendCenteredImageSpan(this, drawable, 16, 16)
+        }
+      } else {
+        null
+      }
+      name.setText(recipient, suffix)
+
       badge.setBadgeFromRecipient(getRecipient(model))
 
       bindAvatar(model)

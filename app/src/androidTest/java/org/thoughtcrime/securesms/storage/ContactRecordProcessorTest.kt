@@ -6,14 +6,12 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.signal.core.util.Base64
 import org.signal.core.util.update
 import org.thoughtcrime.securesms.database.RecipientTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.thoughtcrime.securesms.util.Base64
-import org.thoughtcrime.securesms.util.FeatureFlags
-import org.thoughtcrime.securesms.util.FeatureFlagsAccessor
 import org.whispersystems.signalservice.api.push.ServiceId.ACI
 import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.storage.SignalContactRecord
@@ -29,11 +27,10 @@ class ContactRecordProcessorTest {
     SignalStore.account().setE164(E164_SELF)
     SignalStore.account().setAci(ACI_SELF)
     SignalStore.account().setPni(PNI_SELF)
-    FeatureFlagsAccessor.forceValue(FeatureFlags.PHONE_NUMBER_PRIVACY, true)
   }
 
   @Test
-  fun process_splitContact_normalSplit() {
+  fun process_splitContact_normalSplit_twoRecords() {
     // GIVEN
     val originalId = SignalDatabase.recipients.getAndPossiblyMerge(ACI_A, PNI_A, E164_A)
     setStorageId(originalId, STORAGE_ID_A)
@@ -57,6 +54,35 @@ class ContactRecordProcessorTest {
     // WHEN
     val subject = ContactRecordProcessor()
     subject.process(listOf(remote1, remote2), StorageSyncHelper.KEY_GENERATOR)
+
+    // THEN
+    val byAci: RecipientId = SignalDatabase.recipients.getByAci(ACI_A).get()
+
+    val byE164: RecipientId = SignalDatabase.recipients.getByE164(E164_A).get()
+    val byPni: RecipientId = SignalDatabase.recipients.getByPni(PNI_A).get()
+
+    assertEquals(originalId, byAci)
+    assertEquals(byE164, byPni)
+    assertNotEquals(byAci, byE164)
+  }
+
+  @Test
+  fun process_splitContact_normalSplit_oneRecord() {
+    // GIVEN
+    val originalId = SignalDatabase.recipients.getAndPossiblyMerge(ACI_A, PNI_A, E164_A)
+    setStorageId(originalId, STORAGE_ID_A)
+
+    val remote = buildRecord(
+      STORAGE_ID_B,
+      ContactRecord(
+        aci = ACI_A.toString(),
+        unregisteredAtTimestamp = 100
+      )
+    )
+
+    // WHEN
+    val subject = ContactRecordProcessor()
+    subject.process(listOf(remote), StorageSyncHelper.KEY_GENERATOR)
 
     // THEN
     val byAci: RecipientId = SignalDatabase.recipients.getByAci(ACI_A).get()
@@ -113,7 +139,7 @@ class ContactRecordProcessorTest {
   private fun setStorageId(recipientId: RecipientId, storageId: StorageId) {
     SignalDatabase.rawDatabase
       .update(RecipientTable.TABLE_NAME)
-      .values(RecipientTable.STORAGE_SERVICE_ID to Base64.encodeBytes(storageId.raw))
+      .values(RecipientTable.STORAGE_SERVICE_ID to Base64.encodeWithPadding(storageId.raw))
       .where("${RecipientTable.ID} = ?", recipientId)
       .run()
   }

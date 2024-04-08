@@ -46,7 +46,7 @@ import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.sms.MessageSender.SendType;
 import org.thoughtcrime.securesms.stories.Stories;
-import org.thoughtcrime.securesms.util.Base64;
+import org.signal.core.util.Base64;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.MessageUtil;
 import org.thoughtcrime.securesms.util.Util;
@@ -85,7 +85,6 @@ public final class MultiShareSender {
   public static MultiShareSendResultCollection sendSync(@NonNull MultiShareArgs multiShareArgs) {
     List<MultiShareSendResult> results                           = new ArrayList<>(multiShareArgs.getContactSearchKeys().size());
     Context                    context                           = ApplicationDependencies.getApplication();
-    boolean                    isMmsEnabled                      = Util.isMmsCapable(context);
     String                     message                           = multiShareArgs.getDraftText();
     SlideDeck                  slideDeck;
     List<OutgoingMessage>      storiesBatch                      = new LinkedList<>();
@@ -111,8 +110,7 @@ public final class MultiShareSender {
       MessageSendType sendType       = MessageSendType.SignalMessageSendType.INSTANCE;
       long            expiresIn      = TimeUnit.SECONDS.toMillis(recipient.getExpiresInSeconds());
       List<Contact>   contacts       = multiShareArgs.getSharedContacts();
-      boolean needsSplit = !sendType.usesSmsTransport() &&
-                           message != null &&
+      boolean needsSplit = message != null &&
                            message.length() > sendType.calculateCharacters(message).maxPrimaryMessageSize;
       boolean hasMmsMedia = !multiShareArgs.getMedia().isEmpty() ||
                             (multiShareArgs.getDataUri() != null && multiShareArgs.getDataUri() != Uri.EMPTY) ||
@@ -128,9 +126,9 @@ public final class MultiShareSender {
       MultiShareTimestampProvider sentTimestamp      = recipient.isDistributionList() ? distributionListSentTimestamps : MultiShareTimestampProvider.create();
       boolean                     canSendAsTextStory = recipientSearchKey.isStory() && multiShareArgs.isValidForTextStoryGeneration();
 
-      if ((recipient.isMmsGroup() || recipient.getEmail().isPresent()) && !isMmsEnabled) {
+      if ((recipient.isMmsGroup() || recipient.getEmail().isPresent())) {
         results.add(new MultiShareSendResult(recipientSearchKey, MultiShareSendResult.Type.MMS_NOT_ENABLED));
-      } else if (hasMmsMedia && sendType.usesSmsTransport() || hasPushMedia && !sendType.usesSmsTransport() || canSendAsTextStory) {
+      } else if (hasPushMedia || canSendAsTextStory) {
         sendMediaMessageOrCollectStoryToBatch(context,
                                               multiShareArgs,
                                               recipient,
@@ -329,15 +327,15 @@ public final class MultiShareSender {
                                                                                 : thumbnail.getUri() == null
                                                                                   ? null
                                                                                   : new ImageSlide(context,
-                                                                                                 thumbnail.getUri(),
-                                                                                                 thumbnail.getContentType(),
-                                                                                                 thumbnail.getSize(),
-                                                                                                 thumbnail.getWidth(),
-                                                                                                 thumbnail.getHeight(),
-                                                                                                 thumbnail.isBorderless(),
-                                                                                                 thumbnail.getCaption(),
-                                                                                                 thumbnail.getBlurHash(),
-                                                                                                 thumbnail.getTransformProperties()).asAttachment()
+                                                                                                   thumbnail.getUri(),
+                                                                                                   thumbnail.contentType,
+                                                                                                   thumbnail.size,
+                                                                                                   thumbnail.width,
+                                                                                                   thumbnail.height,
+                                                                                                   thumbnail.borderless,
+                                                                                                   thumbnail.caption,
+                                                                                                   thumbnail.blurHash,
+                                                                                                   thumbnail.transformProperties).asAttachment()
           )
       ));
     }
@@ -345,17 +343,18 @@ public final class MultiShareSender {
 
   private static Slide ensureDefaultQuality(@NonNull Context context, @NonNull ImageSlide imageSlide) {
     Attachment attachment = imageSlide.asAttachment();
-    if (attachment.getTransformProperties().getSentMediaQuality() == SentMediaQuality.HIGH.getCode()) {
+    final AttachmentTable.TransformProperties transformProperties = attachment.transformProperties;
+    if (transformProperties != null && transformProperties.sentMediaQuality == SentMediaQuality.HIGH.getCode()) {
       return new ImageSlide(
           context,
           attachment.getUri(),
-          attachment.getContentType(),
-          attachment.getSize(),
-          attachment.getWidth(),
-          attachment.getHeight(),
-          attachment.isBorderless(),
-          attachment.getCaption(),
-          attachment.getBlurHash(),
+          attachment.contentType,
+          attachment.size,
+          attachment.width,
+          attachment.height,
+          attachment.borderless,
+          attachment.caption,
+          attachment.blurHash,
           AttachmentTable.TransformProperties.empty()
       );
     } else {
@@ -390,7 +389,7 @@ public final class MultiShareSender {
   {
     return OutgoingMessage.textStoryMessage(
         recipient,
-        Base64.encodeBytes(new StoryTextPost.Builder()
+        Base64.encodeWithPadding(new StoryTextPost.Builder()
                                             .body(getBodyForTextStory(multiShareArgs.getDraftText(), multiShareArgs.getLinkPreview()))
                                             .style(StoryTextPost.Style.DEFAULT)
                                             .background(background.serialize())

@@ -24,7 +24,7 @@ import com.bumptech.glide.request.transition.Transition
 import org.signal.core.util.dp
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.v2.items.V2ConversationItemUtils.isThumbnailAtBottomOfBubble
-import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord
+import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader
 import org.thoughtcrime.securesms.mms.Slide
 
@@ -92,7 +92,7 @@ class V2ConversationItemThumbnail @JvmOverloads constructor(
   }
 
   fun presentThumbnail(
-    mediaMessage: MediaMmsMessageRecord,
+    mediaMessage: MmsMessageRecord,
     conversationContext: V2ConversationContext
   ) {
     val slideDeck = mediaMessage.slideDeck
@@ -115,10 +115,10 @@ class V2ConversationItemThumbnail @JvmOverloads constructor(
     thumbnailSlide = thumbnail
     this.fastPreflightId = fastPreflightId
 
-    conversationContext.glideRequests.clear(this)
+    conversationContext.requestManager.clear(this)
 
     if (placeholderTarget != null) {
-      conversationContext.glideRequests.clear(placeholderTarget)
+      conversationContext.requestManager.clear(placeholderTarget)
     }
 
     val thumbnailUri = thumbnail.uri
@@ -147,7 +147,7 @@ class V2ConversationItemThumbnail @JvmOverloads constructor(
     if (thumbnailBlur != null) {
       val placeholderTarget = PlaceholderTarget(this)
       conversationContext
-        .glideRequests
+        .requestManager
         .load(thumbnailBlur)
         .centerInside()
         .dontAnimate()
@@ -159,7 +159,7 @@ class V2ConversationItemThumbnail @JvmOverloads constructor(
 
     if (thumbnailUri != null) {
       conversationContext
-        .glideRequests
+        .requestManager
         .load(DecryptableStreamUriLoader.DecryptableUri(thumbnailUri))
         .centerInside()
         .dontAnimate()

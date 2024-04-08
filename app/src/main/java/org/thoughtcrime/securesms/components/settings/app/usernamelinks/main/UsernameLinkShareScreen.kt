@@ -1,7 +1,6 @@
 package org.thoughtcrime.securesms.components.settings.app.usernamelinks.main
 
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -43,9 +42,10 @@ import org.thoughtcrime.securesms.components.settings.app.usernamelinks.QrCodeDa
 import org.thoughtcrime.securesms.components.settings.app.usernamelinks.QrCodeState
 import org.thoughtcrime.securesms.components.settings.app.usernamelinks.UsernameQrCodeColorScheme
 import org.thoughtcrime.securesms.components.settings.app.usernamelinks.main.UsernameLinkSettingsState.ActiveTab
-import org.thoughtcrime.securesms.compose.ScreenshotController
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import org.whispersystems.signalservice.api.push.UsernameLinkComponents
+import java.util.UUID
 
 /**
  * A screen that shows all the data around your username link and how to share it, including a QR code.
@@ -56,18 +56,25 @@ fun UsernameLinkShareScreen(
   onLinkResultHandled: () -> Unit,
   snackbarHostState: SnackbarHostState,
   scope: CoroutineScope,
-  navController: NavController,
-  onShareBadge: (Bitmap) -> Unit,
+  navController: NavController?,
+  onShareBadge: () -> Unit,
   modifier: Modifier = Modifier,
-  screenshotController: ScreenshotController? = null,
   onResetClicked: () -> Unit
 ) {
+  val context = LocalContext.current
+
   when (state.usernameLinkResetResult) {
     UsernameLinkResetResult.NetworkUnavailable -> {
       ResetLinkResultDialog(stringResource(R.string.UsernameLinkSettings_reset_link_result_network_unavailable), onDismiss = onLinkResultHandled)
     }
     UsernameLinkResetResult.NetworkError -> {
       ResetLinkResultDialog(stringResource(R.string.UsernameLinkSettings_reset_link_result_network_error), onDismiss = onLinkResultHandled)
+    }
+    UsernameLinkResetResult.UnexpectedError -> {
+      ResetLinkResultDialog(stringResource(R.string.UsernameLinkSettings_reset_link_result_unknown_error), onDismiss = onLinkResultHandled)
+    }
+    is UsernameLinkResetResult.Success -> {
+      ResetLinkResultDialog(stringResource(R.string.UsernameLinkSettings_reset_link_result_success), onDismiss = onLinkResultHandled)
     }
     else -> {}
   }
@@ -82,10 +89,10 @@ fun UsernameLinkShareScreen(
       data = state.qrCodeState,
       colorScheme = state.qrCodeColorScheme,
       username = state.username,
-      screenshotController = screenshotController,
       usernameCopyable = true,
       modifier = Modifier.padding(horizontal = 58.dp, vertical = 24.dp),
-      onClick = {
+      onClick = { username ->
+        Util.copyToClipboard(context, username)
         scope.launch {
           snackbarHostState.showSnackbar(usernameCopiedString)
         }
@@ -93,26 +100,19 @@ fun UsernameLinkShareScreen(
     )
 
     ButtonBar(
-      onShareClicked = {
-        val badgeBitmap = screenshotController?.screenshot()
-        if (badgeBitmap != null) {
-          onShareBadge.invoke(badgeBitmap)
-        }
+      onShareClicked = onShareBadge,
+      onColorClicked = { navController?.safeNavigate(UsernameLinkSettingsFragmentDirections.actionUsernameLinkSettingsFragmentToUsernameLinkQrColorPickerFragment()) },
+      onLinkClicked = {
+        navController?.safeNavigate(UsernameLinkSettingsFragmentDirections.actionUsernameLinkSettingsFragmentToUsernameLinkShareBottomSheet())
       },
-      onColorClicked = { navController.safeNavigate(R.id.action_usernameLinkSettingsFragment_to_usernameLinkQrColorPickerFragment) }
-    )
-
-    LinkRow(
-      linkState = state.usernameLinkState,
-      snackbarHostState = snackbarHostState,
-      scope = scope
+      linkState = state.usernameLinkState
     )
 
     Text(
       text = stringResource(id = R.string.UsernameLinkSettings_qr_description),
       textAlign = TextAlign.Center,
       style = MaterialTheme.typography.bodyMedium,
-      modifier = Modifier.padding(bottom = 19.dp, start = 43.dp, end = 43.dp),
+      modifier = Modifier.padding(top = 42.dp, bottom = 19.dp, start = 43.dp, end = 43.dp),
       color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
@@ -132,11 +132,22 @@ fun UsernameLinkShareScreen(
 }
 
 @Composable
-private fun ButtonBar(onShareClicked: () -> Unit, onColorClicked: () -> Unit) {
+private fun ButtonBar(
+  linkState: UsernameLinkState,
+  onLinkClicked: () -> Unit,
+  onShareClicked: () -> Unit,
+  onColorClicked: () -> Unit
+) {
   Row(
     horizontalArrangement = Arrangement.spacedBy(space = 32.dp, alignment = Alignment.CenterHorizontally),
     modifier = Modifier.fillMaxWidth()
   ) {
+    Buttons.ActionButton(
+      enabled = linkState is UsernameLinkState.Present,
+      onClick = onLinkClicked,
+      iconResId = R.drawable.symbol_link_24,
+      labelResId = R.string.UsernameLinkSettings_link_button_label
+    )
     Buttons.ActionButton(
       onClick = onShareClicked,
       iconResId = R.drawable.symbol_share_android_24,
@@ -151,9 +162,7 @@ private fun ButtonBar(onShareClicked: () -> Unit, onColorClicked: () -> Unit) {
 }
 
 @Composable
-private fun LinkRow(linkState: UsernameLinkState, snackbarHostState: SnackbarHostState, scope: CoroutineScope) {
-  val context = LocalContext.current
-  val copyMessage = stringResource(R.string.UsernameLinkSettings_link_copied_toast)
+private fun LinkRow(linkState: UsernameLinkState, onClick: () -> Unit = {}) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -170,11 +179,7 @@ private fun LinkRow(linkState: UsernameLinkState, snackbarHostState: SnackbarHos
         shape = RoundedCornerShape(12.dp)
       )
       .clickable(enabled = linkState is UsernameLinkState.Present) {
-        Util.copyToClipboard(context, (linkState as UsernameLinkState.Present).link)
-
-        scope.launch {
-          snackbarHostState.showSnackbar(copyMessage)
-        }
+        onClick()
       }
       .padding(horizontal = 26.dp, vertical = 16.dp)
       .alpha(if (linkState is UsernameLinkState.Present) 1.0f else 0.6f)
@@ -226,6 +231,82 @@ private fun ScreenPreview() {
   }
 }
 
+@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScreenPreviewResetSuccess() {
+  SignalTheme {
+    Surface {
+      UsernameLinkShareScreen(
+        state = previewState().copy(usernameLinkResetResult = UsernameLinkResetResult.Success(UsernameLinkComponents(Util.getSecretBytes(32), UUID.randomUUID()))),
+        snackbarHostState = SnackbarHostState(),
+        scope = rememberCoroutineScope(),
+        navController = NavController(LocalContext.current),
+        onShareBadge = {},
+        onResetClicked = {},
+        onLinkResultHandled = {}
+      )
+    }
+  }
+}
+
+@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScreenPreviewResetNetworkError() {
+  SignalTheme {
+    Surface {
+      UsernameLinkShareScreen(
+        state = previewState().copy(usernameLinkResetResult = UsernameLinkResetResult.NetworkError),
+        snackbarHostState = SnackbarHostState(),
+        scope = rememberCoroutineScope(),
+        navController = NavController(LocalContext.current),
+        onShareBadge = {},
+        onResetClicked = {},
+        onLinkResultHandled = {}
+      )
+    }
+  }
+}
+
+@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScreenPreviewResetNetworkUnavailable() {
+  SignalTheme {
+    Surface {
+      UsernameLinkShareScreen(
+        state = previewState().copy(usernameLinkResetResult = UsernameLinkResetResult.NetworkUnavailable),
+        snackbarHostState = SnackbarHostState(),
+        scope = rememberCoroutineScope(),
+        navController = NavController(LocalContext.current),
+        onShareBadge = {},
+        onResetClicked = {},
+        onLinkResultHandled = {}
+      )
+    }
+  }
+}
+
+@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScreenPreviewResetUnexpectedError() {
+  SignalTheme {
+    Surface {
+      UsernameLinkShareScreen(
+        state = previewState().copy(usernameLinkResetResult = UsernameLinkResetResult.UnexpectedError),
+        snackbarHostState = SnackbarHostState(),
+        scope = rememberCoroutineScope(),
+        navController = NavController(LocalContext.current),
+        onShareBadge = {},
+        onResetClicked = {},
+        onLinkResultHandled = {}
+      )
+    }
+  }
+}
+
 @Preview(name = "Light Theme", group = "LinkRow", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Theme", group = "LinkRow", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -234,19 +315,13 @@ private fun LinkRowPreview() {
     Surface {
       Column(modifier = Modifier.padding(8.dp)) {
         LinkRow(
-          linkState = UsernameLinkState.Present("https://signal.me/#eu/asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf"),
-          snackbarHostState = SnackbarHostState(),
-          scope = rememberCoroutineScope()
+          linkState = UsernameLinkState.Present("https://signal.me/#eu/asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf")
         )
         LinkRow(
-          linkState = UsernameLinkState.NotSet,
-          snackbarHostState = SnackbarHostState(),
-          scope = rememberCoroutineScope()
+          linkState = UsernameLinkState.NotSet
         )
         LinkRow(
-          linkState = UsernameLinkState.Resetting,
-          snackbarHostState = SnackbarHostState(),
-          scope = rememberCoroutineScope()
+          linkState = UsernameLinkState.Resetting
         )
       }
     }

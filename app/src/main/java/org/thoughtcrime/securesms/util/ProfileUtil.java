@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.signal.core.util.Base64;
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.IdentityKey;
 import org.signal.libsignal.protocol.IdentityKeyPair;
@@ -147,6 +148,17 @@ public final class ProfileUtil {
     }
 
     return decryptString(profileKey, Base64.decode(encryptedStringBase64));
+  }
+
+  public static Optional<Boolean> decryptBoolean(@NonNull ProfileKey profileKey, @Nullable String encryptedBooleanBase64)
+      throws InvalidCiphertextException, IOException
+  {
+    if (encryptedBooleanBase64 == null) {
+      return Optional.empty();
+    }
+
+    ProfileCipher profileCipher = new ProfileCipher(profileKey);
+    return profileCipher.decryptBoolean(Base64.decode(encryptedBooleanBase64));
   }
 
   @WorkerThread
@@ -346,7 +358,8 @@ public final class ProfileUtil {
                                                                                     aboutEmoji,
                                                                                     Optional.ofNullable(paymentsAddress),
                                                                                     avatar,
-                                                                                    badgeIds).orElse(null);
+                                                                                    badgeIds,
+                                                                                    SignalStore.phoneNumberPrivacy().isPhoneNumberSharingEnabled()).orElse(null);
     SignalStore.registrationValues().markHasUploadedProfile();
     if (!avatar.keepTheSame) {
       SignalDatabase.recipients().setProfileAvatar(Recipient.self().getId(), avatarPath);

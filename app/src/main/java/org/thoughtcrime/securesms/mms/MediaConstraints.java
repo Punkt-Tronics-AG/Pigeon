@@ -17,8 +17,7 @@ import org.thoughtcrime.securesms.util.BitmapUtil;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.MemoryFileDescriptor;
-import org.whispersystems.signalservice.api.crypto.AttachmentCipherOutputStream;
-import org.whispersystems.signalservice.internal.crypto.PaddingInputStream;
+import org.thoughtcrime.securesms.video.TranscodingPreset;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,13 +33,13 @@ public abstract class MediaConstraints {
     return new PushMediaConstraints(sentMediaQuality);
   }
 
-  public static MediaConstraints getMmsMediaConstraints(int subscriptionId) {
-    return new MmsMediaConstraints(subscriptionId);
-  }
-
   public abstract int getImageMaxWidth(Context context);
   public abstract int getImageMaxHeight(Context context);
   public abstract int getImageMaxSize(Context context);
+
+  public TranscodingPreset getVideoTranscodingSettings() {
+    return TranscodingPreset.LEVEL_1;
+  }
 
   public boolean isHighQuality() {
     return false;
@@ -77,7 +76,7 @@ public abstract class MediaConstraints {
 
   public boolean isSatisfied(@NonNull Context context, @NonNull Attachment attachment) {
     try {
-      long size = attachment.getSize();
+      long size = attachment.size;
       if (size > getMaxAttachmentSize()) {
         return false;
       }

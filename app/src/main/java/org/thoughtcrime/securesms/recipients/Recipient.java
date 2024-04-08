@@ -28,6 +28,7 @@ import org.thoughtcrime.securesms.conversation.colors.ChatColors;
 import org.thoughtcrime.securesms.conversation.colors.ChatColorsPalette;
 import org.thoughtcrime.securesms.database.RecipientTable;
 import org.thoughtcrime.securesms.database.RecipientTable.MentionSetting;
+import org.thoughtcrime.securesms.database.RecipientTable.PhoneNumberSharingState;
 import org.thoughtcrime.securesms.database.RecipientTable.RegisteredState;
 import org.thoughtcrime.securesms.database.RecipientTable.UnidentifiedAccessMode;
 import org.thoughtcrime.securesms.database.RecipientTable.VibrateState;
@@ -47,6 +48,7 @@ import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId;
 import org.thoughtcrime.securesms.util.AvatarUtil;
 import org.thoughtcrime.securesms.util.FeatureFlags;
+import org.thoughtcrime.securesms.util.UsernameUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper;
 import org.whispersystems.signalservice.api.push.ServiceId;
@@ -136,6 +138,7 @@ public class Recipient {
   private final boolean                      needsPniSignature;
   private final CallLinkRoomId               callLinkRoomId;
   private final Optional<GroupRecord>        groupRecord;
+  private final PhoneNumberSharingState      phoneNumberSharing;
 
   /**
    * Returns a {@link LiveRecipient}, which contains a {@link Recipient} that may or may not be
@@ -354,6 +357,8 @@ public class Recipient {
       id = db.getOrInsertFromGroupId(GroupId.parseOrThrow(identifier));
     } else if (NumberUtil.isValidEmail(identifier)) {
       id = db.getOrInsertFromEmail(identifier);
+    } else if (UsernameUtil.isValidUsernameForSearch(identifier)) {
+      throw new IllegalArgumentException("Creating a recipient based on username alone is not supported!");
     } else {
       String e164 = PhoneNumberFormatter.get(context).format(identifier);
       id = db.getOrInsertFromE164(e164);
@@ -423,6 +428,7 @@ public class Recipient {
     this.isActiveGroup                = false;
     this.callLinkRoomId               = null;
     this.groupRecord                  = Optional.empty();
+    this.phoneNumberSharing           = PhoneNumberSharingState.UNKNOWN;
   }
 
   public Recipient(@NonNull RecipientId id, @NonNull RecipientDetails details, boolean resolved) {
@@ -478,6 +484,7 @@ public class Recipient {
     this.isActiveGroup                = details.isActiveGroup;
     this.callLinkRoomId               = details.callLinkRoomId;
     this.groupRecord                  = details.groupRecord;
+    this.phoneNumberSharing           = details.phoneNumberSharing;
   }
 
   public @NonNull RecipientId getId() {
@@ -537,10 +544,6 @@ public class Recipient {
     }
   }
 
-  public boolean hasName() {
-    return groupName != null;
-  }
-
   /**
    * False iff it {@link #getDisplayName} would fall back to e164, email or unknown.
    */
@@ -554,21 +557,11 @@ public class Recipient {
     String name = getNameFromLocalData(context);
 
     if (Util.isEmpty(name)) {
-      name = context.getString(R.string.Recipient_unknown);
-    }
-
-    return StringUtil.isolateBidi(name);
-  }
-
-  public @NonNull String getDisplayNameOrUsername(@NonNull Context context) {
-    String name = getNameFromLocalData(context);
-
-    if (Util.isEmpty(name)) {
-      name = StringUtil.isolateBidi(username);
+      name = username;
     }
 
     if (Util.isEmpty(name)) {
-      name = StringUtil.isolateBidi(context.getString(R.string.Recipient_unknown));
+      name = getUnknownDisplayName(context);
     }
 
     return StringUtil.isolateBidi(name);
@@ -636,20 +629,18 @@ public class Recipient {
     String name = Util.getFirstNonEmpty(getGroupName(context),
                                         getSystemProfileName().getGivenName(),
                                         getProfileName().getGivenName(),
+                                        getUsername().orElse(null),
                                         getDisplayName(context));
 
     return StringUtil.isolateBidi(name);
   }
 
-  public @NonNull String getShortDisplayNameIncludingUsername(@NonNull Context context) {
-    String name = Util.getFirstNonEmpty(getGroupName(context),
-                                        getSystemProfileName().getGivenName(),
-                                        getProfileName().getGivenName(),
-                                        getE164().orElse(null),
-                                        getUsername().orElse(null),
-                                        getDisplayName(context));
-
-    return StringUtil.isolateBidi(name);
+  private String getUnknownDisplayName(@NonNull Context context) {
+    if (getRegistered() == RegisteredState.NOT_REGISTERED) {
+      return context.getString(R.string.Recipient_deleted_account);
+    } else {
+      return context.getString(R.string.Recipient_unknown);
+    }
   }
 
   public @NonNull Optional<ServiceId> getServiceId() {
@@ -665,15 +656,18 @@ public class Recipient {
   }
 
   public @NonNull Optional<String> getUsername() {
-    if (FeatureFlags.usernames()) {
-      return Optional.ofNullable(username);
-    } else {
-      return Optional.empty();
-    }
+    return OptionalUtil.absentIfEmpty(username);
   }
 
   public @NonNull Optional<String> getE164() {
     return Optional.ofNullable(e164);
+  }
+
+  /**
+   * Whether or not we should show this user's e164 in the interface.
+   */
+  public boolean shouldShowE164() {
+    return hasE164() && (isSystemContact() || getPhoneNumberSharing() == PhoneNumberSharingState.ENABLED);
   }
 
   public @NonNull Optional<String> getEmail() {
@@ -1196,7 +1190,7 @@ public class Recipient {
    * Forces retrieving a fresh copy of the recipient, regardless of its state.
    */
   public @NonNull Recipient fresh() {
-    return live().resolve();
+    return live().refresh().resolve();
   }
 
   public @NonNull LiveRecipient live() {
@@ -1225,6 +1219,10 @@ public class Recipient {
 
   public @NonNull CallLinkRoomId requireCallLinkRoomId() {
     return Objects.requireNonNull(callLinkRoomId);
+  }
+
+  public PhoneNumberSharingState getPhoneNumberSharing() {
+    return phoneNumberSharing;
   }
 
   @Override
@@ -1383,7 +1381,8 @@ public class Recipient {
            hasGroupsInCommon == other.hasGroupsInCommon &&
            Objects.equals(badges, other.badges) &&
            isActiveGroup == other.isActiveGroup &&
-           Objects.equals(callLinkRoomId, other.callLinkRoomId);
+           Objects.equals(callLinkRoomId, other.callLinkRoomId) &&
+           phoneNumberSharing == other.phoneNumberSharing;
   }
 
   private static boolean allContentsAreTheSame(@NonNull List<Recipient> a, @NonNull List<Recipient> b) {

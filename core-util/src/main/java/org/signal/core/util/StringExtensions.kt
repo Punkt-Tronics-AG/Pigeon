@@ -1,5 +1,8 @@
 package org.signal.core.util
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
 /**
  * Treats the string as a serialized list of tokens and tells you if an item is present in the list.
  * In addition to exact matches, this handles wildcards at the end of an item.
@@ -41,4 +44,24 @@ fun String?.emptyIfNull(): String {
  */
 fun String.toSingleLine(): String {
   return this.trimIndent().split("\n").joinToString(separator = " ")
+}
+
+fun String?.nullIfEmpty(): String? {
+  return this?.ifEmpty {
+    null
+  }
+}
+
+fun String?.nullIfBlank(): String? {
+  return this?.ifBlank {
+    null
+  }
+}
+
+@OptIn(ExperimentalContracts::class)
+fun CharSequence?.isNotNullOrBlank(): Boolean {
+  contract {
+    returns(true) implies (this@isNotNullOrBlank != null)
+  }
+  return !this.isNullOrBlank()
 }

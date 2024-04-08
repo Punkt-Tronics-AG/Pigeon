@@ -177,7 +177,7 @@ class BufferedSignalServiceAccountDataStore(selfServiceId: ServiceId) : SignalSe
     sessionStore.archiveSession(address)
   }
 
-  override fun getAllAddressesWithActiveSessions(addressNames: MutableList<String>): Set<SignalProtocolAddress> {
+  override fun getAllAddressesWithActiveSessions(addressNames: MutableList<String>): Map<SignalProtocolAddress, SessionRecord> {
     return sessionStore.getAllAddressesWithActiveSessions(addressNames)
   }
 
@@ -200,6 +200,7 @@ class BufferedSignalServiceAccountDataStore(selfServiceId: ServiceId) : SignalSe
   fun flushToDisk(persistentStore: SignalServiceAccountDataStore) {
     identityStore.flushToDisk(persistentStore)
     oneTimePreKeyStore.flushToDisk(persistentStore)
+    kyberPreKeyStore.flushToDisk(persistentStore)
     signedPreKeyStore.flushToDisk(persistentStore)
     sessionStore.flushToDisk(persistentStore)
     senderKeyStore.flushToDisk(persistentStore)

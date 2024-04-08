@@ -2,7 +2,6 @@ package org.thoughtcrime.securesms.database
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import com.google.android.mms.pdu_alt.PduHeaders
 import org.thoughtcrime.securesms.database.model.StoryType
 import org.thoughtcrime.securesms.mms.OutgoingMessage
 import org.thoughtcrime.securesms.recipients.Recipient
@@ -75,7 +74,6 @@ object TestMms {
   ): Long {
     val contentValues = ContentValues().apply {
       put(MessageTable.DATE_SENT, message.sentTimeMillis)
-      put(MessageTable.MMS_MESSAGE_TYPE, PduHeaders.MESSAGE_TYPE_SEND_REQ)
 
       put(MessageTable.TYPE, type)
       put(MessageTable.THREAD_ID, threadId)
@@ -86,9 +84,9 @@ object TestMms {
       put(MessageTable.VIEW_ONCE, message.isViewOnce)
       put(MessageTable.FROM_RECIPIENT_ID, recipientId.serialize())
       put(MessageTable.TO_RECIPIENT_ID, recipientId.serialize())
-      put(MessageTable.DELIVERY_RECEIPT_COUNT, 0)
+      put(MessageTable.HAS_DELIVERY_RECEIPT, 0)
       put(MessageTable.RECEIPT_TIMESTAMP, 0)
-      put(MessageTable.VIEWED_RECEIPT_COUNT, if (viewed) 1 else 0)
+      put(MessageTable.VIEWED_COLUMN, if (viewed) 1 else 0)
       put(MessageTable.STORY_TYPE, message.storyType.code)
 
       put(MessageTable.BODY, body)

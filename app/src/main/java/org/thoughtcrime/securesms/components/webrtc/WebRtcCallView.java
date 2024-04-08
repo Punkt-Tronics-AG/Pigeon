@@ -1,3 +1,8 @@
+/*
+ * Copyright 2023 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package org.thoughtcrime.securesms.components.webrtc;
 
 import android.annotation.SuppressLint;
@@ -5,15 +10,12 @@ import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.Build;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,46 +26,41 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
+import androidx.compose.ui.platform.ComposeView;
+import androidx.constraintlayout.widget.Barrier;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.util.Consumer;
-import androidx.core.util.Preconditions;
-import androidx.core.view.ViewKt;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.AutoTransition;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
-import androidx.transition.TransitionSet;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.google.android.material.button.MaterialButton;
-import com.google.common.collect.Sets;
 
 import org.signal.core.util.DimensionUnit;
 import org.signal.core.util.SetUtil;
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.animation.ResizeAnimation;
 import org.thoughtcrime.securesms.components.AccessibleToggleButton;
 import org.thoughtcrime.securesms.components.AvatarImageView;
+import org.thoughtcrime.securesms.components.InsetAwareConstraintLayout;
 import org.thoughtcrime.securesms.contacts.avatars.ContactPhoto;
 import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
-import org.thoughtcrime.securesms.mediasend.SimpleAnimationListener;
-import org.thoughtcrime.securesms.mms.GlideApp;
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.service.webrtc.PendingParticipantCollection;
+import org.thoughtcrime.securesms.stories.viewer.reply.reaction.MultiReactionBurstLayout;
 import org.thoughtcrime.securesms.util.BlurTransformation;
 import org.thoughtcrime.securesms.util.ThrottledDebouncer;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -83,19 +80,13 @@ import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 
-import kotlin.concurrent.ThreadsKt;
-
-public class WebRtcCallView extends ConstraintLayout {
+public class WebRtcCallView extends InsetAwareConstraintLayout {
 
   private static final String TAG = Log.tag(WebRtcCallView.class);
 
   private static final long TRANSITION_DURATION_MILLIS          = 250;
   private static final int  SMALL_ONGOING_CALL_BUTTON_MARGIN_DP = 8;
   private static final int  LARGE_ONGOING_CALL_BUTTON_MARGIN_DP = 16;
-
-  public static final int FADE_OUT_DELAY      = 5000;
-  public static final int PIP_RESIZE_DURATION = 300;
-  public static final int CONTROLS_HEIGHT     = 98;
 
   private WebRtcAudioOutputToggleButton audioToggle;
   private TextView                      pigeonAudioToggleLabel;
@@ -114,8 +105,6 @@ public class WebRtcCallView extends ConstraintLayout {
   private TextView                      pigeonPhone;
   private TextView                      status;
   private TextView                      incomingRingStatus;
-  private ConstraintLayout              parent;
-  private ConstraintLayout              participantsParent;
   private ControlsListener              controlsListener;
   private RecipientId                   recipientId;
   private ImageView                     answer;
@@ -124,6 +113,7 @@ public class WebRtcCallView extends ConstraintLayout {
   private ImageView                     cameraDirectionToggle;
   private AccessibleToggleButton        ringToggle;
   private PictureInPictureGestureHelper pictureInPictureGestureHelper;
+  private ImageView                     overflow;
   private ImageView                     hangup;
   private TextView                      hangupLabel;
   private View                          topGradient;
@@ -136,23 +126,27 @@ public class WebRtcCallView extends ConstraintLayout {
   private Stub<FrameLayout>             groupCallSpeakerHint;
   private Stub<View>                    groupCallFullStub;
   private View                          errorButton;
-  private int                           pagerBottomMarginDp;
-  private boolean                       controlsVisible = true;
   private Guideline                     showParticipantsGuideline;
+  private Guideline                     aboveControlsGuideline;
   private Guideline                     topFoldGuideline;
   private Guideline                     callScreenTopFoldGuideline;
   private AvatarImageView               largeHeaderAvatar;
-  private Guideline                     statusBarGuideline;
-  private Guideline                     navigationBarGuideline;
   private int                           navBarBottomInset;
   private View                          fullScreenShade;
   private Toolbar                       collapsedToolbar;
   private Toolbar                       headerToolbar;
   private Stub<PendingParticipantsView> pendingParticipantsViewStub;
   private Stub<View>                    callLinkWarningCard;
+  private RecyclerView                  groupReactionsFeed;
+  private MultiReactionBurstLayout      reactionViews;
+  private ComposeView                   raiseHandSnackbar;
+  private Barrier                       pipBottomBoundaryBarrier;
+
+
 
   private WebRtcCallParticipantsPagerAdapter    pagerAdapter;
   private WebRtcCallParticipantsRecyclerAdapter recyclerAdapter;
+  private WebRtcReactionsRecyclerAdapter        reactionsAdapter;
   private PictureInPictureExpansionHelper       pictureInPictureExpansionHelper;
   private PendingParticipantsView.Listener      pendingParticipantsViewListener;
 
@@ -160,18 +154,14 @@ public class WebRtcCallView extends ConstraintLayout {
   private final Set<View> topViews             = new HashSet<>();
   private final Set<View> visibleViewSet       = new HashSet<>();
   private final Set<View> allTimeVisibleViews  = new HashSet<>();
-  private final Set<View> adjustableMarginsSet = new HashSet<>();
   private final Set<View> rotatableControls    = new HashSet<>();
-
 
   private final ThrottledDebouncer throttledDebouncer = new ThrottledDebouncer(TRANSITION_DURATION_MILLIS);
   private       WebRtcControls     controls           = WebRtcControls.NONE;
-  private final Runnable           fadeOutRunnable    = () -> {
-    if (isAttachedToWindow() && controls.isFadeOutEnabled()) fadeOutControls();
-  };
 
   private CallParticipantsViewState lastState;
   private ContactPhoto              previousLocalAvatar;
+  private LayoutPositions           previousLayoutPositions = null;
 
   private boolean isFirstPigeonSetupFocus = true;
 
@@ -207,15 +197,14 @@ public class WebRtcCallView extends ConstraintLayout {
     pigeonPhone                   = findViewById(R.id.pigeon_phone);
     status                        = findViewById(R.id.call_screen_status);
     incomingRingStatus            = findViewById(R.id.call_screen_incoming_ring_status);
-    parent                        = findViewById(R.id.call_screen);
-    participantsParent            = findViewById(R.id.call_screen_participants_parent);
     answer                        = findViewById(R.id.call_screen_answer_call);
+    answerWithoutVideoLabel       = findViewById(R.id.call_screen_answer_without_video_label);
     cameraDirectionToggle         = findViewById(R.id.call_screen_camera_direction_toggle);
     ringToggle                    = findViewById(R.id.call_screen_audio_ring_toggle);
+    overflow                      = findViewById(R.id.call_screen_overflow_button);
     hangup                        = findViewById(R.id.call_screen_end_call);
     hangupLabel                   = findViewById(R.id.call_screen_end_call_label);
     answerWithoutVideo            = findViewById(R.id.call_screen_answer_without_video);
-    answerWithoutVideoLabel       = findViewById(R.id.call_screen_answer_without_video_label);
     topGradient                   = findViewById(R.id.call_screen_header_gradient);
     footerGradient                = findViewById(R.id.call_screen_footer_gradient);
     startCallControls             = findViewById(R.id.call_screen_start_call_controls);
@@ -227,34 +216,42 @@ public class WebRtcCallView extends ConstraintLayout {
     groupCallSpeakerHint          = new Stub<>(findViewById(R.id.call_screen_group_call_speaker_hint));
     groupCallFullStub             = new Stub<>(findViewById(R.id.group_call_call_full_view));
     showParticipantsGuideline     = findViewById(R.id.call_screen_show_participants_guideline);
+    aboveControlsGuideline        = findViewById(R.id.call_screen_above_controls_guideline);
     topFoldGuideline              = findViewById(R.id.fold_top_guideline);
     callScreenTopFoldGuideline    = findViewById(R.id.fold_top_call_screen_guideline);
     largeHeaderAvatar             = findViewById(R.id.call_screen_header_avatar);
-    statusBarGuideline            = findViewById(R.id.call_screen_status_bar_guideline);
-    navigationBarGuideline        = findViewById(R.id.call_screen_navigation_bar_guideline);
     fullScreenShade               = findViewById(R.id.call_screen_full_shade);
     collapsedToolbar              = findViewById(R.id.webrtc_call_view_toolbar_text);
     headerToolbar                 = findViewById(R.id.webrtc_call_view_toolbar_no_text);
     pendingParticipantsViewStub   = new Stub<>(findViewById(R.id.call_screen_pending_recipients));
     callLinkWarningCard           = new Stub<>(findViewById(R.id.call_screen_call_link_warning));
+    groupReactionsFeed            = findViewById(R.id.call_screen_reactions_feed);
+    reactionViews                 = findViewById(R.id.call_screen_reactions_container);
+    raiseHandSnackbar             = findViewById(R.id.call_screen_raise_hand_view);
+    pipBottomBoundaryBarrier      = findViewById(R.id.pip_bottom_boundary_barrier);
 
-    View      decline                = findViewById(R.id.call_screen_decline_call);
-    View      answerLabel            = findViewById(R.id.call_screen_answer_call_label);
-    View      declineLabel           = findViewById(R.id.call_screen_decline_call_label);
+    View decline      = findViewById(R.id.call_screen_decline_call);
+    View answerLabel  = findViewById(R.id.call_screen_answer_call_label);
+    View declineLabel = findViewById(R.id.call_screen_decline_call_label);
 
     pigeonVolumeToggle.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onVolumePressed));
 
     callParticipantsPager.setPageTransformer(new MarginPageTransformer(ViewUtil.dpToPx(4)));
 
-    pagerAdapter    = new WebRtcCallParticipantsPagerAdapter(this::toggleControls);
-    recyclerAdapter = new WebRtcCallParticipantsRecyclerAdapter();
+    pagerAdapter     = new WebRtcCallParticipantsPagerAdapter(this::toggleControls);
+    recyclerAdapter  = new WebRtcCallParticipantsRecyclerAdapter();
+    reactionsAdapter = new WebRtcReactionsRecyclerAdapter();
 
     callParticipantsPager.setAdapter(pagerAdapter);
     callParticipantsRecycler.setAdapter(recyclerAdapter);
+    groupReactionsFeed.setAdapter(reactionsAdapter);
 
     DefaultItemAnimator animator = new DefaultItemAnimator();
     animator.setSupportsChangeAnimations(false);
     callParticipantsRecycler.setItemAnimator(animator);
+
+    groupReactionsFeed.addItemDecoration(new WebRtcReactionsAlphaItemDecoration());
+    groupReactionsFeed.setItemAnimator(new WebRtcReactionsItemAnimator());
 
     callParticipantsPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
       @Override
@@ -263,8 +260,6 @@ public class WebRtcCallView extends ConstraintLayout {
       }
     });
 
-    topViews.add(collapsedToolbar);
-    topViews.add(headerToolbar);
     topViews.add(largeHeader);
     topViews.add(topGradient);
 
@@ -274,14 +269,6 @@ public class WebRtcCallView extends ConstraintLayout {
     incomingCallViews.add(declineLabel);
     incomingCallViews.add(footerGradient);
     incomingCallViews.add(incomingRingStatus);
-
-    if (isSignalVersion()) {
-      adjustableMarginsSet.add(pigeonAudioToggleLabel);
-      adjustableMarginsSet.add(micToggle);
-      adjustableMarginsSet.add(cameraDirectionToggle);
-      adjustableMarginsSet.add(videoToggle);
-      adjustableMarginsSet.add(audioToggle);
-    }
 
     focusOnLeft(pigeonAudioToggleLabel);
     focusOnLeft(micToggleLabel);
@@ -329,6 +316,11 @@ public class WebRtcCallView extends ConstraintLayout {
     });
 
     cameraDirectionToggle.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onCameraDirectionChanged));
+    smallLocalRender.findViewById(R.id.call_participant_switch_camera).setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onCameraDirectionChanged));
+
+    overflow.setOnClickListener(v -> {
+      runIfNonNull(controlsListener, ControlsListener::onOverflowClicked);
+    });
 
     hangup.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onEndCallPressed));
     hangupLabel.setOnClickListener(v -> hangup.performClick());
@@ -341,7 +333,7 @@ public class WebRtcCallView extends ConstraintLayout {
     answerLabel.setOnClickListener(v -> answerWithoutVideo.performClick());
 
     pictureInPictureGestureHelper   = PictureInPictureGestureHelper.applyTo(smallLocalRenderFrame);
-    pictureInPictureExpansionHelper = new PictureInPictureExpansionHelper();
+    pictureInPictureExpansionHelper = new PictureInPictureExpansionHelper(smallLocalRenderFrame);
 
     smallLocalRenderFrame.setOnClickListener(v -> {
       if (controlsListener != null) {
@@ -407,6 +399,7 @@ public class WebRtcCallView extends ConstraintLayout {
       return false;
     });
 
+    rotatableControls.add(overflow);
     rotatableControls.add(hangup);
     rotatableControls.add(answer);
     rotatableControls.add(answerWithoutVideo);
@@ -420,6 +413,11 @@ public class WebRtcCallView extends ConstraintLayout {
     rotatableControls.add(smallLocalAudioIndicator);
     rotatableControls.add(ringToggle);
 
+    pipBottomBoundaryBarrier.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+      if (bottom != oldBottom) {
+        onBarrierBottomChanged(bottom);
+      }
+    });
   }
 
   public void onKeyReceived(int keyCode, int event) {
@@ -468,24 +466,6 @@ public class WebRtcCallView extends ConstraintLayout {
     }
   }
 
-  @Override
-  protected void onAttachedToWindow() {
-    super.onAttachedToWindow();
-
-    if (controls.isFadeOutEnabled()) {
-      scheduleFadeOut();
-    }
-  }
-
-  @Override
-  protected boolean fitSystemWindows(Rect insets) {
-    if (insets.top != 0) {
-      statusBarGuideline.setGuidelineBegin(insets.top);
-    }
-    navigationBarGuideline.setGuidelineEnd(insets.bottom);
-
-    return true;
-  }
 
   @Override
   public WindowInsets onApplyWindowInsets(WindowInsets insets) {
@@ -500,25 +480,14 @@ public class WebRtcCallView extends ConstraintLayout {
 
   @Override
   public void onWindowSystemUiVisibilityChanged(int visible) {
+    final Guideline statusBarGuideline = getStatusBarGuideline();
     if ((visible & SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-      if (controls.adjustForFold()) {
-        pictureInPictureGestureHelper.clearVerticalBoundaries();
-        pictureInPictureGestureHelper.setTopVerticalBoundary(getPipBarrier().getTop());
-      } else {
-        pictureInPictureGestureHelper.setTopVerticalBoundary(getPipBarrier().getBottom());
-        pictureInPictureGestureHelper.setBottomVerticalBoundary(videoToggle.getTop());
-      }
+      pictureInPictureGestureHelper.setTopVerticalBoundary(collapsedToolbar.getBottom());
+    } else if (statusBarGuideline != null) {
+      pictureInPictureGestureHelper.setTopVerticalBoundary(statusBarGuideline.getBottom());
     } else {
-      pictureInPictureGestureHelper.clearVerticalBoundaries();
+      Log.d(TAG, "Could not update PiP gesture helper.");
     }
-
-    pictureInPictureGestureHelper.adjustPip();
-  }
-
-  @Override
-  protected void onDetachedFromWindow() {
-    super.onDetachedFromWindow();
-    cancelFadeOut();
   }
 
   public void rotateControls(int degrees) {
@@ -574,7 +543,13 @@ public class WebRtcCallView extends ConstraintLayout {
 
     if (state.getGroupCallState().isNotIdle()) {
       if (state.getCallState() == WebRtcViewModel.State.CALL_PRE_JOIN) {
-        callLinkWarningCard.setVisibility(callParticipantsViewState.isStartedFromCallLink() ? View.VISIBLE : View.GONE);
+        if (callParticipantsViewState.isStartedFromCallLink()) {
+          TextView warningTextView = callLinkWarningCard.get().findViewById(R.id.call_screen_call_link_warning_textview);
+          warningTextView.setText(SignalStore.phoneNumberPrivacy().isPhoneNumberSharingEnabled() ? R.string.WebRtcCallView__anyone_who_joins_pnp_enabled : R.string.WebRtcCallView__anyone_who_joins_pnp_disabled);
+          callLinkWarningCard.setVisibility(View.VISIBLE);
+        } else {
+          callLinkWarningCard.setVisibility(View.GONE);
+        }
         setStatus(state.getPreJoinGroupDescription(getContext()));
       } else if (state.getCallState() == WebRtcViewModel.State.CALL_CONNECTED && state.isInOutgoingRingingMode()) {
         callLinkWarningCard.setVisibility(View.GONE);
@@ -582,6 +557,8 @@ public class WebRtcCallView extends ConstraintLayout {
       } else if (state.getGroupCallState().isRinging()) {
         callLinkWarningCard.setVisibility(View.GONE);
         setStatus(state.getIncomingRingingGroupDescription(getContext()));
+      } else {
+        callLinkWarningCard.setVisibility(View.GONE);
       }
     }
 
@@ -596,21 +573,25 @@ public class WebRtcCallView extends ConstraintLayout {
 
     pagerAdapter.submitList(pages);
     recyclerAdapter.submitList(state.getListParticipants());
+    reactionsAdapter.submitList(state.getReactions());
+
+    reactionViews.displayReactions(state.getReactions());
 
     boolean displaySmallSelfPipInLandscape = !isPortrait && isLandscapeEnabled;
 
-    updateLocalCallParticipant(state.getLocalRenderState(), state.getLocalParticipant(), state.getFocusedParticipant(), displaySmallSelfPipInLandscape);
+    updateLocalCallParticipant(state.getLocalRenderState(), state.getLocalParticipant(), displaySmallSelfPipInLandscape);
 
-    if (state.isLargeVideoGroup() && !state.isInPipMode() && !state.isFolded()) {
-      layoutParticipantsForLargeCount();
+    if (state.isLargeVideoGroup()) {
+      moveSnackbarAboveParticipantRail(true);
+      adjustLayoutForLargeCount();
     } else {
-      layoutParticipantsForSmallCount();
+      moveSnackbarAboveParticipantRail(state.isViewingFocusedParticipant());
+      adjustLayoutForSmallCount();
     }
   }
 
   public void updateLocalCallParticipant(@NonNull WebRtcLocalRenderState state,
                                          @NonNull CallParticipant localCallParticipant,
-                                         @NonNull CallParticipant focusedParticipant,
                                          boolean displaySmallSelfPipInLandscape)
   {
     largeLocalRender.setMirror(localCallParticipant.getCameraDirection() == CameraState.Direction.FRONT);
@@ -627,18 +608,23 @@ public class WebRtcCallView extends ConstraintLayout {
     if (isSignalVersion()) {
       smallLocalRender.setRenderInPip(true);
     }
+    smallLocalRender.setCallParticipant(localCallParticipant);
+    smallLocalRender.setMirror(localCallParticipant.getCameraDirection() == CameraState.Direction.FRONT);
 
     if (state == WebRtcLocalRenderState.EXPANDED) {
-      expandPip(localCallParticipant, focusedParticipant);
-      smallLocalRender.setCallParticipant(focusedParticipant);
+      pictureInPictureExpansionHelper.beginExpandTransition();
+      smallLocalRender.setSelfPipMode(CallParticipantView.SelfPipMode.EXPANDED_SELF_PIP);
       return;
-    } else if ((state == WebRtcLocalRenderState.SMALL_RECTANGLE || state == WebRtcLocalRenderState.GONE) && pictureInPictureExpansionHelper.isExpandedOrExpanding()) {
-      shrinkPip(localCallParticipant);
-      return;
-    } else {
-      smallLocalRender.setCallParticipant(localCallParticipant);
-      smallLocalRender.setMirror(localCallParticipant.getCameraDirection() == CameraState.Direction.FRONT);
+    } else if ((state.isAnySmall() || state == WebRtcLocalRenderState.GONE) && pictureInPictureExpansionHelper.isExpandedOrExpanding()) {
+      pictureInPictureExpansionHelper.beginShrinkTransition();
+      smallLocalRender.setSelfPipMode(pictureInPictureExpansionHelper.isMiniSize() ? CallParticipantView.SelfPipMode.MINI_SELF_PIP : CallParticipantView.SelfPipMode.NORMAL_SELF_PIP);
+
+      if (state != WebRtcLocalRenderState.GONE) {
+        return;
+      }
     }
+
+    pictureInPictureGestureHelper.setDisplayBelowVerticalBoundary(false);
 
     switch (state) {
       case GONE:
@@ -660,6 +646,7 @@ public class WebRtcCallView extends ConstraintLayout {
 
         largeLocalRender.attachBroadcastVideoSink(null);
         largeLocalRenderFrame.setVisibility(View.GONE);
+        pictureInPictureGestureHelper.setDisplayBelowVerticalBoundary(true);
         break;
       case LARGE:
         largeLocalRender.attachBroadcastVideoSink(localCallParticipant.getVideoSink());
@@ -681,7 +668,7 @@ public class WebRtcCallView extends ConstraintLayout {
 
         if (!localAvatar.equals(previousLocalAvatar)) {
           previousLocalAvatar = localAvatar;
-          GlideApp.with(getContext().getApplicationContext())
+          Glide.with(getContext().getApplicationContext())
                   .load(localAvatar)
                   .transform(new CenterCrop(), new BlurTransformation(getContext(), 0.25f, BlurTransformation.MAX_RADIUS))
                   .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -806,7 +793,7 @@ public class WebRtcCallView extends ConstraintLayout {
       topFoldGuideline.setGuidelineEnd(webRtcControls.getFold());
       callScreenTopFoldGuideline.setGuidelineEnd(webRtcControls.getFold());
     } else {
-      showParticipantsGuideline.setGuidelineBegin(((LayoutParams) statusBarGuideline.getLayoutParams()).guideBegin);
+      showParticipantsGuideline.setGuidelineBegin(((LayoutParams) getStatusBarGuideline().getLayoutParams()).guideBegin);
       showParticipantsGuideline.setGuidelineEnd(-1);
       topFoldGuideline.setGuidelineEnd(0);
       callScreenTopFoldGuideline.setGuidelineEnd(0);
@@ -870,7 +857,6 @@ public class WebRtcCallView extends ConstraintLayout {
       visibleViewSet.add(pigeonVolumeToggle);
       visibleViewSet.add(audioToggle);
       visibleViewSet.add(pigeonAudioToggleLabel);
-
       audioToggle.setControlAvailability(webRtcControls.isEarpieceAvailableForAudioToggle(),
                                          webRtcControls.isBluetoothHeadsetAvailableForAudioToggle(),
                                          webRtcControls.isWiredHeadsetAvailableForAudioToggle());
@@ -878,34 +864,13 @@ public class WebRtcCallView extends ConstraintLayout {
       audioToggle.updateAudioOutputState(webRtcControls.getAudioOutput());
     }
 
-    if (webRtcControls.displayCameraToggle()) {
-      visibleViewSet.add(cameraDirectionToggle);
-    }
-
-    if (webRtcControls.displayEndCall()) {
-      visibleViewSet.add(hangup);
-      visibleViewSet.add(hangupLabel);
-      if (isSignalVersion()) {
-        visibleViewSet.add(footerGradient);
-      }
-    }
-
-    if (webRtcControls.displayMuteAudio()) {
-      visibleViewSet.add(micToggle);
-      visibleViewSet.add(micToggleLabel);
-    }
-
-    if (webRtcControls.displayVideoToggle()) {
-      visibleViewSet.add(videoToggle);
-    }
-
-    if (webRtcControls.displaySmallOngoingCallButtons()) {
+    if (webRtcControls.displaySmallCallButtons()) {
       updateButtonStateForSmallButtons();
-    } else if (webRtcControls.displayLargeOngoingCallButtons()) {
+    } else {
       updateButtonStateForLargeButtons();
     }
 
-    if (webRtcControls.displayRemoteVideoRecycler() && isSignalVersion()) {
+    if (webRtcControls.displayRemoteVideoRecycler()) {
       callParticipantsRecycler.setVisibility(View.VISIBLE);
     } else {
       callParticipantsRecycler.setVisibility(View.GONE);
@@ -919,31 +884,20 @@ public class WebRtcCallView extends ConstraintLayout {
       fullScreenShade.setVisibility(GONE);
     }
 
-    if (webRtcControls.displayRingToggle()) {
-      visibleViewSet.add(ringToggle);
+    if (webRtcControls.displayReactions()) {
+      visibleViewSet.add(reactionViews);
+      visibleViewSet.add(groupReactionsFeed);
     }
 
-    if (webRtcControls.isFadeOutEnabled()) {
-      if (!controls.isFadeOutEnabled()) {
-        scheduleFadeOut();
-      }
-    } else {
-      cancelFadeOut();
-
-      if (controlsListener != null) {
-        controlsListener.showSystemUI();
-      }
-    }
-
-    if (webRtcControls.adjustForFold() && webRtcControls.isFadeOutEnabled() && !controls.adjustForFold()) {
-      scheduleFadeOut();
+    if (webRtcControls.displayRaiseHand()) {
+      visibleViewSet.add(raiseHandSnackbar);
     }
 
     boolean forceUpdate = webRtcControls.adjustForFold() && !controls.adjustForFold();
     controls = webRtcControls;
 
     if (!controls.isFadeOutEnabled()) {
-      controlsVisible = true;
+      boolean controlsVisible = true;
     }
 
     allTimeVisibleViews.addAll(visibleViewSet);
@@ -954,12 +908,7 @@ public class WebRtcCallView extends ConstraintLayout {
         (!webRtcControls.showSmallHeader() && largeHeaderAvatar.getVisibility() == View.GONE) ||
         forceUpdate)
     {
-
-      if (controlsListener != null) {
-        controlsListener.showSystemUI();
-      }
-
-      throttledDebouncer.publish(() -> fadeInNewUiState(webRtcControls.displaySmallOngoingCallButtons(), webRtcControls.showSmallHeader()));
+      throttledDebouncer.publish(() -> fadeInNewUiState(webRtcControls.showSmallHeader()));
     }
 
     onWindowSystemUiVisibilityChanged(getWindowSystemUiVisibility());
@@ -967,6 +916,10 @@ public class WebRtcCallView extends ConstraintLayout {
 
   public @NonNull View getVideoTooltipTarget() {
     return videoToggle;
+  }
+
+  public @NonNull View getSwitchCameraTooltipTarget() {
+    return smallLocalRenderFrame;
   }
 
   public void showSpeakerViewHint() {
@@ -979,221 +932,114 @@ public class WebRtcCallView extends ConstraintLayout {
     }
   }
 
-  private void expandPip(@NonNull CallParticipant localCallParticipant, @NonNull CallParticipant focusedParticipant) {
-    pictureInPictureExpansionHelper.expand(smallLocalRenderFrame, new PictureInPictureExpansionHelper.Callback() {
-      @Override
-      public void onAnimationWillStart() {
-        largeLocalRender.attachBroadcastVideoSink(localCallParticipant.getVideoSink());
-      }
-
-      @Override
-      public void onPictureInPictureExpanded() {
-        largeLocalRenderFrame.setVisibility(View.VISIBLE);
-        largeLocalRenderNoVideo.setVisibility(View.GONE);
-        largeLocalRenderNoVideoAvatar.setVisibility(View.GONE);
-      }
-
-      @Override
-      public void onPictureInPictureNotVisible() {
-        smallLocalRender.setCallParticipant(focusedParticipant);
-        smallLocalRender.setMirror(false);
-      }
-
-      @Override
-      public void onAnimationHasFinished() {
-        pictureInPictureGestureHelper.adjustPip();
-      }
-    });
-  }
-
-  private void shrinkPip(@NonNull CallParticipant localCallParticipant) {
-    pictureInPictureExpansionHelper.shrink(smallLocalRenderFrame, new PictureInPictureExpansionHelper.Callback() {
-      @Override
-      public void onAnimationWillStart() {
-      }
-
-      @Override
-      public void onPictureInPictureExpanded() {
-        largeLocalRenderFrame.setVisibility(View.GONE);
-        largeLocalRender.attachBroadcastVideoSink(null);
-      }
-
-      @Override
-      public void onPictureInPictureNotVisible() {
-        smallLocalRender.setCallParticipant(localCallParticipant);
-        smallLocalRender.setMirror(localCallParticipant.getCameraDirection() == CameraState.Direction.FRONT);
-
-        if (!localCallParticipant.isVideoEnabled()) {
-          smallLocalRenderFrame.setVisibility(View.GONE);
-        }
-      }
-
-      @Override
-      public void onAnimationHasFinished() {
-        pictureInPictureGestureHelper.adjustPip();
-      }
-    });
-  }
-
   private void animatePipToLargeRectangle(boolean isLandscape) {
     final Point dimens;
     if (isLandscape) {
-      dimens = new Point(ViewUtil.dpToPx(160), ViewUtil.dpToPx(90));
+      dimens = new Point(ViewUtil.dpToPx(PictureInPictureExpansionHelper.NORMAL_PIP_HEIGHT_DP),
+                         ViewUtil.dpToPx(PictureInPictureExpansionHelper.NORMAL_PIP_WIDTH_DP));
     } else {
-      dimens = new Point(ViewUtil.dpToPx(90), ViewUtil.dpToPx(160));
+      dimens = new Point(ViewUtil.dpToPx(PictureInPictureExpansionHelper.NORMAL_PIP_WIDTH_DP),
+                         ViewUtil.dpToPx(PictureInPictureExpansionHelper.NORMAL_PIP_HEIGHT_DP));
     }
 
-    SimpleAnimationListener animationListener = new SimpleAnimationListener() {
+    pictureInPictureExpansionHelper.startDefaultSizeTransition(dimens, new PictureInPictureExpansionHelper.Callback() {
       @Override
-      public void onAnimationEnd(Animation animation) {
+      public void onAnimationHasFinished() {
         pictureInPictureGestureHelper.enableCorners();
-        pictureInPictureGestureHelper.adjustPip();
       }
-    };
+    });
 
-    ViewGroup.LayoutParams layoutParams = smallLocalRenderFrame.getLayoutParams();
-    if (layoutParams.width == dimens.x && layoutParams.height == dimens.y) {
-      animationListener.onAnimationEnd(null);
-      return;
-    }
-
-    ResizeAnimation animation = new ResizeAnimation(smallLocalRenderFrame, dimens.x, dimens.y);
-    animation.setDuration(PIP_RESIZE_DURATION);
-    animation.setAnimationListener(animationListener);
-
-    smallLocalRenderFrame.startAnimation(animation);
+    smallLocalRender.setSelfPipMode(CallParticipantView.SelfPipMode.NORMAL_SELF_PIP);
   }
 
   private void animatePipToSmallRectangle() {
-    pictureInPictureGestureHelper.lockToBottomEnd();
+    pictureInPictureExpansionHelper.startDefaultSizeTransition(new Point(ViewUtil.dpToPx(PictureInPictureExpansionHelper.MINI_PIP_WIDTH_DP),
+                                                                         ViewUtil.dpToPx(PictureInPictureExpansionHelper.MINI_PIP_HEIGHT_DP)),
+                                                               new PictureInPictureExpansionHelper.Callback() {
+                                                                 @Override
+                                                                 public void onAnimationHasFinished() {
+                                                                   pictureInPictureGestureHelper.lockToBottomEnd();
+                                                                 }
+                                                               });
 
-    pictureInPictureGestureHelper.performAfterFling(() -> {
-      ResizeAnimation animation = new ResizeAnimation(smallLocalRenderFrame, ViewUtil.dpToPx(54), ViewUtil.dpToPx(72));
-      animation.setDuration(PIP_RESIZE_DURATION);
-      animation.setAnimationListener(new SimpleAnimationListener() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-          pictureInPictureGestureHelper.adjustPip();
-        }
-      });
-
-      smallLocalRenderFrame.startAnimation(animation);
-    });
+    smallLocalRender.setSelfPipMode(CallParticipantView.SelfPipMode.MINI_SELF_PIP);
   }
 
   private void toggleControls() {
-    if (controls.isFadeOutEnabled() && largeHeader.getVisibility() == VISIBLE) {
-      fadeOutControls();
-    } else {
-      fadeInControls();
-    }
+    controlsListener.toggleControls();
   }
 
-  private void fadeOutControls() {
-    fadeControls(ConstraintSet.GONE);
-    controlsListener.onControlsFadeOut();
+  private void adjustLayoutForSmallCount() {
+    adjustLayoutPositions(LayoutPositions.SMALL_GROUP);
   }
 
-  private void fadeInControls() {
-    fadeControls(ConstraintSet.VISIBLE);
-
-    scheduleFadeOut();
+  private void adjustLayoutForLargeCount() {
+    adjustLayoutPositions(LayoutPositions.LARGE_GROUP);
   }
 
-  private void layoutParticipantsForSmallCount() {
-    pagerBottomMarginDp = 0;
-
-    layoutParticipants();
-  }
-
-  private void layoutParticipantsForLargeCount() {
-    pagerBottomMarginDp = 104;
-
-    layoutParticipants();
-  }
-
-  private int withControlsHeight(int margin) {
-    if (margin == 0) {
-      return 0;
+  private void adjustLayoutPositions(@NonNull LayoutPositions layoutPositions) {
+    if (previousLayoutPositions == layoutPositions) {
+      return;
     }
 
-    return (controlsVisible || controls.adjustForFold()) ? margin + CONTROLS_HEIGHT : margin;
-  }
-
-  private void layoutParticipants() {
-    if (isSignalVersion()) {
-      int desiredMargin = ViewUtil.dpToPx(withControlsHeight(pagerBottomMarginDp));
-      if (ViewKt.getMarginBottom(callParticipantsPager) == desiredMargin) {
-        return;
-      }
-
-      Transition transition = new AutoTransition().setDuration(TRANSITION_DURATION_MILLIS);
-
-      TransitionManager.beginDelayedTransition(participantsParent, transition);
-
-      ConstraintSet constraintSet = new ConstraintSet();
-      constraintSet.clone(participantsParent);
-
-      constraintSet.setMargin(R.id.call_screen_participants_pager, ConstraintSet.BOTTOM, desiredMargin);
-      constraintSet.applyTo(participantsParent);
-    }
-  }
-
-  private void fadeControls(int visibility) {
-    controlsVisible = visibility == VISIBLE;
-
-    Transition transition = new AutoTransition().setOrdering(TransitionSet.ORDERING_TOGETHER)
-                                                .setDuration(TRANSITION_DURATION_MILLIS);
-
-    TransitionManager.endTransitions(parent);
-
-    if (controlsListener != null) {
-      if (controlsVisible) {
-        controlsListener.showSystemUI();
-      } else {
-        controlsListener.hideSystemUI();
-      }
-    }
-
-    TransitionManager.beginDelayedTransition(parent, transition);
+    previousLayoutPositions = layoutPositions;
 
     ConstraintSet constraintSet = new ConstraintSet();
-    constraintSet.clone(parent);
+    constraintSet.setForceId(false);
+    constraintSet.clone(this);
 
-    for (View view : controlsToFade()) {
-      constraintSet.setVisibility(view.getId(), visibility);
-    }
+    constraintSet.connect(R.id.call_screen_participants_parent,
+                          ConstraintSet.BOTTOM,
+                          layoutPositions.participantBottomViewId,
+                          layoutPositions.participantBottomViewEndSide,
+                          ViewUtil.dpToPx(layoutPositions.participantBottomMargin));
 
-    adjustParticipantsRecycler(constraintSet);
+    constraintSet.connect(R.id.call_screen_reactions_feed,
+                          ConstraintSet.BOTTOM,
+                          layoutPositions.reactionBottomViewId,
+                          ConstraintSet.TOP,
+                          ViewUtil.dpToPx(layoutPositions.reactionBottomMargin));
 
-    constraintSet.applyTo(parent);
+    constraintSet.connect(pendingParticipantsViewStub.getId(),
+                          ConstraintSet.BOTTOM,
+                          layoutPositions.reactionBottomViewId,
+                          ConstraintSet.TOP,
+                          ViewUtil.dpToPx(layoutPositions.reactionBottomMargin));
 
-    layoutParticipants();
+    constraintSet.applyTo(this);
   }
 
-  private Set<View> controlsToFade() {
-    if (controls.adjustForFold()) {
-      return Sets.intersection(topViews, visibleViewSet);
+  private void moveSnackbarAboveParticipantRail(boolean aboveRail) {
+    if (aboveRail) {
+      updatePendingParticipantsBottomConstraint(callParticipantsRecycler);
     } else {
-      return visibleViewSet;
+      updatePendingParticipantsBottomConstraint(aboveControlsGuideline);
     }
   }
 
-  private void fadeInNewUiState(boolean useSmallMargins, boolean showSmallHeader) {
-    Transition transition = new AutoTransition().setDuration(TRANSITION_DURATION_MILLIS);
-
-    TransitionManager.beginDelayedTransition(parent, transition);
-
+  private void updatePendingParticipantsBottomConstraint(View anchor) {
     ConstraintSet constraintSet = new ConstraintSet();
-    constraintSet.clone(parent);
+    constraintSet.setForceId(false);
+    constraintSet.clone(this);
 
+    constraintSet.connect(R.id.call_screen_pending_recipients,
+                          ConstraintSet.BOTTOM,
+                          anchor.getId(),
+                          ConstraintSet.TOP,
+                          ViewUtil.dpToPx(8));
+
+    constraintSet.applyTo(this);
+  }
+
+  private void fadeInNewUiState(boolean showSmallHeader) {
     for (View view : SetUtil.difference(allTimeVisibleViews, visibleViewSet)) {
-      constraintSet.setVisibility(view.getId(), ConstraintSet.GONE);
+      view.setVisibility(GONE);
     }
 
     boolean isHangupRequest = false;
 
     for (View view : visibleViewSet) {
+      view.setVisibility(VISIBLE);
       constraintSet.setVisibility(view.getId(), ConstraintSet.VISIBLE);
 
       if (view.getId() == hangupLabel.getId()) {
@@ -1208,10 +1054,6 @@ public class WebRtcCallView extends ConstraintLayout {
       }
 
     }
-
-    adjustParticipantsRecycler(constraintSet);
-
-    constraintSet.applyTo(parent);
 
     if (isSignalVersion()) {
       if (showSmallHeader) {
@@ -1236,28 +1078,6 @@ public class WebRtcCallView extends ConstraintLayout {
     }
   }
 
-  private void adjustParticipantsRecycler(@NonNull ConstraintSet constraintSet) {
-    if (controlsVisible || controls.adjustForFold()) {
-      constraintSet.connect(R.id.call_screen_participants_recycler, ConstraintSet.BOTTOM, R.id.call_screen_video_toggle, ConstraintSet.TOP);
-    } else {
-      constraintSet.connect(R.id.call_screen_participants_recycler, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
-    }
-
-    constraintSet.setHorizontalBias(R.id.call_screen_participants_recycler, controls.adjustForFold() ? 0.5f : 1f);
-  }
-
-  private void scheduleFadeOut() {
-    cancelFadeOut();
-
-    if (getHandler() == null) return;
-    getHandler().postDelayed(fadeOutRunnable, FADE_OUT_DELAY);
-  }
-
-  private void cancelFadeOut() {
-    if (getHandler() == null) return;
-    getHandler().removeCallbacks(fadeOutRunnable);
-  }
-
   private static <T> void runIfNonNull(@Nullable T listener, @NonNull Consumer<T> listenerConsumer) {
     if (listener != null) {
       listenerConsumer.accept(listener);
@@ -1267,19 +1087,23 @@ public class WebRtcCallView extends ConstraintLayout {
   private void updateButtonStateForLargeButtons() {
     cameraDirectionToggle.setImageResource(R.drawable.webrtc_call_screen_camera_toggle);
     hangup.setImageResource(R.drawable.webrtc_call_screen_hangup);
+    overflow.setImageResource(R.drawable.webrtc_call_screen_overflow_menu);
     micToggle.setBackgroundResource(R.drawable.webrtc_call_screen_mic_toggle);
     videoToggle.setBackgroundResource(R.drawable.webrtc_call_screen_video_toggle);
     audioToggle.setImageResource(R.drawable.webrtc_call_screen_speaker_toggle);
     ringToggle.setBackgroundResource(R.drawable.webrtc_call_screen_ring_toggle);
+    overflow.setBackgroundResource(R.drawable.webrtc_call_screen_overflow_menu);
   }
 
   private void updateButtonStateForSmallButtons() {
     cameraDirectionToggle.setImageResource(R.drawable.webrtc_call_screen_camera_toggle_small);
     hangup.setImageResource(R.drawable.webrtc_call_screen_hangup_small);
+    overflow.setImageResource(R.drawable.webrtc_call_screen_overflow_menu_small);
     micToggle.setBackgroundResource(R.drawable.webrtc_call_screen_mic_toggle_small);
     videoToggle.setBackgroundResource(R.drawable.webrtc_call_screen_video_toggle_small);
     audioToggle.setImageResource(R.drawable.webrtc_call_screen_speaker_toggle_small);
     ringToggle.setBackgroundResource(R.drawable.webrtc_call_screen_ring_toggle_small);
+    overflow.setBackgroundResource(R.drawable.webrtc_call_screen_overflow_menu_small);
   }
 
   public void switchToSpeakerView() {
@@ -1297,18 +1121,24 @@ public class WebRtcCallView extends ConstraintLayout {
     ringToggle.setActivated(enabled);
   }
 
+  public void onControlTopChanged() {
+    onBarrierBottomChanged(pipBottomBoundaryBarrier.getBottom());
+  }
+
+  private void onBarrierBottomChanged(int barrierBottom) {
+    pictureInPictureGestureHelper.setBottomVerticalBoundary(barrierBottom);
+  }
+
   public interface ControlsListener {
     void onVolumePressed();
     void onStartCall(boolean isVideoCall);
     void onCancelStartCall();
-    void onControlsFadeOut();
-    void showSystemUI();
-    void hideSystemUI();
     void onAudioOutputChanged(@NonNull WebRtcAudioOutput audioOutput);
     @RequiresApi(31)
     void onAudioOutputChanged31(@NonNull WebRtcAudioDevice audioOutput);
     void onVideoChanged(boolean isVideoEnabled);
     void onMicChanged(boolean isMicEnabled);
+    void onOverflowClicked();
     void onCameraDirectionChanged();
     void onEndCallPressed();
     void onDenyCallPressed();
@@ -1319,5 +1149,6 @@ public class WebRtcCallView extends ConstraintLayout {
     void onRingGroupChanged(boolean ringGroup, boolean ringingAllowed);
     void onCallInfoClicked();
     void onNavigateUpClicked();
+    void toggleControls();
   }
 }

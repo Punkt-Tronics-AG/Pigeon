@@ -9,9 +9,9 @@ import org.signal.libsignal.zkgroup.profiles.ProfileKey;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
@@ -77,7 +77,8 @@ public class MultiDeviceProfileKeyUpdateJob extends BaseJob {
     ByteArrayOutputStream baos       = new ByteArrayOutputStream();
     DeviceContactsOutputStream out        = new DeviceContactsOutputStream(baos);
 
-    out.write(new DeviceContact(RecipientUtil.toSignalServiceAddress(context, Recipient.self()),
+    out.write(new DeviceContact(Optional.ofNullable(SignalStore.account().getAci()),
+                                Optional.ofNullable(SignalStore.account().getE164()),
                                 Optional.empty(),
                                 Optional.empty(),
                                 Optional.empty(),

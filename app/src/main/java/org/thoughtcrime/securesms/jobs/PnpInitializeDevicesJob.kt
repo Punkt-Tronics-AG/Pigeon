@@ -20,10 +20,8 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.registration.VerifyResponse
 import org.thoughtcrime.securesms.registration.VerifyResponseWithoutKbs
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.whispersystems.signalservice.api.account.PniKeyDistributionRequest
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
@@ -50,7 +48,7 @@ class PnpInitializeDevicesJob private constructor(parameters: Parameters) : Base
 
     @JvmStatic
     fun enqueueIfNecessary() {
-      if (SignalStore.misc().hasPniInitializedDevices() || !SignalStore.account().isRegistered || SignalStore.account().aci == null || Recipient.self().pnpCapability != Recipient.Capability.SUPPORTED || !FeatureFlags.phoneNumberPrivacy()) {
+      if (SignalStore.misc().hasPniInitializedDevices() || !SignalStore.account().isRegistered || SignalStore.account().aci == null) {
         return
       }
 
@@ -72,10 +70,6 @@ class PnpInitializeDevicesJob private constructor(parameters: Parameters) : Base
 
   @Throws(Exception::class)
   public override fun onRun() {
-    if (Recipient.self().pnpCapability != Recipient.Capability.SUPPORTED) {
-      throw IllegalStateException("This should only be run if you have the capability!")
-    }
-
     if (!SignalStore.account().isRegistered || SignalStore.account().aci == null) {
       Log.w(TAG, "Not registered! Skipping, as it wouldn't do anything.")
       return
@@ -104,10 +98,11 @@ class PnpInitializeDevicesJob private constructor(parameters: Parameters) : Base
 
       try {
         Log.i(TAG, "Initializing PNI for linked devices")
-        initializeDevices(e164)
+        val result: VerifyResponseWithoutKbs = initializeDevices(e164)
           .map(::VerifyResponseWithoutKbs)
           .safeBlockingGet()
-          .resultOrThrow
+
+        result.error?.let { throw it }
       } catch (e: InterruptedException) {
         throw IOException("Retry", e)
       } catch (t: Throwable) {
@@ -190,7 +185,7 @@ class PnpInitializeDevicesJob private constructor(parameters: Parameters) : Base
         val lastResortKyberPreKeyRecord: KyberPreKeyRecord = if (deviceId == primaryDeviceId) {
           pniProtocolStore.loadKyberPreKey(SignalStore.account().pniPreKeys.lastResortKyberPreKeyId)
         } else {
-          PreKeyUtil.generateLastRestortKyberPreKey(SecureRandom().nextInt(Medium.MAX_VALUE), pniIdentity.privateKey)
+          PreKeyUtil.generateLastResortKyberPreKey(SecureRandom().nextInt(Medium.MAX_VALUE), pniIdentity.privateKey)
         }
         devicePniLastResortKyberPreKeys[deviceId] = KyberPreKeyEntity(lastResortKyberPreKeyRecord.id, lastResortKyberPreKeyRecord.keyPair.publicKey, lastResortKyberPreKeyRecord.signature)
 

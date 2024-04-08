@@ -77,6 +77,15 @@ class JobController {
   }
 
   @WorkerThread
+  void submitNewJobChains(@NonNull List<List<List<Job>>> chains) {
+    synchronized (this) {
+      for (List<List<Job>> chain : chains) {
+        submitNewJobChain(chain);
+      }
+    }
+  }
+
+  @WorkerThread
   void submitNewJobChain(@NonNull List<List<Job>> chain) {
     synchronized (this) {
       chain = Stream.of(chain).filterNot(List::isEmpty).toList();
@@ -450,7 +459,8 @@ class JobController {
                                   job.serialize(),
                                   null,
                                   false,
-                                  job.getParameters().isMemoryOnly());
+                                  job.getParameters().isMemoryOnly(),
+                                  job.getParameters().getPriority());
 
     List<ConstraintSpec> constraintSpecs = Stream.of(job.getParameters().getConstraintKeys())
                                                  .map(key -> new ConstraintSpec(jobSpec.getId(), key, jobSpec.isMemoryOnly()))
@@ -554,7 +564,8 @@ class JobController {
                        jobSpec.getSerializedData(),
                        inputData,
                        jobSpec.isRunning(),
-                       jobSpec.isMemoryOnly());
+                       jobSpec.isMemoryOnly(),
+                       jobSpec.getPriority());
   }
 
   interface Callback {

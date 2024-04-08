@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import org.signal.core.util.DimensionUnit;
 import com.google.android.material.button.MaterialButton;
 
 import org.signal.core.util.logging.Log;
@@ -32,8 +33,10 @@ import org.thoughtcrime.securesms.contacts.ContactSelectionDisplayMode;
 import org.thoughtcrime.securesms.contacts.sync.ContactDiscovery;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.util.DisplayMetricsUtil;
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.Util;
 
@@ -64,7 +67,7 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
   protected ContactSelectionListFragment contactsFragment;
 
   private Toolbar           toolbar;
-  private   ContactFilterView contactFilterView;
+  private ContactFilterView contactFilterView;
   private MaterialButton    refresh;
 
   @Override
@@ -75,8 +78,7 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
   @Override
   protected void onCreate(Bundle icicle, boolean ready) {
     if (!getIntent().hasExtra(ContactSelectionListFragment.DISPLAY_MODE)) {
-      boolean includeSms  = Util.isDefaultSmsProvider(this) && SignalStore.misc().getSmsExportPhase().allowSmsFeatures();
-      int     displayMode = includeSms ? ContactSelectionDisplayMode.FLAG_ALL : ContactSelectionDisplayMode.FLAG_PUSH | ContactSelectionDisplayMode.FLAG_ACTIVE_GROUPS | ContactSelectionDisplayMode.FLAG_INACTIVE_GROUPS | ContactSelectionDisplayMode.FLAG_SELF;
+      int displayMode = ContactSelectionDisplayMode.FLAG_PUSH | ContactSelectionDisplayMode.FLAG_ACTIVE_GROUPS | ContactSelectionDisplayMode.FLAG_INACTIVE_GROUPS | ContactSelectionDisplayMode.FLAG_SELF;
       getIntent().putExtra(ContactSelectionListFragment.DISPLAY_MODE, displayMode);
     }
 
@@ -115,6 +117,10 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
 
   private void initializeContactFilterView() {
     this.contactFilterView = findViewById(R.id.contact_filter_edit_text);
+
+    if (getResources().getDisplayMetrics().heightPixels >= DimensionUnit.DP.toPixels(600)) {
+      this.contactFilterView.focusAndShowKeyboard();
+    }
   }
 
   private void initializeToolbar() {

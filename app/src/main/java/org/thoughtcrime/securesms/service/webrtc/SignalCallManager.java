@@ -27,6 +27,7 @@ import org.signal.ringrtc.CallId;
 import org.signal.ringrtc.CallLinkRootKey;
 import org.signal.ringrtc.CallManager;
 import org.signal.ringrtc.GroupCall;
+import org.signal.ringrtc.GroupCall.Reaction;
 import org.signal.ringrtc.HttpHeader;
 import org.signal.ringrtc.NetworkRoute;
 import org.signal.ringrtc.PeekInfo;
@@ -63,7 +64,6 @@ import org.thoughtcrime.securesms.service.webrtc.links.SignalCallLinkManager;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcEphemeralState;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
 import org.thoughtcrime.securesms.util.AppForegroundObserver;
-import org.thoughtcrime.securesms.util.BubbleUtil;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.RecipientAccessList;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -218,7 +218,7 @@ public final class SignalCallManager implements CallManager.Observer, GroupCall.
    * @param transformer The transformation to apply to the state. Runs on the {@link #serviceExecutor}.
    */
   @AnyThread
-private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEphemeralState> transformer) {
+  private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEphemeralState> transformer) {
     ephemeralStateStore.update(transformer);
   }
 
@@ -292,6 +292,14 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
 
   public void screenOff() {
     process((s, p) -> p.handleScreenOffChange(s));
+  }
+
+  public void raiseHand(boolean raised) {
+    process((s, p) -> p.handleSelfRaiseHand(s, raised));
+  }
+
+  public void react(@NonNull String reaction) {
+    processStateless(s -> serviceState.getActionProcessor().handleSendGroupReact(serviceState, s, reaction));
   }
 
   public void postStateUpdate(@NonNull WebRtcServiceState state) {
@@ -450,7 +458,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
                                                    peekInfo.getJoinedMembers(),
                                                    WebRtcUtil.isCallFull(peekInfo));
 
-            ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(threadId), true, 0, BubbleUtil.BubbleState.HIDDEN);
+            ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(threadId));
 
             EventBus.getDefault().postSticky(new GroupCallPeekEvent(id, peekInfo.getEraId(), peekInfo.getDeviceCount(), peekInfo.getMaxDevices()));
           }
@@ -637,6 +645,11 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   }
 
   @Override
+  public void onLowBandwidthForVideo(@Nullable Remote remote, boolean recovered) {
+    // TODO: Implement handling of the "low outgoing bandwidth for video" notification.
+  }
+
+  @Override
   public void onCallConcluded(@Nullable Remote remote) {
     if (!(remote instanceof RemotePeer)) {
       return;
@@ -664,7 +677,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
 
     OfferMessage.Type        offerType     = WebRtcUtil.getOfferTypeFromCallMediaType(callMediaType);
     WebRtcData.CallMetadata  callMetadata  = new WebRtcData.CallMetadata(remotePeer, remoteDevice);
-    WebRtcData.OfferMetadata offerMetadata = new WebRtcData.OfferMetadata(opaque, null, offerType);
+    WebRtcData.OfferMetadata offerMetadata = new WebRtcData.OfferMetadata(opaque, offerType);
 
     process((s, p) -> p.handleSendOffer(s, callMetadata, offerMetadata, broadcast));
   }
@@ -685,7 +698,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     Log.i(TAG, "onSendAnswer: id: " + remotePeer.getCallId().format(remoteDevice));
 
     WebRtcData.CallMetadata   callMetadata   = new WebRtcData.CallMetadata(remotePeer, remoteDevice);
-    WebRtcData.AnswerMetadata answerMetadata = new WebRtcData.AnswerMetadata(opaque, null);
+    WebRtcData.AnswerMetadata answerMetadata = new WebRtcData.AnswerMetadata(opaque);
 
     process((s, p) -> p.handleSendAnswer(s, callMetadata, answerMetadata, broadcast));
   }
@@ -746,7 +759,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     Log.i(TAG, "onSendCallMessage():");
 
     OpaqueMessage            opaqueMessage = new OpaqueMessage(bytes, getUrgencyFromCallUrgency(urgency));
-    SignalServiceCallMessage callMessage   = SignalServiceCallMessage.forOpaque(opaqueMessage, true, null);
+    SignalServiceCallMessage callMessage   = SignalServiceCallMessage.forOpaque(opaqueMessage, null);
 
     networkExecutor.execute(() -> {
       Recipient recipient = Recipient.resolved(RecipientId.from(ACI.from(aciUuid)));
@@ -783,7 +796,7 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
                                                                     .collect(Collectors.toList())));
 
         OpaqueMessage            opaqueMessage = new OpaqueMessage(message, getUrgencyFromCallUrgency(urgency));
-        SignalServiceCallMessage callMessage   = SignalServiceCallMessage.forOutgoingGroupOpaque(groupId.getDecodedId(), System.currentTimeMillis(), opaqueMessage, true, null);
+        SignalServiceCallMessage callMessage   = SignalServiceCallMessage.forOutgoingGroupOpaque(groupId.getDecodedId(), System.currentTimeMillis(), opaqueMessage, null);
         RecipientAccessList      accessList    = new RecipientAccessList(recipients);
 
         List<SendMessageResult> results = GroupSendUtil.sendCallMessage(context,
@@ -886,6 +899,25 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
   }
 
   @Override
+  public void onLowBandwidthForVideo(@NonNull GroupCall groupCall, boolean recovered) {
+    // TODO: Implement handling of the "low outgoing bandwidth for video" notification.
+  }
+
+  @Override
+  public void onReactions(@NonNull GroupCall groupCall, List<Reaction> reactions) {
+    if (FeatureFlags.groupCallReactions()) {
+      processStateless(s -> serviceState.getActionProcessor().handleGroupCallReaction(serviceState, s, reactions));
+    }
+  }
+
+  @Override
+  public void onRaisedHands(@NonNull GroupCall groupCall, List<Long> raisedHands) {
+    if (FeatureFlags.groupCallRaiseHand()) {
+      process((s, p) -> p.handleGroupCallRaisedHand(s, raisedHands));
+    }
+  }
+
+  @Override
   public void onRemoteDeviceStatesChanged(@NonNull GroupCall groupCall) {
     process((s, p) -> p.handleGroupRemoteDeviceStateChanged(s));
   }
@@ -931,15 +963,15 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     });
   }
 
-  public void insertMissedCall(@NonNull RemotePeer remotePeer, long timestamp, boolean isVideoOffer) {
+  public void insertMissedCall(@NonNull RemotePeer remotePeer, long timestamp, boolean isVideoOffer, @NonNull CallTable.Event missedEvent) {
     CallTable.Call call = SignalDatabase.calls()
-                                        .updateOneToOneCall(remotePeer.getCallId().longValue(), CallTable.Event.MISSED);
+                                        .updateOneToOneCall(remotePeer.getCallId().longValue(), missedEvent);
 
     if (call == null) {
       CallTable.Type type = isVideoOffer ? CallTable.Type.VIDEO_CALL : CallTable.Type.AUDIO_CALL;
 
       SignalDatabase.calls()
-                    .insertOneToOneCall(remotePeer.getCallId().longValue(), timestamp, remotePeer.getId(), type, CallTable.Direction.INCOMING, CallTable.Event.MISSED);
+                    .insertOneToOneCall(remotePeer.getCallId().longValue(), timestamp, remotePeer.getId(), type, CallTable.Direction.INCOMING, missedEvent);
     }
   }
 
@@ -988,7 +1020,9 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     });
   }
 
-  public void sendGroupCallUpdateMessage(@NonNull Recipient recipient, @Nullable String groupCallEraId, boolean isIncoming, boolean isJoinEvent) {
+  public void sendGroupCallUpdateMessage(@NonNull Recipient recipient, @Nullable String groupCallEraId, final @Nullable CallId callId, boolean isIncoming, boolean isJoinEvent) {
+    Log.i(TAG, "sendGroupCallUpdateMessage id: " + recipient.getId() + " era: " + groupCallEraId + " isIncoming: " + isIncoming + " isJoinEvent: " + isJoinEvent);
+
     if (recipient.isCallLink()) {
       Log.i(TAG, "sendGroupCallUpdateMessage -- ignoring for call link");
       return;
@@ -997,15 +1031,28 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
     SignalExecutors.BOUNDED.execute(() -> {
       GroupCallUpdateSendJob updateSendJob = GroupCallUpdateSendJob.create(recipient.getId(), groupCallEraId);
       JobManager.Chain       chain         = ApplicationDependencies.getJobManager().startChain(updateSendJob);
+      CallId                 callIdLocal   = callId;
 
-      if (isJoinEvent && groupCallEraId != null) {
-        chain.then(CallSyncEventJob.createForJoin(
-            recipient.getId(),
-            CallId.fromEra(groupCallEraId).longValue(),
-            isIncoming
-        ));
-      } else if (isJoinEvent) {
-        Log.w(TAG, "Can't send join event sync message without an era id.");
+      if (callIdLocal == null && groupCallEraId != null) {
+        callIdLocal = CallId.fromEra(groupCallEraId);
+      }
+
+      if (callIdLocal != null) {
+        if (isJoinEvent) {
+          chain.then(CallSyncEventJob.createForJoin(
+              recipient.getId(),
+              callIdLocal.longValue(),
+              isIncoming
+          ));
+        } else if (isIncoming) {
+          chain.then(CallSyncEventJob.createForNotAccepted(
+              recipient.getId(),
+              callIdLocal.longValue(),
+              isIncoming
+          ));
+        }
+      } else {
+        Log.w(TAG, "Can't send sync message without a call id. isIncoming: " + isIncoming + " isJoinEvent: " + isJoinEvent);
       }
 
       chain.enqueue();
@@ -1079,6 +1126,19 @@ private void processStateless(@NonNull Function1<WebRtcEphemeralState, WebRtcEph
       networkExecutor.execute(() -> {
         try {
           SyncMessage.CallEvent callEvent = CallEventSyncMessageUtil.createNotAcceptedSyncMessage(remotePeer, System.currentTimeMillis(), isOutgoing, isVideoCall);
+          ApplicationDependencies.getSignalServiceMessageSender().sendSyncMessage(SignalServiceSyncMessage.forCallEvent(callEvent), Optional.empty());
+        } catch (IOException | UntrustedIdentityException e) {
+          Log.w(TAG, "Unable to send call event sync message for " + remotePeer.getCallId().longValue(), e);
+        }
+      });
+    }
+  }
+
+  public void sendGroupCallNotAcceptedCallEventSyncMessage(@NonNull RemotePeer remotePeer, boolean isOutgoing) {
+    if (TextSecurePreferences.isMultiDevice(context)) {
+      networkExecutor.execute(() -> {
+        try {
+          SyncMessage.CallEvent callEvent = CallEventSyncMessageUtil.createNotAcceptedSyncMessage(remotePeer, System.currentTimeMillis(), isOutgoing, true);
           ApplicationDependencies.getSignalServiceMessageSender().sendSyncMessage(SignalServiceSyncMessage.forCallEvent(callEvent), Optional.empty());
         } catch (IOException | UntrustedIdentityException e) {
           Log.w(TAG, "Unable to send call event sync message for " + remotePeer.getCallId().longValue(), e);

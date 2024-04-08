@@ -5,9 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.jobs.ProfileUploadJob
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob
 import org.thoughtcrime.securesms.jobs.RefreshOwnProfileJob
-import org.thoughtcrime.securesms.keyvalue.PhoneNumberPrivacyValues.PhoneNumberListingMode
+import org.thoughtcrime.securesms.keyvalue.PhoneNumberPrivacyValues.PhoneNumberDiscoverabilityMode
 import org.thoughtcrime.securesms.keyvalue.PhoneNumberPrivacyValues.PhoneNumberSharingMode
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.recipients.Recipient
@@ -17,39 +18,40 @@ class PhoneNumberPrivacySettingsViewModel : ViewModel() {
 
   private val _state = mutableStateOf(
     PhoneNumberPrivacySettingsState(
-      seeMyPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberSharingMode,
-      findMeByPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberListingMode
+      phoneNumberSharing = SignalStore.phoneNumberPrivacy().isPhoneNumberSharingEnabled,
+      discoverableByPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberDiscoverabilityMode != PhoneNumberDiscoverabilityMode.NOT_DISCOVERABLE
     )
   )
 
   val state: State<PhoneNumberPrivacySettingsState> = _state
 
   fun setNobodyCanSeeMyNumber() {
-    setPhoneNumberSharingMode(PhoneNumberSharingMode.NOBODY)
+    setPhoneNumberSharingEnabled(false)
   }
 
   fun setEveryoneCanSeeMyNumber() {
-    setPhoneNumberSharingMode(PhoneNumberSharingMode.EVERYONE)
-    setPhoneNumberListingMode(PhoneNumberListingMode.LISTED)
+    setPhoneNumberSharingEnabled(true)
+    setDiscoverableByPhoneNumber(true)
   }
 
   fun setNobodyCanFindMeByMyNumber() {
-    setPhoneNumberListingMode(PhoneNumberListingMode.UNLISTED)
+    setDiscoverableByPhoneNumber(false)
   }
 
   fun setEveryoneCanFindMeByMyNumber() {
-    setPhoneNumberListingMode(PhoneNumberListingMode.LISTED)
+    setDiscoverableByPhoneNumber(true)
   }
 
-  private fun setPhoneNumberSharingMode(phoneNumberSharingMode: PhoneNumberSharingMode) {
-    SignalStore.phoneNumberPrivacy().phoneNumberSharingMode = phoneNumberSharingMode
+  private fun setPhoneNumberSharingEnabled(phoneNumberSharingEnabled: Boolean) {
+    SignalStore.phoneNumberPrivacy().phoneNumberSharingMode = if (phoneNumberSharingEnabled) PhoneNumberSharingMode.EVERYBODY else PhoneNumberSharingMode.NOBODY
     SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
     StorageSyncHelper.scheduleSyncForDataChange()
+    ApplicationDependencies.getJobManager().add(ProfileUploadJob())
     refresh()
   }
 
-  private fun setPhoneNumberListingMode(phoneNumberListingMode: PhoneNumberListingMode) {
-    SignalStore.phoneNumberPrivacy().phoneNumberListingMode = phoneNumberListingMode
+  private fun setDiscoverableByPhoneNumber(discoverable: Boolean) {
+    SignalStore.phoneNumberPrivacy().phoneNumberDiscoverabilityMode = if (discoverable) PhoneNumberDiscoverabilityMode.DISCOVERABLE else PhoneNumberDiscoverabilityMode.NOT_DISCOVERABLE
     StorageSyncHelper.scheduleSyncForDataChange()
     ApplicationDependencies.getJobManager().startChain(RefreshAttributesJob()).then(RefreshOwnProfileJob()).enqueue()
     refresh()
@@ -57,8 +59,8 @@ class PhoneNumberPrivacySettingsViewModel : ViewModel() {
 
   fun refresh() {
     _state.value = PhoneNumberPrivacySettingsState(
-      seeMyPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberSharingMode,
-      findMeByPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberListingMode
+      phoneNumberSharing = SignalStore.phoneNumberPrivacy().isPhoneNumberSharingEnabled,
+      discoverableByPhoneNumber = SignalStore.phoneNumberPrivacy().phoneNumberDiscoverabilityMode != PhoneNumberDiscoverabilityMode.NOT_DISCOVERABLE
     )
   }
 }

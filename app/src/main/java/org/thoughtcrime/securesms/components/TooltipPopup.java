@@ -2,7 +2,6 @@ package org.thoughtcrime.securesms.components;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +18,13 @@ import androidx.annotation.Px;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
 import org.signal.core.util.DimensionUnit;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.mms.GlideApp;
 
 import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 
@@ -104,7 +103,7 @@ public class TooltipPopup extends PopupWindow {
     if (iconGlideModel != null) {
       ImageView iconView = getContentView().findViewById(R.id.tooltip_icon);
       iconView.setVisibility(View.VISIBLE);
-      GlideApp.with(anchor.getContext()).load(iconGlideModel).into(iconView);
+      Glide.with(anchor.getContext()).load(iconGlideModel).into(iconView);
     }
 
     setElevation(10);
@@ -177,21 +176,23 @@ public class TooltipPopup extends PopupWindow {
     ShapeAppearanceModel.Builder  shapeAppearanceModel  = ShapeAppearanceModel.builder()
                                                                               .setAllCornerSizes(DimensionUnit.DP.toPixels(18));
 
-    // If the arrow is within the last 20dp of the right hand side, use RIGHT and set corner to 9dp
-    onLayout(() -> {
-      if (arrow.getX() > getContentView().getWidth() / 2f) {
-        arrow.setImageResource(R.drawable.ic_tooltip_arrow_up_right);
-      }
+    if (position == POSITION_BELOW) {
+      // If the arrow is within the last 20dp of the right hand side, use RIGHT and set corner to 9dp
+      onLayout(() -> {
+        if (arrow.getX() > getContentView().getWidth() / 2f) {
+          arrow.setImageResource(R.drawable.ic_tooltip_arrow_up_right);
+        }
 
-      float arrowEnd = arrow.getX() + arrow.getRight();
-      if (arrowEnd > getContentView().getRight() - DimensionUnit.DP.toPixels(20)) {
-        shapeableBubbleBackground.setShapeAppearanceModel(shapeAppearanceModel.setTopRightCornerSize(DimensionUnit.DP.toPixels(9f)).build());
-        bubble.setBackground(shapeableBubbleBackground);
-      } else if (arrowEnd < DimensionUnit.DP.toPixels(20)) {
-        shapeableBubbleBackground.setShapeAppearanceModel(shapeAppearanceModel.setTopLeftCornerSize(DimensionUnit.DP.toPixels(9f)).build());
-        bubble.setBackground(shapeableBubbleBackground);
-      }
-    });
+        float arrowEnd = arrow.getX() + arrow.getRight();
+        if (arrowEnd > getContentView().getRight() - DimensionUnit.DP.toPixels(20)) {
+          shapeableBubbleBackground.setShapeAppearanceModel(shapeAppearanceModel.setTopRightCornerSize(DimensionUnit.DP.toPixels(9f)).build());
+          bubble.setBackground(shapeableBubbleBackground);
+        } else if (arrowEnd < DimensionUnit.DP.toPixels(20)) {
+          shapeableBubbleBackground.setShapeAppearanceModel(shapeAppearanceModel.setTopLeftCornerSize(DimensionUnit.DP.toPixels(9f)).build());
+          bubble.setBackground(shapeableBubbleBackground);
+        }
+      });
+    }
 
     try {
       showAsDropDown(anchor, xoffset, yoffset);

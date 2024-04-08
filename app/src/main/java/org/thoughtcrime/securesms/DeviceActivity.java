@@ -3,15 +3,14 @@ package org.thoughtcrime.securesms;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.transition.TransitionInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +31,7 @@ import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.permissions.Permissions;
-import org.thoughtcrime.securesms.util.Base64;
+import org.signal.core.util.Base64;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
@@ -53,6 +52,8 @@ public class DeviceActivity extends PassphraseRequiredActivity
 
   private static final String TAG = Log.tag(DeviceActivity.class);
 
+  private static final String EXTRA_DIRECT_TO_SCANNER = "add";
+
   private final DynamicTheme    dynamicTheme    = new DynamicNoActionBarTheme();
   private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
 
@@ -60,6 +61,13 @@ public class DeviceActivity extends PassphraseRequiredActivity
   private DeviceListFragment deviceListFragment;
   private DeviceLinkFragment deviceLinkFragment;
   private MenuItem           cameraSwitchItem = null;
+
+
+  public static Intent getIntentForScanner(Context context) {
+    Intent intent = new Intent(context, DeviceActivity.class);
+    intent.putExtra(EXTRA_DIRECT_TO_SCANNER, true);
+    return intent;
+  }
 
   @Override
   public void onPreCreate() {
@@ -87,7 +95,7 @@ public class DeviceActivity extends PassphraseRequiredActivity
       this.deviceListFragment.setAddDeviceViewListener(this);
     this.deviceAddFragment.setScanListener(this);
 
-    if (getIntent().getBooleanExtra("add", false)) {
+    if (getIntent().getBooleanExtra(EXTRA_DIRECT_TO_SCANNER, false)) {
       if (isSignalVersion())
         initFragment(R.id.fragment_container, deviceAddFragment, dynamicLanguage.getCurrentLocale());
 
@@ -171,8 +179,8 @@ public class DeviceActivity extends PassphraseRequiredActivity
                                  .addSharedElement(deviceAddFragment.getDevicesImage(), "devices")
                                  .replace(R.id.fragment_container, deviceLinkFragment)
                                  .commit();
-    });
 
+    });
   }
 
   @SuppressLint("MissingSuperCall")
@@ -217,7 +225,7 @@ public class DeviceActivity extends PassphraseRequiredActivity
           ProfileKey      profileKey         = ProfileKeyUtil.getSelfProfileKey();
 
           TextSecurePreferences.setMultiDevice(DeviceActivity.this, true);
-          accountManager.addDevice(ephemeralId, publicKey, aciIdentityKeyPair, pniIdentityKeyPair, profileKey, verificationCode);
+          accountManager.addDevice(ephemeralId, publicKey, aciIdentityKeyPair, pniIdentityKeyPair, profileKey, SignalStore.svr().getOrCreateMasterKey(), verificationCode);
 
           return SUCCESS;
         } catch (NotFoundException e) {

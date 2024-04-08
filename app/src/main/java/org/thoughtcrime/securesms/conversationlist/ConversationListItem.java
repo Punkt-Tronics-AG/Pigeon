@@ -19,6 +19,7 @@ package org.thoughtcrime.securesms.conversationlist;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -43,6 +44,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.makeramen.roundedimageview.RoundedDrawable;
 
@@ -61,7 +63,6 @@ import org.thoughtcrime.securesms.components.FromTextView;
 import org.thoughtcrime.securesms.components.TypingIndicatorView;
 import org.thoughtcrime.securesms.components.emoji.EmojiStrings;
 import org.thoughtcrime.securesms.components.emoji.EmojiTextView;
-import org.thoughtcrime.securesms.components.emoji.SimpleEmojiTextView;
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchData;
 import org.thoughtcrime.securesms.conversation.MessageStyler;
 import org.thoughtcrime.securesms.conversationlist.model.ConversationSet;
@@ -73,12 +74,12 @@ import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.database.model.UpdateDescription;
 import org.thoughtcrime.securesms.glide.GlideLiveDataTarget;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader;
-import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.LiveRecipient;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.search.MessageResult;
+import org.thoughtcrime.securesms.util.ContextUtil;
 import org.thoughtcrime.securesms.util.DateUtils;
 import org.thoughtcrime.securesms.util.ExpirationUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
@@ -116,7 +117,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
   private Set<Long>           typingThreads;
   private LiveRecipient       recipient;
   private long                threadId;
-  private GlideRequests       glideRequests;
+  private RequestManager      requestManager;
   private EmojiTextView       subjectView;
   private TypingIndicatorView typingView;
   private FromTextView        fromView;
@@ -144,6 +145,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
 
   private LiveData<SpannableString> displayBody;
   private Disposable                joinMembersDisposable = Disposable.empty();
+  private Runnable                  updateDateView = null;
 
   public ConversationListItem(Context context) {
     this(context, null);
@@ -214,27 +216,26 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
   @Override
   public void bind(@NonNull LifecycleOwner lifecycleOwner,
                    @NonNull ThreadRecord thread,
-                   @NonNull GlideRequests glideRequests,
+                   @NonNull RequestManager glideRequests,
                    @NonNull Locale locale,
                    @NonNull Set<Long> typingThreads,
                    @NonNull ConversationSet selectedConversations)
   {
-
     focusOnLeft(this);
-
-    bindThread(lifecycleOwner, thread, glideRequests, locale, typingThreads, selectedConversations, null);
+    bindThread(lifecycleOwner, thread, glideRequests, locale, typingThreads, selectedConversations, null, false);
   }
 
   public void bindThread(@NonNull LifecycleOwner lifecycleOwner,
                          @NonNull ThreadRecord thread,
-                         @NonNull GlideRequests glideRequests,
+                         @NonNull RequestManager requestManager,
                          @NonNull Locale locale,
                          @NonNull Set<Long> typingThreads,
                          @NonNull ConversationSet selectedConversations,
-                         @Nullable String highlightSubstring)
+                         @Nullable String highlightSubstring,
+                         boolean appendSystemContactIcon)
   {
     this.threadId           = thread.getThreadId();
-    this.glideRequests      = glideRequests;
+    this.requestManager     = requestManager;
     this.unreadCount        = thread.getUnreadCount();
     this.lastSeen           = thread.getLastSeen();
     this.thread             = thread;
@@ -245,27 +246,40 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     observeDisplayBody(null, null);
     joinMembersDisposable.dispose();
 
+    SpannableStringBuilder suffix = null;
+    if (appendSystemContactIcon && recipient.get().isSystemContact() && !recipient.get().showVerified()) {
+      suffix = new SpannableStringBuilder();
+      Drawable drawable = ContextUtil.requireDrawable(getContext(), R.drawable.symbol_person_circle_24);
+      drawable.setTint(ContextCompat.getColor(getContext(), R.color.signal_colorOnSurface));
+      SpanUtil.appendCenteredImageSpan(suffix, drawable, 16, 16);
+    }
+
     if (highlightSubstring != null) {
       String name = recipient.get().isSelf() ? getContext().getString(R.string.note_to_self) : recipient.get().getDisplayName(getContext());
 
-      this.fromView.setText(recipient.get(), SearchUtil.getHighlightedSpan(locale, searchStyleFactory, name, highlightSubstring, SearchUtil.MATCH_ALL), true, null);
+      this.fromView.setText(recipient.get(), SearchUtil.getHighlightedSpan(locale, searchStyleFactory, name, highlightSubstring, SearchUtil.MATCH_ALL), suffix);
     } else {
-      this.fromView.setText(recipient.get(), false);
+      this.fromView.setText(recipient.get(), suffix);
     }
 
     this.typingThreads = typingThreads;
     updateTypingIndicator(typingThreads);
 
-    LiveData<SpannableString> displayBody = getThreadDisplayBody(getContext(), thread, glideRequests, thumbSize, thumbTarget);
+    LiveData<SpannableString> displayBody = getThreadDisplayBody(getContext(), thread, requestManager, thumbSize, thumbTarget);
     setSubjectViewText(displayBody.getValue());
     observeDisplayBody(lifecycleOwner, displayBody);
 
     if (thread.getDate() > 0) {
-      CharSequence date = DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, thread.getDate());
-      dateView.setText(date);
       dateView.setTypeface(thread.isRead() ? LIGHT_TYPEFACE : BOLD_TYPEFACE);
       dateView.setTextColor(thread.isRead() ? ContextCompat.getColor(getContext(), R.color.signal_text_secondary)
                                             : ContextCompat.getColor(getContext(), R.color.signal_text_primary));
+
+      updateDateView = () -> {
+        CharSequence date = DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, thread.getDate());
+        dateView.setText(date);
+      };
+
+      updateDateView.run();
     }
 
     if (thread.isArchived()) {
@@ -278,7 +292,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     setSelectedConversations(selectedConversations);
     setBadgeFromRecipient(recipient.get());
     setUnreadIndicator(thread);
-    this.contactPhotoImage.setAvatar(glideRequests, recipient.get(), !batchMode);
+    this.contactPhotoImage.setAvatar(requestManager, recipient.get(), !batchMode);
   }
 
   private void setBadgeFromRecipient(Recipient recipient) {
@@ -290,42 +304,13 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     }
   }
 
-  public void bindContact(@NonNull LifecycleOwner lifecycleOwner,
-                          @NonNull Recipient contact,
-                          @NonNull GlideRequests glideRequests,
-                          @NonNull Locale locale,
-                          @Nullable String highlightSubstring)
-  {
-    this.glideRequests      = glideRequests;
-    this.locale             = locale;
-    this.highlightSubstring = highlightSubstring;
-
-    observeRecipient(lifecycleOwner, contact.live());
-    observeDisplayBody(null, null);
-    joinMembersDisposable.dispose();
-    setSubjectViewText(null);
-
-    fromView.setText(contact, SearchUtil.getHighlightedSpan(locale, searchStyleFactory, new SpannableString(contact.getDisplayName(getContext())), highlightSubstring, SearchUtil.MATCH_ALL), true, null);
-    setSubjectViewText(SearchUtil.getHighlightedSpan(locale, searchStyleFactory, contact.getE164().orElse(""), highlightSubstring, SearchUtil.MATCH_ALL));
-    dateView.setText("");
-    archivedView.setVisibility(GONE);
-    unreadIndicator.setVisibility(GONE);
-    unreadMentions.setVisibility(GONE);
-    deliveryStatusIndicator.setNone();
-    alertView.setNone();
-
-    setSelectedConversations(new ConversationSet());
-    setBadgeFromRecipient(recipient.get());
-    contactPhotoImage.setAvatar(glideRequests, recipient.get(), !batchMode);
-  }
-
   public void bindMessage(@NonNull LifecycleOwner lifecycleOwner,
                           @NonNull MessageResult messageResult,
-                          @NonNull GlideRequests glideRequests,
+                          @NonNull RequestManager requestManager,
                           @NonNull Locale locale,
                           @Nullable String highlightSubstring)
   {
-    this.glideRequests      = glideRequests;
+    this.requestManager     = requestManager;
     this.locale             = locale;
     this.highlightSubstring = highlightSubstring;
 
@@ -334,9 +319,12 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     joinMembersDisposable.dispose();
     setSubjectViewText(null);
 
-    fromView.setText(recipient.get(), recipient.get().getDisplayNameOrUsername(getContext()), false, null, false);
+    fromView.setText(recipient.get(), recipient.get().getDisplayName(getContext()), null, false);
     setSubjectViewText(SearchUtil.getHighlightedSpan(locale, searchStyleFactory, messageResult.getBodySnippet(), highlightSubstring, SearchUtil.MATCH_ALL));
-    dateView.setText(DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, messageResult.getReceivedTimestampMs()));
+
+    updateDateView = () -> dateView.setText(DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, messageResult.getReceivedTimestampMs()));
+
+    updateDateView.run();
     archivedView.setVisibility(GONE);
     unreadIndicator.setVisibility(GONE);
     unreadMentions.setVisibility(GONE);
@@ -345,15 +333,15 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
 
     setSelectedConversations(new ConversationSet());
     setBadgeFromRecipient(recipient.get());
-    contactPhotoImage.setAvatar(glideRequests, recipient.get(), !batchMode, false);
+    contactPhotoImage.setAvatar(requestManager, recipient.get(), !batchMode, false);
   }
 
   public void bindGroupWithMembers(@NonNull LifecycleOwner lifecycleOwner,
                                    @NonNull ContactSearchData.GroupWithMembers groupWithMembers,
-                                   @NonNull GlideRequests glideRequests,
+                                   @NonNull RequestManager requestManager,
                                    @NonNull Locale locale)
   {
-    this.glideRequests      = glideRequests;
+    this.requestManager     = requestManager;
     this.locale             = locale;
     this.highlightSubstring = groupWithMembers.getQuery();
 
@@ -364,8 +352,16 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       setSubjectViewText(SearchUtil.getHighlightedSpan(locale, searchStyleFactory, joined, highlightSubstring, SearchUtil.MATCH_ALL));
     });
 
-    fromView.setText(recipient.get(), false);
-    dateView.setText(DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, groupWithMembers.getDate()));
+    fromView.setText(recipient.get());
+
+    updateDateView = () -> {
+      if (groupWithMembers.getDate() > 0) {
+        dateView.setText(DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, groupWithMembers.getDate()));
+      } else {
+        dateView.setText("");
+      }
+    };
+    updateDateView.run();
     archivedView.setVisibility(GONE);
     unreadIndicator.setVisibility(GONE);
     unreadMentions.setVisibility(GONE);
@@ -374,7 +370,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
 
     setSelectedConversations(new ConversationSet());
     setBadgeFromRecipient(recipient.get());
-    contactPhotoImage.setAvatar(glideRequests, recipient.get(), !batchMode);
+    contactPhotoImage.setAvatar(requestManager, recipient.get(), !batchMode);
   }
 
   private @NonNull Single<String> joinMembersToDisplayBody(@NonNull List<RecipientId> members, @NonNull String highlightSubstring) {
@@ -393,11 +389,12 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     if (this.recipient != null) {
       observeRecipient(null, null);
       setSelectedConversations(new ConversationSet());
-      contactPhotoImage.setAvatar(glideRequests, null, !batchMode);
+      contactPhotoImage.setAvatar(requestManager, null, !batchMode);
     }
 
     observeDisplayBody(null, null);
     joinMembersDisposable.dispose();
+    updateDateView = null;
   }
 
   @Override
@@ -408,7 +405,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     setSelected(selected);
 
     if (recipient != null) {
-      contactPhotoImage.setAvatar(glideRequests, recipient.get(), !batchMode);
+      contactPhotoImage.setAvatar(requestManager, recipient.get(), !batchMode);
     }
 
     if (batchMode && selected) {
@@ -438,6 +435,13 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       this.typingView.stopAnimation();
 
       this.subjectView.setVisibility(VISIBLE);
+    }
+  }
+
+  @Override
+  public void updateTimestamp() {
+    if (updateDateView != null) {
+      updateDateView.run();
     }
   }
 
@@ -474,8 +478,8 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
   }
 
   private void observeDisplayBody(@Nullable LifecycleOwner lifecycleOwner, @Nullable LiveData<SpannableString> displayBody) {
-    if (displayBody == null && glideRequests != null) {
-      glideRequests.clear(thumbTarget);
+    if (displayBody == null && requestManager != null) {
+      requestManager.clear(thumbTarget);
     }
 
     if (this.displayBody != null) {
@@ -528,7 +532,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       } else {
         if (thread.isPending()) {
           deliveryStatusIndicator.setPending();
-        } else if (thread.isRemoteRead()) {
+        } else if (thread.hasReadReceipt()) {
           deliveryStatusIndicator.setRead();
         } else if (thread.isDelivered()) {
           deliveryStatusIndicator.setDelivered();
@@ -570,17 +574,17 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       } else {
         name = recipient.getDisplayName(getContext());
       }
-      fromView.setText(recipient, SearchUtil.getHighlightedSpan(locale, searchStyleFactory, new SpannableString(name), highlightSubstring, SearchUtil.MATCH_ALL), true, null, thread != null);
+      fromView.setText(recipient, SearchUtil.getHighlightedSpan(locale, searchStyleFactory, new SpannableString(name), highlightSubstring, SearchUtil.MATCH_ALL), null, thread != null);
     } else {
-      fromView.setText(recipient, false);
+      fromView.setText(recipient);
     }
-    contactPhotoImage.setAvatar(glideRequests, recipient, !batchMode, false);
+    contactPhotoImage.setAvatar(requestManager, recipient, !batchMode, false);
     setBadgeFromRecipient(recipient);
   }
 
   private static @NonNull LiveData<SpannableString> getThreadDisplayBody(@NonNull Context context,
                                                                          @NonNull ThreadRecord thread,
-                                                                         @NonNull GlideRequests glideRequests,
+                                                                         @NonNull RequestManager requestManager,
                                                                          @Px int thumbSize,
                                                                          @NonNull GlideLiveDataTarget thumbTarget)
   {
@@ -594,7 +598,11 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       }
     } else if (MessageTypes.isGroupUpdate(thread.getType())) {
       if (thread.getRecipient().isPushV2Group()) {
-        return emphasisAdded(context, MessageRecord.getGv2ChangeDescription(context, thread.getBody(), null), defaultTint);
+        if (thread.getMessageExtras() != null) {
+          return emphasisAdded(context, MessageRecord.getGv2ChangeDescription(context, thread.getMessageExtras(), null), defaultTint);
+        } else {
+          return emphasisAdded(context, MessageRecord.getGv2ChangeDescription(context, thread.getBody(), null), defaultTint);
+        }
       } else {
         return emphasisAdded(context, context.getString(R.string.ThreadRecord_group_updated), R.drawable.ic_update_group_16, defaultTint);
       }
@@ -677,7 +685,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
         MessageStyler.style(thread.getDate(), thread.getBodyRanges(), sourceBody);
 
         CharSequence              body      = StringUtil.replace(sourceBody, '\n', " ");
-        LiveData<SpannableString> finalBody = Transformations.map(createFinalBodyWithMediaIcon(context, body, thread, glideRequests, thumbSize, thumbTarget), updatedBody -> {
+        LiveData<SpannableString> finalBody = Transformations.map(createFinalBodyWithMediaIcon(context, body, thread, requestManager, thumbSize, thumbTarget), updatedBody -> {
           if (thread.getRecipient().isGroup()) {
             RecipientId groupMessageSender = thread.getGroupMessageSender();
             if (!groupMessageSender.isUnknown()) {
@@ -696,7 +704,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
   private static LiveData<CharSequence> createFinalBodyWithMediaIcon(@NonNull Context context,
                                                                      @NonNull CharSequence body,
                                                                      @NonNull ThreadRecord thread,
-                                                                     @NonNull GlideRequests glideRequests,
+                                                                     @NonNull RequestManager requestManager,
                                                                      @Px int thumbSize,
                                                                      @NonNull GlideLiveDataTarget thumbTarget)
   {
@@ -718,7 +726,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       return LiveDataUtil.just(body);
     }
 
-    glideRequests.asBitmap()
+    requestManager.asBitmap()
                  .load(new DecryptableStreamUriLoader.DecryptableUri(thread.getSnippetUri()))
                  .override(thumbSize, thumbSize)
                  .transform(

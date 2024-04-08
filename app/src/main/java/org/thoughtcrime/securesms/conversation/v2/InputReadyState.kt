@@ -18,7 +18,8 @@ class InputReadyState(
   val messageRequestState: MessageRequestState,
   val groupRecord: GroupRecord?,
   val isClientExpired: Boolean,
-  val isUnauthorized: Boolean
+  val isUnauthorized: Boolean,
+  val threadContainsSms: Boolean
 ) {
   private val selfMemberLevel: GroupTable.MemberLevel? = groupRecord?.memberLevel(Recipient.self())
 
@@ -28,7 +29,7 @@ class InputReadyState(
   val isRequestingMember: Boolean? = selfMemberLevel?.equals(GroupTable.MemberLevel.REQUESTING_MEMBER)
 
   fun shouldShowInviteToSignal(): Boolean {
-    return !conversationRecipient.isGroup &&
+    return !conversationRecipient.isPushGroup &&
       !conversationRecipient.isRegistered &&
       !conversationRecipient.isReleaseNotes
   }

@@ -17,7 +17,6 @@
 package org.thoughtcrime.securesms.util;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -25,9 +24,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.provider.Telephony;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -39,22 +35,20 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
 import com.annimon.stream.Stream;
-import com.google.android.mms.pdu_alt.CharacterSets;
-import com.google.android.mms.pdu_alt.EncodedStringValue;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
+import org.signal.core.util.Base64;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.ComposeText;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.mms.OutgoingLegacyMmsConnection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,10 +137,6 @@ public class Util {
     return out.toString();
   }
 
-  public static boolean isEmpty(EncodedStringValue[] value) {
-    return value == null || value.length == 0;
-  }
-
   public static boolean isEmpty(ComposeText value) {
     return value == null || value.getText() == null || TextUtils.isEmpty(value.getTextTrimmed());
   }
@@ -198,27 +188,15 @@ public class Util {
   }
 
   public static @NonNull String toIsoString(byte[] bytes) {
-    try {
-      return new String(bytes, CharacterSets.MIMENAME_ISO_8859_1);
-    } catch (UnsupportedEncodingException e) {
-      throw new AssertionError("ISO_8859_1 must be supported!");
-    }
+    return new String(bytes, StandardCharsets.ISO_8859_1);
   }
 
   public static byte[] toIsoBytes(String isoString) {
-    try {
-      return isoString.getBytes(CharacterSets.MIMENAME_ISO_8859_1);
-    } catch (UnsupportedEncodingException e) {
-      throw new AssertionError("ISO_8859_1 must be supported!");
-    }
+    return isoString.getBytes(StandardCharsets.ISO_8859_1);
   }
 
   public static byte[] toUtf8Bytes(String utf8String) {
-    try {
-      return utf8String.getBytes(CharacterSets.MIMENAME_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw new AssertionError("UTF_8 must be supported!");
-    }
+    return utf8String.getBytes(StandardCharsets.UTF_8);
   }
 
   public static void wait(Object lock, long timeout) {
@@ -231,7 +209,6 @@ public class Util {
 
   @RequiresPermission(anyOf = {
       android.Manifest.permission.READ_PHONE_STATE,
-      android.Manifest.permission.READ_SMS,
       android.Manifest.permission.READ_PHONE_NUMBERS
   })
   @SuppressLint("MissingPermission")
@@ -328,11 +305,6 @@ public class Util {
     return result;
   }
 
-  @SuppressLint("NewApi")
-  public static boolean isDefaultSmsProvider(Context context){
-    return context.getPackageName().equals(Telephony.Sms.getDefaultSmsPackage(context));
-  }
-
   /**
    * The app version.
    * <p>
@@ -360,7 +332,7 @@ public class Util {
 
   public static String getSecret(int size) {
     byte[] secret = getSecretBytes(size);
-    return Base64.encodeBytes(secret);
+    return Base64.encodeWithPadding(secret);
   }
 
   public static byte[] getSecretBytes(int size) {
@@ -392,10 +364,6 @@ public class Util {
     } else {
       return Math.max(timeUntilBuildDeprecation, 0);
     }
-  }
-
-  public static boolean isMmsCapable(Context context) {
-    return (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) || OutgoingLegacyMmsConnection.isConnectionPossible(context);
   }
 
   public static <T> T getRandomElement(T[] elements) {

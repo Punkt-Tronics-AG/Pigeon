@@ -18,8 +18,10 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.concurrent.LifecycleDisposable;
+import org.signal.donations.StripeApi;
 import org.thoughtcrime.securesms.components.DebugLogsPromptDialogFragment;
 import org.thoughtcrime.securesms.components.PromptBatterySaverDialogFragment;
+import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity;
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController;
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner;
 import org.thoughtcrime.securesms.conversationlist.RelinkDevicesReminderBottomSheetFragment;
@@ -94,10 +96,7 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
     ConversationListTabRepository         repository = new ConversationListTabRepository();
     ConversationListTabsViewModel.Factory factory    = new ConversationListTabsViewModel.Factory(repository);
 
-    handleGroupLinkInIntent(getIntent());
-    handleProxyInIntent(getIntent());
-    handleSignalMeIntent(getIntent());
-    handleCallLinkInIntent(getIntent());
+    handleDeeplinkIntent(getIntent());
 
     CachedInflater.from(this).clear();
 
@@ -139,10 +138,7 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    handleGroupLinkInIntent(intent);
-    handleProxyInIntent(intent);
-    handleSignalMeIntent(intent);
-    handleCallLinkInIntent(intent);
+    handleDeeplinkIntent(intent);
   }
 
   @Override
@@ -246,6 +242,14 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
     return navigator;
   }
 
+  private void handleDeeplinkIntent(Intent intent) {
+    handleGroupLinkInIntent(intent);
+    handleProxyInIntent(intent);
+    handleSignalMeIntent(intent);
+    handleCallLinkInIntent(intent);
+    handleDonateReturnIntent(intent);
+  }
+
   private void handleGroupLinkInIntent(Intent intent) {
     Uri data = intent.getData();
     if (data != null) {
@@ -271,6 +275,13 @@ public class MainActivity extends PassphraseRequiredActivity implements VoiceNot
     Uri data = intent.getData();
     if (data != null) {
       CommunicationActions.handlePotentialCallLinkUrl(this, data.toString());
+    }
+  }
+
+  private void handleDonateReturnIntent(Intent intent) {
+    Uri data = intent.getData();
+    if (data != null && data.toString().startsWith(StripeApi.RETURN_URL_IDEAL)) {
+      startActivity(AppSettingsActivity.manageSubscriptions(this));
     }
   }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.TextUtils
 import com.mobilecoin.lib.exceptions.SerializationException
 import okio.ByteString.Companion.toByteString
+import org.signal.core.util.Base64
 import org.signal.core.util.Hex
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.logging.Log
@@ -24,11 +25,11 @@ import org.thoughtcrime.securesms.crypto.ProfileKeyUtil
 import org.thoughtcrime.securesms.crypto.SecurityEvent
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.MessageTable.InsertResult
+import org.thoughtcrime.securesms.database.MessageType
 import org.thoughtcrime.securesms.database.NoSuchMessageException
 import org.thoughtcrime.securesms.database.PaymentTable.PublicKeyConflictException
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.GroupRecord
-import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord
 import org.thoughtcrime.securesms.database.model.Mention
 import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.MessageRecord
@@ -45,6 +46,7 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.groups.BadGroupIdException
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.jobs.AttachmentDownloadJob
+import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob
 import org.thoughtcrime.securesms.jobs.GroupCallPeekJob
 import org.thoughtcrime.securesms.jobs.GroupV2UpdateSelfProfileKeyJob
 import org.thoughtcrime.securesms.jobs.PaymentLedgerUpdateJob
@@ -56,6 +58,7 @@ import org.thoughtcrime.securesms.jobs.RefreshAttributesJob
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob
 import org.thoughtcrime.securesms.jobs.SendDeliveryReceiptJob
 import org.thoughtcrime.securesms.jobs.TrimThreadJob
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.linkpreview.LinkPreview
 import org.thoughtcrime.securesms.linkpreview.LinkPreviewUtil
 import org.thoughtcrime.securesms.messages.MessageContentProcessor.Companion.debug
@@ -74,7 +77,7 @@ import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.isPaymentActiv
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.isStoryReaction
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.toPointer
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.toPointersWithinLimit
-import org.thoughtcrime.securesms.mms.IncomingMediaMessage
+import org.thoughtcrime.securesms.mms.IncomingMessage
 import org.thoughtcrime.securesms.mms.MmsException
 import org.thoughtcrime.securesms.mms.QuoteModel
 import org.thoughtcrime.securesms.mms.StickerSlide
@@ -83,13 +86,10 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.Recipient.HiddenState
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.RecipientUtil
-import org.thoughtcrime.securesms.sms.IncomingEncryptedMessage
-import org.thoughtcrime.securesms.sms.IncomingEndSessionMessage
-import org.thoughtcrime.securesms.sms.IncomingTextMessage
 import org.thoughtcrime.securesms.stickers.StickerLocator
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
-import org.thoughtcrime.securesms.util.Base64
 import org.thoughtcrime.securesms.util.EarlyMessageCacheEntry
+import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.LinkUtil
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.MessageConstraintsUtil
@@ -100,7 +100,7 @@ import org.whispersystems.signalservice.api.crypto.EnvelopeMetadata
 import org.whispersystems.signalservice.api.payments.Money
 import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.push.ServiceId.ACI
-import org.whispersystems.signalservice.api.util.OptionalUtil.asOptional
+import org.whispersystems.signalservice.api.util.Preconditions
 import org.whispersystems.signalservice.internal.push.BodyRange
 import org.whispersystems.signalservice.internal.push.Content
 import org.whispersystems.signalservice.internal.push.DataMessage
@@ -134,30 +134,44 @@ object DataMessageProcessor {
 
     var groupProcessResult: MessageContentProcessor.Gv2PreProcessResult? = null
     if (groupId != null) {
-      groupProcessResult = MessageContentProcessor.handleGv2PreProcessing(context, envelope.timestamp!!, content, metadata, groupId, message.groupV2!!, senderRecipient, groupSecretParams)
+      groupProcessResult = MessageContentProcessor.handleGv2PreProcessing(
+        context = context,
+        timestamp = envelope.timestamp!!,
+        content = content,
+        metadata = metadata,
+        groupId = groupId,
+        groupV2 = message.groupV2!!,
+        senderRecipient = senderRecipient,
+        groupSecretParams = groupSecretParams,
+        serverGuid = envelope.serverGuid
+      )
+
       if (groupProcessResult == MessageContentProcessor.Gv2PreProcessResult.IGNORE) {
         return
       }
       localMetrics?.onGv2Processed()
     }
 
+    var insertResult: InsertResult? = null
     var messageId: MessageId? = null
     when {
-      message.isInvalid -> handleInvalidMessage(context, senderRecipient.id, metadata.sourceDeviceId, groupId, envelope.timestamp!!)
-      message.isEndSession -> messageId = handleEndSessionMessage(context, senderRecipient.id, envelope, metadata)
-      message.isExpirationUpdate -> messageId = handleExpirationUpdate(envelope, metadata, senderRecipient.id, threadRecipient.id, groupId, message.expireTimerDuration, receivedTime, false)
-      message.isStoryReaction -> messageId = handleStoryReaction(context, envelope, metadata, message, senderRecipient.id, groupId)
+      message.isInvalid -> handleInvalidMessage(context, senderRecipient.id, groupId, envelope.timestamp!!)
+      message.isEndSession -> insertResult = handleEndSessionMessage(context, senderRecipient.id, envelope, metadata)
+      message.isExpirationUpdate -> insertResult = handleExpirationUpdate(envelope, metadata, senderRecipient.id, threadRecipient.id, groupId, message.expireTimerDuration, receivedTime, false)
+      message.isStoryReaction -> insertResult = handleStoryReaction(context, envelope, metadata, message, senderRecipient.id, groupId)
       message.reaction != null -> messageId = handleReaction(context, envelope, message, senderRecipient.id, earlyMessageCacheEntry)
       message.hasRemoteDelete -> messageId = handleRemoteDelete(context, envelope, message, senderRecipient.id, earlyMessageCacheEntry)
-      message.isPaymentActivationRequest -> messageId = handlePaymentActivation(envelope, metadata, message, senderRecipient.id, receivedTime, isActivatePaymentsRequest = true, isPaymentsActivated = false)
-      message.isPaymentActivated -> messageId = handlePaymentActivation(envelope, metadata, message, senderRecipient.id, receivedTime, isActivatePaymentsRequest = false, isPaymentsActivated = true)
-      message.payment != null -> messageId = handlePayment(context, envelope, metadata, message, senderRecipient.id, receivedTime)
-      message.storyContext != null -> messageId = handleStoryReply(context, envelope, metadata, message, senderRecipient, groupId, receivedTime)
-      message.giftBadge != null -> messageId = handleGiftMessage(context, envelope, metadata, message, senderRecipient, threadRecipient.id, receivedTime)
-      message.isMediaMessage -> messageId = handleMediaMessage(context, envelope, metadata, message, senderRecipient, threadRecipient, groupId, receivedTime, localMetrics)
-      message.body != null -> messageId = handleTextMessage(context, envelope, metadata, message, senderRecipient, threadRecipient, groupId, receivedTime, localMetrics)
+      message.isPaymentActivationRequest -> insertResult = handlePaymentActivation(envelope, metadata, message, senderRecipient.id, receivedTime, isActivatePaymentsRequest = true, isPaymentsActivated = false)
+      message.isPaymentActivated -> insertResult = handlePaymentActivation(envelope, metadata, message, senderRecipient.id, receivedTime, isActivatePaymentsRequest = false, isPaymentsActivated = true)
+      message.payment != null -> insertResult = handlePayment(context, envelope, metadata, message, senderRecipient.id, receivedTime)
+      message.storyContext != null -> insertResult = handleStoryReply(context, envelope, metadata, message, senderRecipient, groupId, receivedTime)
+      message.giftBadge != null -> insertResult = handleGiftMessage(context, envelope, metadata, message, senderRecipient, threadRecipient.id, receivedTime)
+      message.isMediaMessage -> insertResult = handleMediaMessage(context, envelope, metadata, message, senderRecipient, threadRecipient, groupId, receivedTime, localMetrics)
+      message.body != null -> insertResult = handleTextMessage(context, envelope, metadata, message, senderRecipient, threadRecipient, groupId, receivedTime, localMetrics)
       message.groupCallUpdate != null -> handleGroupCallUpdateMessage(envelope, message, senderRecipient.id, groupId)
     }
+
+    messageId = messageId ?: insertResult?.messageId?.let { MessageId(it) }
 
     if (groupId != null) {
       val unknownGroup = when (groupProcessResult) {
@@ -203,6 +217,18 @@ object DataMessageProcessor {
         }
       }
     }
+
+    if (insertResult != null && insertResult.threadWasNewlyCreated && !threadRecipient.isGroup && !threadRecipient.isSelf && !senderRecipient.isSystemContact) {
+      val timeSinceLastSync = System.currentTimeMillis() - SignalStore.misc().lastCdsForegroundSyncTime
+      if (timeSinceLastSync > FeatureFlags.cdsForegroundSyncInterval() || timeSinceLastSync < 0) {
+        log(envelope.timestamp!!, "New 1:1 chat. Scheduling a CDS sync to see if they match someone in our contacts.")
+        ApplicationDependencies.getJobManager().add(DirectoryRefreshJob(false))
+        SignalStore.misc().lastCdsForegroundSyncTime = System.currentTimeMillis()
+      } else {
+        warn(envelope.timestamp!!, "New 1:1 chat, but performed a CDS sync $timeSinceLastSync ms ago, which is less than our threshold. Skipping CDS sync.")
+      }
+    }
+
     localMetrics?.onPostProcessComplete()
     localMetrics?.complete(groupId != null)
   }
@@ -226,7 +252,7 @@ object DataMessageProcessor {
       if (SignalDatabase.recipients.setProfileKey(senderRecipient.id, messageProfileKey)) {
         log(timestamp, "Profile key on message from " + senderRecipient.id + " didn't match our local store. It has been updated.")
         SignalDatabase.runPostSuccessfulTransaction {
-          ApplicationDependencies.getJobManager().add(RetrieveProfileJob.forRecipient(senderRecipient.id))
+          RetrieveProfileJob.enqueue(senderRecipient.id)
         }
       }
     } else {
@@ -244,13 +270,12 @@ object DataMessageProcessor {
   private fun handleInvalidMessage(
     context: Context,
     sender: RecipientId,
-    senderDevice: Int,
     groupId: GroupId?,
     timestamp: Long
   ) {
     log(timestamp, "Invalid message.")
 
-    val insertResult: InsertResult? = insertPlaceholder(sender, senderDevice, timestamp, groupId)
+    val insertResult: InsertResult? = insertPlaceholder(sender, timestamp, groupId)
     if (insertResult != null) {
       SignalDatabase.messages.markAsInvalidMessage(insertResult.messageId)
       ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(insertResult.threadId))
@@ -262,29 +287,26 @@ object DataMessageProcessor {
     senderRecipientId: RecipientId,
     envelope: Envelope,
     metadata: EnvelopeMetadata
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "End session message.")
 
-    val incomingTextMessage = IncomingTextMessage(
-      senderRecipientId,
-      metadata.sourceDeviceId,
-      envelope.timestamp!!,
-      envelope.serverTimestamp!!,
-      System.currentTimeMillis(),
-      "",
-      Optional.empty(),
-      0,
-      metadata.sealedSender,
-      envelope.serverGuid
+    val incomingMessage = IncomingMessage(
+      from = senderRecipientId,
+      sentTimeMillis = envelope.timestamp!!,
+      serverTimeMillis = envelope.serverTimestamp!!,
+      receivedTimeMillis = System.currentTimeMillis(),
+      isUnidentified = metadata.sealedSender,
+      serverGuid = envelope.serverGuid,
+      type = MessageType.END_SESSION
     )
 
-    val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(IncomingEndSessionMessage(incomingTextMessage)).orNull()
+    val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(incomingMessage).orNull()
 
     return if (insertResult != null) {
       ApplicationDependencies.getProtocolStore().aci().deleteAllSessions(metadata.sourceServiceId.toString())
       SecurityEvent.broadcastSecurityUpdateEvent(context)
       ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(insertResult.threadId))
-      MessageId(insertResult.messageId)
+      insertResult
     } else {
       null
     }
@@ -304,7 +326,7 @@ object DataMessageProcessor {
     expiresIn: Duration,
     receivedTime: Long,
     sideEffect: Boolean
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Expiration update. Side effect: $sideEffect")
 
     if (groupId != null) {
@@ -318,23 +340,22 @@ object DataMessageProcessor {
     }
 
     try {
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.EXPIRATION_UPDATE,
         from = senderRecipientId,
         sentTimeMillis = envelope.timestamp!! - if (sideEffect) 1 else 0,
         serverTimeMillis = envelope.serverTimestamp!!,
         receivedTimeMillis = receivedTime,
         expiresIn = expiresIn.inWholeMilliseconds,
-        isExpirationUpdate = true,
         isUnidentified = metadata.sealedSender,
-        serverGuid = envelope.serverGuid,
-        isPushMessage = true
+        serverGuid = envelope.serverGuid
       )
 
-      val insertResult: InsertResult? = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
       SignalDatabase.recipients.setExpireMessages(threadRecipientId, expiresIn.inWholeSeconds.toInt())
 
       if (insertResult != null) {
-        return MessageId(insertResult.messageId)
+        return insertResult
       }
     } catch (e: MmsException) {
       throw StorageFailedException(e, metadata.sourceServiceId.toString(), metadata.sourceDeviceId)
@@ -370,7 +391,7 @@ object DataMessageProcessor {
     message: DataMessage,
     senderRecipientId: RecipientId,
     groupId: GroupId.V2?
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Story reaction.")
 
     val storyContext = message.storyContext!!
@@ -418,7 +439,8 @@ object DataMessageProcessor {
         return null
       }
 
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.STORY_REACTION,
         from = senderRecipientId,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
@@ -433,7 +455,7 @@ object DataMessageProcessor {
         serverGuid = envelope.serverGuid
       )
 
-      val insertResult: InsertResult? = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
       if (insertResult != null) {
         SignalDatabase.messages.setTransactionSuccessful()
 
@@ -445,7 +467,7 @@ object DataMessageProcessor {
         }
 
         if (parentStoryId.isDirectReply()) {
-          MessageId(insertResult.messageId)
+          insertResult
         } else {
           null
         }
@@ -521,7 +543,7 @@ object DataMessageProcessor {
       return null
     }
 
-    val targetMessageId = (targetMessage as? MediaMmsMessageRecord)?.latestRevisionId ?: MessageId(targetMessage.id)
+    val targetMessageId = (targetMessage as? MmsMessageRecord)?.latestRevisionId ?: MessageId(targetMessage.id)
 
     if (isRemove) {
       SignalDatabase.reactions.deleteReaction(targetMessageId, senderRecipientId)
@@ -529,7 +551,7 @@ object DataMessageProcessor {
     } else {
       val reactionRecord = ReactionRecord(emoji!!, senderRecipientId, message.timestamp!!, System.currentTimeMillis())
       SignalDatabase.reactions.addReaction(targetMessageId, reactionRecord)
-      ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.fromMessageRecord(targetMessage), false)
+      ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.fromMessageRecord(targetMessage))
     }
 
     return targetMessageId
@@ -549,7 +571,7 @@ object DataMessageProcessor {
         SignalDatabase.messages.deleteRemotelyDeletedStory(targetMessage.id)
       }
 
-      ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.fromMessageRecord(targetMessage), false)
+      ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.fromMessageRecord(targetMessage))
 
       MessageId(targetMessage.id)
     } else if (targetMessage == null) {
@@ -580,10 +602,12 @@ object DataMessageProcessor {
     receivedTime: Long,
     isActivatePaymentsRequest: Boolean,
     isPaymentsActivated: Boolean
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Payment activation request: $isActivatePaymentsRequest activated: $isPaymentsActivated")
+    Preconditions.checkArgument(isActivatePaymentsRequest || isPaymentsActivated)
+
     try {
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
         from = senderRecipientId,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
@@ -591,15 +615,10 @@ object DataMessageProcessor {
         expiresIn = message.expireTimerDuration.inWholeMilliseconds,
         isUnidentified = metadata.sealedSender,
         serverGuid = envelope.serverGuid,
-        isActivatePaymentsRequest = isActivatePaymentsRequest,
-        isPaymentsActivated = isPaymentsActivated
+        type = if (isActivatePaymentsRequest) MessageType.ACTIVATE_PAYMENTS_REQUEST else MessageType.PAYMENTS_ACTIVATED
       )
 
-      val insertResult: InsertResult? = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
-
-      if (insertResult != null) {
-        return MessageId(insertResult.messageId)
-      }
+      return SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
     } catch (e: MmsException) {
       throw StorageFailedException(e, metadata.sourceServiceId.toString(), metadata.sourceDeviceId)
     }
@@ -614,7 +633,7 @@ object DataMessageProcessor {
     message: DataMessage,
     senderRecipientId: RecipientId,
     receivedTime: Long
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Payment message.")
 
     if (message.payment?.notification?.mobileCoin?.receipt == null) {
@@ -638,7 +657,7 @@ object DataMessageProcessor {
         true
       )
 
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
         from = senderRecipientId,
         body = uuid.toString(),
         sentTimeMillis = envelope.timestamp!!,
@@ -647,15 +666,13 @@ object DataMessageProcessor {
         expiresIn = message.expireTimerDuration.inWholeMilliseconds,
         isUnidentified = metadata.sealedSender,
         serverGuid = envelope.serverGuid,
-        isPushMessage = true,
-        isPaymentsNotification = true
+        type = MessageType.PAYMENTS_NOTIFICATION
       )
 
-      val insertResult: InsertResult? = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
       if (insertResult != null) {
-        val messageId = MessageId(insertResult.messageId)
         ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(insertResult.threadId))
-        return messageId
+        return insertResult
       }
     } catch (e: PublicKeyConflictException) {
       warn(envelope.timestamp!!, "Ignoring payment with public key already in database")
@@ -684,7 +701,7 @@ object DataMessageProcessor {
     senderRecipient: Recipient,
     groupId: GroupId.V2?,
     receivedTime: Long
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Story reply.")
 
     val storyContext: DataMessage.StoryContext = message.storyContext!!
@@ -750,7 +767,8 @@ object DataMessageProcessor {
 
       val bodyRanges: BodyRangeList? = message.bodyRanges.filter { it.mentionAci == null }.toList().toBodyRangeList()
 
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.NORMAL,
         from = senderRecipient.id,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
@@ -766,7 +784,7 @@ object DataMessageProcessor {
         messageRanges = bodyRanges
       )
 
-      val insertResult: InsertResult? = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
 
       if (insertResult != null) {
         SignalDatabase.messages.setTransactionSuccessful()
@@ -779,7 +797,7 @@ object DataMessageProcessor {
         }
 
         if (parentStoryId.isDirectReply()) {
-          MessageId.fromNullable(insertResult.messageId)
+          insertResult
         } else {
           null
         }
@@ -803,7 +821,7 @@ object DataMessageProcessor {
     senderRecipient: Recipient,
     threadRecipientId: RecipientId,
     receivedTime: Long
-  ): MessageId? {
+  ): InsertResult? {
     log(message.timestamp!!, "Gift message.")
 
     val giftBadge: DataMessage.GiftBadge = message.giftBadge!!
@@ -818,19 +836,20 @@ object DataMessageProcessor {
       .build()
 
     val insertResult: InsertResult? = try {
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.NORMAL,
         from = senderRecipient.id,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
         receivedTimeMillis = receivedTime,
         expiresIn = message.expireTimerDuration.inWholeMilliseconds,
         isUnidentified = metadata.sealedSender,
-        body = Base64.encodeBytes(dbGiftBadge.encode()),
+        body = Base64.encodeWithPadding(dbGiftBadge.encode()),
         serverGuid = envelope.serverGuid,
         giftBadge = dbGiftBadge
       )
 
-      SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
     } catch (e: MmsException) {
       throw StorageFailedException(e, metadata.sourceServiceId.toString(), metadata.sourceDeviceId)
     }
@@ -838,7 +857,7 @@ object DataMessageProcessor {
     return if (insertResult != null) {
       ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(insertResult.threadId))
       TrimThreadJob.enqueueAsync(insertResult.threadId)
-      MessageId(insertResult.messageId)
+      insertResult
     } else {
       null
     }
@@ -855,7 +874,7 @@ object DataMessageProcessor {
     groupId: GroupId.V2?,
     receivedTime: Long,
     localMetrics: SignalLocalMetrics.MessageReceive?
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Media message.")
 
     notifyTypingStoppedFromIncomingMessage(context, senderRecipient, threadRecipient.id, metadata.sourceDeviceId)
@@ -874,7 +893,8 @@ object DataMessageProcessor {
 
       handlePossibleExpirationUpdate(envelope, metadata, senderRecipient.id, threadRecipient, groupId, message.expireTimerDuration, receivedTime)
 
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.NORMAL,
         from = senderRecipient.id,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
@@ -890,11 +910,10 @@ object DataMessageProcessor {
         linkPreviews = linkPreviews,
         mentions = mentions,
         serverGuid = envelope.serverGuid,
-        messageRanges = messageRanges,
-        isPushMessage = true
+        messageRanges = messageRanges
       )
 
-      insertResult = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      insertResult = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
       if (insertResult != null) {
         SignalDatabase.messages.setTransactionSuccessful()
       }
@@ -930,7 +949,7 @@ object DataMessageProcessor {
         }
       }
 
-      MessageId(insertResult.messageId)
+      insertResult
     } else {
       null
     }
@@ -947,7 +966,7 @@ object DataMessageProcessor {
     groupId: GroupId.V2?,
     receivedTime: Long,
     localMetrics: SignalLocalMetrics.MessageReceive?
-  ): MessageId? {
+  ): InsertResult? {
     log(envelope.timestamp!!, "Text message.")
 
     val body = message.body ?: ""
@@ -956,25 +975,25 @@ object DataMessageProcessor {
 
     notifyTypingStoppedFromIncomingMessage(context, senderRecipient, threadRecipient.id, metadata.sourceDeviceId)
 
-    val textMessage = IncomingTextMessage(
-      senderRecipient.id,
-      metadata.sourceDeviceId,
-      envelope.timestamp!!,
-      envelope.serverTimestamp!!,
-      receivedTime,
-      body,
-      Optional.ofNullable(groupId),
-      message.expireTimerDuration.inWholeMilliseconds,
-      metadata.sealedSender,
-      envelope.serverGuid
+    val textMessage = IncomingMessage(
+      type = MessageType.NORMAL,
+      from = senderRecipient.id,
+      sentTimeMillis = envelope.timestamp!!,
+      serverTimeMillis = envelope.serverTimestamp!!,
+      receivedTimeMillis = receivedTime,
+      body = body,
+      groupId = groupId,
+      expiresIn = message.expireTimerDuration.inWholeMilliseconds,
+      isUnidentified = metadata.sealedSender,
+      serverGuid = envelope.serverGuid
     )
 
-    val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(IncomingEncryptedMessage(textMessage, body)).orNull()
+    val insertResult: InsertResult? = SignalDatabase.messages.insertMessageInbox(textMessage).orNull()
     localMetrics?.onInsertedTextMessage()
 
     return if (insertResult != null) {
       ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(insertResult.threadId))
-      MessageId(insertResult.messageId)
+      insertResult
     } else {
       null
     }
@@ -1031,20 +1050,18 @@ object DataMessageProcessor {
       }
   }
 
-  private fun insertPlaceholder(sender: RecipientId, senderDevice: Int, timestamp: Long, groupId: GroupId?): InsertResult? {
-    val textMessage = IncomingTextMessage(
-      sender,
-      senderDevice,
-      timestamp,
-      -1,
-      System.currentTimeMillis(),
-      "",
-      groupId.asOptional(),
-      0,
-      false,
-      null
+  private fun insertPlaceholder(sender: RecipientId, timestamp: Long, groupId: GroupId?): InsertResult? {
+    val textMessage = IncomingMessage(
+      type = MessageType.NORMAL,
+      from = sender,
+      sentTimeMillis = timestamp,
+      serverTimeMillis = -1,
+      receivedTimeMillis = System.currentTimeMillis(),
+      body = "",
+      groupId = groupId
     )
-    return SignalDatabase.messages.insertMessageInbox(IncomingEncryptedMessage(textMessage, "")).orNull()
+
+    return SignalDatabase.messages.insertMessageInbox(textMessage).orNull()
   }
 
   fun getValidatedQuote(context: Context, timestamp: Long, message: DataMessage): QuoteModel? {
@@ -1056,7 +1073,7 @@ object DataMessageProcessor {
     }
 
     val authorId = Recipient.externalPush(ServiceId.parseOrThrow(quote.authorAci!!)).id
-    var quotedMessage = SignalDatabase.messages.getMessageFor(quote.id!!, authorId) as? MediaMmsMessageRecord
+    var quotedMessage = SignalDatabase.messages.getMessageFor(quote.id!!, authorId) as? MmsMessageRecord
 
     if (quotedMessage != null && !quotedMessage.isRemoteDelete) {
       log(timestamp, "Found matching message record...")
@@ -1082,7 +1099,7 @@ object DataMessageProcessor {
       }
 
       if (quotedMessage.isPaymentNotification) {
-        quotedMessage = SignalDatabase.payments.updateMessageWithPayment(quotedMessage) as MediaMmsMessageRecord
+        quotedMessage = SignalDatabase.payments.updateMessageWithPayment(quotedMessage) as MmsMessageRecord
       }
 
       val body = if (quotedMessage.isPaymentNotification) quotedMessage.getDisplayBody(context).toString() else quotedMessage.body

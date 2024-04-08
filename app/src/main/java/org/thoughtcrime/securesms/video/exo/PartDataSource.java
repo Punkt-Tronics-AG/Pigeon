@@ -13,12 +13,11 @@ import androidx.media3.datasource.TransferListener;
 
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.InvalidMessageException;
-import org.signal.libsignal.protocol.incrementalmac.ChunkSizeChoice;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.database.AttachmentTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.mms.PartUriParser;
-import org.thoughtcrime.securesms.util.Base64;
+import org.signal.core.util.Base64;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.whispersystems.signalservice.api.crypto.AttachmentCipherInputStream;
 
@@ -59,13 +58,14 @@ class PartDataSource implements DataSource {
 
     final boolean hasIncrementalDigest = attachment.getIncrementalDigest() != null;
     final boolean inProgress           = attachment.isInProgress();
-    final String  attachmentKey        = attachment.getKey();
-    final boolean hasData              = attachment.hasData();
+    final String  attachmentKey        = attachment.remoteKey;
+    final boolean hasData              = attachment.hasData;
+
     if (inProgress && !hasData && hasIncrementalDigest && attachmentKey != null && FeatureFlags.instantVideoPlayback()) {
       final byte[] decode       = Base64.decode(attachmentKey);
-      final File   transferFile = attachmentDatabase.getOrCreateTransferFile(attachment.getAttachmentId());
+      final File   transferFile = attachmentDatabase.getOrCreateTransferFile(attachment.attachmentId);
       try {
-        this.inputStream = AttachmentCipherInputStream.createForAttachment(transferFile, attachment.getSize(), decode, attachment.getDigest(), attachment.getIncrementalDigest());
+        this.inputStream = AttachmentCipherInputStream.createForAttachment(transferFile, attachment.size, decode, attachment.remoteDigest, attachment.getIncrementalDigest(), attachment.incrementalMacChunkSize);
 
         long skipped = 0;
         while (skipped < dataSpec.position) {
@@ -82,8 +82,8 @@ class PartDataSource implements DataSource {
 
       Log.d(TAG, "Successfully loaded completed attachment file.");
     } else {
-      throw new IOException("Ineligible " + attachment.getAttachmentId().toString()
-                            + "\nTransfer state: " + attachment.getTransferState()
+      throw new IOException("Ineligible " + attachment.attachmentId.toString()
+                            + "\nTransfer state: " + attachment.transferState
                             + "\nIncremental Digest Present: " + hasIncrementalDigest
                             + "\nAttachment Key Non-Empty: " + (attachmentKey != null && !attachmentKey.isEmpty()));
     }
@@ -92,9 +92,9 @@ class PartDataSource implements DataSource {
       listener.onTransferStart(this, dataSpec, false);
     }
 
-    if (attachment.getSize() - dataSpec.position <= 0) throw new EOFException("No more data");
+    if (attachment.size - dataSpec.position <= 0) throw new EOFException("No more data");
 
-    return attachment.getSize() - dataSpec.position;
+    return attachment.size - dataSpec.position;
   }
 
   @Override

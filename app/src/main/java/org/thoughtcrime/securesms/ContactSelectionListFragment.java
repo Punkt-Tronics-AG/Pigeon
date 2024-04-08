@@ -51,6 +51,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import org.signal.core.util.concurrent.LifecycleDisposable;
+import org.signal.core.util.concurrent.RxExtensions;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.components.RecyclerViewFastScroller;
@@ -71,9 +72,12 @@ import org.thoughtcrime.securesms.contacts.sync.ContactDiscovery;
 import org.thoughtcrime.securesms.groups.SelectionLimits;
 import org.thoughtcrime.securesms.groups.ui.GroupLimitDialog;
 import org.thoughtcrime.securesms.permissions.Permissions;
+import org.thoughtcrime.securesms.profiles.manage.UsernameRepository;
+import org.thoughtcrime.securesms.profiles.manage.UsernameRepository.UsernameAciFetchResult;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.CommunicationActions;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.UsernameUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -142,6 +146,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   private ProgressBar                     pigeonProgressBar;
 
   @Nullable private NewConversationCallback              newConversationCallback;
+  @Nullable private FindByCallback                       findByCallback;
   @Nullable private NewCallCallback                      newCallCallback;
   @Nullable private ScrollCallback                       scrollCallback;
   @Nullable private OnItemLongClickListener              onItemLongClickListener;
@@ -149,6 +154,8 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   private           Set<RecipientId>                     currentSelection;
   private           boolean                              isMulti;
   private           boolean                              canSelectSelf;
+  private           boolean                              resetPositionOnCommit = false;
+
   private           ListClickListener                    listClickListener = new ListClickListener();
   @Nullable private SwipeRefreshLayout.OnRefreshListener onRefreshListener;
 
@@ -158,6 +165,10 @@ public final class ContactSelectionListFragment extends LoggingFragment {
 
     if (context instanceof NewConversationCallback) {
       newConversationCallback = (NewConversationCallback) context;
+    }
+
+    if (context instanceof FindByCallback) {
+      findByCallback = (FindByCallback) context;
     }
 
     if (context instanceof NewCallCallback) {
@@ -238,7 +249,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
                .execute();
   }
 
-  @SuppressLint("MissingInflatedId") @Override
+  @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.contact_selection_list_fragment, container, false);
 
@@ -383,6 +394,16 @@ public final class ContactSelectionListFragment extends LoggingFragment {
               }
 
               @Override
+              public void onFindByPhoneNumberClicked() {
+                findByCallback.onFindByPhoneNumber();
+              }
+
+              @Override
+              public void onFindByUsernameClicked() {
+                findByCallback.onFindByUsername();
+              }
+
+              @Override
               public void onInviteToSignalClicked() {
                 if (newConversationCallback != null) {
                   newConversationCallback.onInvite();
@@ -427,8 +448,12 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    constraintLayout  = null;
+    constraintLayout = null;
     onRefreshListener = null;
+  }
+
+  public int getSelectedMembersSize() {
+    return contactSearchMediator.getSelectedMembersSize();
   }
 
   private @NonNull Bundle safeArguments() {
@@ -539,12 +564,15 @@ public final class ContactSelectionListFragment extends LoggingFragment {
       return;
     }
 
-    this.cursorFilter = filter;
+    this.resetPositionOnCommit = true;
+    this.cursorFilter          = filter;
+
     contactSearchMediator.onFilterChanged(filter);
   }
 
   public void resetQueryFilter() {
     setQueryFilter(null);
+    this.resetPositionOnCommit = true;
     swipeRefresh.setRefreshing(false);
     pigeonProgressBar.setVisibility(View.GONE);
   }
@@ -564,6 +592,11 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   }
 
   private void onLoadFinished(int count) {
+    if (resetPositionOnCommit) {
+      resetPositionOnCommit = false;
+      recyclerView.scrollToPosition(0);
+    }
+
     swipeRefresh.setVisibility(View.VISIBLE);
     showContactsLayout.setVisibility(View.GONE);
 
@@ -658,6 +691,10 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     }
   }
 
+  public void addRecipientToSelectionIfAble(@NonNull RecipientId recipientId) {
+    listClickListener.onItemClick(new ContactSearchKey.RecipientSearchKey(recipientId, false));
+  }
+
   private class ListClickListener {
     public void onItemClick(ContactSearchKey contact) {
       boolean         isUnknown       = contact instanceof ContactSearchKey.UnknownRecipientKey;
@@ -683,11 +720,18 @@ public final class ContactSelectionListFragment extends LoggingFragment {
           AlertDialog loadingDialog = SimpleProgressDialog.show(requireContext());
 
           SimpleTask.run(getViewLifecycleOwner().getLifecycle(), () -> {
-            return UsernameUtil.fetchAciForUsername(username);
-          }, uuid -> {
+            try {
+              return RxExtensions.safeBlockingGet(UsernameRepository.fetchAciForUsername(UsernameUtil.sanitizeUsernameFromSearch(username)));
+            } catch (InterruptedException e) {
+              Log.w(TAG, "Interrupted?", e);
+              return UsernameAciFetchResult.NetworkError.INSTANCE;
+            }
+          }, result  -> {
             loadingDialog.dismiss();
-            if (uuid.isPresent()) {
-              Recipient       recipient = Recipient.externalUsername(uuid.get(), username);
+
+            // TODO Could be more specific with errors
+            if (result instanceof UsernameAciFetchResult.Success success) {
+              Recipient       recipient = Recipient.externalUsername(success.getAci(), username);
               SelectedContact selected  = SelectedContact.forUsername(recipient.getId(), username);
 
               if (onContactSelectedListener != null) {
@@ -714,10 +758,10 @@ public final class ContactSelectionListFragment extends LoggingFragment {
                 Optional.ofNullable(selectedContact.getRecipientId()),
                 selectedContact.getNumber(),
                 allowed -> {
-                  if (allowed) {
-                    markContactSelected(selectedContact);
-                  }
-                });
+              if (allowed) {
+                markContactSelected(selectedContact);
+              }
+            });
           } else {
             markContactSelected(selectedContact);
           }
@@ -869,8 +913,13 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     return ContactSearchConfiguration.build(builder -> {
       builder.setQuery(contactSearchState.getQuery());
 
-      if (isSignalVersion() && newConversationCallback != null) {
+      if (isSignalVersion() && newConversationCallback != null && !hasQuery) {
         builder.arbitrary(ContactSelectionListAdapter.ArbitraryRepository.ArbitraryRow.INVITE_TO_SIGNAL.getCode());
+      }
+
+      if (findByCallback != null && !hasQuery) {
+        builder.arbitrary(ContactSelectionListAdapter.ArbitraryRepository.ArbitraryRow.FIND_BY_USERNAME.getCode());
+        builder.arbitrary(ContactSelectionListAdapter.ArbitraryRepository.ArbitraryRow.FIND_BY_PHONE_NUMBER.getCode());
       }
 
       if (transportType != null) {
@@ -887,12 +936,14 @@ public final class ContactSelectionListFragment extends LoggingFragment {
           ));
         }
 
+        boolean hideHeader = newCallCallback != null || (newConversationCallback != null && !hasQuery);
         builder.addSection(new ContactSearchConfiguration.Section.Individuals(
             includeSelf,
             transportType,
-            newCallCallback == null,
+            !hideHeader,
             null,
-            !hideLetterHeaders()
+            !hideLetterHeaders(),
+            newConversationCallback != null ? ContactSearchSortOrder.RECENCY : ContactSearchSortOrder.NATURAL
         ));
       }
 
@@ -918,7 +969,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
         builder.username(newRowMode);
       }
 
-      if (newCallCallback != null || newConversationCallback != null) {
+      if ((newCallCallback != null || newConversationCallback != null) && !hasQuery) {
         addMoreSection(builder);
         builder.withEmptyState(emptyBuilder -> {
           emptyBuilder.addSection(ContactSearchConfiguration.Section.Empty.INSTANCE);
@@ -1008,6 +1059,12 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     void onInvite();
 
     void onNewGroup(boolean forceV1);
+  }
+
+  public interface FindByCallback {
+    void onFindByUsername();
+
+    void onFindByPhoneNumber();
   }
 
   public interface NewCallCallback {

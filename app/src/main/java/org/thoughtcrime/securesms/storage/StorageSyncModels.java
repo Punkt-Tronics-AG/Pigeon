@@ -18,7 +18,6 @@ import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.keyvalue.PhoneNumberPrivacyValues;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.subscription.Subscriber;
-import org.whispersystems.signalservice.api.push.ServiceId.ACI;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.storage.SignalAccountRecord;
 import org.whispersystems.signalservice.api.storage.SignalContactRecord;
@@ -57,9 +56,9 @@ public final class StorageSyncModels {
 
   public static @NonNull SignalStorageRecord localToRemoteRecord(@NonNull RecipientRecord settings, @NonNull byte[] rawStorageId) {
     switch (settings.getRecipientType()) {
-      case INDIVIDUAL:              return SignalStorageRecord.forContact(localToRemoteContact(settings, rawStorageId));
-      case GV1:         return SignalStorageRecord.forGroupV1(localToRemoteGroupV1(settings, rawStorageId));
-      case GV2:         return SignalStorageRecord.forGroupV2(localToRemoteGroupV2(settings, rawStorageId, settings.getSyncExtras().getGroupMasterKey()));
+      case INDIVIDUAL:        return SignalStorageRecord.forContact(localToRemoteContact(settings, rawStorageId));
+      case GV1:               return SignalStorageRecord.forGroupV1(localToRemoteGroupV1(settings, rawStorageId));
+      case GV2:               return SignalStorageRecord.forGroupV2(localToRemoteGroupV2(settings, rawStorageId, settings.getSyncExtras().getGroupMasterKey()));
       case DISTRIBUTION_LIST: return SignalStorageRecord.forStoryDistributionList(localToRemoteStoryDistributionList(settings, rawStorageId));
       default:                throw new AssertionError("Unsupported type!");
     }
@@ -67,19 +66,18 @@ public final class StorageSyncModels {
 
   public static AccountRecord.PhoneNumberSharingMode localToRemotePhoneNumberSharingMode(PhoneNumberPrivacyValues.PhoneNumberSharingMode phoneNumberPhoneNumberSharingMode) {
     switch (phoneNumberPhoneNumberSharingMode) {
-      case EVERYONE: return AccountRecord.PhoneNumberSharingMode.EVERYBODY;
-      case CONTACTS: return AccountRecord.PhoneNumberSharingMode.CONTACTS_ONLY;
-      case NOBODY  : return AccountRecord.PhoneNumberSharingMode.NOBODY;
-      default      : throw new AssertionError();
+      case DEFAULT  : return AccountRecord.PhoneNumberSharingMode.NOBODY;
+      case EVERYBODY: return AccountRecord.PhoneNumberSharingMode.EVERYBODY;
+      case NOBODY   : return AccountRecord.PhoneNumberSharingMode.NOBODY;
+      default       : throw new AssertionError();
     }
   }
 
   public static PhoneNumberPrivacyValues.PhoneNumberSharingMode remoteToLocalPhoneNumberSharingMode(AccountRecord.PhoneNumberSharingMode phoneNumberPhoneNumberSharingMode) {
     switch (phoneNumberPhoneNumberSharingMode) {
-      case EVERYBODY    : return PhoneNumberPrivacyValues.PhoneNumberSharingMode.EVERYONE;
-      case CONTACTS_ONLY: return PhoneNumberPrivacyValues.PhoneNumberSharingMode.CONTACTS;
+      case EVERYBODY    : return PhoneNumberPrivacyValues.PhoneNumberSharingMode.EVERYBODY;
       case NOBODY       : return PhoneNumberPrivacyValues.PhoneNumberSharingMode.NOBODY;
-      default           : return PhoneNumberPrivacyValues.PhoneNumberSharingMode.CONTACTS;
+      default           : return PhoneNumberPrivacyValues.PhoneNumberSharingMode.DEFAULT;
     }
   }
 
@@ -130,14 +128,13 @@ public final class StorageSyncModels {
   }
 
   private static @NonNull SignalContactRecord localToRemoteContact(@NonNull RecipientRecord recipient, byte[] rawStorageId) {
-    if (recipient.getAci() == null && recipient.getE164() == null) {
+    if (recipient.getAci() == null && recipient.getPni() == null && recipient.getE164() == null) {
       throw new AssertionError("Must have either a UUID or a phone number!");
     }
 
-    ACI       aci       = recipient.getAci() != null ? recipient.getAci() : ACI.UNKNOWN;
     boolean   hideStory = recipient.getExtras() != null && recipient.getExtras().hideStory();
 
-    return new SignalContactRecord.Builder(rawStorageId, aci, recipient.getSyncExtras().getStorageProto())
+    return new SignalContactRecord.Builder(rawStorageId, recipient.getAci(), recipient.getSyncExtras().getStorageProto())
                                   .setE164(recipient.getE164())
                                   .setPni(recipient.getPni())
                                   .setProfileKey(recipient.getProfileKey())
@@ -157,6 +154,7 @@ public final class StorageSyncModels {
                                   .setUnregisteredTimestamp(recipient.getSyncExtras().getUnregisteredTimestamp())
                                   .setHidden(recipient.getHiddenState() != Recipient.HiddenState.NOT_HIDDEN)
                                   .setUsername(recipient.getUsername())
+                                  .setPniSignatureVerified(recipient.getSyncExtras().getPniSignatureVerified())
                                   .build();
   }
 

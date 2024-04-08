@@ -22,6 +22,8 @@ import org.thoughtcrime.securesms.groups.BadGroupIdException;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.ui.bottomsheet.RecipientBottomSheetDialogFragment;
+import org.thoughtcrime.securesms.stories.settings.my.SignalConnectionsBottomSheetDialogFragment;
+import org.thoughtcrime.securesms.util.BottomSheetUtil;
 
 public class ReviewCardDialogFragment extends FullScreenDialogFragment {
 
@@ -173,8 +175,7 @@ public class ReviewCardDialogFragment extends FullScreenDialogFragment {
 
     @Override
     public void onCardClicked(@NonNull ReviewCard card) {
-      RecipientBottomSheetDialogFragment.create(card.getReviewRecipient().getId(), null)
-                                        .show(requireFragmentManager(), null);
+      RecipientBottomSheetDialogFragment.show(getParentFragmentManager(), card.getReviewRecipient().getId(), null);
     }
 
     @Override
@@ -201,6 +202,11 @@ public class ReviewCardDialogFragment extends FullScreenDialogFragment {
         default:
           viewModel.act(card, action);
       }
+    }
+
+    @Override
+    public void onSignalConnectionClicked() {
+      new SignalConnectionsBottomSheetDialogFragment().show(getParentFragmentManager(), BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
     }
   }
 }

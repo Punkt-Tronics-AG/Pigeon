@@ -93,7 +93,7 @@ sealed class NotificationItem(val threadRecipient: Recipient, protected val reco
       context.getString(R.string.SingleRecipientNotificationBuilder_new_message)
     } else {
       SpannableStringBuilder().apply {
-        append(Util.getBoldedString(authorRecipient.getShortDisplayNameIncludingUsername(context)))
+        append(Util.getBoldedString(authorRecipient.getShortDisplayName(context)))
         if (threadRecipient != authorRecipient) {
           append(Util.getBoldedString("@${threadRecipient.getDisplayName(context)}"))
         }
@@ -193,8 +193,12 @@ sealed class NotificationItem(val threadRecipient: Recipient, protected val reco
   }
 
   data class ThumbnailInfo(val uri: Uri? = null, val contentType: String? = null) {
+    var needsShrinking = false
+      private set
+
     companion object {
       val NONE = ThumbnailInfo()
+      val NEEDS_SHRINKING = ThumbnailInfo().apply { needsShrinking = true }
     }
   }
 }
@@ -208,7 +212,7 @@ class MessageNotification(threadRecipient: Recipient, record: MessageRecord) : N
   override val isNewNotification: Boolean = notifiedTimestamp == 0L && !record.isEditMessage
   val hasSelfMention = record.hasSelfMention()
 
-  private var thumbnailInfo: ThumbnailInfo? = null
+  private var thumbnailInfo: ThumbnailInfo = NotificationThumbnails.getWithoutModifying(this)
 
   override fun getPrimaryTextActual(context: Context): CharSequence {
     return if (KeyCachingService.isLocked(context)) {
@@ -221,15 +225,15 @@ class MessageNotification(threadRecipient: Recipient, record: MessageRecord) : N
     } else if (record.isRemoteDelete) {
       SpanUtil.italic(context.getString(R.string.MessageNotifier_this_message_was_deleted))
     } else if (record.isMms && !record.isMmsNotification && (record as MmsMessageRecord).slideDeck.slides.isNotEmpty()) {
-      ThreadBodyUtil.getFormattedBodyFor(context, record).body
+      ThreadBodyUtil.getFormattedBodyForNotification(context, record, getBodyWithMentionsAndStyles(context, record))
     } else if (record.isGroupCall) {
       MessageRecord.getGroupCallUpdateDescription(context, record.body, false).spannable
     } else if (record.hasGiftBadge()) {
-      ThreadBodyUtil.getFormattedBodyFor(context, record).body
+      ThreadBodyUtil.getFormattedBodyForNotification(context, record, null)
     } else if (record.isStoryReaction()) {
-      ThreadBodyUtil.getFormattedBodyFor(context, record).body
+      ThreadBodyUtil.getFormattedBodyForNotification(context, record, null)
     } else if (record.isPaymentNotification) {
-      ThreadBodyUtil.getFormattedBodyFor(context, record).body
+      ThreadBodyUtil.getFormattedBodyForNotification(context, record, null)
     } else {
       getBodyWithMentionsAndStyles(context, record)
     }
@@ -262,15 +266,15 @@ class MessageNotification(threadRecipient: Recipient, record: MessageRecord) : N
   }
 
   override fun getThumbnailInfo(context: Context): ThumbnailInfo {
-    if (thumbnailInfo == null) {
-      thumbnailInfo = if (SignalStore.settings().messageNotificationsPrivacy.isDisplayMessage && !KeyCachingService.isLocked(context)) {
-        NotificationThumbnails.get(context, this)
-      } else {
-        ThumbnailInfo()
+    return if (SignalStore.settings().messageNotificationsPrivacy.isDisplayMessage && !KeyCachingService.isLocked(context)) {
+      if (thumbnailInfo.needsShrinking) {
+        thumbnailInfo = NotificationThumbnails.get(context, this)
       }
-    }
 
-    return thumbnailInfo!!
+      thumbnailInfo
+    } else {
+      ThumbnailInfo.NONE
+    }
   }
 
   override fun canReply(context: Context): Boolean {

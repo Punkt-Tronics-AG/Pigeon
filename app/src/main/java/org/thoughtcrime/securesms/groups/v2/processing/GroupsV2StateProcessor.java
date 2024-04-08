@@ -18,13 +18,16 @@ import org.signal.storageservice.protos.groups.local.DecryptedGroup;
 import org.signal.storageservice.protos.groups.local.DecryptedGroupChange;
 import org.signal.storageservice.protos.groups.local.DecryptedMember;
 import org.signal.storageservice.protos.groups.local.DecryptedPendingMember;
+import org.thoughtcrime.securesms.backup.v2.proto.GroupChangeChatUpdate;
 import org.thoughtcrime.securesms.database.GroupTable;
 import org.thoughtcrime.securesms.database.MessageTable;
 import org.thoughtcrime.securesms.database.RecipientTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
+import org.thoughtcrime.securesms.database.model.GroupsV2UpdateMessageConverter;
 import org.thoughtcrime.securesms.database.model.databaseprotos.DecryptedGroupV2Context;
+import org.thoughtcrime.securesms.database.model.databaseprotos.GV2UpdateDescription;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupDoesNotExistException;
 import org.thoughtcrime.securesms.groups.GroupId;
@@ -35,16 +38,16 @@ import org.thoughtcrime.securesms.groups.GroupsV2Authorization;
 import org.thoughtcrime.securesms.groups.v2.ProfileKeySet;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobs.AvatarGroupsV2DownloadJob;
+import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob;
 import org.thoughtcrime.securesms.jobs.LeaveGroupV2Job;
 import org.thoughtcrime.securesms.jobs.RequestGroupV2InfoJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
+import org.thoughtcrime.securesms.mms.IncomingMessage;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.sms.IncomingGroupUpdateMessage;
-import org.thoughtcrime.securesms.sms.IncomingTextMessage;
 import org.whispersystems.signalservice.api.groupsv2.DecryptedGroupHistoryEntry;
 import org.whispersystems.signalservice.api.groupsv2.DecryptedGroupUtil;
 import org.whispersystems.signalservice.api.groupsv2.GroupChangeReconstruct;
@@ -239,10 +242,10 @@ public class GroupsV2StateProcessor {
       updateLocalDatabaseGroupState(inputGroupState, newLocalState);
       if (localState.revision == GroupsV2StateProcessor.RESTORE_PLACEHOLDER_REVISION) {
         info("Inserting single update message for restore placeholder");
-        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(newLocalState, null)));
+        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(newLocalState, null)), null);
       } else {
         info("Inserting force update messages");
-        profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries());
+        profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries(), null);
       }
       profileAndMessageHelper.persistLearnedProfileKeys(inputGroupState);
 
@@ -260,7 +263,7 @@ public class GroupsV2StateProcessor {
                                                         @Nullable DecryptedGroupChange signedGroupChange)
         throws IOException, GroupNotAMemberException
     {
-      return updateLocalGroupToRevision(revision, timestamp, groupDatabase.getGroup(groupId), signedGroupChange);
+      return updateLocalGroupToRevision(revision, timestamp, groupDatabase.getGroup(groupId), signedGroupChange, null);
     }
 
     /**
@@ -272,7 +275,8 @@ public class GroupsV2StateProcessor {
     public GroupUpdateResult updateLocalGroupToRevision(final int revision,
                                                         final long timestamp,
                                                         @NonNull Optional<GroupRecord> localRecord,
-                                                        @Nullable DecryptedGroupChange signedGroupChange)
+                                                        @Nullable DecryptedGroupChange signedGroupChange,
+                                                        @Nullable String serverGuid)
         throws IOException, GroupNotAMemberException
     {
       if (localIsAtLeast(localRecord, revision)) {
@@ -288,7 +292,6 @@ public class GroupsV2StateProcessor {
           localState.revision + 1 == signedGroupChange.revision &&
           revision == signedGroupChange.revision)
       {
-
         if (notInGroupAndNotBeingAdded(localRecord, signedGroupChange) && notHavingInviteRevoked(signedGroupChange)) {
           warn("Ignoring P2P group change because we're not currently in the group and this change doesn't add us in. Falling back to a server fetch.");
         } else if (SignalStore.internalValues().gv2IgnoreP2PChanges()) {
@@ -307,7 +310,7 @@ public class GroupsV2StateProcessor {
 
       if (inputGroupState == null) {
         try {
-          return updateLocalGroupFromServerPaged(revision, localState, timestamp, false);
+          return updateLocalGroupFromServerPaged(revision, localState, timestamp, false, serverGuid);
         } catch (GroupNotAMemberException e) {
           if (localState != null && signedGroupChange != null) {
             try {
@@ -347,11 +350,15 @@ public class GroupsV2StateProcessor {
       updateLocalDatabaseGroupState(inputGroupState, newLocalState);
       if (localState != null && localState.revision == GroupsV2StateProcessor.RESTORE_PLACEHOLDER_REVISION) {
         info("Inserting single update message for restore placeholder");
-        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(newLocalState, null)));
+        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(newLocalState, null)), null);
       } else {
-        profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries());
+        profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries(), serverGuid);
       }
       profileAndMessageHelper.persistLearnedProfileKeys(inputGroupState);
+
+      if (!signedGroupChange.promotePendingPniAciMembers.isEmpty()) {
+        ApplicationDependencies.getJobManager().add(new DirectoryRefreshJob(false));
+      }
 
       GlobalGroupState remainingWork = advanceGroupStateResult.getNewGlobalGroupState();
       if (remainingWork.getServerHistory().size() > 0) {
@@ -399,7 +406,7 @@ public class GroupsV2StateProcessor {
     /**
      * Using network, attempt to bring the local copy of the group up to the revision specified via paging.
      */
-    private GroupUpdateResult updateLocalGroupFromServerPaged(int revision, DecryptedGroup localState, long timestamp, boolean forceIncludeFirst) throws IOException, GroupNotAMemberException {
+    private GroupUpdateResult updateLocalGroupFromServerPaged(int revision, DecryptedGroup localState, long timestamp, boolean forceIncludeFirst, @Nullable String serverGuid) throws IOException, GroupNotAMemberException {
       boolean latestRevisionOnly = revision == LATEST && (localState == null || localState.revision == GroupsV2StateProcessor.RESTORE_PLACEHOLDER_REVISION);
 
       info("Paging from server revision: " + (revision == LATEST ? "latest" : revision) + ", latestOnly: " + latestRevisionOnly);
@@ -444,6 +451,7 @@ public class GroupsV2StateProcessor {
       ProfileKeySet    profileKeys           = new ProfileKeySet();
       DecryptedGroup   finalState            = localState;
       GlobalGroupState finalGlobalGroupState = inputGroupState;
+      boolean          performCdsLookup      = false;
 
       boolean hasMore = true;
 
@@ -457,7 +465,7 @@ public class GroupsV2StateProcessor {
           int requestRevision  = (revision == LATEST) ? latestServerGroup.getRevision() : revision;
           if (newLocalRevision < requestRevision) {
             warn( "Paging again with force first snapshot enabled due to error processing changes. New local revision [" + newLocalRevision + "] hasn't reached our desired level [" + requestRevision + "]");
-            return updateLocalGroupFromServerPaged(revision, localState, timestamp, true);
+            return updateLocalGroupFromServerPaged(revision, localState, timestamp, true, serverGuid);
           }
         }
 
@@ -468,15 +476,20 @@ public class GroupsV2StateProcessor {
         updateLocalDatabaseGroupState(inputGroupState, newLocalState);
 
         if (localState == null || localState.revision != GroupsV2StateProcessor.RESTORE_PLACEHOLDER_REVISION) {
-          timestamp = profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries());
+          timestamp = profileAndMessageHelper.insertUpdateMessages(timestamp, localState, advanceGroupStateResult.getProcessedLogEntries(), serverGuid);
         }
 
         for (ServerGroupLogEntry entry : inputGroupState.getServerHistory()) {
           if (entry.getGroup() != null) {
             profileKeys.addKeysFromGroupState(entry.getGroup());
           }
+
           if (entry.getChange() != null) {
             profileKeys.addKeysFromGroupChange(entry.getChange());
+
+            if (!entry.getChange().promotePendingPniAciMembers.isEmpty()) {
+              performCdsLookup = true;
+            }
           }
         }
 
@@ -492,10 +505,14 @@ public class GroupsV2StateProcessor {
 
       if (localState != null && localState.revision == GroupsV2StateProcessor.RESTORE_PLACEHOLDER_REVISION) {
         info("Inserting single update message for restore placeholder");
-        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(finalState, null)));
+        profileAndMessageHelper.insertUpdateMessages(timestamp, null, Collections.singleton(new LocalGroupLogEntry(finalState, null)), serverGuid);
       }
 
       profileAndMessageHelper.persistLearnedProfileKeys(profileKeys);
+
+      if (performCdsLookup) {
+        ApplicationDependencies.getJobManager().add(new DirectoryRefreshJob(false));
+      }
 
       if (finalGlobalGroupState.getServerHistory().size() > 0) {
         info(String.format(Locale.US, "There are more revisions on the server for this group, scheduling for later, V[%d..%d]", finalState.revision + 1, finalGlobalGroupState.getLatestRevisionNumber()));
@@ -559,8 +576,8 @@ public class GroupsV2StateProcessor {
                                                                           .deleteMembers(Collections.singletonList(serviceIds.getAci().toByteString()))
                                                                           .build();
 
-      DecryptedGroupV2Context decryptedGroupV2Context = GroupProtoUtil.createDecryptedGroupV2Context(masterKey, new GroupMutation(decryptedGroup, simulatedGroupChange, simulatedGroupState), null);
-      OutgoingMessage         leaveMessage            = OutgoingMessage.groupUpdateMessage(groupRecipient, decryptedGroupV2Context, System.currentTimeMillis());
+      GV2UpdateDescription updateDescription = GroupProtoUtil.createOutgoingGroupV2UpdateDescription(masterKey, new GroupMutation(decryptedGroup, simulatedGroupChange, simulatedGroupState), null);
+      OutgoingMessage      leaveMessage      = OutgoingMessage.groupUpdateMessage(groupRecipient, updateDescription, System.currentTimeMillis());
 
       try {
         MessageTable mmsDatabase = SignalDatabase.messages();
@@ -736,7 +753,8 @@ public class GroupsV2StateProcessor {
 
     long insertUpdateMessages(long timestamp,
                               @Nullable DecryptedGroup previousGroupState,
-                              Collection<LocalGroupLogEntry> processedLogEntries)
+                              Collection<LocalGroupLogEntry> processedLogEntries,
+                              @Nullable String serverGuid)
     {
       for (LocalGroupLogEntry entry : processedLogEntries) {
         if (entry.getChange() != null && DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(entry.getChange()) && !DecryptedGroupUtil.changeIsEmpty(entry.getChange())) {
@@ -747,7 +765,7 @@ public class GroupsV2StateProcessor {
           if (entry.getChange() != null && DecryptedGroupUtil.changeIsEmpty(entry.getChange()) && previousGroupState != null) {
             Log.w(TAG, "Empty group update message seen. Not inserting.");
           } else {
-            storeMessage(GroupProtoUtil.createDecryptedGroupV2Context(masterKey, new GroupMutation(previousGroupState, entry.getChange(), entry.getGroup()), null), timestamp);
+            storeMessage(GroupProtoUtil.createDecryptedGroupV2Context(masterKey, new GroupMutation(previousGroupState, entry.getChange(), entry.getGroup()), null), timestamp, serverGuid);
             timestamp++;
           }
         }
@@ -783,10 +801,15 @@ public class GroupsV2StateProcessor {
       }
     }
 
-    void storeMessage(@NonNull DecryptedGroupV2Context decryptedGroupV2Context, long timestamp) {
+    void storeMessage(@NonNull DecryptedGroupV2Context decryptedGroupV2Context, long timestamp, @Nullable String serverGuid) {
       Optional<ServiceId> editor = getEditor(decryptedGroupV2Context);
 
       boolean outgoing = !editor.isPresent() || aci.equals(editor.get());
+
+      GV2UpdateDescription updateDescription = new GV2UpdateDescription.Builder()
+          .gv2ChangeDescription(decryptedGroupV2Context)
+          .groupChangeUpdate(GroupsV2UpdateMessageConverter.translateDecryptedChange(SignalStore.account().getServiceIds(), decryptedGroupV2Context))
+          .build();
 
       if (outgoing) {
         try {
@@ -794,26 +817,29 @@ public class GroupsV2StateProcessor {
           ThreadTable     threadTable     = SignalDatabase.threads();
           RecipientId     recipientId     = recipientTable.getOrInsertFromGroupId(groupId);
           Recipient       recipient       = Recipient.resolved(recipientId);
-          OutgoingMessage outgoingMessage = OutgoingMessage.groupUpdateMessage(recipient, decryptedGroupV2Context, timestamp);
+          OutgoingMessage outgoingMessage = OutgoingMessage.groupUpdateMessage(recipient, updateDescription, timestamp);
           long            threadId        = threadTable.getOrCreateThreadIdFor(recipient);
           long            messageId       = mmsDatabase.insertMessageOutbox(outgoingMessage, threadId, false, null);
 
           mmsDatabase.markAsSent(messageId, true);
           threadTable.update(threadId, false, false);
         } catch (MmsException e) {
-          Log.w(TAG, e);
+          Log.w(TAG, "Failed to insert outgoing update message!", e);
         }
       } else {
-        MessageTable                        smsDatabase  = SignalDatabase.messages();
-        RecipientId                         sender       = RecipientId.from(editor.get());
-        IncomingTextMessage                 incoming     = new IncomingTextMessage(sender, -1, timestamp, timestamp, timestamp, "", Optional.of(groupId), 0, false, null);
-        IncomingGroupUpdateMessage          groupMessage = new IncomingGroupUpdateMessage(incoming, decryptedGroupV2Context);
-        Optional<MessageTable.InsertResult> insertResult = smsDatabase.insertMessageInbox(groupMessage);
+        try {
+          MessageTable                        smsDatabase  = SignalDatabase.messages();
+          RecipientId                         sender       = RecipientId.from(editor.get());
+          IncomingMessage                     groupMessage = IncomingMessage.groupUpdate(sender, timestamp, groupId, decryptedGroupV2Context, serverGuid);
+          Optional<MessageTable.InsertResult> insertResult = smsDatabase.insertMessageInbox(groupMessage);
 
-        if (insertResult.isPresent()) {
-          SignalDatabase.threads().update(insertResult.get().getThreadId(), false, false);
-        } else {
-          Log.w(TAG, "Could not insert update message");
+          if (insertResult.isPresent()) {
+            SignalDatabase.threads().update(insertResult.get().getThreadId(), false, false);
+          } else {
+            Log.w(TAG, "Could not insert update message");
+          }
+        } catch (MmsException e) {
+          Log.w(TAG, "Failed to insert incoming update message!", e);
         }
       }
     }

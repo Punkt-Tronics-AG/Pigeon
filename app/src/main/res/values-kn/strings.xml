@@ -15,6 +15,8 @@
   <!-- Removed by excludeNonTranslatables <string name="signal_me_username_url" translatable="false">https://signal.me/#u/%1$s</string> -->
   <!-- Removed by excludeNonTranslatables <string name="username_support_url" translatable="false">https://support.signal.org/hc/articles/5389476324250</string> -->
   <!-- Removed by excludeNonTranslatables <string name="export_account_data_url" translatable="false">https://support.signal.org/hc/articles/5538911756954</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="pending_transfer_url" translatable="false">https://support.signal.org/hc/articles/360031949872#pending</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="donate_faq_url" translatable="false">https://support.signal.org/hc/articles/360031949872#donate</string> -->
 
     <string name="yes">ಹೌದು</string>
     <string name="no">ಇಲ್ಲ</string>
@@ -119,11 +121,8 @@
     <string name="BlockedUsersActivity__block">ನಿರ್ಬಂಧಿಸಿ</string>
 
     <!-- CreditCardFragment -->
-    <!-- Title of fragment detailing the donation amount for one-time donation, displayed above the credit card text fields -->
-    <string name="CreditCardFragment__donation_amount_s">ದೇಣಿಗೆ ಮೊತ್ತ: %1$s</string>
-    <!-- Title of fragment detailing the donation amount for monthly donation, displayed above the credit card text fields -->
-    <string name="CreditCardFragment__donation_amount_s_per_month">ದೇಣಿಗೆ ಮೊತ್ತ: %1$s/ತಿಂಗಳು</string>
-    <!-- Explanation of how to fill in the form, displayed above the credit card text fields -->
+    <!-- Title of fragment -->
+    <string name="CreditCardFragment__credit_or_debit_card">ಕ್ರೆಡಿಟ್ ಅಥವಾ ಡೆಬಿಟ್ ಕಾರ್ಡ್</string>
     <!-- Explanation of how to fill in the form and a note about pii, displayed above the credit card text fields -->
     <string name="CreditCardFragment__enter_your_card_details">ನಿಮ್ಮ ಕಾರ್ಡ್ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ. ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು Signal ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ ಅಥವಾ ಶೇಖರಿಸುವುದಿಲ್ಲ.</string>
     <!-- Displayed as a hint in the card number text field -->
@@ -148,8 +147,18 @@
     <string name="CreditCardFragment__year_required">ಇಸವಿ ಅಗತ್ಯವಿದೆ</string>
     <!-- Error displayed under the card expiry text field when the expiry year is invalid -->
     <string name="CreditCardFragment__invalid_year">ಅಮಾನ್ಯ ಇಸವಿ</string>
-    <!-- Button label to confirm credit card input and proceed with payment -->
-    <string name="CreditCardFragment__continue">ಮುಂದುವರಿಸಿ</string>
+    <!-- Button label to confirm credit card input and proceed with one-time payment -->
+    <string name="CreditCardFragment__donate_s">%1$s ಅವರಿಗೆ ದೇಣಿಗೆ ನೀಡಿ</string>
+    <!-- Button label to confirm credit card input and proceed with subscription payment -->
+    <string name="CreditCardFragment__donate_s_month">ತಿಂಗಳಿಗೆ %1$s ದೇಣಿಗೆ ನೀಡಿ</string>
+
+    <!-- OneTimeDonationPreference -->
+    <!-- Preference title with placeholder for amount. -->
+    <string name="OneTimeDonationPreference__one_time_s">ಒಂದು ಬಾರಿ %1$s</string>
+    <!-- Preference subtitle when donation is pending -->
+    <string name="OneTimeDonationPreference__donation_pending">ದೇಣಿಗೆ ಬಾಕಿಯಿದೆ</string>
+    <!-- Preference subtitle when donation is processing -->
+    <string name="OneTimeDonationPreference__donation_processing">ದೇಣಿಗೆ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ</string>
 
     <!-- BlockUnblockDialog -->
     <string name="BlockUnblockDialog_block_and_leave_s">%1$s ಅನ್ನು ನಿರ್ಬಂಧಿಸಬೇಕೇ ಮತ್ತು ತೊರೆಯಬೇಕೇ?</string>
@@ -170,7 +179,18 @@
     <string name="BlockUnblockDialog_unblock_s">%1$sನಿರ್ಬಂಧ ತೆಗೆಯಬೇಕೇ?</string>
     <string name="BlockUnblockDialog_block">ನಿರ್ಬಂಧಿಸಿ</string>
     <string name="BlockUnblockDialog_block_and_leave">ನಿರ್ಬಂಧಿಸಿ ಹಾಗು ತೊರೆಯಿರಿ</string>
-    <string name="BlockUnblockDialog_report_spam_and_block">ಸ್ಪ್ಯಾಮ್ ವರದಿ ಮಾಡಿ ಮತ್ತು ಬ್ಲಾಕ್ ಮಾಡಿ</string>
+    <!-- Dialog button label to report as spam and block the person -->
+    <string name="BlockUnblockDialog_report_spam_and_block">ವರದಿ ಮಾಡಿ ಮತ್ತು ಬ್ಲಾಕ್ ಮಾಡಿ</string>
+    <!-- Dialog title for reporting spam -->
+    <string name="BlockUnblockDialog_report_spam_title">ಸ್ಪ್ಯಾಮ್ ವರದಿ ಮಾಡುವುದೇ?</string>
+    <!-- Dialog button to report as spam only -->
+    <string name="BlockUnblockDialog_report_spam">ಸ್ಪ್ಯಾಮ್ ವರದಿ ಮಾಡಿ</string>
+    <!-- Dialog message when reporting spam of an individual (1:1 conversation) -->
+    <string name="BlockUnblockDialog_report_spam_description">ಈ ವ್ಯಕ್ತಿ ಸ್ಪ್ಯಾಮ್ ಕಳುಹಿಸುತ್ತಿರಬಹುದು ಎಂಬುದಾಗಿ Signal ಗೆ ಸೂಚಿಸಲಾಗುತ್ತದೆ. Signal ಗೆ ಯಾವುದೇ ಚಾಟ್‌ಗಳ ಕಂಟೆಂಟ್ ಅನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
+    <!-- Dialog message when reporting spam of a group and we can determine the group member that invited you, placeholder is a name -->
+    <string name="BlockUnblockDialog_report_spam_group_named_adder">ಈ ಗ್ರೂಪ್‌ಗೆ ನಿಮ್ಮನ್ನು ಆಹ್ವಾನಿಸಿದ, %1$s ರವರು ಸ್ಪ್ಯಾಮ್ ಕಳುಹಿಸುತ್ತಿರಬಹುದು ಎಂದು Signal ಗೆ ಸೂಚಿಸಲಾಗುತ್ತದೆ. Signal ಗೆ ಯಾವುದೇ ಚಾಟ್‌ಗಳ ಕಂಟೆಂಟ್ ಅನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
+    <!-- Dialog message when reporting spam of a group and we cannot determine the group member that invited you -->
+    <string name="BlockUnblockDialog_report_spam_group_unknown_adder">ನಿಮ್ಮನ್ನು ಈ ಗ್ರೂಪ್‌ಗೆ ಆಹ್ವಾನಿಸಿದ ವ್ಯಕ್ತಿ ಸ್ಪ್ಯಾಮ್ ಕಳುಹಿಸುತ್ತಿರಬಹುದು ಎಂಬುದಾಗಿ Signal ಗೆ ಸೂಚಿಸಲಾಗುತ್ತದೆ. Signal ಗೆ ಯಾವುದೇ ಚಾಟ್‌ಗಳ ಕಂಟೆಂಟ್ ಅನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
 
     <!-- BucketedThreadMedia -->
     <string name="BucketedThreadMedia_Today">ಇಂದು</string>
@@ -314,8 +334,12 @@
     <string name="ConversationItem_cant_download_image_you_will_need_to_send_it_again">ಚಿತ್ರವನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ನೀವು ಇದನ್ನು ಮತ್ತೆ ಕಳುಹಿಸಬೇಕಾಗಿದೆ.</string>
     <!-- Dialog error message shown when user can\'t download a their own video message via a linked device due to a permanent failure (e.g., unable to decrypt) -->
     <string name="ConversationItem_cant_download_video_you_will_need_to_send_it_again">ವೀಡಿಯೋವನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ನೀವು ಇದನ್ನು ಮತ್ತೆ ಕಳುಹಿಸಬೇಕಾಗಿದೆ.</string>
-    <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp will go from \'11m\' to \'edited 11m\' -->
-    <string name="ConversationItem_edited_timestamp_footer">ಎಡಿಟ್ ಮಾಡಲಾದ ಸಮಯ %1$s</string>
+    <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. The timestamp represents a message that has been edited within the last minute. -->
+    <string name="ConversationItem_edited_now_timestamp_footer">ಈಗ ಎಡಿಟ್ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. This is displayed when the edit has occurred between 1-59 minutes ago. -->
+    <string name="ConversationItem_edited_relative_timestamp_footer">ಎಡಿಟ್ ಮಾಡಲಾದ ಸಮಯ %1$s</string>
+    <!-- Display as the timestamp footer in a message bubble in a conversation when a message has been edited. This is displayed when the edit occurred at least 1 hour ago. -->
+    <string name="ConversationItem_edited_absolute_timestamp_footer">ಎಡಿಟ್ ಮಾಡಲಾದ ಸಮಯ %1$s</string>
     <!-- Displayed if the link preview in the conversation item is for a call link call -->
     <string name="ConversationItem__join_call">ಕರೆಗೆ ಸೇರಿ</string>
 
@@ -349,6 +373,8 @@
     <string name="ConversationActivity_transport_insecure_mms">ಅಸುರಕ್ಷಿತ ಎಂಎಂಎಸ್</string>
     <!-- A title for the option to send an SMS with a placeholder to put the name of their SIM card -->
     <string name="ConversationActivity_transport_signal">Signal ಸಂದೇಶ</string>
+    <!-- The content description for button to send a message in a conversation -->
+    <string name="ConversationActivity_send_message_content_description">ಸಂದೇಶ ಕಳುಹಿಸಿ</string>
     <string name="ConversationActivity_lets_switch_to_signal">Signal %1$s ಗೆ ಬದಲಾಯಿಸೋಣ</string>
     <string name="ConversationActivity_specify_recipient">ದಯವಿಟ್ಟು ಒಂದು ಸಂಪರ್ಕವನ್ನು ಆರಿಸಿಕೊಳ್ಳಿ</string>
     <string name="ConversationActivity_attachment_exceeds_size_limits">ನೀವು ಕಳುಹಿಸುತ್ತಿರುವ ಲಗತ್ತು ಸಂದೇಶದ ವಿಧವು ಗಾತ್ರದ ಮಿತಿಗಳನ್ನು ಮೀರಿದೆ.</string>
@@ -396,8 +422,12 @@
 
     <string name="ConversationActivity_error_sending_media">ಮೀಡಿಯಾ ಕಳುಹಿಸುವಲ್ಲಿ ದೋಷ</string>
 
+    <!-- Message shown when opening an MMS group conversation with SMS disabled and there are no exported messages -->
+    <string name="ConversationActivity__sms_messaging_is_no_longer_supported">SMS ಮೆಸೇಜಿಂಗ್ ಅನ್ನು Signal ಇನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
     <!-- Message shown when opening an SMS conversation with SMS disabled and there are no exported messages -->
     <string name="ConversationActivity__sms_messaging_is_no_longer_supported_in_signal_invite_s_to_to_signal_to_keep_the_conversation_here">SMS ಮೆಸೇಜಿಂಗ್ ಅನ್ನು Signal ಇನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. ಇಲ್ಲಿ ಸಂಭಾಷಣೆಯನ್ನು ಉಳಿಸಿಕೊಳ್ಳಲು %1$s ಅವರನ್ನು Signal ಗೆ ಆಹ್ವಾನಿಸಿ.</string>
+    <!-- Message shown when opening a conversation with an unregistered user who used to be on Signal -->
+    <string name="ConversationActivity__this_person_is_no_longer_using_signal">ಪ್ರಸ್ತುತವಾಗಿ ಈ ವ್ಯಕ್ತಿಯು Signal ಅನ್ನು ಬಳಸುತ್ತಿಲ್ಲ. ಸಂಭಾಷಣೆಯನ್ನು ಇಲ್ಲಿ ಶುರುಹಚ್ಚಿಕೊಳ್ಳಲು ಅವರನ್ನು Signal ಗೆ ಆಹ್ವಾನಿಸಿ.</string>
     <!-- Action button shown when opening an SMS conversation with SMS disabled and there are no exported messages -->
     <string name="ConversationActivity__invite_to_signal">Signal ಗೆ ಆಮಂತ್ರಿಸಿ</string>
     <!-- Snackbar message shown after dismissing the full screen sms export megaphone indicating we\'ll do it again soon -->
@@ -463,11 +493,11 @@
     <string name="ConversationFragment_you_can_swipe_to_the_left_reply">ತ್ವರಿತವಾಗಿ ಪ್ರತ್ಯುತ್ತರಿಸುವುದಕ್ಕೆ ನೀವು ಯಾವುದೇ ಸಂದೇಶದ ಮೇಲೆ ಎಡಕ್ಕೆ ಸ್ವೈಪ್ ಮಾಡಬಹುದು</string>
     <string name="ConversationFragment_view_once_media_is_deleted_after_sending">ಒಂದು ಬಾರಿ ವೀಕ್ಷಿಸಿ ಮೀಡಿಯಾವನ್ನು ಕಳುಹಿಸಿದ ನಂತರ ಅಳಿಸಲಾಗುತ್ತದೆ</string>
     <string name="ConversationFragment_you_already_viewed_this_message">ನೀವು ಈಗಾಗಲೇ ಈ ಮೆಸೇಜ್ ವೀಕ್ಷಿಸಿದ್ದೀರಿ</string>
-    <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">ನೀವು ಈ ಚಾಟ್‌ನಲ್ಲಿ ನಿಮಗಾಗಿ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸೇರಿಸಬಹುದು.\nನಿಮ್ಮ ಖಾತೆಯು ಯಾವುದೇ ಲಿಂಕ್ ಮಾಡಿದ ಸಾಧನಗಳನ್ನು ಹೊಂದಿದ್ದರೆ, ಹೊಸ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸಿಂಕ್ ಮಾಡಲಾಗುವುದು.</string>
+    <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">ನೀವು ಈ ಚಾಟ್‌ನಲ್ಲಿ ನಿಮಗಾಗಿ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸೇರಿಸಬಹುದು. ನಿಮ್ಮ ಖಾತೆಯು ಯಾವುದೇ ಲಿಂಕ್ ಮಾಡಿದ ಸಾಧನಗಳನ್ನು ಹೊಂದಿದ್ದರೆ, ಹೊಸ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸಿಂಕ್ ಮಾಡಲಾಗುವುದು.</string>
     <string name="ConversationFragment__d_group_members_have_the_same_name">%1$d ಗುಂಪು ಸದಸ್ಯರು ಒಂದೇ ಹೆಸರನ್ನು ಹೊಂದಿದ್ದಾರೆ.</string>
     <string name="ConversationFragment__tap_to_review">ಪರೀಕ್ಷಿಸಲು ಇಲ್ಲಿ ಒತ್ತಿ</string>
-    <string name="ConversationFragment__review_requests_carefully">ವಿನಂತಿಗಳನ್ನು ಕಾಳಜಿಯಿಂದ ಪರಿಶೀಲಿಸಿ</string>
-    <string name="ConversationFragment__signal_found_another_contact_with_the_same_name">Signal ಒಂದೇ ಹೆಸರಿನ ಇನ್ನೊಂದು ಸಂಪರ್ಕವನ್ನು ಕಂಡುಹಿಡಿಯಿತು</string>
+    <!-- The body of a banner that can show up at the top of a chat, letting the user know that you have two contacts with the same name -->
+    <string name="ConversationFragment__review_banner_body">ಈ ವ್ಯಕ್ತಿ ಇನ್ನೊಂದು ಕಾಂಟ್ಯಾಕ್ಟ್‌ನದೇ ಹೆಸರನ್ನು ಹೊಂದಿದ್ದಾರೆ</string>
     <string name="ConversationFragment_contact_us">ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ</string>
     <string name="ConversationFragment_verify">ದೃಢೀಕರಿಸಿ</string>
     <string name="ConversationFragment_not_now">ಈಗಲ್ಲ</string>
@@ -493,6 +523,55 @@
     <string name="ConversationFragment__content_description_launch_signal_button">Signal ತೆರೆಯಿರಿ</string>
     <!-- Dialog title shown when more than one contact in a group conversation is no longer verified -->
     <string name="ConversationFragment__no_longer_verified">ಇನ್ನು ಮುಂದೆ ದೃಢೀಕೃತಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ</string>
+    <!-- Button shown in conversation header when in a message request state and no groups in common to show new message safety tips -->
+    <string name="ConversationFragment_safety_tips">ಸುರಕ್ಷತಾ ಸಲಹೆಗಳು</string>
+    <!-- Menu option to report spam in a conversation -->
+    <string name="ConversationFragment_report_spam">ಸ್ಪ್ಯಾಮ್ ವರದಿ ಮಾಡಿ</string>
+    <!-- Menu option to block in a conversation -->
+    <string name="ConversationFragment_block">ನಿರ್ಬಂಧಿಸಿ</string>
+    <!-- Menu otpion to accept a message request in a conversation -->
+    <string name="ConversationFragment_accept">ಒಪ್ಪಿಕೊಳ್ಳಿ</string>
+    <!-- Menu option to delete an entire chat in a conversation -->
+    <string name="ConversationFragment_delete_chat">ಚಾಟ್ ಅಳಿಸಿ</string>
+    <!-- Menu option to unblock in a conversation -->
+    <string name="ConversationFragment_unblock">ನಿರ್ಬಂಧ ತೆಗೆಯಿರಿ</string>
+    <!-- Dialog title shown after reporting spam and tapping the conversation item -->
+    <string name="ConversationFragment_reported_spam">ಸ್ಪ್ಯಾಮ್ ಎಂದು ವರದಿ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Dialog message shown after reporting spam and tapping the conversation item -->
+    <string name="ConversationFragment_reported_spam_message">ಈ ವ್ಯಕ್ತಿ ಸ್ಪ್ಯಾಮ್ ಕಳುಹಿಸುತ್ತಿರಬಹುದು ಎಂಬುದಾಗಿ Signal ಗೆ ಸೂಚಿಸಲಾಗಿದೆ. Signal ಗೆ ಯಾವುದೇ ಚಾಟ್ ಗಳ ಕಂಟೆಂಟ್ ಅನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
+    <!-- Toast shown after reporting spam and tapping the conversation item -->
+    <string name="ConversationFragment_reported_as_spam">ಸ್ಪ್ಯಾಮ್ ಎಂದು ವರದಿ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Toast shown after reporting and blocking a conversation -->
+    <string name="ConversationFragment_reported_as_spam_and_blocked">ಸ್ಪ್ಯಾಮ್ ಎಂದು ವರದಿ ಮಾಡಲಾಗಿದೆ ಮತ್ತು ಬ್ಲಾಕ್ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
+    <string name="ConversationFragment_you_accepted_a_message_request_from_s">ನೀವು %1$s ರಿಂದ ಮೆಸೇಜ್ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಿದಿರಿ. ಇದು ತಪ್ಪಿನಿಂದಾಗಿದ್ದಲ್ಲಿ, ನೀವು ಕೆಳಗಿನ ಒಂದು ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು.</string>
+
+    <!-- Title of Safety Tips bottom sheet dialog -->
+    <string name="SafetyTips_title">ಸುರಕ್ಷತಾ ಸಲಹೆಗಳು</string>
+    <!-- Dialog subtitle when showign tips for a 1:1 conversation -->
+    <string name="SafetyTips_subtitle_individual">ನಿಮಗೆ ಪರಿಚಯವಿಲ್ಲದವರಿಂದ ಮೆಸೇಜ್ ವಿನಂತಿಗಳನ್ನು ಸ್ವೀಕರಿಸುವಾಗ ಎಚ್ಚರವಹಿಸಿ. ಇವುಗಳ ಬಗ್ಗೆ ಎಚ್ಚರವಹಿಸಿ:</string>
+    <!-- Dialog subtitle when showing tips for a group conversation -->
+    <string name="SafetyTips_subtitle_group">ಈ ವಿನಂತಿಯನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ಪರಿಶೀಲಿಸಿ. ನಿಮ್ಮ ಯಾವುದೇ ಕಾಂಟ್ಯಾಕ್ಟ್‌ಗಳು ಅಥವಾ ನೀವು ಚಾಟ್ ಮಾಡುವ ಯಾರೂ ಕೂಡ ಈ ಗ್ರೂಪ್‌ನಲ್ಲಿಲ್ಲ. ನೀವು ಗಮನ ಹರಿಸಬೇಕಾದ ಕೆಲವು ಸಂಗತಿಗಳು ಇಲ್ಲಿವೆ:</string>
+    <!-- Button text to move to the previous tip-->
+    <string name="SafetyTips_previous_tip">ಹಿಂದಿನ ಸಲಹೆ</string>
+    <!-- Button text to move to the next tip -->
+    <string name="SafetyTips_next_tip">ಮುಂದಿನ ಸಲಹೆ</string>
+    <!-- Title of tip 1 -->
+    <string name="SafetyTips_tip1_title">ಕ್ರಿಪ್ಟೊ ಅಥವಾ ಹಣದ ಹಗರಣಗಳು</string>
+    <!-- Message of tip 1 -->
+    <string name="SafetyTips_tip1_message">ನಿಮಗೆ ಪರಿಚಯವಿಲ್ಲದ ಯಾರಾದರೂ ಕ್ರಿಪ್ಟೊಕರೆನ್ಸಿ (ಬಿಟ್‌ಕಾಯಿನ್‌ನಂಥ) ಅಥವಾ ಹಣಕಾಸಿನ ಅವಕಾಶದ ಕುರಿತು ಮೆಸೇಜ್‌ಗಳನ್ನು ಕಳುಹಿಸಿದರೆ, ಎಚ್ಚರವಹಿಸಿ - ಅದು ಸ್ಪ್ಯಾಮ್ ಆಗಿರುವ ಸಾಧ್ಯತೆಯಿರುತ್ತದೆ.</string>
+    <!-- Title of tip 2 -->
+    <string name="SafetyTips_tip2_title">ಅಸ್ಪಷ್ಟ ಅಥವಾ ಅಪ್ರಸ್ತುತ ಮೆಸೇಜ್‌ಗಳು</string>
+    <!-- Message of tip 2 -->
+    <string name="SafetyTips_tip2_message">ಸ್ಪ್ಯಾಮರ್‌ಗಳು ಅನೇಕವೇಳೆ ನಿಮ್ಮ ಗಮನ ಸೆಳೆಯಲು \"ಹಾಯ್\" ಎಂಬಂತಹ ಸರಳ ಮೆಸೇಜ್‌ಗಳೊಂದಿಗೆ ಆರಂಭ ಮಾಡುತ್ತಾರೆ. ನೀವು ಪ್ರತಿಕ್ರಿಯಿಸಿದರೆ ಅವರು ಇನ್ನಷ್ಟು ಮುಂದುವರಿಯುತ್ತಾರೆ.</string>
+    <!-- Title of tip 3 -->
+    <string name="SafetyTips_tip3_title">ಲಿಂಕ್‌ಗಳಿರುವ ಮೆಸೇಜ್‌ಗಳು</string>
+    <!-- Message of tip 3 -->
+    <string name="SafetyTips_tip3_message">ಅಪರಿಚಿತರು ಕಳುಹಿಸಿದ ವೆಬ್‌ಸೈಟ್‌ಗಳಿಗೆ ಲಿಂಕ್‌ಗಳನ್ನು ಹೊಂದಿರುವ ಮೆಸೇಜ್‌ಗಳ ಬಗ್ಗೆ ಎಚ್ಚರವಹಿಸಿ. ನೀವು ವಿಶ್ವಾಸವಿಡದವರಿಂದ ಪಡೆದ ಲಿಂಕ್‌ಗಳನ್ನು ಎಂದೂ ತೆರೆಯಬೇಡಿ.</string>
+    <!-- Title of tip 4 -->
+    <string name="SafetyTips_tip4_title">ನಕಲಿ ವ್ಯವಹಾರಗಳು ಮತ್ತು ಸಂಸ್ಥೆಗಳು</string>
+    <!-- Message of tip 4 -->
+    <string name="SafetyTips_tip4_message">ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸುತ್ತಿರುವ ವ್ಯವಹಾರಗಳು ಮತ್ತು ಸರಕಾರಿ ಏಜೆನ್ಸಿಗಳ ಬಗ್ಗೆ ಎಚ್ಚರವಹಿಸಿ. ಟ್ಯಾಕ್ಸ್ ಏಜೆನ್ಸಿಗಳು, ಕೊರಿಯರ್‌ಗಳು ಮತ್ತು ಇನ್ನೂ ಬೇರೆಯವುಗಳನ್ನೊಳಗೊಂಡ ಮೆಸೇಜ್‌ಗಳು ಸ್ಪ್ಯಾಮ್ ಆಗಿರಬಹುದು.</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">ಫಿಲ್ಟರ್ ತೆರವುಗೊಳಿಸಿ</string>
@@ -507,7 +586,10 @@
         <item quantity="other">ಇದು ಆಯ್ಕೆ ಮಾಡಿದ ಎಲ್ಲಾ %1$d ಚಾಟ್‌ಗಳನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುತ್ತದೆ.</item>
     </plurals>
     <string name="ConversationListFragment_deleting">ಅಳಿಸಲಾಗುತ್ತಿದೆ</string>
-    <string name="ConversationListFragment_deleting_selected_conversations">ಆಯ್ಕೆ ಮಾಡಿದ ಚಾಟ್‌ಗಳನ್ನು ಅಳಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <plurals name="ConversationListFragment_deleting_selected_conversations">
+        <item quantity="one">ಆಯ್ಕೆಮಾಡಿದ ಚಾಟ್ ಅನ್ನು ಅಳಿಸುವುದು…</item>
+        <item quantity="other">ಆಯ್ಕೆಮಾಡಿದ ಚಾಟ್‌ಗಳನ್ನು ಅಳಿಸುವುದು…</item>
+    </plurals>
     <plurals name="ConversationListFragment_conversations_archived">
         <item quantity="one">ಚಾಟ್ ಅನ್ನು ಆರ್ಕೈವ್ ಮಾಡಲಾಗಿದೆ</item>
         <item quantity="other">%1$d ಚಾಟ್‌ಗಳನ್ನು ಆರ್ಕೈವ್ ಮಾಡಲಾಗಿದೆ</item>
@@ -545,6 +627,8 @@
     <string name="ConversationListFragment__turn_your_notification_profile_on_or_off_here">ನಿಮ್ಮ ಅಧಿಸೂಚನೆ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಇಲ್ಲಿ ಆನ್ ಅಥವಾ ಆಫ್ ಮಾಡಿ.</string>
     <!-- Message shown in top toast to indicate the named profile is on -->
     <string name="ConversationListFragment__s_on">%1$s ಆನ್</string>
+    <!-- -->
+    <string name="ConversationListFragment_username_recovered_toast">ನಿಮ್ಮ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲಾಗಿದೆ ಮತ್ತು ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ %1$s</string>
 
     <!-- ConversationListItem -->
     <string name="ConversationListItem_key_exchange_message">ಕೀ ವಿನಿಮಯ ಸಂದೇಶ</string>
@@ -589,9 +673,9 @@
     <!-- Toolbar title for this screen -->
     <string name="WhoCanSeeMyPhoneNumberFragment__who_can_find_me_by_number">ಸಂಖ್ಯೆಯ ಮೂಲಕ ನನ್ನನ್ನು ಯಾರು ನೋಡಬಹುದು?</string>
     <!-- Description for radio item stating anyone can see your phone number -->
-    <string name="WhoCanSeeMyPhoneNumberFragment__anyone_who_has">ತಮ್ಮ ಸಂಪರ್ಕಗಳಲ್ಲಿ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಹೊಂದಿರುವ ಯಾರಾದರೂ ನಿಮ್ಮನ್ನು Signal ನಲ್ಲಿ ಸಂಪರ್ಕವಾಗಿ ನೋಡುತ್ತಾರೆ. ಇತರರು ನಿಮ್ಮನ್ನು search ಮೂಲಕ‌ ನೋಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ.</string>
+    <string name="WhoCanSeeMyPhoneNumberFragment__anyone_who_has_your">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಹೊಂದಿರುವ ಯಾರಾದರೂ ನೀವು Signal ‌ನಲ್ಲಿರುವುದನ್ನು ನೋಡುತ್ತಾರೆ ಮತ್ತು ನಿಮ್ಮೊಂದಿಗೆ ಚಾಟ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಬಹುದು.</string>
     <!-- Description for radio item stating no one will be able to see your phone number -->
-    <string name="WhoCanSeeMyPhoneNumberFragment__nobody_on_signal">Signal ನಲ್ಲಿ ಯಾರೂ ಕೂಡಾ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ನಿಮ್ಮನ್ನು ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
+    <string name="WhoCanSeeMyPhoneNumberFragment__nobody_will_be_able">ನೀವು ಮೆಸೇಜ್ ಕಳುಹಿಸದ ಹೊರತು ಅಥವಾ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಚಾಟ್ ಅನ್ನು ಹೊಂದಿರದ ಹೊರತು ನೀವು Signal ‌ನಲ್ಲಿದ್ದೀರಿ ಎಂದು ಯಾರಿಗೂ ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
 
     <!-- ChooseBackupFragment -->
     <string name="ChooseBackupFragment__restore_from_backup">ಬ್ಯಾಕಪ್ ನಿಂದ ಮರುಸ್ಥಾಪಿಸುವುದೇ?</string>
@@ -634,6 +718,8 @@
     <!-- Show percentage of completion of backup -->
     <string name="BackupsPreferenceFragment__s_so_far">%1$s%% ಈ ತನಕ…</string>
     <string name="BackupsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups">ಬ್ಯಾಕಪ್ ಗಳನ್ನು ರಚಿಸಲು Signal ಗೆ ಬಾಹ್ಯ ಸ್ಟೋರೇಜ್ ಅನುಮತಿ ಅಗತ್ಯವಿರುತ್ತದೆ, ಆದರೆ ಅದನ್ನು ಶಾಶ್ವತವಾಗಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ಆ್ಯಪ್ ಸೆಟ್ಟಿಂಗ್ಸ್ ಗೆ ಮುಂದುವರಿಯಿರಿ, \"ಅನುಮತಿಗಳು\" ಆಯ್ಕೆ ಮಾಡಿ ಮತ್ತು \"ಸ್ಟೋರೇಜ್\" ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
+    <!-- Title of dialog shown when picking the time to perform a chat backup -->
+    <string name="BackupsPreferenceFragment__set_backup_time">ಬ್ಯಾಕಪ್ ಸಮಯವನ್ನು ಸೆಟ್ ಮಾಡಿ</string>
 
 
     <!-- CustomDefaultPreference -->
@@ -977,27 +1063,40 @@
     <string name="GroupMentionSettingDialog_dont_notify_me">ನನಗೆ ಸೂಚನೆ ನೀಡಬೇಡಿ</string>
 
     <!-- ManageProfileFragment -->
+    <!-- Explanation text about usernames etc displayed underneath buttons to view and edit username etc -->
+    <string name="ManageProfileFragment__your_username">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್, QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಗೋಚರಿಸುವುದಿಲ್ಲ. ನೀವು ನಂಬುವ ಜನರೊಂದಿಗೆ ಮಾತ್ರ ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್‌ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.</string>
+    <!-- Explanation text about usernames etc displayed underneath buttons to view and edit username etc, shown when you have no username -->
+    <string name="ManageProfileFragment__username_footer_no_username">ನಿಮ್ಮ ಐಚ್ಛಿಕ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಬಳಸಿಕೊಂಡು ಜನರು ಈಗ ನಿಮಗೆ ಮೆಸೇಜ್ ಅನ್ನು ಕಳುಹಿಸಬಹುದು, ಆಗ ನೀವು ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನೀಡಬೇಕಾಗಿಲ್ಲ. </string>
     <string name="ManageProfileFragment_profile_name">ಪ್ರೊಫೈಲ್ ಹೆಸರು</string>
-    <string name="ManageProfileFragment_username">ಬಳಕೆದಾರ ಹೆಸರು</string>
+    <string name="ManageProfileFragment_username">ಯೂಸರ್ ನೇಮ್</string>
     <string name="ManageProfileFragment_about">ಬಗ್ಗೆ</string>
-    <string name="ManageProfileFragment_write_a_few_words_about_yourself">ನಿಮ್ಮ ಕುರಿತು ಕೆಲವು ಪದಗಳನ್ನು ಬರೆಯಿರಿ</string>
-    <string name="ManageProfileFragment_your_name">ನಿಮ್ಮ ಹೆಸರು</string>
-    <string name="ManageProfileFragment_your_username">ನಿಮ್ಮ ಬಳಕೆದಾರರ ಹೆಸರು</string>
     <string name="ManageProfileFragment_failed_to_set_avatar">ಅವತಾರ್ ನಿಗದಿಪಡಿಸಲು ವಿಫಲವಾಗಿದೆ</string>
     <string name="ManageProfileFragment_badges">ಬ್ಯಾಡ್ಜ್‌ಗಳು</string>
+    <!-- Text for a button that will take the user to the screen to manage their username link and QR code -->
+    <string name="ManageProfileFragment_link_setting_text">QR ಕೋಡ್ ಅಥವಾ ಲಿಂಕ್</string>
     <string name="ManageProfileFragment__edit_photo">ಫೋಟೋ ಎಡಿಟ್ ಮಾಡಿ</string>
+    <!-- Title of a tooltip educating the user about a button on the screen that will take them to the username share screen -->
+    <string name="ManageProfileFragment__link_tooltip_title">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <!-- Body of a tooltip educating the user about a button on the screen that will take them to the username share screen -->
+    <string name="ManageProfileFragment__link_tooltip_body">ನಿಮ್ಮ ಅನನ್ಯ QR ಕೋಡ್ ಅಥವಾ ಲಿಂಕ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳುವ ಮೂಲಕ ಇತರರು ನಿಮ್ಮೊಂದಿಗೆ ಚಾಟ್ ಆರಂಭಿಸಲು ಅವಕಾಶ ಮಾಡಿಕೊಡಿ.</string>
     <!-- Snackbar message after creating username -->
-    <string name="ManageProfileFragment__username_created">Username ರಚಿಸಲಾಗಿದೆ</string>
+    <string name="ManageProfileFragment__username_created">ಯೂಸರ್ ನೇಮ್ ರಚಿಸಲಾಗಿದೆ</string>
     <!-- Snackbar message after copying username -->
-    <string name="ManageProfileFragment__username_copied">Username ಅನ್ನು ನಕಲಿಸಲಾಗಿದೆ</string>
+    <string name="ManageProfileFragment__username_copied">ಯೂಸರ್ ನೇಮ್ ಅನ್ನು ನಕಲಿಸಲಾಗಿದೆ</string>
     <!-- Snackbar message after network failure while trying to delete username -->
     <string name="ManageProfileFragment__couldnt_delete_username">ಯೂಸರ್‌ನೇಮ್ ಅಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.</string>
     <!-- Snackbar message after successful deletion of username -->
     <string name="ManageProfileFragment__username_deleted">ಯೂಸರ್‌ನೇಮ್ ಅಳಿಸಲಾಗಿದೆ</string>
+    <!-- The title of a pop-up dialog asking the user to confirm deleting their username -->
+    <string name="ManageProfileFragment__delete_username_dialog_title">ಯೂಸರ್‌ನೇಮ್ ಅಳಿಸುವುದೇ?</string>
+    <!-- The body of a pop-up dialog asking the user to confirm deleting their username -->
+    <string name="ManageProfileFragment__delete_username_dialog_body">"ಇದು ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ ಮತ್ತು ನಿಮ್ಮ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ. ಇತರರಿಗೆ ಕ್ಲೈಮ್ ಮಾಡಲು %1$s ಲಭ್ಯವಾಗಲಿದೆ. ನಿಮಗೆ ಖಾತ್ರಿಯಿದೆಯೇ?"</string>
 
     <!-- UsernameOutOfSyncReminder -->
     <!-- Displayed above the conversation list when a user needs to address an issue with their username -->
-    <string name="UsernameOutOfSyncReminder__something_went_wrong">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್‌ನಲ್ಲಿ ಏನೋ ತಪ್ಪಾಗಿದೆ, ಅದನ್ನು ಇನ್ನುಮುಂದೆ ನಿಮ್ಮ ಖಾತೆಗೆ ನಿಯೋಜಿಸಲಾಗುವುದಿಲ್ಲ. ನೀವು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ ಸೆಟ್ ಮಾಡಬಹುದು ಅಥವಾ ಹೊಸತನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು.</string>
+    <string name="UsernameOutOfSyncReminder__username_and_link_corrupt">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್‌ನಲ್ಲಿ ಏನೋ ತಪ್ಪಾಗಿದೆ, ಅದನ್ನು ಇನ್ನುಮುಂದೆ ನಿಮ್ಮ ಖಾತೆಗೆ ನಿಯೋಜಿಸಲಾಗುವುದಿಲ್ಲ. ನೀವು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ ಸೆಟ್ ಮಾಡಬಹುದು ಅಥವಾ ಹೊಸತನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು.</string>
+    <!-- Displayed above the conversation list when a user needs to address an issue with their username link -->
+    <string name="UsernameOutOfSyncReminder__link_corrupt">ನಿಮ್ಮ QR ಕೋಡ್ ಮತ್ತು ಯೂಸರ್‌ನೇಮ್ ಲಿಂಕ್‌ನಲ್ಲಿ ಏನೋ ತಪ್ಪಾಗಿದೆ, ಅದು ಇನ್ನು ಮುಂದೆ ಮಾನ್ಯವಾಗಿರುವುದಿಲ್ಲ. ಇತರರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲು ಹೊಸ ಲಿಂಕ್ ರಚಿಸಿ.</string>
     <!-- Action text to navigate user to manually fix the issue with their username -->
     <string name="UsernameOutOfSyncReminder__fix_now">ಈಗಲೇ ಸರಿಪಡಿಸಿ</string>
 
@@ -1255,6 +1354,10 @@
     <string name="MessageRecord_missed_voice_call">ಮಿಸ್ಡ್ ವಾಯ್ಸ್ ಕಾಲ್</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_missed_video_call">ಮಿಸ್ಡ್ ವೀಡಿಯೊ ಕಾಲ್</string>
+    <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
+    <string name="MessageRecord_missed_voice_call_notification_profile">ಅಧಿಸೂಚನೆ ಪ್ರೊಫೈಲ್ ಆನ್ ಆಗಿರುವಾಗ ತಪ್ಪಿಹೋದ ಧ್ವನಿ ಕರೆ</string>
+    <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
+    <string name="MessageRecord_missed_video_call_notification_profile">ಅಧಿಸೂಚನೆ ಪ್ರೊಫೈಲ್ ಆನ್ ಆಗಿರುವಾಗ ತಪ್ಪಿಹೋದ ವೀಡಿಯೊ ಕರೆ</string>
     <!-- Update message shown when receiving an incoming 1:1 voice/audio call and explicitly declined -->
     <string name="MessageRecord_you_declined_a_voice_call">ನೀವು ವಾಯ್ಸ್ ಕಾಲ್ ಅನ್ನು ನಿರಾಕರಿಸಿದ್ದೀರಿ</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and explicitly declined -->
@@ -1285,6 +1388,8 @@
     <string name="MessageRecord_changed_their_profile_name_to">%1$s ಅವರು ತಮ್ಮ ಪ್ರೊಫೈಲ್ ಹೆಸರನ್ನು %2$s ಗೆ ಬದಲಿಸಿದ್ದಾರೆ.</string>
     <string name="MessageRecord_changed_their_profile_name_from_to">%1$s ಅವರು ತಮ್ಮ ಪ್ರೊಫೈಲ್ ಹೆಸರನ್ನು %2$s ಇಂದ %3$s ಗೆ ಬದಲಿಸಿದ್ದಾರೆ.</string>
     <string name="MessageRecord_changed_their_profile">%1$s ಅವರು ತಮ್ಮ ಪ್ರೊಫೈಲ್ ಬದಲಿಸಿದ್ದಾರೆ.</string>
+    <!-- Conversation update event message shown when you\'ve started a conversation by phone number or username and then learn their profile name. placeholder is username or phone number -->
+    <string name="MessageRecord_started_this_chat">ನೀವು ಈ ಚಾಟ್ ಅನ್ನು %1$s ಅವರೊಂದಿಗೆ ಆರಂಭಿಸಿದಿರಿ.</string>
 
     <!-- GV2 specific -->
     <string name="MessageRecord_you_created_the_group">ನೀವು ಗುಂಪನ್ನು ರಚಿಸಿದ್ದೀರಿ.</string>
@@ -1497,6 +1602,10 @@
     <string name="MessageRecord__you_can_no_longer_send_sms_messages_in_signal">Signal ನಲ್ಲಿ SMS ಮೆಸೇಜ್ ಗಳನ್ನು ಕಳುಹಿಸಲು ನಿಮಗೆ ಇನ್ನು ಸಾಧ್ಯವಿಲ್ಲ. ಇಲ್ಲಿ ಸಂಭಾಷಣೆಯನ್ನು ಉಳಿಸಿಕೊಳ್ಳಲು %1$s ಅವರನ್ನು Signal ಗೆ ಆಹ್ವಾನಿಸಿ.</string>
     <!-- Body for quote when message being quoted is an in-app payment message -->
     <string name="MessageRecord__payment_s">ಪಾವತಿ: %1$s</string>
+    <!-- Update message shown in chat after reporting it as spam -->
+    <string name="MessageRecord_reported_as_spam">ಸ್ಪ್ಯಾಮ್ ಎಂದು ವರದಿ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Update message shown in chat after accept a message request -->
+    <string name="MessageRecord_you_accepted_the_message_request">ನೀವು ಮೆಸೇಜ್ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಿದಿರಿ</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">ಒಪ್ಪಿಕೊಳ್ಳಿ</string>
@@ -1513,7 +1622,7 @@
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them_SMS">%1$s ಅವರು ನಿಮಗೆ ಮೆಸೇಜ್ ಕಳುಹಿಸಬಹುದೇ? ನೀವು ಅವರನ್ನು ಅನ್‌ಬ್ಲಾಕ್ ಮಾಡುವವರೆಗೆ ನೀವು ಯಾವುದೇ ಮೆಸೇಜ್‌ಗಳನ್ನು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ.</string>
     <string name="MessageRequestBottomView_get_updates_and_news_from_s_you_wont_receive_any_updates_until_you_unblock_them">%1$s ಅವರಿಂದ ಅಪ್‌ಡೇಟ್‌ಗಳು ಮತ್ತು ಸುದ್ದಿ ಪಡೆಯಬೇಕೇ? ನೀವು ಅವರನ್ನು ಅನ್‌ಬ್ಲಾಕ್ ಮಾಡುವವರೆಗೆ ನೀವು ಯಾವುದೇ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಸ್ವೀಕರಿಸುವುದಿಲ್ಲ.</string>
     <string name="MessageRequestBottomView_continue_your_conversation_with_this_group_and_share_your_name_and_photo">ಈ ಗುಂಪಿನೊಂದಿಗೆ ನಿಮ್ಮ ಚಾಟ್ ಅನ್ನು ಮುಂದುವರಿಸುವುದೇ ಹಾಗೂ ನಿಮ್ಮ ಹೆಸರು ಮತ್ತು ಫೋಟೋವನ್ನು ಇದರ ಸದಸ್ಯರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬೇಕೇ?</string>
-    <string name="MessageRequestBottomView_upgrade_this_group_to_activate_new_features">\@ಮೆನ್ಷನ್‌ಗಳು ಮತ್ತು ಅಡ್ಮಿನ್‌ಗಳಂತಹ ಹೊಸ ಫೀಚರ್‌ಗಳನ್ನು ಆಕ್ಟಿವೇಟ್ ಮಾಡಲು ಈ ಗ್ರೂಪ್‌ ಅನ್ನು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ. ಈ ಗುಂಪಿನಲ್ಲಿ ತಮ್ಮ ಹೆಸರು ಅಥವಾ ಫೋಟೋವನ್ನು ಹಂಚಿಕೊಳ್ಳದ ಸದಸ್ಯರಿಗೆ ಸೇರುವಂತೆ ಆಹ್ವಾನಿಸಲಾಗುತ್ತದೆ.</string>
+    <string name="MessageRequestBottomView_upgrade_this_group_to_activate_new_features">ಈ ಲೆಗಸಿ ಗ್ರೂಪ್ ಅನ್ನು ಇನ್ನು ಮುಂದೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ. @mentions ಮತ್ತು admins ನಂತಹ ಹೊಸ ಫೀಚರ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಹೊಸ ಗುಂಪನ್ನು ರಚಿಸಿ.</string>
     <string name="MessageRequestBottomView_this_legacy_group_can_no_longer_be_used">ಈ ಲೆಗಸಿ ಗ್ರೂಪ್ ಅನ್ನು ಇನ್ನು ಬಳಸಲಾಗದು. ಯಾಕೆಂದರೆ, ಇದು ತುಂಬಾ ದೊಡ್ಡದಾಗಿದೆ. ಗರಿಷ್ಠ ಗ್ರೂಪ್ ಗಾತ್ರವು %1$d.</string>
     <string name="MessageRequestBottomView_continue_your_conversation_with_s_and_share_your_name_and_photo">%1$s ಅವರೊಂದಿಗೆ ಈ ಚಾಟ್ ಅನ್ನು ಮುಂದುವರಿಸಬೇಕೇ ಹಾಗೂ ನಿಮ್ಮ ಹೆಸರು ಮತ್ತು ಫೋಟೋವನ್ನು ಅವರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬೇಕೇ?</string>
     <string name="MessageRequestBottomView_do_you_want_to_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">ಈ ಗುಂಪನ್ನು ಸೇರುವುದೇ ಹಾಗೂ ನಿಮ್ಮ ಹೆಸರು ಮತ್ತು ಫೋಟೋವನ್ನು ಇದರ ಸದಸ್ಯರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳುವುದೇ? ನೀವು ಸ್ವೀಕರಿಸುವವರೆಗೂ ಅವರಿಗೆ ನೀವು ಅವರ ಸಂದೇಶಗಳನ್ನು ನೋಡಿದ್ದೀರಿ ಎನ್ನುವುದು ತಿಳಿಯುವುದಿಲ್ಲ.</string>
@@ -1543,6 +1652,8 @@
         <item quantity="one">%1$d ಹೆಚ್ಚುವರಿ ಗ್ರೂಪ್</item>
         <item quantity="other">%1$d ಹೆಚ್ಚುವರಿ ಗ್ರೂಪ್‌ಗಳು</item>
     </plurals>
+    <!-- Button label to report spam for a conversation when in a message request state -->
+    <string name="MessageRequestBottomView_report">ವರದಿ ಮಾಡಿ…</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">ಪಾಸ್‌ಫ್ರೇಸ್‌ ಗಳು ಹೊಂದಿಕೆಯಾಗುತಿಲ್ಲ</string>
@@ -1551,7 +1662,7 @@
 
     <!-- DeviceProvisioningActivity -->
     <string name="DeviceProvisioningActivity_link_this_device">ಈ ಸಾಧನವನ್ನು ಲಿಂಕ್ ಮಾಡುವುದೇ?</string>
-    <string name="DeviceProvisioningActivity_continue">ಮುಂದುವರಿಸು</string>
+    <string name="DeviceProvisioningActivity_continue">ಮುಂದುವರಿಸಿ</string>
 
     <string name="DeviceProvisioningActivity_content_intro">ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ</string>
     <string name="DeviceProvisioningActivity_content_bullets">
@@ -1754,8 +1865,10 @@
     <string name="WebRtcCallView__disconnected">ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ</string>
     <!-- Utilized in the lobby before joining a call link -->
     <string name="WebRtcCallView__signal_call_link">Signal ಕರೆ ಲಿಂಕ್</string>
-    <!-- Warning displayed when entering a call via a link -->
-    <string name="WebRtcCallView__anyone_who_joins">ಲಿಂಕ್ ಮೂಲಕ ಈ ಕರೆಗೆ ಸೇರುವ ಯಾರಾದರೂ ನಿಮ್ಮ ಹೆಸರು, ಫೊಟೋ ಮತ್ತು ಫೋನ್ ನಂಬರ್ ಅನ್ನು ನೋಡುತ್ತಾರೆ.</string>
+    <!-- Warning displayed when entering a call via a link and you have Phone Number Privacy disabled-->
+    <string name="WebRtcCallView__anyone_who_joins_pnp_disabled">ಲಿಂಕ್ ಮೂಲಕ ಈ ಕರೆಗೆ ಸೇರುವ ಯಾರಾದರೂ ನಿಮ್ಮ ಹೆಸರು, ಫೊಟೋ ಮತ್ತು ಫೋನ್ ನಂಬರ್ ಅನ್ನು ನೋಡುತ್ತಾರೆ.</string>
+    <!-- Warning displayed when entering a call via a link and you have Phone Number Privacy enabled-->
+    <string name="WebRtcCallView__anyone_who_joins_pnp_enabled">ಲಿಂಕ್ ಮೂಲಕ ಈ ಕರೆಗೆ ಸೇರಿದ ಯಾರೇ ಆದರೂ ನಿಮ್ಮ ಹೆಸರು ಮತ್ತು ಫೋಟೋವನ್ನು ನೋಡುತ್ತಾರೆ.</string>
     <!-- Displayed on the call screen as the status when waiting to be let into a call link by an admin -->
     <string name="WebRtcCallView__waiting_to_be_let_in">…ಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ</string>
 
@@ -1806,6 +1919,8 @@
     <string name="WebRtcCallView__toggle_camera">ಕ್ಯಾಮೆರಾ ಟಾಗಲ್ ಮಾಡಿ</string>
     <!-- Toggle content description for toggling mute state  -->
     <string name="WebRtcCallView__toggle_mute">ಮ್ಯೂಟ್ ಟಾಗಲ್ ಮಾಡಿ</string>
+    <!-- Content description for additional actions menu button -->
+    <string name="WebRtcCallView__additional_actions">ಹೆಚ್ಚುವರಿ ಕ್ರಮಗಳು</string>
     <!-- Content description for end-call button -->
     <string name="WebRtcCallView__end_call">ಕರೆ ಅಂತ್ಯಗೊಳಿಸಿ</string>
 
@@ -1822,10 +1937,75 @@
     <!-- A text description of the earpiece icon, used for accessibility. -->
     <string name="WebRtcAudioOutputBottomSheet__earpiece_icon_content_description">ಸಾಧನದ ಇಯರ್‌‍ಪೀಸ್ ಅನ್ನು ಪ್ರತಿನಿಧಿಸುವ ಐಕಾನ್.</string>
 
+    <!-- A clickable button to "raise your hand" in a group call to signify you have something to say -->
+    <string name="CallOverflowPopupWindow__raise_hand">ಕೈ ಎತ್ತಿ</string>
+    <!-- A description of a clickable image representing a raised hand -->
+    <string name="CallOverflowPopupWindow__raise_hand_illustration_content_description">ಕೈ ಎತ್ತಿ</string>
+    <!-- A dialog prompt to confirm you want to lower your hand -->
+    <string name="CallOverflowPopupWindow__lower_your_hand">ನಿಮ್ಮ ಕೈಯನ್ನು ಕೆಳಗಿಳಿಸಬೇಕೇ?</string>
+    <!-- A dialog button to confirm you would like to lower your hand -->
+    <string name="CallOverflowPopupWindow__lower_hand">ಕೈ ಕೆಳಗಿಳಿಸಿ</string>
+    <!-- A negative button for a dialog confirming the user wants to lower their hand (withdraw a raised hand) -->
+    <string name="CallOverflowPopupWindow__cancel">ರದ್ದುಮಾಡಿ</string>
+    <!-- A notification to the user that they successfully raised their hand -->
+    <string name="CallOverflowPopupWindow__you_raised_your_hand">ನೀವು ಕೈ ಎತ್ತಿದ್ದೀರಿ</string>
+    <!-- A button to take you to a list of participants with raised hands -->
+    <string name="CallOverflowPopupWindow__view">ತೋರಿಸು</string>
+
+    <!-- A notification to the user that one or more participants in the call successfully raised their hand. In the singular case, it is a name. In the plural case, it is a name or "You" -->
+    <plurals name="CallOverflowPopupWindow__raised_a_hand">
+        <item quantity="one">%1$s ಕೈ ಎತ್ತಿದ್ದಾರೆ</item>
+        <item quantity="other">%1$s + %2$d ಕೈ ಎತ್ತಿದ್ದಾರೆ</item>
+    </plurals>
+
+    <!-- A badge to show how many hands are raised. The first string may be a name or "You" -->
+    <plurals name="CallRaiseHandSnackbar_raised_hands">
+        <item quantity="one">%1$s</item>
+        <item quantity="other">%1$s +%2$d</item>
+    </plurals>
+
+    <!-- An accessibility label for screen readers on a view that can be expanded -->
+    <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">ಎತ್ತಿದ ಕೈ ವೀಕ್ಷಣೆಯನ್ನು ವಿಸ್ತರಿಸಿ</string>
+
+    <!-- AboutSheet -->
+    <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
+    <string name="AboutSheet__signal_connection">Signal ಸಂಪರ್ಕ</string>
+    <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
+    <string name="AboutSheet__verified">ದೃಢೀಕರಿಸಲಾಗಿದೆ</string>
+    <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
+    <string name="AboutSheet__no_direct_message">%1$s ನೊಂದಿಗೆ ಯಾವುದೇ ನೇರ ಮೆಸೇಜ್‌ಗಳಿಲ್ಲ</string>
+    <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
+    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s ಅವರು ನಿಮ್ಮ ಸಿಸ್ಟಂ ಸಂಪರ್ಕಗಳಲ್ಲಿದ್ದಾರೆ</string>
+    <!-- Notice in a row when user has no groups in common -->
+    <string name="AboutSheet__you_have_no_groups_in_common">ನೀವು ಯಾವುದೇ ಸಾಮಾನ್ಯ ಗುಂಪುಗಳನ್ನು ಹೊಂದಿಲ್ಲ</string>
+    <!-- Notice when a user is not a connection to review requests carefully -->
+    <string name="AboutSheet__review_requests_carefully">ವಿನಂತಿಗಳನ್ನು ಕಾಳಜಿಯಿಂದ ಪರಿಶೀಲಿಸಿ</string>
+    <!-- Text used when user has groups in common. Placeholder is the count -->
+    <plurals name="AboutSheet__d_groups_in">
+        <item quantity="one">ಸಾಮಾನ್ಯ ಗುಂಪು %1$d</item>
+        <item quantity="other">%1$d ಗುಂಪುಗಳಲ್ಲಿ ನೀವಿಬ್ಬರೂ ಇರುವಿರಿ</item>
+    </plurals>
+    <!-- Text displayed in title for external recipients -->
+    <string name="AboutSheet__about">ಬಗ್ಗೆ</string>
+    <!-- Text displayed in title for you -->
+    <string name="AboutSheet__you">ನೀವು</string>
+
     <!-- CallParticipantsListDialog -->
-    <plurals name="CallParticipantsListDialog_in_this_call_d_people">
-        <item quantity="one">ಈ ಕರೆಯಲ್ಲಿ · %1$d ಜನರು</item>
-        <item quantity="other">ಈ ಕರೆಯಲ್ಲಿ · %1$d ಜನರು</item>
+    <plurals name="CallParticipantsListDialog_in_this_call">
+        <item quantity="one">ಈ ಕರೆಯಲ್ಲಿ (%1$d)</item>
+        <item quantity="other">ಈ ಕರೆಯಲ್ಲಿ (%1$d)</item>
+    </plurals>
+    <plurals name="CallParticipantsListDialog__signal_will_ring">
+        <item quantity="one">Signal (%1$d) ಅವರಿಗೆ ರಿಂಗ್ ಮಾಡುತ್ತದೆ</item>
+        <item quantity="other">Signal (%1$d) ಅವರಿಗೆ ರಿಂಗ್ ಮಾಡುತ್ತದೆ</item>
+    </plurals>
+    <plurals name="CallParticipantsListDialog__signal_will_notify">
+        <item quantity="one">Signal (%1$d) ಅವರಿಗೆ ತಿಳಿಸುತ್ತದೆ</item>
+        <item quantity="other">Signal (%1$d) ಅವರಿಗೆ ತಿಳಿಸುತ್ತದೆ</item>
+    </plurals>
+    <plurals name="CallParticipantsListDialog__raised_hands">
+        <item quantity="one">ಕೈ ಎತ್ತಿದ್ದಾರೆ (%1$d)</item>
+        <item quantity="other">ಕೈಗಳನ್ನು ಎತ್ತಿದ್ದಾರೆ (%1$d)</item>
     </plurals>
 
     <!-- CallParticipantView -->
@@ -1938,6 +2118,12 @@
     <string name="RevealableMessageView_view_video">ವೀಡಿಯೊ ವೀಕ್ಷಿಸಿ</string>
     <string name="RevealableMessageView_viewed">ವೀಕ್ಷಿಸಲಾಗಿದೆ</string>
     <string name="RevealableMessageView_media">ಮೀಡಿಯಾ</string>
+
+    <!-- ReviewBannerView -->
+    <!-- ReviewBannerView text when a name conflict has been found -->
+    <string name="ReviewBannerView__name_conflict_found">ಹೆಸರಿನ ಸಂಘರ್ಷ ಕಂಡುಬಂದಿದೆ</string>
+    <!-- Button label to view name conflicts -->
+    <string name="ReviewBannerView__view">ತೋರಿಸು</string>
 
     <!-- Search -->
     <string name="SearchFragment_no_results">%1$sಗೆ ಫಲಿತಾಂಶಗಳು ಲಭ್ಯವಿಲ್ಲ</string>
@@ -2088,9 +2274,13 @@
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s ಯು %2$s ಅವರದ್ದಾಗಿದೆ</string>
 
-    <!-- UpdateApkReadyListener -->
-    <string name="UpdateApkReadyListener_Signal_update">Signal ನವೀಕರಿಸಿ</string>
-    <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">ಹೊಸ ಆವೃತ್ತಿ Signal ಲಭ್ಯವಿದೆ, ನವೀಕರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+    <!-- ApkUpdateNotifications -->
+    <string name="ApkUpdateNotifications_prompt_install_title">Signal ನವೀಕರಿಸಿ</string>
+    <string name="ApkUpdateNotifications_prompt_install_body">Signal ನ ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ. ಅಪ್‌ಡೇಟ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
+    <string name="ApkUpdateNotifications_failed_general_title">Signal ಅಪ್‌ಡೇಟ್ ವಿಫಲಗೊಂಡಿದೆ</string>
+    <string name="ApkUpdateNotifications_failed_general_body">ನಾವು ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸುತ್ತೇವೆ.</string>
+    <string name="ApkUpdateNotifications_auto_update_success_title">Signal ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಣಗೊಂಡಿದೆ</string>
+    <string name="ApkUpdateNotifications_auto_update_success_body">ನೀವು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಆವೃತ್ತಿ %1$s ಗೆ ನವೀಕರಣಗೊಂಡಿದ್ದೀರಿ.</string>
 
     <!-- UntrustedSendDialog -->
     <string name="UntrustedSendDialog_send_message">ಸಂದೇಶ ಕಳುಹಿಸುವುದೇ?</string>
@@ -2101,21 +2291,25 @@
     <string name="UnverifiedSendDialog_send">ಕಳುಹಿಸು</string>
 
     <!-- UsernameEditFragment -->
+    <!-- Placeholder text for custom discriminator -->
+    <string name="UsernameEditFragment__00">00</string>
     <!-- Toolbar title when entering from registration -->
     <string name="UsernameEditFragment__add_a_username">ಯೂಸರ್‌ನೇಮ್ ಸೇರಿಸಿ</string>
     <!-- Instructional text at the top of the username edit screen -->
-    <string name="UsernameEditFragment__choose_your_username">ನಿಮ್ಮ Username ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಿಕೊಳ್ಳಿ</string>
-    <string name="UsernameEditFragment_username">ಬಳಕೆದಾರ ಹೆಸರು</string>
+    <string name="UsernameEditFragment__choose_your_username">ನಿಮ್ಮ ಯೂಸರ್ ನೇಮ್ ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಿಕೊಳ್ಳಿ</string>
+    <string name="UsernameEditFragment_username">ಯೂಸರ್ ನೇಮ್</string>
     <string name="UsernameEditFragment_delete">ಅಳಿಸಿ</string>
     <string name="UsernameEditFragment_successfully_removed_username">ಬಳಕೆದಾರ ಹೆಸರನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತೆಗೆದುಹಾಕಲಾಗಿದೆ.</string>
     <string name="UsernameEditFragment_encountered_a_network_error">ನೆಟ್‌ವರ್ಕ್ ದೋಷವನ್ನು ಎದುರಿಸಿದೆ.</string>
-    <string name="UsernameEditFragment_this_username_is_taken">ಈ ಬಳಕೆದಾರ ಹೆಸರು ತೆಗೆದುಕೊಳ್ಳಲಾಗಿದೆ.</string>
-    <string name="UsernameEditFragment_usernames_can_only_include">ಬಳಕೆದಾರ ಹೆಸರುಗಳು a-Z, 0-9, ಮತ್ತು ಅಡಿಗೆರೆಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು.</string>
-    <string name="UsernameEditFragment_usernames_cannot_begin_with_a_number">ಬಳಕೆದಾರ ಹೆಸರುಗಳು ಸಂಖ್ಯೆಯಿಂದ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ.</string>
-    <string name="UsernameEditFragment_username_is_invalid">ಬಳಕೆದಾರ ಹೆಸರು ಅಮಾನ್ಯವಾಗಿದೆ.</string>
-    <string name="UsernameEditFragment_usernames_must_be_between_a_and_b_characters">ಬಳಕೆದಾರ ಹೆಸರುಗಳ %1$d ಮತ್ತು %2$d ಅಕ್ಷರಗಳ ನಡುವೆ ಇರಬೇಕು.</string>
+    <!-- Toast message shown if user exceeds the rate limit for reserving usernames -->
+    <string name="UsernameEditFragment_rate_limit_exceeded_error">ಹಲವಾರು ಪ್ರಯತ್ನಗಳನ್ನು ಮಾಡಿದ್ದೀರಿ, ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="UsernameEditFragment_this_username_is_taken">ಈ ಯೂಸರ್ ನೇಮ್ ತೆಗೆದುಕೊಳ್ಳಲಾಗಿದೆ.</string>
+    <string name="UsernameEditFragment_usernames_can_only_include">ಯೂಸರ್ ನೇಮ್ ಗಳು a-Z, 0-9, ಮತ್ತು ಅಡಿಗೆರೆಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು.</string>
+    <string name="UsernameEditFragment_usernames_cannot_begin_with_a_number">ಯೂಸರ್ ನೇಮ್ ಗಳು ಸಂಖ್ಯೆಯಿಂದ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ.</string>
+    <string name="UsernameEditFragment_username_is_invalid">ಯೂಸರ್ ನೇಮ್ ಅಮಾನ್ಯವಾಗಿದೆ.</string>
+    <string name="UsernameEditFragment_usernames_must_be_between_a_and_b_characters">ಯೂಸರ್ ನೇಮ್ ಗಳ %1$d ಮತ್ತು %2$d ಅಕ್ಷರಗಳ ನಡುವೆ ಇರಬೇಕು.</string>
     <!-- Explanation about what usernames provide -->
-    <string name="UsernameEditFragment__usernames_let_others_message">Username ಗಳು ಇತರರಿಗೆ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯ ಅಗತ್ಯವಿಲ್ಲದೆ ಮೆಸೇಜ್ ಮಾಡಲು ಅನುಮತಿಸುತ್ತದೆ. ನಿಮ್ಮ ವಿಳಾಸವನ್ನು ಗೌಪ್ಯವಾಗಿ ಇರಿಸುವಂತೆ ಅಂಕಿಗಳ ಸೆಟ್‌ನೊಂದಿಗೆ ಅವುಗಳನ್ನು pair ಮಾಡುತ್ತದೆ.</string>
+    <string name="UsernameEditFragment__usernames_let_others_message">ಯೂಸರ್‌ನೇಮ್‌ಗಳನ್ನು ಯಾವಾಗಲೂ ಸಂಖ್ಯೆಗಳ ಸೆಟ್‌ನೊಂದಿಗೆ ಜೋಡಿ ಮಾಡಲಾಗುತ್ತದೆ.</string>
     <!-- Dialog title for explanation about numbers at the end of the username -->
     <string name="UsernameEditFragment__what_is_this_number">ಈ ಸಂಖ್ಯೆ ಏನು?</string>
     <string name="UsernameEditFragment__these_digits_help_keep">ಈ ಅಂಕಿಗಳು ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಗೌಪ್ಯವಾಗಿ ಇರಿಸಲು ಸಹಕರಿಸುತ್ತವೆ. ಇದರಿಂದಾಗಿ ನೀವು ಬೇಡದ ಮೆಸೇಜ್‌ಗಳನ್ನು ತಪ್ಪಿಸಬಹುದು. ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ನೀವು ಚಾಟ್ ಮಾಡಲು ಬಯಸುವ ಜನರು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳೊಂದಿಗೆ ಮಾತ್ರ ಹಂಚಿಕೊಳ್ಳಿ. ನೀವು ಯೂಸರ್‌ನೇಮ್ ಬದಲಾಯಿಸಿದರೆ, ನೀವು ಹೊಸ ಅಂಕಿಗಳ ಸೆಟ್ ಅನ್ನು ಪಡೆಯುತ್ತೀರಿ.</string>
@@ -2123,6 +2317,22 @@
     <string name="UsernameEditFragment__skip">ಬಿಟ್ಟು ಮುಂದುವರಿ</string>
     <!-- Content description for done button -->
     <string name="UsernameEditFragment__done">ಮುಗಿದಿದೆ</string>
+    <!-- Displayed when the chosen discriminator is not available for the given nickname -->
+    <string name="UsernameEditFragment__this_username_is_not_available_try_another_number">ಈ ಯೂಸರ್‌ನೇಮ್ ಲಭ್ಯವಿಲ್ಲ, ಇನ್ನೊಂದು ಸಂಖ್ಯೆಯನ್ನು ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Displayed when the chosen discriminator is too short -->
+    <string name="UsernameEditFragment__invalid_username_enter_a_minimum_of_d_digits">ಅಮಾನ್ಯ ಯೂಸರ್‌ನೇಮ್, ಕನಿಷ್ಠ %1$d ಅಂಕಿಗಳನ್ನು ನಮೂದಿಸಿ.</string>
+    <!-- Displayed when the chosen discriminator is too long -->
+    <string name="UsernameEditFragment__invalid_username_enter_a_maximum_of_d_digits">ಅಮಾನ್ಯ ಯೂಸರ್‌ನೇಮ್, ಗರಿಷ್ಠ %1$d ಅಂಕಿಗಳನ್ನು ನಮೂದಿಸಿ.</string>
+    <!-- Displayed when the chosen discriminator is 00 -->
+    <string name="UsernameEditFragment__this_number_cant_be_00">ಈ ಸಂಖ್ಯೆ 00 ಆಗಿರುವಂತಿಲ್ಲ. 1-9 ರ ನಡುವಿನ ಅಂಕಿಯನ್ನು ನಮೂದಿಸಿ</string>
+    <!-- Displayed when the chosen discriminator starts with 0 and has a length > 2 -->
+    <string name="UsernameEditFragment__this_number_cant_start_with_0">2 ಕ್ಕಿಂತ ಹೆಚ್ಚು ಅಂಕಿಗಳನ್ನು ಹೊಂದಿರುವ ಸಂಖ್ಯೆಗಳು 0 ರಿಂದ ಪ್ರಾರಂಭವಾಗಲು ಸಾಧ್ಯವಿಲ್ಲ</string>
+    <!-- The body of an alert dialog asking the user to confirm that they want to recover their username -->
+    <string name="UsernameEditFragment_recovery_dialog_confirmation">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಮರುಪಡೆಯುವುದು, ನಿಮ್ಮ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸುತ್ತದೆ. ನಿಮಗೆ ಖಾತ್ರಿಯಿದೆಯೇ?</string>
+    <!-- The body of an alert dialog asking the user to confirm that they want to change their username, even if it resets their link -->
+    <string name="UsernameEditFragment_change_confirmation_message">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಬದಲಾಯಿಸುವುದರಿಂದ ನಿಮ್ಮ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲಿದೆ. ನಿಮಗೆ ಖಾತ್ರಿಯಿದೆಯೇ?</string>
+    <!-- Text for a button in a dialog asking if the user would like to continue the operation of changing their username -->
+    <string name="UsernameEditFragment_continue">ಮುಂದುವರಿಸಿ</string>
 
     <plurals name="UserNotificationMigrationJob_d_contacts_are_on_signal">
         <item quantity="one">%1$d ಸಂಪರ್ಕಗಳು Signal ನಲ್ಲಿವೆ!</item>
@@ -2131,7 +2341,7 @@
 
     <!-- UsernameShareBottomSheet -->
     <!-- Explanation of what the sheet enables the user to do -->
-    <string name="UsernameShareBottomSheet__copy_or_share_a_username_link">username link ಅನ್ನು ನಕಲಿಸಿ ಅಥವಾ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="UsernameShareBottomSheet__copy_or_share_a_username_link">ಯೂಸರ್ ನೇಮ್ ಲಿಂಕ್ ಅನ್ನು ನಕಲಿಸಿ ಅಥವಾ ಹಂಚಿಕೊಳ್ಳಿ</string>
 
     <!-- VerifyIdentityActivity -->
     <string name="VerifyIdentityActivity_your_contact_is_running_a_newer_version_of_Signal">ನಿಮ್ಮ ಸಂಪರ್ಕವು ಕ್ಯುಆರ್‌ ಕೋಡ್ ಫಾರ್ಮ್ಯಾಟ್‌ಗೆ ಹೊಂದಿಕೊಳ್ಳದ Signal ನ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ರನ್ ಮಾಡುತ್ತಿದೆ. ಹೋಲಿಕೆ ಮಾಡಲು ದಯವಿಟ್ಟು ನವೀಕರಿಸಿ.</string>
@@ -2309,6 +2519,26 @@
     <!-- Notification subtext for group stories -->
     <string name="SingleRecipientNotificationBuilder__s_dot_story">%1$s • ಸ್ಟೋರಿ</string>
 
+    <!-- NewWaysToConnectDialogFragment -->
+    <!-- Fragment title, displayed at the top of the content -->
+    <string name="NewWaysToConnectDialogFragment__new_ways_to_connect">ಸಂಪರ್ಕಿಸಲು ಹೊಸ ಮಾರ್ಗಗಳು</string>
+    <!-- Row item title for phone number privacy explainer -->
+    <string name="NewWaysToConnectDialogFragment__phone_number_privacy">ಫೋನ್ ಸಂಖ್ಯೆ ಗೌಪ್ಯತೆ</string>
+    <!-- Row item description for phone number privacy explainer -->
+    <string name="NewWaysToConnectDialogFragment__your_phone_number_is_no_longer_shared">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಇನ್ನು ಮುಂದೆ ಚಾಟ್‌ಗಳೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ. ನಿಮ್ಮ ಸಂಖ್ಯೆಯನ್ನು ಸ್ನೇಹಿತರ ಸಂಪರ್ಕಗಳಿಗೆ ಉಳಿಸಿದರೆ, ಅವರು ಅದನ್ನು ಇನ್ನೂ ನೋಡುತ್ತಾರೆ.</string>
+    <!-- Row item title for usernames explainer -->
+    <string name="NewWaysToConnectDialogFragment__usernames">ಯೂಸರ್‌ನೇಮ್‌ಗಳು</string>
+    <!-- Row item description for usernames explainer -->
+    <string name="NewWaysToConnectDialogFragment__people_can_now_message_you_using_your_optional_username">ನಿಮ್ಮ ಐಚ್ಛಿಕ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಬಳಸಿಕೊಂಡು ಜನರು ಈಗ ನಿಮಗೆ ಮೆಸೇಜ್ ಅನ್ನು ಕಳುಹಿಸಬಹುದು, ಆಗ ನೀವು ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನೀಡಬೇಕಾಗಿಲ್ಲ. ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಗೋಚರಿಸುವುದಿಲ್ಲ.</string>
+    <!-- Row item title for qr code and links explainer -->
+    <string name="NewWaysToConnectDialogFragment__qr_codes_and_links">QR ಕೋಡ್‌ಗಳು ಮತ್ತು ಲಿಂಕ್‌ಗಳು</string>
+    <!-- Row item description for qr code and links explainer -->
+    <string name="NewWaysToConnectDialogFragment__usernames_have_a_unique_qr_code">ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಅನನ್ಯ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ಹೊಂದಿದ್ದು, ತ್ವರಿತವಾಗಿ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಲು ಅದನ್ನು ನೀವು ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬಹುದು.</string>
+    <!-- Button label for not right now -->
+    <string name="NewWaysToConnectDialogFragment__not_now">ಈಗಲ್ಲ</string>
+    <!-- Button label for continue -->
+    <string name="NewWaysToConnectDialogFragment__set_up_your_username">ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಿ</string>
+
     <!-- ThumbnailView -->
     <string name="ThumbnailView_Play_video_description">ವೀಡಿಯೊ ಪ್ಲೇ ಮಾಡಿ</string>
     <string name="ThumbnailView_Has_a_caption_description">ಕ್ಯಾಪ್ಷನ್ ಹೊಂದಿದೆ</string>
@@ -2318,6 +2548,13 @@
         <item quantity="one">%1$d ಐಟಂ</item>
         <item quantity="other">%1$d ಐಟಂಗಳು</item>
     </plurals>
+    <!-- Status update label used while the device is transcoding video as a prerequisite to uploading -->
+    <string name="TransferControlView__processing">ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <!-- Status update label used while the device is transmitting data over the network. Will take the form of "1.0 MB/2.0 MB" -->
+    <string name="TransferControlView__download_progress">%1$1.1f MB/%2$2.1f MB</string>
+    <!-- Attachment file size label for not-yet-downloaded images and video. Will take the form of "1.0 MB" -->
+    <string name="TransferControlView__filesize">%1$1.1f MB</string>
+
 
     <!-- UnauthorizedReminder -->
     <!-- Message shown in a reminder banner when the user\'s device is no longer registered -->
@@ -2341,6 +2578,8 @@
     <string name="WebRtcCallActivity__answered_on_a_linked_device">ಲಿಂಕ್ ಮಾಡಿದ ಸಾಧನದಲ್ಲಿ ಉತ್ತರಿಸಲಾಗಿದೆ.</string>
     <string name="WebRtcCallActivity__declined_on_a_linked_device">ಲಿಂಕ್ ಮಾಡಿದ ಸಾಧನದಲ್ಲಿ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.</string>
     <string name="WebRtcCallActivity__busy_on_a_linked_device">ಲಿಂಕ್ ಮಾಡಿದ ಸಾಧನದಲ್ಲಿ ಕಾರ್ಯನಿರತವಾಗಿದೆ.</string>
+    <!-- Tooltip message shown first time user is in a video call after switch camera button moved -->
+    <string name="WebRtcCallActivity__flip_camera_tooltip">ಫ್ಲಿಪ್ ಕ್ಯಾಮೆರಾವನ್ನು ಇಲ್ಲಿಗೆ ಸರಿಸಲಾಗಿದೆ, ಅದನ್ನು ಪ್ರಯತ್ನಿಸಲು ನಿಮ್ಮ ವೀಡಿಯೊವನ್ನು ತಟ್ಟಿ</string>
 
     <string name="GroupCallSafetyNumberChangeNotification__someone_has_joined_this_call_with_a_safety_number_that_has_changed">ಬದಲಾವಣೆಯಾಗಿರುವ ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಈ ಕರೆಗೆ ಯಾರೋ ಸೇರಿದ್ದಾರೆ.</string>
 
@@ -2404,8 +2643,8 @@
     <!-- ContactSelectionListFragment-->
     <string name="ContactSelectionListFragment_signal_requires_the_contacts_permission_in_order_to_display_your_contacts">ನಿಮ್ಮ ಸಂಪರ್ಕಗಳನ್ನು ತೋರಿಸಲು Signal ಗೆ ಸಂಪರ್ಕಗಳ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ, ಆದರೆ ಅದನ್ನು ಶಾಶ್ವತವಾಗಿ ನಿರಾಕರಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ಅಪ್ಲಿಕೇಶನ್ ಸೆಟ್ಟಿಂಗ್‌ ಮೆನುಗೆ ಮುಂದುವರಿಯಿರಿ, \"ಅನುಮತಿಗಳು\" ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು \"ಸಂಪರ್ಕಗಳು\" ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
     <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">ಸಂಪರ್ಕಗಳನ್ನು ಹಿಂಪಡೆಯುವಲ್ಲಿ ದೋಷ, ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ</string>
-    <string name="ContactSelectionListFragment_username_not_found">ಬಳಕೆದಾರ ಹೆಸರು ಕಂಡುಬಂದಿಲ್ಲ</string>
-    <string name="ContactSelectionListFragment_s_is_not_a_signal_user">"\"%1$s\" Signal ಬಳಕೆದಾರರಲ್ಲ. ದಯವಿಟ್ಟು ಬಳಕೆದಾರ ಹೆಸರನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."</string>
+    <string name="ContactSelectionListFragment_username_not_found">ಯೂಸರ್ ನೇಮ್ ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="ContactSelectionListFragment_s_is_not_a_signal_user">"\"%1$s\" Signal ಬಳಕೆದಾರರಲ್ಲ. ದಯವಿಟ್ಟು ಯೂಸರ್ ನೇಮ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="ContactSelectionListFragment_you_do_not_need_to_add_yourself_to_the_group">ಗ್ರೂಪ್‌ಗೆ ನಿಮ್ಮನ್ನು ನೀವು ಸೇರಿಸಬೇಕಿಲ್ಲ</string>
     <string name="ContactSelectionListFragment_maximum_group_size_reached">ಗರಿಷ್ಠ ಗ್ರೂಪ್ ಗಾತ್ರ ತಲುಪಿದೆ</string>
     <string name="ContactSelectionListFragment_signal_groups_can_have_a_maximum_of_d_members">Signal ಗ್ರೂಪ್‌ಗಳು ಗರಿಷ್ಠ %1$d ಸದಸ್ಯರನ್ನು ಹೊಂದಬಹುದು.</string>
@@ -2415,6 +2654,10 @@
         <item quantity="one">%1$d ಸದಸ್ಯ</item>
         <item quantity="other">%1$d ಸದಸ್ಯರು</item>
     </plurals>
+    <!-- Text on row item to find user by phone number -->
+    <string name="ContactSelectionListFragment__find_by_phone_number">ಫೋನ್ ನಂಬರ್‌ನಿಂದ ಹುಡುಕಿ</string>
+    <!-- Text on row item to find user by username -->
+    <string name="ContactSelectionListFragment__find_by_username">ಯೂಸರ್‌ನೇಮ್‌ನಿಂದ ಹುಡುಕಿ</string>
 
     <!-- contact_selection_list_fragment -->
     <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">Signal ಗೆ ನಿಮ್ಮ ಸಂಪರ್ಕಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲು ಪ್ರವೇಶ ಅಗತ್ಯವಿದೆ.</string>
@@ -2486,6 +2729,8 @@
     <string name="ConversationUpdateItem_activate_payments">ಪೇಮೆಂಟ್ಸ್ ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
     <!-- Update item alerting the user they hid this person and that they can message them to unhide them -->
     <string name="ConversationUpdateItem_hidden_contact_message_to_add_back">ಈ ವ್ಯಕ್ತಿಯನ್ನು ನೀವು ತೆಗೆದುಹಾಕಿದ್ದೀರಿ, ಅವರಿಗೆ ಮೆಸೇಜ್ ಮಾಡುವುದರಿಂದ ಅವರು ಮತ್ತೆ ನಿಮ್ಮ ಪಟ್ಟಿಗೆ ಸೇರುತ್ತಾರೆ.</string>
+    <!-- Update item button text shown for the accepted message request update message -->
+    <string name="ConversationUpdateItem_options">ಆಯ್ಕೆಗಳು</string>
 
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">ಪ್ಲೇ… ವಿರಾಮ</string>
@@ -2695,24 +2940,13 @@
 
     <!-- verify_display_fragment -->
     <!-- Explanation of how to verify the safety numbers. %s is replaced with the name of the other recipient -->
-    <string name="verify_display_fragment__pnp_verify_safety_numbers_explanation_with_s">%1$s ಅವರೊಂದಿಗಿನ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅನ್ನು ದೃಢೀಕರಿಸಲು, ಮೇಲಿನ ಕಲರ್ ಕಾರ್ಡ್ ಅನ್ನು ಅವರ ಸಾಧನೊಂದಿಗೆ ಹೊಂದಿಸಿ ಮತ್ತು ಸಂಖ್ಯೆಗಳನ್ನು ತುಲನೆ ಮಾಡಿ. ಇವುಗಳು ಹೊಂದಿಕೆಯಾಗದಿದ್ದರೆ, ಸ್ವೈಪ್ ಮಾಡಿ ಮತ್ತು ಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳ ಇನ್ನೊಂದು ಜೊತೆಯನ್ನು ಪ್ರಯತ್ನಿಸಿ. ಕೇವಲ ಒಂದು ಜೊತೆ ಹೊಂದಿಕೆಯಾಗಬೇಕು.</string>
+    <string name="verify_display_fragment__pnp_verify_safety_numbers_explanation_with_s">%1$s ಅವರೊಂದಿಗೆ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ದೃಢೀಕರಿಸಲು, ಮೇಲಿನ ಸಂಖ್ಯೆಗಳನ್ನು ಅವರ ಸಾಧನದೊಂದಿಗೆ ಹೋಲಿಕೆ ಮಾಡಿ. ಅವರ ಸಾಧನದಲ್ಲಿ ಈ ಕೋಡ್ ಅನ್ನು ಕೂಡಾ ನೀವು ಸ್ಕ್ಯಾನ್ ಮಾಡಬಹುದು.</string>
     <string name="verify_display_fragment__tap_to_scan">ಸ್ಕ್ಯಾನ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="verify_display_fragment__successful_match">ಯಶಸ್ವಿ ಹೊಂದಾಣಿಕೆ</string>
     <string name="verify_display_fragment__failed_to_verify_safety_number">ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆಯನ್ನು ದೃಢೀಕರಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ</string>
     <string name="verify_display_fragment__loading">ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
     <string name="verify_display_fragment__mark_as_verified">ಪರಿಶೀಲಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ</string>
     <string name="verify_display_fragment__clear_verification">ದೃಢೀಕರಣವನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
-    <!-- Banner at top of safety numbers screen explaining that we\'re updating how safety numbers work. -->
-    <string name="verify_display_fragment__safety_numbers_are_updating_banner_no_learn_more">ಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳನ್ನು ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ.</string>
-
-    <!-- Title for dialog explaining for how safety numbers are transitioning to support usernames -->
-    <string name="PnpSafetyNumberEducationDialog__title">ಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳಿಗೆ ಬದಲಾವಣೆಗಳು</string>
-    <!-- Message for dialog explaining for how safety numbers are transitioning to support usernames -->
-    <string name="PnpSafetyNumberEducationDialog__body">Signal ನಲ್ಲಿ ಮುಂಬರುವ ಗೌಪ್ಯತಾ ಫೀಚರ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಪರಿವರ್ತನೆಯ ಅವಧಿಯಲ್ಲಿ ಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳನ್ನು ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ.\n\nಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳನ್ನು ದೃಢೀಕರಿಸಲು, ನಿಮ್ಮ ಸಂಪರ್ಕದ ಸಾಧನದೊಂದಿಗೆ ಕಲರ್ ಕಾರ್ಡ್‌ ಹೊಂದಿಸಿ. ಇವುಗಳು ಹೊಂದಿಕೆಯಾಗದಿದ್ದರೆ, ಸ್ವೈಪ್ ಮಾಡಿ ಮತ್ತು ಸುರಕ್ಷಾ ಸಂಖ್ಯೆಗಳ ಇನ್ನೊಂದು ಜೊತೆಯನ್ನು ಪ್ರಯತ್ನಿಸಿ. ಕೇವಲ ಒಂದು ಜೊತೆ ಹೊಂದಿಕೆಯಾಗಬೇಕು.</string>
-    <!-- Button for more information about the safety number changes. Takes user to support article -->
-    <string name="PnpSafetyNumberEducationDialog__help">ಸಹಾಯ ಅಗತ್ಯವಿದೆಯೇ?</string>
-    <!-- Confirmation button for educating users about new safety number changes -->
-    <string name="PnpSafetyNumberEducationDialog__confirm">ಅರ್ಥವಾಯಿತು</string>
 
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕದ ಸಾಧನದಲ್ಲಿ ಕ್ಯುಆರ್‌ ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ.</string>
@@ -2785,7 +3019,6 @@
         <item>ಇತರೆ</item>
         <item>ಪಾವತಿಗಳು (MobileCoin)</item>
         <item>ದೇಣಿಗೆಗಳು &amp; ಬ್ಯಾಡ್ಜ್‌ಗಳು</item>
-        <item>SMS ರಫ್ತು</item>
     </string-array>
     <!-- Subject of email when submitting debug logs to help debug slow notifications -->
     <string name="DebugLogsPromptDialogFragment__signal_android_support_request">Signal Android ಡೀಬಗ್ ಲಾಗ್ ಸಲ್ಲಿಕೆ</string>
@@ -2909,7 +3142,7 @@
     <string name="preferences__mmsc_url">ಎಂಎಂಎಸ್‌ಸಿ URL</string>
     <string name="preferences__mms_proxy_host">ಎಂಎಂಎಸ್ ಪ್ರಾಕ್ಸಿ ಹೋಸ್ಟ್</string>
     <string name="preferences__mms_proxy_port">ಎಂಎಂಎಸ್ ಪ್ರಾಕ್ಸಿ ಪೋರ್ಟ್</string>
-    <string name="preferences__mmsc_username">ಎಂಎಂಎಸ್‌ಸಿ ಬಳಕೆದಾರ ಹೆಸರು</string>
+    <string name="preferences__mmsc_username">ಎಂಎಂಎಸ್‌ಸಿ ಯೂಸರ್ ನೇಮ್</string>
     <string name="preferences__mmsc_password">ಎಂಎಂಎಸ್‌ಸಿ ಪಾಸ್ವರ್ಡ್</string>
     <string name="preferences__sms_delivery_reports">ಎಸ್‌ಎಂಎಸ್ ಡೆಲಿವರಿ ವರದಿಗಳು</string>
     <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">ನೀವು ಕಳುಹಿಸುವ ಪ್ರತಿ ಎಸ್.ಎಮ್.ಎಸ್ ಸಂದೇಶಕ್ಕೂ ವಿತರಣಾ ವರದಿಯನ್ನು ವಿನಂತಿಸಿ</string>
@@ -2996,7 +3229,11 @@
     <string name="preferences_storage__six_months">6 ತಿಂಗಳು</string>
     <string name="preferences_storage__thirty_days">30 ದಿನಗಳು</string>
     <string name="preferences_storage__none">ಯಾವುದೂ ಇಲ್ಲ</string>
-    <string name="preferences_storage__s_messages">%1$s ಸಂದೇಶಗಳು</string>
+    <plurals name="preferences_storage__s_messages_plural">
+        <item quantity="one">%1$s ಮೆಸೇಜ್</item>
+        <item quantity="other">%1$s ಮೆಸೇಜ್‌ಗಳು</item>
+    </plurals>
+
     <string name="preferences_storage__custom">ಅಗತ್ಯಾನುಗುಣ</string>
     <string name="preferences_advanced__use_system_emoji">ಸಿಸ್ಟಂ ಎಮೋಜಿ ಬಳಸಿ</string>
     <string name="preferences_advanced__relay_all_calls_through_the_signal_server_to_avoid_revealing_your_ip_address">ನಿಮ್ಮ ಐಪಿ ವಿಳಾಸವನ್ನು ನಿಮ್ಮ ಸಂಪರ್ಕಕ್ಕೆ ಬಹಿರಂಗಪಡಿಸುವುದನ್ನು ತಪ್ಪಿಸಲು Signal ಸರ್ವರ್ ಮೂಲಕ ಎಲ್ಲಾ ಕರೆಗಳನ್ನು ರಿಲೇ ಮಾಡಿ. ಸಕ್ರಿಯಗೊಳಿಸುವುದು ಕರೆ ಗುಣಮಟ್ಟವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತದೆ</string>
@@ -3004,6 +3241,7 @@
     <!-- Privacy settings payments section title -->
     <string name="preferences_app_protection__payments">ಪೇಮೆಂಟ್‌ಗಳು</string>
     <string name="preferences_chats__chats">ಚಾಟ್‌‌ ಗಳು</string>
+    <string name="preferences_app_updates__title">ಅಪ್ಲಿಕೇಶನ್ ನವೀಕರಣಗಳು</string>
     <string name="preferences_data_and_storage__manage_storage">ಸ್ಟೊರೇಜ್ ನಿರ್ವಹಿಸಿ</string>
     <string name="preferences_data_and_storage__use_less_data_for_calls">ಕಾಲ್‌ಗಳಿಗೆ ಕಡಿಮೆ ಡೇಟಾ ಬಳಸಿ</string>
     <string name="preferences_data_and_storage__never">ಎಂದಿಗೂ ಇಲ್ಲ</string>
@@ -3646,13 +3884,27 @@
     <!-- Subtext below option to launch into phone number privacy settings screen -->
     <string name="preferences_app_protection__choose_who_can_see">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಯಾರು ನೋಡಬಹುದು ಮತ್ತು ಅದರ ಮೂಲಕ Signal ನಲ್ಲಿ ನಿಮ್ಮನ್ನು ಯಾರು ಸಂಪರ್ಕಿಸಬಹುದು ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ.</string>
     <!-- Section title above two radio buttons for enabling and disabling phone number display -->
-    <string name="PhoneNumberPrivacySettingsFragment__who_can_see_my_number">ನನ್ನ ಸಂಖ್ಯೆಯನ್ನು ಯಾರು ನೋಡಬಹುದು</string>
-    <!-- Subtext below radio buttons when who can see my number is set to nobody -->
-    <string name="PhoneNumberPrivacySettingsFragment__nobody_will_see">Signal ನಲ್ಲಿ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಯಾರೂ ನೋಡಲಾಗುವುದಿಲ್ಲ</string>
+    <string name="PhoneNumberPrivacySettingsFragment_who_can_see_my_number_heading">ನನ್ನ ಸಂಖ್ಯೆಯನ್ನು ಯಾರು ನೋಡಬಹುದು</string>
+    <!-- Subtext below radio buttons when who can see my number is set to everybody -->
+    <string name="PhoneNumberPrivacySettingsFragment_sharing_on_description">ನೀವು ಮೆಸೇಜ್ ಮಾಡುವ ಜನರು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳಿಗೆ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಕಾಣಿಸುತ್ತದೆ.</string>
+    <!-- Subtext below radio buttons when who can see my number is set to nobody and who can find me by number is set to everybody -->
+    <string name="PhoneNumberPrivacySettingsFragment_sharing_off_discovery_on_description">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಅವರು ತಮ್ಮ ಫೋನ್‌ನ ಸಂಪರ್ಕಗಳಲ್ಲಿ ಉಳಿಸದ ಹೊರತು ಯಾರಿಗೂ ಕಾಣಿಸುವುದಿಲ್ಲ.</string>
+    <!-- Subtext below radio buttons when who can see my number is set to nobody and who can find me by number is set to nobody -->
+    <string name="PhoneNumberPrivacySettingsFragment_sharing_off_discovery_off_description">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಯಾರಿಗೂ ಕಾಣಿಸುವುದಿಲ್ಲ.</string>
     <!-- Section title above two radio buttons for enabling and disabling whether users can find me by my phone number  -->
-    <string name="PhoneNumberPrivacySettingsFragment__who_can_find_me_by_number">ಸಂಖ್ಯೆಯ ಮೂಲಕ ನನ್ನನ್ನು ಯಾರು ಕಂಡುಹಿಡಿಯಬಹುದು</string>
-    <!-- Subtext below radio buttons when who can see my number is set to everyone -->
-    <string name="PhoneNumberPrivacySettingsFragment__your_phone_number">ನೀವು ಸಂದೇಶ ಕಳುಹಿಸುವ ಜನರಿಗೆ ಮತ್ತು ಗುಂಪುಗಳಿಗೆ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಕಾಣಿಸುತ್ತದೆ. ತಮ್ಮ ಫೋನ್ ಸಂಪರ್ಕಗಳಲ್ಲಿ ನಿಮ್ಮ ಸಂಖ್ಯೆಯನ್ನು ಹೊಂದಿರುವ ಜನರೂ ಸಹ Signal ನಲ್ಲಿ ಅದನ್ನು ನೋಡುತ್ತಾರೆ.</string>
+    <string name="PhoneNumberPrivacySettingsFragment_who_can_find_me_by_number_heading">ಸಂಖ್ಯೆಯ ಮೂಲಕ ನನ್ನನ್ನು ಯಾರು ಕಂಡುಹಿಡಿಯಬಹುದು</string>
+    <!-- Subtext below radio buttons when who can find me by number is set to everyone -->
+    <string name="PhoneNumberPrivacySettingsFragment_discovery_on_description">ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ಹೊಂದಿರುವ ಯಾರಾದರೂ ನೀವು Signal ‌ನಲ್ಲಿರುವುದನ್ನು ನೋಡುತ್ತಾರೆ ಮತ್ತು ನಿಮ್ಮೊಂದಿಗೆ ಚಾಟ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಬಹುದು.</string>
+    <!-- Subtext below radio buttons when who can find me by number is set to nobody -->
+    <string name="PhoneNumberPrivacySettingsFragment_discovery_off_description">ನೀವು ಮೆಸೇಜ್ ಕಳುಹಿಸದ ಹೊರತು ಅಥವಾ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಚಾಟ್ ಅನ್ನು ಹೊಂದಿರದ ಹೊರತು ನೀವು Signal ‌ನಲ್ಲಿದ್ದೀರಿ ಎಂದು ಯಾರಿಗೂ ನೋಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ.</string>
+    <!-- Snackbar text when pressing invalid radio item -->
+    <string name="PhoneNumberPrivacySettingsFragment__to_change_this_setting">"ಈ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ಬದಲಾಯಿಸಲು, ನನ್ನ ಸಂಖ್ಯೆಯನ್ನು ಯಾರು ನೋಡಬಹುದು ಎಂಬುದನ್ನು ಯಾರೂ ಇಲ್ಲ ಎಂಬುದಾಗಿ ಹೊಂದಿಸಿ."</string>
+    <!-- Dialog title shown when selecting "Nobody" in phone number privacy settings for who can find me by number -->
+    <string name="PhoneNumberPrivacySettingsFragment__nobody_can_find_me_warning_title">ನಿಮಗೆ ಖಾತ್ರಿಯಿದೆಯೇ?</string>
+    <!-- Dialog warning message shown when selecting "Nobody" in phone number privacy settings for who can find me by number -->
+    <string name="PhoneNumberPrivacySettingsFragment__nobody_can_find_me_warning_message">\"ಯಾರು ನನ್ನ ನಂಬರನ್ನು ಹುಡುಕಬಹುದು\" ಅನ್ನು \"ಯಾರೂ ಇಲ್ಲ\" ಅಂದು ಸೆಟ್ ಮಾಡಿದರೆ, Signal ನಲ್ಲಿ ನಿಮ್ಮನ್ನು ಹುಡುಕಲು ಜನರಿಗೆ ಇನ್ನೂ ಕಷ್ಟವಾಗುವುದು.</string>
+    <!-- Dialog button text for canceling change action -->
+    <string name="PhoneNumberPrivacySettingsFragment__cancel">ರದ್ದುಮಾಡಿ</string>
     <string name="PhoneNumberPrivacy_everyone">ಎಲ್ಲರೂ</string>
     <string name="PhoneNumberPrivacy_nobody">ಯಾರೂ ಇಲ್ಲ</string>
     <string name="preferences_app_protection__screen_lock">ಸ್ಕ್ರೀನ್ ಲಾಕ್</string>
@@ -3681,6 +3933,8 @@
     <string name="prompt_passphrase_activity__signal_is_locked">Signal ಅನ್‌‌ಲಾಕ್ ಆಗಿದೆ</string>
     <string name="prompt_passphrase_activity__tap_to_unlock">ಅನ್‌ಲಾಕ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="Recipient_unknown">ತಿಳಿದಿಲ್ಲ</string>
+    <!-- Name to use for a user across the UI when they are unregistered and have no other name available -->
+    <string name="Recipient_deleted_account">ಖಾತೆಯನ್ನು ಅಳಿಸಿ</string>
 
     <!-- Option in settings that will take use to re-register if they are no longer registered -->
     <string name="preferences_account_reregister">ಖಾತೆಯನ್ನು ಮರುನೋಂದಾಯಿಸಿ</string>
@@ -3883,7 +4137,9 @@
     <string name="BlockedUsersActivity__s_has_been_unblocked">\"%1$s\" ಅವರ ನಿರ್ಬಂಧ ತೆಗೆಯಲಾಗಿದೆ.</string>
 
     <!-- ReviewCardDialogFragment -->
+    <!-- Title of a screen where the user will be prompted to review group members with the same name -->
     <string name="ReviewCardDialogFragment__review_members">ಸದಸ್ಯರನ್ನು ಪರಿಶೀಲಿಸಿ</string>
+    <!-- Title of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
     <string name="ReviewCardDialogFragment__review_request">ವಿನಂತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ</string>
     <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">%1$d ಗುಂಪು ಸದಸ್ಯರು ಒಂದೇ ಹೆಸರನ್ನು ಹೊಂದಿದ್ದಾರೆ, ಕೆಳಗಿನ ಸದಸ್ಯರನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಕ್ರಮ ತೆಗೆದುಕೊಳ್ಳಿರಿ.</string>
     <string name="ReviewCardDialogFragment__if_youre_not_sure">ವಿನಂತಿ ಯಾರೆಂದು ನಿಮಗೆ ಖಚಿತವಿಲ್ಲದಿದ್ದರೆ, ಕೆಳಗಿನ ಸಂಪರ್ಕಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಕ್ರಮ ತೆಗೆದುಕೊಳ್ಳಿರಿ.</string>
@@ -3902,14 +4158,16 @@
     <string name="ReviewCardDialogFragment__failed_to_remove_group_member">ಗ್ರೂಪಿನ ಸದಸ್ಯರನ್ನು ತೆಗೆದುಹಾಕಲು ವಿಫಲವಾಗಿದೆ.</string>
 
     <!-- ReviewCard -->
-    <string name="ReviewCard__member">ಸದಸ್ಯ</string>
     <string name="ReviewCard__request">ಕೋರಿಕೆ</string>
     <string name="ReviewCard__your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
     <string name="ReviewCard__remove_from_group">ಗ್ರೂಪ್‌ನಿಂದ ತೆಗೆದುಹಾಕಿ</string>
     <string name="ReviewCard__update_contact">ಸಂಪರ್ಕ ನವೀಕರಿಸಿ</string>
     <string name="ReviewCard__block">ನಿರ್ಬಂಧಿಸಿ</string>
     <string name="ReviewCard__delete">ಅಳಿಸಿ</string>
-    <string name="ReviewCard__recently_changed">ಇತ್ತೀಚೆಗೆ ಅವರ ಪ್ರೊಫೈಲ್ ಹೆಸರನ್ನು %1$s ರಿಂದ %2$s ಕ್ಕೆ ಬದಲಾಯಿಸಲಾಗಿದೆ</string>
+    <!-- Displayed when a recent name change has occurred. First placeholder is new short name, second is previous name, third is new name. -->
+    <string name="ReviewCard__s_recently_changed">%1$s ಅವರು ಇತ್ತೀಚೆಗೆ ತಮ್ಮ ಪ್ರೊಫೈಲ್ ಹೆಸರನ್ನು %2$s ನಿಂದ %3$sಗೆ ಬದಲಾಯಿಸಿದ್ದಾರೆ</string>
+    <!-- Displayed when a review user is in your system contacts. Placeholder is short name. -->
+    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s ಅವರು ನಿಮ್ಮ ಸಿಸ್ಟಂ ಸಂಪರ್ಕಗಳಲ್ಲಿದ್ದಾರೆ</string>
 
     <!-- CallParticipantsListUpdatePopupWindow -->
     <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s ಸೇರಿಕೊಂಡಿದ್ದಾರೆ</string>
@@ -4144,11 +4402,16 @@
     <string name="GroupDescriptionDialog__group_description">ಗುಂಪಿನ ವಿವರಣೆ</string>
 
     <!-- QualitySelectorBottomSheetDialog -->
+    <!-- Label for our standard quality media conversion. -->
     <string name="QualitySelectorBottomSheetDialog__standard">ಪ್ರಮಾಣಿತ</string>
+    <!-- Description for our standard quality media conversion. -->
     <string name="QualitySelectorBottomSheetDialog__faster_less_data">ತ್ವರಿತ, ಕಡಿಮೆ ಡೇಟಾ</string>
+    <!-- Label for our high quality media conversion. This has better quality than standard. -->
     <string name="QualitySelectorBottomSheetDialog__high">ಹೆಚ್ಚು</string>
+    <!-- Label for our high quality media conversion. This has better quality than standard. -->
     <string name="QualitySelectorBottomSheetDialog__slower_more_data">ನಿಧಾನ, ಹೆಚ್ಚು ಡೇಟಾ</string>
-    <string name="QualitySelectorBottomSheetDialog__photo_quality">ಫೋಟೋ ಗುಣಮಟ್ಟ</string>
+    <!-- Title heading for our media conversion quality selector. -->
+    <string name="QualitySelectorBottomSheetDialog__media_quality">ಮಾಧ್ಯಮ ಗುಣಮಟ್ಟ</string>
 
     <!-- AppSettingsFragment -->
     <string name="AppSettingsFragment__invite_your_friends">ನಿಮ್ಮ ಸ್ನೇಹಿತರನ್ನು ಆಹ್ವಾನಿಸಿ</string>
@@ -4263,27 +4526,6 @@
     <!-- ChatsSettingsFragment -->
     <string name="ChatsSettingsFragment__keyboard">ಕೀಬೋರ್ಡ್‌</string>
     <string name="ChatsSettingsFragment__enter_key_sends">ಎಂಟರ್ ಕೀ ಕಳುಹಿಸುತ್ತದೆ</string>
-
-    <!--SmsSettingsFragment -->
-    <string name="SmsSettingsFragment__use_as_default_sms_app">ಡೀಫಾಲ್ಟ್ ಎಸ್‌ಎಂಎಸ್ ಆ್ಯಪ್ ಆಗಿ ಬಳಸಿ</string>
-    <!-- Preference title to export sms -->
-    <string name="SmsSettingsFragment__export_sms_messages">ಎಸ್ಎಂಎಸ್ ಸಂದೇಶಗಳನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಿ</string>
-    <!-- Preference title to re-export sms -->
-    <string name="SmsSettingsFragment__export_sms_messages_again">SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ಮತ್ತೊಮ್ಮೆ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಿ</string>
-    <!-- Preference title to delete sms -->
-    <string name="SmsSettingsFragment__remove_sms_messages">ಎಸ್ಎಂಎಸ್ ಮೆಜೇಜ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಿ</string>
-    <!-- Snackbar text to confirm deletion -->
-    <string name="SmsSettingsFragment__removing_sms_messages_from_signal">Signal ನಿಂದ ಎಸ್ಎಂಎಸ್ ಸಂದೇಶಗಳನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ…</string>
-    <!-- Snackbar text to indicate can delete later -->
-    <string name="SmsSettingsFragment__you_can_remove_sms_messages_from_signal_in_settings">ನೀವು ಯಾವುದೇ ವೇಳೆಯಲ್ಲೂ ಸೆಟ್ಟಿಂಗ್‍ಗಳಿಂದ SMS ಮೆಸೇಜ್‌ಗಳನ್ನು Signal ನಿಂದ ತೆಗೆದುಹಾಕಬಬಹುದು.</string>
-    <!-- Description for export sms preference -->
-    <string name="SmsSettingsFragment__you_can_export_your_sms_messages_to_your_phones_sms_database">ನಿಮ್ಮ ಫೋನ್ ನ SMS ಡೇಟಾಬೇಸ್ ಗೆ ನಿಮ್ಮ SMS ಮೆಸೇಜ್ ಗಳನ್ನು ನೀವು ರಫ್ತು ಮಾಡಬಹುದು.</string>
-    <!-- Description for re-export sms preference -->
-    <string name="SmsSettingsFragment__exporting_again_can_result_in_duplicate_messages">ಮತ್ತೊಮ್ಮೆ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡುವುದರಿಂದ ಡುಪ್ಲಿಕೇಟ್ ಮೆಸೇಜ್‌ಗಳುಂಟಾಗಬಹುದು.</string>
-    <!-- Description for remove sms preference -->
-    <string name="SmsSettingsFragment__remove_sms_messages_from_signal_to_clear_up_storage_space">ಸ್ಟೋರೇಜ್ ಸ್ಥಳವನ್ನು ತೆರವುಗೊಳಿಸಲು Signal ನಿಂದ SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಿ.</string>
-    <!-- Information message shown at the top of sms settings to indicate it is being removed soon. -->
-    <string name="SmsSettingsFragment__sms_support_will_be_removed_soon_to_focus_on_encrypted_messaging">ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡಲಾದ ಮೆಸೇಜಿಂಗ್ ಮೇಲೆ ಕೇಂದ್ರೀಕರಿಸಲು ಶೀಘ್ರದಲ್ಲೇ SMS ಬೆಂಬಲವನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ.</string>
 
     <!-- NotificationsSettingsFragment -->
     <string name="NotificationsSettingsFragment__messages">ಸಂದೇಶಗಳು</string>
@@ -4555,6 +4797,13 @@
     <string name="NewConversationActivity__view_contact">ಸಂಪರ್ಕವನ್ನು ವೀಕ್ಷಿಸಿ</string>
     <!-- Error message shown when looking up a person by phone number and that phone number is not associated with a signal account -->
     <string name="NewConversationActivity__s_is_not_a_signal_user">%1$s ಅವರು Signal ಬಳಕೆದಾರರಲ್ಲ</string>
+    <!-- Error message shown when we could not get a user from the username link -->
+    <string name="NewConversationActivity__">%1$s ಅವರು Signal ಬಳಕೆದಾರರಲ್ಲ</string>
+    <!-- Error message shown in a dialog when trying to create a new group with non-signal users (e.g., unregistered or phone number only contacts) -->
+    <plurals name="CreateGroupActivity_not_signal_users">
+        <item quantity="one">%1$s ಅವರು Signal ಬಳಕೆದಾರರಲ್ಲ</item>
+        <item quantity="other">%1$s ಅವರು Signal ಬಳಕೆದಾರರಲ್ಲ</item>
+    </plurals>
 
     <!-- ContactFilterView -->
     <string name="ContactFilterView__search_name_or_number">ಹೆಸರು ಅಥವಾ ಸಂಖ್ಯೆ ಹುಡುಕಾಟ ನಡೆಸಿ</string>
@@ -4638,6 +4887,28 @@
     <string name="MediaReviewFragment__one_or_more_items_were_too_large">ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಐಟಂಗಳು ತೀರಾ ದೊಡ್ಡದಾಗಿವೆ</string>
     <string name="MediaReviewFragment__one_or_more_items_were_invalid">ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಐಟಂಗಳು ಅಮಾನ್ಯವಾಗಿವೆ</string>
     <string name="MediaReviewFragment__too_many_items_selected">ತುಂಬಾ ಐಟಂಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set their video to view-once mode -->
+    <string name="MediaReviewFragment__video_set_to_view_once">ಒಂದು ಬಾರಿಯ ವೀಕ್ಷಣೆಗೆ ವಿಡಿಯೋ ಸೆಟ್ ಆಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set their photo to view-once mode -->
+    <string name="MediaReviewFragment__photo_set_to_view_once">ಒಂದು ಬಾರಿಯ ವೀಕ್ಷಣೆಗೆ ಫೊಟೋ ಸೆಟ್ ಆಗಿದೆ.</string>
+    <!-- Small notification presented to the user when they set their video to be sent in high visual quality. -->
+    <string name="MediaReviewFragment__video_set_to_high_quality">ಾತ್ಯಧಿಕ ಗುಣಮಟ್ಟಕ್ಕೆ ವೀಡಿಯೊ ಸೆಟ್ ಆಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set their video to be sent in standard (lower than high) visual quality. -->
+    <string name="MediaReviewFragment__video_set_to_standard_quality">ಸಾಮಾನ್ಯ ಗುಣಮಟ್ಟಕ್ಕೆ ವಿಡಿಯೋ ಸೆಟ್ ಆಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set their still image to be sent in high visual quality. -->
+    <string name="MediaReviewFragment__photo_set_to_high_quality">ಫೊಟೋವನ್ನು ಅತ್ಯಧಿಕ ಗುಣಮಟ್ಟಕ್ಕೆ ಹೊಂದಿಸಲಾಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
+    <string name="MediaReviewFragment__photo_set_to_standard_quality">ಫೊಟೋವನ್ನು ಪ್ರಮಾಣಿತ ಗುಣಮಟ್ಟಕ್ಕೆ ಸೆಟ್ ಮಾಡಲಾಗಿದೆ</string>
+    <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
+    <plurals name="MediaReviewFragment__items_set_to_high_quality">
+        <item quantity="one">%1$d ಐಟಂ ಅನ್ನು ಅತ್ಯಧಿಕ ಗುಣಮಟ್ಟಕ್ಕೆ ಸೆಟ್ ಮಾಡಲಾಗಿದೆ</item>
+        <item quantity="other">%1$d ಐಟಂಗಳನ್ನು ಅತ್ಯಧಿಕ ಗುಣಮಟ್ಟಕ್ಕೆ ಸೆಟ್ ಮಾಡಲಾಗಿದೆ</item>
+    </plurals>
+    <!-- Small notification presented to the user when they set multiple media items to be sent in standard (lower than high) visual quality. -->
+    <plurals name="MediaReviewFragment__items_set_to_standard_quality">
+        <item quantity="one">%1$d ಐಟಂ ಅನ್ನು ಪ್ರಮಾಣಿತ ಗುಣಮಟ್ಟಕ್ಕೆ ಸೆಟ್ ಮಾಡಲಾಗಿದೆ</item>
+        <item quantity="other">%1$d ಐಟಂಗಳನ್ನು ಪ್ರಮಾಣಿತ ಗುಣಮಟ್ಟಕ್ಕೆ ಸೆಟ್ ಮಾಡಲಾಗಿದೆ</item>
+    </plurals>
 
     <string name="ImageEditorHud__cancel">ರದ್ದುಗೊಳಿಸಿ</string>
     <string name="ImageEditorHud__draw">ರಚಿಸಿ</string>
@@ -4661,6 +4932,20 @@
     <string name="MediaReviewImagePageFragment__discard">ತ್ಯಜಿಸಿ</string>
     <string name="MediaReviewImagePageFragment__discard_changes">ಬದಲಾವಣೆಗಳನ್ನು ತ್ಯಜಿಸುವುದೇ?</string>
     <string name="MediaReviewImagePageFragment__youll_lose_any_changes">ಈ ಫೊಟೋಕ್ಕೆ ನೀವು ಮಾಡಿದ ಯಾವುದೇ ಬದಲಾವಣೆಗಳನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ.</string>
+
+    <!-- The title of a dialog notifying that a user was found matching a scanned QR code. The placeholder is a username. Usernames are always latin characters. -->
+    <string name="MediaCaptureFragment_username_dialog_title">%1$s ಕಂಡುಬಂದಿದೆ</string>
+    <!-- The body of a dialog notifying that a user was found matching a scanned QR code, prompting the user to start a chat with them. The placeholder is a username. Usernames are always latin characters. -->
+    <string name="MediaCaptureFragment_username_dialog_body">\"%1$s\" ಅವರೊಂದಿಗೆ ಚಾಟ್ ಆರಂಭಿಸಿ</string>
+    <!-- The label of a dialog asking the user if they would like to start a chat with a specific user. -->
+    <string name="MediaCaptureFragment_username_dialog_go_to_chat_button">ಚಾಟ್‌ಗೆ ಹೋಗಿ</string>
+
+    <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
+    <string name="MediaCaptureFragment_device_link_dialog_title">ಸಾಧನ ಲಿಂಕ್ ಮಾಡುವುದೇ?</string>
+    <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
+    <string name="MediaCaptureFragment_device_link_dialog_body">ನೀವು ಒಂದು Signal ಸಾಧನವನ್ನು ಲಿಂಕ್ ಮಾಡಲು ಯತ್ನಿಸುತ್ತಿರುವಂತಿದೆ. ಮುಂದುವರಿಸಿ ಎಂಬುದನ್ನು ಮತ್ತು ಕೋಡ್ ಅನ್ನು ಲಿಂಕ್ ಮಾಡಲು ಅದನ್ನು ಪುನಃ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ.</string>
+    <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
+    <string name="MediaCaptureFragment_device_link_dialog_continue">ಮುಂದುವರಿಸಿ</string>
 
 
     <string name="BadgesOverviewFragment__my_badges">ನನ್ನ ಬ್ಯಾಡ್ಜ್‌ಗಳು</string>
@@ -4740,6 +5025,12 @@
     <string name="ManageDonationsFragment__other_ways_to_give">ನೀಡಲು ಇತರೆ ದಾರಿಗಳು</string>
     <!-- Preference label to launch badge gifting -->
     <string name="ManageDonationsFragment__donate_for_a_friend">ಸ್ನೇಹಿತರಿಗಾಗಿ ದೇಣಿಗೆ ನೀಡಿ</string>
+    <!-- Dialog title shown when a donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet -->
+    <string name="ManageDonationsFragment__couldnt_confirm_donation">ದೇಣಿಗೆಯನ್ನು ದೃಢೀಕರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</string>
+    <!-- Dialog message shown when a monthly donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
+    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed">ನಿಮ್ಮ %1$s/ತಿಂಗಳು ದೇಣಿಗೆಯನ್ನು ದೃಢೀಕರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ iDEAL ಪಾವತಿಯನ್ನು ಅನುಮೋದಿಸಲು ನಿಮ್ಮ ಬ್ಯಾಂಕಿಂಗ್ ಆ್ಯಪ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ.</string>
+    <!-- Dialog message shown when a one-time donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
+    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed">ನಿಮ್ಮ ಒಂದು ಬಾರಿಯ %1$s ದೇಣಿಗೆಯನ್ನು ದೃಢೀಕರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ iDEAL ಪಾವತಿಯನ್ನು ಅನುಮೋದಿಸಲು ನಿಮ್ಮ ಬ್ಯಾಂಕಿಂಗ್ ಆ್ಯಪ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ.</string>
 
     <string name="Boost__enter_custom_amount">ಕಸ್ಟಮ್‌ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ</string>
     <!-- Error label when the amount is smaller than what we can accept -->
@@ -4751,6 +5042,12 @@
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">ಬ್ಯಾಡ್ಜ್ ಸೇರಿಸಲು ಆಗಲಿಲ್ಲ. %1$s</string>
     <string name="MySupportPreference__please_contact_support">ದಯವಿಟ್ಟು ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- Displayed as a subtitle on a row in the Manage Donations screen when payment for a donation is pending -->
+    <string name="MySupportPreference__payment_pending">ಪಾವತಿ ಬಾಕಿಯಿದೆ</string>
+    <!-- Displayed as a dialog message when clicking on a donation row that is pending. Placeholder is a formatted fiat amount -->
+    <string name="MySupportPreference__your_bank_transfer_of_s">%1$s ನಷ್ಟು ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆ ಬಾಕಿಯಿದೆ. ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಗಳು ಪೂರ್ಣಗೊಳ್ಳಲು 1 ರಿಂದ 14 ವ್ಯಾವಹಾರಿಕ ದಿನಗಳು ಆಗಬಹುದು.  </string>
+    <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
+    <string name="MySupportPreference__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Signal ಅನ್ನು ನವೀಕರಿಸಿ</string>
@@ -4800,12 +5097,16 @@
     <string name="Subscription__contact_support">ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ</string>
     <string name="Subscription__get_a_s_badge">%1$s ಬ್ಯಾಡ್ಜ್ ಪಡೆಯಿರಿ</string>
 
-    <string name="SubscribeFragment__processing_payment">ಪೇಮೆಂಟ್ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="SubscribeFragment__processing_payment">ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ…</string>
     <!-- Displayed in notification when user payment fails to process on Stripe -->
-    <string name="DonationsErrors__error_processing_payment">ಪಾವತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ದೋಷ</string>
+    <string name="DonationsErrors__error_processing_payment">ದೇಣಿಗೆ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ದೋಷ</string>
+    <!-- Displayed on manage donations screen as a dialog message when payment method failed -->
+    <string name="DonationsErrors__try_another_payment_method">ಇನ್ನೊಂದು ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- Displayed on manage donations screen error dialogs as an action label -->
+    <string name="DonationsErrors__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
     <!-- Displayed on "My Support" screen when user subscription payment method failed. -->
-    <string name="DonationsErrors__error_processing_payment_s">ಪಾವತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ದೋಷ. %1$s</string>
-    <string name="DonationsErrors__your_payment">ನಿಮ್ಮ ಪಾವತಿಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ ಮತ್ತು ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="DonationsErrors__error_processing_payment_s">ದೇಣಿಗೆ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ದೋಷ. %1$s</string>
+    <string name="DonationsErrors__your_payment">ನಿಮ್ಮ ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ ಮತ್ತು ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <string name="DonationsErrors__still_processing">ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ</string>
     <string name="DonationsErrors__couldnt_add_badge">ಬ್ಯಾಡ್ಜ್ ಸೇರಿಸಲು ಆಗಲಿಲ್ಲ</string>
     <!-- Displayed when badge credential couldn\'t be verified -->
@@ -4815,9 +5116,9 @@
     <!-- Displayed as title when some generic error happens during sending donation on behalf of another user -->
     <string name="DonationsErrors__donation_failed">ದೇಣಿಗೆ ವಿಫಲವಾಗಿದೆ</string>
     <!-- Displayed as message when some generic error happens during sending donation on behalf of another user -->
-    <string name="DonationsErrors__your_payment_was_processed_but">ನಿಮ್ಮ ಪಾವತಿಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಯಿತು, ಆದರೆ ನಿಮ್ಮ ದೇಣಿಗೆ ಸಂದೇಶವನ್ನು ಕಳುಹಿಸಲು Signal ಗೆ ಸಾಧ್ಯವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <string name="DonationsErrors__your_payment_was_processed_but">ನಿಮ್ಮ ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಯಿತು, ಆದರೆ ನಿಮ್ಮ ದೇಣಿಗೆ ಮೆಸೇಜ್ ಅನ್ನು ಕಳುಹಿಸಲು Signal ಗೆ ಸಾಧ್ಯವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
     <string name="DonationsErrors__your_badge_could_not">ನಿಮ್ಮ ಖಾತೆಗೆ ನಿಮ್ಮ ಬ್ಯಾಡ್ಜ್ ಅನ್ನು ಸೇರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ, ಆದರೆ ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಿರಬಹುದು. ದಯವಿಟ್ಟು ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
-    <string name="DonationsErrors__your_payment_is_still">ನಿಮ್ಮ ಪಾವತಿ ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ. ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಅವಲಂಬಿಸಿಕೊಂಡು ಇದು ಕೆಲವು ನಿಮಿಷಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಹುದು.</string>
+    <string name="DonationsErrors__your_payment_is_still">ನಿಮ್ಮ ದೇಣಿಗೆಯು ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ. ಇದು ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಅವಲಂಬಿಸಿಕೊಂಡು ಕೆಲವು ನಿಮಿಷಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಹುದು.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">ಚಂದಾ ರದ್ದುಗೊಳಿಸಲು ವಿಫಲವಾಗಿದೆ</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">ಚಂದಾ ರದ್ದತಿಗೆ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಬೇಕಾಗುತ್ತದೆ.</string>
     <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">ನಿಮ್ಮ ಸಾಧನವು Google Pay ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ, ಹಾಗಾಗಿ ಬ್ಯಾಡ್ಜ್ ಗಳಿಸಲು ನೀವು ಚಂದಾ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ನಮ್ಮ ವೆಬ್‍‌ಸೈಟ್‌ನಲ್ಲಿ ದೇಣಿಗೆ ನೀಡುವ ಮೂಲಕ ಈಗಲೂ ನೀವು Signal ಅನ್ನು ಬೆಂಬಲಿಸಬಹುದು.</string>
@@ -4829,6 +5130,8 @@
     <string name="DonationsErrors__this_user_cant_receive_donations_until">ಈ ಬಳಕೆದಾರರು Signal ಅನ್ನು ನವೀಕರಿಸುವ ತನಕ ಅವರು ದೇಣಿಗೆಯನ್ನು ಸ್ವೀಕರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
     <!-- Displayed as a dialog message when the user\'s profile could not be fetched, likely due to lack of internet -->
     <string name="DonationsErrors__your_donation_could_not_be_sent">ನೆಟ್‌ವರ್ಕ್ ದೋಷದಿಂದಾಗಿ ನಿಮ್ಮ ದೇಣಿಗೆಯನ್ನು ಕಳುಹಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಹಾಗೂ ಇನ್ನೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Displayed as a dialog message when the user encounters an error during an iDEAL donation -->
+    <string name="DonationsErrors__your_ideal_couldnt_be_processed">ನಿಮ್ಮ iDEAL ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಇನ್ನೊಂದು ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
 
     <!-- Gift message view title -->
     <string name="GiftMessageView__donation_on_behalf_of_s">%1$s ಅವರ ಪರವಾಗಿ ದೇಣಿಗೆ</string>
@@ -4846,6 +5149,8 @@
 
     <!-- Stripe decline code generic_failure -->
     <string name="DeclineCode__try_another_payment_method_or_contact_your_bank">ಇನ್ನೊಂದು ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- PayPal decline code for payment declined -->
+    <string name="DeclineCode__try_another_payment_method_or_contact_your_bank_for_more_information_if_this_was_a_paypal">ಬೇರೊಂದು ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ. ಇದು PayPal ವಹಿವಾಟು ಆಗಿದ್ದಿದ್ದರೆ, PayPal ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
     <!-- Stripe decline code verify on Google Pay and try again -->
     <string name="DeclineCode__verify_your_payment_method_is_up_to_date_in_google_pay_and_try_again">Google Pay ನಲ್ಲಿ ನಿಮ್ಮ ಪಾವತಿ ವಿಧಾನ ಅಪ್‌ಟು ಡೇಟ್ ಆಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ ಹಾಗೂ ಇನ್ನೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <!-- Stripe decline code learn more action label -->
@@ -4871,7 +5176,7 @@
     <!-- Stripe decline code incorrect expiration year -->
     <string name="DeclineCode__the_expiration_year">ನಿಮ್ಮ ಪಾವತಿ ವಿಧಾನದಲ್ಲಿ ಅವಧಿ ಮೀರುವ ವರ್ಷ ತಪ್ಪಾಗಿದೆ. Google Pay ನಲ್ಲಿ ಇದನ್ನು ಅಪ್ಡೇಟ್ ಮಾಡಿ ಹಾಗೂ ಇನ್ನೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <!-- Stripe decline code issuer not available -->
-    <string name="DeclineCode__try_completing_the_payment_again">ಮತ್ತೊಮ್ಮೆ ಪಾವತಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <string name="DeclineCode__try_completing_the_payment_again">ಮತ್ತೊಮ್ಮೆ ದೇಣಿಗೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
     <!-- Stripe decline code processing error -->
     <string name="DeclineCode__try_again">ಇನ್ನೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
 
@@ -4890,6 +5195,18 @@
     <string name="DeclineCode__the_expiration_year_on_your_card_is_incorrect">ನಿಮ್ಮ ಕಾರ್ಡ್‌ನಲ್ಲಿರುವ ಅವಧಿ ಮುಗಿಯುವ ವರ್ಷ ತಪ್ಪಾಗಿದೆ. ನಿಮ್ಮ ಕಾರ್ಡ್ ವಿವರಗಳು ಸರಿಯಾಗಿವೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ ಹಾಗೂ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
     <!-- Stripe decline code incorrect_number and invalid_number for credit cards displayed in a notification or dialog -->
     <string name="DeclineCode__your_card_number_is_incorrect_verify_your_card_details">ನಿಮ್ಮ ಕಾರ್ಡ್ ಸಂಖ್ಯೆ ತಪ್ಪಾಗಿದೆ. ನಿಮ್ಮ ಕಾರ್ಡ್ ವಿವರಗಳು ಸರಿಯಾಗಿವೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ ಹಾಗೂ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+
+    <!-- Stripe Failure Codes for failed bank transfers -->
+    <!-- Failure code text for insufficient funds, displayed in a dialog or notification -->
+    <string name="StripeFailureCode__the_bank_account_provided">ಈ ಖರೀದಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಒದಗಿಸಿದ ಬ್ಯಾಂಕ್ ಖಾತೆಯು ಸಾಕಷ್ಟು ಹಣ ಹೊಂದಿಲ್ಲ, ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- Failure code text for revoked authorization of payment, displayed in a dialog or notification -->
+    <string name="StripeFailureCode__this_payment_was_revoked">ಈ ದೇಣಿಗೆಯನ್ನು ಖಾತೆದಾರರು ಹಿಂಪಡೆದಿದ್ದಾರೆ ಮತ್ತು ಇದನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಲಾಗಿಲ್ಲ.</string>
+    <!-- Failure code text for a payment lacking an authorized mandate or incorrect mandate, displayed in a dialog or notification -->
+    <string name="StripeFailureCode__an_error_occurred_while_processing_this_payment">ಈ ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ, ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Failure code text for a closed account, deceased recipient, or one with blocked direct debits, displayed in a dialog or notification -->
+    <string name="StripeFailureCode__the_bank_details_provided_could_not_be_processed">ಒದಗಿಸಿದ ಬ್ಯಾಂಕ್ ವಿವರಗಳನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ, ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- Failure code text for a non-existent bank branch, invalid account holder, invalid iban, generic failure, or unknown bank failure, displayed in a dialog or notification -->
+    <string name="StripeFailureCode__verify_your_bank_details_are_correct">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವಿವರಗಳು ಸರಿಯಾಗಿವೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ ಹಾಗೂ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ. ಸಮಸ್ಯೆ ಮುಂದುವರಿದರೆ, ನಿಮ್ಮ ಬ್ಯಾಂಕ್‌ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
 
     <!-- Title of create notification profile screen -->
     <string name="EditNotificationProfileFragment__name_your_profile">ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಹೆಸರಿಸಿ</string>
@@ -4926,6 +5243,12 @@
     <string name="AddAllowedMembers__add_people_and_groups_you_want_notifications_and_calls_from_when_this_profile_is_on">ಈ ಪ್ರೊಫೈಲ್‌ ಆನ್ ಇದ್ದಾಗ ಯಾರ ಅಧಿಸೂಚನೆಗಳು ಮತ್ತು ಕರೆಗಳನ್ನು ಬಯಸುತ್ತೀರೋ ಆ ಜನರು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳನ್ನು ಸೇರಿಸಿ</string>
     <!-- Button text that launches the contact picker to select from -->
     <string name="AddAllowedMembers__add_people_or_groups">ಜನರು ಅಥವಾ ಗ್ರೂಪ್‌ಗಳನ್ನು ಸೇರಿಸಿ</string>
+    <!-- Title for exceptions section of add people to notification profile screen in create flow -->
+    <string name="AddAllowedMembers__exceptions">ವಿನಾಯಿತಿಗಳು</string>
+    <!-- List preference to toggle that allows calls through the notification profile during create flow -->
+    <string name="AddAllowedMembers__allow_all_calls">ಎಲ್ಲಾ ಕರೆಗಳನ್ನು ಅನುಮತಿಸಿ</string>
+    <!-- List preference to toggle that allows mentions through the notification profile during create flow -->
+    <string name="AddAllowedMembers__notify_for_all_mentions">ಎಲ್ಲಾ ಉಲ್ಲೇಖಗಳನ್ನು ತಿಳಿಸಿ</string>
 
     <!-- Call to action button on contact picker for adding to profile -->
     <string name="SelectRecipientsFragment__add">ಸೇರಿಸಿ</string>
@@ -5047,10 +5370,10 @@
     <string name="DonationReceiptListFragment__recurring">ಆವರ್ತ</string>
     <!-- Donation receipts one-time tab label -->
     <string name="DonationReceiptListFragment__one_time">ಒಂದು ಬಾರಿ</string>
+    <!-- Donation receipts gift tab -->
+    <string name="DonationReceiptListFragment__for_a_friend">ಸ್ನೇಹಿತರಿಗಾಗಿ</string>
     <!-- Donation receipts gift tab label -->
     <string name="DonationReceiptListFragment__donation_for_a_friend">ಸ್ನೇಹಿತರಿಗಾಗಿ ದೇಣಿಗೆ</string>
-    <!-- Donation receipts boost row label -->
-    <!-- Donation receipts details title -->
     <!-- Donation receipts donation type heading -->
     <string name="DonationReceiptDetailsFragment__donation_type">ದೇಣಿಗೆ ವಿಧ</string>
     <!-- Donation receipts date paid heading -->
@@ -5539,7 +5862,10 @@
     <!-- Message of safety number changes bottom sheet when not showing individual records and user has seen review screen -->
     <string name="SafetyNumberBottomSheetFragment__all_connections_have_been_reviewed">ಎಲ್ಲಾ ಸಂಪರ್ಕಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ, ಮುಂದುವರಿಸಲು send ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
     <!-- Message of safety number changes bottom sheet when not showing individual records -->
-    <string name="SafetyNumberBottomSheetFragment__you_have_d_connections">ನೀವು %1$d ಸಂಪರ್ಕಗಳನ್ನು ಹೊಂದಿದ್ದು, ಅವರು Signal ಅನ್ನು ಮರುಸ್ಥಾಪಿಸಿರಬಹುದು ಅಥವಾ ಸಾಧನಗಳನ್ನು ಬದಲಿಸಿರಬಹುದು. ನಿಮ್ಮ ಸ್ಟೋರಿಯನ್ನು ಅವರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳುವ ಮುನ್ನ ಅವರ ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಅಥವಾ ಅವರನ್ನು ನಿಮ್ಮ ಸ್ಟೋರಿಯಿಂದ ತೆಗೆದುಹಾಕುವುದನ್ನು ಪರಿಗಣಿಸಿ.</string>
+    <plurals name="SafetyNumberBottomSheetFragment__you_have_d_connections_plural">
+        <item quantity="one">%1$d ಸಂಪರ್ಕವು ಮರುಸ್ಥಾಪಿಸಿದ Signal ಅನ್ನು ಅಥವಾ ಬದಲಾದ ಸಾಧನಗಳನ್ನು ಹೊಂದಿರಬಹುದು. ನೀವು ಅವರ ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆಯನ್ನು ಪರಿಶೀಲಿಸಬಹುದು ಅಥವಾ ಕಳುಹಿಸುವುದನ್ನು ಮುಂದುವರಿಸಬಹುದು.</item>
+        <item quantity="other">%1$d ಸಂಪರ್ಕಗಳು ಮರುಸ್ಥಾಪಿಸಿದ Signal ಅನ್ನು ಅಥವಾ ಬದಲಾದ ಸಾಧನಗಳನ್ನು ಹೊಂದಿರಬಹುದು. ನೀವು ಅವರ ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆಗಳನ್ನು ಪರಿಶೀಲಿಸಬಹುದು ಅಥವಾ ಕಳುಹಿಸುವುದನ್ನು ಮುಂದುವರಿಸಬಹುದು.</item>
+    </plurals>
     <!-- Menu action to launch safety number verification screen -->
     <string name="SafetyNumberBottomSheetFragment__verify_safety_number">ಸುರಕ್ಷತಾ ಸಂಖ್ಯೆ ದೃಢೀಕರಿಸಿ</string>
     <!-- Menu action to remove user from story -->
@@ -5627,48 +5953,6 @@
     <!-- Generic title for overflow menus -->
     <string name="OverflowMenu__overflow_menu">ಓವರ್‌ಫ್ಲೋ ಮೆನು</string>
 
-    <!-- SMS Export Service -->
-    <!-- Displayed in the notification while export is running -->
-    <string name="SignalSmsExportService__exporting_messages">ಸಂದೇಶಗಳನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
-    <!-- Displayed in the notification title when export completes -->
-    <string name="SignalSmsExportService__signal_sms_export_complete">Signal SMS ರಫ್ತು ಪೂರ್ಣಗೊಂಡಿದೆ</string>
-    <!-- Displayed in the notification message when export completes -->
-    <string name="SignalSmsExportService__tap_to_return_to_signal">Signal ಗೆ ಮರಳಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
-
-    <!-- ExportYourSmsMessagesFragment -->
-    <!-- Title of the screen -->
-    <string name="ExportYourSmsMessagesFragment__export_your_sms_messages">ನಿಮ್ಮ ಎಸ್ಎಂಎಸ್ ಸಂದೇಶಗಳನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಿ</string>
-    <!-- Message of the screen -->
-    <string name="ExportYourSmsMessagesFragment__you_can_export_your_sms_messages_to_your_phones_sms_database_and_youll_have_the_option_to_keep_or_remove_them_from_signal">ನಿಮ್ಮ SMS ಮೆಸೇಜ್ ಗಳನ್ನು ನಿಮ್ಮ ಫೋನಿನ SMS ಡೇಟಾಬೇಸ್ ಗೆ ನೀವು ರಫ್ತು ಮಾಡಬಹುದು ಮತ್ತು Signal ನಿಂದ ಅವುಗಳನ್ನು ಉಳಿಸಿಕೊಳ್ಳುವ ಅಥವಾ ತೆಗೆದುಹಾಕುವ ಆಯ್ಕೆಯನ್ನು ನೀವು ಹೊಂದಿದ್ದೀರಿ. ನಿಮ್ಮ ಫೋನ್ ನಲ್ಲಿರುವ ಇತರೆ SMS ಆ್ಯಪ್‍ಗಳು ಅವುಗಳನ್ನು ಆಮದು ಮಾಡಲು ಇದು ಅನುಮತಿಸುತ್ತದೆ. ನಿಮ್ಮ SMS ಇತಿಹಾಸದ ಹಂಚಿಕೊಳ್ಳಬಹುದಾದ ಫೈಲ್ ಅನ್ನು ಇದು ರಚಿಸುವುದಿಲ್ಲ.</string>
-    <!-- Button label to begin export -->
-    <string name="ExportYourSmsMessagesFragment__continue">ಮುಂದುವರಿಸಿ</string>
-
-    <!-- ExportingSmsMessagesFragment -->
-    <!-- Title of the screen -->
-    <string name="ExportingSmsMessagesFragment__exporting_sms_messages">ಎಸ್ಎಂಎಸ್ ಸಂದೇಶಗಳನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
-    <!-- Message of the screen when exporting sms messages -->
-    <string name="ExportingSmsMessagesFragment__this_may_take_awhile">ಇದು ಸ್ವಲ್ಪ ಸಮಯ ತೆಗೆದುಕೊಳ್ಳಬಹುದು</string>
-    <!-- Progress indicator for export -->
-    <plurals name="ExportingSmsMessagesFragment__exporting_d_of_d">
-        <item quantity="one">%2$d ರಲ್ಲಿ %1$d ರಫ್ತು ಮಾಡಲಾಗುತ್ತಿದೆ…</item>
-        <item quantity="other">%2$d ರಲ್ಲಿ %1$d ರಫ್ತು ಮಾಡಲಾಗುತ್ತಿದೆ…</item>
-    </plurals>
-    <!-- Alert dialog title shown when we think a user may not have enough local storage available to export sms messages -->
-    <string name="ExportingSmsMessagesFragment__you_may_not_have_enough_disk_space">ನೀವು ಸಾಕಷ್ಟು ಡಿಸ್ಕ್ ಸ್ಥಳಾವಕಾಶ ಹೊಂದಿಲ್ಲದಿರಬಹುದು</string>
-    <!-- Alert dialog message shown when we think a user may not have enough local storage available to export sms messages, placeholder is the file size, e.g., 128kB -->
-    <string name="ExportingSmsMessagesFragment__you_need_approximately_s_to_export_your_messages_ensure_you_have_enough_space_before_continuing">ನಿಮ್ಮ ಮೆಸೇಜ್ ಗಳನ್ನು ರಫ್ತು ಮಾಡಲು ನಿಮಗೆ ಅಂದಾಜು %1$s ಅಗತ್ಯವಿದೆ, ಮುಂದುವರಿಯುವ ಮುನ್ನ ನೀವು ಸಾಕಷ್ಟು ಸ್ಥಳಾವಕಾಶ ಹೊಂದಿದ್ದೀರಿ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.</string>
-    <!-- Alert dialog button to continue with exporting sms after seeing the lack of storage warning -->
-    <string name="ExportingSmsMessagesFragment__continue_anyway">ಹೇಗಾದರೂ ಮುಂದುವರಿಯಿರಿ</string>
-    <!-- Dialog text shown when Signal isn\'t granted the sms permission needed to export messages, different than being selected as the sms app -->
-    <string name="ExportingSmsMessagesFragment__signal_needs_the_sms_permission_to_be_able_to_export_your_sms_messages">ನಿಮ್ಮ SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ರಫ್ತು ಮಾಡಲು ಸಾಧ್ಯವಾಗಲು Signal ಗೆ SMS ಅನುಮತಿ ಬೇಕು.</string>
-
-    <!-- ChooseANewDefaultSmsAppFragment -->
-    <!-- Title of the screen -->
-    <string name="ChooseANewDefaultSmsAppFragment__choose_a_new">ಹೊಸ ಡೀಫಾಲ್ಟ್ ಎಸ್‌ಎಂಎಸ್ ಆ್ಯಪ್ ಆರಿಸಿ</string>
-    <!-- Button label to launch picker -->
-    <string name="ChooseANewDefaultSmsAppFragment__continue">ಮುಂದುವರಿಸಿ</string>
-    <!-- Button label for when done with changing default SMS app -->
-    <string name="ChooseANewDefaultSmsAppFragment__done">ಮುಗಿದಿದೆ</string>
     <!-- First step number/bullet for choose new default sms app instructions -->
     <string name="ChooseANewDefaultSmsAppFragment__bullet_1">1</string>
     <!-- Second step number/bullet for choose new default sms app instructions -->
@@ -5677,47 +5961,6 @@
     <string name="ChooseANewDefaultSmsAppFragment__bullet_3">3</string>
     <!-- Fourth step number/bullet for choose new default sms app instructions -->
     <string name="ChooseANewDefaultSmsAppFragment__bullet_4">4</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__tap_continue_to_open_the_defaults_apps_screen_in_settings">\"ಡೀಫಾಲ್ಟ್ ಆಪ್‍\" ಗಳನ್ನು ಸ್ಕ್ರೀನ್ ಮೇಲೆ ತೆರೆಯಲು ಸೆಟ್ಟಿಂಗ್‍ಗಳಲ್ಲಿ \"ಕಂಟಿನ್ಯೂ\" ಮೇಲೆ ಟ್ಯಾಪ್ ಮಾಡಿ</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__select_sms_app_from_the_list">ಪಟ್ಟಿಯಿಂದ \"SMS ಆ್ಯಪ್\" ಆಯ್ಕೆ ಮಾಡಿ</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__choose_another_app_to_use_for_sms_messaging">SMS ಮೆಸೇಜ್ ಮಾಡಲು ಬಳಸಲು ಬೇರೊಂದು ಆ್ಯಪ್ ಆಯ್ಕೆ ಮಾಡಿ</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__return_to_signal">Signal ಗೆ ಹಿಂತಿರುಗಿ</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__open_your_phones_settings_app">ನಿಮ್ಮ ಫೋನಿನಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್ಸ್ ಆಪ್ ಅನ್ನು ತೆರೆಯಿರಿ</string>
-    <!-- Instruction step for choosing a new default sms app -->
-    <string name="ChooseANewDefaultSmsAppFragment__navigate_to_apps_default_apps_sms_app">\"ಆ್ಯಪ್ ಗ‌ಳು\" &gt; \"ಡೀಫಾಲ್ಟ್ ಆ್ಯಪ್  ಗಳು\" &gt; \"SMS ಆ್ಯಪ್\" ಗೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ</string>
-
-    <!-- RemoveSmsMessagesDialogFragment -->
-    <!-- Action button to keep messages -->
-    <string name="RemoveSmsMessagesDialogFragment__keep_messages">ಸಂದೇಶಗಳನ್ನು ಉಳಿಸಿ</string>
-    <!-- Action button to remove messages -->
-    <string name="RemoveSmsMessagesDialogFragment__remove_messages">ಮೆಸೇಜ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಿ</string>
-    <!-- Title of dialog -->
-    <string name="RemoveSmsMessagesDialogFragment__remove_sms_messages">Signal ನಿಂದ ಎಸ್ಎಂಎಸ್ ಮೆಸೇಜ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಬೇಕೇ?</string>
-    <!-- Message of dialog -->
-    <string name="RemoveSmsMessagesDialogFragment__you_can_now_remove_sms_messages_from_signal">ಸ್ಟೋರೇಜ್ ಸ್ಪೇಸ್ ತೆರವುಗೊಳಿಸಲು Signal ನಿಂದ ಈಗ ನೀವು SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಬಹುದು. ಅವುಗಳನ್ನು ನೀವು ತೆಗೆದುಹಾಕಿದರೂ ನಿಮ್ಮ ಫೋನ್ ನಲ್ಲಿ ಇತರೆ SMS ಆ್ಯಪ್ ಗಳಿಗೆ ಅವು ಲಭ್ಯ ಇರಲಿವೆ.</string>
-
-    <!-- ReExportSmsMessagesDialogFragment -->
-    <!-- Action button to re-export messages -->
-    <string name="ReExportSmsMessagesDialogFragment__continue">ಮುಂದುವರಿಸಿ</string>
-    <!-- Action button to cancel re-export process -->
-    <string name="ReExportSmsMessagesDialogFragment__cancel">ರದ್ದುಮಾಡಿ</string>
-    <!-- Title of dialog -->
-    <string name="ReExportSmsMessagesDialogFragment__export_sms_again">SMS ಅನ್ನು ಮತ್ತೊಮ್ಮೆ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡುವುದೇ?</string>
-    <!-- Message of dialog -->
-    <string name="ReExportSmsMessagesDialogFragment__you_already_exported_your_sms_messages">ನಿಮ್ಮ SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ನೀವು ಈಗಾಗಲೇ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಿದ್ದೀರಿ.\nಎಚ್ಚರಿಕೆ: ನೀವು ಮುಂದುವರಿದರೆ, ಡುಪ್ಲಿಕೇಟ್ ಮೆಸೇಜ್‌ಗಳು ಉಂಟಾಗಬಹುದು.</string>
-
-    <!-- SetSignalAsDefaultSmsAppFragment -->
-    <!-- Title of the screen -->
-    <string name="SetSignalAsDefaultSmsAppFragment__set_signal_as_the_default_sms_app">Signal ಅನ್ನು ಡೀಫಾಲ್ಟ್ SMS ಆ್ಯಪ್ ಆಗಿ ಸೆಟ್ ಮಾಡಿ</string>
-    <!-- Message of the screen -->
-    <string name="SetSignalAsDefaultSmsAppFragment__to_export_your_sms_messages">ನಿಮ್ಮ SMS ಮೆಸೇಜ್ ಗಳನ್ನು ರಫ್ತು ಮಾಡಲು, Signal ಅನ್ನು ಡೀಫಾಲ್ಟ್ SMS ಆ್ಯಪ್ ಆಗಿ ನೀವು ಸೆಟ್ ಮಾಡಬೇಕು.</string>
-    <!-- Button label to start export -->
-    <string name="SetSignalAsDefaultSmsAppFragment__next">ಮುಂದೆ</string>
-
     <!-- BackupSchedulePermission Megaphone -->
     <!-- The title on an alert window that explains to the user that we are unable to backup their messages -->
     <string name="BackupSchedulePermissionMegaphone__cant_back_up_chats">ಚಾಟ್‌ಗಳನ್ನು ಬ್ಯಾಕಪ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ</string>
@@ -5736,45 +5979,6 @@
     <!-- Re-enable backups permission bottom sheet call to action button to open settings -->
     <string name="BackupSchedulePermissionMegaphone__go_to_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಗೆ ಹೋಗಿ</string>
 
-    <!-- SmsExportMegaphoneActivity -->
-    <!-- Phase 2 title of full screen megaphone indicating sms will no longer be supported in the near future -->
-    <string name="SmsExportMegaphoneActivity__signal_will_no_longer_support_sms">Signal ಇನ್ನು SMS ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
-    <!-- Phase 3 title of full screen megaphone indicating sms is longer supported  -->
-    <string name="SmsExportMegaphoneActivity__signal_no_longer_supports_sms">Signal ಇನ್ನು SMS ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ</string>
-    <!-- The text on a button in a popup that, when clicked, will dismiss the popup and schedule the prompt to occur at a later time. -->
-    <string name="SmsExportMegaphoneActivity__remind_me_later">ನನಗೆ ನಂತರ ನೆನಪಿಸು</string>
-    <!-- The text on a button in a popup that, when clicked, will navigate the user to a web article on SMS removal -->
-
-    <!-- Title for screen shown after sms export has completed -->
-    <string name="ExportSmsCompleteFragment__export_complete">ರಫ್ತು ಪೂರ್ಣಗೊಂಡಿದೆ</string>
-    <!-- Button to continue to next screen -->
-    <string name="ExportSmsCompleteFragment__next">ಮುಂದೆ</string>
-    <!-- Message showing summary of sms export counts -->
-    <plurals name="ExportSmsCompleteFragment__d_of_d_messages_exported">
-        <item quantity="one">%2$d ರಲ್ಲಿ %1$d ಮೆಸೇಜ್ ರಫ್ತುಗೊಂಡಿದೆ</item>
-        <item quantity="other">%2$d ರಲ್ಲಿ %1$d ಮೆಸೇಜ್‌ಗಳು ರಫ್ತುಗೊಂಡಿವೆ</item>
-    </plurals>
-
-    <!-- Title of screen shown when some sms messages did not export -->
-    <string name="ExportSmsPartiallyComplete__export_partially_complete">ರಫ್ತು ಭಾಗಶಃ ಪೂರ್ಣಗೊಂಡಿದೆ</string>
-    <!-- Debug step 1 on screen shown when some sms messages did not export -->
-    <string name="ExportSmsPartiallyComplete__ensure_you_have_an_additional_s_free_on_your_phone_to_export_your_messages">ನಿಮ್ಮ ಮೆಸೇಜ್ ಗಳನ್ನು ರಫ್ತು ಮಾಡಲು ನಿಮ್ಮ ಫೋನ್ ನಲ್ಲಿ ನೀವು ಹೆಚ್ಚುವರಿ %1$s ಮುಕ್ತವಾಗಿ ಹೊಂದಿದ್ದೀರಿ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ</string>
-    <!-- Debug step 2 on screen shown when some sms messages dit not export -->
-    <string name="ExportSmsPartiallyComplete__retry_export_which_will_only_retry_messages_that_have_not_yet_been_exported">ರಫ್ತು ಮರುಪ್ರಯತ್ನಿಸಿ, ಇನ್ನೂ ರಫ್ತು ಆಗಿಲ್ಲದ ಮೆಸೇಜ್ ಗಳನ್ನು ಮಾತ್ರ ಇದು ಮರುಪ್ರಯತ್ನಿಸಲಿದೆ</string>
-    <!-- Partial sentence for Debug step 3 on screen shown when some sms messages did not export, is combined with \'contact us\' -->
-    <string name="ExportSmsPartiallyComplete__if_the_problem_persists">ಸಮಸ್ಯೆ ಇನ್ನೂ ಉಳಿದಿದ್ದರೆ, </string>
-    <!-- Partial sentence for deubg step 3 on screen shown when some sms messages did not export, combined with \'If the problem persists\', link text to open contact support view -->
-    <string name="ExportSmsPartiallyComplete__contact_us">ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ</string>
-    <!-- Button text to retry sms export -->
-    <string name="ExportSmsPartiallyComplete__retry">ಮರುಪ್ರಯತ್ನಿಸಿ</string>
-    <!-- Button text to continue sms export flow and not retry failed message exports -->
-    <string name="ExportSmsPartiallyComplete__continue_anyway">ಹೇಗಾದರೂ ಮುಂದುವರಿಯಿರಿ</string>
-    <!-- Title of screen shown when all sms messages failed to export -->
-    <string name="ExportSmsFullError__error_exporting_sms_messages">SMS ಸಂದೇಶಗಳನ್ನು ರಫ್ತು ಮಾಡುವಲ್ಲಿ ದೋಷವಿದೆ</string>
-    <!-- Helper text shown when all sms messages failed to export -->
-    <string name="ExportSmsFullError__please_try_again_if_the_problem_persists">ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ. ಸಮಸ್ಯೆ ಇನ್ನೂ ಉಳಿದಿದ್ದರೆ, </string>
-
-
     <!-- DonateToSignalFragment -->
     <!-- Title below avatar -->
     <string name="DonateToSignalFragment__privacy_over_profit">ಲಾಭಕ್ಕಿಂತ ಗೌಪ್ಯತೆಗೆ ಹೆಚ್ಚು ಮಹತ್ವ</string>
@@ -5782,6 +5986,23 @@
     <string name="DonateToSignalFragment__continue">ಮುಂದುವರಿಸಿ</string>
     <!-- Description below title -->
     <string name="DonateToSignalFragment__private_messaging">ಖಾಸಗಿ ಮೆಸೇಜ್ ಮಾಡುವಿಕೆ, ನಿಮ್ಮ ಹಣದಿಂದ. ಜಾಹೀರಾತುಗಳಿಲ್ಲ, ಟ್ರ್ಯಾಕರ್‌ಗಳಿಲ್ಲ, ರಾಜಿ ಒಪ್ಪಂದಗಳಿಲ್ಲ. Signal ಅನ್ನು ಬೆಂಬಲಿಸಲು ಈಗಲೇ ದೇಣಿಗೆ ನೀಡಿ.</string>
+    <!-- Dialog title when a user tries to donate while they already have a pending donation. -->
+    <string name="DonateToSignalFragment__you_have_a_donation_pending">ನಿಮ್ಮ ದೇಣಿಗೆ ಬಾಕಿಯಿದೆ</string>
+    <!-- Dialog body when a user tries to donate while they already have a pending monthly donation. -->
+    <string name="DonateToSignalFragment__bank_transfers_usually_take_1_business_day_to_process_monthly">ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಗಳು ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳಲು 1 ರಿಂದ 14 ವ್ಯಾವಹಾರಿಕ ದಿನಗಳು ಆಗಬಹುದು. ನಿಮ್ಮ ಚಂದಾ ನವೀಕರಿಸುವ ಮುನ್ನ ಈ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳುವ ತನಕ ದಯವಿಟ್ಟು ಕಾಯಿರಿ.</string>
+    <!-- Dialog body when a user tries to donate while they already have a pending one time donation. -->
+    <string name="DonateToSignalFragment__bank_transfers_usually_take_1_business_day_to_process_onetime">ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಗಳು ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳಲು 1 ರಿಂದ 14 ವ್ಯಾವಹಾರಿಕ ದಿನಗಳು ಆಗಬಹುದು. ಇನ್ನೊಂದು ದೇಣಿಗೆಯನ್ನು ಮಾಡುವ ಮುನ್ನ ಈ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳುವ ತನಕ ದಯವಿಟ್ಟು ಕಾಯಿರಿ.</string>
+    <!-- Dialog body when a user tries to donate while they already have a pending monthly donation. -->
+    <string name="DonateToSignalFragment__your_payment_is_still_being_processed_monthly">ನಿಮ್ಮ ದೇಣಿಗೆಯು ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ. ಇದು ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಅವಲಂಬಿಸಿಕೊಂಡು ಕೆಲವು ನಿಮಿಷಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಹುದು. ನಿಮ್ಮ ಚಂದಾ ನವೀಕರಿಸುವ ಮುನ್ನ ಈ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳುವ ತನಕ ದಯವಿಟ್ಟು ಕಾಯಿರಿ.</string>
+    <!-- Dialog body when a user tries to donate while they already have a pending one time donation. -->
+    <string name="DonateToSignalFragment__your_payment_is_still_being_processed_onetime">ನಿಮ್ಮ ದೇಣಿಗೆಯು ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ. ಇದು ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಅವಲಂಬಿಸಿಕೊಂಡು ಕೆಲವು ನಿಮಿಷಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಹುದು. ಇನ್ನೊಂದು ದೇಣಿಗೆಯನ್ನು ಮಾಡುವ ಮುನ್ನ ಈ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳುವ ತನಕ ದಯವಿಟ್ಟು ಕಾಯಿರಿ.</string>
+    <!-- Dialog body when a user opens the manage donations main screen and they have a pending iDEAL donation -->
+    <string name="DonateToSignalFragment__your_ideal_payment_is_still_processing">ನಿಮ್ಮ iDEAL ದೇಣಿಗೆ ಇನ್ನೂ ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳುತ್ತಿದೆ. ಇನ್ನೊಂದು ದೇಣಿಗೆ ನೀಡುವ ಮುನ್ನ ನಿಮ್ಮ ಪಾವತಿಯನ್ನು ಅನುಮೋದಿಸಲು ನಿಮ್ಮ ಬ್ಯಾಂಕಿಂಗ್ ಆ್ಯಪ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ.</string>
+    <!-- Dialog title shown when a user tries to donate an amount higher than is allowed for a given payment method. -->
+    <string name="DonateToSignal__donation_amount_too_high">ದೇಣಿಗೆ ಮೊತ್ತ ತೀರಾ ಅಧಿಕವಾಗಿದೆ</string>
+    <!-- Dialog body shown when a user tries to donate an amount higher than is allowed for a given payment method, place holder is the maximum -->
+    <string name="DonateToSignalFragment__you_can_send_up_to_s_via_bank_transfer">ನೀವು ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆ ಮೂಲಕ %1$s ತನಕ ಕಳುಹಿಸಬಹುದು. ಬೇರೆ ಮೊತ್ತ ಅಥವಾ ಬೇರೆ ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ.</string>
+
     <!-- Donation pill toggle monthly text -->
     <string name="DonationPillToggle__monthly">ಮಾಸಿಕ</string>
     <!-- Donation pill toggle one-time text -->
@@ -5799,10 +6020,150 @@
         <item quantity="one">%2$d ದಿನಕ್ಕೆ %1$s ಬ್ಯಾಡ್ಜ್ ಪಡೆಯಿರಿ</item>
         <item quantity="other">%2$d ದಿನಗಳಿಗೆ %1$s ಬ್ಯಾಡ್ಜ್ ಪಡೆಯಿರಿ</item>
     </plurals>
+    <!-- Button label for paying with a bank transfer -->
+    <string name="GatewaySelectorBottomSheet__bank_transfer">ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆ</string>
     <!-- Button label for paying with a credit card -->
     <string name="GatewaySelectorBottomSheet__credit_or_debit_card">ಕ್ರೆಡಿಟ್ ಅಥವಾ ಡೆಬಿಟ್ ಕಾರ್ಡ್</string>
     <!-- Sheet summary when giving donating for a friend -->
     <string name="GatewaySelectorBottomSheet__donate_for_a_friend">ಸ್ನೇಹಿತರಿಗಾಗಿ ದೇಣಿಗೆ ನೀಡಿ</string>
+    <!-- Button label for paying with iDEAL -->
+    <string name="GatewaySelectorBottomSheet__ideal">iDEAL</string>
+
+    <!-- Dialog title for launching external intent -->
+    <string name="ExternalNavigationHelper__leave_signal_to_confirm_payment">ದೇಣಿಗೆಯನ್ನು ದೃಢೀಕರಿಸಲು Signal ಅನ್ನು ತೊರೆಯಬೇಕೇ?</string>
+    <string name="ExternalNavigationHelper__once_this_payment_is_confirmed">ದೃಢೀಕರಣಗೊಂಡಾಗ, ನಿಮ್ಮ ದೇಣಿಗೆಯ ಪ್ರಕ್ರಿಯೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು Signal ಗೆ ಹಿಂತಿರುಗಿ.</string>
+
+    <!-- IdealBank -->
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__abn_amro">ABN AMRO</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__asn_bank">ASN Bank</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__bunq">bunq</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__ing">ING</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__knab">Knab</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__n26">N26</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__rabobank">Rabobank</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__regiobank">RegioBank</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__revolut">Revolut</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__sns_bank">SNS Bank</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__triodos_bank">Triodos Bank</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__van_lanschot">Van Lanschot Kempen</string>
+    <!-- iDEAL bank name -->
+    <string name="IdealBank__yoursafe">Yoursafe</string>
+
+    <!-- BankTransferMandateFragment -->
+    <!-- Title of screen displaying the bank transfer mandate -->
+    <string name="BankTransferMandateFragment__bank_transfer">ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆ</string>
+    <!-- Subtitle of screen displaying the bank transfer mandate, placeholder is \'Learn more\' -->
+    <string name="BankTransferMandateFragment__stripe_processes_donations">Signal ಗೆ ನೀಡಿದ ದೇಣಿಗೆಗಳನ್ನು Stripe ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುತ್ತದೆ. ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು Signal ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ ಅಥವಾ ಶೇಖರಿಸುವುದಿಲ್ಲ. %1$s</string>
+    <!-- Subtitle learn more of screen displaying bank transfer mandate -->
+    <string name="BankTransferMandateFragment__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+    <!-- Button label to continue with transfer -->
+    <string name="BankTransferMandateFragment__agree">ಒಪ್ಪುತ್ತೇನೆ</string>
+    <!-- Button label to read more of the bank mandate that is currently off screen -->
+    <string name="BankTransferMandateFragment__read_more">ಇನ್ನಷ್ಟು ಓದಿ</string>
+    <!-- Text displayed when mandate load fails -->
+    <string name="BankTransferMandateFragment__failed_to_load_mandate">ವಿನಂತಿಯನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲಗೊಂಡಿದೆ</string>
+
+    <!-- BankTransferDetailsFragment -->
+    <!-- Subtext explaining how email is used. Placeholder is \'Learn more\' -->
+    <string name="BankTransferDetailsFragment__enter_your_bank_details">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವಿವರಗಳು ಮತ್ತು ಇಮೇಲ್ ಅನ್ನು ನಮೂದಿಸಿ. ನಿಮ್ಮ ದೇಣಿಗೆಯ ಕುರಿತು ನಿಮಗೆ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು ಈ ಇಮೇಲ್ ಅನ್ನು Stripe ಬಳಸುತ್ತದೆ. %1$s</string>
+    <!-- Subtext learn more link text -->
+    <string name="BankTransferDetailsFragment__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+    <!-- Text field label for name on bank account -->
+    <string name="BankTransferDetailsFragment__name_on_bank_account">ಬ್ಯಾಂಕ್ ಖಾತೆಯ ಹೆಸರು</string>
+    <!-- Text field label for IBAN -->
+    <string name="BankTransferDetailsFragment__iban">IBAN</string>
+    <!-- Text field label for email -->
+    <string name="BankTransferDetailsFragment__email">ಇಮೇಲ್</string>
+    <!-- Text label for button to show user how to find their IBAN -->
+    <string name="BankTransferDetailsFragment__find_account_info">ಖಾತೆ ಮಾಹಿತಿ ಹುಡುಕಿ</string>
+    <!-- Donate button label for monthly subscription -->
+    <string name="BankTransferDetailsFragment__donate_s_month">ತಿಂಗಳಿಗೆ %1$s ದೇಣಿಗೆ ನೀಡಿ</string>
+    <!-- Donate button label for one-time -->
+    <string name="BankTransferDetailsFragment__donate_s">%1$s ಅವರಿಗೆ ದೇಣಿಗೆ ನೀಡಿ</string>
+    <!-- Error label for IBAN field when number is too short -->
+    <string name="BankTransferDetailsFragment__iban_is_too_short">IBAN ತೀರಾ ಚಿಕ್ಕದಾಗಿದೆ</string>
+    <!-- Error label for IBAN field when number is too long -->
+    <string name="BankTransferDetailsFragment__iban_is_too_long">IBAN ತೀರಾ ಉದ್ದವಾಗಿದೆ</string>
+    <!-- Error label for IBAN field when country is not supported -->
+    <string name="BankTransferDetailsFragment__iban_country_code_is_not_supported">IBAN ದೇಶದ ಕೋಡ್ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ</string>
+    <!-- Error label for IBAN field when number is invalid -->
+    <string name="BankTransferDetailsFragment__invalid_iban">ಅಮಾನ್ಯ IBAN</string>
+    <!-- Error label for name field when name is not at least two characters long -->
+    <string name="BankTransferDetailsFragment__minimum_2_characters">ಕನಿಷ್ಠ 2 ಕ್ಯಾರಕ್ಟರ್‌ಗಳು</string>
+    <!-- Error label for email field when email is not valid -->
+    <string name="BankTransferDetailsFragment__invalid_email_address">ಅಮಾನ್ಯ ಇಮೇಲ್ ವಿಳಾಸ</string>
+
+    <!-- IdealTransferDetailsFragment -->
+    <!-- Title of the screen, displayed in the toolbar -->
+    <string name="IdealTransferDetailsFragment__ideal">iDEAL</string>
+    <!-- Subtitle of the screen, displayed below the toolbar. Placeholder is for \'learn more\' -->
+    <string name="IdealTransferDetailsFragment__enter_your_bank">ನಿಮ್ಮ ಬ್ಯಾಂಕ್, ಹೆಸರು ಮತ್ತು ಇಮೇಲ್ ನಮೂದಿಸಿ. ನಿಮ್ಮ ದೇಣಿಗೆಯ ಕುರಿತು ನಿಮಗೆ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು ಈ ಇಮೇಲ್ ಅನ್ನು Stripe ಬಳಸುತ್ತದೆ. %1$s</string>
+    <!-- Subtitle of the screen, displayed below the toolbar. Placeholder is for \'learn more\' -->
+    <string name="IdealTransferDetailsFragment__enter_your_bank_details_one_time">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ. ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು Signal ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ ಅಥವಾ ಶೇಖರಿಸುವುದಿಲ್ಲ. %1$s</string>
+    <!-- Subtitle learn-more button displayed inline with the subtitle text -->
+    <string name="IdealTransferDetailsFragment__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+    <!-- Hint label for text entry box for name on bank account -->
+    <string name="IdealTransferDetailsFragment__name_on_bank_account">ಬ್ಯಾಂಕ್ ಖಾತೆಯ ಹೆಸರು</string>
+    <!-- Hint label for text entry box for email -->
+    <string name="IdealTransferDetailsFragment__email">ಇಮೇಲ್</string>
+    <!-- Default label for bank selection -->
+    <string name="IdealTransferDetailsFragment__choose_your_bank">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಆರಿಸಿ</string>
+    <!-- Dialog title shown when using iDEAL payment for setting up a monthly donation -->
+    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_s">%1$s ನೊಂದಿಗೆ ನಿಮ್ಮ ದೇಣಿಗೆಯನ್ನು ದೃಢೀಕರಿಸಿ</string>
+    <!-- Dialog warning shown when using iDEAL payment for setting up a monthly donation -->
+    <string name="IdealTransferDetailsFragment__monthly_ideal_warning">ನಿಮ್ಮ ಮರುಕಳಿಸುವ ದೇಣಿಗೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮ್ಮ ಬ್ಯಾಂಕ್‌ನೊಂದಿಗೆ €0,01 ಶುಲ್ಕವನ್ನು ಖಚಿತಪಡಿಸಲು ಮುಂದುವರಿಸಿ. ಇದನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮರುಪಾವತಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ನಿಮ್ಮ €5/ತಿಂಗಳ ದೇಣಿಗೆಯನ್ನು ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಡೆಬಿಟ್ ಮಾಡಲು ಅನುಮತಿಸುತ್ತದೆ.</string>
+    <!-- Dialog button shown when using iDEAL payment for setting up a monthly donation to continue with the donation -->
+    <string name="IdealTransferDetailsFragment__continue">ಮುಂದುವರಿಸಿ</string>
+
+    <!-- IdealTransferDetailsBankSelectionDialogFragment -->
+    <!-- Title of the screen, displayed in the toolbar -->
+    <string name="IdealTransferDetailsBankSelectionDialogFragment__choose_your_bank">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಆರಿಸಿ</string>
+
+    <!-- Title of bottom sheet for finding account information -->
+    <string name="FindAccountInfoSheet__find_your_account_information">ನಿಮ್ಮ ಖಾತೆಯ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಿ</string>
+    <!-- Body of bottom sheet for finding account information -->
+    <string name="FindAccountInfoSheet__look_for_your_iban_at">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಸ್ಟೇಟ್‌ಮೆಂಟ್‌ನ ಮೇಲ್ಭಾಗದಲ್ಲಿರುವ ನಿಮ್ಮ IBAN ಅನ್ನು ನೋಡಿ. IBAN ಗಳು 34 ವರೆಗೆ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರುತ್ತವೆ. ನೀವು ನಮೂದಿಸಿದ ಹೆಸರು ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಖಾತೆಯಲ್ಲಿರುವ ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರಿನೊಂದಿಗೆ ಹೊಂದಿಕೆಯಾಗಬೇಕು. ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+
+    <!-- Title of donation pending sheet displayed after making a bank transfer -->
+    <string name="DonationPendingBottomSheet__donation_pending">ದೇಣಿಗೆ ಬಾಕಿಯಿದೆ</string>
+    <!-- Top text block of donation pending sheet displayed after subscribing via a bank transfer. Placeholder is the badge name. -->
+    <string name="DonationPendingBottomSheet__your_monthly_donation_is_pending">ನಿಮ್ಮ ಮಾಸಿಕ ದೇಣಿಗೆ ಬಾಕಿಯಿದೆ. ನಿಮ್ಮ ದೇಣಿಗೆ ಸ್ವೀಕರಿಸಿದಾಗ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ %1$s ಬ್ಯಾಡ್ಜ್ ಅನ್ನು ಡಿಸ್‌ಪ್ಲೇ ಮಾಡಲು ನಿಮಗೆ ಸಾಧ್ಯವಾಗುತ್ತದೆ.</string>
+    <!-- Top text block of donation pending sheet displayed after one-time donation via a bank transfer. Placeholder is the badge name. -->
+    <string name="DonationPendingBottomSheet__your_one_time_donation_is_pending">ನಿಮ್ಮ ಒಂದು ಬಾರಿಯ ದೇಣಿಗೆ ಬಾಕಿಯಿದೆ. ನಿಮ್ಮ ದೇಣಿಗೆ ಸ್ವೀಕರಿಸಿದಾಗ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ %1$s ಬ್ಯಾಡ್ಜ್ ಅನ್ನು ಡಿಸ್‌ಪ್ಲೇ ಮಾಡಲು ನಿಮಗೆ ಸಾಧ್ಯವಾಗುತ್ತದೆ.</string>
+    <!-- Bottom text block of donation pending sheet displayed after donating via a bank transfer. Placeholder is for learn more. -->
+    <string name="DonationPendingBottomSheet__bank_transfers_usually_take">ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಗಳು ಪ್ರಕ್ರಿಯೆಗೊಳ್ಳಲು 1 ರಿಂದ 14 ವ್ಯಾವಹಾರಿಕ ದಿನಗಳು ಆಗಬಹುದು. %1$s</string>
+    <!-- Learn more text for donation pending sheet displayed after donating via a bank transfer. -->
+    <string name="DonationPendingBottomSheet__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+    <!-- Confirmation button for donation pending sheet displayed after donating via a bank transfer. -->
+    <string name="DonationPendingBottomSheet__done">ಮುಗಿದಿದೆ</string>
+
+    <!-- Title of donation error sheet displayed after making a bank transfer that fails -->
+    <string name="DonationErrorBottomSheet__donation_couldnt_be_processed">ದೇಣಿಗೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</string>
+    <!-- Text block of donation error sheet displayed after making a bank transfer that fails -->
+    <string name="DonationErrorBottomSheet__were_having_trouble">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ನಾವು ಸಮಸ್ಯೆಯನ್ನು ಎದುರಿಸುತ್ತಿದ್ದೇವೆ. ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಲಾಗಿಲ್ಲ. ಇನ್ನೊಂದು ಪಾವತಿ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಅನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <!-- Button label for retry button of donation error sheet displayed after making a bank transfer that fails -->
+    <string name="DonationErrorBottomSheet__try_again">ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
+    <!-- Button label for not now button of donation error sheet displayed after making a bank transfer that fails -->
+    <string name="DonationErrorBottomSheet__not_now">ಈಗಲ್ಲ</string>
+
+    <!-- Title of \'Donation Complete\' sheet displayed after a bank transfer completes and the badge is redeemed -->
+    <string name="DonationCompletedBottomSheet__donation_complete">ದೇಣಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ</string>
+    <!-- Text block of \'Donation Complete\' sheet displayed after a bank transfer completes and the badge is redeemed -->
+    <string name="DonationCompleteBottomSheet__your_bank_transfer_was_received">ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ. ನಿಮ್ಮ ಬೆಂಬಲವನ್ನು ತೋರಿಸಲು ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಈ ಬ್ಯಾಡ್ಜ್ ಅನ್ನು ನೀವು ಡಿಸ್‌ಪ್ಲೇ ಮಾಡಬಹುದು.</string>
+    <!-- Button text of \'Donation Complete\' sheet displayed after a bank transfer completes and the badge is redeemed to dismiss sheet -->
+    <string name="DonationCompleteBottomSheet__done">ಮುಗಿದಿದೆ</string>
 
     <!-- StripePaymentInProgressFragment -->
     <string name="StripePaymentInProgressFragment__cancelling">ರದ್ದುಗೊಳಿಸಲಾಗುತ್ತಿದೆ…</string>
@@ -5868,28 +6229,24 @@
     <!-- Displayed in the "clear filter" item in the chat feed if the user opened the filter from the overflow menu -->
     <string name="ChatFilter__tip_pull_down">ಸಲಹೆ: ಫಿಲ್ಟರ್ ಮಾಡಲು ಚಾಟ್ ಪಟ್ಟಿ ಕೆಳಕ್ಕೆ ಎಳೆಯಿರಿ</string>
 
-    <!-- Title for screen describing that sms support is going to be removed soon -->
-    <string name="SmsRemoval_title_going_away">SMS ಬೆಂಬಲ ಇಲ್ಲವಾಗುತ್ತಿದೆ</string>
-    <!-- Bullet point message shown on describing screen as first bullet why sms is being removed, placeholder with be date of removal (e.g., March 21st) -->
-    <string name="SmsRemoval_info_bullet_1">Signal ಆ್ಯಪ್‌ನಲ್ಲಿ SMS ಮೆಸೇಜಿಂಗ್ ಅನ್ನು ಇನ್ನು ಮುಂದೆ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.</string>
-    <!-- Bullet point message shown on describing screen as second bullet why sms is being removed -->
-    <string name="SmsRemoval_info_bullet_2">SMS ಮೆಸೇಜ್‌ಗಳು Signal ಮೆಸೇಜ್‌ಗಳಿಗಿಂತ ಭಿನ್ನವಾಗಿವೆ. <b>ಇದು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಆಗಿರುವ Signal ಮೆಸೇಜಿಂಗ್‌ಗೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ, ಇದು ಕೆಲಸ ಮಾಡುವುದನ್ನು ಮುಂದುವರಿಸುತ್ತದೆ.</b></string>
-    <!-- Bullet point message shown on describing screen as third bullet why sms is being removed -->
-    <string name="SmsRemoval_info_bullet_3">ನಿಮ್ಮ SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ನೀವು ರಫ್ತು ಮಾಡಬಹುದು ಮತ್ತು ಹೊಸ SMS ಆ್ಯಪ್‌ ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು.</string>
-    <!-- Bullet point message shown on describing screen as first bullet variant why sms is being removed when user is locked out of sms -->
-    <string name="SmsRemoval_info_bullet_1_phase_3">SMS ಮೆಸೇಜ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು Signal ಬೆಂಬಲವನ್ನು ತೆಗೆದುಹಾಕಿದೆ.</string>
-    <!-- Button label on sms removal info/megaphone to start the export SMS flow -->
-    <string name="SmsRemoval_export_sms">SMS ರಫ್ತು ಮಾಡಿ</string>
-
     <!-- Set up your username megaphone -->
     <!-- Displayed as a title on a megaphone which prompts user to set up a username -->
     <string name="SetUpYourUsername__set_up_your_signal_username">ನಿಮ್ಮ Signal ಯೂಸರ್ ನೇಮ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಿ</string>
     <!-- Displayed as a description on a megaphone which prompts user to set up a username -->
-    <string name="SetUpYourUsername__usernames_let_others">ನಿಮ್ಮ ಫೋನ್‌ ನಂಬರ್‌ನ ಅಗತ್ಯವಿಲ್ಲದೆ ಇತರರು ಮೆಸೇಜ್ ಮಾಡಲು ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಅವಕಾಶ ನೀಡುತ್ತವೆ</string>
+    <string name="SetUpYourUsername__introducing_phone_number_privacy">ಫೋನ್ ಸಂಖ್ಯೆ ಗೌಪ್ಯತೆ, ಐಚ್ಛಿಕ ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಮತ್ತು ಲಿಂಕ್‌ಗಳನ್ನು ಪರಿಚಯಿಸಲಾಗುತ್ತಿದೆ.</string>
     <!-- Displayed as an action on a megaphone which prompts user to set up a username -->
-    <string name="SetUpYourUsername__not_now">ಈಗಲ್ಲ</string>
+    <string name="SetUpYourUsername__dismiss">ವಜಾಗೊಳಿಸಿ</string>
     <!-- Displayed as an action on a megaphone which prompts user to set up a username -->
-    <string name="SetUpYourUsername__continue">ಮುಂದುವರಿಸಿ</string>
+    <string name="SetUpYourUsername__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+
+    <!-- Displayed as a title on a megaphone which prompts user to set up a username -->
+    <string name="PnpLaunchMegaphone_title">ಸಂಪರ್ಕಿಸಲು ಹೊಸ ಮಾರ್ಗಗಳು</string>
+    <!-- Displayed as a description on a megaphone which prompts user to set up a username -->
+    <string name="PnpLaunchMegaphone_body">ಫೋನ್ ಸಂಖ್ಯೆ ಗೌಪ್ಯತೆ, ಐಚ್ಛಿಕ ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಮತ್ತು ಲಿಂಕ್‌ಗಳನ್ನು ಪರಿಚಯಿಸಲಾಗುತ್ತಿದೆ.</string>
+    <!-- Displayed as an action on a megaphone which prompts user to set up a username. Clicking it will dismiss the megaphone. -->
+    <string name="PnpLaunchMegaphone_dismiss">ವಜಾಗೊಳಿಸಿ</string>
+    <!-- Displayed as an action on a megaphone which prompts user to set up a username. Clicking it will open a link. -->
+    <string name="PnpLaunchMegaphone_learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
 
     <!-- Text Formatting -->
     <!-- Popup menu label for applying bold style -->
@@ -5904,18 +6261,6 @@
     <string name="TextFormatting_spoiler">ಸ್ಪಾಯ್ಲರ್</string>
     <!-- Popup menu label for clearing applied formatting -->
     <string name="TextFormatting_clear_formatting">ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ಅನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
-
-    <!-- UsernameEducationFragment -->
-    <!-- Continue button which takes the user to the add a username screen -->
-    <string name="UsernameEducationFragment__continue">ಮುಂದುವರಿಸಿ</string>
-    <!-- Displayed as a title on the username education screen -->
-    <string name="UsernameEducationFragment__set_up_your_signal_username">ನಿಮ್ಮ Signal ಯೂಸರ್ ನೇಮ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಿ</string>
-    <!-- Displayed as body text in the username education screen -->
-    <string name="UsernameEducationFragment__usernames_are_paired_with_a_set_of_digits">ಯೂಸರ್‌ನೇಮ್‌ಗಳು ಒಂದು ಸೆಟ್ ಅಂಕಿಗಳೊಂದಿಗೆ ಜೋಡಿಯಾಗಿರುತ್ತವೆ ಮತ್ತು ಅವುಗಳನ್ನು ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಲಾಗಿಲ್ಲ</string>
-    <!-- Displayed as body text in the username education screen -->
-    <string name="UsernameEducationFragment__each_username_has_a_unique_qr_code">ಪ್ರತಿ ಯೂಸರ್‌ನೇಮ್ ಒಂದು ವಿಶಿಷ್ಟ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಹೊಂದಿರುತ್ತದೆ, ನಿಮ್ಮೊಂದಿಗೆ ಸ್ನೇಹಿತರು ಚಾಟ್ ಆರಂಭಿಸಲು ಅದನ್ನು ಅವರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬಹುದು</string>
-    <!-- Displayed as body text in the username education screen. The string references the names of settings, so they should match our translations for those settings. -->
-    <string name="UsernameEducationFragment__turn_off_phone_number_discovery">ಇತರರು ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಲು ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಪ್ರಾಥಮಿಕ ವಿಧಾನವಾಗಿ ಬಳಸಲು, ಸೆಟ್ಟಿಂಗ್‌ಗಳು&gt; ಗೌಪ್ಯತೆ &gt; ಫೋನ್ ನಂಬರ್ &gt; ಯಾರು ನನ್ನ ನಂಬರ್ ಕಂಡುಕೊಳ್ಳಬಹುದು ಎಂಬುದರ ಅಡಿಯಲ್ಲಿ, ಫೋನ್ ನಂಬರ್ ಅನ್ವೇಷಣೆಯನ್ನು ಆಫ್ ಮಾಡಿ</string>
 
     <!-- Username edit dialog -->
     <!-- Option to open username editor displayed as a list item in a dialog -->
@@ -5942,6 +6287,8 @@
     <string name="CallLogAdapter__outgoing">ಹೊರಹೋಗುವ</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">ತಪ್ಪಿಹೋದ</string>
+    <!-- Displayed for missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile">ಅಧಿಸೂಚನೆ ಪ್ರೊಫೈಲ್ ಆನ್ ಆಗಿರುವಾಗ ತಪ್ಪಿಹೋಗಿದೆ</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">ಸೇರಿ</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -6049,6 +6396,8 @@
     <string name="CallPreference__group_call">ಗ್ರೂಪ್ ಕಾಲ್</string>
     <!-- Missed group call in call info -->
     <string name="CallPreference__missed_group_call">ತಪ್ಪಿದ ಗ್ರೂಪ್ ಕರೆ</string>
+    <!-- Missed group call while notification profile on in call info -->
+    <string name="CallPreference__missed_group_call_notification_profile">ಅಧಿಸೂಚನೆ ಪ್ರೊಫೈಲ್ ಆನ್ ಆಗಿರುವಾಗ ತಪ್ಪಿಹೋದ ಗ್ರೂಪ್ ಕರೆ</string>
     <!-- Incoming group call in call info -->
     <string name="CallPreference__incoming_group_call">ಒಳಬರುವ ಗ್ರೂಪ್ ಕರೆ</string>
     <!-- Outgoing group call in call info -->
@@ -6135,6 +6484,8 @@
     <!-- CallLinkDetailsFragment -->
     <!-- Displayed in action bar at the top of the fragment -->
     <string name="CallLinkDetailsFragment__call_details">ಕರೆ ವಿವರಗಳು</string>
+    <!-- Displayed in a text row, allowing the user to click and edit a call name -->
+    <string name="CallLinkDetailsFragment__edit_call_name">ಕರೆ ಹೆಸರು ಎಡಿಟ್ ಮಾಡಿ</string>
     <!-- Displayed in a text row, allowing the user to click and add a call name -->
     <string name="CallLinkDetailsFragment__add_call_name">ಕರೆ ಹೆಸರು ಸೇರಿಸಿ</string>
     <!-- Displayed in a toggle row, allowing the user to click to enable or disable member approval -->
@@ -6150,6 +6501,8 @@
     <!-- Displayed as body in dialog when user attempts to delete the link -->
     <string name="CallLinkDetailsFragment__this_link_will_no_longer_work">ಈ ಲಿಂಕ್ ಅನ್ನು ಹೊಂದಿರುವ ಯಾರಿಗೂ ಇದು ಕಾರ್ಯಾಚರಿಸುವುದಿಲ್ಲ.</string>
 
+    <!-- Button label for the link button in the username link settings -->
+    <string name="UsernameLinkSettings_link_button_label">ಲಿಂಕ್</string>
     <!-- Button label for the share button in the username link settings -->
     <string name="UsernameLinkSettings_share_button_label">ಹಂಚಿಕೊಳ್ಳಿ</string>
     <!-- Button label for the color selector button in the username link settings -->
@@ -6194,6 +6547,23 @@
     <string name="UsernameLinkSettings_reset_link_result_network_unavailable">ನೀವು ನೆಟ್‌ವರ್ಕ್ ಪ್ರವೇಶವನ್ನು ಹೊಂದಿಲ್ಲ. ನಿಮ್ಮ ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲಾಗಿಲ್ಲ. ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.</string>
     <!-- Body of a dialog that is displayed when we failed to reset your username link because of a transient network issue. -->
     <string name="UsernameLinkSettings_reset_link_result_network_error">ನಿಮ್ಮ ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲು ಪ್ರಯತ್ನಿಸುವಾಗ ನೆಟ್‌ವರ್ಕ್ ದೋಷ ಸಂಭವಿಸಿದೆ. ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Body of a dialog that is displayed when we failed to reset your username link because of an unknown error. -->
+    <string name="UsernameLinkSettings_reset_link_result_unknown_error">ನಿಮ್ಮ ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲು ಪ್ರಯತ್ನಿಸುವಾಗ ಒಂದು ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ. ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Body of a dialog that is displayed when we successfully reset you username link. -->
+    <string name="UsernameLinkSettings_reset_link_result_success">ನಿಮ್ಮ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲಾಗಿದೆ ಮತ್ತು ಹೊಸ QR ಕೋಡ್ ಮತ್ತು ಲಿಂಕ್ ಅನ್ನು ರಚಿಸಲಾಗಿದೆ.</string>
+    <!-- Shown on the generated username qr code image to explain how to use it. -->
+    <string name="UsernameLinkSettings_scan_this_qr_code">Signal ನಲ್ಲಿ ನನ್ನೊಂದಿಗೆ ಚಾಟ್ ಮಾಡಲು ನಿಮ್ಮ ಫೋನ್‌ ಮೂಲಕ ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ.</string>
+    <!-- Dialog title shown when scanning an image from the gallery for a username QR code and there is no qr code in the image. -->
+    <string name="UsernameLinkSettings_qr_code_not_found">QR ಕೋಡ್ ಕಂಡುಬರಲಿಲ್ಲ</string>
+    <!-- Dialog message shown when scanning an image from the gallery for a username QR code and there is no qr code in the image. -->
+    <string name="UsernameLinkSettings_try_scanning_another_image_containing_a_signal_qr_code">Signal ಕ್ಯುಆರ್ ಕೋಡ್ ಹೊಂದಿರುವ ಮತ್ತೊಂದು ಚಿತ್ರವನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ.</string>
+
+    <!-- Explanatory text at the top of a bottom sheet describing how username links work -->
+    <string name="UsernameLinkShareBottomSheet_title">ಈ ಲಿಂಕ್‌ ಹೊಂದಿರುವ ಯಾರಾದರೂ ನಿಮ್ಮ ಯೂಸರ್‌ನೇಮ್ ವೀಕ್ಷಿಸಬಹುದು ಮತ್ತು ನಿಮ್ಮೊಂದಿಗೆ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಬಹುದು. ನೀವು ವಿಶ್ವಾಸ ಹೊಂದಿರುವ ಜನರಿಗೆ ಮಾತ್ರ ಇದನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.</string>
+    <!-- A button label for a button that, when pressed, will copy your username link to the clipboard -->
+    <string name="UsernameLinkShareBottomSheet_copy_link">ಲಿಂಕ್ ನಕಲಿಸಿ</string>
+    <!-- A button label for a button that, when pressed, will open a share sheet for sharing your username link -->
+    <string name="UsernameLinkShareBottomSheet_share">ಹಂಚಿಕೊಳ್ಳಿ</string>
 
     <!-- PendingParticipantsView -->
     <!-- Displayed in the popup card when a remote user attempts to join a call link -->
@@ -6216,6 +6586,72 @@
     <string name="PendingParticipantsBottomSheet__reject">ತಿರಸ್ಕರಿಸಿ</string>
     <!-- Content description for confirming a user -->
     <string name="PendingParticipantsBottomSheet__approve">ಅನುಮತಿಸಿ</string>
+
+    <!-- Title of a megaphone shown at the bottom of the chat list when a user has disable the system setting for showing full screen notifications used showing incoming calls -->
+    <string name="GrantFullScreenIntentPermission_megaphone_title">ಪೂರ್ಣ ಸ್ಕ್ರೀನ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ಆನ್ ಮಾಡಬೇಕೇ?</string>
+    <!-- Body of a megaphone shown at the bottom of the chat list when a user has disable the system setting for showing full screen notifications used showing incoming calls -->
+    <string name="GrantFullScreenIntentPermission_megaphone_body">ನಿಮ್ಮ ಸಂಪರ್ಕಗಳು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳಿಂದ ಕರೆಯನ್ನು ತಪ್ಪಿಸಿಕೊಳ್ಳಬೇಡಿ.</string>
+    <!-- Button on the megaphone megaphone shown at the bottom of the chat list when a user has disable the system setting for showing full screen notifications used showing incoming calls that starts the fix process -->
+    <string name="GrantFullScreenIntentPermission_megaphone_turn_on">ಆನ್‌ ಮಾಡಿ</string>
+    <!-- Button on the megaphone shown at the bottom of the chatlist when a user has disabled the system setting for showing full screen notifications used showing incoming calls that dismisses the megaphone -->
+    <string name="GrantFullScreenIntentPermission_megaphone_not_now">ಈಗಲ್ಲ</string>
+    <!-- Title of bottom sheet shown after tapping "Turn on" from the megaphone to re-enable full screen notifications for incoming call notifications -->
+    <string name="GrantFullScreenIntentPermission_bottomsheet_title">ಪೂರ್ಣ ಸ್ಕ್ರೀನ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ಆನ್ ಮಾಡಿ</string>
+    <!-- Subtitle of bottom sheet shown after tapping "Turn on" from the megaphone to re-enable full screen notifications for incoming call notifications -->
+    <string name="GrantFullScreenIntentPermission_bottomsheet_subtitle">ನಿಮ್ಮ ಸಂಪರ್ಕಗಳು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳಿಂದ ಕರೆ ಅಧಿಸೂಚನೆಗಳನ್ನು ಸ್ವೀಕರಿಸಲು:</string>
+    <!-- Step 2 of bottom sheet shown after tapping "Turn on" from the megaphone to re-enable full screen notifications for incoming call notifications, it indicates the name of the setting that needs to be re-enabled -->
+    <string name="GrantFullScreenIntentPermission_bottomsheet_step2">2. %1$s ಪೂರ್ಣ ಸ್ಕ್ರೀನ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ಅನುಮತಿಸಿ</string>
+
+    <!-- Bottom sheet dialog shown when a monthly donation fails to renew, title for dialog -->
+    <string name="MonthlyDonationCanceled__title">ಮಾಸಿಕ ದೇಣಿಗೆಯು ರದ್ದುಗೊಂಡಿದೆ</string>
+    <!-- Bottom sheet dialog shown when a monthly donation fails to renew, body for dialog. First placeholder is a payment related error message. Second placeholder is \'learn more\' -->
+    <string name="MonthlyDonationCanceled__message">ನಿಮ್ಮ ಆವರ್ತ ಮಾಸಿಕ ದೇಣಿಗೆಯು ರದ್ದುಗೊಂಡಿದೆ. %1$s\n\nನಿಮ್ಮ ಬ್ಯಾಡ್ಜ್ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಇನ್ನು ಕಾಣಿಸುವುದಿಲ್ಲ. %2$s</string>
+    <!-- Bottom sheet dialog shown when a monthly donation fails to renew, learn more used in placeholder for body for dialog. -->
+    <string name="MonthlyDonationCanceled__learn_more">ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</string>
+    <!-- Bottom sheet dialog shown when a monthly donation fails to renew, primary button to renew subscription with new data -->
+    <string name="MonthlyDonationCanceled__renew_button">ಚಂದಾ ನವೀಕರಿಸಿ</string>
+    <!-- Bottom sheet dialog shown when a monthly donation fails to renew, second button to dismiss the dialog entirely -->
+    <string name="MonthlyDonationCanceled__not_now_button">ಈಗಲ್ಲ</string>
+
+    <!-- FindByActivity -->
+    <!-- Title of activity when finding by username -->
+    <string name="FindByActivity__find_by_username">ಯೂಸರ್‌ನೇಮ್‌ನಿಂದ ಹುಡುಕಿ</string>
+    <!-- Title of activity when finding by phone number -->
+    <string name="FindByActivity__find_by_phone_number">ಫೋನ್ ನಂಬರ್‌ನಿಂದ ಹುಡುಕಿ</string>
+    <!-- Title of screen to select a country code -->
+    <string name="FindByActivity__select_country_code">ದೇಶದ ಕೋಡ್ ಆಯ್ಕೆಮಾಡಿ</string>
+    <!-- Entry placeholder for find by username -->
+    <string name="FindByActivity__username">ಬಳಕೆದಾರ ಹೆಸರು</string>
+    <!-- Entry placeholder for find by phone number -->
+    <string name="FindByActivity__phone_number">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
+    <!-- Help text under user entry for find by username -->
+    <string name="FindByActivity__enter_username_description">ಯೂಸರ್ನೇಮ್ ಬಳಿಕ ಒಂದು ಬಿಂದು ಮತ್ತು ಅದರ ಸಂಖ್ಯೆಗಳ ಸೆಟ್ ನಮೂದಿಸಿ.</string>
+    <!-- Content description for next action button -->
+    <string name="FindByActivity__next">ಮುಂದೆ</string>
+    <!-- Placeholder text for search input for selecting country code -->
+    <string name="FindByActivity__search">ಹುಡುಕಿ</string>
+    <!-- Dialog title for invalid username -->
+    <string name="FindByActivity__invalid_username">ಅಮಾನ್ಯ ಯೂಸರ್‌ನೇಮ್</string>
+    <!-- Dialog title for invalid phone number -->
+    <string name="FindByActivity__invalid_phone_number">ಅಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆ</string>
+    <!-- Dialog title when phone number is not a registered signal user -->
+    <string name="FindByActivity__invite_to_signal">Signal ಗೆ ಆಮಂತ್ರಿಸಿ</string>
+    <!-- Dialog title when username is not found -->
+    <string name="FindByActivity__username_not_found">ಬಳಕೆದಾರ ಹೆಸರು ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <!-- Dialog body for invalid username. Placeholder is the entered username. -->
+    <string name="FindByActivity__s_is_not_a_valid_username">%1$s ಮಾನ್ಯವಾದ ಯೂಸರ್‌ನೇಮ್ ಅಲ್ಲ. ನೀವು ಸಂಪೂರ್ಣ ಯೂಸರ್‌ನೇಮ್ ಅನ್ನು ಅದರ ಅಂಕಿಗಳ ಸೆಟ್‌ನ ನಂತರ ನಮೂದಿಸಿದ್ದೀರಿ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.</string>
+    <!-- Dialog body for an invalid phone number. Placeholder is the entered phone number. -->
+    <string name="FindByActivity__s_is_not_a_valid_phone_number">%1$s ಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆ ಅಲ್ಲ. ಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
+    <!-- Dialog body for not found username -->
+    <string name="FindByActivity__s_is_not_a_signal_user">\"%1$s\" Signal ಬಳಕೆದಾರರಲ್ಲ. ದಯವಿಟ್ಟು ಬಳಕೆದಾರ ಹೆಸರನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <!-- Dialog body for not found phone number -->
+    <string name="FindByActivity__s_is_not_a_signal_user_would">%1$s ಅವರು Signal ಬಳಕೆದಾರರಲ್ಲ. ನೀವು ಈ ಸಂಖ್ಯೆಯನ್ನು ಆಹ್ವಾನಿಸಲು ಬಯಸುತ್ತೀರಾ?</string>
+    <!-- Dialog action to invite the phone number to Signal -->
+    <string name="FindByActivity__invite">ಆಹ್ವಾನ</string>
+    <!-- Button label for a button that will launch a camera to scan a username QR code -->
+    <string name="FindByActivity__qr_scan_button">ಕ್ಯುಆರ್‌ ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ</string>
+    <!-- Content of a dialog indicating that we could not perform the requested action because we encountered a network error. -->
+    <string name="FindByActivity__network_error_dialog">ತಾತ್ಕಾಲಿಕ ನೆಟ್ವರ್ಕ್ ತೊಂದರೆ ಉಂಟಾಯಿತು . ನಂತರ ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ .</string>
 
     <!-- EOF -->
 </resources>

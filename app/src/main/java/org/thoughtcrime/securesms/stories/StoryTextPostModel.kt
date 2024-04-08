@@ -10,17 +10,18 @@ import android.view.ContextThemeWrapper
 import android.view.View
 import androidx.core.graphics.scale
 import androidx.core.view.drawToBitmap
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.SimpleResource
+import org.signal.core.util.Base64
 import org.signal.core.util.concurrent.safeBlockingGet
 import org.signal.core.util.readParcelableCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.colors.ChatColors
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList
@@ -30,9 +31,7 @@ import org.thoughtcrime.securesms.fonts.TextFont
 import org.thoughtcrime.securesms.fonts.TextToScript
 import org.thoughtcrime.securesms.fonts.TypefaceCache
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader
-import org.thoughtcrime.securesms.mms.GlideApp
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.thoughtcrime.securesms.util.Base64
 import org.thoughtcrime.securesms.util.ParcelUtil
 import java.io.IOException
 import java.security.MessageDigest
@@ -120,7 +119,7 @@ data class StoryTextPostModel(
 
     override fun decode(source: StoryTextPostModel, width: Int, height: Int, options: Options): Resource<Bitmap> {
       val message = SignalDatabase.messages.getMessageFor(source.storySentAtMillis, source.storyAuthor).run {
-        if (this is MediaMmsMessageRecord) {
+        if (this is MmsMessageRecord) {
           this.withAttachments(SignalDatabase.attachments.getAttachmentsForMessage(this.id))
         } else {
           this
@@ -149,7 +148,7 @@ data class StoryTextPostModel(
       view.layout(0, 0, view.measuredWidth, view.measuredHeight)
 
       val drawable = if (linkPreview != null && linkPreview.thumbnail.isPresent) {
-        GlideApp
+        Glide
           .with(view)
           .load(DecryptableStreamUriLoader.DecryptableUri(linkPreview.thumbnail.get().uri!!))
           .centerCrop()

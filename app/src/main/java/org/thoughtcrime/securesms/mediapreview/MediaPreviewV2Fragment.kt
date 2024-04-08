@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -58,7 +59,6 @@ import org.thoughtcrime.securesms.mediapreview.mediarail.MediaRailAdapter
 import org.thoughtcrime.securesms.mediapreview.mediarail.MediaRailAdapter.ImageLoadingListener
 import org.thoughtcrime.securesms.mediasend.Media
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionActivity
-import org.thoughtcrime.securesms.mms.GlideApp
 import org.thoughtcrime.securesms.mms.PartAuthority
 import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.recipients.Recipient
@@ -117,7 +117,19 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     lifecycleDisposable +=
       viewModel
         .state
-        .distinctUntilChanged()
+        .distinctUntilChanged { t1, t2 ->
+          // this is all fields except for [isInSharedAnimation], which is explicitly excluded.
+          (
+            t1.mediaRecords == t2.mediaRecords &&
+              t1.loadState == t2.loadState &&
+              t1.position == t2.position &&
+              t1.showThread == t2.showThread &&
+              t1.allMediaInAlbumRail == t2.allMediaInAlbumRail &&
+              t1.leftIsRecent == t2.leftIsRecent &&
+              t1.albums == t2.albums &&
+              t1.messageBodies == t2.messageBodies
+            )
+        }
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
           bindCurrentState(it)
@@ -175,7 +187,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
       layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
       addItemDecoration(CenterDecoration(0))
       albumRailAdapter = MediaRailAdapter(
-        GlideApp.with(this@MediaPreviewV2Fragment),
+        Glide.with(this@MediaPreviewV2Fragment),
         { media -> jumpViewPagerToMedia(media) },
         object : ImageLoadingListener() {
           override fun onAllRequestsFinished() {
@@ -319,7 +331,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
   }
 
   private fun bindMediaPreviewPlaybackControls(currentItem: MediaTable.MediaRecord, currentFragment: MediaPreviewFragment?) {
-    val mediaType: MediaPreviewPlayerControlView.MediaMode = if (currentItem.attachment?.isVideoGif == true) {
+    val mediaType: MediaPreviewPlayerControlView.MediaMode = if (currentItem.attachment?.videoGif == true) {
       MediaPreviewPlayerControlView.MediaMode.IMAGE
     } else {
       MediaPreviewPlayerControlView.MediaMode.fromString(currentItem.contentType)
@@ -574,7 +586,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     val attachment: DatabaseAttachment = mediaItem.attachment ?: return
 
     MaterialAlertDialogBuilder(requireContext()).apply {
-      setIcon(R.drawable.ic_warning)
+      setIcon(R.drawable.symbol_error_triangle_fill_24)
       setTitle(R.string.MediaPreviewActivity_media_delete_confirmation_title)
       setMessage(R.string.MediaPreviewActivity_media_delete_confirmation_message)
       setCancelable(true)

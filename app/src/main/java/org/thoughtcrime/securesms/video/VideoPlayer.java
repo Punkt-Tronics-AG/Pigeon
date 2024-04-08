@@ -39,7 +39,6 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.LegacyPlayerControlView;
-import androidx.media3.ui.PlayerControlView;
 import androidx.media3.ui.PlayerView;
 
 import org.signal.core.util.logging.Log;
@@ -293,7 +292,7 @@ public class VideoPlayer extends FrameLayout {
     if (this.exoPlayer != null) {
       return TimeUnit.MILLISECONDS.toMicros(this.exoPlayer.getCurrentPosition()) + clippedStartUs;
     }
-    return 0L;
+    return -1L;
   }
 
   public void setPlaybackPosition(long positionMs) {

@@ -8,10 +8,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.signal.core.util.Base64
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.database.model.databaseprotos.StoryTextPost
 import org.thoughtcrime.securesms.stories.viewer.page.StoryPost
-import org.thoughtcrime.securesms.util.Base64
 import org.thoughtcrime.securesms.util.rx.RxStore
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
@@ -41,18 +41,18 @@ class StoryPostViewModel(private val repository: StoryTextPostRepository) : View
           store.update { StoryPostState.None() }
         } else if (storyPostContent.isVideo()) {
           store.update {
-            val shouldSkipTransform = storyPostContent.attachment.transformProperties.shouldSkipTransform()
+            val shouldSkipTransform = storyPostContent.attachment.transformProperties?.shouldSkipTransform() == true
 
             val clipStart: Duration = if (shouldSkipTransform) {
               0L.microseconds
             } else {
-              storyPostContent.attachment.transformProperties.videoTrimStartTimeUs.microseconds
+              storyPostContent.attachment.transformProperties?.videoTrimStartTimeUs?.microseconds ?: 0L.microseconds
             }
 
             val clipEnd: Duration = if (shouldSkipTransform) {
               0L.microseconds
             } else {
-              storyPostContent.attachment.transformProperties.videoTrimEndTimeUs.microseconds
+              storyPostContent.attachment.transformProperties?.videoTrimEndTimeUs?.microseconds ?: 0L.microseconds
             }
 
             StoryPostState.VideoPost(

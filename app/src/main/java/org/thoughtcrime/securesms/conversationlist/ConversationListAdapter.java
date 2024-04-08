@@ -14,13 +14,13 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.RequestManager;
+
 import org.signal.paging.PagingController;
 import org.thoughtcrime.securesms.BindableConversationListItem;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.conversationlist.model.Conversation;
-import org.thoughtcrime.securesms.conversationlist.model.ConversationReader;
 import org.thoughtcrime.securesms.conversationlist.model.ConversationSet;
-import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.util.CachedInflater;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.ViewHolder> {
+class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.ViewHolder> implements TimestampPayloadSupport {
 
   private static final int TYPE_THREAD              = 1;
   private static final int TYPE_ACTION              = 2;
@@ -42,12 +42,13 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
 
   private enum Payload {
     TYPING_INDICATOR,
-    SELECTION
+    SELECTION,
+    TIMESTAMP
   }
 
   private final LifecycleOwner              lifecycleOwner;
-  private final GlideRequests               glideRequests;
-  private final OnConversationClickListener                      onConversationClickListener;
+  private final RequestManager              requestManager;
+  private final OnConversationClickListener onConversationClickListener;
   private final ClearFilterViewHolder.OnClearFilterClickListener onClearFilterClicked;
   private       ConversationSet                                  selectedConversations = new ConversationSet();
   private final Set<Long>                   typingSet             = new HashSet<>();
@@ -55,14 +56,14 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
   private PagingController pagingController;
 
   protected ConversationListAdapter(@NonNull LifecycleOwner lifecycleOwner,
-                                    @NonNull GlideRequests glideRequests,
+                                    @NonNull RequestManager requestManager,
                                     @NonNull OnConversationClickListener onConversationClickListener,
                                     @NonNull ClearFilterViewHolder.OnClearFilterClickListener onClearFilterClicked)
   {
     super(new ConversationDiffCallback());
 
     this.lifecycleOwner              = lifecycleOwner;
-    this.glideRequests               = glideRequests;
+    this.requestManager              = requestManager;
     this.onConversationClickListener = onConversationClickListener;
     this.onClearFilterClicked        = onClearFilterClicked;
   }
@@ -140,12 +141,13 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
     } else if (holder instanceof ConversationViewHolder) {
       for (Object payloadObject : payloads) {
         if (payloadObject instanceof Payload) {
-          Payload payload = (Payload) payloadObject;
+          Payload                payload = (Payload) payloadObject;
+          ConversationViewHolder vh      = (ConversationViewHolder) holder;
 
-          if (payload == Payload.SELECTION) {
-            ((ConversationViewHolder) holder).getConversationListItem().setSelectedConversations(selectedConversations);
-          } else {
-            ((ConversationViewHolder) holder).getConversationListItem().updateTypingIndicator(typingSet);
+          switch (payload) {
+            case TYPING_INDICATOR -> vh.getConversationListItem().updateTypingIndicator(typingSet);
+            case SELECTION -> vh.getConversationListItem().setSelectedConversations(selectedConversations);
+            case TIMESTAMP -> vh.getConversationListItem().updateTimestamp();
           }
         }
       }
@@ -160,7 +162,7 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
 
       casted.getConversationListItem().bind(lifecycleOwner,
                                             conversation.getThreadRecord(),
-                                            glideRequests,
+                                            requestManager,
                                             Locale.getDefault(),
                                             typingSet,
                                             selectedConversations);
@@ -199,6 +201,11 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
     }
 
     return super.getItem(position);
+  }
+
+  @Override
+  public void notifyTimestampPayloadUpdate() {
+    notifyItemRangeChanged(0, getItemCount(), Payload.TIMESTAMP);
   }
 
   public void setPagingController(@Nullable PagingController pagingController) {

@@ -15,6 +15,7 @@ import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.jobs.SyncSystemContactLinksJob
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.mms.IncomingMessage
 import org.thoughtcrime.securesms.notifications.NotificationChannels
 import org.thoughtcrime.securesms.notifications.v2.ConversationId
 import org.thoughtcrime.securesms.permissions.Permissions
@@ -23,11 +24,10 @@ import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.registration.RegistrationUtil
-import org.thoughtcrime.securesms.sms.IncomingJoinedMessage
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.thoughtcrime.securesms.util.Util
+import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.util.UuidUtil
 import java.io.IOException
@@ -70,10 +70,11 @@ object ContactDiscovery {
       context = context,
       descriptor = "refresh-all",
       refresh = {
-        ContactDiscoveryRefreshV2.refreshAll(context, useCompat = FeatureFlags.cdsCompatMode())
+        ContactDiscoveryRefreshV2.refreshAll(context)
       },
       removeSystemContactLinksIfMissing = true,
-      notifyOfNewUsers = notifyOfNewUsers
+      notifyOfNewUsers = notifyOfNewUsers,
+      forceFullSystemContactSync = true
     )
 
     StorageSyncHelper.scheduleSyncForDataChange()
@@ -86,9 +87,7 @@ object ContactDiscovery {
     refreshRecipients(
       context = context,
       descriptor = "refresh-multiple",
-      refresh = {
-        ContactDiscoveryRefreshV2.refresh(context, recipients, useCompat = FeatureFlags.cdsCompatMode())
-      },
+      refresh = { ContactDiscoveryRefreshV2.refresh(context, recipients) },
       removeSystemContactLinksIfMissing = false,
       notifyOfNewUsers = notifyOfNewUsers
     )
@@ -102,9 +101,7 @@ object ContactDiscovery {
     val result: RefreshResult = refreshRecipients(
       context = context,
       descriptor = "refresh-single",
-      refresh = {
-        ContactDiscoveryRefreshV2.refresh(context, listOf(recipient), useCompat = FeatureFlags.cdsCompatMode(), timeoutMs = timeoutMs)
-      },
+      refresh = { ContactDiscoveryRefreshV2.refresh(context, listOf(recipient), timeoutMs = timeoutMs) },
       removeSystemContactLinksIfMissing = false,
       notifyOfNewUsers = notifyOfNewUsers
     )
@@ -114,6 +111,19 @@ object ContactDiscovery {
     } else {
       RecipientTable.RegisteredState.NOT_REGISTERED
     }
+  }
+
+  /**
+   * Looks up the PNI/ACI for an E164. Only creates a recipient if the number is in the CDS directory.
+   * Use sparingly! This will always use up the user's CDS quota. Always prefer other syncing methods for bulk lookups.
+   *
+   * Returns a [LookupResult] if the E164 is in the CDS directory, or null if it is not.
+   * Important: Just because a user is not in the directory does not mean they are not registered. They could have discoverability off.
+   */
+  @Throws(IOException::class)
+  @WorkerThread
+  fun lookupE164(e164: String): LookupResult? {
+    return ContactDiscoveryRefreshV2.lookupE164(e164)
   }
 
   @JvmStatic
@@ -140,7 +150,8 @@ object ContactDiscovery {
     descriptor: String,
     refresh: () -> RefreshResult,
     removeSystemContactLinksIfMissing: Boolean,
-    notifyOfNewUsers: Boolean
+    notifyOfNewUsers: Boolean,
+    forceFullSystemContactSync: Boolean = false
   ): RefreshResult {
     val stopwatch = Stopwatch(descriptor)
 
@@ -153,7 +164,7 @@ object ContactDiscovery {
     if (hasContactsPermissions(context)) {
       ApplicationDependencies.getJobManager().add(SyncSystemContactLinksJob())
 
-      val useFullSync = removeSystemContactLinksIfMissing && result.registeredIds.size > FULL_SYSTEM_CONTACT_SYNC_THRESHOLD
+      val useFullSync = forceFullSystemContactSync || (removeSystemContactLinksIfMissing && result.registeredIds.size > FULL_SYSTEM_CONTACT_SYNC_THRESHOLD)
       syncRecipientsWithSystemContacts(
         context = context,
         rewrites = result.rewrites,
@@ -196,15 +207,18 @@ object ContactDiscovery {
     if (!SignalStore.settings().isNotifyWhenContactJoinsSignal) return
 
     Recipient.resolvedList(newUserIds)
-      .filter { !it.isSelf && it.hasAUserSetDisplayName(context) && !hasSession(it.id) }
-      .map { IncomingJoinedMessage(it.id) }
-      .map { SignalDatabase.messages.insertMessageInbox(it) }
+      .filter { !it.isSelf && it.hasAUserSetDisplayName(context) && !hasSession(it.id) && it.hasE164() }
+      .map {
+        Log.i(TAG, "Inserting 'contact joined' message for ${it.id}. E164: ${it.e164}")
+        val message = IncomingMessage.contactJoined(it.id, System.currentTimeMillis())
+        SignalDatabase.messages.insertMessageInbox(message)
+      }
       .filter { it.isPresent }
       .map { it.get() }
       .forEach { result ->
         val hour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
         if (hour in 9..22) {
-          ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(result.threadId), true)
+          ApplicationDependencies.getMessageNotifier().updateNotification(context, ConversationId.forConversation(result.threadId))
         } else {
           Log.i(TAG, "Not notifying of a new user due to the time of day. (Hour: $hour)")
         }
@@ -278,7 +292,7 @@ object ContactDiscovery {
   /**
    * Whether or not a session exists with the provided recipient.
    */
-  fun hasSession(id: RecipientId): Boolean {
+  private fun hasSession(id: RecipientId): Boolean {
     val recipient = Recipient.resolved(id)
 
     if (!recipient.hasServiceId()) {
@@ -294,5 +308,11 @@ object ContactDiscovery {
   class RefreshResult(
     val registeredIds: Set<RecipientId>,
     val rewrites: Map<String, String>
+  )
+
+  data class LookupResult(
+    val recipientId: RecipientId,
+    val pni: ServiceId.PNI,
+    val aci: ServiceId.ACI?
   )
 }

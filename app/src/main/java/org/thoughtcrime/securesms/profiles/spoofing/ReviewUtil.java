@@ -16,7 +16,7 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.util.Base64;
+import org.signal.core.util.Base64;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,15 +39,17 @@ public final class ReviewUtil {
    * @return            Whether or not multiple recipients share this profile name.
    */
   @WorkerThread
-  public static boolean isRecipientReviewSuggested(@NonNull RecipientId recipientId)
+  public static List<RecipientId> getRecipientsToPromptForReview(@NonNull RecipientId recipientId)
   {
     Recipient recipient = Recipient.resolved(recipientId);
 
     if (recipient.isGroup() || recipient.isSystemContact()) {
-      return false;
+      return Collections.emptyList();
     }
 
-    return SignalDatabase.recipients().getSimilarRecipientIds(recipient).size() > 1;
+    return Stream.of(SignalDatabase.recipients().getSimilarRecipientIds(recipient))
+                 .filter(id -> !id.equals(recipientId))
+                 .toList();
   }
 
   @WorkerThread

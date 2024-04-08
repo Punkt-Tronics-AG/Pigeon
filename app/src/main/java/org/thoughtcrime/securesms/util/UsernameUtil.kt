@@ -1,150 +1,133 @@
 package org.thoughtcrime.securesms.util
 
-import androidx.annotation.WorkerThread
 import org.signal.core.util.logging.Log
+import org.signal.libsignal.usernames.BadDiscriminatorCharacterException
+import org.signal.libsignal.usernames.BadNicknameCharacterException
 import org.signal.libsignal.usernames.BaseUsernameException
+import org.signal.libsignal.usernames.CannotBeEmptyException
+import org.signal.libsignal.usernames.CannotStartWithDigitException
+import org.signal.libsignal.usernames.DiscriminatorCannotBeEmptyException
+import org.signal.libsignal.usernames.DiscriminatorCannotBeSingleDigitException
+import org.signal.libsignal.usernames.DiscriminatorCannotBeZeroException
+import org.signal.libsignal.usernames.DiscriminatorCannotHaveLeadingZerosException
+import org.signal.libsignal.usernames.DiscriminatorTooLargeException
+import org.signal.libsignal.usernames.NicknameTooLongException
+import org.signal.libsignal.usernames.NicknameTooShortException
 import org.signal.libsignal.usernames.Username
-import org.thoughtcrime.securesms.database.SignalDatabase.Companion.recipients
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
-import org.thoughtcrime.securesms.recipients.Recipient
-import org.whispersystems.signalservice.api.push.ServiceId
-import org.whispersystems.signalservice.api.push.UsernameLinkComponents
-import org.whispersystems.signalservice.api.util.UuidUtil
-import org.whispersystems.signalservice.api.util.toByteArray
-import org.whispersystems.util.Base64UrlSafe
-import java.io.IOException
 import java.util.Locale
-import java.util.Optional
-import java.util.UUID
 import java.util.regex.Pattern
 
 object UsernameUtil {
   private val TAG = Log.tag(UsernameUtil::class.java)
-  const val MIN_LENGTH = 3
-  const val MAX_LENGTH = 32
-  private val FULL_PATTERN = Pattern.compile(String.format(Locale.US, "^[a-zA-Z_][a-zA-Z0-9_]{%d,%d}$", MIN_LENGTH - 1, MAX_LENGTH - 1), Pattern.CASE_INSENSITIVE)
+  const val MIN_NICKNAME_LENGTH = 3
+  const val MAX_NICKNAME_LENGTH = 32
+  const val MIN_DISCRIMINATOR_LENGTH = 2
+  const val MAX_DISCRIMINATOR_LENGTH = 9
+  private val FULL_PATTERN = Pattern.compile(String.format(Locale.US, "^[a-zA-Z_][a-zA-Z0-9_]{%d,%d}$", MIN_NICKNAME_LENGTH - 1, MAX_NICKNAME_LENGTH - 1), Pattern.CASE_INSENSITIVE)
   private val DIGIT_START_PATTERN = Pattern.compile("^[0-9].*$")
-  private val URL_PATTERN = """(https://)?signal.me/?#eu/([a-zA-Z0-9+\-_/]+)""".toRegex()
   private const val BASE_URL_SCHEMELESS = "signal.me/#eu/"
   private const val BASE_URL = "https://$BASE_URL_SCHEMELESS"
 
   private val SEARCH_PATTERN = Pattern.compile(
     String.format(
       Locale.US,
-      "^[a-zA-Z_][a-zA-Z0-9_]{%d,%d}(.[0-9]+)?$",
-      MIN_LENGTH - 1,
-      MAX_LENGTH - 1,
+      "^@?[a-zA-Z_][a-zA-Z0-9_]{%d,%d}(.[0-9]+)?$",
+      MIN_NICKNAME_LENGTH - 1,
+      MAX_NICKNAME_LENGTH - 1,
       Pattern.CASE_INSENSITIVE
     )
   )
 
+  @JvmStatic
   fun isValidUsernameForSearch(value: String): Boolean {
     return value.isNotEmpty() && SEARCH_PATTERN.matcher(value).matches()
   }
 
   @JvmStatic
-  fun checkUsername(value: String?): InvalidReason? {
-    return when {
-      value == null -> {
-        InvalidReason.TOO_SHORT
-      }
-      value.length < MIN_LENGTH -> {
-        InvalidReason.TOO_SHORT
-      }
-      value.length > MAX_LENGTH -> {
-        InvalidReason.TOO_LONG
-      }
-      DIGIT_START_PATTERN.matcher(value).matches() -> {
-        InvalidReason.STARTS_WITH_NUMBER
-      }
-      !FULL_PATTERN.matcher(value).matches() -> {
-        InvalidReason.INVALID_CHARACTERS
-      }
-      else -> {
-        null
-      }
-    }
+  fun sanitizeUsernameFromSearch(value: String): String {
+    return value.replace("[^a-zA-Z0-9_.]".toRegex(), "")
   }
 
   @JvmStatic
-  @WorkerThread
-  fun fetchAciForUsername(username: String): Optional<ServiceId> {
-    val localId = recipients.getByUsername(username)
-
-    if (localId.isPresent) {
-      val recipient = Recipient.resolved(localId.get())
-      if (recipient.serviceId.isPresent) {
-        Log.i(TAG, "Found username locally -- using associated UUID.")
-        return recipient.serviceId
-      } else {
-        Log.w(TAG, "Found username locally, but it had no associated UUID! Clearing it.")
-        recipients.clearUsernameIfExists(username)
-      }
+  fun checkNickname(value: String?): InvalidReason? {
+    if (value == null) {
+      return InvalidReason.TOO_SHORT
     }
 
-    Log.d(TAG, "No local user with this username. Searching remotely.")
-
     return try {
-      fetchAciForUsernameHash(Base64UrlSafe.encodeBytesWithoutPadding(Username.hash(username)))
+      // We only want to check the nickname, so we pass in a known-valid discriminator
+      Username.fromParts(value, "01", MIN_NICKNAME_LENGTH, MAX_NICKNAME_LENGTH)
+      null
+    } catch (e: BadNicknameCharacterException) {
+      InvalidReason.INVALID_CHARACTERS
+    } catch (e: CannotBeEmptyException) {
+      InvalidReason.TOO_SHORT
+    } catch (e: CannotStartWithDigitException) {
+      InvalidReason.STARTS_WITH_NUMBER
+    } catch (e: NicknameTooLongException) {
+      InvalidReason.TOO_LONG
+    } catch (e: NicknameTooShortException) {
+      InvalidReason.TOO_SHORT
     } catch (e: BaseUsernameException) {
-      Optional.empty()
+      Log.w(TAG, "Unhandled verification exception!", e)
+      InvalidReason.INVALID_CHARACTERS
     }
   }
 
-  /**
-   * Hashes a username to a url-safe base64 string.
-   * @throws BaseUsernameException If the username is invalid and un-hashable.
-   */
-  @Throws(BaseUsernameException::class)
-  fun hashUsernameToBase64(username: String?): String {
-    return Base64UrlSafe.encodeBytesWithoutPadding(Username.hash(username))
-  }
-
-  @JvmStatic
-  @WorkerThread
-  fun fetchAciForUsernameHash(base64UrlSafeEncodedUsernameHash: String): Optional<ServiceId> {
-    return try {
-      val aci = ApplicationDependencies.getSignalServiceAccountManager().getAciByUsernameHash(base64UrlSafeEncodedUsernameHash)
-      Optional.ofNullable(aci)
-    } catch (e: IOException) {
-      Log.w(TAG, "Failed to get ACI for username hash", e)
-      Optional.empty()
-    }
-  }
-
-  /**
-   * Generates a username link from the provided [UsernameLinkComponents].
-   */
-  fun generateLink(components: UsernameLinkComponents): String {
-    val combined: ByteArray = components.entropy + components.serverId.toByteArray()
-    val base64 = Base64UrlSafe.encodeBytesWithoutPadding(combined)
-    return BASE_URL + base64
-  }
-
-  /**
-   * Parses out the [UsernameLinkComponents] from a link if possible, otherwise null.
-   * You need to make a separate network request to convert these components into a username.
-   */
-  fun parseLink(url: String): UsernameLinkComponents? {
-    val match: MatchResult = URL_PATTERN.find(url) ?: return null
-    val path: String = match.groups[2]?.value ?: return null
-    val allBytes: ByteArray = Base64UrlSafe.decodePaddingAgnostic(path)
-
-    if (allBytes.size != 48) {
+  fun checkDiscriminator(value: String?): InvalidReason? {
+    if (value == null) {
       return null
     }
 
-    val entropy: ByteArray = allBytes.slice(0 until 32).toByteArray()
-    val serverId: ByteArray = allBytes.slice(32 until allBytes.size).toByteArray()
-    val serverIdUuid: UUID = UuidUtil.parseOrNull(serverId) ?: return null
+    if (value.length < MIN_DISCRIMINATOR_LENGTH) {
+      return InvalidReason.TOO_SHORT
+    }
 
-    return UsernameLinkComponents(entropy = entropy, serverId = serverIdUuid)
+    if (value.length > MAX_DISCRIMINATOR_LENGTH) {
+      return InvalidReason.TOO_LONG
+    }
+
+    return try {
+      // We only want to check the discriminator, so we pass in a known-valid nickname
+      Username.fromParts("spiderman", value, MIN_NICKNAME_LENGTH, MAX_NICKNAME_LENGTH)
+      null
+    } catch (e: BadDiscriminatorCharacterException) {
+      InvalidReason.INVALID_CHARACTERS
+    } catch (e: DiscriminatorCannotBeEmptyException) {
+      InvalidReason.TOO_SHORT
+    } catch (e: DiscriminatorCannotBeSingleDigitException) {
+      InvalidReason.TOO_SHORT
+    } catch (e: DiscriminatorCannotBeZeroException) {
+      if (value.length < 2) {
+        InvalidReason.TOO_SHORT
+      } else if (value == "00") {
+        InvalidReason.INVALID_NUMBER_00
+      } else {
+        InvalidReason.INVALID_NUMBER_PREFIX_0
+      }
+    } catch (e: DiscriminatorCannotHaveLeadingZerosException) {
+      if (value.length < 2) {
+        InvalidReason.TOO_SHORT
+      } else if (value == "00") {
+        InvalidReason.INVALID_NUMBER_00
+      } else {
+        InvalidReason.INVALID_NUMBER_PREFIX_0
+      }
+    } catch (e: DiscriminatorTooLargeException) {
+      InvalidReason.TOO_LONG
+    } catch (e: BaseUsernameException) {
+      Log.w(TAG, "Unhandled verification exception!", e)
+      InvalidReason.INVALID_CHARACTERS
+    }
   }
 
   enum class InvalidReason {
     TOO_SHORT,
     TOO_LONG,
     INVALID_CHARACTERS,
-    STARTS_WITH_NUMBER
+    STARTS_WITH_NUMBER,
+    INVALID_NUMBER,
+    INVALID_NUMBER_00,
+    INVALID_NUMBER_PREFIX_0
   }
 }

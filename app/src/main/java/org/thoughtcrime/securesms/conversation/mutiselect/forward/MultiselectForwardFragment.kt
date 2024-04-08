@@ -59,7 +59,6 @@ import org.thoughtcrime.securesms.stories.settings.privacy.ChooseInitialMyStoryM
 import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.FullscreenHelper
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.fragments.findListener
 import org.thoughtcrime.securesms.util.fragments.requireListener
@@ -118,6 +117,8 @@ class MultiselectForwardFragment :
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    Log.d(TAG, "onViewCreated()")
+
     view.minimumHeight = resources.displayMetrics.heightPixels
 
     contactSearchRecycler = view.findViewById(R.id.contact_selection_list)
@@ -134,7 +135,9 @@ class MultiselectForwardFragment :
       this::getConfiguration,
       object : ContactSearchMediator.SimpleCallbacks() {
         override fun onBeforeContactsSelected(view: View?, contactSearchKeys: Set<ContactSearchKey>): Set<ContactSearchKey> {
-          return filterContacts(view, contactSearchKeys)
+          val filtered: Set<ContactSearchKey> = filterContacts(view, contactSearchKeys)
+          Log.d(TAG, "onBeforeContactsSelected() Attempting to select: ${contactSearchKeys.map { it.toString() }}, Filtered selection: ${filtered.map { it.toString() } }")
+          return filtered
         }
       }
     )
@@ -172,6 +175,7 @@ class MultiselectForwardFragment :
     ViewCompat.setBackgroundTintList(sendButton, ColorStateList.valueOf(sendButtonColors.background.resolve(requireContext())))
 
     FullscreenHelper.configureBottomBarLayout(requireActivity(), bottomBarSpacer, bottomBar)
+    bottomBar.setOnTouchListener { _, _ -> true }
 
     backgroundHelper.setBackgroundColor(callback.getDialogBackgroundColor())
     bottomBarSpacer.setBackgroundColor(callback.getDialogBackgroundColor())
@@ -230,7 +234,6 @@ class MultiselectForwardFragment :
     disposables += contactSearchMediator
       .getErrorEvents()
       .subscribe {
-        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
         val message: Int = when (it) {
           ContactSearchError.CONTACT_NOT_SELECTABLE -> R.string.MultiselectForwardFragment__only_admins_can_send_messages_to_this_group
           ContactSearchError.RECOMMENDED_LIMIT_REACHED -> R.string.ContactSelectionListFragment_recommended_member_limit_reached
@@ -241,6 +244,8 @@ class MultiselectForwardFragment :
       }
 
     viewModel.state.observe(viewLifecycleOwner) {
+      Log.d(TAG, "State change: ${it.stage.javaClass.simpleName}")
+
       when (it.stage) {
         MultiselectForwardState.Stage.Selection -> {}
         MultiselectForwardState.Stage.FirstConfirmation -> displayFirstSendConfirmation()
@@ -277,6 +282,8 @@ class MultiselectForwardFragment :
 
   override fun onResume() {
     super.onResume()
+
+    Log.d(TAG, "onViewCreated()")
 
     val now = System.currentTimeMillis()
     val expiringMessages = args.multiShareArgs.filter { it.expiresAt > 0L }
@@ -337,6 +344,8 @@ class MultiselectForwardFragment :
   }
 
   private fun dismissWithSuccess(@PluralsRes toastTextResId: Int) {
+    Log.d(TAG, "dismissWithSuccess() Selected: ${contactSearchMediator.getSelectedContacts().map { it.toString() }}")
+
     requireListener<Callback>().setResult(
       Bundle().apply {
         putBoolean(RESULT_SENT, true)
@@ -347,7 +356,7 @@ class MultiselectForwardFragment :
   }
 
   private fun dismissAndShowToast(@PluralsRes toastTextResId: Int) {
-    Log.d(TAG, "dismissAndShowToast")
+    Log.d(TAG, "dismissAndShowToast() Selected: ${contactSearchMediator.getSelectedContacts().map { it.toString() }}")
 
     val argCount = getMessageCount()
 
@@ -369,7 +378,7 @@ class MultiselectForwardFragment :
   }
 
   private fun dismissWithSelection(selectedContacts: Set<ContactSearchKey>) {
-    Log.d(TAG, "dismissWithSelection")
+    Log.d(TAG, "dismissWithSelection() Selected: ${selectedContacts.map { it.toString() }}")
 
     callback.onFinishForwardAction()
     dismissibleDialog?.dismiss()
@@ -466,7 +475,7 @@ class MultiselectForwardFragment :
         addSection(
           ContactSearchConfiguration.Section.Individuals(
             includeHeader = true,
-            transportType = if (includeSms()) ContactSearchConfiguration.TransportType.ALL else ContactSearchConfiguration.TransportType.PUSH,
+            transportType = ContactSearchConfiguration.TransportType.PUSH,
             includeSelf = true
           )
         )
@@ -481,16 +490,11 @@ class MultiselectForwardFragment :
 
         addSection(
           ContactSearchConfiguration.Section.Groups(
-            includeHeader = true,
-            includeMms = includeSms()
+            includeHeader = true
           )
         )
       }
     }
-  }
-
-  private fun includeSms(): Boolean {
-    return Util.isDefaultSmsProvider(requireContext()) && args.canSendToNonPush
   }
 
   private fun isSelectedMediaValidForStories(): Boolean {

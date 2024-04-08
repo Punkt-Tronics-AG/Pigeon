@@ -26,6 +26,7 @@ import org.thoughtcrime.securesms.database.MessageTypes;
 import org.thoughtcrime.securesms.database.ThreadTable;
 import org.thoughtcrime.securesms.database.ThreadTable.Extra;
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList;
+import org.thoughtcrime.securesms.database.model.databaseprotos.MessageExtras;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.whispersystems.signalservice.api.util.Preconditions;
@@ -37,26 +38,27 @@ import java.util.Objects;
  */
 public final class ThreadRecord {
 
-  private final long      threadId;
-  private final String    body;
-  private final Recipient recipient;
-  private final long      type;
-  private final long      date;
-  private final long      deliveryStatus;
-  private final int       deliveryReceiptCount;
-  private final int       readReceiptCount;
-  private final Uri       snippetUri;
-  private final String    contentType;
-  private final Extra     extra;
-  private final boolean   meaningfulMessages;
-  private final int       unreadCount;
-  private final boolean   forcedUnread;
-  private final int       distributionType;
-  private final boolean   archived;
-  private final long      expiresIn;
-  private final long      lastSeen;
-  private final boolean   isPinned;
-  private final int       unreadSelfMentionsCount;
+  private final long          threadId;
+  private final String        body;
+  private final Recipient     recipient;
+  private final long          type;
+  private final long          date;
+  private final long          deliveryStatus;
+  private final boolean       hasDeliveryReceipt;
+  private final boolean       hasReadReceipt;
+  private final Uri           snippetUri;
+  private final String        contentType;
+  private final Extra         extra;
+  private final boolean       meaningfulMessages;
+  private final int           unreadCount;
+  private final boolean       forcedUnread;
+  private final int           distributionType;
+  private final boolean       archived;
+  private final long          expiresIn;
+  private final long          lastSeen;
+  private final boolean       isPinned;
+  private final int           unreadSelfMentionsCount;
+  private final MessageExtras messageExtras;
 
   private ThreadRecord(@NonNull Builder builder) {
     this.threadId                = builder.threadId;
@@ -65,8 +67,8 @@ public final class ThreadRecord {
     this.date                    = builder.date;
     this.type                    = builder.type;
     this.deliveryStatus          = builder.deliveryStatus;
-    this.deliveryReceiptCount    = builder.deliveryReceiptCount;
-    this.readReceiptCount        = builder.readReceiptCount;
+    this.hasDeliveryReceipt      = builder.hasDeliveryReceipt;
+    this.hasReadReceipt          = builder.hasReadReceipt;
     this.snippetUri              = builder.snippetUri;
     this.contentType             = builder.contentType;
     this.extra                   = builder.extra;
@@ -79,6 +81,7 @@ public final class ThreadRecord {
     this.lastSeen                = builder.lastSeen;
     this.isPinned                = builder.isPinned;
     this.unreadSelfMentionsCount = builder.unreadSelfMentionsCount;
+    this.messageExtras           = builder.messageExtras;
   }
 
   public long getThreadId() {
@@ -173,8 +176,8 @@ public final class ThreadRecord {
     return StatusUtil.isFailed(type, deliveryStatus);
   }
 
-  public boolean isRemoteRead() {
-    return readReceiptCount > 0;
+  public boolean hasReadReceipt() {
+    return hasReadReceipt;
   }
 
   public boolean isPendingInsecureSmsFallback() {
@@ -182,11 +185,15 @@ public final class ThreadRecord {
   }
 
   public boolean isDelivered() {
-    return StatusUtil.isDelivered(deliveryStatus, deliveryReceiptCount);
+    return StatusUtil.isDelivered(deliveryStatus, hasDeliveryReceipt);
   }
 
   public boolean isScheduledMessage() {
     return extra != null && extra.isScheduled();
+  }
+
+  public @Nullable MessageExtras getMessageExtras() {
+    return messageExtras;
   }
 
   public @Nullable RecipientId getGroupAddedBy() {
@@ -244,8 +251,8 @@ public final class ThreadRecord {
            type == that.type &&
            date == that.date &&
            deliveryStatus == that.deliveryStatus &&
-           deliveryReceiptCount == that.deliveryReceiptCount &&
-           readReceiptCount == that.readReceiptCount &&
+           hasDeliveryReceipt == that.hasDeliveryReceipt &&
+           hasReadReceipt == that.hasReadReceipt &&
            meaningfulMessages == that.meaningfulMessages &&
            unreadCount == that.unreadCount &&
            forcedUnread == that.forcedUnread &&
@@ -270,8 +277,8 @@ public final class ThreadRecord {
                         type,
                         date,
                         deliveryStatus,
-                        deliveryReceiptCount,
-                        readReceiptCount,
+                        hasDeliveryReceipt,
+                        hasReadReceipt,
                         snippetUri,
                         contentType,
                         extra,
@@ -287,26 +294,27 @@ public final class ThreadRecord {
   }
 
   public static class Builder {
-    private long      threadId;
-    private String    body;
-    private Recipient recipient = Recipient.UNKNOWN;
-    private long      type;
-    private long      date;
-    private long      deliveryStatus;
-    private int       deliveryReceiptCount;
-    private int       readReceiptCount;
-    private Uri       snippetUri;
-    private String    contentType;
-    private Extra     extra;
-    private boolean   meaningfulMessages;
-    private int       unreadCount;
-    private boolean   forcedUnread;
-    private int       distributionType;
-    private boolean   archived;
-    private long      expiresIn;
-    private long      lastSeen;
-    private boolean   isPinned;
-    private int       unreadSelfMentionsCount;
+    private long          threadId;
+    private String        body;
+    private Recipient     recipient = Recipient.UNKNOWN;
+    private long          type;
+    private long          date;
+    private long          deliveryStatus;
+    private boolean       hasDeliveryReceipt;
+    private boolean       hasReadReceipt;
+    private Uri           snippetUri;
+    private String        contentType;
+    private Extra         extra;
+    private boolean       meaningfulMessages;
+    private int           unreadCount;
+    private boolean       forcedUnread;
+    private int           distributionType;
+    private boolean       archived;
+    private long          expiresIn;
+    private long          lastSeen;
+    private boolean       isPinned;
+    private int           unreadSelfMentionsCount;
+    private MessageExtras messageExtras;
 
     public Builder(long threadId) {
       this.threadId = threadId;
@@ -342,13 +350,13 @@ public final class ThreadRecord {
       return this;
     }
 
-    public Builder setDeliveryReceiptCount(int deliveryReceiptCount) {
-      this.deliveryReceiptCount = deliveryReceiptCount;
+    public Builder setHasDeliveryReceipt(boolean hasDeliveryReceipt) {
+      this.hasDeliveryReceipt = hasDeliveryReceipt;
       return this;
     }
 
-    public Builder setReadReceiptCount(int readReceiptCount) {
-      this.readReceiptCount = readReceiptCount;
+    public Builder setHasReadReceipt(boolean hasReadReceipt) {
+      this.hasReadReceipt = hasReadReceipt;
       return this;
     }
 
@@ -404,6 +412,11 @@ public final class ThreadRecord {
 
     public Builder setPinned(boolean isPinned) {
       this.isPinned = isPinned;
+      return this;
+    }
+
+    public Builder setSnippetMessageExtras(@Nullable MessageExtras messageExtras) {
+      this.messageExtras = messageExtras;
       return this;
     }
 

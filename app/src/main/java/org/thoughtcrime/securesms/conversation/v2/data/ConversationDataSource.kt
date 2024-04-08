@@ -15,11 +15,10 @@ import org.thoughtcrime.securesms.conversation.ConversationMessage
 import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationMessageFactory
 import org.thoughtcrime.securesms.database.MessageTable
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord.NoGroupsInCommon
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord.RemovedContactHidden
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord.UniversalExpireTimerUpdate
-import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord
 import org.thoughtcrime.securesms.database.model.MessageRecord
+import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.messagerequests.MessageRequestRepository
 import org.thoughtcrime.securesms.recipients.Recipient
@@ -72,7 +71,6 @@ class ConversationDataSource(
     val startTime = System.currentTimeMillis()
     val size: Int = getSizeInternal() +
       THREAD_HEADER_COUNT +
-      messageRequestData.includeWarningUpdateMessage().toInt() +
       messageRequestData.isHidden.toInt() +
       showUniversalExpireTimerUpdate.toInt()
 
@@ -107,10 +105,6 @@ class ConversationDataSource(
           records.add(record)
         }
       }
-
-    if (messageRequestData.includeWarningUpdateMessage() && (start + length >= totalSize)) {
-      records.add(NoGroupsInCommon(threadId, messageRequestData.isGroup))
-    }
 
     if (messageRequestData.isHidden && (start + length >= totalSize)) {
       records.add(RemovedContactHidden(threadId))
@@ -169,11 +163,11 @@ class ConversationDataSource(
     val stopwatch = Stopwatch(title = "load($key), thread $threadId", decimalPlaces = 2)
     var record = SignalDatabase.messages.getMessageRecordOrNull(key.id)
 
-    if ((record as? MediaMmsMessageRecord)?.parentStoryId?.isGroupReply() == true) {
+    if ((record as? MmsMessageRecord)?.parentStoryId?.isGroupReply() == true) {
       return null
     }
 
-    val scheduleDate = (record as? MediaMmsMessageRecord)?.scheduledDate
+    val scheduleDate = (record as? MmsMessageRecord)?.scheduledDate
     if (scheduleDate != null && scheduleDate != -1L) {
       return null
     }

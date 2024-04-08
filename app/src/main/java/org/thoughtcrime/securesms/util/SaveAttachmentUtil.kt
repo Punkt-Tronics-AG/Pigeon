@@ -26,7 +26,7 @@ import org.signal.core.util.StreamUtil
 import org.signal.core.util.logging.Log
 import org.signal.core.util.orNull
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord
+import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.mms.PartAuthority
 import java.io.File
@@ -55,7 +55,7 @@ object SaveAttachmentUtil {
   fun showWarningDialog(context: Context, count: Int, onAcceptListener: OnClickListener) {
     MaterialAlertDialogBuilder(context)
       .setTitle(R.string.ConversationFragment_save_to_sd_card)
-      .setIcon(R.drawable.ic_warning)
+      .setIcon(R.drawable.symbol_error_triangle_fill_24)
       .setCancelable(true)
       .setMessage(context.resources.getQuantityString(R.plurals.ConversationFragment_saving_n_media_to_storage_warning, count, count))
       .setPositiveButton(R.string.yes, onAcceptListener)
@@ -63,7 +63,7 @@ object SaveAttachmentUtil {
       .show()
   }
 
-  fun getAttachmentsForRecord(record: MediaMmsMessageRecord): Set<SaveAttachment> {
+  fun getAttachmentsForRecord(record: MmsMessageRecord): Set<SaveAttachment> {
     return record.slideDeck.slides
       .filter { it.uri != null && (it.hasImage() || it.hasVideo() || it.hasAudio() || it.hasDocument()) }
       .map { SaveAttachment(it.uri!!, it.contentType, record.dateSent, it.fileName.orNull()) }

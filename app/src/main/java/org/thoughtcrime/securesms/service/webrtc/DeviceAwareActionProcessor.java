@@ -1,10 +1,10 @@
 package org.thoughtcrime.securesms.service.webrtc;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.components.webrtc.BroadcastVideoSink;
+import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
@@ -28,7 +28,11 @@ public abstract class DeviceAwareActionProcessor extends WebRtcActionProcessor {
     Log.i(tag, "handleAudioDeviceChanged(): active: " + activeDevice + " available: " + availableDevices);
 
     if (!currentState.getLocalDeviceState().getCameraState().isEnabled()) {
-      webRtcInteractor.updatePhoneState(WebRtcUtil.getInCallPhoneState(context));
+      if (currentState.getCallInfoState().getCallState() == WebRtcViewModel.State.CALL_CONNECTED) {
+        webRtcInteractor.updatePhoneState(WebRtcUtil.getInCallPhoneState(context));
+      } else {
+        Log.i(tag, "handleAudioDeviceChanged(): call not connected, not updating phone state");
+      }
     }
 
     return currentState.builder()

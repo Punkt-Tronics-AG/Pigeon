@@ -1,8 +1,10 @@
 package org.thoughtcrime.securesms.messages
 
 import android.graphics.Color
+import org.signal.core.util.Base64
 import org.signal.core.util.orNull
 import org.thoughtcrime.securesms.database.MessageTable.InsertResult
+import org.thoughtcrime.securesms.database.MessageType
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.StoryType
 import org.thoughtcrime.securesms.database.model.databaseprotos.ChatColor
@@ -13,11 +15,10 @@ import org.thoughtcrime.securesms.messages.MessageContentProcessor.Companion.log
 import org.thoughtcrime.securesms.messages.MessageContentProcessor.Companion.warn
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.groupId
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.toPointer
-import org.thoughtcrime.securesms.mms.IncomingMediaMessage
+import org.thoughtcrime.securesms.mms.IncomingMessage
 import org.thoughtcrime.securesms.mms.MmsException
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.stories.Stories
-import org.thoughtcrime.securesms.util.Base64
 import org.thoughtcrime.securesms.util.FeatureFlags
 import org.whispersystems.signalservice.api.crypto.EnvelopeMetadata
 import org.whispersystems.signalservice.internal.push.Content
@@ -58,7 +59,8 @@ object StoryMessageProcessor {
         StoryType.withoutReplies(isTextStory = storyMessage.textAttachment != null)
       }
 
-      val mediaMessage = IncomingMediaMessage(
+      val mediaMessage = IncomingMessage(
+        type = MessageType.NORMAL,
         from = senderRecipient.id,
         sentTimeMillis = envelope.timestamp!!,
         serverTimeMillis = envelope.serverTimestamp!!,
@@ -77,7 +79,7 @@ object StoryMessageProcessor {
         messageRanges = storyMessage.bodyRanges.filter { it.mentionAci == null }.toBodyRangeList()
       )
 
-      insertResult = SignalDatabase.messages.insertSecureDecryptedMessageInbox(mediaMessage, -1).orNull()
+      insertResult = SignalDatabase.messages.insertMessageInbox(mediaMessage, -1).orNull()
       if (insertResult != null) {
         SignalDatabase.messages.setTransactionSuccessful()
       }
@@ -138,6 +140,10 @@ object StoryMessageProcessor {
         warn("Incoming text story has color / position mismatch. Defaulting to start and end colors.")
         linearGradientBuilder.colors(listOf(gradient.colors[0], gradient.colors[gradient.colors.size - 1]))
         linearGradientBuilder.positions(listOf(0f, 1f))
+      } else if (gradient.startColor != null && gradient.endColor != null) {
+        warn("Incoming text story is using deprecated fields for the gradient. Building a two color gradient with them.")
+        linearGradientBuilder.colors(listOf(gradient.startColor!!, gradient.endColor!!))
+        linearGradientBuilder.positions(listOf(0f, 1f))
       } else {
         warn("Incoming text story did not have a valid linear gradient.")
         linearGradientBuilder.colors(listOf(Color.BLACK, Color.BLACK))
@@ -147,6 +153,6 @@ object StoryMessageProcessor {
     }
     builder.background(chatColorBuilder.build())
 
-    return Base64.encodeBytes(builder.build().encode())
+    return Base64.encodeWithPadding(builder.build().encode())
   }
 }

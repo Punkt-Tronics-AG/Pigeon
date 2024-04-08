@@ -22,7 +22,6 @@ import org.thoughtcrime.securesms.jobs.PushGroupSendJob;
 import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileAvatarJob;
 import org.thoughtcrime.securesms.jobs.SendDeliveryReceiptJob;
-import org.thoughtcrime.securesms.jobs.SmsSendJob;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.JsonUtils;
@@ -49,7 +48,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_multiDeviceContactUpdateJob() throws Exception {
-    JobData testData = new JobData("MultiDeviceContactUpdateJob", "MultiDeviceContactUpdateJob", new JsonJobData.Builder().putBoolean("force_sync", false).putString("address", "+16101234567").serialize());
+    JobData testData = new JobData("MultiDeviceContactUpdateJob", "MultiDeviceContactUpdateJob", -1, -1, new JsonJobData.Builder().putBoolean("force_sync", false).putString("address", "+16101234567").serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -68,7 +67,7 @@ public class RecipientIdJobMigrationTest {
   @Test
   public void migrate_multiDeviceViewOnceOpenJob() throws Exception {
     OldSerializableSyncMessageId oldId    = new OldSerializableSyncMessageId("+16101234567", 1);
-    JobData                      testData = new JobData("MultiDeviceRevealUpdateJob", null, new JsonJobData.Builder().putString("message_id", JsonUtils.toJson(oldId)).serialize());
+    JobData                      testData = new JobData("MultiDeviceRevealUpdateJob", null, -1, -1, new JsonJobData.Builder().putString("message_id", JsonUtils.toJson(oldId)).serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -84,10 +83,10 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_sendDeliveryReceiptJob() throws Exception {
-    JobData testData = new JobData("SendDeliveryReceiptJob", null, new JsonJobData.Builder().putString("address", "+16101234567")
-                                                                                            .putLong("message_id", 1)
-                                                                                            .putLong("timestamp", 2)
-                                                                                            .serialize());
+    JobData testData = new JobData("SendDeliveryReceiptJob", null, -1, -1, new JsonJobData.Builder().putString("address", "+16101234567")
+                                                                                                    .putLong("message_id", 1)
+                                                                                                    .putLong("timestamp", 2)
+                                                                                                    .serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -105,11 +104,11 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_multiDeviceVerifiedUpdateJob() throws Exception {
-    JobData testData = new JobData("MultiDeviceVerifiedUpdateJob", "__MULTI_DEVICE_VERIFIED_UPDATE__", new JsonJobData.Builder().putString("destination", "+16101234567")
-                                                                                                                                .putString("identity_key", "abcd")
-                                                                                                                                .putInt("verified_status", 1)
-                                                                                                                                .putLong("timestamp", 123)
-                                                                                                                                .serialize());
+    JobData testData = new JobData("MultiDeviceVerifiedUpdateJob", "__MULTI_DEVICE_VERIFIED_UPDATE__", -1, -1, new JsonJobData.Builder().putString("destination", "+16101234567")
+                                                                                                                                        .putString("identity_key", "abcd")
+                                                                                                                                        .putInt("verified_status", 1)
+                                                                                                                                        .putLong("timestamp", 123)
+                                                                                                                                        .serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -128,9 +127,9 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_pushGroupSendJob_null() throws Exception {
-    JobData testData = new JobData("PushGroupSendJob", "someGroupId", new JsonJobData.Builder().putString("filter_address", null)
-                                                                                               .putLong("message_id", 123)
-                                                                                               .serialize());
+    JobData testData = new JobData("PushGroupSendJob", "someGroupId", -1, -1, new JsonJobData.Builder().putString("filter_address", null)
+                                                                                                       .putLong("message_id", 123)
+                                                                                                       .serialize());
     mockRecipientResolve("someGroupId", 5);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -147,9 +146,9 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_pushGroupSendJob_nonNull() throws Exception {
-    JobData testData = new JobData("PushGroupSendJob", "someGroupId", new JsonJobData.Builder().putString("filter_address", "+16101234567")
-                                                                                               .putLong("message_id", 123)
-                                                                                               .serialize());
+    JobData testData = new JobData("PushGroupSendJob", "someGroupId", -1, -1, new JsonJobData.Builder().putString("filter_address", "+16101234567")
+                                                                                                       .putLong("message_id", 123)
+                                                                                                       .serialize());
     mockRecipientResolve("+16101234567", 1);
     mockRecipientResolve("someGroupId", 5);
 
@@ -167,7 +166,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_directoryRefreshJob_null() throws Exception {
-    JobData testData = new JobData("DirectoryRefreshJob", "DirectoryRefreshJob", new JsonJobData.Builder().putString("address", null).putBoolean("notify_of_new_users", true).serialize());
+    JobData testData = new JobData("DirectoryRefreshJob", "DirectoryRefreshJob", -1, -1, new JsonJobData.Builder().putString("address", null).putBoolean("notify_of_new_users", true).serialize());
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
     JobData                 converted = subject.migrate(testData);
@@ -184,7 +183,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_directoryRefreshJob_nonNull() throws Exception {
-    JobData testData = new JobData("DirectoryRefreshJob", "DirectoryRefreshJob", new JsonJobData.Builder().putString("address", "+16101234567").putBoolean("notify_of_new_users", true).serialize());
+    JobData testData = new JobData("DirectoryRefreshJob", "DirectoryRefreshJob", -1, -1, new JsonJobData.Builder().putString("address", "+16101234567").putBoolean("notify_of_new_users", true).serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -202,7 +201,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_retrieveProfileAvatarJob() throws Exception {
-    JobData testData = new JobData("RetrieveProfileAvatarJob", "RetrieveProfileAvatarJob+16101234567", new JsonJobData.Builder().putString("address", "+16101234567").putString("profile_avatar", "abc").serialize());
+    JobData testData = new JobData("RetrieveProfileAvatarJob", "RetrieveProfileAvatarJob+16101234567", -1, -1, new JsonJobData.Builder().putString("address", "+16101234567").putString("profile_avatar", "abc").serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -219,7 +218,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_multiDeviceReadUpdateJob_empty() throws Exception {
-    JobData testData = new JobData("MultiDeviceReadUpdateJob", null, new JsonJobData.Builder().putStringArray("message_ids", new String[0]).serialize());
+    JobData testData = new JobData("MultiDeviceReadUpdateJob", null, -1, -1, new JsonJobData.Builder().putStringArray("message_ids", new String[0]).serialize());
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
     JobData                 converted = subject.migrate(testData);
@@ -237,7 +236,7 @@ public class RecipientIdJobMigrationTest {
     OldSerializableSyncMessageId id1 = new OldSerializableSyncMessageId("+16101234567", 1);
     OldSerializableSyncMessageId id2 = new OldSerializableSyncMessageId("+16101112222", 2);
 
-    JobData testData = new JobData("MultiDeviceReadUpdateJob", null, new JsonJobData.Builder().putStringArray("message_ids", new String[]{ JsonUtils.toJson(id1), JsonUtils.toJson(id2) }).serialize());
+    JobData testData = new JobData("MultiDeviceReadUpdateJob", null, -1, -1, new JsonJobData.Builder().putStringArray("message_ids", new String[]{ JsonUtils.toJson(id1), JsonUtils.toJson(id2) }).serialize());
     mockRecipientResolve("+16101234567", 1);
     mockRecipientResolve("+16101112222", 2);
 
@@ -259,7 +258,7 @@ public class RecipientIdJobMigrationTest {
 
   @Test
   public void migrate_pushMediaSendJob() throws Exception {
-    JobData testData = new JobData("PushMediaSendJob", "+16101234567", new JsonJobData.Builder().putLong("message_id", 1).serialize());
+    JobData testData = new JobData("PushMediaSendJob", "+16101234567", -1, -1, new JsonJobData.Builder().putLong("message_id", 1).serialize());
     mockRecipientResolve("+16101234567", 1);
 
     RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
@@ -271,40 +270,6 @@ public class RecipientIdJobMigrationTest {
     assertEquals(1, data.getLong("message_id"));
 
     new IndividualSendJob.Factory().create(mock(Job.Parameters.class), converted.getData());
-  }
-
-  @Test
-  public void migrate_smsSendJob_nonNull() throws Exception {
-    JobData testData = new JobData("SmsSendJob", "+16101234567", new JsonJobData.Builder().putLong("message_id", 1).putInt("run_attempt", 0).serialize());
-    mockRecipientResolve("+16101234567", 1);
-
-    RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
-    JobData                 converted = subject.migrate(testData);
-    JsonJobData             data      = JsonJobData.deserialize(converted.getData());
-
-    assertEquals("SmsSendJob", converted.getFactoryKey());
-    assertEquals(RecipientId.from(1).toQueueKey(), converted.getQueueKey());
-    assertEquals(1, data.getLong("message_id"));
-    assertEquals(0, data.getInt("run_attempt"));
-
-    new SmsSendJob.Factory().create(mock(Job.Parameters.class), converted.getData());
-  }
-
-  @Test
-  public void migrate_smsSendJob_null() throws Exception {
-    JobData testData = new JobData("SmsSendJob", null, new JsonJobData.Builder().putLong("message_id", 1).putInt("run_attempt", 0).serialize());
-    mockRecipientResolve("+16101234567", 1);
-
-    RecipientIdJobMigration subject   = new RecipientIdJobMigration(mock(Application.class));
-    JobData                 converted = subject.migrate(testData);
-    JsonJobData             data      = JsonJobData.deserialize(converted.getData());
-
-    assertEquals("SmsSendJob", converted.getFactoryKey());
-    assertNull(converted.getQueueKey());
-    assertEquals(1, data.getLong("message_id"));
-    assertEquals(0, data.getInt("run_attempt"));
-
-    new SmsSendJob.Factory().create(mock(Job.Parameters.class), converted.getData());
   }
 
   private void mockRecipientResolve(String address, long recipientId) {

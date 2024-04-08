@@ -26,9 +26,7 @@ class SignalInstrumentationApplicationContext : ApplicationContext() {
   }
 
   override fun initializeLogging() {
-    persistentLogger = PersistentLogger(this)
-
-    Log.initialize({ true }, AndroidLogger(), persistentLogger, inMemoryLogger)
+    Log.initialize({ true }, AndroidLogger(), PersistentLogger(this), inMemoryLogger)
 
     SignalProtocolLoggerProvider.setProvider(CustomSignalProtocolLogger())
 
@@ -36,5 +34,19 @@ class SignalInstrumentationApplicationContext : ApplicationContext() {
       Log.blockUntilAllWritesFinished()
       LogDatabase.getInstance(this).logs.trimToSize()
     }
+  }
+
+  override fun beginJobLoop() = Unit
+
+  /**
+   * Some of the jobs can interfere with some of the instrumentation tests.
+   *
+   * For example, we may try to create a release channel recipient while doing
+   * an import/backup test.
+   *
+   * This can be used to start the job loop if needed for tests that rely on it.
+   */
+  fun beginJobLoopForTests() {
+    super.beginJobLoop()
   }
 }

@@ -8,7 +8,6 @@ import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
@@ -40,6 +39,7 @@ public class ConversationShortcutUpdateJob extends BaseJob {
                        .setQueue("ConversationShortcutUpdateJob")
                        .setLifespan(TimeUnit.MINUTES.toMillis(15))
                        .setMaxInstancesForFactory(1)
+                       .setPriority(Parameters.PRIORITY_LOW)
                        .build());
   }
 
@@ -69,7 +69,7 @@ public class ConversationShortcutUpdateJob extends BaseJob {
     int         maxShortcuts = ConversationUtil.getMaxShortcuts(context);
     List<Recipient> ranked         = new ArrayList<>(maxShortcuts);
 
-    try (ThreadTable.Reader reader = threadTable.readerFor(threadTable.getRecentConversationList(maxShortcuts, false, false, false, true, !Util.isDefaultSmsProvider(context), false))) {
+    try (ThreadTable.Reader reader = threadTable.readerFor(threadTable.getRecentConversationList(maxShortcuts, false, false, false, true, true, false))) {
       ThreadRecord record;
       while ((record = reader.getNext()) != null) {
         ranked.add(record.getRecipient().resolve());

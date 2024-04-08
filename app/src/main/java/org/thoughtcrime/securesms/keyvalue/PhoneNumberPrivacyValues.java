@@ -2,8 +2,6 @@ package org.thoughtcrime.securesms.keyvalue;
 
 import androidx.annotation.NonNull;
 
-import org.thoughtcrime.securesms.util.FeatureFlags;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,13 +9,13 @@ import java.util.List;
 
 public final class PhoneNumberPrivacyValues extends SignalStoreValues {
 
-  public static final String SHARING_MODE      = "phoneNumberPrivacy.sharingMode";
-  public static final String LISTING_MODE      = "phoneNumberPrivacy.listingMode";
-  public static final String LISTING_TIMESTAMP = "phoneNumberPrivacy.listingMode.timestamp";
+  public static final String SHARING_MODE              = "phoneNumberPrivacy.sharingMode";
+  public static final String DISCOVERABILITY_MODE      = "phoneNumberPrivacy.listingMode";
+  public static final String DISCOVERABILITY_TIMESTAMP = "phoneNumberPrivacy.listingMode.timestamp";
 
-  private static final Collection<CertificateType> REGULAR_CERTIFICATE = Collections.singletonList(CertificateType.UUID_AND_E164);
-  private static final Collection<CertificateType> PRIVACY_CERTIFICATE = Collections.singletonList(CertificateType.UUID_ONLY);
-  private static final Collection<CertificateType> BOTH_CERTIFICATES   = Collections.unmodifiableCollection(Arrays.asList(CertificateType.UUID_AND_E164, CertificateType.UUID_ONLY));
+  private static final Collection<CertificateType> ACI_AND_E164_CERTIFICATE = Collections.singletonList(CertificateType.ACI_AND_E164);
+  private static final Collection<CertificateType> ACI_ONLY_CERTIFICATE     = Collections.singletonList(CertificateType.ACI_ONLY);
+  private static final Collection<CertificateType> BOTH_CERTIFICATES        = Collections.unmodifiableCollection(Arrays.asList(CertificateType.ACI_AND_E164, CertificateType.ACI_ONLY));
 
   PhoneNumberPrivacyValues(@NonNull KeyValueStore store) {
     super(store);
@@ -25,47 +23,50 @@ public final class PhoneNumberPrivacyValues extends SignalStoreValues {
 
   @Override
   void onFirstEverAppLaunch() {
-    // TODO [ALAN] PhoneNumberPrivacy: During registration, set the attribute to so that new registrations start out as not listed
-    //getStore().beginWrite()
-    //          .putInteger(LISTING_MODE, PhoneNumberListingMode.UNLISTED.serialize())
-    //          .apply();
+    getStore().beginWrite()
+              .putInteger(DISCOVERABILITY_MODE, PhoneNumberDiscoverabilityMode.UNDECIDED.serialize())
+              .apply();
   }
 
   @Override
   @NonNull List<String> getKeysToIncludeInBackup() {
-    return Arrays.asList(SHARING_MODE, LISTING_MODE, LISTING_TIMESTAMP);
+    return Arrays.asList(SHARING_MODE, DISCOVERABILITY_MODE, DISCOVERABILITY_TIMESTAMP);
   }
 
+  /**
+   * Note: Only giving raw access to the underlying value for storage service.
+   * Most callers should use {@link #isPhoneNumberSharingEnabled()}.
+   */
   public @NonNull PhoneNumberSharingMode getPhoneNumberSharingMode() {
-    if (!FeatureFlags.phoneNumberPrivacy()) {
-      return PhoneNumberSharingMode.EVERYONE;
-    }
+    return PhoneNumberSharingMode.deserialize(getInteger(SHARING_MODE, PhoneNumberSharingMode.DEFAULT.serialize()));
+  }
 
-    return PhoneNumberSharingMode.deserialize(getInteger(SHARING_MODE, PhoneNumberSharingMode.EVERYONE.serialize()));
+  public boolean isPhoneNumberSharingEnabled() {
+    return switch (getPhoneNumberSharingMode()) {
+      case EVERYBODY -> true;
+      case DEFAULT, NOBODY -> false;
+    };
   }
 
   public void setPhoneNumberSharingMode(@NonNull PhoneNumberSharingMode phoneNumberSharingMode) {
     putInteger(SHARING_MODE, phoneNumberSharingMode.serialize());
   }
 
-  public @NonNull PhoneNumberListingMode getPhoneNumberListingMode() {
-    if (!FeatureFlags.phoneNumberPrivacy()) {
-      return PhoneNumberListingMode.LISTED;
-    }
-
-    return PhoneNumberListingMode.deserialize(getInteger(LISTING_MODE, PhoneNumberListingMode.LISTED.serialize()));
+  public @NonNull PhoneNumberDiscoverabilityMode getPhoneNumberDiscoverabilityMode() {
+    // The default for existing users is to be discoverable, but new users are set to UNDECIDED in onFirstEverAppLaunch
+    return PhoneNumberDiscoverabilityMode.deserialize(getInteger(DISCOVERABILITY_MODE, PhoneNumberDiscoverabilityMode.DISCOVERABLE.serialize()));
   }
 
-  public void setPhoneNumberListingMode(@NonNull PhoneNumberListingMode phoneNumberListingMode) {
+  public void setPhoneNumberDiscoverabilityMode(@NonNull PhoneNumberDiscoverabilityMode phoneNumberDiscoverabilityMode) {
     getStore()
         .beginWrite()
-        .putInteger(LISTING_MODE, phoneNumberListingMode.serialize())
-        .putLong(LISTING_TIMESTAMP, System.currentTimeMillis())
+        .putInteger(DISCOVERABILITY_MODE, phoneNumberDiscoverabilityMode.serialize())
+        .putLong(DISCOVERABILITY_TIMESTAMP, System.currentTimeMillis())
         .apply();
   }
 
-  public long getPhoneNumberListingModeTimestamp() {
-    return getLong(LISTING_TIMESTAMP, 0);
+  public long getPhoneNumberDiscoverabilityModeTimestamp() {
+    return getLong(DISCOVERABILITY_TIMESTAMP, 0);
   }
 
   /**
@@ -73,11 +74,10 @@ public final class PhoneNumberPrivacyValues extends SignalStoreValues {
    * these certificates types.
    */
   public Collection<CertificateType> getRequiredCertificateTypes() {
-    switch (getPhoneNumberSharingMode()) {
-      case EVERYONE: return REGULAR_CERTIFICATE;
-      case CONTACTS: return BOTH_CERTIFICATES;
-      case NOBODY  : return PRIVACY_CERTIFICATE;
-      default      : throw new AssertionError();
+    if (isPhoneNumberSharingEnabled()) {
+      return ACI_AND_E164_CERTIFICATE;
+    } else {
+      return ACI_ONLY_CERTIFICATE;
     }
   }
 
@@ -85,12 +85,12 @@ public final class PhoneNumberPrivacyValues extends SignalStoreValues {
    * All certificate types required according to the feature flags.
    */
   public Collection<CertificateType> getAllCertificateTypes() {
-    return FeatureFlags.phoneNumberPrivacy() ? BOTH_CERTIFICATES : REGULAR_CERTIFICATE;
+    return BOTH_CERTIFICATES;
   }
 
   public enum PhoneNumberSharingMode {
-    EVERYONE(0),
-    CONTACTS(1),
+    DEFAULT(0),
+    EVERYBODY(1),
     NOBODY(2);
 
     private final int code;
@@ -114,30 +114,24 @@ public final class PhoneNumberPrivacyValues extends SignalStoreValues {
     }
   }
 
-  public enum PhoneNumberListingMode {
-    LISTED(0),
-    UNLISTED(1);
+  public enum PhoneNumberDiscoverabilityMode {
+    DISCOVERABLE(0),
+    NOT_DISCOVERABLE(1),
+    /** The user is going through registration and has not yet chosen a discoverability setting */
+    UNDECIDED(2);
 
     private final int code;
 
-    PhoneNumberListingMode(int code) {
+    PhoneNumberDiscoverabilityMode(int code) {
       this.code = code;
-    }
-
-    public boolean isDiscoverable() {
-      return this == LISTED;
-    }
-
-    public boolean isUnlisted() {
-      return this == UNLISTED;
     }
 
     public int serialize() {
       return code;
     }
 
-    public static PhoneNumberListingMode deserialize(int code) {
-      for (PhoneNumberListingMode value : PhoneNumberListingMode.values()) {
+    public static PhoneNumberDiscoverabilityMode deserialize(int code) {
+      for (PhoneNumberDiscoverabilityMode value : PhoneNumberDiscoverabilityMode.values()) {
         if (value.code == code) {
           return value;
         }

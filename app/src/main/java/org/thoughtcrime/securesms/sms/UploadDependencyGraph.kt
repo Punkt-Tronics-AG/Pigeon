@@ -6,12 +6,12 @@ import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment
 import org.thoughtcrime.securesms.attachments.UriAttachment
 import org.thoughtcrime.securesms.database.AttachmentTable
+import org.thoughtcrime.securesms.database.AttachmentTable.TransformProperties
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.JobManager
 import org.thoughtcrime.securesms.jobs.AttachmentCompressionJob
 import org.thoughtcrime.securesms.jobs.AttachmentCopyJob
 import org.thoughtcrime.securesms.jobs.AttachmentUploadJob
-import org.thoughtcrime.securesms.jobs.ResumableUploadSpecJob
 import org.thoughtcrime.securesms.mms.OutgoingMessage
 
 /**
@@ -44,7 +44,7 @@ class UploadDependencyGraph private constructor(
    */
   private data class AttachmentKey<A : Attachment>(
     val attachment: A,
-    private val transformProperties: AttachmentTable.TransformProperties = attachment.transformProperties
+    private val transformProperties: AttachmentTable.TransformProperties = attachment.transformProperties ?: AttachmentTable.TransformProperties.empty()
   )
 
   private var hasConsumedJobQueue = false
@@ -76,14 +76,14 @@ class UploadDependencyGraph private constructor(
      * Allows representation of a unique database attachment by its internal id and its transform properties.
      */
     private fun DatabaseAttachment.asDatabaseAttachmentKey(): AttachmentKey<DatabaseAttachment> {
-      return AttachmentKey(this, this.transformProperties)
+      return AttachmentKey(this, this.transformProperties ?: TransformProperties.empty())
     }
 
     /**
      * Allows representation of a unique URI attachment by its internal Uri and its transform properties.
      */
     private fun UriAttachment.asUriAttachmentKey(): AttachmentKey<UriAttachment> {
-      return AttachmentKey(this, transformProperties)
+      return AttachmentKey(this, transformProperties ?: TransformProperties.empty())
     }
 
     /**
@@ -120,7 +120,7 @@ class UploadDependencyGraph private constructor(
           message.linkPreviews.mapNotNull { it.thumbnail.orElse(null) } +
           message.sharedContacts.mapNotNull { it.avatar?.attachment }
 
-        val uniqueAttachments: Set<AttachmentKey<Attachment>> = attachmentList.map { AttachmentKey(it, it.transformProperties) }.toSet()
+        val uniqueAttachments: Set<AttachmentKey<Attachment>> = attachmentList.map { AttachmentKey(it, it.transformProperties ?: TransformProperties.empty()) }.toSet()
 
         for (attachmentKey in uniqueAttachments) {
           when (val attachment = attachmentKey.attachment) {
@@ -196,12 +196,10 @@ class UploadDependencyGraph private constructor(
      */
     private fun createAttachmentUploadChain(jobManager: JobManager, databaseAttachment: DatabaseAttachment): Pair<JobId, JobManager.Chain> {
       val compressionJob: Job = AttachmentCompressionJob.fromAttachment(databaseAttachment, false, -1)
-      val resumableUploadSpecJob: Job = ResumableUploadSpecJob()
       val uploadJob: Job = AttachmentUploadJob(databaseAttachment.attachmentId)
 
       return uploadJob.id to jobManager
         .startChain(compressionJob)
-        .then(resumableUploadSpecJob)
         .then(uploadJob)
     }
   }

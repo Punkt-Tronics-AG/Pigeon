@@ -35,6 +35,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Allows the scheduling of durable jobs that will be run as early as possible.
@@ -43,7 +44,7 @@ public class JobManager implements ConstraintObserver.Notifier {
 
   private static final String TAG = Log.tag(JobManager.class);
 
-  public static final int CURRENT_VERSION = 10;
+  public static final int CURRENT_VERSION = 11;
 
   private final Application   application;
   private final Configuration configuration;
@@ -54,7 +55,7 @@ public class JobManager implements ConstraintObserver.Notifier {
   @GuardedBy("emptyQueueListeners")
   private final Set<EmptyQueueListener> emptyQueueListeners = new CopyOnWriteArraySet<>();
 
-  private volatile boolean initialized;
+  private volatile boolean initialized = false;
 
   public JobManager(@NonNull Application application, @NonNull Configuration configuration) {
     this.application   = application;
@@ -73,6 +74,7 @@ public class JobManager implements ConstraintObserver.Notifier {
 
     executor.execute(() -> {
       synchronized (this) {
+        Log.d(TAG, "Starting initialization: " + Thread.currentThread());
         JobStorage jobStorage = configuration.getJobStorage();
         jobStorage.init();
 
@@ -91,6 +93,10 @@ public class JobManager implements ConstraintObserver.Notifier {
 
         initialized = true;
         notifyAll();
+
+        jobController.wakeUp();
+
+        Log.d(TAG, "Initialized");
       }
     });
   }
@@ -200,6 +206,24 @@ public class JobManager implements ConstraintObserver.Notifier {
 
     runOnExecutor(() -> {
       jobController.submitJobs(jobs);
+    });
+  }
+
+  public void addAllChains(@NonNull List<JobManager.Chain> chains) {
+    if (chains.isEmpty()) {
+      return;
+    }
+
+    for (Chain chain : chains) {
+      for (List<Job> jobList : chain.getJobListChain()) {
+        for (Job job : jobList) {
+          jobTracker.onStateChange(job, JobTracker.JobState.PENDING);
+        }
+      }
+    }
+
+    runOnExecutor(() -> {
+      jobController.submitNewJobChains(chains.stream().map(Chain::getJobListChain).collect(Collectors.toList()));
     });
   }
 
@@ -343,6 +367,11 @@ public class JobManager implements ConstraintObserver.Notifier {
 
   @Override
   public void onConstraintMet(@NonNull String reason) {
+    if (!initialized) {
+      Log.d(TAG, "Ignoring early onConstraintMet(" + reason + ")");
+      return;
+    }
+
     Log.i(TAG, "onConstraintMet(" + reason + ")");
     wakeUp();
   }
@@ -486,6 +515,18 @@ public class JobManager implements ConstraintObserver.Notifier {
       if (!jobs.isEmpty()) {
         this.jobs.add(new ArrayList<>(jobs));
       }
+      return this;
+    }
+
+    public Chain after(@NonNull Job job) {
+      return after(Collections.singletonList(job));
+    }
+
+    public Chain after(@NonNull List<? extends Job> jobs) {
+      if (!jobs.isEmpty()) {
+        this.jobs.add(0, new ArrayList<>(jobs));
+      }
+
       return this;
     }
 
