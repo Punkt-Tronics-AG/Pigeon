@@ -530,7 +530,8 @@ dependencies {
   implementation(libs.signal.aesgcmprovider)
   implementation(libs.libsignal.android)
   implementation(libs.mobilecoin)
-  implementation(libs.signal.ringrtc)
+  // Pigeon used local modified library
+//  implementation(libs.signal.ringrtc)
   implementation(libs.leolin.shortcutbadger)
   implementation(libs.emilsjolander.stickylistheaders)
   implementation(libs.apache.httpclient.android)
