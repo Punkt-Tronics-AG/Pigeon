@@ -459,6 +459,10 @@ dependencies {
   ktlintRuleset(libs.ktlint.twitter.compose)
   coreLibraryDesugaring(libs.android.tools.desugar)
 
+  // for Pigeon
+  implementation(files("libs/ringrtc-android-2.39.0.aar"))
+
+
   implementation(project(":libsignal-service"))
   implementation(project(":paging"))
   implementation(project(":core-util"))
