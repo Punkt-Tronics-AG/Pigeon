@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/root"
     style="@style/Mp02.Signal.Background"
     android:orientation="vertical">
 
@@ -63,7 +64,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/username_text_wrapper"
-        style="@style/Widget.Signal.TextInputLayout.Registration"
+        style="@style/Widget.Signal.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dsl_settings_gutter"

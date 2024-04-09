@@ -141,7 +141,7 @@
                     android:focusable="true"
                     android:clickable="true"
                     app:tint="@color/white"
-                    android:src="@drawable/ic_arrow_forward"
+                    android:src="@drawable/symbol_arrow_right_24"
                     android:text="@string/prompt_passphrase_activity__unlock"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>

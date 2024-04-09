@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:viewBindingIgnore="true"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/recording_container"
     android:layout_width="match_parent"
@@ -9,8 +8,9 @@
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    tools:visibility="visible"
-    tools:showIn="@layout/conversation_input_panel">
+    tools:showIn="@layout/conversation_input_panel"
+    tools:viewBindingIgnore="true"
+    tools:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/microphone"
@@ -20,10 +20,10 @@
         android:importantForAccessibility="no"
         android:tint="@color/red_500"
         android:visibility="invisible"
-        app:srcCompat="@drawable/ic_mic_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_mic_24"
         tools:visibility="visible" />
 
     <TextView
@@ -75,12 +75,12 @@
             style="@style/Signal.Text.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_keyboard_arrow_left_grey600_24dp"
             android:ellipsize="none"
             android:gravity="center_vertical"
             android:text="@string/conversation_input_panel__slide_to_cancel"
             android:textColor="@color/core_grey_60"
             android:visibility="gone"
+            app:drawableStartCompat="@drawable/symbol_chevron_left_16"
             tools:visibility="visible" />
 
     </FrameLayout>

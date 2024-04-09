@@ -103,12 +103,12 @@ public class CreateProfileFragment extends LoggingFragment {
 
     if (isPigeonVersion()) {
       binding.finishButton.setupAnimation();
-      if (groupId == null){
-        binding.pigeonGivenNameWrapper.setTextSize(36f);
-        binding.pigeonGivenName.setTextSize(36f);
-      }
-      animateGroup(binding.pigeonGivenName, binding.pigeonGivenNameWrapper);
-      animateGroup(binding.pigeonFamilyName, binding.pigeonFamilyNameWrapper);
+//      if (groupId == null){
+//        binding.pigeonGivenNameWrapper.setTextSize(36f);
+//        binding.pigeonGivenName.setTextSize(36f);
+//      }
+//      animateGroup(binding.pigeonGivenName, binding.pigeonGivenNameWrapper);
+//      animateGroup(binding.pigeonFamilyName, binding.pigeonFamilyNameWrapper);
     }
 
     getParentFragmentManager().setFragmentResultListener(AvatarPickerFragment.REQUEST_KEY_SELECT_AVATAR, getViewLifecycleOwner(), (key, bundle) -> {
@@ -185,7 +185,7 @@ public class CreateProfileFragment extends LoggingFragment {
       binding.whoCanFindMeContainer.setVisibility(View.GONE);
       binding.givenName.addTextChangedListener(new AfterTextChanged(s -> viewModel.setGivenName(s.toString())));
       binding.givenNameWrapper.setHint(R.string.EditProfileFragment__group_name);
-      binding.pigeonGivenNameWrapper.setText(R.string.EditProfileFragment__group_name);
+//      binding.pigeonGivenNameWrapper.setText(R.string.EditProfileFragment__group_name);
       binding.givenName.requestFocus();
       binding.toolbar.setTitle(R.string.EditProfileFragment__edit_group);
       binding.namePreview.setVisibility(View.GONE);
@@ -197,7 +197,7 @@ public class CreateProfileFragment extends LoggingFragment {
           viewModel.setFamilyName(s.toString());
         }));
         binding.familyNameWrapper.setHint(R.string.EditProfileFragment__group_description);
-        binding.pigeonFamilyNameWrapper.setText(R.string.EditProfileFragment__group_description);
+//        binding.pigeonFamilyNameWrapper.setText(R.string.EditProfileFragment__group_description);
         binding.familyName.setSingleLine(false);
         binding.familyName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
@@ -227,19 +227,19 @@ public class CreateProfileFragment extends LoggingFragment {
           viewModel.setFamilyName(s.toString());
         }));
       } else {
-        binding.pigeonGivenName.addTextChangedListener(new AfterTextChanged(s -> {
-          EditProfileNameFragment.trimFieldToMaxByteLength(s);
-          viewModel.setGivenName(s.toString());
-        }));
-        binding.pigeonFamilyName.addTextChangedListener(new AfterTextChanged(s -> {
-          EditProfileNameFragment.trimFieldToMaxByteLength(s);
-          viewModel.setFamilyName(s.toString());
-        }));
-
-        binding.pigeonFamilyName.addTextChangedListener(new AfterTextChanged(s -> {
-          EditProfileNameFragment.trimFieldToMaxByteLength(s);
-          viewModel.setFamilyName(s.toString());
-        }));
+//        binding.pigeonGivenName.addTextChangedListener(new AfterTextChanged(s -> {
+//          EditProfileNameFragment.trimFieldToMaxByteLength(s);
+//          viewModel.setGivenName(s.toString());
+//        }));
+//        binding.pigeonFamilyName.addTextChangedListener(new AfterTextChanged(s -> {
+//          EditProfileNameFragment.trimFieldToMaxByteLength(s);
+//          viewModel.setFamilyName(s.toString());
+//        }));
+//
+//        binding.pigeonFamilyName.addTextChangedListener(new AfterTextChanged(s -> {
+//          EditProfileNameFragment.trimFieldToMaxByteLength(s);
+//          viewModel.setFamilyName(s.toString());
+//        }));
       }
 
       binding.groupDescriptionText.setVisibility(View.GONE);
@@ -284,8 +284,8 @@ public class CreateProfileFragment extends LoggingFragment {
       viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.givenName, givenName));
       viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.familyName, familyName));
     } else  {
-      viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.pigeonGivenName, givenName));
-      viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.pigeonFamilyName, familyName));
+//      viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.pigeonGivenName, givenName));
+//      viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.pigeonFamilyName, familyName));
     }
 
     viewModel.profileName().observe(getViewLifecycleOwner(), profileName -> binding.namePreview.setText(profileName.toString()));

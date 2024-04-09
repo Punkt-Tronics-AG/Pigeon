@@ -24,12 +24,12 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Section Header" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/invite_image"
         android:layout_width="0px"
         android:layout_height="0px"
         android:importantForAccessibility="no"
-        android:src="@drawable/ic_new_group_circle"
+        android:src="@drawable/symbol_group_24"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

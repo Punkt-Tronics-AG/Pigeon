@@ -58,7 +58,7 @@
         tools:visibility="gone" />
 
     <!-- Body -->
-    <LinearLayout
+    <org.thoughtcrime.securesms.conversation.v2.items.ShrinkWrapLinearLayout
         android:id="@+id/conversation_item_body_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
             app:measureLastLine="true"
             app:scaleEmojis="true"
             tools:text="Testy test test test" />
-    </LinearLayout>
+    </org.thoughtcrime.securesms.conversation.v2.items.ShrinkWrapLinearLayout>
 
     <!-- Footer -->
     <View

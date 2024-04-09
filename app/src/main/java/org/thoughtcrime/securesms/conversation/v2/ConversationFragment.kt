@@ -88,6 +88,7 @@ import org.signal.core.util.Result
 import org.signal.core.util.ThreadUtil
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.concurrent.ListenableFuture
+import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.concurrent.addTo
 import org.signal.core.util.dp
 import org.signal.core.util.logging.Log
@@ -196,6 +197,7 @@ import org.thoughtcrime.securesms.conversation.v2.groups.ConversationGroupViewMo
 import org.thoughtcrime.securesms.conversation.v2.items.ChatColorsDrawable
 import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
 import org.thoughtcrime.securesms.conversation.v2.keyboard.AttachmentKeyboardFragment
+import org.thoughtcrime.securesms.crypto.SecurityEvent
 import org.thoughtcrime.securesms.database.DraftTable
 import org.thoughtcrime.securesms.database.model.IdentityRecord
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord
@@ -630,7 +632,7 @@ class ConversationFragment :
     myRecordTime    = view.findViewById(R.id.record_time)
 
     pigeonGroupCall?.setOnClickListener { v -> optionsMenuCallback.handleVideo() }
-    pigeonCall?.setOnClickListener { v -> optionsMenuCallback.handleDial(true) }
+    pigeonCall?.setOnClickListener { v -> optionsMenuCallback.handleDial() }
     secureSession?.setOnClickListener { v -> handleResetSecureSession() }
     voice?.setOnClickListener { v -> sendVoiceMessage() }
 
@@ -4445,7 +4447,7 @@ class ConversationFragment :
         return
       }
       if (pigeonCall?.visibility == View.VISIBLE) {
-        optionsMenuCallback.handleDial(true)
+        optionsMenuCallback.handleDial()
         return
       }
     }

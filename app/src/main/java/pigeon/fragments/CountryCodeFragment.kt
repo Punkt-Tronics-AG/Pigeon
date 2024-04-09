@@ -80,7 +80,7 @@ class CountryCodeFragment : LoggingFragment(), RegistrationNumberInputController
   }
 
   private fun showErrorDialog(msg: String?) {
-    MaterialAlertDialogBuilder(requireContext()).setMessage(msg).setPositiveButton(R.string.ok, null).show()
+    MaterialAlertDialogBuilder(requireContext()).setMessage(msg).setPositiveButton(R.string.Pigeon_ok, null).show()
   }
 
   override fun setCountry(countryCode: Int) {}

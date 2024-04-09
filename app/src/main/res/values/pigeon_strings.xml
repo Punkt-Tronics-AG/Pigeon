@@ -140,6 +140,7 @@ Updated May 25, 2018\n
     <string name="Pigeon_Setup_Sleep_Interval">Keep sleep timeout seconds</string>
     <string name="Pigeon_Setup_Incoming_Message_Interval">Incoming message interval timeout seconds</string>
     <string name="Pigeon_uuid">UUID</string>
+    <string name="Pigeon_ok">Ok</string>
 
 
 </resources>

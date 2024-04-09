@@ -871,7 +871,7 @@ class ConversationSettingsFragment : DSLSettingsFragment(
           title = DSLSettingsText.from(R.string.conversation__menu_edit_group),
           isEnabled = groupState.canEditGroupAttributes,
           onClick = {
-            startActivity(EditProfileActivity.getIntentForGroupProfile(requireActivity(), groupState.groupId))
+            startActivity(CreateProfileActivity.getIntentForGroupProfile(requireActivity(), groupState.groupId))
           }
         )
       }
@@ -1063,7 +1063,7 @@ class ConversationSettingsFragment : DSLSettingsFragment(
               recipient = member.member,
               isAdmin = member.isAdmin,
               onClick = {
-                RecipientBottomSheetDialogFragment.create(member.member.id, groupState.groupId).show(parentFragmentManager, "BOTTOM")
+                RecipientBottomSheetDialogFragment.show(parentFragmentManager, member.member.id, groupState.groupId)
               }
             )
           )

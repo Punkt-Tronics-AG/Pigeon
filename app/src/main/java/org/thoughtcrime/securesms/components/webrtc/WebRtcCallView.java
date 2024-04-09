@@ -56,6 +56,7 @@ import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
+import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
@@ -1040,19 +1041,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
     for (View view : visibleViewSet) {
       view.setVisibility(VISIBLE);
-      constraintSet.setVisibility(view.getId(), ConstraintSet.VISIBLE);
 
       if (view.getId() == hangupLabel.getId()) {
         isHangupRequest = true;
       }
-
-      if (adjustableMarginsSet.contains(view)) {
-        constraintSet.setMargin(view.getId(),
-                                ConstraintSet.END,
-                                ViewUtil.dpToPx(useSmallMargins ? SMALL_ONGOING_CALL_BUTTON_MARGIN_DP
-                                                                : LARGE_ONGOING_CALL_BUTTON_MARGIN_DP));
-      }
-
     }
 
     if (isSignalVersion()) {

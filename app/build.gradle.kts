@@ -21,8 +21,11 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
+val pigeonVersionCode = 127526
 val canonicalVersionCode = 1400
-val canonicalVersionName = "7.1.3"
+//val canonicalVersionName = "7.1.3"
+val canonicalVersionName = "Pigeon 2.0.0015 upon Signal 7.1.3"
+
 
 val postFixSize = 100
 val abiPostFix: Map<String, Int> = mapOf(
@@ -156,7 +159,8 @@ android {
   }
 
   defaultConfig {
-    versionCode = canonicalVersionCode * postFixSize
+    versionCode = pigeonVersionCode
+//    versionCode = canonicalVersionCode * postFixSize
     versionName = canonicalVersionName
 
     minSdk = signalMinSdkVersion
@@ -216,6 +220,7 @@ android {
     buildConfigField("String", "BADGE_STATIC_ROOT", "\"https://updates2.signal.org/static/badges/\"")
     buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"pk_live_6cmGZopuTsV8novGgJJW9JpC00vLIgtQ1D\"")
     buildConfigField("boolean", "TRACING_ENABLED", "false")
+    buildConfigField("boolean", "IS_SIGNAL", "false")
 
     ndk {
       abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
@@ -426,7 +431,8 @@ android {
             throw AssertionError("postFix is too large")
           }
 
-          output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
+//          output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
+          output.versionCodeOverride = pigeonVersionCode
         }
       }
   }
