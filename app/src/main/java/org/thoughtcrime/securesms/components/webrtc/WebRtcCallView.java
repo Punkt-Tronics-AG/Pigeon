@@ -406,7 +406,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     rotatableControls.add(answerWithoutVideo);
     rotatableControls.add(audioToggle);
     rotatableControls.add(pigeonAudioToggleLabel);
-    rotatableControls.add(pigeonAudioToggleLabel);
+    rotatableControls.add(micToggleLabel);
     rotatableControls.add(micToggle);
     rotatableControls.add(videoToggle);
     rotatableControls.add(cameraDirectionToggle);
@@ -794,7 +794,11 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       topFoldGuideline.setGuidelineEnd(webRtcControls.getFold());
       callScreenTopFoldGuideline.setGuidelineEnd(webRtcControls.getFold());
     } else {
-      showParticipantsGuideline.setGuidelineBegin(((LayoutParams) getStatusBarGuideline().getLayoutParams()).guideBegin);
+      if (isSignalVersion()) {
+        showParticipantsGuideline.setGuidelineBegin(((LayoutParams) getStatusBarGuideline().getLayoutParams()).guideBegin);
+      } else  {
+        showParticipantsGuideline.setGuidelineBegin(-1);
+      }
       showParticipantsGuideline.setGuidelineEnd(-1);
       topFoldGuideline.setGuidelineEnd(0);
       callScreenTopFoldGuideline.setGuidelineEnd(0);
@@ -913,6 +917,14 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
 
     onWindowSystemUiVisibilityChanged(getWindowSystemUiVisibility());
+
+    if (controls.displayEndCall()){
+      visibleViewSet.add(hangupLabel);
+    }
+
+    if (controls.displayMuteAudio()){
+      visibleViewSet.add(micToggleLabel);
+    }
   }
 
   public @NonNull View getVideoTooltipTarget() {
