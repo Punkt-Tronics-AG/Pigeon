@@ -58,6 +58,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/icon" />
 
+        <EditText
+            android:id="@+id/discriminator_text"
+            style="@style/Signal.Text.BodyLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="@string/UsernameEditFragment__00"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:maxLength="9"
+            android:maxLines="1"
+            android:minHeight="48dp"
+            android:paddingHorizontal="16dp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/username_text_wrapper"
+            app:layout_constraintRight_toRightOf="@id/username_box_fill"
+            tools:text="21" />
+
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

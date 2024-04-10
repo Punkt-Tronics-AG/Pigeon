@@ -41,6 +41,7 @@ import org.thoughtcrime.securesms.util.NameUtil.getAbbreviation
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog
+import pigeon.extensions.focusOnLeft
 import java.util.Arrays
 import java.util.Optional
 
@@ -73,6 +74,10 @@ class EditProfileFragment : LoggingFragment() {
     }
 
     initializeViewModel()
+
+    binding.manageProfileNameContainer.focusOnLeft()
+    binding.manageProfileUsernameContainer.focusOnLeft()
+    binding.manageProfileAboutContainer.focusOnLeft()
 
     binding.toolbar.setNavigationOnClickListener { requireActivity().finish() }
     binding.manageProfileEditPhoto.setOnClickListener { onEditAvatarClicked() }

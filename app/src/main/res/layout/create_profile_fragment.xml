@@ -262,6 +262,87 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:scrollIndicators="top|bottom">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/pigeonGivenNameWrapper"
+                            style="@style/Mp02.Signal.Text.CommonTextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:focusable="false"
+                            android:clickable="false"
+                            android:layout_gravity="start"
+                            android:textSize="24sp"
+                            android:layout_marginStart="@dimen/pigeon_start_margin"
+                            android:text="@string/CreateProfileActivity_first_name_required" />
+
+                        <EditText
+                            android:id="@+id/pigeonGivenName"
+                            style="@style/Mp02.Signal.Text.CommonTextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/pigeon_start_margin"
+                            android:layout_marginTop="@dimen/pigeon_bottom_margin"
+                            android:backgroundTint="@color/transparent"
+                            android:imeOptions="actionDone"
+                            android:textSize="24sp"
+                            android:textColor="@color/white_focus"
+                            android:nextFocusUp="@id/pigeonGivenName"
+                            android:nextFocusDown="@id/pigeon_family_name"
+                            android:importantForAutofill="no"
+                            android:inputType="textNoSuggestions|textVisiblePassword|textCapWords"
+                            android:padding="0dp"
+                            android:textAlignment="textStart"
+                            tools:text="@tools:sample/us_zipcodes">
+
+                            <requestFocus />
+
+                        </EditText>
+
+                        <TextView
+                            android:id="@+id/pigeon_family_name_wrapper"
+                            style="@style/Mp02.Signal.Text.CommonTextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:focusable="false"
+                            android:clickable="false"
+                            android:layout_marginStart="@dimen/pigeon_start_margin"
+                            android:layout_marginTop="@dimen/pigeon_bottom_margin"
+                            android:text="@string/CreateProfileActivity_last_name_optional" />
+
+                        <EditText
+                            android:id="@+id/pigeon_family_name"
+                            style="@style/Mp02.Signal.Text.CommonTextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/pigeon_start_margin"
+                            android:layout_marginTop="@dimen/pigeon_bottom_margin"
+                            android:backgroundTint="@color/transparent"
+                            android:imeOptions="actionDone"
+                            android:nextFocusUp="@id/pigeonGivenName"
+                            android:nextFocusDown="@id/finish_button"
+                            android:importantForAutofill="no"
+                            android:inputType="textNoSuggestions|textVisiblePassword|textCapWords"
+                            android:padding="0dp"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/white_focus"
+                            tools:text="@tools:sample/us_zipcodes" />
+                    </LinearLayout>
+
+                </ScrollView>
+
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </ScrollView>

@@ -141,6 +141,10 @@ Updated May 25, 2018\n
     <string name="Pigeon_Setup_Incoming_Message_Interval">Incoming message interval timeout seconds</string>
     <string name="Pigeon_uuid">UUID</string>
     <string name="Pigeon_ok">Ok</string>
+    <string name="Pigeon_ManageProfileFragment_write_a_few_words_about_yourself">Write a few words about yourself</string>
+    <string name="Pigeon_ManageProfileFragment_your_name">Your name</string>
+    <string name="Pigeon_ManageProfileFragment_your_username">Your username</string>
+
 
 
 </resources>
