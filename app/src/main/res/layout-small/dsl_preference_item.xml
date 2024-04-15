@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/pigeon_start_margin"
+    android:focusable="true"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
     android:descendantFocusability="blocksDescendants"
     tools:background="@color/black"
     tools:viewBindingIgnore="true">
