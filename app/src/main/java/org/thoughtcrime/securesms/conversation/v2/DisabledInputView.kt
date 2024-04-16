@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.messagerequests.MessageRequestsBottomView
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 
 /**
  * A one-stop-view for all your conversation input disabled needs.
@@ -80,7 +81,9 @@ class DisabledInputView @JvmOverloads constructor(
       create = { MessageRequestsBottomView(context) },
       bind = {
         setMessageRequestData(recipient, messageRequestState)
-        setWallpaperEnabled(recipient.hasWallpaper())
+        if (isSignalVersion()) {
+          setWallpaperEnabled(recipient.hasWallpaper())
+        }
 
         setAcceptOnClickListener { listener?.onAcceptMessageRequestClicked() }
         setDeleteOnClickListener { listener?.onDeleteClicked() }
