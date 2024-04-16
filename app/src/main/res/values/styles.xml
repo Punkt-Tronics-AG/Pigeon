@@ -420,4 +420,21 @@
         <item name="android:layout_width">@dimen/exo_media_preview_button_width</item>
         <item name="android:layout_height">@dimen/exo_media_preview_button_width</item>
     </style>
+
+    <style name="Pigeon_TimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="imageButtonStyle">@style/Pigeon_TimePicker.ImageButton</item>
+        <item name="chipStyle">@style/Pigeon_TimePicker.Chip</item>
+    </style>
+
+    <style name="Pigeon_TimePicker.ImageButton" parent="Widget.MaterialComponents.TimePicker.ImageButton">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Pigeon_TimePicker.Chip" parent="Widget.MaterialComponents.TimePicker.Display">
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:enabled">true</item>
+        <item name="android:editable">true</item>
+    </style>
+
 </resources>

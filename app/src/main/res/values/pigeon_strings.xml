@@ -144,6 +144,12 @@ Updated May 25, 2018\n
     <string name="Pigeon_ManageProfileFragment_write_a_few_words_about_yourself">Write a few words about yourself</string>
     <string name="Pigeon_ManageProfileFragment_your_name">Your name</string>
     <string name="Pigeon_ManageProfileFragment_your_username">Your username</string>
+    <string name="Pigeon_ExpiredBuildReminder_this_version_of_signal_has_expired">Your version of Pigeon has expired. Please update to continue using Pigeon</string>
+    <string name="Pigeon_OutdatedBuildReminder_your_version_of_signal_will_expire_today">This version of Pigeon will expire today. Update to the most recent version.</string>
+    <plurals name="Pigeon_OutdatedBuildReminder_your_version_of_signal_will_expire_in_n_days">
+        <item quantity="one">This version of Pigeon will expire tomorrow. Update to the most recent version.</item>
+        <item quantity="other">This version of Pigeon will expire in %d days. Update to the most recent version.</item>
+    </plurals>
 
 
 

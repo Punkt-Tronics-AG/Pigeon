@@ -47,6 +47,8 @@ import java.time.LocalTime;
 import java.util.Locale;
 import java.util.Objects;
 
+import pigeon.permissions.PigeonRationaleDialog;
+
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 public class BackupsPreferenceFragment extends Fragment {
@@ -267,12 +269,15 @@ public class BackupsPreferenceFragment extends Fragment {
 
   private void pickTime() {
     int timeFormat = DateFormat.is24HourFormat(requireContext()) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H;
-    final MaterialTimePicker timePickerFragment = new MaterialTimePicker.Builder()
+    final MaterialTimePicker timePickerFragment = new MaterialTimePicker
+        .Builder()
+        .setTheme(R.style.Pigeon_TimePicker)
         .setTimeFormat(timeFormat)
         .setHour(SignalStore.settings().getBackupHour())
         .setMinute(SignalStore.settings().getBackupMinute())
         .setTitleText(R.string.BackupsPreferenceFragment__set_backup_time)
         .build();
+
     timePickerFragment.addOnPositiveButtonClickListener(v -> {
       int hour = timePickerFragment.getHour();
       int minute = timePickerFragment.getMinute();
