@@ -232,6 +232,10 @@ class ControlsAndInfoController(
     bottomSheetVisibilityListeners.forEach { it.onShown() }
   }
 
+  fun isPigeonDialogShowed(): Boolean {
+    return behavior.state == BottomSheetBehavior.STATE_EXPANDED
+  }
+
   private fun hide(delay: Long = 0L) {
     if (delay == 0L) {
       if (controlState.isFadeOutEnabled || controlState == WebRtcControls.PIP) {

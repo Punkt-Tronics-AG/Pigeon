@@ -144,18 +144,17 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   private Barrier                       pipBottomBoundaryBarrier;
 
 
-
   private WebRtcCallParticipantsPagerAdapter    pagerAdapter;
   private WebRtcCallParticipantsRecyclerAdapter recyclerAdapter;
   private WebRtcReactionsRecyclerAdapter        reactionsAdapter;
   private PictureInPictureExpansionHelper       pictureInPictureExpansionHelper;
   private PendingParticipantsView.Listener      pendingParticipantsViewListener;
 
-  private final Set<View> incomingCallViews    = new HashSet<>();
-  private final Set<View> topViews             = new HashSet<>();
-  private final Set<View> visibleViewSet       = new HashSet<>();
-  private final Set<View> allTimeVisibleViews  = new HashSet<>();
-  private final Set<View> rotatableControls    = new HashSet<>();
+  private final Set<View> incomingCallViews   = new HashSet<>();
+  private final Set<View> topViews            = new HashSet<>();
+  private final Set<View> visibleViewSet      = new HashSet<>();
+  private final Set<View> allTimeVisibleViews = new HashSet<>();
+  private final Set<View> rotatableControls   = new HashSet<>();
 
   private final ThrottledDebouncer throttledDebouncer = new ThrottledDebouncer(TRANSITION_DURATION_MILLIS);
   private       WebRtcControls     controls           = WebRtcControls.NONE;
@@ -279,6 +278,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     focusOnLeft(hangupLabel);
     focusOnLeft(errorButton);
     focusOnLeft(pigeonVolumeToggle);
+    // for Pigeon
+    headerToolbar.setOnClickListener(v -> controlsListener.onCallInfoClicked());
 
     setAudioLabelName(audioToggle.getPigeonOutput());
 
@@ -432,6 +433,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       declineLabel.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && hangupLabel.getVisibility() == VISIBLE) {
       hangupLabel.performClick();
+    } else if (keyCode == KeyEvent.KEYCODE_BACK && event == KeyEvent.ACTION_UP) {
+      controlsListener.pigeonDialogClosed();
     }
   }
 
@@ -670,10 +673,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
         if (!localAvatar.equals(previousLocalAvatar)) {
           previousLocalAvatar = localAvatar;
           Glide.with(getContext().getApplicationContext())
-                  .load(localAvatar)
-                  .transform(new CenterCrop(), new BlurTransformation(getContext(), 0.25f, BlurTransformation.MAX_RADIUS))
-                  .diskCacheStrategy(DiskCacheStrategy.ALL)
-                  .into(largeLocalRenderNoVideoAvatar);
+               .load(localAvatar)
+               .transform(new CenterCrop(), new BlurTransformation(getContext(), 0.25f, BlurTransformation.MAX_RADIUS))
+               .diskCacheStrategy(DiskCacheStrategy.ALL)
+               .into(largeLocalRenderNoVideoAvatar);
         }
 
         smallLocalRenderFrame.setVisibility(View.GONE);
@@ -796,7 +799,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     } else {
       if (isSignalVersion()) {
         showParticipantsGuideline.setGuidelineBegin(((LayoutParams) getStatusBarGuideline().getLayoutParams()).guideBegin);
-      } else  {
+      } else {
         showParticipantsGuideline.setGuidelineBegin(-1);
       }
       showParticipantsGuideline.setGuidelineEnd(-1);
@@ -918,11 +921,11 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
     onWindowSystemUiVisibilityChanged(getWindowSystemUiVisibility());
 
-    if (controls.displayEndCall()){
+    if (controls.displayEndCall()) {
       visibleViewSet.add(hangupLabel);
     }
 
-    if (controls.displayMuteAudio()){
+    if (controls.displayMuteAudio()) {
       visibleViewSet.add(micToggleLabel);
     }
   }
@@ -1135,24 +1138,44 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
   public interface ControlsListener {
     void onVolumePressed();
+
     void onStartCall(boolean isVideoCall);
+
     void onCancelStartCall();
+
     void onAudioOutputChanged(@NonNull WebRtcAudioOutput audioOutput);
+
     @RequiresApi(31)
     void onAudioOutputChanged31(@NonNull WebRtcAudioDevice audioOutput);
+
     void onVideoChanged(boolean isVideoEnabled);
+
     void onMicChanged(boolean isMicEnabled);
+
     void onOverflowClicked();
+
     void onCameraDirectionChanged();
+
     void onEndCallPressed();
+
     void onDenyCallPressed();
+
     void onAcceptCallWithVoiceOnlyPressed();
+
     void onAcceptCallPressed();
+
     void onPageChanged(@NonNull CallParticipantsState.SelectedPage page);
+
     void onLocalPictureInPictureClicked();
+
     void onRingGroupChanged(boolean ringGroup, boolean ringingAllowed);
+
     void onCallInfoClicked();
+
     void onNavigateUpClicked();
+
     void toggleControls();
+
+    void pigeonDialogClosed();
   }
 }

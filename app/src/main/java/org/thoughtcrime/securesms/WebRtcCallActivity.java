@@ -1009,6 +1009,10 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     }  else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event.getAction() == KeyEvent.ACTION_UP) {
       callScreen.onKeyReceived(keyCode, event.getAction());
       return true;
+    } else if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && controlsAndInfo.isPigeonDialogShowed()) {
+      System.out.println("on back clicked");
+      callScreen.onKeyReceived(keyCode, event.getAction());
+      return true;
     }
     return super.onKeyUp(keyCode, event);
   }
@@ -1048,6 +1052,11 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
       if (controlState != null && !controlState.displayIncomingCallButtons()) {
         controlsAndInfo.toggleControls();
       }
+    }
+
+    @Override public void pigeonDialogClosed() {
+      System.out.println("Dialog closed");
+      controlsAndInfo.toggleControls();
     }
 
     @Override
