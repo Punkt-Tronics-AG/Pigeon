@@ -160,7 +160,7 @@ public class BackupDialog {
   public static void showVerifyBackupPassphraseDialog(@NonNull Context context) {
     View        view   = LayoutInflater.from(context).inflate(R.layout.enter_backup_passphrase_dialog, null);
     EditText    prompt = view.findViewById(R.id.restore_passphrase_input);
-    AlertDialog dialog = new MaterialAlertDialogBuilder(context)
+    AlertDialog dialog = new MaterialAlertDialogBuilder(context, R.style.Pigeon_MaterialAlertDialog)
                             .setTitle(R.string.BackupDialog_enter_backup_passphrase_to_verify)
                             .setView(view)
                             .setPositiveButton(R.string.BackupDialog_verify, null)

@@ -200,12 +200,21 @@
         <item name="alertDialogStyle">@style/Pigeon.MaterialAlertDialogStyle</item>
         <item name="android:dialogCornerRadius" tools:ignore="NewApi">28dp</item>
         <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.Signal.Title.Text</item>
+        <item name="materialAlertDialogTitlePanelStyle">@style/TitlePaneStyleCenter</item>
         <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.Signal.Body.Text</item>
         <item name="buttonBarPositiveButtonStyle">@style/Signal.Widget.Button.Dialog</item>
         <item name="buttonBarNeutralButtonStyle">@style/Signal.Widget.Button.Dialog</item>
         <item name="buttonBarNegativeButtonStyle">@style/Signal.Widget.Button.Dialog</item>
         <item name="textColorAlertDialogListItem">@color/signal_colorOnSurfaceVariant</item>
         <item name="android:checkedTextViewStyle">@style/Widget.Signal.CheckedTextView</item>
+    </style>
+
+
+    <style name="TitlePaneStyleCenter" parent="MaterialAlertDialog.MaterialComponents.Title.Panel.CenterStacked">
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">0dp</item>
     </style>
 
     <style name="Pigeon.MaterialAlertDialogStyle" parent="MaterialAlertDialog.Material3">

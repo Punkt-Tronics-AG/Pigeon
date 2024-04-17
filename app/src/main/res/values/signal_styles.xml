@@ -170,6 +170,7 @@
 
     <style name="Signal.Widget.Button.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textAppearance">@style/Signal.Text.LabelLarge</item>
+        <item name="android:layout_margin">0dp</item>
         <item name="android:textColor">@color/signal_button_secondary_text_selector</item>
     </style>
 
@@ -252,6 +253,7 @@
     </style>
 
     <style name="MaterialAlertDialog.Signal.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textSize">8sp</item>
         <item name="android:textAppearance">@style/Signal.Text.BodyMedium</item>
     </style>
 
