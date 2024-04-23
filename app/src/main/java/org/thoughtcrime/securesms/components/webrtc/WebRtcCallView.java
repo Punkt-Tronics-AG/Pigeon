@@ -435,6 +435,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       hangupLabel.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_BACK && event == KeyEvent.ACTION_UP) {
       controlsListener.pigeonDialogClosed();
+      headerToolbar.requestFocus();
     }
   }
 
@@ -532,6 +533,17 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   public void updateCallParticipants(@NonNull CallParticipantsViewState callParticipantsViewState) {
     lastState = callParticipantsViewState;
 
+    // for Pigeon
+    if(callParticipantsViewState.getCallParticipantsState().getRecipient().isIndividual()){
+      headerToolbar.setVisibility(View.GONE);
+      micToggleLabel.setNextFocusDownId(micToggleLabel.getId());
+    } else  {
+      headerToolbar.setVisibility(View.VISIBLE);
+      micToggleLabel.setNextFocusDownId(headerToolbar.getId());
+      headerToolbar.setNextFocusUpId(micToggleLabel.getId());
+    }
+    //
+
     CallParticipantsState            state              = callParticipantsViewState.getCallParticipantsState();
     boolean                          isPortrait         = callParticipantsViewState.isPortrait();
     boolean                          isLandscapeEnabled = callParticipantsViewState.isLandscapeEnabled();
@@ -598,6 +610,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
                                          @NonNull CallParticipant localCallParticipant,
                                          boolean displaySmallSelfPipInLandscape)
   {
+
     largeLocalRender.setMirror(localCallParticipant.getCameraDirection() == CameraState.Direction.FRONT);
 
     smallLocalRender.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);

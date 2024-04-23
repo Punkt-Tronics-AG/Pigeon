@@ -382,22 +382,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/call_screen"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/webrtc_call_view_toolbar_no_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/light_selectable_list_item_background"
-            android:clickable="true"
-            android:descendantFocusability="blocksDescendants"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusUp="@id/call_screen_audio_mic_toggle_label"
-            android:nextFocusDown="@id/webrtc_call_view_toolbar_no_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:menu="@menu/webrtc_toolbar_menu" />
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false">
 
         <include
             layout="@layout/webrtc_call_view_header_large"
@@ -584,12 +572,29 @@
             app:layout_constraintTop_toBottomOf="@+id/call_screen_speaker_toggle_label"
             tools:visibility="visible" />
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/webrtc_call_view_toolbar_no_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/light_selectable_list_item_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:nextFocusUp="@id/call_screen_audio_mic_toggle_label"
+            android:nextFocusDown="@id/webrtc_call_view_toolbar_no_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:menu="@menu/webrtc_toolbar_menu" />
+
         <ViewStub
             android:id="@+id/call_screen_pending_recipients"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="32dp"
+            android:focusable="false"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
             android:inflatedId="@+id/call_screen_pending_recipients"
             android:layout="@layout/call_screen_pending_participants_view"
             android:visibility="gone"
@@ -602,6 +607,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
+            android:focusable="false"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
             android:layout_marginBottom="28dp"
             android:inflatedId="@+id/call_screen_call_link_warning_view"
             android:layout="@layout/call_screen_call_link_warning_card"
@@ -617,7 +625,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:focusable="false"
             android:clickable="false"
+            android:focusableInTouchMode="false"
             android:orientation="vertical"
             android:scrollbars="none"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -628,7 +638,6 @@
             app:reverseLayout="true"
             tools:itemCount="2"
             tools:listitem="@layout/webrtc_call_reaction_recycler_item" />
-
 
         <org.thoughtcrime.securesms.stories.viewer.reply.reaction.MultiReactionBurstLayout
             android:id="@+id/call_screen_reactions_container"
@@ -646,6 +655,9 @@
             android:id="@+id/call_screen_raise_hand_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:focusable="false"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
             android:layout_marginBottom="12dp"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/call_screen_pending_recipients"
