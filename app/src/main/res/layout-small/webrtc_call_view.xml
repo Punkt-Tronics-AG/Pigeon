@@ -582,8 +582,8 @@
             android:focusableInTouchMode="true"
             android:nextFocusUp="@id/call_screen_audio_mic_toggle_label"
             android:nextFocusDown="@id/webrtc_call_view_toolbar_no_text"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/call_screen_audio_mic_toggle_label"
             app:menu="@menu/webrtc_toolbar_menu" />
 
         <ViewStub

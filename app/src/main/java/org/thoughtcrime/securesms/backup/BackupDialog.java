@@ -46,7 +46,7 @@ public class BackupDialog {
   {
     String[]    password = BackupUtil.generateBackupPassphrase();
     AlertDialog dialog   = new MaterialAlertDialogBuilder(context)
-                                          .setTitle(R.string.BackupDialog_enable_local_backups)
+//                                          .setTitle(R.string.BackupDialog_enable_local_backups)
                                           .setView(backupDirectorySelectionIntent != null ? R.layout.backup_enable_dialog_v29 : R.layout.backup_enable_dialog)
                                           .setPositiveButton(R.string.BackupDialog_enable_backups, null)
                                           .setNegativeButton(android.R.string.cancel, null)

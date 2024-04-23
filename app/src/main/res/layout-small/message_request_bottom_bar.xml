@@ -5,86 +5,103 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
     tools:viewBindingIgnore="true">
 
-    <LinearLayout
-        android:id="@+id/message_request_button_layout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/sim_background"
-        android:gravity="bottom"
-        android:orientation="vertical"
-        android:padding="@dimen/pigeon_small_margin">
+        android:layout_height="match_parent">
 
-        <org.thoughtcrime.securesms.util.views.LearnMoreTextView
-            android:id="@+id/message_request_question"
+        <LinearLayout
+            android:id="@+id/message_request_button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="11dp"
-            android:clickable="false"
-            android:focusable="false"
-            android:gravity="center"
-            android:paddingTop="16dp"
-            android:textColor="@color/white_focus"
-            tools:text="Do you want to let J. Jonah Jameson message you? They won't know you've seen their message until you accept." />
+            android:background="@color/sim_background"
+            android:orientation="vertical"
+            android:padding="@dimen/pigeon_small_margin">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/message_request_accept"
-            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/pigeon_start_margin"
-            android:layout_marginTop="@dimen/pigeon_small_margin"
-            android:nextFocusUp="@id/message_request_accept"
-            android:nextFocusDown="@id/message_request_block"
-            android:text="@string/MessageRequestBottomView_accept" />
+            <org.thoughtcrime.securesms.util.views.LearnMoreTextView
+                android:id="@+id/message_request_question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="11dp"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center"
+                android:paddingTop="16dp"
+                android:textColor="@color/white_focus"
+                tools:text="Do you want to let J. Jonah Jameson message you? They won't know you've seen their message until you accept." />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/message_request_block"
-            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/pigeon_start_margin"
-            android:nextFocusUp="@id/message_request_accept"
-            android:layout_marginTop="@dimen/pigeon_small_margin"
-            android:nextFocusDown="@id/message_request_report"
-            android:text="@string/MessageRequestBottomView_block" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_request_accept"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@id/message_request_accept"
+                android:nextFocusDown="@id/message_request_block"
+                android:text="@string/MessageRequestBottomView_accept" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/message_request_report"
-            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/pigeon_start_margin"
-            android:layout_marginTop="@dimen/pigeon_small_margin"
-            android:focusable="true"
-            android:nextFocusUp="@id/message_request_block"
-            android:nextFocusDown="@id/message_request_delete"
-            android:text="@string/MessageRequestBottomView_report" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_request_block"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@id/message_request_accept"
+                android:nextFocusDown="@id/message_request_unblock"
+                android:text="@string/MessageRequestBottomView_block" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/message_request_delete"
-            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/pigeon_start_margin"
-            android:layout_marginTop="@dimen/pigeon_small_margin"
-            android:focusable="true"
-            android:nextFocusUp="@id/message_request_report"
-            android:nextFocusDown="@id/message_request_unblock"
-            android:text="@string/MessageRequestBottomView_delete" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_request_unblock"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@id/message_request_block"
+                android:nextFocusDown="@id/message_request_delete"
+                android:text="@string/MessageRequestBottomView_unblock" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/message_request_unblock"
-            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/pigeon_start_margin"
-            android:layout_marginTop="@dimen/pigeon_small_margin"
-            android:nextFocusUp="@id/message_request_report"
-            android:nextFocusDown="@id/message_request_accept"
-            android:focusable="true"
-            android:text="@string/MessageRequestBottomView_unblock"
-           />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_request_delete"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@id/message_request_unblock"
+                android:nextFocusDown="@id/message_request_report"
+                android:text="@string/MessageRequestBottomView_delete" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_request_report"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@id/message_request_delete"
+                android:nextFocusDown="@id/message_request_report"
+                android:text="@string/MessageRequestBottomView_report" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/message_request_busy_indicator"

@@ -129,7 +129,7 @@ class MessageRequestsBottomView @JvmOverloads constructor(context: Context, attr
     accept.visible = !messageState.isBlocked
     block.visible = !messageState.isBlocked
     unblock.visible = messageState.isBlocked
-    delete.visible = messageState.reportedAsSpam || messageState.isBlocked
+    delete.visible = if (isSignalVersion())messageState.reportedAsSpam || messageState.isBlocked else true
     report.visible = !messageState.reportedAsSpam
   }
 
