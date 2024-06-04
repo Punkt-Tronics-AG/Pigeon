@@ -86,7 +86,7 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
                                    boolean allowStories,
                                    int pigeonAliveIntervalTime,
                                    int pigeonSleepIntervalTime) {
-    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories);
+    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonAliveIntervalTime, pigeonSleepIntervalTime);
   }
 
   public OkHttpWebSocketConnection(String name,
@@ -232,9 +232,7 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
 
     // For Pigeon
     while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
-      if(isSingalVersion()) {
-        Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
-      }
+//        Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
       Util.wait(this, isAlive ? Math.min(++pigeonAttempts * 200, TimeUnit.SECONDS.toMillis(15)) : TimeUnit.SECONDS.toMillis(180));
 
     }

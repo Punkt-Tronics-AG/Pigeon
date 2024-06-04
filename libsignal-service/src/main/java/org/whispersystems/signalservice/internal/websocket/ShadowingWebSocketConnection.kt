@@ -48,14 +48,18 @@ class ShadowingWebSocketConnection(
   allowStories: Boolean,
   private val chatService: ChatService,
   private val shadowPercentage: Int,
-  private val bridge: WebSocketShadowingBridge
+  private val bridge: WebSocketShadowingBridge,
+  pigeonAliveIntervalTime: Int,
+  pigeonSleepIntervalTime: Int
 ) : OkHttpWebSocketConnection(
   name,
   serviceConfiguration,
   credentialsProvider,
   signalAgent,
   healthMonitor,
-  allowStories
+  allowStories,
+  pigeonAliveIntervalTime,
+  pigeonSleepIntervalTime,
 ) {
   private var stats: Stats = try {
     bridge.readStatsSnapshot()?.let {
