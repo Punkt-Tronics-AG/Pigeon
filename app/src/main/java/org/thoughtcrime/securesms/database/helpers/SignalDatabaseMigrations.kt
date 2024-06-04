@@ -79,6 +79,16 @@ import org.thoughtcrime.securesms.database.helpers.migration.V218_RecipientPniSi
 import org.thoughtcrime.securesms.database.helpers.migration.V219_PniPreKeyStores
 import org.thoughtcrime.securesms.database.helpers.migration.V220_PreKeyConstraints
 import org.thoughtcrime.securesms.database.helpers.migration.V221_AddReadColumnToCallEventsTable
+import org.thoughtcrime.securesms.database.helpers.migration.V222_DataHashRefactor
+import org.thoughtcrime.securesms.database.helpers.migration.V223_AddNicknameAndNoteFieldsToRecipientTable
+import org.thoughtcrime.securesms.database.helpers.migration.V224_AddAttachmentArchiveColumns
+import org.thoughtcrime.securesms.database.helpers.migration.V225_AddLocalUserJoinedStateAndGroupCallActiveState
+import org.thoughtcrime.securesms.database.helpers.migration.V226_AddAttachmentMediaIdIndex
+import org.thoughtcrime.securesms.database.helpers.migration.V227_AddAttachmentArchiveTransferState
+import org.thoughtcrime.securesms.database.helpers.migration.V228_AddNameCollisionTables
+import org.thoughtcrime.securesms.database.helpers.migration.V229_MarkMissedCallEventsNotified
+import org.thoughtcrime.securesms.database.helpers.migration.V230_UnreadCountIndices
+import org.thoughtcrime.securesms.database.helpers.migration.V231_ArchiveThumbnailColumns
 
 /**
  * Contains all of the database migrations for [SignalDatabase]. Broken into a separate file for cleanliness.
@@ -160,10 +170,20 @@ object SignalDatabaseMigrations {
     218 to V218_RecipientPniSignatureVerified,
     219 to V219_PniPreKeyStores,
     220 to V220_PreKeyConstraints,
-    221 to V221_AddReadColumnToCallEventsTable
+    221 to V221_AddReadColumnToCallEventsTable,
+    222 to V222_DataHashRefactor,
+    223 to V223_AddNicknameAndNoteFieldsToRecipientTable,
+    224 to V224_AddAttachmentArchiveColumns,
+    225 to V225_AddLocalUserJoinedStateAndGroupCallActiveState,
+    226 to V226_AddAttachmentMediaIdIndex,
+    227 to V227_AddAttachmentArchiveTransferState,
+    228 to V228_AddNameCollisionTables,
+    229 to V229_MarkMissedCallEventsNotified,
+    230 to V230_UnreadCountIndices,
+    231 to V231_ArchiveThumbnailColumns
   )
 
-  const val DATABASE_VERSION = 221
+  const val DATABASE_VERSION = 231
 
   @JvmStatic
   fun migrate(context: Application, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

@@ -45,8 +45,6 @@
     <string name="ApplicationPreferencesActivity_disable_passphrase">¿Desactivar clave de acceso?</string>
     <string name="ApplicationPreferencesActivity_this_will_permanently_unlock_signal_and_message_notifications">Esto desbloqueará permanentemente Signal y las notificaciones por mensajes.</string>
     <string name="ApplicationPreferencesActivity_disable">Desactivar</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls">¿Desactivar mensajes y llamadas de Signal?</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls_by_unregistering">Esto desactivará los mensajes de Signal eliminando tu número del servidor. Necesitarás volver a registrar tu número de teléfono para usar Signal de nuevo en el futuro.</string>
     <string name="ApplicationPreferencesActivity_error_connecting_to_server">¡Fallo al conectarse al servidor!</string>
     <string name="ApplicationPreferencesActivity_pins_are_required_for_registration_lock">El bloqueo de registro necesita el PIN. Desactiva primero el bloqueo de registro y después el PIN.</string>
     <string name="ApplicationPreferencesActivity_pin_created">PIN creado.</string>
@@ -82,8 +80,9 @@
     <string name="AttachmentKeyboard_file">Archivo</string>
     <string name="AttachmentKeyboard_contact">Contacto</string>
     <string name="AttachmentKeyboard_location">Posición</string>
-    <string name="AttachmentKeyboard_Signal_needs_permission_to_show_your_photos_and_videos">Signal necesita acceso para mostrar tus fotos y vídeos.</string>
-    <string name="AttachmentKeyboard_give_access">Permitir acceso</string>
+    <string name="AttachmentKeyboard_Signal_needs_permission_to_show_your_photos_and_videos">Signal necesita permiso para mostrar tus fotos y vídeos</string>
+    <!-- Text for a button prompting users to allow Signal access to their gallery storage -->
+    <string name="AttachmentKeyboard_allow_access">Permitir acceso</string>
     <string name="AttachmentKeyboard_payment">Pago</string>
 
     <!-- AttachmentManager -->
@@ -91,6 +90,22 @@
     <string name="AttachmentManager_signal_requires_the_external_storage_permission_in_order_to_attach_photos_videos_or_audio">Signal necesita acceso al almacenamiento de tu teléfono para adjuntar fotos, vídeos o audio. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Almacenamiento».</string>
     <string name="AttachmentManager_signal_requires_contacts_permission_in_order_to_attach_contact_information">Signal necesita acceso a los contactos en tu teléfono para adjuntar información de personas en tus chats. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Contactos».</string>
     <string name="AttachmentManager_signal_requires_location_information_in_order_to_attach_a_location">Signal necesita acceso a tu posición para adjuntar la información en tus chats. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Ubicación».</string>
+
+    <!-- Dialog title asking users for location permission -->
+    <string name="AttachmentManager_signal_allow_access_location">Permitir acceso a tu ubicación</string>
+    <!-- Dialog description that will explain the steps needed to give location permission -->
+    <string name="AttachmentManager_signal_to_send_location">Para enviar tu ubicación:</string>
+    <!-- Alert dialog description asking for location permission -->
+    <string name="AttachmentManager_signal_allow_signal_access_location">Permitir a Signal acceso para enviar tu ubicación.</string>
+    <!-- Toast text explaining Signal\'s need for location access -->
+    <string name="AttachmentManager_signal_needs_location_access">Signal necesita acceso a los servicios de localización para enviar tu ubicación.</string>
+    <!-- Dialog title asking users for gallery storage permission -->
+    <string name="AttachmentManager_signal_allow_storage">Permitir acceso al almacenamiento</string>
+    <!-- Dialog description that will explain the steps needed to give gallery storage permission -->
+    <string name="AttachmentManager_signal_to_show_photos">Para mostrar fotos y vídeos:</string>
+    <!-- Toast text explaining Signal\'s need for storage access -->
+    <string name="AttachmentManager_signal_needs_storage_access">Signal necesita acceso a tu almacenamiento para mostrar tus fotos y vídeos.</string>
+
     <!-- Alert dialog title to show the recipient has not activated payments -->
     <string name="AttachmentManager__not_activated_payments">%1$s no ha activado Pagos </string>
     <!-- Alert dialog description to send the recipient a request to activate payments -->
@@ -210,6 +225,38 @@
     <string name="CameraXFragment_capture_description">Capturar</string>
     <string name="CameraXFragment_change_camera_description">Cambiar cámara</string>
     <string name="CameraXFragment_open_gallery_description">Abrir galería de fotos</string>
+    <!-- Button text asking for access to camera permissions -->
+    <string name="CameraXFragment_allow_access">Allow access</string>
+    <!-- Dialog title asking users for camera and microphone permission -->
+    <string name="CameraXFragment_allow_access_camera_microphone">Allow access to your camera and microphone</string>
+    <!-- Dialog title asking users for camera permission -->
+    <string name="CameraXFragment_allow_access_camera">Allow access to your camera</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="CameraXFragment_allow_access_microphone">Allow access to your microphone</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos -->
+    <string name="CameraXFragment_to_capture_photos_allow_camera">To capture photos, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera">To capture photos and video, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera and microphone access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera_microphone">To capture photos and video, allow Signal access to the camera and microphone.</string>
+    <!-- Text explaining why Signal needs microphone access to take videos -->
+    <string name="CameraXFragment_to_capture_videos_with_sound">To capture videos with sound, allow Signal access to your microphone.</string>
+    <!-- Text explaining why Signal needs camera access to scan QR codes -->
+    <string name="CameraXFragment_to_scan_qr_code_allow_camera">To scan a QR code, allow Signal access to the camera.</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when capturing photos -->
+    <string name="CameraXFragment_signal_needs_camera_access_capture_photos">Signal needs camera access to capture photos</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when scanning QR codes -->
+    <string name="CameraXFragment_signal_needs_camera_access_scan_qr_code">Signal needs camera access to scan QR codes</string>
+    <!-- Toast dialog explaining why Signal needs microphone permissions -->
+    <string name="CameraXFragment_signal_needs_microphone_access_video">Signal needs microphone access to capture video</string>
+    <!-- Dialog description that explains the steps needed to give camera permission -->
+    <string name="CameraXFragment_to_capture_photos">To capture photos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give camera and microphone permission -->
+    <string name="CameraXFragment_to_capture_photos_videos">To capture photos and videos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give microphone permission -->
+    <string name="CameraXFragment_to_capture_videos">To capture videos with sound:</string>
+    <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
+    <string name="CameraXFragment_to_scan_qr_codes">To scan QR codes:</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">Contactos recientes</string>
@@ -280,7 +327,8 @@
 
     <!-- ContactsDatabase -->
     <string name="ContactsDatabase_message_s">Mensaje %1$s</string>
-    <string name="ContactsDatabase_signal_call_s">Llamar a %1$s por Signal</string>
+    <string name="ContactsDatabase_signal_call_s">Signal Voice Call %1$s</string>
+    <string name="ContactsDatabase_signal_video_call_s">Signal Video Call %1$s</string>
 
     <!-- ContactNameEditActivity -->
     <!-- Toolbar title for contact name edit activity -->
@@ -309,7 +357,6 @@
     <string name="ConversationItem_error_network_not_delivered">Fallo al enviar</string>
     <string name="ConversationItem_group_action_left">%1$s ha abandonado el grupo.</string>
     <string name="ConversationItem_send_paused">Envío pausado</string>
-    <string name="ConversationItem_click_to_approve_unencrypted">Fallo al enviar. Toca para enviar sin cifrar</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">¿Enviar como SMS no cifrado?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_mms_dialog_title">¿Enviar como MMS no cifrado?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_dialog_message">Este mensaje <b>no</b> se cifrará porque esta persona ya no usa Signal.\n\n¿Enviar mensaje sin cifrar?</string>
@@ -389,8 +436,16 @@
     <string name="ConversationActivity_your_request_to_join_has_been_sent_to_the_group_admin">Se ha enviado tu solicitud para unirte al grupo al admin. Te llegará una notificación con su respuesta.</string>
     <string name="ConversationActivity_cancel_request">Cancelar solicitud</string>
 
-    <string name="ConversationActivity_to_send_audio_messages_allow_signal_access_to_your_microphone">Para enviar notas de voz y hacer llamadas, permite a Signal acceder al micrófono.</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="ConversationActivity_allow_access_microphone">Permitir acceso a tu micrófono</string>
+    <!-- Dialog description that will explain the steps needed to give microphone permissions -->
+    <string name="ConversationActivity_signal_to_send_audio_messages">Para enviar notas de voz:</string>
+    <!-- Alert dialog description asking for microphone permission in order to send voice messages -->
+    <string name="ConversationActivity_to_send_voice_messages_allow_signal_access_to_your_microphone">Para enviar notas de voz y hacer llamadas, permite a Signal acceder al micrófono.</string>
+    <!-- Toast text explaining Signal\'s need for microphone access -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_message">Signal necesita acceso al micrófono para grabar una nota de voz.</string>
     <string name="ConversationActivity_signal_requires_the_microphone_permission_in_order_to_send_audio_messages">Signal necesita acceso al micrófono para enviar notas de voz. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Micrófono».</string>
+
     <string name="ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s">Signal necesita acceso al micrófono y cámara para llamar a %1$s. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Micrófono» y «Cámara».</string>
     <string name="ConversationActivity_to_capture_photos_and_video_allow_signal_access_to_the_camera">Para hacer fotos y vídeos, permite el acceso de Signal a la cámara.</string>
     <string name="ConversationActivity_signal_needs_the_camera_permission_to_take_photos_or_video">Signal necesita acceso a la cámara para tomar fotos o vídeos. Por favor, ve a la aplicación «Ajustes», selecciona Signal en el menú «Aplicaciones y notificaciones» y en «Permisos» activa «Cámara».</string>
@@ -414,10 +469,17 @@
     <string name="ConversationActivity_you_will_leave_this_group_and_it_will_be_deleted_from_all_of_your_devices">Abandonarás este grupo, que se eliminará de todos tus dispositivos.</string>
     <string name="ConversationActivity_delete">Eliminar</string>
     <string name="ConversationActivity_delete_and_leave">Eliminar y abandonar</string>
-    <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone">Signal necesita acceder a tu micrófono para llamar a %1$s.</string>
+
+    <!-- Dialog description that will explain the steps needed to give microphone permissions for a voice call -->
+    <string name="ConversationActivity__to_start_call">Para iniciar una llamada:</string>
+    <!-- Alert dialog description asking for microphone permission in order to start a voice call -->
+    <string name="ConversationActivity__to_call_signal_needs_access_to_your_microphone">Para iniciar la llamada, permite a Signal el acceso al micrófono.</string>
+    <!-- Toast text explaining Signal\'s need for microphone access for a voice call -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_call">Signal necesita acceso al micrófono para iniciar una llamada.</string>
 
 
     <string name="ConversationActivity_join">Unirse</string>
+    <!-- Button text for an active group call but the call is currently full and unjoinable -->
     <string name="ConversationActivity_full">Completa</string>
 
     <string name="ConversationActivity_error_sending_media">Fallo al enviar adjunto</string>
@@ -616,6 +678,7 @@
     <string name="ConversationListFragment_unarchive">Desarchivar</string>
     <string name="ConversationListFragment_delete">Eliminar</string>
     <string name="ConversationListFragment_select_all">Seleccionarlos</string>
+    <!-- Screen title shown when selecting multiple items from a list like conversation threads or call logs. -->
     <plurals name="ConversationListFragment_s_selected">
         <item quantity="one">%1$d seleccionado</item>
         <item quantity="other">%1$d seleccionados</item>
@@ -867,6 +930,7 @@
         <item quantity="one">Invitación enviada</item>
         <item quantity="other">%1$d invitaciones enviadas</item>
     </plurals>
+    <!-- Dialog message shown when you are attempting to add a single contact to a group and you don\'t have enough information about them to do it automatically, so must do it via an invite instead. Placeholder is name/username/phone number. -->
     <string name="GroupManagement_invite_single_user">No se puede añadir automáticamente a %1$s al grupo. Ha recibido una invitación y no podrá ver ningún mensaje hasta que la acepte.</string>
     <string name="GroupManagement_invite_multiple_users">No se puede añadir automáticamente a estas personas al grupo. Han recibido una invitación y no podrán ver ningún mensaje hasta que la acepten.</string>
 
@@ -1047,7 +1111,9 @@
 
     <string name="ManageGroupActivity_edit_name_and_picture">Editar nombre e imagen</string>
     <string name="ManageGroupActivity_legacy_group">Grupo antiguo</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code -->
     <string name="ManageGroupActivity_legacy_group_learn_more">Este grupo usa el sistema antiguo de Signal. Funciones como admins de grupo o menciones solo están disponibles en el nuevo sistema.</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code to the end of the string -->
     <string name="ManageGroupActivity_legacy_group_upgrade">Este es un grupo del sistema antiguo. Para acceder a funciones como @menciones y admins,</string>
     <string name="ManageGroupActivity_legacy_group_too_large">Este grupo no se puede actualizar al nuevo sistema porque es demasiado grande. El tamaño máximo de grupo es de%1$d participantes.</string>
     <string name="ManageGroupActivity_upgrade_this_group">actualiza este grupo.</string>
@@ -1274,6 +1340,7 @@
         <item quantity="other">Eliminar</item>
     </plurals>
 
+    <!-- Screen title shown when selecting multiple items in the media overview screen. The first placeholder is the number of items, the second number is the cumulative file size in bytes. -->
     <plurals name="MediaOverviewActivity_d_selected_s">
         <item quantity="one">%1$d seleccionado (%2$s)</item>
         <item quantity="other">%1$d seleccionados (%2$s)</item>
@@ -1297,9 +1364,9 @@
     <string name="Megaphones_verify_pin">Verificar PIN</string>
     <string name="Megaphones_get_started">Comenzar</string>
     <string name="Megaphones_new_group">Nuevo grupo</string>
-    <string name="Megaphones_invite_friends">Invitar amistades</string>
+    <string name="Megaphones_invite_friends">Añadir amistades</string>
     <string name="Megaphones_chat_colors">Colores del chat</string>
-    <string name="Megaphones_add_a_profile_photo">Añade una foto a tu perfil</string>
+    <string name="Megaphones_add_a_profile_photo">Foto de perfil</string>
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">Respuestas</string>
@@ -1338,17 +1405,13 @@
     <string name="MessageRecord_left_group">Has abandonado el grupo.</string>
     <string name="MessageRecord_you_updated_group">Has actualizado el grupo.</string>
     <string name="MessageRecord_the_group_was_updated">Se actualizó el grupo.</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">Llamada realizada</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 video call -->
     <string name="MessageRecord_outgoing_video_call">Videollamada realizada</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_voice_call">Llamada no atendida</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_video_call">Videollamada no atendida</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered -->
+    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered or ringing -->
     <string name="MessageRecord_incoming_voice_call">Llamada entrante</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and answered -->
+    <!-- Update message shown when receiving an incoming 1:1 video call and answered or ringing -->
     <string name="MessageRecord_incoming_video_call">Videollamada entrante</string>
     <!-- Update message shown when receiving an incoming 1:1 voice/audio call and not answered -->
     <string name="MessageRecord_missed_voice_call">Llamada perdida</string>
@@ -1358,10 +1421,6 @@
     <string name="MessageRecord_missed_voice_call_notification_profile">Llamada de voz perdida mientras el perfil de notificación estaba activado</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
     <string name="MessageRecord_missed_video_call_notification_profile">Videollamada perdida mientras el perfil de notificación estaba activado</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_voice_call">Has rechazado una llamada</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_video_call">Has rechazado una videollamada</string>
     <!-- Call update formatter string to place the update message next to a time stamp. e.g., \'Incoming voice call · 11:11am\' -->
     <string name="MessageRecord_call_message_with_date">%1$s · %2$s</string>
     <string name="MessageRecord_s_updated_group">%1$s ha actualizado el grupo.</string>
@@ -1570,28 +1629,53 @@
     <string name="MessageRecord_can_accept_payments">%1$s ya puede aceptar Pagos</string>
 
     <!-- Group Calling update messages -->
-    <string name="MessageRecord_s_started_a_group_call_s">%1$s ha iniciado una llamada en grupo · %2$s</string>
-    <string name="MessageRecord_you_started_a_group_call_s">Has iniciado una llamada en grupo · %1$s</string>
-    <string name="MessageRecord_s_is_in_the_group_call_s">%1$s participa en la llamada · %2$s</string>
-    <string name="MessageRecord_you_are_in_the_group_call_s1">Participas en la llamada · %1$s</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s y %2$s participan en la llamada · %3$s</string>
-    <string name="MessageRecord_group_call_s">Llamada en grupo · %1$s</string>
-
-    <string name="MessageRecord_s_started_a_group_call">%1$s ha(s) iniciado una llamada en grupo</string>
-    <string name="MessageRecord_you_started_a_group_call">Has iniciado una llamada en grupo</string>
-    <string name="MessageRecord_s_is_in_the_group_call">%1$s participa en la llamada en grupo</string>
-    <string name="MessageRecord_you_are_in_the_group_call">Participas en la llamada</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s y %2$s participan en la llamada</string>
-    <string name="MessageRecord_group_call">Llamada en grupo</string>
+    <!-- Chat log text for an ongoing group call that has one participant with a placeholder for the short display name of the user that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_is_in_the_call_s">%1$s participa en la llamada · %2$s</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
+    <string name="MessageRecord_you_are_in_the_call_s1">Participas en la llamada · %1$s</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s y %2$s participan en la llamada · %3$s</string>
+    <!-- Chat log text for an ongoing group call that has one participant -->
+    <string name="MessageRecord_s_is_in_the_call">%1$s participa en la llamada</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined -->
+    <string name="MessageRecord_you_are_in_the_call">Participas en la llamada</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
+    <string name="MessageRecord_s_and_s_are_in_the_call">%1$s y %2$s participan en la llamada</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes -->
+    <string name="MessageRecord__the_video_call_has_ended">La videollamada ha finalizado</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes with a placeholder for formatted time -->
+    <string name="MessageRecord__the_video_call_has_ended_s">La videollamada ha finalizado · %1$s</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed -->
+    <string name="MessageRecord__missed_video_call">Videollamada perdida</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed with a placeholder for formatted time -->
+    <string name="MessageRecord__missed_video_call_s">Videollamada perdida · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user did not start -->
+    <string name="MessageRecord__incoming_video_call">Videollamada entrante</string>
+    <!-- Chat log text for a group call that ended that the local user did not start with a placeholder for formatted time -->
+    <string name="MessageRecord__incoming_video_call_s">Videollamada entrante · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user started -->
+    <string name="MessageRecord__outgoing_video_call">Videollamada realizada</string>
+    <!-- Chat log text for a group call that ended that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__outgoing_video_call_s">Videollamada realizada · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user started -->
+    <string name="MessageRecord__you_started_a_video_call">Iniciaste una videollamada</string>
+    <!-- Chat log text for an ongoing group call that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__you_started_a_video_call_s">Iniciaste una videollamada · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name -->
+    <string name="MessageRecord__s_started_a_video_call">%1$s inició una videollamada</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name and a placeholder for formatted time -->
+    <string name="MessageRecord__s_started_a_video_call_s">%1$s inició una videollamada · %2$s</string>
 
     <string name="MessageRecord_you">Tú</string>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call_s">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users, a placeholder for the number of users in the call, and a placeholder for formatted time -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call_s">
         <item quantity="one">%1$s, %2$s y %3$d persona más participan en la llamada · %4$s</item>
         <item quantity="other">%1$s, %2$s y %3$d personas más participan en la llamada · %4$s</item>
     </plurals>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users and a placeholder for the number of users in the call -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call">
         <item quantity="one">%1$s, %2$s y %3$d persona más participan en la llamada</item>
         <item quantity="other">%1$s, %2$s y %3$d personas más participan en la llamada</item>
     </plurals>
@@ -1975,7 +2059,7 @@
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">No hay mensajes directos con %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
-    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s está entre tus contactos del sistema</string>
+    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s está entre tus contactos del teléfono</string>
     <!-- Notice in a row when user has no groups in common -->
     <string name="AboutSheet__you_have_no_groups_in_common">No tienes grupos en común</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
@@ -1989,6 +2073,8 @@
     <string name="AboutSheet__about">Biografía</string>
     <!-- Text displayed in title for you -->
     <string name="AboutSheet__you">Tú</string>
+    <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
+    <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call">
@@ -2064,6 +2150,7 @@
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">No se puede solicitar el código de verificación. Por favor, comprueba tu conexión y vuelve a intentarlo.</string>
     <string name="RegistrationActivity_non_standard_number_format">Número en formato no estándar</string>
+    <!-- Dialog message shown to confirm when entering phone number (first placeholder) is normalized and formatted differently by the app (second placeholder). -->
     <string name="RegistrationActivity_the_number_you_entered_appears_to_be_a_non_standard">El número que has introducido (%1$s) parece usar un formato no estándar.\n\n ¿Es %2$s el correcto?</string>
     <string name="RegistrationActivity_signal_android_phone_number_format">Signal Android - Formato de número</string>
     <!--    Small "toast" notification to the user confirming that they have requested a new code via voice call.-->
@@ -2212,10 +2299,10 @@
     <string name="SupportEmailUtil_filter">Filtro:</string>
     <string name="SupportEmailUtil_device_info">Información de dispositivo:</string>
     <string name="SupportEmailUtil_android_version">Versión de Android:</string>
-    <string name="SupportEmailUtil_signal_version">Versión de Signal:</string>
-    <string name="SupportEmailUtil_signal_package">Paquete de Signal:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_version" translatable="false">Signal version:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">Bloqueo de registro:</string>
-    <string name="SupportEmailUtil_locale">Idioma:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">Grupo actualizado</string>
@@ -2625,6 +2712,10 @@
     <string name="contact_selection_activity__refresh_contacts">Actualizar contactos</string>
     <!-- Row item description for refreshing contacts -->
     <string name="contact_selection_activity__missing_someone">¿Falta alguien? Prueba a actualizar</string>
+    <!-- Row item title for finding people on Signal via your contacts -->
+    <string name="contact_selection_activity__find_people_you_know">Find people you know on Signal</string>
+    <!-- Row item description asking users for access to their contacts to find people they know -->
+    <string name="contact_selection_activity__allow_access_to_contacts">Allow access to your contacts</string>
     <!-- Row header title for more section -->
     <string name="contact_selection_activity__more">Más</string>
 
@@ -2658,6 +2749,14 @@
     <string name="ContactSelectionListFragment__find_by_phone_number">Buscar por núm. de teléfono</string>
     <!-- Text on row item to find user by username -->
     <string name="ContactSelectionListFragment__find_by_username">Buscar por alias</string>
+    <!-- Dialog title asking users for contact permission -->
+    <string name="ContactSelectionListFragment_allow_access_contacts">Allow access to contacts</string>
+    <!-- Dialog description that will explain the steps needed to give contact permissions -->
+    <string name="ContactSelectionListFragment_to_find_people">To find people you know on Signal:</string>
+    <!-- Text on button prompting users to give Signal contact permissions -->
+    <string name="ContactSelectionListFragment__allow_access">Allow access</string>
+    <!-- Text asking for user\'s contact permission -->
+    <string name="ContactSelectionListFragment__allow_access_to_your_contacts_encrypted">Allow access to your contacts. Your contacts are encrypted and not visible to the Signal service.</string>
 
     <!-- contact_selection_list_fragment -->
     <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">Signal necesita acceso a tus contactos para poder mostrarlos.</string>
@@ -2710,6 +2809,8 @@
     <string name="ConversationUpdateItem_loading">Cargando</string>
     <string name="ConversationUpdateItem_learn_more">Saber más</string>
     <string name="ConversationUpdateItem_join_call">Unirse a la llamada</string>
+    <!-- Action button label for starting a new call in the current conversation -->
+    <string name="ConversationUpdateItem_call_back">Devolver llamada</string>
     <string name="ConversationUpdateItem_return_to_call">Volver a la llamada</string>
     <string name="ConversationUpdateItem_call_is_full">La llamada está llena</string>
     <string name="ConversationUpdateItem_invite_friends">Invitar personas</string>
@@ -2774,6 +2875,7 @@
     <string name="safety_number_change_dialog__leave_call">Abandonar llamada</string>
     <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">Las siguentes personas pueden haber reinstalado Signal o cambiado su dispositivo. Verifica tus cifras de seguridas con ellas para asegurar vuestra privacidad.</string>
     <string name="safety_number_change_dialog__view">Ver</string>
+    <!-- Subtitle shown for a single contact and that their safety number was previously verified and is now no longer verified. -->
     <string name="safety_number_change_dialog__previous_verified">Identidad previamente verificada</string>
 
     <!-- EnableCallNotificationSettingsDialog__call_notifications_checklist -->
@@ -2925,6 +3027,18 @@
     <string name="EditProfileFragment__group_name">Nombre del grupo</string>
     <string name="EditProfileFragment__group_description">Descripción del grupo</string>
   <!-- Removed by excludeNonTranslatables <string name="EditProfileFragment__support_link" translatable="false">https://support.signal.org/hc/articles/360007459591</string> -->
+    <!-- The title of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_title">Actualiza Signal</string>
+    <!-- The body of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_body">Esta versión de Signal ha caducado. Actualízala ahora para continuar usando Signal.</string>
+    <!-- The button on a dialog prompting user to update to the latest version of Signal. When clicked, the user will be taken to the store to update their app. -->
+    <string name="EditProfileFragment_deprecated_dialog_update_button">Actualizar</string>
+    <!-- The title of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_title">Dispositivo no registrado</string>
+    <!-- The body of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_body">Este dispositivo ya no está registrado. Vuelve a registrarte para realizar cambios en tu cuenta.</string>
+    <!-- The button on a dialog informing the user that they cannot use this app feature when they are unregistered. When clicked, the user will be taken to a screen to help them re-register. -->
+    <string name="EditProfileFragment_unregistered_dialog_reregister_button">Registrarse de nuevo</string>
 
     <!-- EditProfileNameFragment -->
     <string name="EditProfileNameFragment_your_name">Tu nombre</string>
@@ -3007,7 +3121,7 @@
   <!-- Removed by excludeNonTranslatables <string name="HelpFragment__link__faq" translatable="false">https://support.signal.org</string> -->
     <string name="HelpFragment__support_info">Información de soporte</string>
     <string name="HelpFragment__signal_android_support_request">Petición de soporte Signal Android</string>
-    <string name="HelpFragment__debug_log">Registro de depuración:</string>
+  <!-- Removed by excludeNonTranslatables <string name="HelpFragment__debug_log" translatable="false">Debug Log:</string> -->
     <string name="HelpFragment__could_not_upload_logs">Imposible transmitir logs</string>
     <string name="HelpFragment__please_be_as_descriptive_as_possible">Por favor, sé lo más descriptivo posible para ayudarnos a entender la incidencia.</string>
     <string-array name="HelpFragment__categories_5">
@@ -3075,6 +3189,7 @@
 
     <string name="arrays__default">Por defecto</string>
     <string name="arrays__high">Alta</string>
+    <!-- Setting title that represent an abstract priority to assign to notifications as the max/highest priority a notification can be within the system. -->
     <string name="arrays__max">Máxima</string>
 
     <!-- plurals.xml -->
@@ -3213,7 +3328,8 @@
     <string name="preferences_storage__audio">Audio</string>
     <string name="preferences_storage__review_storage">Comprobar almacenamiento</string>
     <string name="preferences_storage__delete_older_messages">¿Eliminar mensajes antiguos?</string>
-    <string name="preferences_storage__clear_message_history">¿Eliminar historial de mensajes?</string>
+    <!-- Dialog title shown when selecting delete message history from manage storage -->
+    <string name="preferences_storage__delete_message_history">¿Eliminar el historial de mensajes?</string>
     <string name="preferences_storage__this_will_permanently_delete_all_message_history_and_media">Esto eliminará permanentemente todos los mensajes y adjuntos de este dispositivo con más antigüedad de %1$s.</string>
     <!-- The body of an alert dialog that is shown when confirming a trim operation. Trimming will delete all but the most recent messages in a chat. The placeholder represents how many messages are kept in each chat. All older messages are deleted. -->
     <plurals name="preferences_storage__this_will_permanently_trim_all_conversations_to_the_d_most_recent_messages">
@@ -3395,6 +3511,14 @@
     <!-- Storage permission row description -->
     <string name="GrantPermissionsFragment__send_photos_videos_and_files">Envía fotos, vídeos y archivos desde tu dispositivo.</string>
 
+    <!-- PermissionDeniedBottomSheet -->
+    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
+    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. Pulsa \"Ajustes\" más abajo</string>
+    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
+    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s Activar permiso</string>
+    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
+    <string name="PermissionDeniedBottomSheet__settings">Ajustes</string>
+
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
     <string name="PaymentsSecuritySetupFragment__security_setup">Configuración de seguridad</string>
@@ -3435,6 +3559,7 @@
     <string name="PaymentsDetailsFragment__sent_to_s">Enviado a %1$s</string>
     <string name="PaymentsDetailsFragment__you_on_s_at_s">Tú el %1$s a las %2$s</string>
     <string name="PaymentsDetailsFragment__s_on_s_at_s">%1$s el %2$s a las %3$s</string>
+    <!-- Prefix to a name to indicate who a payment was sent to -->
     <string name="PaymentsDetailsFragment__to">Para</string>
     <string name="PaymentsDetailsFragment__from">De</string>
     <string name="PaymentsDetailsFragment__information">Los detalles de la transacción incluyen la cantidad y fecha del pago, pero no su origen o destino y figuran en el libro mayor de MobileCoin.</string>
@@ -3497,6 +3622,7 @@
     <string name="ConfirmPayment__confirm_payment">Confirmar pago</string>
     <string name="ConfirmPayment__network_fee">Tasa de la red</string>
     <string name="ConfirmPayment__estimated_s">Estimación en %1$s</string>
+    <!-- Prefix to a name to indicate who a payment will be sent to -->
     <string name="ConfirmPayment__to">Para</string>
     <string name="ConfirmPayment__total_amount">Suma total</string>
     <string name="ConfirmPayment__balance_s">Balance: %1$s</string>
@@ -3647,6 +3773,14 @@
     <string name="conversation_group_options__conversation">Chat</string>
     <string name="conversation_group_options__broadcast">Transmisión</string>
 
+    <!-- DoubleTapEditEducationSheet -->
+    <!-- Displayed as the title of the education bottom sheet -->
+    <string name="DoubleTapEditEducationSheet__double_tap_edit_title">Pulsa dos veces para editar</string>
+    <!-- Text on the sheet explaining how double tapping on a message will let them edit it -->
+    <string name="DoubleTapEditEducationSheet__quickly_tap_twice">Pulsa rápidamente dos veces tus mensajes para editarlos. Puedes editar tus mensajes hasta 24 horas después de haberlos enviado.</string>
+    <!-- Button label to dismiss sheet -->
+    <string name="DoubleTapEditEducationSheet__got_it">Entendido</string>
+
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">Nuevo grupo</string>
     <string name="text_secure_normal__menu_settings">Ajustes</string>
@@ -3663,8 +3797,6 @@
     <string name="verify_display_fragment_context_menu__compare_with_clipboard">Comparar con el portapapeles</string>
 
     <!-- reminder_header -->
-    <string name="reminder_header_push_title">Activa mensajes y llamadas de Signal</string>
-    <string name="reminder_header_push_text">Mejora tu experiencia al comunicarte.</string>
     <string name="reminder_header_service_outage_text">Signal está experimentando dificultades técnicas. Estamos trabajando duro para restablecer el servicio lo antes posible.</string>
     <string name="reminder_header_progress">%1$d%%</string>
     <!-- Body text of a banner that will show at the top of the chat list when we temporarily cannot process the user\'s contacts -->
@@ -3961,6 +4093,8 @@
     <string name="TransferOrRestoreFragment__you_need_access_to_your_old_device">Debes tener acceso a tu dispositivo antiguo.</string>
     <string name="TransferOrRestoreFragment__restore_from_backup">Restaurar desde copia de seguridad</string>
     <string name="TransferOrRestoreFragment__restore_your_messages_from_a_local_backup">Restaura tus mensajes y adjuntos desde una copia de seguridad local. Si no lo haces ahora, no podrás restaurar más tarde.</string>
+    <!-- Button label for more options -->
+    <string name="TransferOrRestoreFragment__more_options">Más opciones</string>
 
     <!-- NewDeviceTransferInstructionsFragment -->
     <string name="NewDeviceTransferInstructions__open_signal_on_your_old_android_phone">Abre Signal en tu dispositivo Android antiguo</string>
@@ -4101,6 +4235,7 @@
     <string name="RecipientBottomSheet_copied_to_clipboard">Copiado al portapapeles</string>
 
     <string name="GroupRecipientListItem_admin">Admin</string>
+    <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">Aprobar</string>
     <string name="GroupRecipientListItem_deny_description">Denegar</string>
 
@@ -4128,6 +4263,7 @@
 
     <!-- VoiceNoteMediaDescriptionCompatFactory -->
     <string name="VoiceNoteMediaItemFactory__voice_message">Nota de voz · %1$s</string>
+    <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">%1$s de %2$s</string>
 
     <!-- StorageUtil -->
@@ -4141,8 +4277,16 @@
     <string name="ReviewCardDialogFragment__review_members">Revisar participantes</string>
     <!-- Title of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
     <string name="ReviewCardDialogFragment__review_request">Revisar solicitud</string>
-    <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">%1$d participantes usan el mismo nombre, revisa la lista de participantes debajo y selecciona la opción correcta.</string>
-    <string name="ReviewCardDialogFragment__if_youre_not_sure">Si no sabes quién ha enviado esta solicitud, revisa la lista de personas debajo para tomar la decisión correcta.</string>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__d_group_members_have_the_same_name">
+        <item quantity="one">%1$d participante del grupo usa el mismo nombre. Revisa la lista de participantes debajo y selecciona la opción adecuada.</item>
+        <item quantity="other">%1$d participantes del grupo usan el mismo nombre. Revisa la lista de participantes debajo y selecciona la opción adecuada.</item>
+    </plurals>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__if_youre_not_sure">
+        <item quantity="one">Si no sabes quién ha enviado esta solicitud, revisa el contacto debajo para tomar la decisión correcta.</item>
+        <item quantity="other">Si no sabes quién ha enviado esta solicitud, revisa la lista de contactos debajo para tomar la decisión correcta.</item>
+    </plurals>
     <string name="ReviewCardDialogFragment__no_other_groups_in_common">No hay otros grupos en común.</string>
     <string name="ReviewCardDialogFragment__no_groups_in_common">No hay grupos en común.</string>
     <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
@@ -4167,17 +4311,26 @@
     <!-- Displayed when a recent name change has occurred. First placeholder is new short name, second is previous name, third is new name. -->
     <string name="ReviewCard__s_recently_changed">%1$s ha cambiado su nombre de perfil recientemente de %2$s a %3$s</string>
     <!-- Displayed when a review user is in your system contacts. Placeholder is short name. -->
-    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s está entre tus contactos del sistema</string>
+    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s está entre tus contactos del teléfono</string>
 
     <!-- CallParticipantsListUpdatePopupWindow -->
     <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s se ha unido</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s y %2$s se han unido</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s, %2$s y %3$s se han unido</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s, %2$s y %3$d más se han unido</string>
+    <!-- Toast message shown in group call when 3 or more people join -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">
+        <item quantity="one">%1$s, %2$s y %3$d persona más se han unido a la llamada</item>
+        <item quantity="other">%1$s, %2$s y %3$d personas más se han unido a la llamada</item>
+    </plurals>
+    <!-- Toast/popup text shown when someone leaves a group call -->
     <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s se ha ido</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s y %2$s se han ido</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s, %2$s y %3$s se han ido</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s, %2$s y %3$d más se han ido</string>
+    <!-- Toast message shown in group call when 3 or more people leave -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">
+        <item quantity="one">%1$s, %2$s y %3$d persona más han salido de la llamada</item>
+        <item quantity="other">%1$s, %2$s y %3$d personas más han salido de la llamada</item>
+    </plurals>
 
     <string name="CallParticipant__you">Tú</string>
     <string name="CallParticipant__you_on_another_device">Tú (en otro dispositivo)</string>
@@ -4547,10 +4700,15 @@
 
     <!-- PrivacySettingsFragment -->
     <string name="PrivacySettingsFragment__blocked">Personas bloqueadas</string>
-    <string name="PrivacySettingsFragment__d_contacts">%1$d contactos</string>
+    <!-- Settings label that shows the number blocked contacts -->
+    <plurals name="PrivacySettingsFragment__d_contacts">
+        <item quantity="one">%1$d contacto</item>
+        <item quantity="other">%1$d contactos</item>
+    </plurals>
     <string name="PrivacySettingsFragment__messaging">Mensajería</string>
     <string name="PrivacySettingsFragment__disappearing_messages">Desaparición de mensajes</string>
     <string name="PrivacySettingsFragment__app_security">Seguridad de la aplicación</string>
+    <!-- This refers to the multi-tasking overview (recent apps) from the Android operating system.-->
     <string name="PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app">Bloquea capturas de pantalla en la lista de aplicaciones recientes y dentro de la aplicación</string>
     <string name="PrivacySettingsFragment__signal_message_and_calls">Los mensajes y llamadas de Signal siempre usan remitente confidencial y las llamadas se desvían</string>
     <string name="PrivacySettingsFragment__default_timer_for_new_changes">Tiempo de desaparición de mensajes por defecto en nuevos chats</string>
@@ -4607,11 +4765,14 @@
     <string name="DataAndStorageSettingsFragment__media_quality">Calidad de fotos y vídeos</string>
     <string name="DataAndStorageSettingsFragment__sent_media_quality">Calidad de envío de fotos y vídeos</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">Se usarán más datos al seleccionar la opción de alta calidad.</string>
+    <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">Alta</string>
+    <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
     <string name="DataAndStorageSettingsFragment__standard">Normal</string>
     <string name="DataAndStorageSettingsFragment__calls">Llamadas</string>
 
     <!-- ChatColorSelectionFragment -->
+    <!-- Text shown on a circle button to indicate the app will automatically select a color for conversation bubbles for this chat. -->
     <string name="ChatColorSelectionFragment__auto">Auto</string>
     <string name="ChatColorSelectionFragment__use_custom_colors">Usar colores personalizados</string>
     <string name="ChatColorSelectionFragment__chat_color">Color del chat</string>
@@ -4718,7 +4879,7 @@
     <string name="ConversationSettingsFragment__disappearing_messages">Desaparición de mensajes</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">Sonidos y notificaciones</string>
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
-    <string name="ConversationSettingsFragment__contact_details">Detalles personales</string>
+    <string name="ConversationSettingsFragment__contact_details">Información de contacto del teléfono</string>
     <string name="ConversationSettingsFragment__view_safety_number">Ver cifras de seguridad</string>
     <string name="ConversationSettingsFragment__block">Bloquear</string>
     <string name="ConversationSettingsFragment__block_group">Bloquear grupo</string>
@@ -4823,6 +4984,7 @@
     <string name="AvatarPickerFragment__take_a_picture">Toma una foto</string>
     <string name="AvatarPickerFragment__choose_a_photo">Selecciona una foto</string>
     <string name="AvatarPickerFragment__photo">Foto</string>
+    <!-- Button label during avatar selection/creation that when tapped lets you generate an avatar from typed in text. -->
     <string name="AvatarPickerFragment__text">Texto</string>
     <string name="AvatarPickerFragment__save">Guardar</string>
     <string name="AvatarPickerFragment__clear_avatar">Eliminar avatar</string>
@@ -4883,7 +5045,7 @@
     <string name="MediaReviewFragment__add_a_message">Añadir mensaje</string>
     <string name="MediaReviewFragment__add_a_reply">Añadir respuesta</string>
     <string name="MediaReviewFragment__send_to">Enviar a</string>
-    <string name="MediaReviewFragment__view_once_message">Mensaje para ver una vez</string>
+    <string name="MediaReviewFragment__view_once_message">Contenido para ver solo una vez</string>
     <string name="MediaReviewFragment__one_or_more_items_were_too_large">Uno o más elementos son demasiado grandes</string>
     <string name="MediaReviewFragment__one_or_more_items_were_invalid">Uno o más elementos no son válidos</string>
     <string name="MediaReviewFragment__too_many_items_selected">Demasiados elementos seleccionados</string>
@@ -5476,7 +5638,7 @@
     <string name="StoryViewerFragment__s_s">%1$s %2$s</string>
     <!-- Displayed when viewing a post you sent -->
     <string name="StoryViewerPageFragment__you">Tú</string>
-    <!-- Displayed when viewing a post displayed to a group -->
+    <!-- Displayed when viewing a story sent to a group, placeholders are person who sent the story and the group name -->
     <string name="StoryViewerPageFragment__s_to_s">%1$s a «%2$s»</string>
     <!-- Displayed when viewing a post from another user with no replies -->
     <string name="StoryViewerPageFragment__reply">Responder</string>
@@ -5569,7 +5731,7 @@
     <!-- Signal connections sheet bullet point 2 -->
     <string name="SignalConnectionsBottomSheet__accepting_a_message_request">Has aceptado una solicitud de chat</string>
     <!-- Signal connections sheet bullet point 3 -->
-    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">Están entre tus contactos del sistema</string>
+    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">Están entre tus contactos del teléfono</string>
     <!-- Note at the bottom of the Signal connections sheet -->
     <string name="SignalConnectionsBottomSheet__your_connections_can_see_your_name">"Tus conexiones en Signal pueden ver tu nombre y foto, así como tus «historias», a no ser que decidas ocultarlas para personas específicas."</string>
     <!-- Clickable option to add a viewer to a custom story -->
@@ -6652,6 +6814,76 @@
     <string name="FindByActivity__qr_scan_button">Escanear código QR</string>
     <!-- Content of a dialog indicating that we could not perform the requested action because we encountered a network error. -->
     <string name="FindByActivity__network_error_dialog">Fallo en la conexión de red. Inténtalo más tarde.</string>
+
+    <!-- Title for an alert letting someone know that one of their linked devices is inactive. -->
+    <string name="LinkedDeviceInactiveMegaphone_title">Dispositivo enlazado inactivo</string>
+    <!-- Body for an alert letting someone know that one of their linked devices is inactive. The string placeholder is the name of the device, and the number placeholder is the number of days before device is unlinked. -->
+    <plurals name="LinkedDeviceInactiveMegaphone_body">
+        <item quantity="one">Para mantener \"%1$s\" enlazado, abre Signal en ese dispositivo dentro de %2$d día.</item>
+        <item quantity="other">Para mantener \"%1$s\" enlazado, abre Signal en ese dispositivo dentro de %2$d días.</item>
+    </plurals>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the user will opt out of all future alerts. -->
+    <string name="LinkedDeviceInactiveMegaphone_dont_remind_button_label">No me lo recuerdes</string>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the alert will be dismissed. -->
+    <string name="LinkedDeviceInactiveMegaphone_got_it_button_label">Entendido</string>
+
+    <!-- NicknameFragment -->
+    <!-- Title displayed at the top of the screen -->
+    <string name="NicknameActivity__nickname">Apodo</string>
+    <!-- Subtitle displayed under title -->
+    <string name="NicknameActivity__nicknames_amp_notes">Los apodos y las notas se guardan en Signal y están cifrados de extremo a extremo. Solo tú los puedes ver.</string>
+    <!-- Field label for given name -->
+    <string name="NicknameActivity__first_name">Nombre</string>
+    <!-- Content description for first name clear button -->
+    <string name="NicknameActivity__clear_first_name">Borrar nombre</string>
+    <!-- Field label for family name -->
+    <string name="NicknameActivity__last_name">Apellido(s)</string>
+    <!-- Content description for last name clear button -->
+    <string name="NicknameActivity__clear_last_name">Borrar apellido</string>
+    <!-- Field label for note -->
+    <string name="NicknameActivity__note">Notas</string>
+    <!-- Button label to save -->
+    <string name="NicknameActivity__save">Guardar</string>
+    <!-- Dialog title for note and name deletion -->
+    <string name="NicknameActivity__delete_nickname">¿Eliminar?</string>
+    <!-- Dialog message for note and name deletion -->
+    <string name="NicknameActivity__this_will_permanently_delete_this_nickname_and_note">Esto eliminará permanentemente cualquier apodo y nota que hayas establecido.</string>
+
+    <!-- ViewNoteBottomSheetDialogFragment -->
+    <!-- Sheet title -->
+    <string name="ViewNoteSheet__note">Notas</string>
+    <!-- Content description for opening the note editor -->
+    <string name="ViewNoteSheet__edit_note">Editar nota</string>
+
+    <!-- BackupProgressService -->
+    <!-- Notification title shown while backup restore job is running -->
+    <string name="BackupProgressService_title">Recuperando copia de seguridad…</string>
+    <!-- Notification title shown while downloading backup restore data -->
+    <string name="BackupProgressService_title_downloading">Descargando copia de seguridad…</string>
+
+    <!-- BackupsTypeSettingsFragment -->
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__credit_or_debit_card">Tarjeta de crédito o débito</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__iDEAL">iDEAL</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__google_pay">Google Pay</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__bank_transfer">Transferencia bancaria</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__paypal">PayPal</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__unknown">Desconocido</string>
+
+    <!-- ManageStorageSettingsFragment -->
+    <!-- Settings section title header show above manage settings options for automatic chat history management (deleting) -->
+    <string name="ManageStorageSettingsFragment_chat_limit">Límite del chat</string>
+    <!-- Settings row title text that can be clicked to delete all messages and associated data from the device -->
+    <string name="ManageStorageSettingsFragment_delete_message_history">Eliminar el historial de mensajes</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (time is a range like 30 days or 1 year etc) -->
+    <string name="ManageStorageSettingsFragment_keep_messages_duration_warning">Los mensajes anteriores a la fecha seleccionada serán eliminados de forma permanente</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (limit is a number like 500 or 5,000) -->
+    <string name="ManageStorageSettingsFragment_chat_length_limit_warning">Los mensajes que excedan la longitud seleccionada serán eliminados de forma permanente.</string>
 
     <!-- EOF -->
 </resources>

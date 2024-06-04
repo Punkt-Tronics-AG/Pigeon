@@ -90,9 +90,9 @@ public final class FeatureFlags {
   private static final String CAMERAX_MODEL_BLOCKLIST           = "android.cameraXModelBlockList";
   private static final String CAMERAX_MIXED_MODEL_BLOCKLIST     = "android.cameraXMixedModelBlockList";
   private static final String PAYMENTS_REQUEST_ACTIVATE_FLOW    = "android.payments.requestActivateFlow";
-  public  static final String GOOGLE_PAY_DISABLED_REGIONS       = "global.donations.gpayDisabledRegions";
-  public  static final String CREDIT_CARD_DISABLED_REGIONS      = "global.donations.ccDisabledRegions";
-  public  static final String PAYPAL_DISABLED_REGIONS           = "global.donations.paypalDisabledRegions";
+  public static final  String GOOGLE_PAY_DISABLED_REGIONS       = "global.donations.gpayDisabledRegions";
+  public static final  String CREDIT_CARD_DISABLED_REGIONS      = "global.donations.ccDisabledRegions";
+  public static final  String PAYPAL_DISABLED_REGIONS           = "global.donations.paypalDisabledRegions";
   private static final String CDS_HARD_LIMIT                    = "android.cds.hardLimit";
   private static final String PAYPAL_ONE_TIME_DONATIONS         = "android.oneTimePayPalDonations.2";
   private static final String PAYPAL_RECURRING_DONATIONS        = "android.recurringPayPalDonations.3";
@@ -104,27 +104,33 @@ public final class FeatureFlags {
   private static final String SVR2_KILLSWITCH                   = "android.svr2.killSwitch";
   private static final String CDS_DISABLE_COMPAT_MODE           = "cds.disableCompatibilityMode";
   private static final String FCM_MAY_HAVE_MESSAGES_KILL_SWITCH = "android.fcmNotificationFallbackKillSwitch";
-  public  static final String PROMPT_FOR_NOTIFICATION_LOGS      = "android.logs.promptNotifications";
+  public static final  String PROMPT_FOR_NOTIFICATION_LOGS      = "android.logs.promptNotifications";
   private static final String PROMPT_FOR_NOTIFICATION_CONFIG    = "android.logs.promptNotificationsConfig";
-  public  static final String PROMPT_BATTERY_SAVER              = "android.promptBatterySaver";
-  public  static final String INSTANT_VIDEO_PLAYBACK            = "android.instantVideoPlayback.1";
-  public  static final String CRASH_PROMPT_CONFIG               = "android.crashPromptConfig";
+  public static final  String PROMPT_BATTERY_SAVER              = "android.promptBatterySaver";
+  public static final  String INSTANT_VIDEO_PLAYBACK            = "android.instantVideoPlayback.1";
+  public static final  String CRASH_PROMPT_CONFIG               = "android.crashPromptConfig";
   private static final String SEPA_DEBIT_DONATIONS              = "android.sepa.debit.donations.5";
   private static final String IDEAL_DONATIONS                   = "android.ideal.donations.5";
-  public  static final String IDEAL_ENABLED_REGIONS             = "global.donations.idealEnabledRegions";
-  public  static final String SEPA_ENABLED_REGIONS              = "global.donations.sepaEnabledRegions";
-  private static final String CALLING_REACTIONS                 = "android.calling.reactions";
+  public static final  String IDEAL_ENABLED_REGIONS             = "global.donations.idealEnabledRegions";
+  public static final  String SEPA_ENABLED_REGIONS              = "global.donations.sepaEnabledRegions";
   private static final String NOTIFICATION_THUMBNAIL_BLOCKLIST  = "android.notificationThumbnailProductBlocklist";
   private static final String CALLING_RAISE_HAND                = "android.calling.raiseHand";
-  private static final String USE_ACTIVE_CALL_MANAGER           = "android.calling.useActiveCallManager.4";
+  private static final String USE_ACTIVE_CALL_MANAGER           = "android.calling.useActiveCallManager.5";
   private static final String GIF_SEARCH                        = "global.gifSearch";
   private static final String AUDIO_REMUXING                    = "android.media.audioRemux.1";
   private static final String VIDEO_RECORD_1X_ZOOM              = "android.media.videoCaptureDefaultZoom";
   private static final String RETRY_RECEIPT_MAX_COUNT           = "android.retryReceipt.maxCount";
   private static final String RETRY_RECEIPT_MAX_COUNT_RESET_AGE = "android.retryReceipt.maxCountResetAge";
   private static final String PREKEY_FORCE_REFRESH_INTERVAL     = "android.prekeyForceRefreshInterval";
-  private static final String CDSI_LIBSIGNAL_NET                = "android.cds.libsignal";
-  private static final String RX_MESSAGE_SEND                   = "android.rxMessageSend";
+  private static final String CDSI_LIBSIGNAL_NET                = "android.cds.libsignal.3";
+  private static final String RX_MESSAGE_SEND                   = "android.rxMessageSend.2";
+  private static final String LINKED_DEVICE_LIFESPAN_SECONDS    = "android.linkedDeviceLifespanSeconds";
+  private static final String MESSAGE_BACKUPS                   = "android.messageBackups";
+  private static final String CAMERAX_CUSTOM_CONTROLLER         = "android.cameraXCustomController";
+  private static final String REGISTRATION_V2                   = "android.registration.v2";
+  private static final String LIBSIGNAL_WEB_SOCKET_ENABLED      = "android.libsignalWebSocketEnabled";
+  private static final String RESTORE_POST_REGISTRATION         = "android.registration.restorePostRegistration";
+  private static final String LIBSIGNAL_WEB_SOCKET_SHADOW_PCT   = "android.libsignalWebSocketShadowingPercentage";
 
   /**
    * We will only store remote values for flags in this set. If you want a flag to be controllable
@@ -191,7 +197,6 @@ public final class FeatureFlags {
       IDEAL_DONATIONS,
       IDEAL_ENABLED_REGIONS,
       SEPA_ENABLED_REGIONS,
-      CALLING_REACTIONS,
       NOTIFICATION_THUMBNAIL_BLOCKLIST,
       CALLING_RAISE_HAND,
       USE_ACTIVE_CALL_MANAGER,
@@ -202,11 +207,15 @@ public final class FeatureFlags {
       RETRY_RECEIPT_MAX_COUNT_RESET_AGE,
       PREKEY_FORCE_REFRESH_INTERVAL,
       CDSI_LIBSIGNAL_NET,
-      RX_MESSAGE_SEND
+      RX_MESSAGE_SEND,
+      LINKED_DEVICE_LIFESPAN_SECONDS,
+      CAMERAX_CUSTOM_CONTROLLER,
+      LIBSIGNAL_WEB_SOCKET_ENABLED,
+      LIBSIGNAL_WEB_SOCKET_SHADOW_PCT
   );
 
   @VisibleForTesting
-  static final Set<String> NOT_REMOTE_CAPABLE = SetUtil.newHashSet();
+  static final Set<String> NOT_REMOTE_CAPABLE = SetUtil.newHashSet(MESSAGE_BACKUPS, REGISTRATION_V2, RESTORE_POST_REGISTRATION);
 
   /**
    * Values in this map will take precedence over any value. This should only be used for local
@@ -269,7 +278,6 @@ public final class FeatureFlags {
       PROMPT_FOR_NOTIFICATION_CONFIG,
       PROMPT_BATTERY_SAVER,
       CRASH_PROMPT_CONFIG,
-      CALLING_REACTIONS,
       NOTIFICATION_THUMBNAIL_BLOCKLIST,
       CALLING_RAISE_HAND,
       VIDEO_RECORD_1X_ZOOM,
@@ -277,7 +285,9 @@ public final class FeatureFlags {
       RETRY_RECEIPT_MAX_COUNT_RESET_AGE,
       PREKEY_FORCE_REFRESH_INTERVAL,
       CDSI_LIBSIGNAL_NET,
-      RX_MESSAGE_SEND
+      RX_MESSAGE_SEND,
+      LINKED_DEVICE_LIFESPAN_SECONDS,
+      CAMERAX_CUSTOM_CONTROLLER
   );
 
   /**
@@ -371,7 +381,7 @@ public final class FeatureFlags {
 
   /** Internal testing extensions. */
   public static boolean internalUser() {
-    return getBoolean(INTERNAL_USER, false) || Environment.IS_PNP || Environment.IS_STAGING;
+    return getBoolean(INTERNAL_USER, false) || Environment.IS_NIGHTLY || Environment.IS_STAGING;
   }
 
   /** Whether or not to use the UUID in verification codes. */
@@ -669,13 +679,6 @@ public final class FeatureFlags {
   }
 
   /**
-   * Whether or not group call reactions are enabled.
-   */
-  public static boolean groupCallReactions() {
-    return getBoolean(CALLING_REACTIONS, false);
-  }
-
-  /**
    * Whether or not group call raise hand is enabled.
    */
   public static boolean groupCallRaiseHand() {
@@ -720,6 +723,47 @@ public final class FeatureFlags {
   /** Use Rx threading model to do sends. */
   public static boolean useRxMessageSending() {
     return getBoolean(RX_MESSAGE_SEND, false);
+  }
+
+  /** The lifespan of a linked device (i.e. the time it can be inactive for before it expires), in milliseconds. */
+  public static long linkedDeviceLifespan() {
+    long seconds = getLong(LINKED_DEVICE_LIFESPAN_SECONDS, TimeUnit.DAYS.toSeconds(30));
+    return TimeUnit.SECONDS.toMillis(seconds);
+  }
+
+  /**
+   * Enable Message Backups UI
+   * Note: This feature is in active development and is not intended to currently function.
+   */
+  public static boolean messageBackups() {
+    return BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED || getBoolean(MESSAGE_BACKUPS, false);
+  }
+
+  /** Whether or not to use the custom CameraX controller class */
+  public static boolean customCameraXController() {
+    return getBoolean(CAMERAX_CUSTOM_CONTROLLER, false);
+  }
+
+  /** Whether or not to use the V2 refactor of registration. */
+  public static boolean registrationV2() {
+    return getBoolean(REGISTRATION_V2, false);
+  }
+
+  /** Whether unauthenticated chat web socket is backed by libsignal-net */
+  public static boolean libSignalWebSocketEnabled() { return getBoolean(LIBSIGNAL_WEB_SOCKET_ENABLED, false); }
+
+  /** Whether or not to launch the restore activity after registration is complete, rather than before. */
+  public static boolean restoreAfterRegistration() {
+    return getBoolean(RESTORE_POST_REGISTRATION, false);
+  }
+
+  /**
+   * Percentage [0, 100] of web socket requests that will be "shadowed" by sending
+   * an unauthenticated keep-alive via libsignal-net. Default: 0
+   */
+  public static  int libSignalWebSocketShadowingPercentage() {
+    int value = getInteger(LIBSIGNAL_WEB_SOCKET_SHADOW_PCT, 0);
+    return Math.max(0, Math.min(value, 100));
   }
 
   /** Only for rendering debug info. */

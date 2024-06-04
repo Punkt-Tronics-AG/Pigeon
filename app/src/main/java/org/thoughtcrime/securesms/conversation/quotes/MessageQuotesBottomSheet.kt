@@ -73,7 +73,7 @@ class MessageQuotesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment() {
 
     val colorizer = Colorizer()
 
-    messageAdapter = ConversationAdapter(requireContext(), viewLifecycleOwner, Glide.with(this), Locale.getDefault(), ConversationAdapterListener(), conversationRecipient.hasWallpaper(), colorizer).apply {
+    messageAdapter = ConversationAdapter(requireContext(), viewLifecycleOwner, Glide.with(this), Locale.getDefault(), ConversationAdapterListener(), conversationRecipient.hasWallpaper, colorizer).apply {
       setCondensedMode(ConversationItemDisplayMode.Condensed(scheduleMessageMode = false))
     }
 
@@ -261,6 +261,7 @@ class MessageQuotesBottomSheet : FixedRoundedCornerBottomSheetDialogFragment() {
     override fun onShowSafetyTips(forGroup: Boolean) = Unit
     override fun onReportSpamLearnMoreClicked() = Unit
     override fun onMessageRequestAcceptOptionsClicked() = Unit
+    override fun onItemDoubleClick(item: MultiselectPart) = Unit
   }
 
   companion object {

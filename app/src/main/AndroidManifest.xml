@@ -714,6 +714,7 @@
               android:theme="@style/TextSecure.DarkNoActionBar"
               android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
               android:launchMode="singleTop"
+              android:screenOrientation="portrait"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
               android:exported="false"/>
 
@@ -758,7 +759,7 @@
         android:exported="false"/>
 
     <activity
-        android:name=".backup.v2.ui.MessageBackupsFlowActivity"
+        android:name=".backup.v2.ui.subscription.MessageBackupsFlowActivity"
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
         android:exported="false"
         android:theme="@style/Signal.DayNight.NoActionBar"
@@ -840,6 +841,20 @@
         android:exported="false"/>
 
     <activity android:name=".registration.RegistrationNavigationActivity"
+              android:launchMode="singleTask"
+              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+              android:windowSoftInputMode="stateHidden"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+              android:exported="false"/>
+
+    <activity android:name=".registration.v2.ui.RegistrationV2Activity"
+              android:launchMode="singleTask"
+              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+              android:windowSoftInputMode="stateHidden"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+              android:exported="false"/>
+
+    <activity android:name=".restore.RestoreActivity"
               android:launchMode="singleTask"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
               android:windowSoftInputMode="stateHidden"
@@ -942,10 +957,16 @@
         android:launchMode="singleTask"
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize">
 
-        <intent-filter>
+        <intent-filter tools:ignore="AppLinkUrlError">
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <data android:mimeType="vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.call" />
+        </intent-filter>
+
+        <intent-filter tools:ignore="AppLinkUrlError">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:mimeType="vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.videocall" />
         </intent-filter>
 
     </activity>
@@ -971,7 +992,16 @@
               android:windowSoftInputMode="stateVisible|adjustResize"
               android:exported="false"/>
 
+    <activity android:name=".backup.v2.ui.subscription.MessageBackupsTestRestoreActivity"
+              android:theme="@style/TextSecure.LightRegistrationTheme"
+              android:exported="false"/>
+
     <activity android:name=".profiles.manage.EditProfileActivity"
+              android:theme="@style/TextSecure.LightTheme"
+              android:windowSoftInputMode="stateVisible|adjustResize"
+              android:exported="false"/>
+
+    <activity android:name=".nicknames.NicknameActivity"
               android:theme="@style/TextSecure.LightTheme"
               android:windowSoftInputMode="stateVisible|adjustResize"
               android:exported="false"/>
@@ -1169,6 +1199,10 @@
         android:exported="false"/>
 
     <service
+        android:name=".service.BackupProgressService"
+        android:exported="false"/>
+
+    <service
         android:name=".gcm.FcmFetchBackgroundService"
         android:exported="false"/>
 
@@ -1321,6 +1355,12 @@
         </intent-filter>
     </receiver>
 
+    <receiver android:name=".service.AnalyzeDatabaseAlarmListener" android:exported="false">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent-filter>
+    </receiver>
+
     <receiver android:name="org.thoughtcrime.securesms.jobs.ForegroundServiceUtil$Receiver" android:exported="false" />
 
     <receiver android:name=".service.PersistentConnectionBootListener" android:exported="false">
@@ -1385,7 +1425,11 @@
         </intent-filter>
     </receiver>
 
-    <service android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallManager$ActiveCallForegroundService" android:exported="false" />
+    <service
+        android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallManager$ActiveCallForegroundService"
+        android:exported="false"
+        android:foregroundServiceType="camera|microphone" />
+
     <receiver android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallManager$ActiveCallServiceReceiver" android:exported="false">
         <intent-filter>
             <action android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallAction.DENY"/>

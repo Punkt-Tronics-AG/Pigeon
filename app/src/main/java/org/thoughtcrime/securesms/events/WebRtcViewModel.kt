@@ -2,7 +2,6 @@ package org.thoughtcrime.securesms.events
 
 import com.annimon.stream.OptionalLong
 import org.thoughtcrime.securesms.components.webrtc.BroadcastVideoSink
-import org.thoughtcrime.securesms.events.CallParticipant.Companion.HAND_LOWERED
 import org.thoughtcrime.securesms.events.CallParticipant.Companion.createLocal
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
@@ -47,7 +46,13 @@ class WebRtcViewModel(state: WebRtcServiceState) {
       get() = this == CALL_PRE_JOIN || this == NETWORK_FAILURE
 
     val isPassedPreJoin: Boolean
-      get() = ordinal > ordinal
+      get() = ordinal > CALL_PRE_JOIN.ordinal
+
+    val inOngoingCall: Boolean
+      get() = this == CALL_INCOMING || this == CALL_OUTGOING || this == CALL_CONNECTED || this == CALL_RINGING || this == CALL_RECONNECTING
+
+    val isIncomingOrHandledElsewhere
+      get() = this == CALL_INCOMING || this == CALL_ACCEPTED_ELSEWHERE || this == CALL_DECLINED_ELSEWHERE || this == CALL_ONGOING_ELSEWHERE
   }
 
   enum class GroupCallState {
@@ -107,11 +112,11 @@ class WebRtcViewModel(state: WebRtcServiceState) {
   val availableDevices: Set<SignalAudioManager.AudioDevice> = state.localDeviceState.availableDevices
   val bluetoothPermissionDenied: Boolean = state.localDeviceState.bluetoothPermissionDenied
 
-  val localParticipant: CallParticipant = state.callInfoState.localParticipant ?: createLocal(
+  val localParticipant: CallParticipant = createLocal(
     state.localDeviceState.cameraState,
     (if (state.videoState.localSink != null) state.videoState.localSink else BroadcastVideoSink())!!,
     state.localDeviceState.isMicrophoneEnabled,
-    HAND_LOWERED
+    state.localDeviceState.handRaisedTimestamp
   )
 
   val isCellularConnection: Boolean = when (state.localDeviceState.networkConnectionType) {
@@ -121,6 +126,7 @@ class WebRtcViewModel(state: WebRtcServiceState) {
     PeerConnection.AdapterType.VPN,
     PeerConnection.AdapterType.LOOPBACK,
     PeerConnection.AdapterType.ADAPTER_TYPE_ANY -> false
+
     PeerConnection.AdapterType.CELLULAR,
     PeerConnection.AdapterType.CELLULAR_2G,
     PeerConnection.AdapterType.CELLULAR_3G,
@@ -153,5 +159,40 @@ class WebRtcViewModel(state: WebRtcServiceState) {
        ringGroup=$ringGroup
       }
     """.trimIndent()
+  }
+
+  fun describeDifference(previousEvent: WebRtcViewModel?): String {
+    return if (previousEvent == null) {
+      this.toString()
+    } else if (previousEvent == this) {
+      "<no change>"
+    } else {
+      val builder = StringBuilder()
+      if (state != previousEvent.state) builder.append(" state=$state\n")
+      if (recipient.id != previousEvent.recipient.id) builder.append(" recipient=${recipient.id}\n")
+      if (isRemoteVideoOffer != previousEvent.isRemoteVideoOffer) builder.append(" isRemoteVideoOffer=$isRemoteVideoOffer\n")
+      if (callConnectedTime != previousEvent.callConnectedTime) builder.append(" callConnectedTime=$callConnectedTime\n")
+      if (localParticipant != previousEvent.localParticipant) builder.append(" localParticipant=$localParticipant\n")
+      if (remoteParticipants != previousEvent.remoteParticipants) {
+        if (remoteParticipants.size <= 8) {
+          builder.append(" remoteParticipants=$remoteParticipants\n")
+        } else {
+          builder.append(" remoteParticipants=<Too many:${remoteParticipants.size}>\n")
+        }
+      }
+      if (identityChangedParticipants != previousEvent.identityChangedParticipants) builder.append(" identityChangedParticipants=$identityChangedParticipants\n")
+      if (remoteDevicesCount != previousEvent.remoteDevicesCount) builder.append(" remoteDevicesCount=$remoteDevicesCount\n")
+      if (participantLimit != previousEvent.participantLimit) builder.append(" participantLimit=$participantLimit\n")
+      if (activeDevice != previousEvent.activeDevice) builder.append(" activeDevice=$activeDevice\n")
+      if (availableDevices != previousEvent.availableDevices) builder.append(" availableDevices=$availableDevices\n")
+      if (bluetoothPermissionDenied != previousEvent.bluetoothPermissionDenied) builder.append(" bluetoothPermissionDenied=$bluetoothPermissionDenied\n")
+      if (ringGroup != previousEvent.ringGroup) builder.append(" ringGroup=$ringGroup\n")
+
+      if (builder.isEmpty()) {
+        "<no change>"
+      } else {
+        "WebRtcViewModel {\n$builder}"
+      }
+    }
   }
 }

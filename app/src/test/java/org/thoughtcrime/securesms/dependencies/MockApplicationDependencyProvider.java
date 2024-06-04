@@ -42,6 +42,7 @@ import org.whispersystems.signalservice.api.services.CallLinksService;
 import org.whispersystems.signalservice.api.services.DonationsService;
 import org.whispersystems.signalservice.api.services.ProfileService;
 import org.whispersystems.signalservice.internal.configuration.SignalServiceConfiguration;
+import org.whispersystems.signalservice.internal.websocket.LibSignalNetwork;
 
 import java.util.function.Supplier;
 
@@ -180,7 +181,7 @@ public class MockApplicationDependencyProvider implements ApplicationDependencie
   }
 
   @Override
-  public @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier) {
+  public @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<LibSignalNetwork> libSignalNetworkSupplier) {
     return null;
   }
 
@@ -230,6 +231,11 @@ public class MockApplicationDependencyProvider implements ApplicationDependencie
 
   @Override
   public @NonNull ScheduledMessageManager provideScheduledMessageManager() {
+    return null;
+  }
+
+  @Override
+  public @NonNull LibSignalNetwork provideLibsignalNetwork(@NonNull SignalServiceConfiguration config) {
     return null;
   }
 }

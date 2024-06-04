@@ -113,7 +113,7 @@ object Stories {
   @WorkerThread
   fun enqueueNextStoriesForDownload(recipientId: RecipientId, force: Boolean = false, limit: Int) {
     val recipient = Recipient.resolved(recipientId)
-    if (!force && !recipient.isSelf && (recipient.shouldHideStory() || !recipient.hasViewedStory())) {
+    if (!force && !recipient.isSelf && (recipient.shouldHideStory || !recipient.hasViewedStory)) {
       return
     }
 
@@ -141,7 +141,7 @@ object Stories {
 
     if (record.hasLinkPreview() && record.linkPreviews[0].attachmentId != null) {
       ApplicationDependencies.getJobManager().add(
-        AttachmentDownloadJob(record.id, record.linkPreviews[0].attachmentId, true)
+        AttachmentDownloadJob(record.id, record.linkPreviews[0].attachmentId!!, true)
       )
     }
   }

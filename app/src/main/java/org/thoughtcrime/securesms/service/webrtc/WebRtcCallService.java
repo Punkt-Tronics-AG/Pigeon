@@ -87,14 +87,9 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
   private Disposable                      lastNotificationDisposable = Disposable.disposed();
   private boolean                         stopping                   = false;
 
-  private static ActiveCallManager activeCallManager = null;
-
   public synchronized static void update(@NonNull Context context, int type, @NonNull RecipientId recipientId, boolean isVideoCall) {
     if (FeatureFlags.useActiveCallManager()) {
-      if (activeCallManager == null) {
-        activeCallManager = new ActiveCallManager(context);
-      }
-      activeCallManager.update(type, recipientId, isVideoCall);
+      ActiveCallManager.update(context, type, recipientId, isVideoCall);
 
       return;
     }
@@ -110,7 +105,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public static void denyCall(@NonNull Context context) {
     if (FeatureFlags.useActiveCallManager()) {
-      ApplicationDependencies.getSignalCallManager().denyCall();
+      ActiveCallManager.denyCall();
       return;
     }
 
@@ -119,7 +114,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public static void hangup(@NonNull Context context) {
     if (FeatureFlags.useActiveCallManager()) {
-      ApplicationDependencies.getSignalCallManager().localHangup();
+      ActiveCallManager.hangup();
       return;
     }
 
@@ -128,10 +123,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public synchronized static void stop(@NonNull Context context) {
     if (FeatureFlags.useActiveCallManager()) {
-      if (activeCallManager != null) {
-        activeCallManager.stop();
-        activeCallManager = null;
-      }
+      ActiveCallManager.stop();
       return;
     }
 
@@ -143,9 +135,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public synchronized static @NonNull PendingIntent denyCallIntent(@NonNull Context context) {
     if (FeatureFlags.useActiveCallManager()) {
-      Intent intent = new Intent(context, ActiveCallManager.ActiveCallServiceReceiver.class);
-      intent.setAction(ActiveCallManager.ActiveCallServiceReceiver.ACTION_DENY);
-      return PendingIntent.getBroadcast(context, 0, intent, PendingIntentFlags.mutable());
+      return ActiveCallManager.denyCallIntent(context);
     }
 
     return getServicePendingIntent(context, new Intent(context, WebRtcCallService.class).setAction(ACTION_DENY_CALL));
@@ -153,9 +143,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public synchronized static @NonNull PendingIntent hangupIntent(@NonNull Context context) {
     if (FeatureFlags.useActiveCallManager()) {
-      Intent intent = new Intent(context, ActiveCallManager.ActiveCallServiceReceiver.class);
-      intent.setAction(ActiveCallManager.ActiveCallServiceReceiver.ACTION_HANGUP);
-      return PendingIntent.getBroadcast(context, 0, intent, PendingIntentFlags.mutable());
+      return ActiveCallManager.hangupIntent(context);
     }
 
     return getServicePendingIntent(context, new Intent(context, WebRtcCallService.class).setAction(ACTION_LOCAL_HANGUP));
@@ -163,11 +151,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public synchronized static void sendAudioManagerCommand(@NonNull Context context, @NonNull AudioManagerCommand command) {
     if (FeatureFlags.useActiveCallManager()) {
-      if (activeCallManager == null) {
-        activeCallManager = new ActiveCallManager(context);
-      }
-      activeCallManager.sendAudioCommand(command);
-
+      ActiveCallManager.sendAudioManagerCommand(context, command);
       return;
     }
 
@@ -179,11 +163,7 @@ public final class WebRtcCallService extends Service implements SignalAudioManag
 
   public synchronized static void changePowerButtonReceiver(@NonNull Context context, boolean register) {
     if (FeatureFlags.useActiveCallManager()) {
-      if (activeCallManager == null) {
-        activeCallManager = new ActiveCallManager(context);
-      }
-      activeCallManager.changePowerButton(register);
-
+      ActiveCallManager.changePowerButtonReceiver(context, register);
       return;
     }
 

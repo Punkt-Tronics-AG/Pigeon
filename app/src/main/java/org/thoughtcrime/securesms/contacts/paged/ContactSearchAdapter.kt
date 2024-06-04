@@ -315,9 +315,8 @@ open class ContactSearchAdapter(
     }
 
     private class MyStoryFallbackPhotoProvider(private val name: String, private val targetSize: Int) : Recipient.FallbackPhotoProvider() {
-      override fun getPhotoForLocalNumber(): FallbackContactPhoto {
-        return GeneratedContactPhoto(name, R.drawable.symbol_person_40, targetSize)
-      }
+      override val photoForLocalNumber: FallbackContactPhoto
+        get() = GeneratedContactPhoto(name, R.drawable.symbol_person_40, targetSize)
     }
 
     override fun onAttachedToWindow() {
@@ -467,7 +466,7 @@ open class ContactSearchAdapter(
       } else if (displayOptions.displaySecondaryInformation == DisplaySecondaryInformation.ALWAYS && recipient.combinedAboutAndEmoji != null) {
         number.text = recipient.combinedAboutAndEmoji
         number.visible = true
-      } else if (displayOptions.displaySecondaryInformation == DisplaySecondaryInformation.ALWAYS && recipient.hasE164()) {
+      } else if (displayOptions.displaySecondaryInformation == DisplaySecondaryInformation.ALWAYS && recipient.hasE164) {
         number.visible = false
       } else {
         super.bindNumberField(model)
@@ -534,7 +533,7 @@ open class ContactSearchAdapter(
 
       itemView.focusOnLeft()
       val recipient = getRecipient(model)
-      val suffix: CharSequence? = if (recipient.isSystemContact && !recipient.showVerified()) {
+      val suffix: CharSequence? = if (recipient.isSystemContact && !recipient.showVerified) {
         SpannableStringBuilder().apply {
           val drawable = ContextUtil.requireDrawable(context, R.drawable.symbol_person_circle_24).apply {
             setTint(ContextCompat.getColor(context, R.color.signal_colorOnSurface))

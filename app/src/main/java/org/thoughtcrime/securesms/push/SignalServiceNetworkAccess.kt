@@ -48,6 +48,7 @@ open class SignalServiceNetworkAccess(context: Context) {
           BuildConfig.STORAGE_URL.stripProtocol() to BuildConfig.SIGNAL_STORAGE_IPS.toSet(),
           BuildConfig.SIGNAL_CDN_URL.stripProtocol() to BuildConfig.SIGNAL_CDN_IPS.toSet(),
           BuildConfig.SIGNAL_CDN2_URL.stripProtocol() to BuildConfig.SIGNAL_CDN2_IPS.toSet(),
+          BuildConfig.SIGNAL_CDN3_URL.stripProtocol() to BuildConfig.SIGNAL_CDN3_IPS.toSet(),
           BuildConfig.SIGNAL_SFU_URL.stripProtocol() to BuildConfig.SIGNAL_SFU_IPS.toSet(),
           BuildConfig.CONTENT_PROXY_HOST.stripProtocol() to BuildConfig.SIGNAL_CONTENT_PROXY_IPS.toSet(),
           BuildConfig.SIGNAL_CDSI_URL.stripProtocol() to BuildConfig.SIGNAL_CDSI_IPS.toSet(),
@@ -67,7 +68,6 @@ open class SignalServiceNetworkAccess(context: Context) {
     private const val COUNTRY_CODE_IRAN = 98
     private const val COUNTRY_CODE_CUBA = 53
     private const val COUNTRY_CODE_UZBEKISTAN = 998
-    private const val COUNTRY_CODE_UKRAINE = 380
 
     private const val G_HOST = "reflector-nrgwuv7kwq-uc.a.run.app"
     private const val F_SERVICE_HOST = "chat-signal.global.ssl.fastly.net"
@@ -207,9 +207,6 @@ open class SignalServiceNetworkAccess(context: Context) {
     ),
     COUNTRY_CODE_UZBEKISTAN to buildGConfiguration(
       listOf(HostConfig("https://www.google.co.uz", G_HOST, GMAIL_CONNECTION_SPEC)) + baseGHostConfigs
-    ),
-    COUNTRY_CODE_UKRAINE to buildGConfiguration(
-      listOf(HostConfig("https://www.google.com.ua", G_HOST, GMAIL_CONNECTION_SPEC)) + baseGHostConfigs
     ),
     COUNTRY_CODE_IRAN to fConfig,
     COUNTRY_CODE_CUBA to fConfig

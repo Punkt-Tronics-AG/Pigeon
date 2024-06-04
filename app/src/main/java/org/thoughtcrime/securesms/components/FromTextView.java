@@ -42,9 +42,15 @@ public class FromTextView extends SimpleEmojiTextView {
   }
 
   public void setText(Recipient recipient, @Nullable CharSequence fromString, @Nullable CharSequence suffix, boolean asThread) {
+    setText(recipient, fromString, suffix, asThread, false);
+  }
+
+  public void setText(Recipient recipient, @Nullable CharSequence fromString, @Nullable CharSequence suffix, boolean asThread, boolean showSelfAsYou) {
     SpannableStringBuilder builder  = new SpannableStringBuilder();
 
-    if (asThread && recipient.isSelf()) {
+    if (asThread && recipient.isSelf() && showSelfAsYou) {
+      builder.append(getContext().getString(R.string.Recipient_you));
+    } else if (asThread && recipient.isSelf()) {
       builder.append(getContext().getString(R.string.note_to_self));
     } else {
       builder.append(fromString);
@@ -54,7 +60,7 @@ public class FromTextView extends SimpleEmojiTextView {
       builder.append(suffix);
     }
 
-    if (asThread && recipient.showVerified() && isSignalVersion()) {
+    if (asThread && recipient.getShowVerified() && isSignalVersion()) {
       Drawable official = ContextUtil.requireDrawable(getContext(), R.drawable.ic_official_20);
       official.setBounds(0, 0, ViewUtil.dpToPx(20), ViewUtil.dpToPx(20));
 

@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.mms.StickerSlide;
 import org.thoughtcrime.securesms.util.MessageRecordUtil;
 import org.thoughtcrime.securesms.util.Util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -57,15 +58,15 @@ public final class ThreadBodyUtil {
       String emoji = getStickerEmoji(record);
       return format(context, record, emoji, R.string.ThreadRecord_sticker, bodyOverride);
     } else if (MessageRecordUtil.hasGiftBadge(record)) {
-      return format(EmojiStrings.GIFT, getGiftSummary(context, record));
+      return format(EmojiStrings.GIFT, getGiftSummary(context, record), null);
     } else if (MessageRecordUtil.isStoryReaction(record)) {
       return new ThreadBody(getStoryReactionSummary(context, record));
     } else if (record.isPaymentNotification()) {
-      return format(EmojiStrings.CARD, context.getString(R.string.ThreadRecord_payment));
+      return format(EmojiStrings.CARD, context.getString(R.string.ThreadRecord_payment), null);
     } else if (record.isPaymentsRequestToActivate()) {
-      return format(EmojiStrings.CARD, getPaymentActivationRequestSummary(context, record));
+      return format(EmojiStrings.CARD, getPaymentActivationRequestSummary(context, record), null);
     } else if (record.isPaymentsActivated()) {
-      return format(EmojiStrings.CARD, getPaymentActivatedSummary(context, record));
+      return format(EmojiStrings.CARD, getPaymentActivatedSummary(context, record), null);
     } else if (record.isCallLog() && !record.isGroupCall()) {
       return new ThreadBody(getCallLogSummary(context, record));
     } else if (MessageRecordUtil.isScheduled(record)) {
@@ -135,24 +136,21 @@ public final class ThreadBodyUtil {
       boolean accepted = call.getEvent() == CallTable.Event.ACCEPTED;
       if (call.getDirection() == CallTable.Direction.OUTGOING) {
         if (call.getType() == CallTable.Type.AUDIO_CALL) {
-          return context.getString(accepted ? R.string.MessageRecord_outgoing_voice_call : R.string.MessageRecord_unanswered_voice_call);
+          return context.getString(R.string.MessageRecord_outgoing_voice_call);
         } else {
-          return context.getString(accepted ? R.string.MessageRecord_outgoing_video_call : R.string.MessageRecord_unanswered_video_call);
+          return context.getString(R.string.MessageRecord_outgoing_video_call);
         }
       } else {
         boolean isVideoCall = call.getType() == CallTable.Type.VIDEO_CALL;
-        boolean isMissed    = call.getEvent().isMissedCall();
 
-        if (accepted) {
+        if (accepted || !call.isDisplayedAsMissedCallInUi()) {
           return context.getString(isVideoCall ? R.string.MessageRecord_incoming_video_call : R.string.MessageRecord_incoming_voice_call);
-        } else if (isMissed) {
+        } else {
           if (call.getEvent() == CallTable.Event.MISSED_NOTIFICATION_PROFILE) {
             return isVideoCall ? context.getString(R.string.MessageRecord_missed_video_call_notification_profile) : context.getString(R.string.MessageRecord_missed_voice_call_notification_profile);
           } else {
             return isVideoCall ? context.getString(R.string.MessageRecord_missed_video_call) : context.getString(R.string.MessageRecord_missed_voice_call);
           }
-        } else {
-          return isVideoCall ? context.getString(R.string.MessageRecord_you_declined_a_video_call) : context.getString(R.string.MessageRecord_you_declined_a_voice_call);
         }
       }
     } else {
@@ -166,18 +164,28 @@ public final class ThreadBodyUtil {
                                             @StringRes int defaultStringRes,
                                             @Nullable CharSequence bodyOverride)
   {
-    CharSequence body = !TextUtils.isEmpty(bodyOverride) ? bodyOverride
-                                                         : TextUtils.isEmpty(record.getBody()) ? context.getString(defaultStringRes)
-                                                                                               : getBody(context, record).getBody();
-    return format(emoji, body);
+    CharSequence body;
+    List<BodyAdjustment> adjustments = null;
+
+    if (!TextUtils.isEmpty(bodyOverride)) {
+      body = bodyOverride;
+    } else if (TextUtils.isEmpty(record.getBody())) {
+      body = context.getString(defaultStringRes);
+    } else {
+      ThreadBody threadBody = getBody(context, record);
+      body = threadBody.getBody();
+      adjustments = threadBody.getBodyAdjustments();
+    }
+
+    return format(emoji, body, adjustments);
   }
 
-  private static @NonNull ThreadBody format(@NonNull CharSequence prefix, @NonNull CharSequence body) {
+  private static @NonNull ThreadBody format(@NonNull CharSequence prefix, @NonNull CharSequence body, @Nullable List<BodyAdjustment> adjustments) {
     SpannableStringBuilder builder = new SpannableStringBuilder();
     builder.append(prefix)
            .append(" ")
            .append(body);
-    return new ThreadBody(builder, prefix.length() + 1);
+    return new ThreadBody(builder, prefix.length() + 1, adjustments != null ? adjustments : Collections.emptyList());
   }
 
   private static @NonNull ThreadBody getBody(@NonNull Context context, @NonNull MessageRecord record) {
@@ -198,16 +206,24 @@ public final class ThreadBodyUtil {
     private final List<BodyAdjustment> bodyAdjustments;
 
     public ThreadBody(@NonNull CharSequence body) {
-      this(body, 0);
-    }
-
-    public ThreadBody(@NonNull CharSequence body, int startOffset) {
-      this(body, startOffset == 0 ? Collections.emptyList() : Collections.singletonList(new BodyAdjustment(0, 0, startOffset)));
+      this(body, 0, Collections.emptyList());
     }
 
     public ThreadBody(@NonNull CharSequence body, @NonNull List<BodyAdjustment> bodyAdjustments) {
-      this.body            = body;
-      this.bodyAdjustments = bodyAdjustments;
+      this(body, 0, bodyAdjustments);
+    }
+
+    public ThreadBody(@NonNull CharSequence body, int startOffset, @NonNull List<BodyAdjustment> bodyAdjustments) {
+      this.body = body;
+      if (startOffset == 0) {
+        this.bodyAdjustments = bodyAdjustments;
+      } else {
+        ArrayList<BodyAdjustment> updatedAdjustments = new ArrayList<>(bodyAdjustments.size() + 1);
+        updatedAdjustments.add(new BodyAdjustment(0, 0, startOffset));
+        updatedAdjustments.addAll(bodyAdjustments);
+
+        this.bodyAdjustments = updatedAdjustments;
+      }
     }
 
     public @NonNull CharSequence getBody() {

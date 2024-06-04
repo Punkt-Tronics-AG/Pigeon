@@ -37,7 +37,9 @@ import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.profiles.manage.EditProfileViewModel.AvatarState
 import org.thoughtcrime.securesms.profiles.manage.UsernameRepository.UsernameDeleteResult
 import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.registration.RegistrationNavigationActivity
 import org.thoughtcrime.securesms.util.NameUtil.getAbbreviation
+import org.thoughtcrime.securesms.util.PlayStoreUtil
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog
@@ -55,6 +57,8 @@ class EditProfileFragment : LoggingFragment() {
   private lateinit var viewModel: EditProfileViewModel
   private lateinit var binding: EditProfileFragmentBinding
   private lateinit var disposables: LifecycleDisposable
+
+  private val DISABLED_ALPHA = 0.4f
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     binding = EditProfileFragmentBinding.inflate(inflater, container, false)
@@ -80,11 +84,27 @@ class EditProfileFragment : LoggingFragment() {
     binding.manageProfileAboutContainer.focusOnLeft()
 
     binding.toolbar.setNavigationOnClickListener { requireActivity().finish() }
-    binding.manageProfileEditPhoto.setOnClickListener { onEditAvatarClicked() }
-    binding.manageProfileNameContainer.setOnClickListener { v: View -> findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageProfileName()) }
+
+    binding.manageProfileEditPhoto.setOnClickListener {
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else {
+        onEditAvatarClicked()
+      }
+    }
+
+    binding.manageProfileNameContainer.setOnClickListener { v: View ->
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else {
+        findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageProfileName())
+      }
+    }
 
     binding.manageProfileUsernameContainer.setOnClickListener { v: View ->
-      if (SignalStore.account().username != null) {
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else if (SignalStore.account().username != null) {
         MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Signal_MaterialAlertDialog_List)
           .setItems(R.array.username_edit_entries) { _: DialogInterface?, w: Int ->
             when (w) {
@@ -99,10 +119,18 @@ class EditProfileFragment : LoggingFragment() {
       }
     }
 
-    binding.manageProfileAboutContainer.setOnClickListener { v: View -> findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageAbout()) }
+    binding.manageProfileAboutContainer.setOnClickListener { v: View ->
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else {
+        findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageAbout())
+      }
+    }
 
     parentFragmentManager.setFragmentResultListener(AvatarPickerFragment.REQUEST_KEY_SELECT_AVATAR, viewLifecycleOwner) { _: String?, bundle: Bundle ->
-      if (bundle.getBoolean(AvatarPickerFragment.SELECT_AVATAR_CLEAR)) {
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else if (bundle.getBoolean(AvatarPickerFragment.SELECT_AVATAR_CLEAR)) {
         viewModel.onAvatarSelected(requireContext(), null)
       } else {
         val result = bundle.getParcelable<Media>(AvatarPickerFragment.SELECT_AVATAR_MEDIA)
@@ -118,7 +146,9 @@ class EditProfileFragment : LoggingFragment() {
     }
 
     binding.manageProfileBadgesContainer.setOnClickListener { v: View ->
-      if (Recipient.self().badges.isEmpty()) {
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else if (Recipient.self().badges.isEmpty()) {
         show(parentFragmentManager)
       } else {
         findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageProfileFragmentToBadgeManageFragment())
@@ -126,10 +156,14 @@ class EditProfileFragment : LoggingFragment() {
     }
 
     binding.manageProfileAvatar.setOnClickListener {
-      startActivity(
-        AvatarPreviewActivity.intentFromRecipientId(requireContext(), Recipient.self().id),
-        AvatarPreviewActivity.createTransitionBundle(requireActivity(), binding.manageProfileAvatar)
-      )
+      if (!viewModel.isRegisteredAndUpToDate) {
+        onClickWhenUnregisteredOrDeprecated()
+      } else {
+        startActivity(
+          AvatarPreviewActivity.intentFromRecipientId(requireContext(), Recipient.self().id),
+          AvatarPreviewActivity.createTransitionBundle(requireActivity(), binding.manageProfileAvatar)
+        )
+      }
     }
   }
 
@@ -159,6 +193,10 @@ class EditProfileFragment : LoggingFragment() {
     } else {
       Glide.with(this).load(null as Drawable?).into(binding.manageProfileAvatar)
     }
+
+    binding.manageProfileAvatar.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
+    binding.manageProfileAvatarInitials.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
+    binding.manageProfileEditPhoto.isEnabled = viewModel.isRegisteredAndUpToDate
   }
 
   private fun presentAvatarPlaceholder(avatarState: AvatarState) {
@@ -210,6 +248,9 @@ class EditProfileFragment : LoggingFragment() {
     } else {
       binding.manageProfileName.text = profileName.toString()
     }
+
+    binding.manageProfileName.isEnabled = viewModel.isRegisteredAndUpToDate
+    binding.manageProfileNameIcon.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
   }
 
   private fun presentUsername(username: String?) {
@@ -249,6 +290,9 @@ class EditProfileFragment : LoggingFragment() {
       binding.usernameLinkContainer.visibility = View.GONE
       binding.usernameInfoText.setText(R.string.ManageProfileFragment__username_footer_no_username)
     }
+
+    binding.manageProfileUsername.isEnabled = viewModel.isRegisteredAndUpToDate
+    binding.manageProfileUsernameIcon.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
   }
 
   private fun presentAbout(about: String?) {
@@ -257,6 +301,9 @@ class EditProfileFragment : LoggingFragment() {
     } else {
       binding.manageProfileAbout.text = about
     }
+
+    binding.manageProfileAbout.isEnabled = viewModel.isRegisteredAndUpToDate
+    binding.manageProfileAboutIcon.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
   }
 
   private fun presentAboutEmoji(aboutEmoji: String?) {
@@ -277,6 +324,14 @@ class EditProfileFragment : LoggingFragment() {
       binding.manageProfileBadge.setBadge(badge.orElse(null))
     } else {
       binding.manageProfileBadge.setBadge(null)
+    }
+
+    binding.manageProfileBadges.isEnabled = viewModel.isRegisteredAndUpToDate
+    binding.manageProfileBadge.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
+    binding.manageProfileBadgesIcon.alpha = if (viewModel.isRegisteredAndUpToDate) 1.0f else DISABLED_ALPHA
+
+    if (!viewModel.isRegisteredAndUpToDate) {
+      binding.manageProfileBadge.setOnClickListener { onClickWhenUnregisteredOrDeprecated() }
     }
   }
 
@@ -319,6 +374,30 @@ class EditProfileFragment : LoggingFragment() {
       }
 
       UsernameDeleteResult.NETWORK_ERROR -> Snackbar.make(requireView(), R.string.ManageProfileFragment__couldnt_delete_username, Snackbar.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun onClickWhenUnregisteredOrDeprecated() {
+    if (viewModel.isDeprecated) {
+      MaterialAlertDialogBuilder(requireContext())
+        .setTitle(R.string.EditProfileFragment_deprecated_dialog_title)
+        .setMessage(R.string.EditProfileFragment_deprecated_dialog_body)
+        .setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+        .setPositiveButton(R.string.EditProfileFragment_deprecated_dialog_update_button) { d, _ ->
+          PlayStoreUtil.openPlayStoreOrOurApkDownloadPage(requireContext())
+          d.dismiss()
+        }
+        .show()
+    } else {
+      MaterialAlertDialogBuilder(requireContext())
+        .setTitle(R.string.EditProfileFragment_unregistered_dialog_title)
+        .setMessage(R.string.EditProfileFragment_unregistered_dialog_body)
+        .setNegativeButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+        .setPositiveButton(R.string.EditProfileFragment_unregistered_dialog_reregister_button) { d, _ ->
+          startActivity(RegistrationNavigationActivity.newIntentForReRegistration(requireContext()))
+          d.dismiss()
+        }
+        .show()
     }
   }
 }

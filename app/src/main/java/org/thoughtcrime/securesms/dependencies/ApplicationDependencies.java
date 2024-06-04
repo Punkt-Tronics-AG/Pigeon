@@ -17,7 +17,6 @@ import org.thoughtcrime.securesms.database.DatabaseObserver;
 import org.thoughtcrime.securesms.database.PendingRetryReceiptCache;
 import org.thoughtcrime.securesms.groups.GroupsV2Authorization;
 import org.thoughtcrime.securesms.groups.GroupsV2AuthorizationMemoryValueCache;
-import org.thoughtcrime.securesms.groups.v2.processing.GroupsV2StateProcessor;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.megaphone.MegaphoneRepository;
@@ -58,6 +57,7 @@ import org.whispersystems.signalservice.api.util.Tls12SocketFactory;
 import org.whispersystems.signalservice.internal.configuration.SignalServiceConfiguration;
 import org.whispersystems.signalservice.internal.util.BlacklistingTrustManager;
 import org.whispersystems.signalservice.internal.util.Util;
+import org.whispersystems.signalservice.internal.websocket.LibSignalNetwork;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -85,6 +85,7 @@ public class ApplicationDependencies {
   private static final Object FRAME_RATE_TRACKER_LOCK = new Object();
   private static final Object JOB_MANAGER_LOCK        = new Object();
   private static final Object SIGNAL_HTTP_CLIENT_LOCK = new Object();
+  private static final Object LIBSIGNAL_NETWORK_LOCK  = new Object();
 
   private static Application           application;
   private static Provider              provider;
@@ -99,7 +100,6 @@ public class ApplicationDependencies {
   private static volatile FrameRateTracker             frameRateTracker;
   private static volatile MegaphoneRepository          megaphoneRepository;
   private static volatile GroupsV2Authorization        groupsV2Authorization;
-  private static volatile GroupsV2StateProcessor       groupsV2StateProcessor;
   private static volatile GroupsV2Operations           groupsV2Operations;
   private static volatile EarlyMessageCache            earlyMessageCache;
   private static volatile TypingStatusRepository       typingStatusRepository;
@@ -129,6 +129,7 @@ public class ApplicationDependencies {
   private static volatile DeadlockDetector             deadlockDetector;
   private static volatile ClientZkReceiptOperations    clientZkReceiptOperations;
   private static volatile ScheduledMessageManager      scheduledMessagesManager;
+  private static volatile LibSignalNetwork             libsignalNetwork;
 
   @MainThread
   public static void init(@NonNull Application application, @NonNull Provider provider) {
@@ -195,18 +196,6 @@ public class ApplicationDependencies {
     return groupsV2Operations;
   }
 
-  public static @NonNull GroupsV2StateProcessor getGroupsV2StateProcessor() {
-    if (groupsV2StateProcessor == null) {
-      synchronized (LOCK) {
-        if (groupsV2StateProcessor == null) {
-          groupsV2StateProcessor = new GroupsV2StateProcessor(application);
-        }
-      }
-    }
-
-    return groupsV2StateProcessor;
-  }
-
   public static @NonNull SignalServiceMessageSender getSignalServiceMessageSender() {
     SignalServiceMessageSender local = messageSender;
 
@@ -257,6 +246,9 @@ public class ApplicationDependencies {
   public static void resetAllNetworkConnections() {
     synchronized (LOCK) {
       closeConnections();
+      if (libsignalNetwork != null) {
+        libsignalNetwork.resetSettings(getSignalServiceNetworkAccess().getConfiguration());
+      }
       if (signalWebSocket != null) {
         signalWebSocket.forceNewWebSockets();
       }
@@ -570,7 +562,7 @@ public class ApplicationDependencies {
     if (signalWebSocket == null) {
       synchronized (LOCK) {
         if (signalWebSocket == null) {
-          signalWebSocket = provider.provideSignalWebSocket(() -> getSignalServiceNetworkAccess().getConfiguration());
+          signalWebSocket = provider.provideSignalWebSocket(() -> getSignalServiceNetworkAccess().getConfiguration(), ApplicationDependencies::getLibsignalNetwork);
         }
       }
     }
@@ -685,6 +677,17 @@ public class ApplicationDependencies {
     return deadlockDetector;
   }
 
+  public static @NonNull LibSignalNetwork getLibsignalNetwork() {
+    if (libsignalNetwork == null) {
+      synchronized (LIBSIGNAL_NETWORK_LOCK) {
+        if (libsignalNetwork == null) {
+          libsignalNetwork = provider.provideLibsignalNetwork(getSignalServiceNetworkAccess().getConfiguration());
+        }
+      }
+    }
+    return libsignalNetwork;
+  }
+
   public interface Provider {
     @NonNull GroupsV2Operations provideGroupsV2Operations(@NonNull SignalServiceConfiguration signalServiceConfiguration);
     @NonNull SignalServiceAccountManager provideSignalServiceAccountManager(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations);
@@ -712,7 +715,7 @@ public class ApplicationDependencies {
     @NonNull SignalCallManager provideSignalCallManager();
     @NonNull PendingRetryReceiptManager providePendingRetryReceiptManager();
     @NonNull PendingRetryReceiptCache providePendingRetryReceiptCache();
-    @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier);
+    @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<LibSignalNetwork> libSignalNetworkSupplier);
     @NonNull SignalServiceDataStoreImpl provideProtocolStore();
     @NonNull GiphyMp4Cache provideGiphyMp4Cache();
     @NonNull SimpleExoPlayerPool provideExoPlayerPool();
@@ -723,5 +726,6 @@ public class ApplicationDependencies {
     @NonNull DeadlockDetector provideDeadlockDetector();
     @NonNull ClientZkReceiptOperations provideClientZkReceiptOperations(@NonNull SignalServiceConfiguration signalServiceConfiguration);
     @NonNull ScheduledMessageManager provideScheduledMessageManager();
+    @NonNull LibSignalNetwork provideLibsignalNetwork(@NonNull SignalServiceConfiguration config);
   }
 }

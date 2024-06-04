@@ -3,6 +3,7 @@ package org.thoughtcrime.securesms.database
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import androidx.compose.runtime.Immutable
 import org.signal.core.util.requireInt
 import org.signal.core.util.requireLong
 import org.signal.core.util.requireNonNullString
@@ -27,6 +28,7 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_SIZE}, 
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.FILE_NAME}, 
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_FILE}, 
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.THUMBNAIL_FILE}, 
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.CDN_NUMBER},
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_LOCATION},
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_KEY},
@@ -49,7 +51,11 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.UPLOAD_TIMESTAMP}, 
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_INCREMENTAL_DIGEST}, 
         ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_INCREMENTAL_DIGEST_CHUNK_SIZE},
-        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_HASH},
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_HASH_END},
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ARCHIVE_CDN},
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ARCHIVE_MEDIA_NAME},
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ARCHIVE_MEDIA_ID},
+        ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ARCHIVE_THUMBNAIL_CDN},
         ${MessageTable.TABLE_NAME}.${MessageTable.TYPE}, 
         ${MessageTable.TABLE_NAME}.${MessageTable.DATE_SENT}, 
         ${MessageTable.TABLE_NAME}.${MessageTable.DATE_RECEIVED}, 
@@ -71,13 +77,7 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
         ${MessageTable.VIEW_ONCE} = 0 AND 
         ${MessageTable.STORY_TYPE} = 0 AND
         ${MessageTable.LATEST_REVISION_ID} IS NULL AND 
-        (
-          ${AttachmentTable.QUOTE} = 0 OR 
-          (
-            ${AttachmentTable.QUOTE} = 1 AND 
-            ${AttachmentTable.DATA_HASH} IS NULL
-          )
-        ) AND 
+        ${AttachmentTable.QUOTE} = 0 AND 
         ${AttachmentTable.STICKER_PACK_ID} IS NULL AND 
         ${MessageTable.TABLE_NAME}.${MessageTable.FROM_RECIPIENT_ID} > 0 AND 
         $THREAD_RECIPIENT_ID > 0
@@ -100,7 +100,8 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
       """
         ${AttachmentTable.DATA_FILE} IS NOT NULL AND
         ${AttachmentTable.CONTENT_TYPE} NOT LIKE 'image/svg%' AND 
-        (${AttachmentTable.CONTENT_TYPE} LIKE 'image/%' OR ${AttachmentTable.CONTENT_TYPE} LIKE 'video/%')
+        (${AttachmentTable.CONTENT_TYPE} LIKE 'image/%' OR ${AttachmentTable.CONTENT_TYPE} LIKE 'video/%') AND
+        ${MessageTable.LINK_PREVIEWS} IS NULL
       """
     )
 
@@ -109,7 +110,8 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
       """
         (${AttachmentTable.DATA_FILE} IS NOT NULL OR (${AttachmentTable.CONTENT_TYPE} LIKE 'video/%' AND ${AttachmentTable.REMOTE_INCREMENTAL_DIGEST} IS NOT NULL)) AND
         ${AttachmentTable.CONTENT_TYPE} NOT LIKE 'image/svg%' AND 
-        (${AttachmentTable.CONTENT_TYPE} LIKE 'image/%' OR ${AttachmentTable.CONTENT_TYPE} LIKE 'video/%')
+        (${AttachmentTable.CONTENT_TYPE} LIKE 'image/%' OR ${AttachmentTable.CONTENT_TYPE} LIKE 'video/%') AND
+        ${MessageTable.LINK_PREVIEWS} IS NULL
       """
     )
 
@@ -121,7 +123,14 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
       """
     )
 
-    private val ALL_MEDIA_QUERY = String.format(BASE_MEDIA_QUERY, "${AttachmentTable.DATA_FILE} IS NOT NULL AND ${AttachmentTable.CONTENT_TYPE} NOT LIKE 'text/x-signal-plain'")
+    private val ALL_MEDIA_QUERY = String.format(
+      BASE_MEDIA_QUERY,
+      """
+        ${AttachmentTable.DATA_FILE} IS NOT NULL AND
+        ${AttachmentTable.CONTENT_TYPE} NOT LIKE 'text/x-signal-plain' AND
+        ${MessageTable.LINK_PREVIEWS} IS NULL
+      """
+    )
 
     private val DOCUMENT_MEDIA_QUERY = String.format(
       BASE_MEDIA_QUERY,
@@ -296,6 +305,7 @@ class MediaTable internal constructor(context: Context?, databaseHelper: SignalD
     }
   }
 
+  @Immutable
   data class StorageBreakdown(
     val photoSize: Long,
     val videoSize: Long,

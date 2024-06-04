@@ -136,7 +136,7 @@ public class NewConversationActivity extends ContactSelectionActivity
 
           if (result instanceof RecipientRepository.LookupResult.Success) {
             Recipient resolved = Recipient.resolved(((RecipientRepository.LookupResult.Success) result).getRecipientId());
-            if (resolved.isRegistered() && resolved.hasServiceId()) {
+            if (resolved.isRegistered() && resolved.getHasServiceId()) {
               launch(resolved);
             }
           } else if (result instanceof RecipientRepository.LookupResult.NotFound || result instanceof RecipientRepository.LookupResult.InvalidEntry) {
@@ -334,13 +334,7 @@ public class NewConversationActivity extends ContactSelectionActivity
         R.drawable.ic_minus_circle_20, // TODO [alex] -- correct asset
         getString(R.string.NewConversationActivity__remove),
         R.color.signal_colorOnSurface,
-        () -> {
-          if (recipient.isSystemContact()) {
-            displayIsInSystemContactsDialog(recipient);
-          } else {
-            displayRemovalDialog(recipient);
-          }
-        }
+        () -> displayRemovalDialog(recipient)
     );
   }
 

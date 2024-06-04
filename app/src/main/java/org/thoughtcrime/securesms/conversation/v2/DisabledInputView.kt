@@ -82,7 +82,7 @@ class DisabledInputView @JvmOverloads constructor(
       bind = {
         setMessageRequestData(recipient, messageRequestState)
         if (isSignalVersion()) {
-          setWallpaperEnabled(recipient.hasWallpaper())
+          setWallpaperEnabled(recipient.hasWallpaper)
         }
 
         setAcceptOnClickListener { listener?.onAcceptMessageRequestClicked() }

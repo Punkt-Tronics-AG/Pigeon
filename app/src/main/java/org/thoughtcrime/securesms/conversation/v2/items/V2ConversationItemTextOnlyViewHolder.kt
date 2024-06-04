@@ -18,6 +18,8 @@ import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.URLSpan
 import android.util.TypedValue
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -41,6 +43,8 @@ import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.recipients.RecipientForeverObserver
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.InterceptableLongClickCopyLinkSpan
 import org.thoughtcrime.securesms.util.LongClickMovementMethod
@@ -67,7 +71,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
   private val binding: V2ConversationItemTextOnlyBindingBridge,
   private val conversationContext: V2ConversationContext,
   footerDelegate: V2FooterPositionDelegate = V2FooterPositionDelegate(binding)
-) : V2ConversationItemViewHolder<Model>(binding.root, conversationContext), Multiselectable, InteractiveConversationElement {
+) : V2ConversationItemViewHolder<Model>(binding.root, conversationContext), Multiselectable, InteractiveConversationElement, RecipientForeverObserver {
 
   companion object {
     private val STYLE_FACTORY = SearchUtil.StyleFactory { arrayOf<CharacterStyle>(BackgroundColorSpan(Color.YELLOW), ForegroundColorSpan(Color.BLACK)) }
@@ -109,6 +113,19 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
   private val senderDrawable = ChatColorsDrawable(conversationContext::getChatColorsData)
   private val bodyBubbleLayoutTransition = BodyBubbleLayoutTransition()
 
+  private val gestureDetector = GestureDetector(
+    context,
+    object : GestureDetector.SimpleOnGestureListener() {
+      override fun onDoubleTap(e: MotionEvent): Boolean {
+        if (conversationContext.selectedItems.isEmpty()) {
+          conversationContext.clickListener.onItemDoubleClick(getMultiselectPartForLatestTouch())
+          return true
+        }
+        return false
+      }
+    }
+  )
+
   protected lateinit var shape: V2ConversationItemShape.MessageShape
 
   private val replyDelegate = object : V2ConversationItemLayout.OnMeasureListener {
@@ -138,6 +155,8 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
         )
     }
 
+    binding.body.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+    binding.root.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
     binding.root.setOnClickListener { onBubbleClicked() }
     binding.root.setOnLongClickListener {
         conversationContext.clickListener.onItemLongClick(binding.root, getMultiselectPartForLatestTouch())
@@ -192,7 +211,15 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     }
 
     check(model is ConversationMessageElement)
+
+    if (this::conversationMessage.isInitialized) {
+      conversationMessage.messageRecord.fromRecipient.live().removeForeverObserver(this)
+    }
+
     conversationMessage = model.conversationMessage
+    if (conversationMessage.threadRecipient.isGroup) {
+      conversationMessage.messageRecord.fromRecipient.live().observeForever(this)
+    }
 
     shape = shapeDelegate.setMessageShape(
       currentMessage = conversationMessage.messageRecord,
@@ -571,7 +598,6 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
 
     when {
       record.isFailed -> alert.setFailed()
-      record.isPendingInsecureSmsFallback -> alert.setPendingApproval()
       record.isRateLimited -> alert.setRateLimited()
       else -> alert.setNone()
     }
@@ -640,8 +666,6 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       binding.footerDate.setOnClickListener {
         conversationContext.clickListener.onMessageWithErrorClicked(record)
       }
-    } else if (record.isPendingInsecureSmsFallback) {
-      binding.footerDate.setText(R.string.ConversationItem_click_to_approve_unencrypted)
     } else if (record.isRateLimited) {
       binding.footerDate.setText(R.string.ConversationItem_send_paused)
     } else if (record.isScheduled()) {
@@ -689,7 +713,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
 
     messageId = newMessageId
 
-    if (!record.isOutgoing || record.isFailed || record.isPendingInsecureSmsFallback || record.isScheduled()) {
+    if (!record.isOutgoing || record.isFailed || record.isScheduled()) {
       deliveryStatus.setNone()
       return
     }
@@ -769,5 +793,9 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       binding.root.performLongClick()
       return true
     }
+  }
+
+  override fun onRecipientChanged(recipient: Recipient) {
+    presentSender()
   }
 }

@@ -56,7 +56,7 @@ import org.thoughtcrime.securesms.mms.SlideDeck
 import org.thoughtcrime.securesms.mms.StickerSlide
 import org.thoughtcrime.securesms.notifications.v2.ConversationId
 import org.thoughtcrime.securesms.recipients.Recipient
-import org.thoughtcrime.securesms.recipients.RecipientDetails
+import org.thoughtcrime.securesms.recipients.RecipientCreator
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.RecipientUtil
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
@@ -1141,15 +1141,23 @@ class ThreadTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTa
 
   fun getOrCreateValidThreadId(recipient: Recipient, candidateId: Long, distributionType: Int): Long {
     return if (candidateId != -1L) {
-      val remapped = RemappedRecords.getInstance().getThread(candidateId)
-      if (remapped.isPresent) {
-        Log.i(TAG, "Using remapped threadId: " + candidateId + " -> " + remapped.get())
-        remapped.get()
+      if (areThreadIdAndRecipientAssociated(candidateId, recipient)) {
+        candidateId
       } else {
-        if (areThreadIdAndRecipientAssociated(candidateId, recipient)) {
-          candidateId
+        val remapped = RemappedRecords.getInstance().getThread(candidateId)
+        if (remapped.isPresent) {
+          if (areThreadIdAndRecipientAssociated(remapped.get(), recipient)) {
+            Log.i(TAG, "Using remapped threadId: $candidateId -> ${remapped.get()}")
+            remapped.get()
+          } else {
+            Log.i(TAG, "There's a remap for $candidateId -> ${remapped.get()}, but it's not associated with $recipient. Deleting old remap and throwing.")
+            writableDatabase.withinTransaction {
+              RemappedRecords.getInstance().deleteThread(candidateId)
+            }
+            throw IllegalArgumentException("Candidate threadId ($candidateId) is not associated with recipient ($recipient)")
+          }
         } else {
-          throw IllegalArgumentException()
+          throw IllegalArgumentException("Candidate threadId ($candidateId) is not associated with recipient ($recipient)")
         }
       }
     } else {
@@ -1240,6 +1248,10 @@ class ThreadTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTa
   }
 
   fun getRecipientIdsForThreadIds(threadIds: Collection<Long>): List<RecipientId> {
+    if (threadIds.isEmpty()) {
+      return emptyList()
+    }
+
     val query = SqlUtil.buildSingleCollectionQuery(ID, threadIds)
 
     return readableDatabase
@@ -1930,15 +1942,14 @@ class ThreadTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTa
 
       val recipient: Recipient = if (recipientSettings.groupId != null) {
         GroupTable.Reader(cursor).getCurrent()?.let { group ->
-          val details = RecipientDetails.forGroup(
+          RecipientCreator.forGroup(
             groupRecord = group,
-            recipientRecord = recipientSettings
+            recipientRecord = recipientSettings,
+            resolved = false
           )
-          Recipient(recipientId, details, false)
         } ?: Recipient.live(recipientId).get()
       } else {
-        val details = RecipientDetails.forIndividual(context, recipientSettings)
-        Recipient(recipientId, details, true)
+        RecipientCreator.forIndividual(context, recipientSettings)
       }
 
       val hasReadReceipt = TextSecurePreferences.isReadReceiptsEnabled(context) && cursor.requireBoolean(HAS_READ_RECEIPT)

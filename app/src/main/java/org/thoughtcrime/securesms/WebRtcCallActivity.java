@@ -36,6 +36,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -62,6 +63,7 @@ import org.thoughtcrime.securesms.components.webrtc.CallLinkProfileKeySender;
 import org.thoughtcrime.securesms.components.webrtc.CallOverflowPopupWindow;
 import org.thoughtcrime.securesms.components.webrtc.CallParticipantsListUpdatePopupWindow;
 import org.thoughtcrime.securesms.components.webrtc.CallParticipantsState;
+import org.thoughtcrime.securesms.components.webrtc.CallReactionScrubber;
 import org.thoughtcrime.securesms.components.webrtc.CallStateUpdatePopupWindow;
 import org.thoughtcrime.securesms.components.webrtc.CallToastPopupWindow;
 import org.thoughtcrime.securesms.components.webrtc.GroupCallSafetyNumberChangeNotificationUtil;
@@ -140,6 +142,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
   public static final String EXTRA_ENABLE_VIDEO_IF_AVAILABLE = WebRtcCallActivity.class.getCanonicalName() + ".ENABLE_VIDEO_IF_AVAILABLE";
   public static final String EXTRA_STARTED_FROM_FULLSCREEN   = WebRtcCallActivity.class.getCanonicalName() + ".STARTED_FROM_FULLSCREEN";
   public static final String EXTRA_STARTED_FROM_CALL_LINK    = WebRtcCallActivity.class.getCanonicalName() + ".STARTED_FROM_CALL_LINK";
+  public static final String EXTRA_LAUNCH_IN_PIP             = WebRtcCallActivity.class.getCanonicalName() + ".STARTED_FROM_CALL_LINK";
 
   private CallParticipantsListUpdatePopupWindow participantUpdateWindow;
   private CallStateUpdatePopupWindow            callStateUpdatePopupWindow;
@@ -162,6 +165,9 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
   private LifecycleDisposable              lifecycleDisposable;
   private long                             lastCallLinkDisconnectDialogShowTime;
   private ControlsAndInfoController        controlsAndInfo;
+  private boolean                          enterPipOnResume;
+  private long                             lastProcessedIntentTimestamp;
+  private WebRtcViewModel                  previousEvent = null;
 
   private Disposable ephemeralStateDisposable = Disposable.empty();
 
@@ -222,6 +228,8 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
 
     processIntent(getIntent());
 
+    registerSystemPipChangeListeners();
+
     windowLayoutInfoConsumer = new WindowLayoutInfoConsumer();
 
     windowInfoTrackerCallbackAdapter = new WindowInfoTrackerCallbackAdapter(WindowInfoTracker.getOrCreate(this));
@@ -232,6 +240,13 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     initializePendingParticipantFragmentListener();
 
     WindowUtil.setNavigationBarColor(this, ContextCompat.getColor(this, R.color.signal_dark_colorSurface));
+  }
+
+  private void registerSystemPipChangeListeners() {
+    addOnPictureInPictureModeChangedListener(pictureInPictureModeChangedInfo -> {
+      CallParticipantsListDialog.dismiss(getSupportFragmentManager());
+      CallReactionScrubber.dismissCustomEmojiBottomSheet(getSupportFragmentManager());
+    });
   }
 
   @Override
@@ -266,6 +281,11 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
           Log.i(TAG, "Event found after delay");
         }
       }, TimeUnit.SECONDS.toMillis(1));
+    }
+
+    if (enterPipOnResume) {
+      enterPipOnResume = false;
+      enterPipModeIfPossible();
     }
   }
 
@@ -302,10 +322,16 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
       requestNewSizesThrottle.clear();
     }
 
+    ApplicationDependencies.getSignalCallManager().setEnableVideo(false);
+
     if (!viewModel.isCallStarting()) {
       CallParticipantsState state = viewModel.getCallParticipantsStateSnapshot();
-      if (state != null && state.getCallState().isPreJoinOrNetworkUnavailable()) {
-        ApplicationDependencies.getSignalCallManager().cancelPreJoin();
+      if (state != null) {
+        if (state.getCallState().isPreJoinOrNetworkUnavailable()) {
+          ApplicationDependencies.getSignalCallManager().cancelPreJoin();
+        } else if (state.getCallState().getInOngoingCall() && isInPipMode()) {
+          ApplicationDependencies.getSignalCallManager().relaunchPipOnForeground();
+        }
       }
     }
   }
@@ -349,8 +375,6 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
           return false;
         }
 
-        CallParticipantsListDialog.dismiss(getSupportFragmentManager());
-
         return true;
       }
       if (Build.VERSION.SDK_INT >= 31) {
@@ -372,6 +396,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     Log.d(TAG, "Intent: Action: " + intent.getAction());
     Log.d(TAG, "Intent: EXTRA_STARTED_FROM_FULLSCREEN: " + intent.getBooleanExtra(EXTRA_STARTED_FROM_FULLSCREEN, false));
     Log.d(TAG, "Intent: EXTRA_ENABLE_VIDEO_IF_AVAILABLE: " + intent.getBooleanExtra(EXTRA_ENABLE_VIDEO_IF_AVAILABLE, false));
+    Log.d(TAG, "Intent: EXTRA_LAUNCH_IN_PIP: " + intent.getBooleanExtra(EXTRA_LAUNCH_IN_PIP, false));
   }
 
   private void processIntent(@NonNull Intent intent) {
@@ -384,6 +409,12 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     } else if (END_CALL_ACTION.equals(intent.getAction())) {
       handleEndCall();
     }
+
+    if (System.currentTimeMillis() - lastProcessedIntentTimestamp > TimeUnit.SECONDS.toMillis(1)) {
+      enterPipOnResume = intent.getBooleanExtra(EXTRA_LAUNCH_IN_PIP, false);
+    }
+
+    lastProcessedIntentTimestamp = System.currentTimeMillis();
   }
 
   private void initializePendingParticipantFragmentListener() {
@@ -877,8 +908,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
   }
 
   private boolean isSystemPipEnabledAndAvailable() {
-    return Build.VERSION.SDK_INT >= 26 &&
-           getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE);
+    return Build.VERSION.SDK_INT >= 26 && getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE);
   }
 
   private void delayedFinish() {
@@ -891,7 +921,8 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void onEventMainThread(@NonNull WebRtcViewModel event) {
-    Log.i(TAG, "Got message from service: " + event);
+    Log.i(TAG, "Got message from service: " + event.describeDifference(previousEvent));
+    previousEvent = event;
 
     viewModel.setRecipient(event.getRecipient());
     callScreen.setRecipient(event.getRecipient());

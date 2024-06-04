@@ -91,18 +91,22 @@ class CallLinkTable(context: Context, databaseHelper: SignalDatabase) : Database
 
   fun insertCallLink(
     callLink: CallLink
-  ) {
-    writableDatabase.withinTransaction { db ->
+  ): RecipientId {
+    val recipientId: RecipientId = writableDatabase.withinTransaction { db ->
       val recipientId = SignalDatabase.recipients.getOrInsertFromCallLinkRoomId(callLink.roomId)
 
       db
         .insertInto(TABLE_NAME)
         .values(CallLinkSerializer.serialize(callLink.copy(recipientId = recipientId)))
         .run()
+
+      recipientId
     }
 
     ApplicationDependencies.getDatabaseObserver().notifyCallLinkObservers(callLink.roomId)
     ApplicationDependencies.getDatabaseObserver().notifyCallUpdateObservers()
+
+    return recipientId!!
   }
 
   fun updateCallLinkCredentials(
@@ -240,8 +244,8 @@ class CallLinkTable(context: Context, databaseHelper: SignalDatabase) : Database
   ) {
     writableDatabase.withinTransaction { db ->
       db.update(TABLE_NAME)
-        .values("$REVOKED" to true)
-        .where("$ROOM_ID", roomId)
+        .values(REVOKED to true)
+        .where("$ROOM_ID = ?", roomId.serialize())
         .run()
 
       SignalDatabase.calls.updateAdHocCallEventDeletionTimestamps()
@@ -257,7 +261,7 @@ class CallLinkTable(context: Context, databaseHelper: SignalDatabase) : Database
   ) {
     writableDatabase.withinTransaction { db ->
       db.delete(TABLE_NAME)
-        .where("$ROOM_ID", roomId)
+        .where("$ROOM_ID = ?", roomId.serialize())
         .run()
     }
   }
@@ -377,7 +381,7 @@ class CallLinkTable(context: Context, databaseHelper: SignalDatabase) : Database
     val statement = """
       SELECT $projection
       FROM $TABLE_NAME
-      WHERE $noCallEvent AND NOT $REVOKED ${searchFilter?.where ?: ""}
+      WHERE $noCallEvent AND NOT $REVOKED ${searchFilter?.where ?: ""} AND $ROOT_KEY IS NOT NULL
       ORDER BY $ID DESC
       $limitOffset
     """.trimIndent()
@@ -402,7 +406,7 @@ class CallLinkTable(context: Context, databaseHelper: SignalDatabase) : Database
     }
   }
 
-  private object CallLinkDeserializer : Serializer<CallLink, Cursor> {
+  object CallLinkDeserializer : Serializer<CallLink, Cursor> {
     override fun serialize(data: CallLink): Cursor {
       throw UnsupportedOperationException()
     }

@@ -93,7 +93,7 @@ class RetrieveProfileJob private constructor(parameters: Parameters, private val
     stopwatch.split("resolve-ensure")
 
     val requests: List<Observable<Pair<Recipient, ServiceResponse<ProfileAndCredential>>>> = recipients
-      .filter { it.hasServiceId() }
+      .filter { it.hasServiceId }
       .map { ProfileUtil.retrieveProfile(context, it, getRequestType(it)).toObservable() }
     stopwatch.split("requests")
 
@@ -397,6 +397,20 @@ class RetrieveProfileJob private constructor(parameters: Parameters, private val
           SignalDatabase.messages.insertProfileNameChangeMessages(recipient, remoteDisplayName, localDisplayName)
         } else {
           Log.i(TAG, "Name changed, but wasn't relevant to write an event. blocked: ${recipient.isBlocked}, group: ${recipient.isGroup}, self: ${recipient.isSelf}, firstSet: ${localDisplayName.isEmpty()}, displayChange: ${remoteDisplayName != localDisplayName}")
+        }
+
+        if (recipient.isIndividual &&
+          !recipient.isSystemContact &&
+          !recipient.nickname.isEmpty &&
+          !recipient.isProfileSharing &&
+          !recipient.isBlocked &&
+          !recipient.isSelf &&
+          !recipient.isHidden
+        ) {
+          val threadId = SignalDatabase.threads.getThreadIdFor(recipient.id)
+          if (threadId != null && !RecipientUtil.isMessageRequestAccepted(threadId, recipient)) {
+            SignalDatabase.nameCollisions.handleIndividualNameCollision(recipient.id)
+          }
         }
 
         if (writeChangeEvent || localDisplayName.isEmpty()) {

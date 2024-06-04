@@ -45,8 +45,6 @@
     <string name="ApplicationPreferencesActivity_disable_passphrase">ปิดใช้งานวลีรหัสผ่านหรือไม่?</string>
     <string name="ApplicationPreferencesActivity_this_will_permanently_unlock_signal_and_message_notifications">Signal และการแจ้งเตือนข้อความจะถูกปลดล็อกอย่างถาวร</string>
     <string name="ApplicationPreferencesActivity_disable">ปิดใช้งาน</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls">ปิดใช้งานข้อความและการโทร Signal หรือไม่?</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls_by_unregistering">ปิดใช้งานข้อความและการโทร Signal ด้วยการยกเลิกการลงทะเบียนจากเซิร์ฟเวอร์ คุณจะต้องลงทะเบียนหมายเลขโทรศัพท์ใหม่หากต้องการกลับมาใช้งานอีกในอนาคต</string>
     <string name="ApplicationPreferencesActivity_error_connecting_to_server">เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์</string>
     <string name="ApplicationPreferencesActivity_pins_are_required_for_registration_lock">รหัส PIN นั้นจำเป็นสำหรับการล็อกการลงทะเบียน เพื่อจะเลิกใช้ PIN ให้เลิกล็อกการลงทะเบียนก่อน</string>
     <string name="ApplicationPreferencesActivity_pin_created">สร้างรหัส PIN แล้ว</string>
@@ -82,8 +80,9 @@
     <string name="AttachmentKeyboard_file">แฟ้ม</string>
     <string name="AttachmentKeyboard_contact">ผู้ติดต่อ</string>
     <string name="AttachmentKeyboard_location">ตำแหน่งที่ตั้ง</string>
-    <string name="AttachmentKeyboard_Signal_needs_permission_to_show_your_photos_and_videos">Signal จำเป็นต้องได้รับอนุญาต เพื่อจะแสดงรูปและวิดีโอของคุณ</string>
-    <string name="AttachmentKeyboard_give_access">อนุญาตให้เข้าถึง</string>
+    <string name="AttachmentKeyboard_Signal_needs_permission_to_show_your_photos_and_videos">Signal จำเป็นต้องได้รับสิทธิ์เข้าถึงเพื่อแสดงรูปและวิดีโอของคุณ</string>
+    <!-- Text for a button prompting users to allow Signal access to their gallery storage -->
+    <string name="AttachmentKeyboard_allow_access">อนุญาตให้เข้าถึง</string>
     <string name="AttachmentKeyboard_payment">การจ่ายเงิน</string>
 
     <!-- AttachmentManager -->
@@ -91,6 +90,22 @@
     <string name="AttachmentManager_signal_requires_the_external_storage_permission_in_order_to_attach_photos_videos_or_audio">เพื่อที่จะแนบรูปภาพ วิดีโอ หรือเสียง Signal ต้องได้รับอนุญาตให้เข้าถึงที่เก็บข้อมูล แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ที่เก็บข้อมูล\"</string>
     <string name="AttachmentManager_signal_requires_contacts_permission_in_order_to_attach_contact_information">เพื่อที่จะแนบข้อมูลผู้ติดต่อ Signal ต้องได้รับอนุญาตให้เข้าถึงผู้ติดต่อ แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ผู้ติดต่อ\"</string>
     <string name="AttachmentManager_signal_requires_location_information_in_order_to_attach_a_location">เพื่อที่จะแนบข้อมูลตำแหน่งที่ตั้ง Signal ต้องได้รับอนุญาตให้เข้าถึงตำแหน่งที่ตั้ง แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ตำแหน่งที่ตั้ง\"</string>
+
+    <!-- Dialog title asking users for location permission -->
+    <string name="AttachmentManager_signal_allow_access_location">อนุญาตให้เข้าถึงตำแหน่งที่ตั้งของคุณ</string>
+    <!-- Dialog description that will explain the steps needed to give location permission -->
+    <string name="AttachmentManager_signal_to_send_location">ในการส่งตำแหน่งที่ตั้งของคุณ:</string>
+    <!-- Alert dialog description asking for location permission -->
+    <string name="AttachmentManager_signal_allow_signal_access_location">อนุญาตให้ Signal ส่งข้อมูลตำแหน่งของคุณ</string>
+    <!-- Toast text explaining Signal\'s need for location access -->
+    <string name="AttachmentManager_signal_needs_location_access">Signal จำเป็นต้องได้รับสิทธิ์การเข้าถึงตำแหน่งที่ตั้งเพื่อส่งพิกัดของคุณ</string>
+    <!-- Dialog title asking users for gallery storage permission -->
+    <string name="AttachmentManager_signal_allow_storage">อนุญาตให้เข้าถึงพื้นที่จัดเก็บ</string>
+    <!-- Dialog description that will explain the steps needed to give gallery storage permission -->
+    <string name="AttachmentManager_signal_to_show_photos">ในการแสดงรูปและวิดีโอ:</string>
+    <!-- Toast text explaining Signal\'s need for storage access -->
+    <string name="AttachmentManager_signal_needs_storage_access">Signal จำเป็นต้องได้รับสิทธิ์เข้าถึงพื้นที่จัดเก็บเพื่อแสดงรูปและวิดีโอของคุณ</string>
+
     <!-- Alert dialog title to show the recipient has not activated payments -->
     <string name="AttachmentManager__not_activated_payments">%1$s ยังไม่ได้เปิดใช้การชำระเงิน </string>
     <!-- Alert dialog description to send the recipient a request to activate payments -->
@@ -210,6 +225,38 @@
     <string name="CameraXFragment_capture_description">ถ่ายรูป</string>
     <string name="CameraXFragment_change_camera_description">เปลี่ยนกล้อง</string>
     <string name="CameraXFragment_open_gallery_description">เปิดอัลบั้มภาพ</string>
+    <!-- Button text asking for access to camera permissions -->
+    <string name="CameraXFragment_allow_access">Allow access</string>
+    <!-- Dialog title asking users for camera and microphone permission -->
+    <string name="CameraXFragment_allow_access_camera_microphone">Allow access to your camera and microphone</string>
+    <!-- Dialog title asking users for camera permission -->
+    <string name="CameraXFragment_allow_access_camera">Allow access to your camera</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="CameraXFragment_allow_access_microphone">Allow access to your microphone</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos -->
+    <string name="CameraXFragment_to_capture_photos_allow_camera">To capture photos, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera">To capture photos and video, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera and microphone access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera_microphone">To capture photos and video, allow Signal access to the camera and microphone.</string>
+    <!-- Text explaining why Signal needs microphone access to take videos -->
+    <string name="CameraXFragment_to_capture_videos_with_sound">To capture videos with sound, allow Signal access to your microphone.</string>
+    <!-- Text explaining why Signal needs camera access to scan QR codes -->
+    <string name="CameraXFragment_to_scan_qr_code_allow_camera">To scan a QR code, allow Signal access to the camera.</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when capturing photos -->
+    <string name="CameraXFragment_signal_needs_camera_access_capture_photos">Signal needs camera access to capture photos</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when scanning QR codes -->
+    <string name="CameraXFragment_signal_needs_camera_access_scan_qr_code">Signal needs camera access to scan QR codes</string>
+    <!-- Toast dialog explaining why Signal needs microphone permissions -->
+    <string name="CameraXFragment_signal_needs_microphone_access_video">Signal needs microphone access to capture video</string>
+    <!-- Dialog description that explains the steps needed to give camera permission -->
+    <string name="CameraXFragment_to_capture_photos">To capture photos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give camera and microphone permission -->
+    <string name="CameraXFragment_to_capture_photos_videos">To capture photos and videos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give microphone permission -->
+    <string name="CameraXFragment_to_capture_videos">To capture videos with sound:</string>
+    <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
+    <string name="CameraXFragment_to_scan_qr_codes">To scan QR codes:</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">ผู้ที่ติดต่อล่าสุด</string>
@@ -279,7 +326,8 @@
 
     <!-- ContactsDatabase -->
     <string name="ContactsDatabase_message_s">ข้อความ %1$s</string>
-    <string name="ContactsDatabase_signal_call_s">สาย Signal %1$s</string>
+    <string name="ContactsDatabase_signal_call_s">Signal Voice Call %1$s</string>
+    <string name="ContactsDatabase_signal_video_call_s">Signal Video Call %1$s</string>
 
     <!-- ContactNameEditActivity -->
     <!-- Toolbar title for contact name edit activity -->
@@ -308,7 +356,6 @@
     <string name="ConversationItem_error_network_not_delivered">การส่งล้มเหลว</string>
     <string name="ConversationItem_group_action_left">%1$s ได้ออกจากกลุ่ม</string>
     <string name="ConversationItem_send_paused">การส่งถูกหยุดชั่วคราว</string>
-    <string name="ConversationItem_click_to_approve_unencrypted">การส่งล้มเหลว แตะเพื่อกลับไปใช้วิธีที่ไม่ปลอดภัยแทน</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">กลับไปใช้ SMS ที่ไม่ได้เข้ารหัสลับหรือไม่?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_mms_dialog_title">กลับไปใช้ MMS ที่ไม่ได้เข้ารหัสลับหรือไม่?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_dialog_message">ข้อความนี้จะ <b>ไม่</b> ถูกเข้ารหัสเพราะผู้รับไม่ได้ใช้ Signal แล้ว\n\nต้องการส่งข้อความที่ไม่ปลอดภัยหรือไม่?</string>
@@ -386,8 +433,16 @@
     <string name="ConversationActivity_your_request_to_join_has_been_sent_to_the_group_admin">คำขอเข้ากลุ่มของคุณถูกส่งไปยังผู้ดูแลกลุ่มแล้ว คุณจะได้รับแจ้งเมื่อผู้ดูแลดำเนินการ</string>
     <string name="ConversationActivity_cancel_request">ยกเลิกคำขอ</string>
 
-    <string name="ConversationActivity_to_send_audio_messages_allow_signal_access_to_your_microphone">เพื่อจะส่งข้อความเสียง คุณต้องอนุญาตให้ Signal เข้าถึงไมโครโฟน</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="ConversationActivity_allow_access_microphone">อนุญาตให้เข้าถึงไมโครโฟนของคุณ</string>
+    <!-- Dialog description that will explain the steps needed to give microphone permissions -->
+    <string name="ConversationActivity_signal_to_send_audio_messages">ในการส่งข้อความเสียง:</string>
+    <!-- Alert dialog description asking for microphone permission in order to send voice messages -->
+    <string name="ConversationActivity_to_send_voice_messages_allow_signal_access_to_your_microphone">อนุญาตให้ Signal เข้าถึงไมโครโฟนของคุณเพื่อส่งข้อความเสียง</string>
+    <!-- Toast text explaining Signal\'s need for microphone access -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_message">Signal จำเป็นต้องได้รับสิทธิ์เข้าถึงไมโครโฟนเพื่อบันทึกข้อความเสียง</string>
     <string name="ConversationActivity_signal_requires_the_microphone_permission_in_order_to_send_audio_messages">เพื่อจะส่งข้อความเสียง Signal ต้องได้รับอนุญาตให้เข้าถึงไมโครโฟน แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ไมโครโฟน\"</string>
+
     <string name="ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s">เพื่อที่จะโทรหา %1$s Signal ต้องได้รับอนุญาตให้เข้าถึงไมโครโฟนและกล้อง แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ไมโครโฟน\" และ \"กล้อง\"</string>
     <string name="ConversationActivity_to_capture_photos_and_video_allow_signal_access_to_the_camera">อนุญาต Signal ให้ใช้กล้องเพื่อถ่ายรูปและวิดีโอ</string>
     <string name="ConversationActivity_signal_needs_the_camera_permission_to_take_photos_or_video">เพื่อที่จะถ่ายรูปหรือวิดีโอ Signal ต้องได้รับอนุญาตให้เข้าถึงกล้อง แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"กล้อง\"</string>
@@ -411,10 +466,17 @@
     <string name="ConversationActivity_you_will_leave_this_group_and_it_will_be_deleted_from_all_of_your_devices">คุณจะออกจากกลุ่มนี้และระบบจะลบกลุ่มออกจากอุปกรณ์ทุกเครื่องของคุณ</string>
     <string name="ConversationActivity_delete">ลบ</string>
     <string name="ConversationActivity_delete_and_leave">ลบและออก</string>
-    <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone">เพื่อจะโทรหา %1$s Signal จำเป็นต้องเข้าถึงไมโครโฟนของคุณ</string>
+
+    <!-- Dialog description that will explain the steps needed to give microphone permissions for a voice call -->
+    <string name="ConversationActivity__to_start_call">ในการเริ่มต้นการโทร:</string>
+    <!-- Alert dialog description asking for microphone permission in order to start a voice call -->
+    <string name="ConversationActivity__to_call_signal_needs_access_to_your_microphone">อนุญาตให้ Signal เข้าถึงไมโครโฟนของคุณเพื่อเริ่มต้นการโทร</string>
+    <!-- Toast text explaining Signal\'s need for microphone access for a voice call -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_call">Signal จำเป็นต้องได้รับสิทธิ์เข้าถึงไมโครโฟนเพื่อเริ่มต้นการโทร</string>
 
 
     <string name="ConversationActivity_join">เข้าร่วม</string>
+    <!-- Button text for an active group call but the call is currently full and unjoinable -->
     <string name="ConversationActivity_full">เต็ม</string>
 
     <string name="ConversationActivity_error_sending_media">เกิดข้อผิดพลาดในการส่งสื่อ</string>
@@ -600,6 +662,7 @@
     <string name="ConversationListFragment_unarchive">ยกเลิกเก็บถาวร</string>
     <string name="ConversationListFragment_delete">ลบ</string>
     <string name="ConversationListFragment_select_all">เลือกทั้งหมด</string>
+    <!-- Screen title shown when selecting multiple items from a list like conversation threads or call logs. -->
     <plurals name="ConversationListFragment_s_selected">
         <item quantity="other">เลือกไว้ %1$d</item>
     </plurals>
@@ -848,6 +911,7 @@
     <plurals name="GroupManagement_invitation_sent">
         <item quantity="other">ส่ง %1$d คำเชิญแล้ว</item>
     </plurals>
+    <!-- Dialog message shown when you are attempting to add a single contact to a group and you don\'t have enough information about them to do it automatically, so must do it via an invite instead. Placeholder is name/username/phone number. -->
     <string name="GroupManagement_invite_single_user">คุณไม่สามารถเพิ่ม %1$s เข้ากลุ่มนี้โดยอัตโนมัติ \n\nพวกเขาได้ถูกเชิญให้เข้ากลุ่มและจะไม่เห็นข้อความในกลุ่มจนกว่าพวกเขาจะตอบรับ</string>
     <string name="GroupManagement_invite_multiple_users">คุณไม่สามารถเพิ่มผู้ใช้เหล่านี้เข้ากลุ่มนี้โดยอัตโนมัติ \n\nพวกเขาได้ถูกเชิญให้เข้ากลุ่มและจะไม่เห็นข้อความในกลุ่มจนกว่าพวกเขาจะตอบรับ</string>
 
@@ -1012,7 +1076,9 @@
 
     <string name="ManageGroupActivity_edit_name_and_picture">แก้ไขชื่อและภาพ</string>
     <string name="ManageGroupActivity_legacy_group">กลุ่มแบบเก่า</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code -->
     <string name="ManageGroupActivity_legacy_group_learn_more">นี่คือกลุ่มแบบเก่า ความสามารถเช่น ระบบผู้ดูแลกลุ่ม จะใช้ได้เฉพาะในกลุ่มแบบใหม่</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code to the end of the string -->
     <string name="ManageGroupActivity_legacy_group_upgrade">นี่คือกลุ่มแบบเก่า เพื่อเข้าถึงความสามารถใหม่ เช่นการ @กล่าวถึง และระบบผู้ดูแลกลุ่ม</string>
     <string name="ManageGroupActivity_legacy_group_too_large">กลุ่มแบบเก่านี้ไม่สามารถปรับรุ่นให้เป็นกลุ่มแบบใหม่ได้ เพราะมีขนาดใหญ่เกินไป ขนาดกลุ่มที่ใหญ่ที่สุดคือ %1$d</string>
     <string name="ManageGroupActivity_upgrade_this_group">ปรับรุ่นกลุ่มนี้</string>
@@ -1230,6 +1296,7 @@
         <item quantity="other">ลบ</item>
     </plurals>
 
+    <!-- Screen title shown when selecting multiple items in the media overview screen. The first placeholder is the number of items, the second number is the cumulative file size in bytes. -->
     <plurals name="MediaOverviewActivity_d_selected_s">
         <item quantity="other">เลือกไว้ %1$d (%2$s)</item>
     </plurals>
@@ -1250,11 +1317,11 @@
     <string name="Megaphones_verify_your_signal_pin">ตรวจยืนยันรหัส PIN ของ Signal ของคุณ</string>
     <string name="Megaphones_well_occasionally_ask_you_to_verify_your_pin">เราจะถามให้คุณตรวจยืนยันรหัส PIN ของคุณเป็นระยะ เพื่อให้คุณจำมันได้</string>
     <string name="Megaphones_verify_pin">ตรวจยืนยันรหัส PIN</string>
-    <string name="Megaphones_get_started">เริ่มต้น</string>
+    <string name="Megaphones_get_started">เริ่มต้นใช้งาน</string>
     <string name="Megaphones_new_group">กลุ่มใหม่</string>
     <string name="Megaphones_invite_friends">เชิญเพื่อน</string>
     <string name="Megaphones_chat_colors">สีแชท</string>
-    <string name="Megaphones_add_a_profile_photo">เพิ่มรูปโปรไฟล์</string>
+    <string name="Megaphones_add_a_profile_photo">เพิ่มรูปภาพ</string>
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">ตอบกลับ</string>
@@ -1293,17 +1360,13 @@
     <string name="MessageRecord_left_group">คุณได้ออกจากกลุ่ม</string>
     <string name="MessageRecord_you_updated_group">คุณได้ปรับปรุงกลุ่ม</string>
     <string name="MessageRecord_the_group_was_updated">กลุ่มถูกปรับปรุงแล้ว</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">การโทรด้วยเสียงขาออก</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 video call -->
     <string name="MessageRecord_outgoing_video_call">วิดีโอคอลขาออก</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_voice_call">การโทรด้วยเสียงที่ปลายสายไม่ได้รับ</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_video_call">วิดีโอคอลที่ปลายสายไม่ได้รับ</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered -->
+    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered or ringing -->
     <string name="MessageRecord_incoming_voice_call">การโทรด้วยเสียงขาเข้า</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and answered -->
+    <!-- Update message shown when receiving an incoming 1:1 video call and answered or ringing -->
     <string name="MessageRecord_incoming_video_call">วิดีโอคอลขาเข้า</string>
     <!-- Update message shown when receiving an incoming 1:1 voice/audio call and not answered -->
     <string name="MessageRecord_missed_voice_call">การโทรด้วยเสียงที่ไม่ได้รับ</string>
@@ -1313,10 +1376,6 @@
     <string name="MessageRecord_missed_voice_call_notification_profile">สายโทรเสียงที่ไม่ได้รับระหว่างใช้โปรไฟล์การแจ้งเตือน</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
     <string name="MessageRecord_missed_video_call_notification_profile">วิดีโอคอลที่ไม่ได้รับระหว่างใช้โปรไฟล์การแจ้งเตือน</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_voice_call">คุณปฏิเสธการโทรด้วยเสียง</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_video_call">คุณปฏิเสธวิดีโอคอล</string>
     <!-- Call update formatter string to place the update message next to a time stamp. e.g., \'Incoming voice call · 11:11am\' -->
     <string name="MessageRecord_call_message_with_date">%1$s · %2$s</string>
     <string name="MessageRecord_s_updated_group">%1$s ได้ปรับปรุงกลุ่ม</string>
@@ -1517,27 +1576,52 @@
     <string name="MessageRecord_can_accept_payments">%1$s สามารถรับการชำระเงินได้แล้ว</string>
 
     <!-- Group Calling update messages -->
-    <string name="MessageRecord_s_started_a_group_call_s">%1$s ได้เริ่มการโทรแบบกลุ่ม %2$s</string>
-    <string name="MessageRecord_you_started_a_group_call_s">คุณเริ่มการโทรกลุ่ม · %1$s</string>
-    <string name="MessageRecord_s_is_in_the_group_call_s">%1$s อยู่ในการโทรแบบกลุ่ม %2$s</string>
-    <string name="MessageRecord_you_are_in_the_group_call_s1">คุณอยู่ในการโทรแบบกลุ่ม %1$s</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s และ %2$s ได้อยู่ในการโทรแบบกลุ่ม %3$s</string>
-    <string name="MessageRecord_group_call_s">โทรกลุ่ม · %1$s</string>
-
-    <string name="MessageRecord_s_started_a_group_call">%1$s ได้เริ่มการโทรแบบกลุ่ม</string>
-    <string name="MessageRecord_you_started_a_group_call">คุณได้เริ่มโทรแบบกลุ่ม</string>
-    <string name="MessageRecord_s_is_in_the_group_call">%1$s อยู่ในการโทรแบบกลุ่ม</string>
-    <string name="MessageRecord_you_are_in_the_group_call">คุณอยู่ในการโทรแบบกลุ่ม</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s และ %2$s ได้อยู่ในการโทรแบบกลุ่ม</string>
-    <string name="MessageRecord_group_call">โทรกลุ่ม</string>
+    <!-- Chat log text for an ongoing group call that has one participant with a placeholder for the short display name of the user that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_is_in_the_call_s">%1$s อยู่ในสาย · %2$s</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
+    <string name="MessageRecord_you_are_in_the_call_s1">คุณอยู่ในสาย · %1$s</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s และ %2$s อยู่ในสาย · %3$s</string>
+    <!-- Chat log text for an ongoing group call that has one participant -->
+    <string name="MessageRecord_s_is_in_the_call">%1$s อยู่ในสาย</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined -->
+    <string name="MessageRecord_you_are_in_the_call">คุณอยู่ในสาย</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
+    <string name="MessageRecord_s_and_s_are_in_the_call">%1$s และ %2$s อยู่ในสาย</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes -->
+    <string name="MessageRecord__the_video_call_has_ended">วิดีโอคอลสิ้นสุดแล้ว</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes with a placeholder for formatted time -->
+    <string name="MessageRecord__the_video_call_has_ended_s">วิดีโอคอลสิ้นสุดแล้ว · %1$s</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed -->
+    <string name="MessageRecord__missed_video_call">วิดีโอคอลที่ไม่ได้รับ</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed with a placeholder for formatted time -->
+    <string name="MessageRecord__missed_video_call_s">โทรวิดีโอที่พลาด · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user did not start -->
+    <string name="MessageRecord__incoming_video_call">วิดีโอคอลขาเข้า</string>
+    <!-- Chat log text for a group call that ended that the local user did not start with a placeholder for formatted time -->
+    <string name="MessageRecord__incoming_video_call_s">สายวิดีโอคอลเรียกเข้า · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user started -->
+    <string name="MessageRecord__outgoing_video_call">วิดีโอคอลขาออก</string>
+    <!-- Chat log text for a group call that ended that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__outgoing_video_call_s">สายวิดีโอคอลโทรออก · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user started -->
+    <string name="MessageRecord__you_started_a_video_call">คุณเริ่มวิดีโอคอล</string>
+    <!-- Chat log text for an ongoing group call that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__you_started_a_video_call_s">คุณเริ่มวิดีโอคอล · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name -->
+    <string name="MessageRecord__s_started_a_video_call">%1$s เริ่มวิดีโอคอล</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name and a placeholder for formatted time -->
+    <string name="MessageRecord__s_started_a_video_call_s">%1$s เริ่มวิดีโอคอล · %2$s</string>
 
     <string name="MessageRecord_you">คุณ</string>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call_s">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users, a placeholder for the number of users in the call, and a placeholder for formatted time -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call_s">
         <item quantity="other">%1$s %2$s และ %3$d รวมถึงคนอื่นๆ อยู่ในการโทรแบบกลุ่ม %4$s</item>
     </plurals>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users and a placeholder for the number of users in the call -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call">
         <item quantity="other">%1$s %2$s และ %3$d รวมถึงคนอื่นๆ อยู่ในการโทรแบบกลุ่ม</item>
     </plurals>
 
@@ -1901,7 +1985,7 @@
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">ไม่มีข้อความส่วนตัวกับ %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
-    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s อยู่ในรายชื่อผู้ติดต่อของระบบคุณ</string>
+    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s อยู่ในรายชื่อผู้ติดต่อบนโทรศัพท์คุณ</string>
     <!-- Notice in a row when user has no groups in common -->
     <string name="AboutSheet__you_have_no_groups_in_common">คุณไม่มีกลุ่มร่วมกัน</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
@@ -1914,6 +1998,8 @@
     <string name="AboutSheet__about">เกี่ยวกับ</string>
     <!-- Text displayed in title for you -->
     <string name="AboutSheet__you">คุณ</string>
+    <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
+    <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call">
@@ -1985,6 +2071,7 @@
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">ไม่สามารถขอรหัสยืนยันได้ โปรดตรวจสอบการเชื่อมต่อเครือข่ายและลองอีกครั้ง</string>
     <string name="RegistrationActivity_non_standard_number_format">ฟอร์แมทหมายเลขที่ไม่มีมาตรฐาน</string>
+    <!-- Dialog message shown to confirm when entering phone number (first placeholder) is normalized and formatted differently by the app (second placeholder). -->
     <string name="RegistrationActivity_the_number_you_entered_appears_to_be_a_non_standard">ตัวเลขที่คุณป้อน (%1$s) เป็นฟอร์แมทที่ไม่ได้มาตรฐาน\n\n คุณต้องการใส่ %2$sหรือเปล่า</string>
     <string name="RegistrationActivity_signal_android_phone_number_format">Signal Android - ฟอร์แมทหมายเลขโทรศัพท์</string>
     <!--    Small "toast" notification to the user confirming that they have requested a new code via voice call.-->
@@ -2132,10 +2219,10 @@
     <string name="SupportEmailUtil_filter">ตัวกรอง:</string>
     <string name="SupportEmailUtil_device_info">ข้อมูลอุปกรณ์:</string>
     <string name="SupportEmailUtil_android_version">รุ่นแอนดรอยด์:</string>
-    <string name="SupportEmailUtil_signal_version">รุ่น Signal:</string>
-    <string name="SupportEmailUtil_signal_package">แพคเกจ Signal:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_version" translatable="false">Signal version:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">กุญแจลงทะเบียน:</string>
-    <string name="SupportEmailUtil_locale">ท้องถิ่น:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">ปรับปรุงกลุ่มแล้ว</string>
@@ -2541,6 +2628,10 @@
     <string name="contact_selection_activity__refresh_contacts">รีเฟรชรายชื่อผู้ติดต่อ</string>
     <!-- Row item description for refreshing contacts -->
     <string name="contact_selection_activity__missing_someone">หากไม่เห็นผู้ติดต่อ ให้ลองกดรีเฟรชรายชื่อ</string>
+    <!-- Row item title for finding people on Signal via your contacts -->
+    <string name="contact_selection_activity__find_people_you_know">Find people you know on Signal</string>
+    <!-- Row item description asking users for access to their contacts to find people they know -->
+    <string name="contact_selection_activity__allow_access_to_contacts">Allow access to your contacts</string>
     <!-- Row header title for more section -->
     <string name="contact_selection_activity__more">เพิ่มเติม</string>
 
@@ -2573,6 +2664,14 @@
     <string name="ContactSelectionListFragment__find_by_phone_number">ค้นหาด้วยหมายเลขโทรศัพท์</string>
     <!-- Text on row item to find user by username -->
     <string name="ContactSelectionListFragment__find_by_username">ค้นหาด้วยชื่อผู้ใช้</string>
+    <!-- Dialog title asking users for contact permission -->
+    <string name="ContactSelectionListFragment_allow_access_contacts">Allow access to contacts</string>
+    <!-- Dialog description that will explain the steps needed to give contact permissions -->
+    <string name="ContactSelectionListFragment_to_find_people">To find people you know on Signal:</string>
+    <!-- Text on button prompting users to give Signal contact permissions -->
+    <string name="ContactSelectionListFragment__allow_access">Allow access</string>
+    <!-- Text asking for user\'s contact permission -->
+    <string name="ContactSelectionListFragment__allow_access_to_your_contacts_encrypted">Allow access to your contacts. Your contacts are encrypted and not visible to the Signal service.</string>
 
     <!-- contact_selection_list_fragment -->
     <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">Signal ต้องการเข้าถึงผู้ติดต่อของคุณ เพื่อจะแสดงข้อมูลเหล่านั้นได้</string>
@@ -2623,6 +2722,8 @@
     <string name="ConversationUpdateItem_loading">กำลังโหลด</string>
     <string name="ConversationUpdateItem_learn_more">เรียนรู้เพิ่มเติม</string>
     <string name="ConversationUpdateItem_join_call">เข้าร่วมการโทร</string>
+    <!-- Action button label for starting a new call in the current conversation -->
+    <string name="ConversationUpdateItem_call_back">โทรกลับ</string>
     <string name="ConversationUpdateItem_return_to_call">กลับไปที่สาย</string>
     <string name="ConversationUpdateItem_call_is_full">ห้องเต็ม</string>
     <string name="ConversationUpdateItem_invite_friends">เชิญเพื่อน</string>
@@ -2687,6 +2788,7 @@
     <string name="safety_number_change_dialog__leave_call">ออกจากสาย</string>
     <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">บุคคลดังต่อไปนี้อาจติดตั้งแอปใหม่หรือเปลี่ยนอุปกรณ์ กรุณาตรวจยืนยันหมายเลฃความปลอดภัยของคุณกับเขาเพื่อให้แน่ใจถึงความเป็นส่วนตัว</string>
     <string name="safety_number_change_dialog__view">ดู</string>
+    <!-- Subtitle shown for a single contact and that their safety number was previously verified and is now no longer verified. -->
     <string name="safety_number_change_dialog__previous_verified">ถูกตรวจยืนยันก่อนหน้า</string>
 
     <!-- EnableCallNotificationSettingsDialog__call_notifications_checklist -->
@@ -2831,6 +2933,18 @@
     <string name="EditProfileFragment__group_name">ชื่อกลุ่ม</string>
     <string name="EditProfileFragment__group_description">คำอธิบายกลุ่ม</string>
   <!-- Removed by excludeNonTranslatables <string name="EditProfileFragment__support_link" translatable="false">https://support.signal.org/hc/articles/360007459591</string> -->
+    <!-- The title of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_title">ปรับรุ่น Signal</string>
+    <!-- The body of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_body">Signal เวอร์ชันนี้หมดอายุแล้ว อัปเดต Signal ตอนนี้เพื่อใช้งานต่อ</string>
+    <!-- The button on a dialog prompting user to update to the latest version of Signal. When clicked, the user will be taken to the store to update their app. -->
+    <string name="EditProfileFragment_deprecated_dialog_update_button">ปรับรุ่น</string>
+    <!-- The title of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_title">อุปกรณ์ไม่ได้ลงทะเบียน</string>
+    <!-- The body of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_body">อุปกรณ์เครื่องนี้ไม่ได้ลงทะเบียนอีกต่อไป โปรดลงทะเบียนอีกครั้งเพื่อทำการเปลี่ยนแปลงใดๆ ในบัญชีของคุณ</string>
+    <!-- The button on a dialog informing the user that they cannot use this app feature when they are unregistered. When clicked, the user will be taken to a screen to help them re-register. -->
+    <string name="EditProfileFragment_unregistered_dialog_reregister_button">ลงทะเบียนอีกรอบ</string>
 
     <!-- EditProfileNameFragment -->
     <string name="EditProfileNameFragment_your_name">ชื่อของคุณ</string>
@@ -2913,7 +3027,7 @@
   <!-- Removed by excludeNonTranslatables <string name="HelpFragment__link__faq" translatable="false">https://support.signal.org</string> -->
     <string name="HelpFragment__support_info">ข้อมูลความช่วยเหลือ</string>
     <string name="HelpFragment__signal_android_support_request">การขอความช่วยเหลือ Signal บนแอนดรอยด์</string>
-    <string name="HelpFragment__debug_log">ปูมดีบัก:</string>
+  <!-- Removed by excludeNonTranslatables <string name="HelpFragment__debug_log" translatable="false">Debug Log:</string> -->
     <string name="HelpFragment__could_not_upload_logs">ไม่สามารถอัปโหลดปูม</string>
     <string name="HelpFragment__please_be_as_descriptive_as_possible">กรุณาอธิบายละเอียดที่สุดเท่าที่จะทำได้ เพื่อช่วยให้เราเข้าใจปัญหา</string>
     <string-array name="HelpFragment__categories_5">
@@ -2981,6 +3095,7 @@
 
     <string name="arrays__default">ค่าเริ่มต้น</string>
     <string name="arrays__high">สูง</string>
+    <!-- Setting title that represent an abstract priority to assign to notifications as the max/highest priority a notification can be within the system. -->
     <string name="arrays__max">สูงสุด</string>
 
     <!-- plurals.xml -->
@@ -3118,7 +3233,8 @@
     <string name="preferences_storage__audio">เสียง</string>
     <string name="preferences_storage__review_storage">ดูพื้นที่จัดเก็บ</string>
     <string name="preferences_storage__delete_older_messages">ลบข้อความเก่าหรือไม่</string>
-    <string name="preferences_storage__clear_message_history">ล้างประวัติการส่งข้อความหรือไม่</string>
+    <!-- Dialog title shown when selecting delete message history from manage storage -->
+    <string name="preferences_storage__delete_message_history">ลบประวัติการส่งข้อความใช่หรือไม่</string>
     <string name="preferences_storage__this_will_permanently_delete_all_message_history_and_media">การดำเนินการนี้จะทำให้ประวัติการส่งข้อความและสื่อในอุปกรณ์ของคุณซึ่งเก่ากว่า %1$s ถูกลบอย่างถาวร</string>
     <!-- The body of an alert dialog that is shown when confirming a trim operation. Trimming will delete all but the most recent messages in a chat. The placeholder represents how many messages are kept in each chat. All older messages are deleted. -->
     <plurals name="preferences_storage__this_will_permanently_trim_all_conversations_to_the_d_most_recent_messages">
@@ -3298,6 +3414,14 @@
     <!-- Storage permission row description -->
     <string name="GrantPermissionsFragment__send_photos_videos_and_files">ส่งรูปภาพ วิดีโอ และไฟล์ต่างๆ จากอุปกรณ์ของคุณ</string>
 
+    <!-- PermissionDeniedBottomSheet -->
+    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
+    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. แตะ “การตั้งค่า” ด้านล่างนี้</string>
+    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
+    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s อนุญาตสิทธิ์การเข้าถึง</string>
+    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
+    <string name="PermissionDeniedBottomSheet__settings">การตั้งค่า</string>
+
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
     <string name="PaymentsSecuritySetupFragment__security_setup">การตั้งค่าความปลอดภัย</string>
@@ -3338,6 +3462,7 @@
     <string name="PaymentsDetailsFragment__sent_to_s">ส่งถึง %1$s</string>
     <string name="PaymentsDetailsFragment__you_on_s_at_s">คุณบน %1$s เมื่อ %2$s</string>
     <string name="PaymentsDetailsFragment__s_on_s_at_s">%1$s บน %2$s เมื่อ %3$s</string>
+    <!-- Prefix to a name to indicate who a payment was sent to -->
     <string name="PaymentsDetailsFragment__to">ถึง</string>
     <string name="PaymentsDetailsFragment__from">จาก</string>
     <string name="PaymentsDetailsFragment__information">รายละเอียดธุรกรรม รวมถึงจำนวนเงินและเวลาของธุรกรรมเป็นส่วนหนึ่งของ MobileCoin Ledger</string>
@@ -3400,6 +3525,7 @@
     <string name="ConfirmPayment__confirm_payment">ยืนยันการจ่ายเงิน</string>
     <string name="ConfirmPayment__network_fee">ค่าธรรมเนียมเครือข่าย</string>
     <string name="ConfirmPayment__estimated_s">ประมาณ %1$s</string>
+    <!-- Prefix to a name to indicate who a payment will be sent to -->
     <string name="ConfirmPayment__to">ถึง</string>
     <string name="ConfirmPayment__total_amount">จำนวนรวม</string>
     <string name="ConfirmPayment__balance_s">ยอด: %1$s</string>
@@ -3548,6 +3674,14 @@
     <string name="conversation_group_options__conversation">แชท</string>
     <string name="conversation_group_options__broadcast">เผยแพร่</string>
 
+    <!-- DoubleTapEditEducationSheet -->
+    <!-- Displayed as the title of the education bottom sheet -->
+    <string name="DoubleTapEditEducationSheet__double_tap_edit_title">แตะสองครั้งเพื่อแก้ไข</string>
+    <!-- Text on the sheet explaining how double tapping on a message will let them edit it -->
+    <string name="DoubleTapEditEducationSheet__quickly_tap_twice">แตะเร็วๆ สองครั้งที่ข้อความของคุณเพื่อแก้ไข คุณสามารถแก้ไขข้อความได้ภายใน 24 ชั่วโมงหลังการส่ง</string>
+    <!-- Button label to dismiss sheet -->
+    <string name="DoubleTapEditEducationSheet__got_it">เข้าใจแล้ว</string>
+
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">กลุ่มใหม่</string>
     <string name="text_secure_normal__menu_settings">การตั้งค่า</string>
@@ -3564,8 +3698,6 @@
     <string name="verify_display_fragment_context_menu__compare_with_clipboard">เปรียบเทียบกับคลิปบอร์ด</string>
 
     <!-- reminder_header -->
-    <string name="reminder_header_push_title">เปิดใช้งานข้อความและการโทร Signal</string>
-    <string name="reminder_header_push_text">ยกระดับประสบการณ์การสื่อสารของคุณ</string>
     <string name="reminder_header_service_outage_text">Signal กำลังพบกับอุปสรรคทางเทคนิค เรากำลังทำงานอย่างหนักเพื่อให้สามารถกลับมาให้บริการได้โดยเร็วที่สุดเท่าที่จะเป็นไปได้</string>
     <string name="reminder_header_progress">%1$d%%</string>
     <!-- Body text of a banner that will show at the top of the chat list when we temporarily cannot process the user\'s contacts -->
@@ -3855,6 +3987,8 @@
     <string name="TransferOrRestoreFragment__you_need_access_to_your_old_device">คุณจะต้องสามารถเข้าถึงอุปกรณ์เครื่องเก่าของคุณได้</string>
     <string name="TransferOrRestoreFragment__restore_from_backup">กู้คืนจากข้อมูลสำรอง</string>
     <string name="TransferOrRestoreFragment__restore_your_messages_from_a_local_backup">กู้คืนข้อความของคุณจากข้อมูลสำรองในเครื่อง หากคุณไม่กู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง</string>
+    <!-- Button label for more options -->
+    <string name="TransferOrRestoreFragment__more_options">ตัวเลือกเพิ่มเติม</string>
 
     <!-- NewDeviceTransferInstructionsFragment -->
     <string name="NewDeviceTransferInstructions__open_signal_on_your_old_android_phone">เปิด Signal บนโทรศัพท์ Android เครื่องเก่าของคุณ</string>
@@ -3995,6 +4129,7 @@
     <string name="RecipientBottomSheet_copied_to_clipboard">คัดลอกไปคลิปบอร์ดแล้ว</string>
 
     <string name="GroupRecipientListItem_admin">ผู้ดูแล</string>
+    <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">อนุมัติ</string>
     <string name="GroupRecipientListItem_deny_description">ปฏิเสธ</string>
 
@@ -4022,6 +4157,7 @@
 
     <!-- VoiceNoteMediaDescriptionCompatFactory -->
     <string name="VoiceNoteMediaItemFactory__voice_message">ข้อความเสียง %1$s</string>
+    <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">%1$s ถึง %2$s</string>
 
     <!-- StorageUtil -->
@@ -4035,8 +4171,14 @@
     <string name="ReviewCardDialogFragment__review_members">พิจารณาสมาชิก</string>
     <!-- Title of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
     <string name="ReviewCardDialogFragment__review_request">พิจารณาคำขอ</string>
-    <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">สมาชิกในกลุ่ม %1$d คน มีชื่อเหมือนกัน พิจารณาสมาชิกด้านล่างแล้วเลือกตัดสินใจ</string>
-    <string name="ReviewCardDialogFragment__if_youre_not_sure">หากคุณไม่มั่นใจว่าคำขอมาจากใคร คุณสามารถพิจารณาได้จากรายชื่อผู้ติดต่อด้านล่างแล้วเลือกตัดสินใจ</string>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__d_group_members_have_the_same_name">
+        <item quantity="other">สมาชิกในกลุ่ม %1$d คนใช้ชื่อเหมือนกัน ตรวจสอบรายชื่อสมาชิกด้านล่างแล้วเลือกเพื่อดำเนินการ</item>
+    </plurals>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__if_youre_not_sure">
+        <item quantity="other">หากคุณไม่มั่นใจว่าคำขอมาจากใคร สามารถตรวจสอบรายชื่อผู้ติดต่อด้านล่างแล้วดำเนินการ</item>
+    </plurals>
     <string name="ReviewCardDialogFragment__no_other_groups_in_common">ไม่มีกลุ่มอื่นร่วมกัน</string>
     <string name="ReviewCardDialogFragment__no_groups_in_common">ไม่มีกลุ่มร่วมกัน</string>
     <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
@@ -4059,17 +4201,24 @@
     <!-- Displayed when a recent name change has occurred. First placeholder is new short name, second is previous name, third is new name. -->
     <string name="ReviewCard__s_recently_changed">%1$s เพิ่งเปลี่ยนชื่อโปรไฟล์จาก %2$s เป็น %3$s</string>
     <!-- Displayed when a review user is in your system contacts. Placeholder is short name. -->
-    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s อยู่ในรายชื่อผู้ติดต่อของระบบคุณ</string>
+    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s อยู่ในรายชื่อผู้ติดต่อบนโทรศัพท์คุณ</string>
 
     <!-- CallParticipantsListUpdatePopupWindow -->
     <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s ได้เข้าร่วมกลุ่ม</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s และ %2$s ได้เข้าร่วมกลุ่ม</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s %2$s และ %3$s ได้เข้าร่วมกลุ่ม</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s %2$s และอีก %3$d คน ได้เข้าร่วมกลุ่ม</string>
+    <!-- Toast message shown in group call when 3 or more people join -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">
+        <item quantity="other">%1$s, %2$s และอีก %3$d คนเข้าร่วมสาย</item>
+    </plurals>
+    <!-- Toast/popup text shown when someone leaves a group call -->
     <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s ออกจากกลุ่ม</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s และ %2$s ออกจากกลุ่ม</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s %2$s และ %3$s ได้ออกจากกลุ่ม</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s %2$s และอีก %3$d คน ได้ออกจากกลุ่ม</string>
+    <!-- Toast message shown in group call when 3 or more people leave -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">
+        <item quantity="other">%1$s, %2$s และอีก %3$d คนออกจากสาย</item>
+    </plurals>
 
     <string name="CallParticipant__you">คุณ</string>
     <string name="CallParticipant__you_on_another_device">คุณ (อยู่บนอุปกรณ์เครื่องอื่น)</string>
@@ -4437,10 +4586,14 @@
 
     <!-- PrivacySettingsFragment -->
     <string name="PrivacySettingsFragment__blocked">ถูกบล็อก</string>
-    <string name="PrivacySettingsFragment__d_contacts">%1$d ผู้ติดต่อ</string>
+    <!-- Settings label that shows the number blocked contacts -->
+    <plurals name="PrivacySettingsFragment__d_contacts">
+        <item quantity="other">ผู้ติดต่อ %1$d คน</item>
+    </plurals>
     <string name="PrivacySettingsFragment__messaging">การส่งข้อความ</string>
     <string name="PrivacySettingsFragment__disappearing_messages">ข้อความที่ลบตัวเอง</string>
     <string name="PrivacySettingsFragment__app_security">ความปลอดภัยของแอป</string>
+    <!-- This refers to the multi-tasking overview (recent apps) from the Android operating system.-->
     <string name="PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app">ไม่อนุญาตให้ถ่ายภาพหน้าจอในรายการสนทนาล่าสุดและภายในแอป</string>
     <string name="PrivacySettingsFragment__signal_message_and_calls">Signal ส่งข้อความและโทร ถ่ายทอดการโทร และผู้ส่งที่ถูกปกปิด</string>
     <string name="PrivacySettingsFragment__default_timer_for_new_changes">ค่าเริ่มต้นของตัวจับเวลาสำหรับแชทใหม่</string>
@@ -4497,11 +4650,14 @@
     <string name="DataAndStorageSettingsFragment__media_quality">คุณภาพของสื่อ</string>
     <string name="DataAndStorageSettingsFragment__sent_media_quality">ส่งคุณภาพสื่อแล้ว</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">การส่งสื่อคุณภาพสูงจะใช้ข้อมูลมากขึ้น</string>
+    <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">สูง</string>
+    <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
     <string name="DataAndStorageSettingsFragment__standard">มาตรฐาน</string>
     <string name="DataAndStorageSettingsFragment__calls">การโทร</string>
 
     <!-- ChatColorSelectionFragment -->
+    <!-- Text shown on a circle button to indicate the app will automatically select a color for conversation bubbles for this chat. -->
     <string name="ChatColorSelectionFragment__auto">อัตโนมัติ</string>
     <string name="ChatColorSelectionFragment__use_custom_colors">ใช้สีที่กำหนดเอง</string>
     <string name="ChatColorSelectionFragment__chat_color">สีแชท</string>
@@ -4606,7 +4762,7 @@
     <string name="ConversationSettingsFragment__disappearing_messages">ข้อความที่ลบตัวเอง</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">เสียงและการแจ้งเตือน</string>
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
-    <string name="ConversationSettingsFragment__contact_details">รายละเอียดผู้ติดต่อ</string>
+    <string name="ConversationSettingsFragment__contact_details">ข้อมูลผู้ติดต่อบนโทรศัพท์</string>
     <string name="ConversationSettingsFragment__view_safety_number">ดูหมายเลขความปลอดภัย</string>
     <string name="ConversationSettingsFragment__block">บล็อก</string>
     <string name="ConversationSettingsFragment__block_group">บล็อกกลุ่ม</string>
@@ -4710,6 +4866,7 @@
     <string name="AvatarPickerFragment__take_a_picture">ถ่ายภาพ</string>
     <string name="AvatarPickerFragment__choose_a_photo">เลือกรูปภาพ</string>
     <string name="AvatarPickerFragment__photo">รูปถ่าย</string>
+    <!-- Button label during avatar selection/creation that when tapped lets you generate an avatar from typed in text. -->
     <string name="AvatarPickerFragment__text">ข้อความ</string>
     <string name="AvatarPickerFragment__save">บันทึก</string>
     <string name="AvatarPickerFragment__clear_avatar">ล้างอวตาร</string>
@@ -4766,7 +4923,7 @@
     <string name="MediaReviewFragment__add_a_message">เพิ่มข้อความ</string>
     <string name="MediaReviewFragment__add_a_reply">เพิ่มการตอบกลับ</string>
     <string name="MediaReviewFragment__send_to">ส่งไปให้</string>
-    <string name="MediaReviewFragment__view_once_message">ดูข้อความครั้งเดียว</string>
+    <string name="MediaReviewFragment__view_once_message">ไฟล์สื่อแบบที่ดูได้ครั้งเดียว</string>
     <string name="MediaReviewFragment__one_or_more_items_were_too_large">มีรายการที่ใหญ่เกินไปอย่างน้อยหนึ่งรายการ</string>
     <string name="MediaReviewFragment__one_or_more_items_were_invalid">มีรายการที่ไม่ถูกต้องอย่างน้อยหนึ่งรายการ</string>
     <string name="MediaReviewFragment__too_many_items_selected">เลือกหลายรายการมากเกินไป</string>
@@ -5354,7 +5511,7 @@
     <string name="StoryViewerFragment__s_s">%1$s %2$s</string>
     <!-- Displayed when viewing a post you sent -->
     <string name="StoryViewerPageFragment__you">คุณ</string>
-    <!-- Displayed when viewing a post displayed to a group -->
+    <!-- Displayed when viewing a story sent to a group, placeholders are person who sent the story and the group name -->
     <string name="StoryViewerPageFragment__s_to_s">%1$s ถึง %2$s</string>
     <!-- Displayed when viewing a post from another user with no replies -->
     <string name="StoryViewerPageFragment__reply">ตอบกลับ</string>
@@ -5444,7 +5601,7 @@
     <!-- Signal connections sheet bullet point 2 -->
     <string name="SignalConnectionsBottomSheet__accepting_a_message_request">รับคำขอส่งข้อความ</string>
     <!-- Signal connections sheet bullet point 3 -->
-    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">บันทึกไว้ในรายชื่อผู้ติดต่อของระบบคุณ</string>
+    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">บันทึกไว้ในรายชื่อผู้ติดต่อบนโทรศัพท์คุณ</string>
     <!-- Note at the bottom of the Signal connections sheet -->
     <string name="SignalConnectionsBottomSheet__your_connections_can_see_your_name">"เครือข่ายของคุณจะเห็นชื่อและรูปภาพของคุณ รวมถึงโพสต์ใน \"สตอรี่ของฉัน\" เว้นแต่ว่าคุณจะซ่อนสตอรี่นั้นจากพวกเขา"</string>
     <!-- Clickable option to add a viewer to a custom story -->
@@ -6507,6 +6664,75 @@
     <string name="FindByActivity__qr_scan_button">สแกนรหัส QR</string>
     <!-- Content of a dialog indicating that we could not perform the requested action because we encountered a network error. -->
     <string name="FindByActivity__network_error_dialog">พบความผิดพลาดของเครือข่าย ลองอีกครั้งในภายหลัง</string>
+
+    <!-- Title for an alert letting someone know that one of their linked devices is inactive. -->
+    <string name="LinkedDeviceInactiveMegaphone_title">อุปกรณ์ที่เชื่อมโยงอยู่ไม่ได้ใช้งาน</string>
+    <!-- Body for an alert letting someone know that one of their linked devices is inactive. The string placeholder is the name of the device, and the number placeholder is the number of days before device is unlinked. -->
+    <plurals name="LinkedDeviceInactiveMegaphone_body">
+        <item quantity="other">หากคุณยังต้องการเชื่อมโยง \"%1$s\" ต่อไป ให้เปิด Signal บนอุปกรณ์นั้นภายใน %2$d วัน</item>
+    </plurals>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the user will opt out of all future alerts. -->
+    <string name="LinkedDeviceInactiveMegaphone_dont_remind_button_label">ไม่ต้องเตือนฉัน</string>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the alert will be dismissed. -->
+    <string name="LinkedDeviceInactiveMegaphone_got_it_button_label">เข้าใจแล้ว</string>
+
+    <!-- NicknameFragment -->
+    <!-- Title displayed at the top of the screen -->
+    <string name="NicknameActivity__nickname">ชื่อเล่น</string>
+    <!-- Subtitle displayed under title -->
+    <string name="NicknameActivity__nicknames_amp_notes">ชื่อเล่นและข้อมูลในโน้ตจะจัดเก็บโดย Signal และจะถูกเข้ารหัสตั้งแต่ต้นทางถึงปลายทาง จะมีแค่คุณเท่านั้นที่เห็นข้อมูลเหล่านี้</string>
+    <!-- Field label for given name -->
+    <string name="NicknameActivity__first_name">ชื่อตัว</string>
+    <!-- Content description for first name clear button -->
+    <string name="NicknameActivity__clear_first_name">ล้างชื่อ</string>
+    <!-- Field label for family name -->
+    <string name="NicknameActivity__last_name">นามสกุล</string>
+    <!-- Content description for last name clear button -->
+    <string name="NicknameActivity__clear_last_name">ล้างนามสกุล</string>
+    <!-- Field label for note -->
+    <string name="NicknameActivity__note">โน้ต</string>
+    <!-- Button label to save -->
+    <string name="NicknameActivity__save">บันทึก</string>
+    <!-- Dialog title for note and name deletion -->
+    <string name="NicknameActivity__delete_nickname">ต้องการลบใช่หรือไม่</string>
+    <!-- Dialog message for note and name deletion -->
+    <string name="NicknameActivity__this_will_permanently_delete_this_nickname_and_note">การดำเนินการนี้จะลบชื่อเล่นรวมถึงข้อมูลในโน้ตที่คุณบันทึกไว้โดยถาวร</string>
+
+    <!-- ViewNoteBottomSheetDialogFragment -->
+    <!-- Sheet title -->
+    <string name="ViewNoteSheet__note">โน้ต</string>
+    <!-- Content description for opening the note editor -->
+    <string name="ViewNoteSheet__edit_note">แก้ไขโน้ต</string>
+
+    <!-- BackupProgressService -->
+    <!-- Notification title shown while backup restore job is running -->
+    <string name="BackupProgressService_title">กำลังกู้คืนข้อมูลสำรอง…</string>
+    <!-- Notification title shown while downloading backup restore data -->
+    <string name="BackupProgressService_title_downloading">กำลังดาวน์โหลดข้อมูลสำรอง…</string>
+
+    <!-- BackupsTypeSettingsFragment -->
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__credit_or_debit_card">บัตรเครดิตหรือบัตรเดบิต</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__iDEAL">iDEAL</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__google_pay">Google Pay</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__bank_transfer">โอนเงินผ่านระบบธนาคาร</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__paypal">PayPal</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__unknown">ไม่ทราบ</string>
+
+    <!-- ManageStorageSettingsFragment -->
+    <!-- Settings section title header show above manage settings options for automatic chat history management (deleting) -->
+    <string name="ManageStorageSettingsFragment_chat_limit">จำกัดข้อความในแชทสูงสุด</string>
+    <!-- Settings row title text that can be clicked to delete all messages and associated data from the device -->
+    <string name="ManageStorageSettingsFragment_delete_message_history">ลบประวัติการส่งข้อความ</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (time is a range like 30 days or 1 year etc) -->
+    <string name="ManageStorageSettingsFragment_keep_messages_duration_warning">ข้อความที่เก่ากว่าช่วงเวลาที่เลือกจะถูกลบอย่างถาวร</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (limit is a number like 500 or 5,000) -->
+    <string name="ManageStorageSettingsFragment_chat_length_limit_warning">ข้อความที่เกินจากจำนวนที่เลือกจะถูกลบอย่างถาวร</string>
 
     <!-- EOF -->
 </resources>

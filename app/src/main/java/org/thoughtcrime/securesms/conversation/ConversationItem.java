@@ -40,6 +40,7 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
@@ -239,6 +240,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   private                Stub<GiftMessageView>                   giftViewStub;
   private                Stub<PaymentMessageView>                paymentViewStub;
   private @Nullable      EventListener                           eventListener;
+  private @Nullable      GestureDetector                         gestureDetector;
 
   private int     defaultBubbleColor;
   private int     defaultBubbleColorForWallpaper;
@@ -259,6 +261,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   private final UrlClickListener                urlClickListener                = new UrlClickListener();
   private final Rect                            thumbnailMaskingRect            = new Rect();
   private final TouchDelegateChangedListener    touchDelegateChangedListener    = new TouchDelegateChangedListener();
+  private final DoubleTapEditTouchListener      doubleTapEditTouchListener      = new DoubleTapEditTouchListener();
   private final GiftMessageViewCallback         giftMessageViewCallback         = new GiftMessageViewCallback();
 
   private final Context context;
@@ -354,6 +357,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
     setOnClickListener(new ClickListener(null));
 
+    bodyText.setOnTouchListener(doubleTapEditTouchListener);
     bodyText.setOnLongClickListener(passthroughClickListener);
     bodyText.setOnClickListener(passthroughClickListener);
     footer.setOnTouchDelegateChangedListener(touchDelegateChangedListener);
@@ -497,6 +501,11 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   @Override
   public void setEventListener(@Nullable EventListener eventListener) {
     this.eventListener = eventListener;
+  }
+
+  @Override
+  public void setGestureDetector(GestureDetector gestureDetector) {
+    this.gestureDetector = gestureDetector;
   }
 
   public boolean disallowSwipe(float downX, float downY) {
@@ -650,10 +659,10 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     }
 
     if (conversationRecipient.getId().equals(modified.getId())) {
-      setBubbleState(messageRecord, modified, modified.hasWallpaper(), colorizer);
+      setBubbleState(messageRecord, modified, modified.getHasWallpaper(), colorizer);
 
       if (quoteView != null) {
-        quoteView.setWallpaperEnabled(modified.hasWallpaper());
+        quoteView.setWallpaperEnabled(modified.getHasWallpaper());
       }
 
       if (audioViewStub.resolved()) {
@@ -1105,7 +1114,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
                                   boolean messageRequestAccepted,
                                   boolean allowedToPlayInline)
   {
-    boolean showControls = messageRecord.isMediaPending() || (!messageRecord.isFailed() && !MessageRecordUtil.isScheduled(messageRecord));
+    boolean showControls = !MessageRecordUtil.isScheduled(messageRecord) && (messageRecord.isMediaPending() || !messageRecord.isFailed());
 
     ViewUtil.setTopMargin(bodyText, readDimen(R.dimen.message_bubble_top_padding));
 
@@ -1596,8 +1605,6 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
     if (!messageRecord.isMediaPending() && messageRecord.isFailed()) {
       alertView.setFailed();
-    } else if (messageRecord.isPendingInsecureSmsFallback()) {
-      alertView.setPendingApproval();
     } else if (messageRecord.isRateLimited()) {
       alertView.setRateLimited();
     } else {
@@ -1849,7 +1856,6 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     return batchSelected.isEmpty() &&
            ((messageRecord.isFailed() && !messageRecord.isMmsNotification()) ||
             (messageRecord.isRateLimited() && SignalStore.rateLimit().needsRecaptcha()) ||
-            messageRecord.isPendingInsecureSmsFallback() ||
             messageRecord.isBundleKeyExchange());
   }
 
@@ -2015,7 +2021,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   private boolean isFooterVisible(@NonNull MessageRecord current, @NonNull Optional<MessageRecord> next, boolean isGroupThread) {
     boolean differentTimestamps = next.isPresent() && !DateUtils.isSameExtendedRelativeTimestamp(next.get().getTimestamp(), current.getTimestamp());
 
-    return forceFooter(messageRecord) || current.getExpiresIn() > 0 || !current.isSecure() || current.isPending() || current.isPendingInsecureSmsFallback() ||
+    return forceFooter(messageRecord) || current.getExpiresIn() > 0 || !current.isSecure() || current.isPending() ||
            current.isFailed() || current.isRateLimited() || differentTimestamps || isEndOfMessageCluster(current, next, isGroupThread);
   }
 
@@ -2466,6 +2472,16 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     }
   }
 
+  private class DoubleTapEditTouchListener implements View.OnTouchListener {
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+      if (gestureDetector != null && batchSelected.isEmpty()) {
+        return gestureDetector.onTouchEvent(event);
+      }
+      return false;
+    }
+  }
+
   private class AttachmentDownloadClickListener implements SlidesClickedListener {
     @Override
     public void onClick(View v, final List<Slide> slides) {
@@ -2478,7 +2494,8 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
         for (Slide slide : slides) {
           ApplicationDependencies.getJobManager().add(new AttachmentDownloadJob(messageRecord.getId(),
                                                                                 ((DatabaseAttachment) slide.asAttachment()).attachmentId,
-                                                                                true));
+                                                                                true,
+                                                                                false));
         }
       }
     }
@@ -2504,7 +2521,8 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
           setup(v, slide);
           jobManager.add(new AttachmentDownloadJob(messageRecord.getId(),
                                                    attachmentId,
-                                                   true));
+                                                   true,
+                                                   false));
           jobManager.addListener(queue, (job, jobState) -> {
             if (jobState.isComplete()) {
               cleanup();

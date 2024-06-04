@@ -21,7 +21,6 @@ import org.thoughtcrime.securesms.webrtc.audio.AudioManagerCommand;
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager;
 import org.thoughtcrime.securesms.webrtc.locks.LockManager;
 import org.whispersystems.signalservice.api.messages.calls.SignalServiceCallMessage;
-import org.whispersystems.signalservice.internal.push.SyncMessage;
 
 import java.util.Collection;
 import java.util.UUID;

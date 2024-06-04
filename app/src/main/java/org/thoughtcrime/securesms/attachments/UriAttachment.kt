@@ -69,7 +69,7 @@ class UriAttachment : Attachment {
     transferState = transferState,
     size = size,
     fileName = fileName,
-    cdnNumber = 0,
+    cdn = Cdn.CDN_0,
     remoteLocation = null,
     remoteKey = null,
     remoteDigest = null,
@@ -98,6 +98,7 @@ class UriAttachment : Attachment {
 
   override val uri: Uri
   override val publicUri: Uri? = null
+  override val thumbnailUri: Uri? = null
 
   override fun writeToParcel(dest: Parcel, flags: Int) {
     super.writeToParcel(dest, flags)

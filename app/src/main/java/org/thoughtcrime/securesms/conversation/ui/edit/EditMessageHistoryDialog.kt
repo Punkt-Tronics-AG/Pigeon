@@ -88,7 +88,7 @@ class EditMessageHistoryDialog : FixedRoundedCornerBottomSheetDialogFragment() {
       Glide.with(this),
       Locale.getDefault(),
       ConversationAdapterListener(),
-      conversationRecipient.hasWallpaper(),
+      conversationRecipient.hasWallpaper,
       colorizer
     ).apply {
       setCondensedMode(ConversationItemDisplayMode.EditHistory)
@@ -168,6 +168,7 @@ class EditMessageHistoryDialog : FixedRoundedCornerBottomSheetDialogFragment() {
     override fun onShowSafetyTips(forGroup: Boolean) = Unit
     override fun onReportSpamLearnMoreClicked() = Unit
     override fun onMessageRequestAcceptOptionsClicked() = Unit
+    override fun onItemDoubleClick(item: MultiselectPart) = Unit
   }
 
   companion object {

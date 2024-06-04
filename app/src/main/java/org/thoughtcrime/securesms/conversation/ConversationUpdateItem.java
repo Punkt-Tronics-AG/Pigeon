@@ -37,6 +37,7 @@ import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord;
 import org.thoughtcrime.securesms.database.model.LiveUpdateMessage;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.UpdateDescription;
+import org.thoughtcrime.securesms.database.model.databaseprotos.GroupCallUpdateDetails;
 import org.thoughtcrime.securesms.groups.LiveGroup;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.LiveRecipient;
@@ -356,7 +357,7 @@ public final class ConversationUpdateItem extends FrameLayout
 
       Set<UUID> members = liveFullMembers.getValue();
       if (members != null) {
-        return recipient.hasAci() && members.contains(recipient.requireAci().getRawUuid());
+        return recipient.getHasAci() && members.contains(recipient.requireAci().getRawUuid());
       }
       return false;
     }
@@ -447,11 +448,14 @@ public final class ConversationUpdateItem extends FrameLayout
         }
       });
     } else if (conversationMessage.getMessageRecord().isGroupCall()) {
-      UpdateDescription updateDescription = MessageRecord.getGroupCallUpdateDescription(getContext(), conversationMessage.getMessageRecord().getBody(), true);
-      Collection<ACI>   acis              = updateDescription.getMentioned();
+      GroupCallUpdateDetails groupCallUpdateDetails = GroupCallUpdateDetailsUtil.parse(conversationMessage.getMessageRecord().getBody());
+      boolean                isRingingOnLocalDevice = groupCallUpdateDetails.isRingingOnLocalDevice;
+      boolean                endedRecently          = GroupCallUpdateDetailsUtil.checkCallEndedRecently(groupCallUpdateDetails);
+      UpdateDescription      updateDescription      = MessageRecord.getGroupCallUpdateDescription(getContext(), conversationMessage.getMessageRecord().getBody(), true);
+      Collection<ACI>        acis                   = updateDescription.getMentioned();
 
       int text = 0;
-      if (Util.hasItems(acis)) {
+      if (Util.hasItems(acis) || isRingingOnLocalDevice) {
         if (acis.contains(SignalStore.account().requireAci())) {
           text = R.string.ConversationUpdateItem_return_to_call;
         } else if (GroupCallUpdateDetailsUtil.parse(conversationMessage.getMessageRecord().getBody()).isCallFull) {
@@ -459,6 +463,8 @@ public final class ConversationUpdateItem extends FrameLayout
         } else {
           text = R.string.ConversationUpdateItem_join_call;
         }
+      } else if (endedRecently) {
+        text = R.string.ConversationUpdateItem_call_back;
       }
 
       if (text != 0 && conversationRecipient.isGroup() && conversationRecipient.isActiveGroup()) {
@@ -591,7 +597,7 @@ public final class ConversationUpdateItem extends FrameLayout
   private boolean shouldShowBlockRequestAction(MessageRecord messageRecord) {
     Recipient toBlock = messageRecord.getFromRecipient();
 
-    if (!toBlock.hasServiceId() || !groupData.isSelfAdmin() || groupData.isBanned(toBlock) || groupData.isFullMember(toBlock)) {
+    if (!toBlock.getHasServiceId() || !groupData.isSelfAdmin() || groupData.isBanned(toBlock) || groupData.isFullMember(toBlock)) {
       return false;
     }
 

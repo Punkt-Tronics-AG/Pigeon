@@ -18,6 +18,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.service.webrtc.ActiveCallManager;
 import org.thoughtcrime.securesms.service.webrtc.WebRtcCallService;
 import org.thoughtcrime.securesms.util.ConversationUtil;
 
@@ -29,8 +30,8 @@ import org.thoughtcrime.securesms.util.ConversationUtil;
 
 public class CallNotificationBuilder {
 
-  public  static final int WEBRTC_NOTIFICATION         = 313388;
-  private static final int WEBRTC_NOTIFICATION_RINGING = 313389;
+  public static final int WEBRTC_NOTIFICATION         = 313388;
+  public static final int WEBRTC_NOTIFICATION_RINGING = 313389;
 
   public static final int TYPE_INCOMING_RINGING    = 1;
   public static final int TYPE_OUTGOING_RINGING    = 2;
@@ -114,7 +115,7 @@ public class CallNotificationBuilder {
       if (deviceVersionSupportsIncomingCallStyle()) {
         builder.setStyle(NotificationCompat.CallStyle.forIncomingCall(
             person,
-           WebRtcCallService.denyCallIntent(context),
+            WebRtcCallService.denyCallIntent(context),
             getActivityPendingIntent(context, isVideoCall ? LaunchCallScreenIntentState.VIDEO : LaunchCallScreenIntentState.AUDIO)
         ).setIsVideo(isVideoCall));
       }

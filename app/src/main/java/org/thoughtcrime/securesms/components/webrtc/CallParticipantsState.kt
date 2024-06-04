@@ -49,13 +49,13 @@ data class CallParticipantsState(
   val allRemoteParticipants: List<CallParticipant> = remoteParticipants.allParticipants
   val isFolded: Boolean = foldableState.isFolded
   val isLargeVideoGroup: Boolean = allRemoteParticipants.size > SMALL_GROUP_MAX && !isInPipMode && !isFolded
-  val isIncomingRing: Boolean = callState == WebRtcViewModel.State.CALL_INCOMING
+  val hideAvatar: Boolean = callState.isIncomingOrHandledElsewhere
 
   val raisedHands: List<GroupCallRaiseHandEvent>
     get() {
       val results = allRemoteParticipants.asSequence()
         .filter { it.isHandRaised }
-        .distinctBy { it.recipient }
+        .distinctBy { it.recipient.id }
         .map { GroupCallRaiseHandEvent(it.recipient, it.handRaisedTimestamp) }
         .sortedBy { it.timestamp }
         .toMutableList()
@@ -151,7 +151,7 @@ data class CallParticipantsState(
   fun getIncomingRingingGroupDescription(context: Context): String? {
     if (callState == WebRtcViewModel.State.CALL_INCOMING &&
       groupCallState == WebRtcViewModel.GroupCallState.RINGING &&
-      ringerRecipient.hasServiceId()
+      ringerRecipient.hasServiceId
     ) {
       val ringerName = ringerRecipient.getShortDisplayName(context)
       val membersWithoutYouOrRinger: List<GroupMemberEntry.FullMember> = groupMembers.filterNot { it.member.isSelf || ringerRecipient.requireServiceId() == it.member.serviceId.orElse(null) }

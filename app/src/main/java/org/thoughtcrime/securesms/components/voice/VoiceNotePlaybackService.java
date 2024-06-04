@@ -34,12 +34,16 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.attachments.AttachmentId;
+import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
+import org.thoughtcrime.securesms.database.DatabaseObserver;
 import org.thoughtcrime.securesms.database.MessageTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.model.MessageId;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceViewedUpdateJob;
 import org.thoughtcrime.securesms.jobs.SendViewedReceiptJob;
+import org.thoughtcrime.securesms.mms.PartUriParser;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 
@@ -64,6 +68,8 @@ public class VoiceNotePlaybackService extends MediaSessionService {
   private KeyClearedReceiver                   keyClearedReceiver;
   private VoiceNotePlayerCallback              voiceNotePlayerCallback;
 
+  private final DatabaseObserver.Observer attachmentDeletionObserver = this::onAttachmentDeleted;
+
   @Override
   public void onCreate() {
     super.onCreate();
@@ -83,6 +89,7 @@ public class VoiceNotePlaybackService extends MediaSessionService {
 
     setMediaNotificationProvider(new VoiceNoteMediaNotificationProvider(this));
     setListener(new MediaSessionServiceListener());
+    ApplicationDependencies.getDatabaseObserver().registerAttachmentObserver(attachmentDeletionObserver);
   }
 
   @Override
@@ -95,6 +102,7 @@ public class VoiceNotePlaybackService extends MediaSessionService {
 
   @Override
   public void onDestroy() {
+    ApplicationDependencies.getDatabaseObserver().unregisterObserver(attachmentDeletionObserver);
     player.release();
     mediaSession.release();
     mediaSession = null;
@@ -189,6 +197,40 @@ public class VoiceNotePlaybackService extends MediaSessionService {
 
       Log.i(TAG, "onAudioAttributesChanged: Setting audio stream to " + stream);
     }
+  }
+
+  private void onAttachmentDeleted() {
+    Log.d(TAG, "Database attachment observer invoked.");
+    ContextCompat.getMainExecutor(getApplicationContext()).execute(() -> {
+      if (player != null) {
+        final MediaItem currentItem = player.getCurrentMediaItem();
+        if (currentItem == null || currentItem.playbackProperties == null) {
+          Log.d(TAG, "Current item is null or playback properties are null.");
+          return;
+        }
+
+        final Uri currentlyPlayingUri = currentItem.playbackProperties.uri;
+
+        if (currentlyPlayingUri == VoiceNoteMediaItemFactory.NEXT_URI || currentlyPlayingUri == VoiceNoteMediaItemFactory.END_URI) {
+          Log.v(TAG, "Attachment deleted while voice note service was playing a system tone.");
+        }
+
+        try {
+          final AttachmentId       partId     = new PartUriParser(currentlyPlayingUri).getPartId();
+          final DatabaseAttachment attachment = SignalDatabase.attachments().getAttachment(partId);
+          if (attachment == null) {
+            player.stop();
+            int playingIndex = player.getCurrentMediaItemIndex();
+            player.removeMediaItem(playingIndex);
+            Log.d(TAG, "Currently playing item removed.");
+          } else {
+            Log.d(TAG, "Attachment was not null, therefore not deleted, therefore no action taken.");
+          }
+        } catch (NumberFormatException ex) {
+          Log.w(TAG, "Could not parse currently playing URI into an attachmentId.", ex);
+        }
+      }
+    });
   }
 
   /**

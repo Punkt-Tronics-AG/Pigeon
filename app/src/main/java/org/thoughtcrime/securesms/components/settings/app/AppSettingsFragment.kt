@@ -242,7 +242,7 @@ class AppSettingsFragment : DSLSettingsFragment(
           onClick = {
             findNavController().safeNavigate(R.id.action_appSettingsFragment_to_deviceActivity)
           },
-          isEnabled = state.isDeprecatedOrUnregistered()
+          isEnabled = state.isRegisteredAndUpToDate()
         )
       }
 
@@ -280,7 +280,7 @@ class AppSettingsFragment : DSLSettingsFragment(
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
         },
-        isEnabled = state.isDeprecatedOrUnregistered()
+        isEnabled = state.isRegisteredAndUpToDate()
       )
 
       clickPref(
@@ -289,7 +289,7 @@ class AppSettingsFragment : DSLSettingsFragment(
         onClick = {
           findNavController().safeNavigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(R.string.preferences__stories))
         },
-        isEnabled = state.isDeprecatedOrUnregistered()
+        isEnabled = state.isRegisteredAndUpToDate()
       )
 
       clickPref(
@@ -298,7 +298,7 @@ class AppSettingsFragment : DSLSettingsFragment(
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
         },
-        isEnabled = state.isDeprecatedOrUnregistered()
+        isEnabled = state.isRegisteredAndUpToDate()
       )
 
       clickPref(
@@ -307,7 +307,7 @@ class AppSettingsFragment : DSLSettingsFragment(
         onClick = {
           findNavController().safeNavigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
         },
-        isEnabled = state.isDeprecatedOrUnregistered()
+        isEnabled = state.isRegisteredAndUpToDate()
       )
 
       clickPref(

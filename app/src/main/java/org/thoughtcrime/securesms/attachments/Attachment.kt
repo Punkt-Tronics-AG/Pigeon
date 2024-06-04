@@ -29,7 +29,7 @@ abstract class Attachment(
   @JvmField
   val fileName: String?,
   @JvmField
-  val cdnNumber: Int,
+  val cdn: Cdn,
   @JvmField
   val remoteLocation: String?,
   @JvmField
@@ -70,13 +70,14 @@ abstract class Attachment(
 
   abstract val uri: Uri?
   abstract val publicUri: Uri?
+  abstract val thumbnailUri: Uri?
 
   protected constructor(parcel: Parcel) : this(
     contentType = parcel.readString()!!,
     transferState = parcel.readInt(),
     size = parcel.readLong(),
     fileName = parcel.readString(),
-    cdnNumber = parcel.readInt(),
+    cdn = Cdn.deserialize(parcel.readInt()),
     remoteLocation = parcel.readString(),
     remoteKey = parcel.readString(),
     remoteDigest = ParcelUtil.readByteArray(parcel),
@@ -103,7 +104,7 @@ abstract class Attachment(
     dest.writeInt(transferState)
     dest.writeLong(size)
     dest.writeString(fileName)
-    dest.writeInt(cdnNumber)
+    dest.writeInt(cdn.serialize())
     dest.writeString(remoteLocation)
     dest.writeString(remoteKey)
     ParcelUtil.writeByteArray(dest, remoteDigest)
@@ -129,7 +130,7 @@ abstract class Attachment(
   }
 
   val isInProgress: Boolean
-    get() = transferState != AttachmentTable.TRANSFER_PROGRESS_DONE && transferState != AttachmentTable.TRANSFER_PROGRESS_FAILED && transferState != AttachmentTable.TRANSFER_PROGRESS_PERMANENT_FAILURE
+    get() = transferState != AttachmentTable.TRANSFER_PROGRESS_DONE && transferState != AttachmentTable.TRANSFER_PROGRESS_FAILED && transferState != AttachmentTable.TRANSFER_PROGRESS_PERMANENT_FAILURE && transferState != AttachmentTable.TRANSFER_RESTORE_OFFLOADED
 
   val isPermanentlyFailed: Boolean
     get() = transferState == AttachmentTable.TRANSFER_PROGRESS_PERMANENT_FAILURE

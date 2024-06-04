@@ -37,6 +37,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.BackupUtil;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.Util;
 
 import java.io.ByteArrayOutputStream;
@@ -194,7 +195,7 @@ public class FullBackupImporter extends FullBackupBase {
   private static void processAttachment(@NonNull Context context, @NonNull AttachmentSecret attachmentSecret, @NonNull SQLiteDatabase db, @NonNull Attachment attachment, BackupRecordInputStream inputStream)
       throws IOException
   {
-    File                       dataFile      = AttachmentTable.newFile(context);
+    File                       dataFile      = AttachmentTable.newDataFile(context);
     Pair<byte[], OutputStream> output        = ModernEncryptingPartOutputStream.createFor(attachmentSecret, dataFile, false);
     boolean                    isLegacyTable = SqlUtil.tableExists(db, "part");
 

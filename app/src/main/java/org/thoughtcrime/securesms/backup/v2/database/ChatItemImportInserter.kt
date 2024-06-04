@@ -10,18 +10,27 @@ import androidx.core.content.contentValuesOf
 import org.signal.core.util.Base64
 import org.signal.core.util.SqlUtil
 import org.signal.core.util.logging.Log
+import org.signal.core.util.orNull
 import org.signal.core.util.requireLong
 import org.signal.core.util.toInt
+import org.thoughtcrime.securesms.attachments.ArchivedAttachment
+import org.thoughtcrime.securesms.attachments.Attachment
+import org.thoughtcrime.securesms.attachments.Cdn
+import org.thoughtcrime.securesms.attachments.PointerAttachment
+import org.thoughtcrime.securesms.attachments.TombstoneAttachment
 import org.thoughtcrime.securesms.backup.v2.BackupState
 import org.thoughtcrime.securesms.backup.v2.proto.BodyRange
 import org.thoughtcrime.securesms.backup.v2.proto.ChatItem
 import org.thoughtcrime.securesms.backup.v2.proto.ChatUpdateMessage
-import org.thoughtcrime.securesms.backup.v2.proto.IndividualCallChatUpdate
+import org.thoughtcrime.securesms.backup.v2.proto.GroupCall
+import org.thoughtcrime.securesms.backup.v2.proto.IndividualCall
+import org.thoughtcrime.securesms.backup.v2.proto.MessageAttachment
 import org.thoughtcrime.securesms.backup.v2.proto.Quote
 import org.thoughtcrime.securesms.backup.v2.proto.Reaction
 import org.thoughtcrime.securesms.backup.v2.proto.SendStatus
 import org.thoughtcrime.securesms.backup.v2.proto.SimpleChatUpdate
 import org.thoughtcrime.securesms.backup.v2.proto.StandardMessage
+import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.CallTable
 import org.thoughtcrime.securesms.database.GroupReceiptTable
 import org.thoughtcrime.securesms.database.MessageTable
@@ -33,6 +42,7 @@ import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatchSet
 import org.thoughtcrime.securesms.database.documents.NetworkFailure
 import org.thoughtcrime.securesms.database.documents.NetworkFailureSet
+import org.thoughtcrime.securesms.database.model.GroupCallUpdateDetailsUtil
 import org.thoughtcrime.securesms.database.model.Mention
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList
 import org.thoughtcrime.securesms.database.model.databaseprotos.GV2UpdateDescription
@@ -44,8 +54,13 @@ import org.thoughtcrime.securesms.mms.QuoteModel
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.JsonUtils
+import org.whispersystems.signalservice.api.backup.MediaName
+import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentPointer
+import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentRemoteId
 import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.util.UuidUtil
+import org.whispersystems.signalservice.internal.push.DataMessage
+import java.util.Optional
 
 /**
  * An object that will ingest all fo the [ChatItem]s you want to write, buffer them until hitting a specified batch size, and then batch insert them
@@ -88,7 +103,8 @@ class ChatItemImportInserter(
       MessageTable.SHARED_CONTACTS,
       MessageTable.LINK_PREVIEWS,
       MessageTable.MESSAGE_RANGES,
-      MessageTable.VIEW_ONCE
+      MessageTable.VIEW_ONCE,
+      MessageTable.MESSAGE_EXTRAS
     )
 
     private val REACTION_COLUMNS = arrayOf(
@@ -200,11 +216,53 @@ class ChatItemImportInserter(
 
     var followUp: ((Long) -> Unit)? = null
     if (this.updateMessage != null) {
-      if (this.updateMessage.callingMessage != null && this.updateMessage.callingMessage.callId != null) {
+      if (this.updateMessage.individualCall != null && this.updateMessage.individualCall.callId != null) {
         followUp = { messageRowId ->
-          val callContentValues = ContentValues()
-          callContentValues.put(CallTable.MESSAGE_ID, messageRowId)
-          db.update(CallTable.TABLE_NAME, SQLiteDatabase.CONFLICT_IGNORE, callContentValues, "${CallTable.CALL_ID} = ?", SqlUtil.buildArgs(this.updateMessage.callingMessage.callId))
+          val values = contentValuesOf(
+            CallTable.CALL_ID to updateMessage.individualCall.callId,
+            CallTable.MESSAGE_ID to messageRowId,
+            CallTable.PEER to chatRecipientId.serialize(),
+            CallTable.TYPE to CallTable.Type.serialize(if (updateMessage.individualCall.type == IndividualCall.Type.VIDEO_CALL) CallTable.Type.VIDEO_CALL else CallTable.Type.AUDIO_CALL),
+            CallTable.DIRECTION to CallTable.Direction.serialize(if (updateMessage.individualCall.direction == IndividualCall.Direction.OUTGOING) CallTable.Direction.OUTGOING else CallTable.Direction.INCOMING),
+            CallTable.EVENT to CallTable.Event.serialize(
+              when (updateMessage.individualCall.state) {
+                IndividualCall.State.MISSED -> CallTable.Event.MISSED
+                IndividualCall.State.MISSED_NOTIFICATION_PROFILE -> CallTable.Event.MISSED_NOTIFICATION_PROFILE
+                IndividualCall.State.ACCEPTED -> CallTable.Event.ACCEPTED
+                IndividualCall.State.NOT_ACCEPTED -> CallTable.Event.NOT_ACCEPTED
+                else -> CallTable.Event.MISSED
+              }
+            ),
+            CallTable.TIMESTAMP to updateMessage.individualCall.startedCallTimestamp,
+            CallTable.READ to CallTable.ReadState.serialize(CallTable.ReadState.UNREAD)
+          )
+          db.insert(CallTable.TABLE_NAME, SQLiteDatabase.CONFLICT_IGNORE, values)
+        }
+      } else if (this.updateMessage.groupCall != null && this.updateMessage.groupCall.callId != null) {
+        followUp = { messageRowId ->
+          val values = contentValuesOf(
+            CallTable.CALL_ID to updateMessage.groupCall.callId,
+            CallTable.MESSAGE_ID to messageRowId,
+            CallTable.PEER to chatRecipientId.serialize(),
+            CallTable.TYPE to CallTable.Type.serialize(CallTable.Type.GROUP_CALL),
+            CallTable.DIRECTION to CallTable.Direction.serialize(if (backupState.backupToLocalRecipientId[updateMessage.groupCall.ringerRecipientId] == selfId) CallTable.Direction.OUTGOING else CallTable.Direction.INCOMING),
+            CallTable.EVENT to CallTable.Event.serialize(
+              when (updateMessage.groupCall.state) {
+                GroupCall.State.ACCEPTED -> CallTable.Event.ACCEPTED
+                GroupCall.State.MISSED -> CallTable.Event.MISSED
+                GroupCall.State.MISSED_NOTIFICATION_PROFILE -> CallTable.Event.MISSED_NOTIFICATION_PROFILE
+                GroupCall.State.GENERIC -> CallTable.Event.GENERIC_GROUP_CALL
+                GroupCall.State.JOINED -> CallTable.Event.JOINED
+                GroupCall.State.RINGING -> CallTable.Event.RINGING
+                GroupCall.State.OUTGOING_RING -> CallTable.Event.OUTGOING_RING
+                GroupCall.State.DECLINED -> CallTable.Event.DECLINED
+                else -> CallTable.Event.GENERIC_GROUP_CALL
+              }
+            ),
+            CallTable.TIMESTAMP to updateMessage.groupCall.startedCallTimestamp,
+            CallTable.READ to CallTable.ReadState.serialize(CallTable.ReadState.UNREAD)
+          )
+          db.insert(CallTable.TABLE_NAME, SQLiteDatabase.CONFLICT_IGNORE, values)
         }
       }
     }
@@ -228,6 +286,17 @@ class ChatItemImportInserter(
           }
         }
       }
+      val attachments = this.standardMessage.attachments.mapNotNull { attachment ->
+        attachment.toLocalAttachment()
+      }
+      val quoteAttachments = this.standardMessage.quote?.attachments?.mapNotNull {
+        it.toLocalAttachment()
+      } ?: emptyList()
+      if (attachments.isNotEmpty()) {
+        followUp = { messageRowId ->
+          SignalDatabase.attachments.insertAttachmentsForMessage(messageRowId, attachments, quoteAttachments)
+        }
+      }
     }
     return MessageInsert(contentValues, followUp)
   }
@@ -244,7 +313,7 @@ class ChatItemImportInserter(
     contentValues.put(MessageTable.TO_RECIPIENT_ID, (if (this.outgoing != null) chatRecipientId else selfId).serialize())
     contentValues.put(MessageTable.THREAD_ID, threadId)
     contentValues.put(MessageTable.DATE_RECEIVED, this.incoming?.dateReceived ?: this.dateSent)
-    contentValues.put(MessageTable.RECEIPT_TIMESTAMP, this.outgoing?.sendStatus?.maxOf { it.lastStatusUpdateTimestamp } ?: 0)
+    contentValues.put(MessageTable.RECEIPT_TIMESTAMP, this.outgoing?.sendStatus?.maxOfOrNull { it.lastStatusUpdateTimestamp } ?: 0)
     contentValues.putNull(MessageTable.LATEST_REVISION_ID)
     contentValues.putNull(MessageTable.ORIGINAL_MESSAGE_ID)
     contentValues.put(MessageTable.REVISION_NUMBER, 0)
@@ -268,7 +337,7 @@ class ChatItemImportInserter(
       contentValues.put(MessageTable.VIEWED_COLUMN, 0)
       contentValues.put(MessageTable.HAS_READ_RECEIPT, 0)
       contentValues.put(MessageTable.HAS_DELIVERY_RECEIPT, 0)
-      contentValues.put(MessageTable.UNIDENTIFIED, this.sealedSender?.toInt())
+      contentValues.put(MessageTable.UNIDENTIFIED, this.incoming?.sealedSender?.toInt() ?: 0)
       contentValues.put(MessageTable.READ, this.incoming?.read?.toInt() ?: 0)
       contentValues.put(MessageTable.NOTIFIED, 1)
     }
@@ -382,23 +451,24 @@ class ChatItemImportInserter(
     var typeFlags: Long = 0
     when {
       updateMessage.simpleUpdate != null -> {
+        val typeWithoutBase = (getAsLong(MessageTable.TYPE) and MessageTypes.BASE_TYPE_MASK.inv())
         typeFlags = when (updateMessage.simpleUpdate.type) {
-          SimpleChatUpdate.Type.UNKNOWN -> 0
-          SimpleChatUpdate.Type.JOINED_SIGNAL -> MessageTypes.JOINED_TYPE
-          SimpleChatUpdate.Type.IDENTITY_UPDATE -> MessageTypes.KEY_EXCHANGE_IDENTITY_UPDATE_BIT
-          SimpleChatUpdate.Type.IDENTITY_VERIFIED -> MessageTypes.KEY_EXCHANGE_IDENTITY_VERIFIED_BIT
-          SimpleChatUpdate.Type.IDENTITY_DEFAULT -> MessageTypes.KEY_EXCHANGE_IDENTITY_DEFAULT_BIT
+          SimpleChatUpdate.Type.UNKNOWN -> typeWithoutBase
+          SimpleChatUpdate.Type.JOINED_SIGNAL -> MessageTypes.JOINED_TYPE or typeWithoutBase
+          SimpleChatUpdate.Type.IDENTITY_UPDATE -> MessageTypes.KEY_EXCHANGE_IDENTITY_UPDATE_BIT or typeWithoutBase
+          SimpleChatUpdate.Type.IDENTITY_VERIFIED -> MessageTypes.KEY_EXCHANGE_IDENTITY_VERIFIED_BIT or typeWithoutBase
+          SimpleChatUpdate.Type.IDENTITY_DEFAULT -> MessageTypes.KEY_EXCHANGE_IDENTITY_DEFAULT_BIT or typeWithoutBase
           SimpleChatUpdate.Type.CHANGE_NUMBER -> MessageTypes.CHANGE_NUMBER_TYPE
           SimpleChatUpdate.Type.BOOST_REQUEST -> MessageTypes.BOOST_REQUEST_TYPE
-          SimpleChatUpdate.Type.END_SESSION -> MessageTypes.END_SESSION_BIT
-          SimpleChatUpdate.Type.CHAT_SESSION_REFRESH -> MessageTypes.ENCRYPTION_REMOTE_FAILED_BIT
-          SimpleChatUpdate.Type.BAD_DECRYPT -> MessageTypes.BAD_DECRYPT_TYPE
-          SimpleChatUpdate.Type.PAYMENTS_ACTIVATED -> MessageTypes.SPECIAL_TYPE_PAYMENTS_ACTIVATED
-          SimpleChatUpdate.Type.PAYMENT_ACTIVATION_REQUEST -> MessageTypes.SPECIAL_TYPE_PAYMENTS_ACTIVATE_REQUEST
+          SimpleChatUpdate.Type.END_SESSION -> MessageTypes.END_SESSION_BIT or typeWithoutBase
+          SimpleChatUpdate.Type.CHAT_SESSION_REFRESH -> MessageTypes.ENCRYPTION_REMOTE_FAILED_BIT or typeWithoutBase
+          SimpleChatUpdate.Type.BAD_DECRYPT -> MessageTypes.BAD_DECRYPT_TYPE or typeWithoutBase
+          SimpleChatUpdate.Type.PAYMENTS_ACTIVATED -> MessageTypes.SPECIAL_TYPE_PAYMENTS_ACTIVATED or typeWithoutBase
+          SimpleChatUpdate.Type.PAYMENT_ACTIVATION_REQUEST -> MessageTypes.SPECIAL_TYPE_PAYMENTS_ACTIVATE_REQUEST or typeWithoutBase
         }
       }
       updateMessage.expirationTimerChange != null -> {
-        typeFlags = MessageTypes.EXPIRATION_TIMER_UPDATE_BIT
+        typeFlags = getAsLong(MessageTable.TYPE) or MessageTypes.EXPIRATION_TIMER_UPDATE_BIT
         put(MessageTable.EXPIRES_IN, updateMessage.expirationTimerChange.expiresInMs.toLong())
       }
       updateMessage.profileChange != null -> {
@@ -408,34 +478,30 @@ class ChatItemImportInserter(
         put(MessageTable.BODY, Base64.encodeWithPadding(profileChangeDetails))
       }
       updateMessage.sessionSwitchover != null -> {
-        typeFlags = MessageTypes.SESSION_SWITCHOVER_TYPE
+        typeFlags = MessageTypes.SESSION_SWITCHOVER_TYPE or (getAsLong(MessageTable.TYPE) and MessageTypes.BASE_TYPE_MASK.inv())
         val sessionSwitchoverDetails = SessionSwitchoverEvent(e164 = updateMessage.sessionSwitchover.e164.toString()).encode()
         put(MessageTable.BODY, Base64.encodeWithPadding(sessionSwitchoverDetails))
       }
       updateMessage.threadMerge != null -> {
-        typeFlags = MessageTypes.THREAD_MERGE_TYPE
+        typeFlags = MessageTypes.THREAD_MERGE_TYPE or (getAsLong(MessageTable.TYPE) and MessageTypes.BASE_TYPE_MASK.inv())
         val threadMergeDetails = ThreadMergeEvent(previousE164 = updateMessage.threadMerge.previousE164.toString()).encode()
         put(MessageTable.BODY, Base64.encodeWithPadding(threadMergeDetails))
       }
-      updateMessage.callingMessage != null -> {
-        when {
-          updateMessage.callingMessage.callId != null -> {
-            typeFlags = backupState.callIdToType[updateMessage.callingMessage.callId]!!
-          }
-          updateMessage.callingMessage.callMessage != null -> {
-            typeFlags = when (updateMessage.callingMessage.callMessage.type) {
-              IndividualCallChatUpdate.Type.INCOMING_AUDIO_CALL -> MessageTypes.INCOMING_AUDIO_CALL_TYPE
-              IndividualCallChatUpdate.Type.INCOMING_VIDEO_CALL -> MessageTypes.INCOMING_VIDEO_CALL_TYPE
-              IndividualCallChatUpdate.Type.OUTGOING_AUDIO_CALL -> MessageTypes.OUTGOING_AUDIO_CALL_TYPE
-              IndividualCallChatUpdate.Type.OUTGOING_VIDEO_CALL -> MessageTypes.OUTGOING_VIDEO_CALL_TYPE
-              IndividualCallChatUpdate.Type.MISSED_AUDIO_CALL -> MessageTypes.MISSED_AUDIO_CALL_TYPE
-              IndividualCallChatUpdate.Type.MISSED_VIDEO_CALL -> MessageTypes.MISSED_VIDEO_CALL_TYPE
-              IndividualCallChatUpdate.Type.UNKNOWN -> typeFlags
-            }
+      updateMessage.individualCall != null -> {
+        if (updateMessage.individualCall.state == IndividualCall.State.MISSED || updateMessage.individualCall.state == IndividualCall.State.MISSED_NOTIFICATION_PROFILE) {
+          typeFlags = if (updateMessage.individualCall.type == IndividualCall.Type.AUDIO_CALL) MessageTypes.MISSED_AUDIO_CALL_TYPE else MessageTypes.MISSED_VIDEO_CALL_TYPE
+        } else {
+          typeFlags = if (updateMessage.individualCall.direction == IndividualCall.Direction.OUTGOING) {
+            if (updateMessage.individualCall.type == IndividualCall.Type.AUDIO_CALL) MessageTypes.OUTGOING_AUDIO_CALL_TYPE else MessageTypes.OUTGOING_VIDEO_CALL_TYPE
+          } else {
+            if (updateMessage.individualCall.type == IndividualCall.Type.AUDIO_CALL) MessageTypes.INCOMING_AUDIO_CALL_TYPE else MessageTypes.INCOMING_VIDEO_CALL_TYPE
           }
         }
-        // Calls don't use the incoming/outgoing flags, so we overwrite the flags here
         this.put(MessageTable.TYPE, typeFlags)
+      }
+      updateMessage.groupCall != null -> {
+        this.put(MessageTable.BODY, GroupCallUpdateDetailsUtil.createBodyFromBackup(updateMessage.groupCall))
+        this.put(MessageTable.TYPE, MessageTypes.GROUP_CALL_TYPE)
       }
       updateMessage.groupChange != null -> {
         put(MessageTable.BODY, "")
@@ -446,10 +512,10 @@ class ChatItemImportInserter(
             GV2UpdateDescription(groupChangeUpdate = updateMessage.groupChange)
           ).encode()
         )
-        typeFlags = MessageTypes.GROUP_V2_BIT or MessageTypes.GROUP_UPDATE_BIT
+        typeFlags = getAsLong(MessageTable.TYPE) or MessageTypes.GROUP_V2_BIT or MessageTypes.GROUP_UPDATE_BIT
       }
     }
-    this.put(MessageTable.TYPE, getAsLong(MessageTable.TYPE) or typeFlags)
+    this.put(MessageTable.TYPE, typeFlags)
   }
 
   private fun ContentValues.addQuote(quote: Quote) {
@@ -508,7 +574,7 @@ class ChatItemImportInserter(
     }
 
     return BodyRangeList(
-      ranges = this.map { bodyRange ->
+      ranges = this.filter { it.mentionAci == null }.map { bodyRange ->
         BodyRangeList.BodyRange(
           mentionUuid = bodyRange.mentionAci?.let { UuidUtil.fromByteString(it) }?.toString(),
           style = bodyRange.style?.let {
@@ -539,6 +605,79 @@ class ChatItemImportInserter(
       SendStatus.Status.VIEWED -> GroupReceiptTable.STATUS_VIEWED
       SendStatus.Status.SKIPPED -> GroupReceiptTable.STATUS_SKIPPED
     }
+  }
+
+  private fun MessageAttachment.toLocalAttachment(contentType: String? = pointer?.contentType, fileName: String? = pointer?.fileName): Attachment? {
+    if (pointer == null) return null
+    if (pointer.attachmentLocator != null) {
+      val signalAttachmentPointer = SignalServiceAttachmentPointer(
+        pointer.attachmentLocator.cdnNumber,
+        SignalServiceAttachmentRemoteId.from(pointer.attachmentLocator.cdnKey),
+        contentType,
+        pointer.attachmentLocator.key.toByteArray(),
+        Optional.ofNullable(pointer.attachmentLocator.size),
+        Optional.empty(),
+        pointer.width ?: 0,
+        pointer.height ?: 0,
+        Optional.ofNullable(pointer.attachmentLocator.digest.toByteArray()),
+        Optional.ofNullable(pointer.incrementalMac?.toByteArray()),
+        pointer.incrementalMacChunkSize ?: 0,
+        Optional.ofNullable(fileName),
+        flag == MessageAttachment.Flag.VOICE_MESSAGE,
+        flag == MessageAttachment.Flag.BORDERLESS,
+        flag == MessageAttachment.Flag.GIF,
+        Optional.ofNullable(pointer.caption),
+        Optional.ofNullable(pointer.blurHash),
+        pointer.attachmentLocator.uploadTimestamp
+      )
+      return PointerAttachment.forPointer(
+        pointer = Optional.of(signalAttachmentPointer),
+        transferState = if (wasDownloaded) AttachmentTable.TRANSFER_NEEDS_RESTORE else AttachmentTable.TRANSFER_PROGRESS_PENDING
+      ).orNull()
+    } else if (pointer.invalidAttachmentLocator != null) {
+      return TombstoneAttachment(
+        contentType = contentType,
+        incrementalMac = pointer.incrementalMac?.toByteArray(),
+        incrementalMacChunkSize = pointer.incrementalMacChunkSize,
+        width = pointer.width,
+        height = pointer.height,
+        caption = pointer.caption,
+        blurHash = pointer.blurHash,
+        voiceNote = flag == MessageAttachment.Flag.VOICE_MESSAGE,
+        borderless = flag == MessageAttachment.Flag.BORDERLESS,
+        gif = flag == MessageAttachment.Flag.GIF,
+        quote = false
+      )
+    } else if (pointer.backupLocator != null) {
+      return ArchivedAttachment(
+        contentType = contentType,
+        size = pointer.backupLocator.size.toLong(),
+        cdn = pointer.backupLocator.transitCdnNumber ?: Cdn.CDN_0.cdnNumber,
+        key = pointer.backupLocator.key.toByteArray(),
+        cdnKey = pointer.backupLocator.transitCdnKey,
+        archiveCdn = pointer.backupLocator.cdnNumber,
+        archiveMediaName = pointer.backupLocator.mediaName,
+        archiveMediaId = backupState.backupKey.deriveMediaId(MediaName(pointer.backupLocator.mediaName)).encode(),
+        archiveThumbnailMediaId = backupState.backupKey.deriveMediaId(MediaName.forThumbnailFromMediaName(pointer.backupLocator.mediaName)).encode(),
+        digest = pointer.backupLocator.digest.toByteArray(),
+        incrementalMac = pointer.incrementalMac?.toByteArray(),
+        incrementalMacChunkSize = pointer.incrementalMacChunkSize,
+        width = pointer.width,
+        height = pointer.height,
+        caption = pointer.caption,
+        blurHash = pointer.blurHash,
+        voiceNote = flag == MessageAttachment.Flag.VOICE_MESSAGE,
+        borderless = flag == MessageAttachment.Flag.BORDERLESS,
+        gif = flag == MessageAttachment.Flag.GIF,
+        quote = false
+      )
+    }
+    return null
+  }
+
+  private fun Quote.QuotedAttachment.toLocalAttachment(): Attachment? {
+    return thumbnail?.toLocalAttachment(this.contentType, this.fileName)
+      ?: if (this.contentType == null) null else PointerAttachment.forPointer(quotedAttachment = DataMessage.Quote.QuotedAttachment(contentType = this.contentType, fileName = this.fileName, thumbnail = null)).orNull()
   }
 
   private class MessageInsert(val contentValues: ContentValues, val followUp: ((Long) -> Unit)?)

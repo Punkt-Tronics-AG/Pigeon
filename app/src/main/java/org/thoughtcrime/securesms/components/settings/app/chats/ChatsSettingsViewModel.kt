@@ -22,7 +22,8 @@ class ChatsSettingsViewModel @JvmOverloads constructor(
       keepMutedChatsArchived = SignalStore.settings().shouldKeepMutedChatsArchived(),
       useSystemEmoji = SignalStore.settings().isPreferSystemEmoji,
       enterKeySends = SignalStore.settings().isEnterKeySends,
-      chatBackupsEnabled = SignalStore.settings().isBackupEnabled && BackupUtil.canUserAccessBackupDirectory(ApplicationDependencies.getApplication())
+      localBackupsEnabled = SignalStore.settings().isBackupEnabled && BackupUtil.canUserAccessBackupDirectory(ApplicationDependencies.getApplication()),
+      remoteBackupsEnabled = SignalStore.backup().areBackupsEnabled
     )
   )
 
@@ -59,8 +60,12 @@ class ChatsSettingsViewModel @JvmOverloads constructor(
 
   fun refresh() {
     val backupsEnabled = SignalStore.settings().isBackupEnabled && BackupUtil.canUserAccessBackupDirectory(ApplicationDependencies.getApplication())
-    if (store.state.chatBackupsEnabled != backupsEnabled) {
-      store.update { it.copy(chatBackupsEnabled = backupsEnabled) }
+    val remoteBackupsEnabled = SignalStore.backup().areBackupsEnabled
+
+    if (store.state.localBackupsEnabled != backupsEnabled ||
+      store.state.remoteBackupsEnabled != remoteBackupsEnabled
+    ) {
+      store.update { it.copy(localBackupsEnabled = backupsEnabled, remoteBackupsEnabled = remoteBackupsEnabled) }
     }
   }
 }

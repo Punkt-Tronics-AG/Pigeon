@@ -93,7 +93,7 @@ import org.whispersystems.signalservice.internal.crypto.AttachmentDigest;
 import org.whispersystems.signalservice.internal.crypto.PaddingInputStream;
 import org.whispersystems.signalservice.internal.push.AttachmentPointer;
 import org.whispersystems.signalservice.internal.push.AttachmentV2UploadAttributes;
-import org.whispersystems.signalservice.internal.push.AttachmentV4UploadAttributes;
+import org.whispersystems.signalservice.internal.push.AttachmentUploadForm;
 import org.whispersystems.signalservice.internal.push.BodyRange;
 import org.whispersystems.signalservice.internal.push.CallMessage;
 import org.whispersystems.signalservice.internal.push.Content;
@@ -158,6 +158,7 @@ import javax.annotation.Nullable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.exceptions.CompositeException;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import kotlin.Unit;
 import okio.ByteString;
@@ -186,6 +187,7 @@ public class SignalServiceMessageSender {
   private final MessagingService  messagingService;
 
   private final ExecutorService executor;
+  private final Scheduler       scheduler;
   private final long            maxEnvelopeSize;
   private final boolean         useRxMessageSend;
 
@@ -215,6 +217,7 @@ public class SignalServiceMessageSender {
     this.maxEnvelopeSize   = maxEnvelopeSize;
     this.localPniIdentity  = store.pni().getIdentityKeyPair();
     this.useRxMessageSend  = useRxMessageSend;
+    this.scheduler         = Schedulers.from(executor, false, false);
   }
 
   /**
@@ -838,7 +841,7 @@ public class SignalServiceMessageSender {
     Pair<Long, AttachmentDigest> attachmentIdAndDigest = socket.uploadAttachment(attachmentData, v2UploadAttributes);
 
     return new SignalServiceAttachmentPointer(0,
-                                              new SignalServiceAttachmentRemoteId(attachmentIdAndDigest.first()),
+                                              new SignalServiceAttachmentRemoteId.V2(attachmentIdAndDigest.first()),
                                               attachment.getContentType(),
                                               attachmentKey,
                                               Optional.of(Util.toIntExact(attachment.getLength())),
@@ -857,7 +860,7 @@ public class SignalServiceMessageSender {
   }
 
   public ResumableUploadSpec getResumableUploadSpec() throws IOException {
-    AttachmentV4UploadAttributes v4UploadAttributes = null;
+    AttachmentUploadForm v4UploadAttributes = null;
 
     Log.d(TAG, "Using pipe to retrieve attachment upload attributes...");
     try {
@@ -865,6 +868,9 @@ public class SignalServiceMessageSender {
     } catch (WebSocketUnavailableException e) {
       Log.w(TAG, "[getResumableUploadSpec] Pipe unavailable, falling back... (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
     } catch (IOException e) {
+      if (e instanceof RateLimitException) {
+        throw e;
+      }
       Log.w(TAG, "Failed to retrieve attachment upload attributes using pipe. Falling back...");
     }
     
@@ -879,7 +885,7 @@ public class SignalServiceMessageSender {
   private SignalServiceAttachmentPointer uploadAttachmentV4(SignalServiceAttachmentStream attachment, byte[] attachmentKey, PushAttachmentData attachmentData) throws IOException {
     AttachmentDigest digest = socket.uploadAttachment(attachmentData);
     return new SignalServiceAttachmentPointer(attachmentData.getResumableUploadSpec().getCdnNumber(),
-                                              new SignalServiceAttachmentRemoteId(attachmentData.getResumableUploadSpec().getCdnKey()),
+                                              new SignalServiceAttachmentRemoteId.V4(attachmentData.getResumableUploadSpec().getCdnKey()),
                                               attachment.getContentType(),
                                               attachmentKey,
                                               Optional.of(Util.toIntExact(attachment.getLength())),
@@ -2151,7 +2157,7 @@ public class SignalServiceMessageSender {
     List<SendMessageResult> results;
     try {
       results = Observable.mergeDelayError(singleResults, Integer.MAX_VALUE, 1)
-                          .observeOn(Schedulers.io(), true)
+                          .observeOn(scheduler, true)
                           .scan(new ArrayList<SendMessageResult>(singleResults.size()), (state, result) -> {
                             state.add(result);
                             if (partialListener != null) {
@@ -2162,7 +2168,9 @@ public class SignalServiceMessageSender {
                           .lastOrError()
                           .blockingGet();
     } catch (RuntimeException e) {
-      Throwable cause = e.getCause();
+      Throwable cause = e instanceof CompositeException ? ((CompositeException) e).getExceptions().get(0)
+                                                        : e.getCause();
+
       if (cause instanceof IOException) {
         throw (IOException) cause;
       } else if (cause instanceof InterruptedException) {
@@ -2247,7 +2255,7 @@ public class SignalServiceMessageSender {
           return messagingService.send(messages, unidentifiedAccess, story)
                                  .map(r -> new kotlin.Pair<>(messages, r));
         })
-        .observeOn(Schedulers.io())
+        .observeOn(scheduler)
         .flatMap(pair -> {
           final OutgoingPushMessageList              messages        = pair.getFirst();
           final ServiceResponse<SendMessageResponse> serviceResponse = pair.getSecond();
@@ -2295,7 +2303,7 @@ public class SignalServiceMessageSender {
                   System.currentTimeMillis() - startTime,
                   content.getContent()
               );
-            }).subscribeOn(Schedulers.io());
+            }).subscribeOn(scheduler);
           }
         });
 

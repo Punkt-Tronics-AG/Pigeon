@@ -45,8 +45,6 @@
     <string name="ApplicationPreferencesActivity_disable_passphrase">Lemaza ufafanuzi</string>
     <string name="ApplicationPreferencesActivity_this_will_permanently_unlock_signal_and_message_notifications">Hii itafungua kabisa Signal na arifu za ujumbe</string>
     <string name="ApplicationPreferencesActivity_disable">Lemaza</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls">Lemaza jumbe za Signal na simu?</string>
-    <string name="ApplicationPreferencesActivity_disable_signal_messages_and_calls_by_unregistering">Lemaza jumbe na simu za Signal kwa kutosajili kutoka kwenye seva. Utatakiwa kusajili tena nambari yako ya simu ili uzitumie tena baadae.</string>
     <string name="ApplicationPreferencesActivity_error_connecting_to_server">Hitilafu kuunganisha kwa mtambo.</string>
     <string name="ApplicationPreferencesActivity_pins_are_required_for_registration_lock">Nambari za Siri zinahitajika kwenye kufuli ya usajili. Ili kulemaza Nambari za Siri, tafadhali kwanza lemaza kufuli ya usajili.</string>
     <string name="ApplicationPreferencesActivity_pin_created">Nenosiri limeundwa.</string>
@@ -83,7 +81,8 @@
     <string name="AttachmentKeyboard_contact">Mwasiliani</string>
     <string name="AttachmentKeyboard_location">Eneo</string>
     <string name="AttachmentKeyboard_Signal_needs_permission_to_show_your_photos_and_videos">Signal inahitaji ruhusa ili kuonyesha picha zako na video.</string>
-    <string name="AttachmentKeyboard_give_access">Ruhusu</string>
+    <!-- Text for a button prompting users to allow Signal access to their gallery storage -->
+    <string name="AttachmentKeyboard_allow_access">Ruhusu Ufikiaji</string>
     <string name="AttachmentKeyboard_payment">Malipo</string>
 
     <!-- AttachmentManager -->
@@ -91,6 +90,22 @@
     <string name="AttachmentManager_signal_requires_the_external_storage_permission_in_order_to_attach_photos_videos_or_audio">Signal inahitaji idhini ya Hifadhi ili kuunganisha picha, video, au sauti, lakini imekataliwa kabisa. Tafadhali endelea kwenye orodha ya mipangilio ya programu, chagua \"Ruhusa\", na uwezesha \"Hifadhi\".</string>
     <string name="AttachmentManager_signal_requires_contacts_permission_in_order_to_attach_contact_information">Signal inahitaji idhini ya Mawasiliano ili kuunganisha maelezo ya mawasiliano, lakini imekataliwa kabisa. Tafadhali endelea kwenye orodha ya mipangilio ya programu, chagua \"Ruhusa\", na uwezeshe \"Mawasiliano\".</string>
     <string name="AttachmentManager_signal_requires_location_information_in_order_to_attach_a_location">Signal inahitaji ruhusa ya Eneo ili kuunganisha mahali, lakini imekataliwa kabisa. Tafadhali endelea kwenye orodha ya mipangilio ya programu, chagua \"Ruhusa\", na uwezeshe \"Eneo\".</string>
+
+    <!-- Dialog title asking users for location permission -->
+    <string name="AttachmentManager_signal_allow_access_location">Ruhusu ufikiaji wa eneo ulipo</string>
+    <!-- Dialog description that will explain the steps needed to give location permission -->
+    <string name="AttachmentManager_signal_to_send_location">Ili kutuma eneo ulipo:</string>
+    <!-- Alert dialog description asking for location permission -->
+    <string name="AttachmentManager_signal_allow_signal_access_location">Ruhusu Signal kufikia eneo ulipo.</string>
+    <!-- Toast text explaining Signal\'s need for location access -->
+    <string name="AttachmentManager_signal_needs_location_access">Signal inahitaji ufikiaji wa eneo ili kutuma eneo ulipo.</string>
+    <!-- Dialog title asking users for gallery storage permission -->
+    <string name="AttachmentManager_signal_allow_storage">Ruhusu ufikiaji kwenye hifadhi</string>
+    <!-- Dialog description that will explain the steps needed to give gallery storage permission -->
+    <string name="AttachmentManager_signal_to_show_photos">Kuonyesha picha na video:</string>
+    <!-- Toast text explaining Signal\'s need for storage access -->
+    <string name="AttachmentManager_signal_needs_storage_access">Signal inahitaji ruhusa kuonyesha picha na video zako.</string>
+
     <!-- Alert dialog title to show the recipient has not activated payments -->
     <string name="AttachmentManager__not_activated_payments">%1$s hajaamilisha Malipo </string>
     <!-- Alert dialog description to send the recipient a request to activate payments -->
@@ -210,6 +225,38 @@
     <string name="CameraXFragment_capture_description">Piga</string>
     <string name="CameraXFragment_change_camera_description">Geuza kamera</string>
     <string name="CameraXFragment_open_gallery_description">Fungua kitunzio</string>
+    <!-- Button text asking for access to camera permissions -->
+    <string name="CameraXFragment_allow_access">Allow access</string>
+    <!-- Dialog title asking users for camera and microphone permission -->
+    <string name="CameraXFragment_allow_access_camera_microphone">Allow access to your camera and microphone</string>
+    <!-- Dialog title asking users for camera permission -->
+    <string name="CameraXFragment_allow_access_camera">Allow access to your camera</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="CameraXFragment_allow_access_microphone">Allow access to your microphone</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos -->
+    <string name="CameraXFragment_to_capture_photos_allow_camera">To capture photos, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera">To capture photos and video, allow Signal access to the camera.</string>
+    <!-- Text explaining why Signal needs camera and microphone access in order to take photos and videos -->
+    <string name="CameraXFragment_to_capture_photos_and_video_allow_camera_microphone">To capture photos and video, allow Signal access to the camera and microphone.</string>
+    <!-- Text explaining why Signal needs microphone access to take videos -->
+    <string name="CameraXFragment_to_capture_videos_with_sound">To capture videos with sound, allow Signal access to your microphone.</string>
+    <!-- Text explaining why Signal needs camera access to scan QR codes -->
+    <string name="CameraXFragment_to_scan_qr_code_allow_camera">To scan a QR code, allow Signal access to the camera.</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when capturing photos -->
+    <string name="CameraXFragment_signal_needs_camera_access_capture_photos">Signal needs camera access to capture photos</string>
+    <!-- Toast dialog explaining why Signal needs camera permissions when scanning QR codes -->
+    <string name="CameraXFragment_signal_needs_camera_access_scan_qr_code">Signal needs camera access to scan QR codes</string>
+    <!-- Toast dialog explaining why Signal needs microphone permissions -->
+    <string name="CameraXFragment_signal_needs_microphone_access_video">Signal needs microphone access to capture video</string>
+    <!-- Dialog description that explains the steps needed to give camera permission -->
+    <string name="CameraXFragment_to_capture_photos">To capture photos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give camera and microphone permission -->
+    <string name="CameraXFragment_to_capture_photos_videos">To capture photos and videos in Signal:</string>
+    <!-- Dialog description that explains the steps needed to give microphone permission -->
+    <string name="CameraXFragment_to_capture_videos">To capture videos with sound:</string>
+    <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
+    <string name="CameraXFragment_to_scan_qr_codes">To scan QR codes:</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">Mawasiliano ya hivi karibuni</string>
@@ -280,7 +327,8 @@
 
     <!-- ContactsDatabase -->
     <string name="ContactsDatabase_message_s">Ujumbe %1$s</string>
-    <string name="ContactsDatabase_signal_call_s">Simu ya Signal %1$s</string>
+    <string name="ContactsDatabase_signal_call_s">Signal Voice Call %1$s</string>
+    <string name="ContactsDatabase_signal_video_call_s">Signal Video Call %1$s</string>
 
     <!-- ContactNameEditActivity -->
     <!-- Toolbar title for contact name edit activity -->
@@ -309,7 +357,6 @@
     <string name="ConversationItem_error_network_not_delivered">Kutuma kumeshindwa</string>
     <string name="ConversationItem_group_action_left">%1$s ameondoka kwenye kundi</string>
     <string name="ConversationItem_send_paused">Kutuma kumesitishwa</string>
-    <string name="ConversationItem_click_to_approve_unencrypted">Imefeli kutuma, gusa kwa isiyo salama ili kurejea nyuma</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">Rudi nyuma kwa ujumbe usio na msimbo fiche?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_mms_dialog_title">Rudi nyuma kwa ujumbe usio na msimbo fiche?</string>
     <string name="ConversationItem_click_to_approve_unencrypted_dialog_message">Huu ujumbe hau <b>ta</b> kuwa na msimbo fiche kwa sababu mpokeaji hatumii tena Signal.\n\n Tuma ujumbe usio salama?</string>
@@ -389,8 +436,16 @@
     <string name="ConversationActivity_your_request_to_join_has_been_sent_to_the_group_admin">Ombi lako la kujiunga limetumwa kwa msimamizi wa kikundi. Utaarifiwa atakapochukua hatua.</string>
     <string name="ConversationActivity_cancel_request">Ghairi Ombi</string>
 
-    <string name="ConversationActivity_to_send_audio_messages_allow_signal_access_to_your_microphone">Kutuma jumbe za sauti, ruhusu ufikiaji wa Signal kwenye kipaza sauti chako.</string>
+    <!-- Dialog title asking users for microphone permission -->
+    <string name="ConversationActivity_allow_access_microphone">Ruhusu Signal kufikia maikrofoni yako</string>
+    <!-- Dialog description that will explain the steps needed to give microphone permissions -->
+    <string name="ConversationActivity_signal_to_send_audio_messages">Ili kutuma ujumbe wa sauti:</string>
+    <!-- Alert dialog description asking for microphone permission in order to send voice messages -->
+    <string name="ConversationActivity_to_send_voice_messages_allow_signal_access_to_your_microphone">Ili kutuma ujumbe wa sauti, iruhusu Signal kufikia maikrofoni yako.</string>
+    <!-- Toast text explaining Signal\'s need for microphone access -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_message">Signal inahitaji ufikiaji wa maikrofoni ili kurekodi ujumbe wa sauti.</string>
     <string name="ConversationActivity_signal_requires_the_microphone_permission_in_order_to_send_audio_messages">Signal inahitaji idhini ya Kipaza sauti ili kutuma ujumbe wa sauti, lakini imekataliwa kabisa. Tafadhali endelea kwenye mipangilio ya programu, chagua \"Ruhusa\", na uwezeshe \"Kipaza sauti\".</string>
+
     <string name="ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s">Signal inahitaji ruhusa ya Kipaza sauti na Kamera ili kupiga%1$s , lakini zimekataliwa kabisa. Tafadhali endelea kwenye mipangilio ya programu, chagua \"Ruhusa\", na uwezeshe \"Kipaza sauti\" na \"Kamera\".</string>
     <string name="ConversationActivity_to_capture_photos_and_video_allow_signal_access_to_the_camera">Ili kupiga picha na video, ruhusu ufikiaji wa Signal kwa kamera.</string>
     <string name="ConversationActivity_signal_needs_the_camera_permission_to_take_photos_or_video">Signal inahitaji kibali cha Kamera kuchukua picha au video, lakini imekataliwa kabisa. Tafadhali endelea kwenye mipangilio ya programu, chagua \"Ruhusa\", na uwezeshe \"Kamera\".</string>
@@ -414,10 +469,17 @@
     <string name="ConversationActivity_you_will_leave_this_group_and_it_will_be_deleted_from_all_of_your_devices">Utaondoka kundi hili, na litafutwa kutoka kwa vifaa vyako vyote.</string>
     <string name="ConversationActivity_delete">Futa</string>
     <string name="ConversationActivity_delete_and_leave">Futa na uondoke</string>
-    <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone">Ili kumpigia %1$s simu, Signal inahitaji kufikia maikrofoni yako</string>
+
+    <!-- Dialog description that will explain the steps needed to give microphone permissions for a voice call -->
+    <string name="ConversationActivity__to_start_call">Ili kupiga simu:</string>
+    <!-- Alert dialog description asking for microphone permission in order to start a voice call -->
+    <string name="ConversationActivity__to_call_signal_needs_access_to_your_microphone">Ili kupiga simu, iruhusu Signal kufikia maikrofoni yako.</string>
+    <!-- Toast text explaining Signal\'s need for microphone access for a voice call -->
+    <string name="ConversationActivity_signal_needs_microphone_access_voice_call">Signal inahitaji ufikiaji wa maikrofoni ili kupiga simu.</string>
 
 
     <string name="ConversationActivity_join">Jiunge</string>
+    <!-- Button text for an active group call but the call is currently full and unjoinable -->
     <string name="ConversationActivity_full">Imejaa</string>
 
     <string name="ConversationActivity_error_sending_media">Hitilafu imetokea wakati wa kutuma media</string>
@@ -616,6 +678,7 @@
     <string name="ConversationListFragment_unarchive">Toa hifadhini</string>
     <string name="ConversationListFragment_delete">Futa</string>
     <string name="ConversationListFragment_select_all">Chagua zote</string>
+    <!-- Screen title shown when selecting multiple items from a list like conversation threads or call logs. -->
     <plurals name="ConversationListFragment_s_selected">
         <item quantity="one">%1$d iliyochaguliwa</item>
         <item quantity="other">%1$diliyochaguliwa</item>
@@ -867,6 +930,7 @@
         <item quantity="one">Mialiko imetumwa</item>
         <item quantity="other">Mialiko %1$d imetumwa</item>
     </plurals>
+    <!-- Dialog message shown when you are attempting to add a single contact to a group and you don\'t have enough information about them to do it automatically, so must do it via an invite instead. Placeholder is name/username/phone number. -->
     <string name="GroupManagement_invite_single_user">\"%1$s\" hawezi kuongezwa na wewe kiotomatiki kwenye kikundi hiki.\n\nAmealikwa kujiunga, na hataona ujumbe wowote wa kikundi mpaka atakapokubali.</string>
     <string name="GroupManagement_invite_multiple_users">Watumiaji hawa hawawezi kuongezwa na wewe kiotomatiki kwenye kikundi hiki.\n\nWamealikwa kujiunga na kikundi, na hawataona ujumbe wowote wa kikundi mpaka watakapokubali.</string>
 
@@ -1047,7 +1111,9 @@
 
     <string name="ManageGroupActivity_edit_name_and_picture">Badilisha jina na picha</string>
     <string name="ManageGroupActivity_legacy_group">Kikundi Kizee</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code -->
     <string name="ManageGroupActivity_legacy_group_learn_more">Hiki ni Kikundi Kizee. Vipengele kama vile wasimamizi wa vikundi vinapatikana tu kwa Vikundi Vipya.</string>
+    <!-- This is placed inside a "Learn More" text view, which automatically appends LearnMoreTextView_learn_more in code to the end of the string -->
     <string name="ManageGroupActivity_legacy_group_upgrade">Hiki ni Kikundi Kizee. Ili upate huduma mpya kama @kutajwa na kuteua wasimamizi,</string>
     <string name="ManageGroupActivity_legacy_group_too_large">Kikundi hiki cha Urithi hakiwezi kupandishwa hadhi kuwa Kikundi kipya kwa sababu ni kubwa mno. Ukubwa wa juu wa kikundi ni %1$d.</string>
     <string name="ManageGroupActivity_upgrade_this_group">boresha kikundi hiki.</string>
@@ -1274,6 +1340,7 @@
         <item quantity="other">Futa</item>
     </plurals>
 
+    <!-- Screen title shown when selecting multiple items in the media overview screen. The first placeholder is the number of items, the second number is the cumulative file size in bytes. -->
     <plurals name="MediaOverviewActivity_d_selected_s">
         <item quantity="one">%1$d amemchagua (%2$s)</item>
         <item quantity="other">%1$dimechaguliwa (%2$s)</item>
@@ -1299,7 +1366,7 @@
     <string name="Megaphones_new_group">Kikundi kipya</string>
     <string name="Megaphones_invite_friends">Alika marafiki</string>
     <string name="Megaphones_chat_colors">Rangi ya gumzo</string>
-    <string name="Megaphones_add_a_profile_photo">Ongeza picha ya wasifu</string>
+    <string name="Megaphones_add_a_profile_photo">Weka picha</string>
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">Majibu</string>
@@ -1338,17 +1405,13 @@
     <string name="MessageRecord_left_group">Umeondoka kwenye kundi.</string>
     <string name="MessageRecord_you_updated_group">Umesasisha kikundi</string>
     <string name="MessageRecord_the_group_was_updated">Kikundi kimesasishwa.</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">Simu ya kawaida uliyopiga</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s answered by the other party -->
+    <!-- Update message shown when placing an outgoing 1:1 video call -->
     <string name="MessageRecord_outgoing_video_call">Simu ya video uliyopiga</string>
-    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_voice_call">Simu ya kawaida isiyopokelewa</string>
-    <!-- Update message shown when placing an outgoing 1:1 video call and it\'s not answered by the other party -->
-    <string name="MessageRecord_unanswered_video_call">Simu ya video isiyopokelewa</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered -->
+    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and it\'s answered or ringing -->
     <string name="MessageRecord_incoming_voice_call">Simu ya kawaida inayopigwa</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and answered -->
+    <!-- Update message shown when receiving an incoming 1:1 video call and answered or ringing -->
     <string name="MessageRecord_incoming_video_call">Simu ya video inayopigwa</string>
     <!-- Update message shown when receiving an incoming 1:1 voice/audio call and not answered -->
     <string name="MessageRecord_missed_voice_call">Simu ya kawaida fifi</string>
@@ -1358,10 +1421,6 @@
     <string name="MessageRecord_missed_voice_call_notification_profile">Simu ya sauti ambayo haijapokelewa wakati wasifu wa arifa ulipowashwa</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
     <string name="MessageRecord_missed_video_call_notification_profile">Simu ya video ambayo haijapokelewa wakati wasifu wa arifa ulipokuwa umewashwa</string>
-    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_voice_call">Umekataa simu ya kawaida</string>
-    <!-- Update message shown when receiving an incoming 1:1 video call and explicitly declined -->
-    <string name="MessageRecord_you_declined_a_video_call">Umekataa simu ya video</string>
     <!-- Call update formatter string to place the update message next to a time stamp. e.g., \'Incoming voice call · 11:11am\' -->
     <string name="MessageRecord_call_message_with_date">%1$s · %2$s</string>
     <string name="MessageRecord_s_updated_group">1%1$s amesasisha kikundi</string>
@@ -1570,28 +1629,53 @@
     <string name="MessageRecord_can_accept_payments">%1$s sasa anaweza kupokea Malipo</string>
 
     <!-- Group Calling update messages -->
-    <string name="MessageRecord_s_started_a_group_call_s">%1$s ameanzisha mazungumzo ya simu ya kikundi · %2$s</string>
-    <string name="MessageRecord_you_started_a_group_call_s">Umeanzisha simu ya kikundi · %1$s</string>
-    <string name="MessageRecord_s_is_in_the_group_call_s">%1$s yuko kwenye mazungumzo ya simu ya kikundi · %2$s</string>
-    <string name="MessageRecord_you_are_in_the_group_call_s1">Uko kwenye mazungumzo ya simu ya kikundi · %1$s</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s na %2$s wako kwenye mazungumzo ya simu ya kikundi · %3$s</string>
-    <string name="MessageRecord_group_call_s">Mazungumzo ya simu ya kikundi · %1$s</string>
-
-    <string name="MessageRecord_s_started_a_group_call">%1$s ameanzisha mazungumzo ya simu ya kikundi</string>
-    <string name="MessageRecord_you_started_a_group_call">Umeanzisha mazungumzo ya simu ya kikundi</string>
-    <string name="MessageRecord_s_is_in_the_group_call">%1$s yuko kwenye mazungumzo ya simu ya kikundi</string>
-    <string name="MessageRecord_you_are_in_the_group_call">Uko kwenye mazungumzo ya simu ya kikundi</string>
-    <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s na %2$s wako kwenye mazungumzo ya simu ya kikundi</string>
-    <string name="MessageRecord_group_call">Mazungumzo ya simu ya kikundi</string>
+    <!-- Chat log text for an ongoing group call that has one participant with a placeholder for the short display name of the user that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_is_in_the_call_s">%1$s ako kwenye mazungumzo· %2$s</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
+    <string name="MessageRecord_you_are_in_the_call_s1">Uko kwenye mazungumzo · %1$s</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
+    <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s na %2$s wako kwenye mazungumzo · %3$s</string>
+    <!-- Chat log text for an ongoing group call that has one participant -->
+    <string name="MessageRecord_s_is_in_the_call">%1$s ako kwenye mazungumzo</string>
+    <!-- Chat log text for an ongoing group call only the local user has joined -->
+    <string name="MessageRecord_you_are_in_the_call">Uko kwenye mazungumzo</string>
+    <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
+    <string name="MessageRecord_s_and_s_are_in_the_call">%1$s na %2$s wako kwenye mazungumzo</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes -->
+    <string name="MessageRecord__the_video_call_has_ended">Simu ya video imekwisha</string>
+    <!-- Chat log text for a group call that ended within the last 5 minutes with a placeholder for formatted time -->
+    <string name="MessageRecord__the_video_call_has_ended_s">Simu ya video imekwisha · %1$s</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed -->
+    <string name="MessageRecord__missed_video_call">Simu ya video fifi</string>
+    <!-- Chat log text for a group call that ended more than 5 minutes ago and was missed with a placeholder for formatted time -->
+    <string name="MessageRecord__missed_video_call_s">Umekosa simu ya video · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user did not start -->
+    <string name="MessageRecord__incoming_video_call">Simu ya video inayopigwa</string>
+    <!-- Chat log text for a group call that ended that the local user did not start with a placeholder for formatted time -->
+    <string name="MessageRecord__incoming_video_call_s">Simu ya video inayoingia · %1$s</string>
+    <!-- Chat log text for a group call that ended that the local user started -->
+    <string name="MessageRecord__outgoing_video_call">Simu ya video uliyopiga</string>
+    <!-- Chat log text for a group call that ended that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__outgoing_video_call_s">Simu ya video inayotoka · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user started -->
+    <string name="MessageRecord__you_started_a_video_call">Umepiga simu ya video</string>
+    <!-- Chat log text for an ongoing group call that the local user started with a placeholder for formatted time -->
+    <string name="MessageRecord__you_started_a_video_call_s">Umepiga simu ya video · %1$s</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name -->
+    <string name="MessageRecord__s_started_a_video_call">%1$s amepiga simu ya video</string>
+    <!-- Chat log text for an ongoing group call that the local user has not joined with a placeholder for user\'s short display name and a placeholder for formatted time -->
+    <string name="MessageRecord__s_started_a_video_call_s">%1$s amepiga simu ya video · %2$s</string>
 
     <string name="MessageRecord_you">Wewe</string>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call_s">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users, a placeholder for the number of users in the call, and a placeholder for formatted time -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call_s">
         <item quantity="one">%1$s, %2$s na%3$d mwingine yuko kwenye mazungumzo ya simu ya kikundi · %4$s</item>
         <item quantity="other">%1$s, %2$s na %3$dwako kwenye mazungumzo ya simu ya kikundi · %4$s</item>
     </plurals>
 
-    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call">
+    <!-- Chat log text for an ongoing group call with more than two participants with placeholders for the first two joined users and a placeholder for the number of users in the call -->
+    <plurals name="MessageRecord_s_s_and_d_others_are_in_the_call">
         <item quantity="one">%1$s, %2$s,na %3$d mwingine yuko kwenye mazungumzo ya simu ya kikundi</item>
         <item quantity="other">%1$s, %2$s na %3$d wengine wako kwenye mazungumzo ya simu ya kikundi</item>
     </plurals>
@@ -1975,7 +2059,7 @@
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">Huna jumbe za moja kwa moja na %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
-    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s yupo kwenye wawasiliani wako wa simu</string>
+    <string name="AboutSheet__s_is_in_your_system_contacts">%1$s yuko kwenye wawasiliani wako</string>
     <!-- Notice in a row when user has no groups in common -->
     <string name="AboutSheet__you_have_no_groups_in_common">Hamna vikundi mnavyoshiriki pamoja</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
@@ -1989,6 +2073,8 @@
     <string name="AboutSheet__about">Kuhusu</string>
     <!-- Text displayed in title for you -->
     <string name="AboutSheet__you">Wewe</string>
+    <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
+    <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call">
@@ -2064,6 +2150,7 @@
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
     <string name="RegistrationActivity_unable_to_request_verification_code">Inashindwa kuomba msimbo wa uthibitisho. Tafadhali angalia muunganisho wa mtandao wako kisha ujaribu tena.</string>
     <string name="RegistrationActivity_non_standard_number_format">Mfumo wa nambari usio wa kiwango</string>
+    <!-- Dialog message shown to confirm when entering phone number (first placeholder) is normalized and formatted differently by the app (second placeholder). -->
     <string name="RegistrationActivity_the_number_you_entered_appears_to_be_a_non_standard">Nambari uliyoingiza (%1$s) inaonekana kuwa isiyo ya mfumo wa nambari usio wa kiwango.\n\nUlimaanisha %2$s?</string>
     <string name="RegistrationActivity_signal_android_phone_number_format">Signal Android - Mfumo wa Nambari ya Simu</string>
     <!--    Small "toast" notification to the user confirming that they have requested a new code via voice call.-->
@@ -2212,10 +2299,10 @@
     <string name="SupportEmailUtil_filter">Kichujio:</string>
     <string name="SupportEmailUtil_device_info">Maelezo ya kifaa:</string>
     <string name="SupportEmailUtil_android_version">Toleo la Android:</string>
-    <string name="SupportEmailUtil_signal_version">Toleo la Signal:</string>
-    <string name="SupportEmailUtil_signal_package">Kifurushi cha Signal:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_version" translatable="false">Signal version:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">Kufuli ya usajili:</string>
-    <string name="SupportEmailUtil_locale">Lugha:</string>
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">Kikundi kimesasishwa</string>
@@ -2625,6 +2712,10 @@
     <string name="contact_selection_activity__refresh_contacts">Huisha upya wawasiliani</string>
     <!-- Row item description for refreshing contacts -->
     <string name="contact_selection_activity__missing_someone">Umemkosa mtu? Jaribu kuhuisha upya</string>
+    <!-- Row item title for finding people on Signal via your contacts -->
+    <string name="contact_selection_activity__find_people_you_know">Find people you know on Signal</string>
+    <!-- Row item description asking users for access to their contacts to find people they know -->
+    <string name="contact_selection_activity__allow_access_to_contacts">Allow access to your contacts</string>
     <!-- Row header title for more section -->
     <string name="contact_selection_activity__more">Zaidi</string>
 
@@ -2658,6 +2749,14 @@
     <string name="ContactSelectionListFragment__find_by_phone_number">Tafuta kwa nambari ya simu</string>
     <!-- Text on row item to find user by username -->
     <string name="ContactSelectionListFragment__find_by_username">Tafuta kwa jina la mtumiaji</string>
+    <!-- Dialog title asking users for contact permission -->
+    <string name="ContactSelectionListFragment_allow_access_contacts">Allow access to contacts</string>
+    <!-- Dialog description that will explain the steps needed to give contact permissions -->
+    <string name="ContactSelectionListFragment_to_find_people">To find people you know on Signal:</string>
+    <!-- Text on button prompting users to give Signal contact permissions -->
+    <string name="ContactSelectionListFragment__allow_access">Allow access</string>
+    <!-- Text asking for user\'s contact permission -->
+    <string name="ContactSelectionListFragment__allow_access_to_your_contacts_encrypted">Allow access to your contacts. Your contacts are encrypted and not visible to the Signal service.</string>
 
     <!-- contact_selection_list_fragment -->
     <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">Signal inahitaji upatikanaji wa wawasiliani yako ili kuonyesha.</string>
@@ -2710,6 +2809,8 @@
     <string name="ConversationUpdateItem_loading">Inapakia</string>
     <string name="ConversationUpdateItem_learn_more">Jifunze zaidi</string>
     <string name="ConversationUpdateItem_join_call">Jiunge na mazungumzo ya simu</string>
+    <!-- Action button label for starting a new call in the current conversation -->
+    <string name="ConversationUpdateItem_call_back">Rudisha Simu</string>
     <string name="ConversationUpdateItem_return_to_call">Rudi kwenye mazungumzo ya simu</string>
     <string name="ConversationUpdateItem_call_is_full">Mazungumzo ya simu yamejaa</string>
     <string name="ConversationUpdateItem_invite_friends">Alika marafiki</string>
@@ -2774,6 +2875,7 @@
     <string name="safety_number_change_dialog__leave_call">Ondoka kwenye mazungumzo ya simu</string>
     <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">Huenda watu wafuatao wamesakinisha upya programu zao au kubadilisha vifaa. Thibitisha nambari yako ya usalama unayotumia kwao ili kuhakikisha unalinda faragha yako.</string>
     <string name="safety_number_change_dialog__view">Tazama</string>
+    <!-- Subtitle shown for a single contact and that their safety number was previously verified and is now no longer verified. -->
     <string name="safety_number_change_dialog__previous_verified">Iliyothibitishwa awali</string>
 
     <!-- EnableCallNotificationSettingsDialog__call_notifications_checklist -->
@@ -2925,6 +3027,18 @@
     <string name="EditProfileFragment__group_name">Jina la kikundi</string>
     <string name="EditProfileFragment__group_description">Maelezo ya kikundi</string>
   <!-- Removed by excludeNonTranslatables <string name="EditProfileFragment__support_link" translatable="false">https://support.signal.org/hc/articles/360007459591</string> -->
+    <!-- The title of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_title">Sasisha Signal</string>
+    <!-- The body of a dialog prompting user to update to the latest version of Signal. -->
+    <string name="EditProfileFragment_deprecated_dialog_body">Toleo hili la Signal limekwisha muda wake. Sasisha sasa ili kuendelea kutumia Signal.</string>
+    <!-- The button on a dialog prompting user to update to the latest version of Signal. When clicked, the user will be taken to the store to update their app. -->
+    <string name="EditProfileFragment_deprecated_dialog_update_button">Sasisha</string>
+    <!-- The title of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_title">Kifaa hakijasajiliwa</string>
+    <!-- The body of a dialog informing the user that they cannot use this app feature when they are unregistered. -->
+    <string name="EditProfileFragment_unregistered_dialog_body">Kifaa hiki hakijasajiliwa tena. Sajili upya ili kufanya mabadiliko kwenye akaunti yako.</string>
+    <!-- The button on a dialog informing the user that they cannot use this app feature when they are unregistered. When clicked, the user will be taken to a screen to help them re-register. -->
+    <string name="EditProfileFragment_unregistered_dialog_reregister_button">Sajili tena</string>
 
     <!-- EditProfileNameFragment -->
     <string name="EditProfileNameFragment_your_name">jina lako</string>
@@ -3007,7 +3121,7 @@
   <!-- Removed by excludeNonTranslatables <string name="HelpFragment__link__faq" translatable="false">https://support.signal.org</string> -->
     <string name="HelpFragment__support_info">Maelezo ya Usaidizi</string>
     <string name="HelpFragment__signal_android_support_request">Ombi la Usaidizi wa Signal Android</string>
-    <string name="HelpFragment__debug_log">Kumbukumbu ya Utatuzi:</string>
+  <!-- Removed by excludeNonTranslatables <string name="HelpFragment__debug_log" translatable="false">Debug Log:</string> -->
     <string name="HelpFragment__could_not_upload_logs">Hukuweza kupakia kumbukumbu</string>
     <string name="HelpFragment__please_be_as_descriptive_as_possible">Tafadhali toa maelezo ya kina iwezekanavyo utusaidie kuelewa suala hili.</string>
     <string-array name="HelpFragment__categories_5">
@@ -3075,6 +3189,7 @@
 
     <string name="arrays__default">Chaguo msingi</string>
     <string name="arrays__high">Juu</string>
+    <!-- Setting title that represent an abstract priority to assign to notifications as the max/highest priority a notification can be within the system. -->
     <string name="arrays__max">Upeo</string>
 
     <!-- plurals.xml -->
@@ -3213,7 +3328,8 @@
     <string name="preferences_storage__audio">Sauti</string>
     <string name="preferences_storage__review_storage">Pitia tena hifadhi</string>
     <string name="preferences_storage__delete_older_messages">Ungependa kufuta jumbe za awali?</string>
-    <string name="preferences_storage__clear_message_history">Ungependa kufuta historia ya jumbe?</string>
+    <!-- Dialog title shown when selecting delete message history from manage storage -->
+    <string name="preferences_storage__delete_message_history">Futa historia ya jumbe?</string>
     <string name="preferences_storage__this_will_permanently_delete_all_message_history_and_media">Hii itafuta kabisa historia yote ya jumbe na media za zaidi ya %1$s kwenye kifaa chako.</string>
     <!-- The body of an alert dialog that is shown when confirming a trim operation. Trimming will delete all but the most recent messages in a chat. The placeholder represents how many messages are kept in each chat. All older messages are deleted. -->
     <plurals name="preferences_storage__this_will_permanently_trim_all_conversations_to_the_d_most_recent_messages">
@@ -3395,6 +3511,14 @@
     <!-- Storage permission row description -->
     <string name="GrantPermissionsFragment__send_photos_videos_and_files">Tuma picha, video na faili kutoka kwenye kifaa chako.</string>
 
+    <!-- PermissionDeniedBottomSheet -->
+    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
+    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. Bofya \"Mipangilio\" hapa chini</string>
+    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
+    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s Wezesha ruhusa</string>
+    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
+    <string name="PermissionDeniedBottomSheet__settings">Mipangilio</string>
+
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
     <string name="PaymentsSecuritySetupFragment__security_setup">Mfumo wa usalama</string>
@@ -3435,6 +3559,7 @@
     <string name="PaymentsDetailsFragment__sent_to_s">Yametumwa kwa %1$s</string>
     <string name="PaymentsDetailsFragment__you_on_s_at_s">Wewe tarehe %1$s saa %2$s</string>
     <string name="PaymentsDetailsFragment__s_on_s_at_s">%1$s tarehe %2$s saa %3$s</string>
+    <!-- Prefix to a name to indicate who a payment was sent to -->
     <string name="PaymentsDetailsFragment__to">Kwa</string>
     <string name="PaymentsDetailsFragment__from">Kutoka kwa</string>
     <string name="PaymentsDetailsFragment__information">Maelezo ya muamala, ikiwa ni pamoja na kiwango cha malipo na wakati wa muamala ni sehemu ya Leja ya MobileCoin.</string>
@@ -3497,6 +3622,7 @@
     <string name="ConfirmPayment__confirm_payment">Thibitisha malipo</string>
     <string name="ConfirmPayment__network_fee">Ada ya mtandao</string>
     <string name="ConfirmPayment__estimated_s">Kadirio la %1$s</string>
+    <!-- Prefix to a name to indicate who a payment will be sent to -->
     <string name="ConfirmPayment__to">Kwa</string>
     <string name="ConfirmPayment__total_amount">Kiasi jumla</string>
     <string name="ConfirmPayment__balance_s">Salio: %1$s</string>
@@ -3647,6 +3773,14 @@
     <string name="conversation_group_options__conversation">Gumzo</string>
     <string name="conversation_group_options__broadcast">Tangaza</string>
 
+    <!-- DoubleTapEditEducationSheet -->
+    <!-- Displayed as the title of the education bottom sheet -->
+    <string name="DoubleTapEditEducationSheet__double_tap_edit_title">Gusa mara mbili ili kuhariri</string>
+    <!-- Text on the sheet explaining how double tapping on a message will let them edit it -->
+    <string name="DoubleTapEditEducationSheet__quickly_tap_twice">Kwa haraka, gusa jumbe zako mara mbili ili kuzihariri. Unaweza kuhariri jumbe zako kwa hadi saa 24 baada ya kutuma.</string>
+    <!-- Button label to dismiss sheet -->
+    <string name="DoubleTapEditEducationSheet__got_it">Nimeelewa</string>
+
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">Kundi jipya</string>
     <string name="text_secure_normal__menu_settings">Mipangilio</string>
@@ -3663,8 +3797,6 @@
     <string name="verify_display_fragment_context_menu__compare_with_clipboard">Linganisha na clipbodi</string>
 
     <!-- reminder_header -->
-    <string name="reminder_header_push_title">Wezesha jumbe na simu za Signal</string>
-    <string name="reminder_header_push_text">Boresha uzoefu wako wa mawasiliano</string>
     <string name="reminder_header_service_outage_text">Signal inakabiliwa na matatizo ya kiufundi. Tunajitahidi kurejesha huduma haraka iwezekanavyo.</string>
     <string name="reminder_header_progress">%1$d%%</string>
     <!-- Body text of a banner that will show at the top of the chat list when we temporarily cannot process the user\'s contacts -->
@@ -3961,6 +4093,8 @@
     <string name="TransferOrRestoreFragment__you_need_access_to_your_old_device">Unahitaji kufikia kifaa chako cha awali.</string>
     <string name="TransferOrRestoreFragment__restore_from_backup">Rejesha kutoka nakala hifadhi</string>
     <string name="TransferOrRestoreFragment__restore_your_messages_from_a_local_backup">Rejesha jumbe zako kutoka kwenye nakala hifadhi ya ndani ya kifaa chako. Usiporejesha sasa, hutaweza kurejesha baadaye.</string>
+    <!-- Button label for more options -->
+    <string name="TransferOrRestoreFragment__more_options">Chaguzi zaidi</string>
 
     <!-- NewDeviceTransferInstructionsFragment -->
     <string name="NewDeviceTransferInstructions__open_signal_on_your_old_android_phone">Fungua Signal kwenye simu yako ya awali ya Android</string>
@@ -4101,6 +4235,7 @@
     <string name="RecipientBottomSheet_copied_to_clipboard">Imenakiliwa kwenye bodi ya kunakili</string>
 
     <string name="GroupRecipientListItem_admin">Msimamizi</string>
+    <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">Idhinisha</string>
     <string name="GroupRecipientListItem_deny_description">Kataa</string>
 
@@ -4128,6 +4263,7 @@
 
     <!-- VoiceNoteMediaDescriptionCompatFactory -->
     <string name="VoiceNoteMediaItemFactory__voice_message">Ujumbe wa sauti · %1$s</string>
+    <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">%1$shadi %2$s</string>
 
     <!-- StorageUtil -->
@@ -4141,8 +4277,16 @@
     <string name="ReviewCardDialogFragment__review_members">Kagua wanachama</string>
     <!-- Title of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
     <string name="ReviewCardDialogFragment__review_request">Kagua ombi</string>
-    <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">Washiriki %1$d wa kikundi wana majina yanayofanana, wakague wanachama hapa chini na uchague kuchukua hatua.</string>
-    <string name="ReviewCardDialogFragment__if_youre_not_sure">Ikiwa hujui ombi hili limetoka kwa nani, kagua waasiliani walio hapa chini na uchukue hatua.</string>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__d_group_members_have_the_same_name">
+        <item quantity="one">mwanachama %1$d wa kikundi ana jina linalofanana, hakiki mwanachama hapo chini au chukua hatua.</item>
+        <item quantity="other">wanachama %1$d wa kikundi wana jina sawa, hakiki wanachama hapo chini au chagua kuchukua hatua.</item>
+    </plurals>
+    <!-- Message of a screen where the user will be prompted to review a message request matching the name of someone they already know -->
+    <plurals name="ReviewCardDialogFragment__if_youre_not_sure">
+        <item quantity="one">Ikiwa hujui ombi hili limetoka kwa nani, kagua muwasiliani aliye hapa chini na uchukue hatua.</item>
+        <item quantity="other">Ikiwa hujui ombi hili limetoka kwa nani, kagua wawasiliani walio hapa chini na uchukue hatua.</item>
+    </plurals>
     <string name="ReviewCardDialogFragment__no_other_groups_in_common">Hakuna vikundi vingine mnavyoshiriki pamoja.</string>
     <string name="ReviewCardDialogFragment__no_groups_in_common">Hakuna vikundi mnavyoshiriki pamoja.</string>
     <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
@@ -4167,17 +4311,26 @@
     <!-- Displayed when a recent name change has occurred. First placeholder is new short name, second is previous name, third is new name. -->
     <string name="ReviewCard__s_recently_changed">Hivi karibuni %1$s amebadili jina la wasifu wake kutoka %2$s kwenda %3$s</string>
     <!-- Displayed when a review user is in your system contacts. Placeholder is short name. -->
-    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s yupo kwenye wawasiliani wako wa simu</string>
+    <string name="ReviewCard__s_is_in_your_system_contacts">%1$s yuko kwenye wawasiliani wako</string>
 
     <!-- CallParticipantsListUpdatePopupWindow -->
     <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s amejiunga</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s na %2$s amejiunga</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s, %2$s na %3$s wamejiunga</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s, %2$s na wengine %3$d wamejiunga</string>
+    <!-- Toast message shown in group call when 3 or more people join -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">
+        <item quantity="one">%1$s, %2$s, na mwingine %3$d wamejiunga kwenye simu</item>
+        <item quantity="other">%1$s, %2$s na wengine %3$d wamejiunga kwenye simu</item>
+    </plurals>
+    <!-- Toast/popup text shown when someone leaves a group call -->
     <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s ameondoka</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s na %2$s wameondoka</string>
     <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s, %2$s na %3$s wameondoka</string>
-    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s, %2$s na wengine %3$d wameondoka</string>
+    <!-- Toast message shown in group call when 3 or more people leave -->
+    <plurals name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">
+        <item quantity="one">%1$s, %2$s, na mwingine %3$d wametoka kwenye simu</item>
+        <item quantity="other">%1$s, %2$s, na %3$d wametoka kwenye simu</item>
+    </plurals>
 
     <string name="CallParticipant__you">Wewe</string>
     <string name="CallParticipant__you_on_another_device">Wewe (kwenye kifaa kingine)</string>
@@ -4547,10 +4700,15 @@
 
     <!-- PrivacySettingsFragment -->
     <string name="PrivacySettingsFragment__blocked">Zuiliwa</string>
-    <string name="PrivacySettingsFragment__d_contacts">Waasiliani %1$d</string>
+    <!-- Settings label that shows the number blocked contacts -->
+    <plurals name="PrivacySettingsFragment__d_contacts">
+        <item quantity="one">Muwasiliani %1$d</item>
+        <item quantity="other">Wawasiliani %1$d</item>
+    </plurals>
     <string name="PrivacySettingsFragment__messaging">Kutuma ujumbe</string>
     <string name="PrivacySettingsFragment__disappearing_messages">Jumbe zinazotoweka</string>
     <string name="PrivacySettingsFragment__app_security">Usalama wa programu</string>
+    <!-- This refers to the multi-tasking overview (recent apps) from the Android operating system.-->
     <string name="PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app">Zuia screenshots katika orodha ya rekodi na ndani ya programu</string>
     <string name="PrivacySettingsFragment__signal_message_and_calls">Ujumbe na simu za Signal, elekeza simu kila wakati, na kutumia huduma ya kuficha ujumbe</string>
     <string name="PrivacySettingsFragment__default_timer_for_new_changes">Kipima muda chaguo-msingi cha gumzo mpya</string>
@@ -4607,11 +4765,14 @@
     <string name="DataAndStorageSettingsFragment__media_quality">Ubora wa Media</string>
     <string name="DataAndStorageSettingsFragment__sent_media_quality">Ubora wa media iliyotumwa</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">Kutuma media za ubora wa juu kutatumia data zaidi.</string>
+    <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">Juu</string>
+    <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
     <string name="DataAndStorageSettingsFragment__standard">Kiwango</string>
     <string name="DataAndStorageSettingsFragment__calls">Simu</string>
 
     <!-- ChatColorSelectionFragment -->
+    <!-- Text shown on a circle button to indicate the app will automatically select a color for conversation bubbles for this chat. -->
     <string name="ChatColorSelectionFragment__auto">Kiotomatiki</string>
     <string name="ChatColorSelectionFragment__use_custom_colors">Tumia rangi maalum</string>
     <string name="ChatColorSelectionFragment__chat_color">Rangi ya gumzo</string>
@@ -4718,7 +4879,7 @@
     <string name="ConversationSettingsFragment__disappearing_messages">Jumbe zinazotoweka</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">Sauti na arifa</string>
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
-    <string name="ConversationSettingsFragment__contact_details">Maelezo ya mwasiliani</string>
+    <string name="ConversationSettingsFragment__contact_details">Taarifa za wawasiliani</string>
     <string name="ConversationSettingsFragment__view_safety_number">Tazama nambari ya usalama</string>
     <string name="ConversationSettingsFragment__block">Zuia</string>
     <string name="ConversationSettingsFragment__block_group">Zuia kikundi</string>
@@ -4823,6 +4984,7 @@
     <string name="AvatarPickerFragment__take_a_picture">Piga picha</string>
     <string name="AvatarPickerFragment__choose_a_photo">Chagua picha</string>
     <string name="AvatarPickerFragment__photo">Picha</string>
+    <!-- Button label during avatar selection/creation that when tapped lets you generate an avatar from typed in text. -->
     <string name="AvatarPickerFragment__text">Maandishi</string>
     <string name="AvatarPickerFragment__save">Hifadhi</string>
     <string name="AvatarPickerFragment__clear_avatar">Futa umbo</string>
@@ -4883,7 +5045,7 @@
     <string name="MediaReviewFragment__add_a_message">Ongeza ujumbe</string>
     <string name="MediaReviewFragment__add_a_reply">Ongeza jibu</string>
     <string name="MediaReviewFragment__send_to">Tuma kwa</string>
-    <string name="MediaReviewFragment__view_once_message">Ujumbe wa kuangaliwa mara moja</string>
+    <string name="MediaReviewFragment__view_once_message">Tazama mara moja</string>
     <string name="MediaReviewFragment__one_or_more_items_were_too_large">Kitu kimoja au zaidi vilikuwa vikubwa sana</string>
     <string name="MediaReviewFragment__one_or_more_items_were_invalid">Kitu kimoja au zaidi vilikuwa batili</string>
     <string name="MediaReviewFragment__too_many_items_selected">Vitu vingi zaidi vimechaguliwa</string>
@@ -5476,7 +5638,7 @@
     <string name="StoryViewerFragment__s_s">%1$s %2$s</string>
     <!-- Displayed when viewing a post you sent -->
     <string name="StoryViewerPageFragment__you">Wewe</string>
-    <!-- Displayed when viewing a post displayed to a group -->
+    <!-- Displayed when viewing a story sent to a group, placeholders are person who sent the story and the group name -->
     <string name="StoryViewerPageFragment__s_to_s">%1$shadi %2$s</string>
     <!-- Displayed when viewing a post from another user with no replies -->
     <string name="StoryViewerPageFragment__reply">Jibu</string>
@@ -5569,7 +5731,7 @@
     <!-- Signal connections sheet bullet point 2 -->
     <string name="SignalConnectionsBottomSheet__accepting_a_message_request">Kukubali ombi la ujumbe</string>
     <!-- Signal connections sheet bullet point 3 -->
-    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">Kuwa nao kwenye mfumo wako wa wawasiliani wa simu</string>
+    <string name="SignalConnectionsBottomSheet__having_them_in_your_system_contacts">Kuwa nazo kwenye wawasiliani wako</string>
     <!-- Note at the bottom of the Signal connections sheet -->
     <string name="SignalConnectionsBottomSheet__your_connections_can_see_your_name">"Connections wako wanaweza kuona jina lako na picha yako, na wanaweza pia kuona post za Stori Yangu labda kama utawaficha."</string>
     <!-- Clickable option to add a viewer to a custom story -->
@@ -6652,6 +6814,76 @@
     <string name="FindByActivity__qr_scan_button">Skani code ya QR</string>
     <!-- Content of a dialog indicating that we could not perform the requested action because we encountered a network error. -->
     <string name="FindByActivity__network_error_dialog">Imekumbana na hitilafu ya mtandao. Jaribu tena baadae.</string>
+
+    <!-- Title for an alert letting someone know that one of their linked devices is inactive. -->
+    <string name="LinkedDeviceInactiveMegaphone_title">Kifaa kilichounganishwa kisichotumika</string>
+    <!-- Body for an alert letting someone know that one of their linked devices is inactive. The string placeholder is the name of the device, and the number placeholder is the number of days before device is unlinked. -->
+    <plurals name="LinkedDeviceInactiveMegaphone_body">
+        <item quantity="one">Ili kuendelea kuunganisha \"%1$s\", fungua Signal kwenye kifaa hiko ndani ya siku %2$d.</item>
+        <item quantity="other">Ili kuendelea kuunganisha \"%1$s\", fungua Signal kwenye kifaa hiko ndani ya siku %2$d.</item>
+    </plurals>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the user will opt out of all future alerts. -->
+    <string name="LinkedDeviceInactiveMegaphone_dont_remind_button_label">Usinikumbushe</string>
+    <!-- Button label for an alert letting someone know that one of their linked devices is inactive. When clicked, the alert will be dismissed. -->
+    <string name="LinkedDeviceInactiveMegaphone_got_it_button_label">Nimeelewa</string>
+
+    <!-- NicknameFragment -->
+    <!-- Title displayed at the top of the screen -->
+    <string name="NicknameActivity__nickname">Jina la utani</string>
+    <!-- Subtitle displayed under title -->
+    <string name="NicknameActivity__nicknames_amp_notes">Majina ya utani na madokezo yamehifadhiwa na Signal na yamesimbwa fiche. Vinaonwa nawe tu.</string>
+    <!-- Field label for given name -->
+    <string name="NicknameActivity__first_name">Jina la kwanza</string>
+    <!-- Content description for first name clear button -->
+    <string name="NicknameActivity__clear_first_name">Futa jina la kwanza</string>
+    <!-- Field label for family name -->
+    <string name="NicknameActivity__last_name">Jina La Mwisho</string>
+    <!-- Content description for last name clear button -->
+    <string name="NicknameActivity__clear_last_name">Futa jina la mwisho</string>
+    <!-- Field label for note -->
+    <string name="NicknameActivity__note">Kidokezo</string>
+    <!-- Button label to save -->
+    <string name="NicknameActivity__save">Hifadhi</string>
+    <!-- Dialog title for note and name deletion -->
+    <string name="NicknameActivity__delete_nickname">Futa?</string>
+    <!-- Dialog message for note and name deletion -->
+    <string name="NicknameActivity__this_will_permanently_delete_this_nickname_and_note">Hii itafuta kabisa majina ya utani yoyote na madokezo uliyoweka.</string>
+
+    <!-- ViewNoteBottomSheetDialogFragment -->
+    <!-- Sheet title -->
+    <string name="ViewNoteSheet__note">Kidokezo</string>
+    <!-- Content description for opening the note editor -->
+    <string name="ViewNoteSheet__edit_note">Hariri kidokezo</string>
+
+    <!-- BackupProgressService -->
+    <!-- Notification title shown while backup restore job is running -->
+    <string name="BackupProgressService_title">Inarejesha chelezo…</string>
+    <!-- Notification title shown while downloading backup restore data -->
+    <string name="BackupProgressService_title_downloading">Inapakua data chelezo…</string>
+
+    <!-- BackupsTypeSettingsFragment -->
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__credit_or_debit_card">Kadi ya mkopo au fedha taslimu</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__iDEAL">iDEAL</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__google_pay">Google Pay</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__bank_transfer">Uhamishaji kupitia benki</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__paypal">PayPal</string>
+    <!-- Displayed as the user\'s payment method as a label in a preference row -->
+    <string name="BackupsTypeSettingsFragment__unknown">Isiyojulikana</string>
+
+    <!-- ManageStorageSettingsFragment -->
+    <!-- Settings section title header show above manage settings options for automatic chat history management (deleting) -->
+    <string name="ManageStorageSettingsFragment_chat_limit">Kiwango cha gumzo</string>
+    <!-- Settings row title text that can be clicked to delete all messages and associated data from the device -->
+    <string name="ManageStorageSettingsFragment_delete_message_history">Futa historia ya ujumbe</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (time is a range like 30 days or 1 year etc) -->
+    <string name="ManageStorageSettingsFragment_keep_messages_duration_warning">Jumbe za zamani kuliko muda uliochaguliwa zitafutwa kabisa.</string>
+    <!-- Warning message at the bottom of a settings screen indicating how messages will be deleted based on user\'s selection (limit is a number like 500 or 5,000) -->
+    <string name="ManageStorageSettingsFragment_chat_length_limit_warning">Jumbe zinazozidi urefu uliochaguliwa zitafutwa kabisa.</string>
 
     <!-- EOF -->
 </resources>

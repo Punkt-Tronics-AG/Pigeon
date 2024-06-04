@@ -17,7 +17,8 @@ import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
 import org.thoughtcrime.securesms.service.webrtc.links.UpdateCallLinkResult
 
 class CallLogRepository(
-  private val updateCallLinkRepository: UpdateCallLinkRepository = UpdateCallLinkRepository()
+  private val updateCallLinkRepository: UpdateCallLinkRepository = UpdateCallLinkRepository(),
+  private val callLogPeekHelper: CallLogPeekHelper
 ) : CallLogPagedDataSource.CallRepository {
   override fun getCallsCount(query: String?, filter: CallLogFilter): Int {
     return SignalDatabase.calls.getCallsCount(query, filter)
@@ -41,10 +42,17 @@ class CallLogRepository(
     }
   }
 
+  override fun onCallTabPageLoaded(pageData: List<CallLogRow>) {
+    SignalExecutors.BOUNDED_IO.execute {
+      callLogPeekHelper.onPageLoaded(pageData)
+    }
+  }
+
   fun markAllCallEventsRead() {
     SignalExecutors.BOUNDED_IO.execute {
+      val latestCall = SignalDatabase.calls.getLatestCall() ?: return@execute
       SignalDatabase.calls.markAllCallEventsRead()
-      ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forMarkedAsRead(System.currentTimeMillis()))
+      ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forMarkedAsRead(latestCall))
     }
   }
 
@@ -95,10 +103,10 @@ class CallLogRepository(
   fun deleteAllCallLogsOnOrBeforeNow(): Single<Int> {
     return Single.fromCallable {
       SignalDatabase.rawDatabase.withinTransaction {
-        val latestTimestamp = SignalDatabase.calls.getLatestTimestamp()
-        SignalDatabase.calls.deleteNonAdHocCallEventsOnOrBefore(latestTimestamp)
-        SignalDatabase.callLinks.deleteNonAdminCallLinksOnOrBefore(latestTimestamp)
-        ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forClearHistory(latestTimestamp))
+        val latestCall = SignalDatabase.calls.getLatestCall() ?: return@withinTransaction
+        SignalDatabase.calls.deleteNonAdHocCallEventsOnOrBefore(latestCall.timestamp)
+        SignalDatabase.callLinks.deleteNonAdminCallLinksOnOrBefore(latestCall.timestamp)
+        ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forClearHistory(latestCall))
       }
 
       SignalDatabase.callLinks.getAllAdminCallLinksExcept(emptySet())
