@@ -222,7 +222,7 @@ object Rows {
         Text(
           text = label,
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = SignalTheme.colors.colorNeutral
         )
       }
     }
