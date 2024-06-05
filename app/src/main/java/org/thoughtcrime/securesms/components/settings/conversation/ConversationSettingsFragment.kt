@@ -1156,6 +1156,16 @@ class ConversationSettingsFragment : DSLSettingsFragment(
 
       if (state.canModifyBlockedState) {
 
+        state.withRecipientSettingsState {
+          dividerPref()
+        }
+
+        state.withGroupSettingsState {
+          if (!it.canLeave) {
+            dividerPref()
+          }
+        }
+
         val isBlocked = state.recipient.isBlocked
         val isGroup = state.recipient.isPushGroup
 
@@ -1166,12 +1176,11 @@ class ConversationSettingsFragment : DSLSettingsFragment(
           else -> R.string.ConversationSettingsFragment__block
         }
 
-        val titleTint = if (isBlocked) null else alertTint
-        val blockUnblockIcon = if (isBlocked) unblockIcon else blockIcon
+        val titleTint = if (isBlocked) null else if (state.isDeprecatedOrUnregistered) alertDisabledTint else alertTint
 
         clickPref(
           title = if (titleTint != null) DSLSettingsText.from(title, titleTint) else DSLSettingsText.from(title),
-          icon = DSLSettingsIcon.from(blockUnblockIcon),
+          icon = if (isBlocked) DSLSettingsIcon.from(R.drawable.symbol_block_24) else DSLSettingsIcon.from(blockIcon),
           onClick = {
             if (state.recipient.isBlocked) {
               BlockUnblockDialog.showUnblockFor(requireContext(), viewLifecycleOwner.lifecycle, state.recipient) {

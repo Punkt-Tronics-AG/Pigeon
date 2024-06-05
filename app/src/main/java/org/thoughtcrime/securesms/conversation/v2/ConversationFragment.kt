@@ -68,8 +68,8 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ConversationLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import com.bumptech.glide.Glide
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -332,9 +332,9 @@ import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
-import java.time.LocalDateTime
 import pigeon.extensions.isPigeonVersion
 import pigeon.permissions.PigeonRationaleDialog
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.Optional
 import java.util.concurrent.ExecutionException
@@ -3199,8 +3199,8 @@ class ConversationFragment :
         if (messageRecord.isSecure &&
           !messageRecord.isRemoteDelete &&
           !messageRecord.isUpdate &&
-          viewModel.recipientSnapshot?.isBlocked() == false &&
-          (viewModel.recipientSnapshot?.isGroup()  == false|| viewModel.recipientSnapshot?.isActiveGroup() == true) &&
+          viewModel.recipientSnapshot?.isBlocked == false &&
+          (viewModel.recipientSnapshot?.isGroup  == false|| viewModel.recipientSnapshot?.isActiveGroup == true) &&
           adapter.selectedItems.isEmpty()){
           val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
           startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)

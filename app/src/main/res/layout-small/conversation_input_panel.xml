@@ -444,7 +444,7 @@
                 android:nextFocusUp="@id/conversation_call"
                 android:nextFocusDown="@id/conversation_settings"
                 android:paddingStart="25dp"
-                android:text="@string/MessageRecord_group_call"
+                android:text="@string/Pigeon_group_call"
                 android:visibility="visible"
                 tools:visibility="visible" />
 

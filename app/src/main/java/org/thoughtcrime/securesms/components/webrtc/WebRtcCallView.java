@@ -711,7 +711,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     collapsedToolbar.setTitle(recipient.getDisplayName(getContext()));
     recipientName.setText(recipient.getDisplayName(getContext()));
     pigeonName.setText(recipient.getDisplayName(getContext()));
-    if (!recipient.hasE164()) {
+    if (!recipient.getHasE164()) {
       pigeonPhone.setVisibility(GONE);
     }
     try {

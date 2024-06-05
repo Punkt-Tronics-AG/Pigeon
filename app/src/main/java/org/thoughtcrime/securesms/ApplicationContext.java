@@ -105,6 +105,7 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.VersionTracker;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
+import org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection;
 import org.whispersystems.signalservice.internal.websocket.WebSocketConnection;
 
 import java.net.SocketException;
@@ -234,12 +235,12 @@ public class ApplicationContext extends MultiDexApplication implements AppForegr
     screenListener.begin(new ScreenListener.ScreenStateListener() {
       @Override
       public void onScreenOn() {
-        WebSocketConnection.isAlive = true;
+        OkHttpWebSocketConnection.isAlive = true;
       }
 
       @Override
       public void onScreenOff() {
-        WebSocketConnection.isAlive = false;
+        OkHttpWebSocketConnection.isAlive = false;
       }
 
       @Override

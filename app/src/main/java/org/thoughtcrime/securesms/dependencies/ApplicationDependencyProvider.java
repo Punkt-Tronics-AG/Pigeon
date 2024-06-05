@@ -241,7 +241,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @Override
   public @NonNull LibSignalNetwork provideLibsignalNetwork(@NonNull SignalServiceConfiguration config) {
-    return new LibSignalNetwork(new Network(BuildConfig.LIBSIGNAL_NET_ENV, StandardUserAgentInterceptor.USER_AGENT), config);
+    Network network = new Network(BuildConfig.LIBSIGNAL_NET_ENV, StandardUserAgentInterceptor.USER_AGENT);
+    return new LibSignalNetwork(network, config);
   }
 
   @Override
@@ -428,6 +429,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
       @Override
       public WebSocketConnection createUnidentifiedWebSocket() {
+        int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+        int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
         int shadowPercentage = FeatureFlags.libSignalWebSocketShadowingPercentage();
         if (shadowPercentage > 0) {
           return new ShadowingWebSocketConnection(
@@ -439,7 +442,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
               Stories.isFeatureEnabled(),
               libSignalNetworkSupplier.get().createChatService(null),
               shadowPercentage,
-              bridge
+              bridge, pigeonAliveIntervalTime, pigeonSleepIntervalTime
           );
         }
         if (FeatureFlags.libSignalWebSocketEnabled()) {

@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.KEEPALIVE_TIMEOUT_SECONDS;
-import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.KEEPSLEEP_TIMEOUT_SECONDS;
-import static org.whispersystems.signalservice.internal.websocket.WebSocketConnection.isAlive;
+import static org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection.KEEPALIVE_TIMEOUT_SECONDS;
+import static org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection.KEEPSLEEP_TIMEOUT_SECONDS;
+import static org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection.isAlive;
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 /**
