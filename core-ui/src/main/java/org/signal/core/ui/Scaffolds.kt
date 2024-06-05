@@ -50,17 +50,18 @@ object Scaffolds {
 
     Scaffold(
       snackbarHost = snackbarHost,
-      topBar = {
-        DefaultTopAppBar(
-          title,
-          titleContent,
-          scrollBehavior,
-          onNavigationClick,
-          navigationIconPainter,
-          navigationContentDescription,
-          actions
-        )
-      },
+      // comment for Pigeon
+//      topBar = {
+//        DefaultTopAppBar(
+//          title,
+//          titleContent,
+//          scrollBehavior,
+//          onNavigationClick,
+//          navigationIconPainter,
+//          navigationContentDescription,
+//          actions
+//        )
+//      },
       modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
       content = content
     )
@@ -103,7 +104,7 @@ object Scaffolds {
 @Preview
 @Composable
 private fun SettingsScaffoldPreview() {
-  SignalTheme(isDarkMode = false) {
+  SignalTheme(isDarkMode = true) {
     Scaffolds.Settings(
       "Settings Scaffold",
       onNavigationClick = {},

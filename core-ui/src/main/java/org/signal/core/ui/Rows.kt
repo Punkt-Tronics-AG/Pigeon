@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.Rows.TextAndLabel
+import org.signal.core.ui.theme.SignalTheme
 
 object Rows {
 
@@ -129,7 +130,7 @@ object Rows {
     iconModifier: Modifier = Modifier,
     label: String? = null,
     icon: Painter? = null,
-    foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
+    foregroundTint: Color = SignalTheme.colors.colorNeutral,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {

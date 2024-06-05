@@ -28,6 +28,7 @@ object Texts {
     modifier: Modifier = Modifier
   ) {
     Text(
+      color = SignalTheme.colors.colorNeutral,
       text = text,
       style = MaterialTheme.typography.titleSmall,
       modifier = modifier

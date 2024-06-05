@@ -8,6 +8,7 @@ package org.thoughtcrime.securesms.components.settings.app.storage
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -67,6 +68,7 @@ import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity
 import org.thoughtcrime.securesms.preferences.widgets.StorageGraphView
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.viewModel
+import pigeon.extensions.isSignalVersion
 import java.text.NumberFormat
 
 /**
@@ -233,13 +235,17 @@ private fun ManageStorageSettingsScreen(
     Column(
       modifier = Modifier
         .padding(contentPadding)
+        .background(color = SignalTheme.colors.colorTransparentInverse5, )
         .verticalScroll(rememberScrollState())
     ) {
-      Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
+      if (isSignalVersion()) {
+        Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
 
-      StorageOverview(state.breakdown, onReviewStorage)
+        StorageOverview(state.breakdown, onReviewStorage)
 
-      Dividers.Default()
+        Dividers.Default()
+
+      }
 
       Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_limit))
 
