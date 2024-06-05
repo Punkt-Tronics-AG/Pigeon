@@ -688,6 +688,8 @@ class ConversationFragment :
       binding.conversationInputPanel.sendButton.performClick();
       composeText.requestFocus()
     }
+
+    inputPanel.clearQuote()
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
@@ -2443,6 +2445,9 @@ class ConversationFragment :
     val (slideDeck, body) = viewModel.getSlideDeckAndBodyForReply(requireContext(), conversationMessage)
     val author = conversationMessage.messageRecord.fromRecipient
 
+    composeText.requestFocus()
+
+
     inputPanel.setQuote(
       Glide.with(this),
       conversationMessage.messageRecord.dateSent,
@@ -2453,6 +2458,11 @@ class ConversationFragment :
     )
 
     inputPanel.clickOnComposeInput()
+    layoutManager.scrollToPositionWithOffset(0, 0)
+    if(isPigeonVersion()) {
+      scrollListener?.onScrolled(binding.conversationItemRecycler, 0, 0)
+      binding.conversationInputPanel.root.isVisible = true
+    }
   }
 
   private fun handleEditMessage(conversationMessage: ConversationMessage) {
