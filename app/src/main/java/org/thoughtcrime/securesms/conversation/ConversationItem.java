@@ -401,6 +401,8 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     this.displayMode           = displayMode;
     this.previousMessage       = previousMessageRecord;
 
+    Log.d(TAG, "PIGEON BIND ITEM");
+
     setGutterSizes(messageRecord, groupThread);
     setMessageShape(messageRecord, previousMessageRecord, nextMessageRecord, groupThread);
     setMediaAttributes(messageRecord, previousMessageRecord, nextMessageRecord, groupThread, hasWallpaper, isMessageRequestAccepted, allowedToPlayInline);
@@ -1090,6 +1092,12 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       }
 
       bodyText.setText(StringUtil.trim(styledText));
+
+      if (isPigeonVersion()  && bodyText.getLineCount() >= CONDENSED_MODE_MAX_LINES) {
+        Log.d(TAG, "PIGEON READ ME");
+        bodyText.setOverflowText(getLongMessageSpan(messageRecord));
+      }
+
       bodyText.setVisibility(View.VISIBLE);
 
       if (conversationMessage.getBottomButton() != null) {
@@ -2711,6 +2719,8 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     }
 
     public void onClick(View v) {
+
+      Log.d(TAG, "Item click");
 
       if (eventListener != null && bodyText.getText().toString().contains(getResources().getString(R.string.ConversationItem_read_more))) {
         eventListener.onMoreTextClicked(conversationRecipient.getId(), messageRecord.getId(), messageRecord.isMms());

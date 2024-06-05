@@ -3178,6 +3178,8 @@ class ConversationFragment :
     }
 
     override fun onItemClick(item: MultiselectPart) {
+      Log.d(TAG, "onItemClick")
+
       if (actionMode != null) {
         adapter.toggleSelection(item)
         binding.conversationItemRecycler.invalidateItemDecorations()

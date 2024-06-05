@@ -27,6 +27,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import org.signal.core.util.StringUtil
 import org.signal.core.util.dp
+import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.mention.MentionAnnotation
 import org.thoughtcrime.securesms.conversation.BodyBubbleLayoutTransition
@@ -43,6 +44,7 @@ import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.longmessage.TAG
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientForeverObserver
 import org.thoughtcrime.securesms.recipients.RecipientId
@@ -61,6 +63,7 @@ import org.thoughtcrime.securesms.util.hasExtraText
 import org.thoughtcrime.securesms.util.hasNoBubble
 import org.thoughtcrime.securesms.util.isScheduled
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import java.util.Locale
 
@@ -422,10 +425,23 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       binding.body.maxLines = Integer.MAX_VALUE
     }
 
+
     val bodyText = StringUtil.trim(styledText)
 
     binding.body.visible = bodyText.isNotEmpty()
     binding.body.text = bodyText
+
+    if (isPigeonVersion() && binding.body.lineCount >= CONDENSED_MODE_MAX_LINES) {
+      Log.d(TAG, "PIGEON READ ME")
+      binding.body.setOverflowText(getLongMessageSpan())
+      itemView.setOnClickListener {
+        conversationContext.clickListener.onMoreTextClicked(
+          conversationMessage.threadRecipient.id,
+          conversationMessage.messageRecord.id,
+          conversationMessage.messageRecord.isMms
+        )
+      }
+    }
   }
 
   private fun linkifyMessageBody(messageBody: Spannable) {
@@ -492,6 +508,9 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
   }
 
   private fun isContentCondensed(): Boolean {
+    if (isPigeonVersion()){
+      return true;
+    }
     return conversationContext.displayMode is ConversationItemDisplayMode.Condensed && conversationContext.getPreviousMessage(bindingAdapterPosition) == null
   }
 
