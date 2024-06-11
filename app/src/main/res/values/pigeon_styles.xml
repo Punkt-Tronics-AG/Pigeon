@@ -222,6 +222,11 @@
         <item name="shapeAppearance">@style/Signal.ShapeOverlay.Rounded</item>
     </style>
 
+    <style name="Pigeon.MaterialAlertDialog.List">
+        <item name="materialAlertDialogBodyTextStyle">@style/Signal.Text.BodyLarge</item>
+        <item name="listPreferredItemHeightSmall">56dp</item>
+    </style>
+
     <style name="Button.Borderless" parent="Base.Widget.AppCompat.Button.Borderless">
         <item name="android:textColor">?attr/colorAccent</item>
     </style>

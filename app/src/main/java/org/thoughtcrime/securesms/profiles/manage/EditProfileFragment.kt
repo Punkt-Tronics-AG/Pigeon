@@ -44,6 +44,7 @@ import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog
 import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isSignalVersion
 import java.util.Arrays
 import java.util.Optional
 
@@ -101,11 +102,18 @@ class EditProfileFragment : LoggingFragment() {
       }
     }
 
+
+    val pigeonDialogStyle: Int = if (isSignalVersion()){
+      R.style.ThemeOverlay_Signal_MaterialAlertDialog_List
+    } else {
+      R.style.Pigeon_MaterialAlertDialog_List
+    }
+
     binding.manageProfileUsernameContainer.setOnClickListener { v: View ->
       if (!viewModel.isRegisteredAndUpToDate) {
         onClickWhenUnregisteredOrDeprecated()
       } else if (SignalStore.account().username != null) {
-        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Signal_MaterialAlertDialog_List)
+        MaterialAlertDialogBuilder(requireContext(), pigeonDialogStyle)
           .setItems(R.array.username_edit_entries) { _: DialogInterface?, w: Int ->
             when (w) {
               0 -> findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageUsername())
