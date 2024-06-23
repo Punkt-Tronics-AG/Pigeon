@@ -45,6 +45,8 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 
+import static pigeon.extensions.BuildExtensionsKt.*;
+
 public class PinRestoreEntryFragment extends LoggingFragment {
   private static final String TAG = Log.tag(PinRestoreActivity.class);
 
@@ -248,7 +250,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
 
     Activity activity = requireActivity();
 
-    if (BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED) {
+    if (BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED && isSignalVersion()) {
       startActivity(MessageBackupsTestRestoreActivity.Companion.getIntent(activity));
     } else if (Recipient.self().getProfileName().isEmpty() || !AvatarHelper.hasAvatar(activity, Recipient.self().getId())) {
       final Intent main    = MainActivity.clearTop(activity);

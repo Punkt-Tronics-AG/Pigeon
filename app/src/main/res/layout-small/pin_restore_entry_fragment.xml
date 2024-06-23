@@ -50,6 +50,7 @@
                 app:layout_constraintTop_toBottomOf="@id/pin_restore_pin_input_label"
                 tools:visibility="visible" />
 
+
         </LinearLayout>
 
         <TextView
@@ -64,6 +65,7 @@
             android:textAppearance="@style/TextAppearance.Signal.Title1"
             android:textColor="@color/white"
             app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/pin_restore_pin_input_label"
@@ -118,6 +120,14 @@
 
         </com.google.android.material.button.MaterialButton>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_kbs_textinputlayout"
+            style="@style/Widget.Signal.TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/pin_restore_keyboard_toggle"
+            app:layout_constraintTop_toBottomOf="@+id/pin_restore_pin_title">
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/pin_restore_pin_input"
             android:layout_width="match_parent"
@@ -128,10 +138,10 @@
             android:inputType="numberPassword"
             android:padding="0dp"
             android:textColor="@color/white"
-            app:layout_constraintBottom_toTopOf="@+id/pin_restore_keyboard_toggle"
-            app:layout_constraintTop_toBottomOf="@+id/pin_restore_pin_title"
             tools:layout_editor_absoluteX="26dp"
             tools:text="1234567890" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ProgressBar
             android:id="@+id/pigeon_progress_bar"
