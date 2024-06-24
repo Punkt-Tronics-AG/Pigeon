@@ -540,9 +540,11 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     } else  {
       headerToolbar.setVisibility(View.VISIBLE);
       micToggleLabel.setNextFocusDownId(headerToolbar.getId());
+      hangupLabel.setNextFocusUpId(micToggleLabel.getId());
       headerToolbar.setOnKeyListener((view, keyCode, event) -> {
         System.out.println(keyCode);
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.getAction() == KeyEvent.ACTION_UP) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+          System.out.println("Focus to microphone button");
           micToggleLabel.requestFocus();
           return true;
         }
