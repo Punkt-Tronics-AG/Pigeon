@@ -672,8 +672,7 @@
 
         <include
             layout="@layout/webrtc_call_controls"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:layout_editor_absoluteX="0dp" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/pip_bottom_boundary_barrier"
