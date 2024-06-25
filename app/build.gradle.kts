@@ -21,10 +21,10 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
-val pigeonVersionCode = 1275289
+val pigeonVersionCode = 1275290
 val canonicalVersionCode = 1421
 //val canonicalVersionName = "7.8.1"
-val canonicalVersionName = "Pigeon 2.0.0018 upon Signal 7.8.1"
+val canonicalVersionName = "Pigeon 2.0.0019 upon Signal 7.8.1"
 
 
 val postFixSize = 100

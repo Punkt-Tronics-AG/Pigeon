@@ -413,6 +413,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     }
 
     styledText = SearchUtil.getHighlightedSpan(Locale.getDefault(), STYLE_FACTORY, styledText, conversationContext.searchQuery, SearchUtil.STRICT)
+    Log.d(TAG, "PIGEON PRESENT BODY")
     if (record.hasExtraText()) {
       binding.body.setOverflowText(getLongMessageSpan())
     } else {
@@ -431,15 +432,18 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     binding.body.visible = bodyText.isNotEmpty()
     binding.body.text = bodyText
 
-    if (isPigeonVersion() && binding.body.lineCount >= CONDENSED_MODE_MAX_LINES) {
-      Log.d(TAG, "PIGEON READ ME")
-      binding.body.setOverflowText(getLongMessageSpan())
-      itemView.setOnClickListener {
-        conversationContext.clickListener.onMoreTextClicked(
-          conversationMessage.threadRecipient.id,
-          conversationMessage.messageRecord.id,
-          conversationMessage.messageRecord.isMms
-        )
+    binding.body.post {
+      Log.d(TAG, "PIGEON LINE COUNT: ${binding.body.lineCount}")
+      if (isPigeonVersion() && binding.body.lineCount >= CONDENSED_MODE_MAX_LINES) {
+        Log.d(TAG, "PIGEON READ ME")
+        binding.body.setOverflowText(getLongMessageSpan())
+        itemView.setOnClickListener {
+          conversationContext.clickListener.onMoreTextClicked(
+            conversationMessage.threadRecipient.id,
+            conversationMessage.messageRecord.id,
+            conversationMessage.messageRecord.isMms
+          )
+        }
       }
     }
   }
