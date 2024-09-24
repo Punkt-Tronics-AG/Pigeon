@@ -67,6 +67,7 @@ import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.fragments.requireListener
 import org.thoughtcrime.securesms.util.views.Stub
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 import java.util.concurrent.TimeUnit
 
 /**
@@ -153,7 +154,7 @@ class StoriesLandingFragment : DSLSettingsFragment(layoutId = R.layout.stories_l
   }
 
   private fun updateReminders() {
-    if (ExpiredBuildReminder.isEligible()) {
+    if (ExpiredBuildReminder.isEligible() && isSignalVersion()) {
       showReminder(ExpiredBuildReminder(context))
     } else if (UnauthorizedReminder.isEligible(context)) {
       showReminder(UnauthorizedReminder())

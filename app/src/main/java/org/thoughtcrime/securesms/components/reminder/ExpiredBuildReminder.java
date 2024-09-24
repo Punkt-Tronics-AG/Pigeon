@@ -29,6 +29,7 @@ public class ExpiredBuildReminder extends Reminder {
 
   public ExpiredBuildReminder(final Context context) {
 //    super(R.string.ExpiredBuildReminder_this_version_of_signal_has_expired);
+
     super(getPigeonTitle());
     if (isSignalVersion()) {
       addAction(new Action(R.string.ExpiredBuildReminder_update_now, R.id.reminder_action_update_now));
@@ -48,6 +49,6 @@ public class ExpiredBuildReminder extends Reminder {
   }
 
   public static boolean isEligible() {
-    return SignalStore.misc().isClientDeprecated();
+    return SignalStore.misc().isClientDeprecated() && isSignalVersion();
   }
 }

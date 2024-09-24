@@ -84,7 +84,7 @@ class AppSettingsFragment : DSLSettingsFragment(
   }
 
   private fun updateReminders() {
-    if (ExpiredBuildReminder.isEligible()) {
+    if (ExpiredBuildReminder.isEligible() && isSignalVersion()) {
       showReminder(ExpiredBuildReminder(context))
     } else if (UnauthorizedReminder.isEligible(context)) {
       showReminder(UnauthorizedReminder())
