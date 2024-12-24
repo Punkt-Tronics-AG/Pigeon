@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.messagerequests.MessageRequestsBottomView
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 /**
@@ -55,6 +56,9 @@ class DisabledInputView @JvmOverloads constructor(
   var listener: Listener? = null
 
   fun showAsExpiredOrUnauthorized(clientExpired: Boolean, unauthorized: Boolean) {
+    if (isPigeonVersion() && clientExpired) {
+      return
+    }
     expiredOrUnauthorized = show(
       existingView = expiredOrUnauthorized,
       create = { inflater.inflate(R.layout.conversation_activity_logged_out_stub, this, false) },
