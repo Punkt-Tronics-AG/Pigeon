@@ -5,12 +5,16 @@
 
 package org.thoughtcrime.securesms.jobs
 
+import org.greenrobot.eventbus.EventBus
+import org.signal.core.util.bytes
 import org.signal.core.util.logging.Log
 import org.signal.libsignal.zkgroup.profiles.ProfileKey
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.RestoreState
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.backup.v2.ImportResult
+import org.thoughtcrime.securesms.backup.v2.RestoreV2Event
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -18,6 +22,7 @@ import org.thoughtcrime.securesms.net.NotPushRegisteredException
 import org.thoughtcrime.securesms.providers.BlobProvider
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.service.BackupProgressService
+import org.whispersystems.signalservice.api.NetworkResult
 import org.whispersystems.signalservice.api.messages.SignalServiceAttachment.ProgressListener
 import java.io.IOException
 
@@ -37,6 +42,7 @@ class BackupRestoreJob private constructor(parameters: Parameters) : BaseJob(par
       .addConstraint(NetworkConstraint.KEY)
       .setMaxAttempts(Parameters.UNLIMITED)
       .setMaxInstancesForFactory(1)
+      .setQueue("BackupRestoreJob")
       .build()
   )
 
@@ -47,11 +53,11 @@ class BackupRestoreJob private constructor(parameters: Parameters) : BaseJob(par
   override fun onFailure() = Unit
 
   override fun onAdded() {
-    SignalStore.backup().restoreState = RestoreState.PENDING
+    SignalStore.backup.restoreState = RestoreState.PENDING
   }
 
   override fun onRun() {
-    if (!SignalStore.account().isRegistered) {
+    if (!SignalStore.account.isRegistered) {
       Log.e(TAG, "Not registered, cannot restore!")
       throw NotPushRegisteredException()
     }
@@ -62,7 +68,7 @@ class BackupRestoreJob private constructor(parameters: Parameters) : BaseJob(par
   }
 
   private fun restore(controller: BackupProgressService.Controller) {
-    SignalStore.backup().restoreState = RestoreState.RESTORING_DB
+    SignalStore.backup.restoreState = RestoreState.RESTORING_DB
 
     val progressListener = object : ProgressListener {
       override fun onAttachmentProgress(total: Long, progress: Long) {
@@ -71,15 +77,23 @@ class BackupRestoreJob private constructor(parameters: Parameters) : BaseJob(par
           progress = progress.toFloat() / total.toFloat(),
           indeterminate = false
         )
+        EventBus.getDefault().post(RestoreV2Event(RestoreV2Event.Type.PROGRESS_DOWNLOAD, progress.bytes, total.bytes))
       }
 
       override fun shouldCancel() = isCanceled
     }
 
-    val tempBackupFile = BlobProvider.getInstance().forNonAutoEncryptingSingleSessionOnDisk(ApplicationDependencies.getApplication())
-    if (!BackupRepository.downloadBackupFile(tempBackupFile, progressListener)) {
-      Log.e(TAG, "Failed to download backup file")
-      throw IOException()
+    val tempBackupFile = BlobProvider.getInstance().forNonAutoEncryptingSingleSessionOnDisk(AppDependencies.application)
+    when (val result = BackupRepository.downloadBackupFile(tempBackupFile, progressListener)) {
+      is NetworkResult.Success -> Log.i(TAG, "Download successful")
+      else -> {
+        Log.w(TAG, "Failed to download backup file", result.getCause())
+        throw IOException(result.getCause())
+      }
+    }
+
+    if (isCanceled) {
+      return
     }
 
     controller.update(
@@ -90,9 +104,12 @@ class BackupRestoreJob private constructor(parameters: Parameters) : BaseJob(par
 
     val self = Recipient.self()
     val selfData = BackupRepository.SelfData(self.aci.get(), self.pni.get(), self.e164.get(), ProfileKey(self.profileKey))
-    BackupRepository.import(length = tempBackupFile.length(), inputStreamFactory = tempBackupFile::inputStream, selfData = selfData, plaintext = false)
+    val result = BackupRepository.import(length = tempBackupFile.length(), inputStreamFactory = tempBackupFile::inputStream, selfData = selfData, backupKey = SignalStore.backup.messageBackupKey, cancellationSignal = { isCanceled })
+    if (result == ImportResult.Failure) {
+      throw IOException("Failed to import backup")
+    }
 
-    SignalStore.backup().restoreState = RestoreState.RESTORING_MEDIA
+    SignalStore.backup.restoreState = RestoreState.RESTORING_MEDIA
   }
 
   override fun onShouldRetry(e: Exception): Boolean = false

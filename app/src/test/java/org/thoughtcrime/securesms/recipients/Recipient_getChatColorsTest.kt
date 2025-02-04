@@ -1,22 +1,34 @@
 package org.thoughtcrime.securesms.recipients
 
+import android.app.Application
 import android.graphics.Color
+import androidx.test.core.app.ApplicationProvider
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.thoughtcrime.securesms.conversation.colors.ChatColors
 import org.thoughtcrime.securesms.conversation.colors.ChatColorsPalette
+import org.thoughtcrime.securesms.crypto.AttachmentSecretProvider
 import org.thoughtcrime.securesms.database.RecipientDatabaseTestUtils.createRecipient
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.ChatColorsValues
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.keyvalue.WallpaperValues
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 
 @Suppress("ClassName")
-class Recipient_getChatColorsTest : BaseRecipientTest() {
-
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, application = Application::class)
+class Recipient_getChatColorsTest {
   private val defaultChatColors = ChatColorsPalette.Bubbles.default.withId(ChatColors.Id.Auto)
   private val globalWallpaperChatColor = ChatColors.forColor(ChatColors.Id.BuiltIn, Color.RED)
   private val globalChatColor = ChatColors.forColor(ChatColors.Id.BuiltIn, Color.GREEN)
@@ -26,14 +38,27 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
 
   @Before
   fun setUp() {
-    wallpaperValues = mock(WallpaperValues::class.java)
-    chatColorsValues = mock(ChatColorsValues::class.java)
+    mockkStatic(AppDependencies::class)
+    every { AppDependencies.application } returns ApplicationProvider.getApplicationContext()
+
+    mockkStatic(AttachmentSecretProvider::class)
+    every { AttachmentSecretProvider.getInstance(any()) } throws RuntimeException("Whoa, nelly!")
+
+    wallpaperValues = mockk()
+    chatColorsValues = mockk()
 
     val globalWallpaper = createWallpaper(globalWallpaperChatColor)
-    `when`(wallpaperValues.wallpaper).thenReturn(globalWallpaper)
-    `when`(chatColorsValues.chatColors).thenReturn(globalChatColor)
-    `when`(SignalStore.wallpaper()).thenReturn(wallpaperValues)
-    `when`(SignalStore.chatColorsValues()).thenReturn(chatColorsValues)
+    every { wallpaperValues.wallpaper } answers { globalWallpaper }
+    every { chatColorsValues.chatColors } answers { globalChatColor }
+
+    mockkObject(SignalStore)
+    every { SignalStore.wallpaper } returns wallpaperValues
+    every { SignalStore.chatColors } returns chatColorsValues
+  }
+
+  @After
+  fun tearDown() {
+    unmockkAll()
   }
 
   @Test
@@ -93,7 +118,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given recipient has auto chat color set and no wallpaper set and no global wallpaper set, when I getChatColors, then I expect the default chat color`() {
     // GIVEN
-    `when`(wallpaperValues.wallpaper).thenReturn(null)
+    every { wallpaperValues.wallpaper } answers { null }
     val auto = ChatColors.forColor(ChatColors.Id.Auto, Color.BLACK)
     val recipient = createRecipient(chatColors = auto)
 
@@ -108,7 +133,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   fun `Given recipient has no chat color set and there is a custom global chat color, when I getChatColors, then I expect the global chat color`() {
     // GIVEN
     val expected = globalChatColor.withId(ChatColors.Id.Custom(12))
-    `when`(chatColorsValues.chatColors).thenReturn(expected)
+    every { chatColorsValues.chatColors } answers { expected }
     val recipient = createRecipient()
 
     // WHEN
@@ -133,7 +158,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given recipient has no chat color set and there is an auto global chat color and the recipient has a wallpaper, when I getChatColors, then I expect the wallpaper chat color`() {
     // GIVEN
-    `when`(chatColorsValues.chatColors).thenReturn(globalChatColor.withId(ChatColors.Id.Auto))
+    every { chatColorsValues.chatColors } answers { globalChatColor.withId(ChatColors.Id.Auto) }
     val color = ChatColors.forColor(ChatColors.Id.BuiltIn, Color.CYAN)
     val recipient = createRecipient(wallpaper = createWallpaper(color))
 
@@ -147,7 +172,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given recipient has no chat color set and there is no global chat color and the recipient has a wallpaper, when I getChatColors, then I expect the wallpaper chat color`() {
     // GIVEN
-    `when`(chatColorsValues.chatColors).thenReturn(null)
+    every { chatColorsValues.chatColors } answers { null }
     val color = ChatColors.forColor(ChatColors.Id.BuiltIn, Color.CYAN)
     val recipient = createRecipient(wallpaper = createWallpaper(color))
 
@@ -161,7 +186,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given recipient has no chat color set and there is an auto global chat color and the recipient has no wallpaper and global wallpaper set, when I getChatColors, then I expect the global wallpaper chat color`() {
     // GIVEN
-    `when`(chatColorsValues.chatColors).thenReturn(globalChatColor.withId(ChatColors.Id.Auto))
+    every { chatColorsValues.chatColors } answers { globalChatColor.withId(ChatColors.Id.Auto) }
     val recipient = createRecipient()
 
     // WHEN
@@ -174,7 +199,7 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given recipient has no chat color set and there is no global chat color and the recipient has no wallpaper and global wallpaper set, when I getChatColors, then I expect the global wallpaper chat color`() {
     // GIVEN
-    `when`(chatColorsValues.chatColors).thenReturn(null)
+    every { chatColorsValues.chatColors } answers { null }
     val recipient = createRecipient()
 
     // WHEN
@@ -187,8 +212,8 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given no recipient colors and auto global colors and no wallpaper set, when I getChatColors, then I expect default blue`() {
     // GIVEN
-    `when`(wallpaperValues.wallpaper).thenReturn(null)
-    `when`(chatColorsValues.chatColors).thenReturn(globalChatColor.withId(ChatColors.Id.Auto))
+    every { wallpaperValues.wallpaper } answers { null }
+    every { chatColorsValues.chatColors } answers { globalChatColor.withId(ChatColors.Id.Auto) }
     val recipient = createRecipient()
 
     // WHEN
@@ -201,8 +226,8 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   @Test
   fun `Given no colors or wallpaper set, when I getChatColors, then I expect default blue`() {
     // GIVEN
-    `when`(wallpaperValues.wallpaper).thenReturn(null)
-    `when`(chatColorsValues.chatColors).thenReturn(null)
+    every { wallpaperValues.wallpaper } answers { null }
+    every { chatColorsValues.chatColors } answers { null }
     val recipient = createRecipient()
 
     // WHEN
@@ -213,8 +238,10 @@ class Recipient_getChatColorsTest : BaseRecipientTest() {
   }
 
   private fun createWallpaper(
-    chatColors: ChatColors?
-  ): ChatWallpaper = mock(ChatWallpaper::class.java).apply {
-    `when`(autoChatColors).thenReturn(chatColors)
+    chatColors: ChatColors
+  ): ChatWallpaper {
+    return mockk<ChatWallpaper> {
+      every { autoChatColors } answers { chatColors }
+    }
   }
 }

@@ -11,10 +11,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.backup.BackupEvent
+import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.registration.data.RegistrationRepository
+import org.thoughtcrime.securesms.registration.util.RegistrationUtil
 import org.thoughtcrime.securesms.restore.RestoreRepository
 
 /**
@@ -24,19 +28,29 @@ class RestoreLocalBackupViewModel(fileBackupUri: Uri) : ViewModel() {
   private val store = MutableStateFlow(RestoreLocalBackupState(fileBackupUri))
   val uiState = store.asLiveData()
 
+  val backupReadError = store.map { it.backupFileStateError }.asLiveData()
+
+  val importResult = store.map { it.backupImportResult }.asLiveData()
+
   fun prepareRestore(context: Context) {
     val backupFileUri = store.value.uri
     viewModelScope.launch {
-      val backupInfo = RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
+      val result: RestoreRepository.BackupInfoResult = RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
 
-      if (backupInfo == null) {
+      if (result.failure && result.failureCause != null) {
+        store.update {
+          it.copy(
+            backupFileStateError = result.failureCause.state
+          )
+        }
+      } else if (result.backupInfo == null) {
         abort()
         return@launch
       }
 
       store.update {
         it.copy(
-          backupInfo = backupInfo
+          backupInfo = result.backupInfo
         )
       }
     }
@@ -71,13 +85,22 @@ class RestoreLocalBackupViewModel(fileBackupUri: Uri) : ViewModel() {
     }
 
     viewModelScope.launch {
-      val importResult = RestoreRepository.restoreBackupAsynchronously(context, backupFileUri, backupPassphrase)
+      val importResult: RestoreRepository.BackupImportResult = RestoreRepository.restoreBackupAsynchronously(context, backupFileUri, backupPassphrase)
+
+      if (importResult == RestoreRepository.BackupImportResult.SUCCESS) {
+        SignalStore.registration.localRegistrationMetadata?.let {
+          RegistrationRepository.registerAccountLocally(context, it)
+          SignalStore.registration.localRegistrationMetadata = null
+          RegistrationUtil.maybeMarkRegistrationComplete()
+        }
+
+        SignalStore.registration.markRestoreCompleted()
+      }
 
       store.update {
         it.copy(
-          backupImportResult = if (importResult == RestoreRepository.BackupImportResult.SUCCESS) null else importResult,
+          backupImportResult = importResult,
           restoreInProgress = false,
-          backupRestoreComplete = true,
           backupEstimatedTotalCount = -1L,
           backupProgressCount = -1L,
           backupVerifyingInProgress = false
@@ -91,9 +114,19 @@ class RestoreLocalBackupViewModel(fileBackupUri: Uri) : ViewModel() {
       it.copy(
         backupProgressCount = event.count,
         backupEstimatedTotalCount = event.estimatedTotalCount,
-        backupVerifyingInProgress = event.type == BackupEvent.Type.PROGRESS_VERIFYING,
-        backupRestoreComplete = event.type == BackupEvent.Type.FINISHED,
-        restoreInProgress = event.type != BackupEvent.Type.FINISHED
+        backupVerifyingInProgress = event.type == BackupEvent.Type.PROGRESS_VERIFYING
+      )
+    }
+  }
+
+  fun clearBackupFileStateError() {
+    store.update { it.copy(backupFileStateError = null) }
+  }
+
+  fun backupImportErrorShown() {
+    store.update {
+      it.copy(
+        backupImportResult = null
       )
     }
   }

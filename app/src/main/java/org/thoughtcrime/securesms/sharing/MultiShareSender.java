@@ -27,7 +27,7 @@ import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.model.Mention;
 import org.thoughtcrime.securesms.database.model.StoryType;
 import org.thoughtcrime.securesms.database.model.databaseprotos.StoryTextPost;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.keyvalue.StorySend;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
@@ -51,6 +51,7 @@ import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.MessageUtil;
 import org.thoughtcrime.securesms.util.Util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +62,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import okio.Utf8;
 
 /**
  * MultiShareSender encapsulates send logic (stolen from {@link org.thoughtcrime.securesms.conversation.ConversationActivity}
@@ -84,14 +87,14 @@ public final class MultiShareSender {
   @WorkerThread
   public static MultiShareSendResultCollection sendSync(@NonNull MultiShareArgs multiShareArgs) {
     List<MultiShareSendResult> results                           = new ArrayList<>(multiShareArgs.getContactSearchKeys().size());
-    Context                    context                           = ApplicationDependencies.getApplication();
+    Context                    context                           = AppDependencies.getApplication();
     String                     message                           = multiShareArgs.getDraftText();
-    SlideDeck                  slideDeck;
+    SlideDeck                  primarySlideDeck;
     List<OutgoingMessage>      storiesBatch                      = new LinkedList<>();
     ChatColors                 generatedTextStoryBackgroundColor = TextStoryBackgroundColors.getRandomBackgroundColor();
 
     try {
-      slideDeck = buildSlideDeck(context, multiShareArgs);
+      primarySlideDeck = buildSlideDeck(context, multiShareArgs);
     } catch (SlideNotFoundException e) {
       Log.w(TAG, "Could not create slide for media message");
       for (ContactSearchKey.RecipientSearchKey recipientSearchKey : multiShareArgs.getRecipientSearchKeys()) {
@@ -105,13 +108,15 @@ public final class MultiShareSender {
     for (ContactSearchKey.RecipientSearchKey recipientSearchKey : multiShareArgs.getRecipientSearchKeys()) {
       Recipient recipient = Recipient.resolved(recipientSearchKey.getRecipientId());
 
-      long            threadId       = SignalDatabase.threads().getOrCreateThreadIdFor(recipient);
-      List<Mention>   mentions       = getValidMentionsForRecipient(recipient, multiShareArgs.getMentions());
-      MessageSendType sendType       = MessageSendType.SignalMessageSendType.INSTANCE;
-      long            expiresIn      = TimeUnit.SECONDS.toMillis(recipient.getExpiresInSeconds());
-      List<Contact>   contacts       = multiShareArgs.getSharedContacts();
-      boolean needsSplit = message != null &&
-                           message.length() > sendType.calculateCharacters(message).maxPrimaryMessageSize;
+      long            threadId           = SignalDatabase.threads().getOrCreateThreadIdFor(recipient);
+      List<Mention>   mentions           = getValidMentionsForRecipient(recipient, multiShareArgs.getMentions());
+      MessageSendType sendType           = MessageSendType.SignalMessageSendType.INSTANCE;
+      long            expiresIn          = TimeUnit.SECONDS.toMillis(recipient.getExpiresInSeconds());
+      int             expireTimerVersion = recipient.getExpireTimerVersion();
+      List<Contact>   contacts           = multiShareArgs.getSharedContacts();
+      SlideDeck       slideDeck          = new SlideDeck(primarySlideDeck);
+
+      boolean needsSplit = message != null && Utf8.size(message) > MessageUtil.MAX_MESSAGE_SIZE_BYTES;
       boolean hasMmsMedia = !multiShareArgs.getMedia().isEmpty() ||
                             (multiShareArgs.getDataUri() != null && multiShareArgs.getDataUri() != Uri.EMPTY) ||
                             multiShareArgs.getStickerLocator() != null ||
@@ -136,6 +141,7 @@ public final class MultiShareSender {
                                               sendType,
                                               threadId,
                                               expiresIn,
+                                              expireTimerVersion,
                                               multiShareArgs.isViewOnce(),
                                               mentions,
                                               recipientSearchKey.isStory(),
@@ -180,6 +186,7 @@ public final class MultiShareSender {
                                                             @NonNull MessageSendType sendType,
                                                             long threadId,
                                                             long expiresIn,
+                                                            int expireTimerVersion,
                                                             boolean isViewOnce,
                                                             @NonNull List<Mention> validatedMentions,
                                                             boolean isStory,
@@ -191,7 +198,7 @@ public final class MultiShareSender {
   {
     String body = multiShareArgs.getDraftText();
     if (sendType.usesSignalTransport() && body != null) {
-      MessageUtil.SplitResult splitMessage = MessageUtil.getSplitMessage(context, body, sendType.calculateCharacters(body).maxPrimaryMessageSize);
+      MessageUtil.SplitResult splitMessage = MessageUtil.getSplitMessage(context, body);
       body = splitMessage.getBody();
 
       if (splitMessage.getTextSlide().isPresent()) {
@@ -210,7 +217,7 @@ public final class MultiShareSender {
       }
 
       if (!recipient.isMyStory()) {
-        SignalStore.storyValues().setLatestStorySend(StorySend.newSend(recipient));
+        SignalStore.story().setLatestStorySend(StorySend.newSend(recipient));
       }
 
       if (multiShareArgs.isTextStory()) {
@@ -219,6 +226,7 @@ public final class MultiShareSender {
                                                               body,
                                                               sentTimestamps.getMillis(0),
                                                               0L,
+                                                              1,
                                                               false,
                                                               storyType.toTextStoryType(),
                                                               buildLinkPreviews(context, multiShareArgs.getLinkPreview()),
@@ -258,6 +266,7 @@ public final class MultiShareSender {
                                                                 body,
                                                                 sentTimestamps.getMillis(i),
                                                                 0L,
+                                                                1,
                                                                 false,
                                                                 storyType,
                                                                 Collections.emptyList(),
@@ -275,6 +284,7 @@ public final class MultiShareSender {
                                                             body,
                                                             sentTimestamps.getMillis(0),
                                                             expiresIn,
+                                                            expireTimerVersion,
                                                             isViewOnce,
                                                             StoryType.NONE,
                                                             buildLinkPreviews(context, multiShareArgs.getLinkPreview()),
@@ -435,7 +445,7 @@ public final class MultiShareSender {
       slideDeck.addSlide(new StickerSlide(context, multiShareArgs.getDataUri(), 0, multiShareArgs.getStickerLocator(), multiShareArgs.getDataType()));
     } else if (!multiShareArgs.getMedia().isEmpty()) {
       for (Media media : multiShareArgs.getMedia()) {
-        Slide slide = SlideFactory.getSlide(context, media.getMimeType(), media.getUri(), media.getWidth(), media.getHeight(), media.getTransformProperties().orElse(null));
+        Slide slide = SlideFactory.getSlide(context, media.getContentType(), media.getUri(), media.getWidth(), media.getHeight(), media.getTransformProperties().orElse(null));
         if (slide != null) {
           slideDeck.addSlide(slide);
         } else {

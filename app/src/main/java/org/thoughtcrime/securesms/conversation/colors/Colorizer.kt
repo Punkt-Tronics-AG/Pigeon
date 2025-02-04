@@ -89,7 +89,7 @@ class Colorizer {
   fun getIncomingGroupSenderColor(context: Context, recipient: Recipient): Int {
     return if (groupMembers.isEmpty()) {
       groupSenderColors[recipient.id]?.getColor(context) ?: getDefaultColor(context, recipient)
-    } else {
+    } else if (recipient.hasServiceId) {
       val memberPosition = groupMembers.indexOf(recipient.requireServiceId())
 
       if (memberPosition >= 0) {
@@ -98,6 +98,8 @@ class Colorizer {
       } else {
         getDefaultColor(context, recipient)
       }
+    } else {
+      getDefaultColor(context, recipient)
     }
   }
 

@@ -24,7 +24,6 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import app.cash.exhaustive.Exhaustive
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -45,6 +44,7 @@ import org.thoughtcrime.securesms.badges.Badges
 import org.thoughtcrime.securesms.badges.Badges.displayBadges
 import org.thoughtcrime.securesms.badges.models.Badge
 import org.thoughtcrime.securesms.badges.view.ViewBadgeBottomSheetDialogFragment
+import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar
 import org.thoughtcrime.securesms.components.AvatarImageView
 import org.thoughtcrime.securesms.components.recyclerview.OnScrollAnimationHelper
 import org.thoughtcrime.securesms.components.settings.DSLConfiguration
@@ -296,7 +296,6 @@ class ConversationSettingsFragment : DSLSettingsFragment(
 
     lifecycleDisposable.bindTo(viewLifecycleOwner)
     lifecycleDisposable += viewModel.events.subscribe { event ->
-      @Exhaustive
       when (event) {
         is ConversationSettingsEvent.AddToAGroup -> handleAddToAGroup(event)
         is ConversationSettingsEvent.AddMembersToGroup -> handleAddMembersToGroup(event)
@@ -453,11 +452,15 @@ class ConversationSettingsFragment : DSLSettingsFragment(
                 .setPositiveButton(android.R.string.ok) { d, _ -> d.dismiss() }
                 .show()
             } else {
-              CommunicationActions.startVideoCall(requireActivity(), state.recipient)
+              CommunicationActions.startVideoCall(requireActivity(), state.recipient) {
+                YouAreAlreadyInACallSnackbar.show(requireView())
+              }
             }
           },
           onAudioClick = {
-            CommunicationActions.startVoiceCall(requireActivity(), state.recipient)
+            CommunicationActions.startVoiceCall(requireActivity(), state.recipient) {
+              YouAreAlreadyInACallSnackbar.show(requireView())
+            }
           },
           onMuteClick = {
             if (!state.buttonStripState.isMuted) {
@@ -828,7 +831,13 @@ class ConversationSettingsFragment : DSLSettingsFragment(
           else -> R.string.ConversationSettingsFragment__block
         }
 
-        val titleTint = if (isBlocked) null else if (state.isDeprecatedOrUnregistered) alertDisabledTint else alertTint
+        val titleTint = if (isBlocked) {
+          null
+        } else if (state.isDeprecatedOrUnregistered) {
+          alertDisabledTint
+        } else {
+          alertTint
+        }
 
         clickPref(
           title = if (titleTint != null) DSLSettingsText.from(title, titleTint) else DSLSettingsText.from(title),

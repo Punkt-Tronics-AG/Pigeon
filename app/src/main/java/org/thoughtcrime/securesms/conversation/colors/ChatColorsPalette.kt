@@ -172,6 +172,9 @@ object ChatColorsPalette {
       ULTRAMARINE
     } else TRANSPARENT
 
+    /*
+     * If updating this list of colors, make sure to update the backup import/export colors as well.
+     */
     val solids = listOf(
       CRIMSON,
       VERMILION,

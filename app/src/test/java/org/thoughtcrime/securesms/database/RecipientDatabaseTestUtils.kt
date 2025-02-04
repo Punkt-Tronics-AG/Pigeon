@@ -44,6 +44,7 @@ object RecipientDatabaseTestUtils {
     messageRingtone: Uri = Uri.EMPTY,
     callRingtone: Uri = Uri.EMPTY,
     expireMessages: Int = 0,
+    expireTimerVersion: Int = 1,
     registered: RecipientTable.RegisteredState = RecipientTable.RegisteredState.REGISTERED,
     profileKey: ByteArray = Random.nextBytes(32),
     expiringProfileKeyCredential: ExpiringProfileKeyCredential? = null,
@@ -58,7 +59,7 @@ object RecipientDatabaseTestUtils {
     profileSharing: Boolean = false,
     lastProfileFetch: Long = 0L,
     notificationChannel: String? = null,
-    unidentifiedAccessMode: RecipientTable.UnidentifiedAccessMode = RecipientTable.UnidentifiedAccessMode.UNKNOWN,
+    sealedSenderAccessMode: RecipientTable.SealedSenderAccessMode = RecipientTable.SealedSenderAccessMode.UNKNOWN,
     capabilities: Long = 0L,
     storageId: ByteArray? = null,
     mentionSetting: RecipientTable.MentionSetting = RecipientTable.MentionSetting.ALWAYS_NOTIFY,
@@ -107,6 +108,7 @@ object RecipientDatabaseTestUtils {
       messageRingtone = messageRingtone,
       callRingtone = callRingtone,
       expireMessages = expireMessages,
+      expireTimerVersion = expireTimerVersion,
       registered = registered,
       profileKey = profileKey,
       expiringProfileKeyCredential = expiringProfileKeyCredential,
@@ -121,10 +123,10 @@ object RecipientDatabaseTestUtils {
       profileSharing = profileSharing,
       lastProfileFetch = lastProfileFetch,
       notificationChannel = notificationChannel,
-      unidentifiedAccessMode = unidentifiedAccessMode,
+      sealedSenderAccessMode = sealedSenderAccessMode,
       capabilities = RecipientRecord.Capabilities(
         rawBits = capabilities,
-        paymentActivation = Recipient.Capability.deserialize(Bitmask.read(capabilities, RecipientTable.Capabilities.PAYMENT_ACTIVATION, RecipientTable.Capabilities.BIT_LENGTH).toInt())
+        storageServiceEncryptionV2 = Recipient.Capability.deserialize(Bitmask.read(capabilities, RecipientTable.Capabilities.STORAGE_SERVICE_ENCRYPTION_V2, RecipientTable.Capabilities.BIT_LENGTH).toInt())
       ),
       storageId = storageId,
       mentionSetting = mentionSetting,

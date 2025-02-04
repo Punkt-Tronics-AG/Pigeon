@@ -25,6 +25,7 @@ import org.signal.core.util.concurrent.SimpleTask
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.backup.v2.BackupRepository
 import org.thoughtcrime.securesms.badges.BadgeImageView
 import org.thoughtcrime.securesms.calls.log.CallLogFragment
 import org.thoughtcrime.securesms.components.Material3SearchToolbar
@@ -68,6 +69,7 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   private lateinit var _searchToolbar: Stub<Material3SearchToolbar>
   private lateinit var _searchAction: ImageView
   private lateinit var _unreadPaymentsDot: View
+  private lateinit var _backupsFailedDot: View
   private lateinit var _searchToolbarContainer: LinearLayout
 
   private var previousTopToastPopup: TopToastPopup? = null
@@ -91,6 +93,7 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
     _searchAction = view.findViewById(R.id.search_action)
     _searchToolbar = Stub(view.findViewById(R.id.search_toolbar))
     _unreadPaymentsDot = view.findViewById(R.id.unread_payments_indicator)
+    _backupsFailedDot = view.findViewById(R.id.backups_failed_indicator)
     _searchToolbarContainer = view.findViewById(R.id.search_toolbar_container)
 
     notificationProfileStatus.setOnClickListener { handleNotificationProfile() }
@@ -169,10 +172,20 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
     super.onResume()
     SimpleTask.run(viewLifecycleOwner.lifecycle, { Recipient.self() }, ::initializeProfileIcon)
 
+    _backupsFailedDot.alpha = if (BackupRepository.shouldDisplayBackupFailedIndicator() || BackupRepository.shouldDisplayBackupAlreadyRedeemedIndicator()) {
+      1f
+    } else {
+      0f
+    }
+
     requireView()
       .findViewById<View>(R.id.fragment_container)
       .findNavController()
       .addOnDestinationChangedListener(destinationChangedListener)
+
+    if (conversationListTabsViewModel.isMultiSelectOpen()) {
+      presentToolbarForMultiselect()
+    }
   }
 
   override fun onPause() {
@@ -279,7 +292,10 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
 
   private fun initializeSettingsTouchTarget() {
     val touchArea = requireView().findViewById<View>(R.id.toolbar_settings_touch_area)
-    touchArea.setOnClickListener { openSettings.launch(AppSettingsActivity.home(requireContext())) }
+    touchArea.setOnClickListener {
+      BackupRepository.markBackupFailedIndicatorClicked()
+      openSettings.launch(AppSettingsActivity.home(requireContext()))
+    }
   }
 
   private fun handleNotificationProfile() {
@@ -291,7 +307,7 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   }
 
   override fun updateProxyStatus(state: WebSocketConnectionState) {
-    if (SignalStore.proxy().isProxyEnabled) {
+    if (SignalStore.proxy.isProxyEnabled) {
       proxyStatus.visibility = View.VISIBLE
       when (state) {
         WebSocketConnectionState.CONNECTING, WebSocketConnectionState.DISCONNECTING, WebSocketConnectionState.DISCONNECTED -> proxyStatus.setImageResource(R.drawable.ic_proxy_connecting_24)
@@ -307,13 +323,13 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   override fun updateNotificationProfileStatus(notificationProfiles: List<NotificationProfile>) {
     val activeProfile = NotificationProfiles.getActiveProfile(notificationProfiles)
     if (activeProfile != null) {
-      if (activeProfile.id != SignalStore.notificationProfileValues().lastProfilePopup) {
+      if (activeProfile.id != SignalStore.notificationProfile.lastProfilePopup) {
         view?.postDelayed({
           try {
             var fragmentView = view as? ViewGroup ?: return@postDelayed
 
-            SignalStore.notificationProfileValues().lastProfilePopup = activeProfile.id
-            SignalStore.notificationProfileValues().lastProfilePopupTime = System.currentTimeMillis()
+            SignalStore.notificationProfile.lastProfilePopup = activeProfile.id
+            SignalStore.notificationProfile.lastProfilePopupTime = System.currentTimeMillis()
 
             if (previousTopToastPopup?.isShowing == true) {
               previousTopToastPopup?.dismiss()
@@ -335,14 +351,14 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
       notificationProfileStatus.visibility = View.GONE
     }
 
-    if (!SignalStore.notificationProfileValues().hasSeenTooltip && Util.hasItems(notificationProfiles)) {
+    if (!SignalStore.notificationProfile.hasSeenTooltip && Util.hasItems(notificationProfiles)) {
       val target: View? = findOverflowMenuButton(_toolbar)
       if (target != null) {
         TooltipPopup.forTarget(target)
           .setText(R.string.ConversationListFragment__turn_your_notification_profile_on_or_off_here)
           .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.signal_button_primary))
           .setTextColor(ContextCompat.getColor(requireContext(), R.color.signal_button_primary_text))
-          .setOnDismissListener { SignalStore.notificationProfileValues().hasSeenTooltip = true }
+          .setOnDismissListener { SignalStore.notificationProfile.hasSeenTooltip = true }
           .show(TooltipPopup.POSITION_BELOW)
       } else {
         Log.w(TAG, "Unable to find overflow menu to show Notification Profile tooltip")
@@ -395,24 +411,37 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
     }
   }
 
-  fun showSearchBar() {
-    if (::_searchToolbar.isInitialized) {
-      _searchToolbar.get().requestFocus()
-      _searchToolbarContainer.visibility = View.VISIBLE
+  override fun bindScrollHelper(recyclerView: RecyclerView, chatFolders: RecyclerView, setChatFolder: (Int) -> Unit) {
+    if (isSignalVersion()) {
+      Material3OnScrollHelper(
+        activity = requireActivity(),
+        views = listOf(_toolbarBackground, chatFolders),
+        viewStubs = listOf(_searchToolbar),
+        lifecycleOwner = viewLifecycleOwner,
+        setChatFolderColor = setChatFolder
+      ).attach(recyclerView)
     }
   }
+}
 
-  fun hideSearchBar() {
-    if (::_searchToolbar.isInitialized) {
-      _searchToolbar.get().clearText()
-      _searchToolbarContainer.visibility = View.GONE
-    }
+fun showSearchBar() {
+  if (::_searchToolbar.isInitialized) {
+    _searchToolbar.get().requestFocus()
+    _searchToolbarContainer.visibility = View.VISIBLE
   }
+}
 
-  fun hideArchivedConversations() {
-    conversationListTabsViewModel.isShowingArchived(false)
-    presentToolbarForConversationListFragment()
-    val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
-    controller.popBackStack(R.id.conversationListFragment, false)
+fun hideSearchBar() {
+  if (::_searchToolbar.isInitialized) {
+    _searchToolbar.get().clearText()
+    _searchToolbarContainer.visibility = View.GONE
   }
+}
+
+fun hideArchivedConversations() {
+  conversationListTabsViewModel.isShowingArchived(false)
+  presentToolbarForConversationListFragment()
+  val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
+  controller.popBackStack(R.id.conversationListFragment, false)
+}
 }

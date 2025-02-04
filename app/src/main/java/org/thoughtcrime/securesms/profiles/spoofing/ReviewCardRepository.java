@@ -5,23 +5,21 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
-import com.annimon.stream.Stream;
-
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupChangeException;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.GroupManager;
 import org.thoughtcrime.securesms.jobs.MultiDeviceMessageRequestResponseJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,10 +61,6 @@ class ReviewCardRepository {
   }
 
   void block(@NonNull ReviewCard reviewCard, @NonNull Runnable onActionCompleteListener) {
-    if (recipientId == null) {
-      throw new UnsupportedOperationException();
-    }
-
     SignalExecutors.BOUNDED.execute(() -> {
       RecipientUtil.blockNonGroup(context, reviewCard.getReviewRecipient());
       onActionCompleteListener.run();
@@ -83,14 +77,14 @@ class ReviewCardRepository {
 
       if (resolved.isGroup()) throw new AssertionError();
 
-      if (TextSecurePreferences.isMultiDevice(context)) {
-        ApplicationDependencies.getJobManager().add(MultiDeviceMessageRequestResponseJob.forDelete(recipientId));
+      if (SignalStore.account().hasLinkedDevices()) {
+        AppDependencies.getJobManager().add(MultiDeviceMessageRequestResponseJob.forDelete(recipientId));
       }
 
       ThreadTable threadTable = SignalDatabase.threads();
       long        threadId    = Objects.requireNonNull(threadTable.getThreadIdFor(recipientId));
 
-      threadTable.deleteConversation(threadId);
+      threadTable.deleteConversation(threadId, false);
       onActionCompleteListener.run();
     });
   }

@@ -12,10 +12,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.signal.core.util.Base64
+import org.signal.core.util.readFully
+import org.signal.core.util.stream.LimitedInputStream
 import org.signal.core.util.update
 import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.attachments.Cdn
 import org.thoughtcrime.securesms.attachments.PointerAttachment
+import org.thoughtcrime.securesms.backup.v2.BackupRepository.getMediaName
 import org.thoughtcrime.securesms.database.AttachmentTable.TransformProperties
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mms.MediaStream
@@ -25,7 +28,12 @@ import org.thoughtcrime.securesms.mms.SentMediaQuality
 import org.thoughtcrime.securesms.providers.BlobProvider
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.util.MediaUtil
+import org.thoughtcrime.securesms.util.Util
+import org.whispersystems.signalservice.api.attachment.AttachmentUploadResult
+import org.whispersystems.signalservice.api.backup.MediaId
+import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentRemoteId
 import org.whispersystems.signalservice.api.push.ServiceId
+import org.whispersystems.signalservice.internal.crypto.PaddingInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.random.Random
@@ -47,9 +55,9 @@ class AttachmentTableTest_deduping {
 
   @Before
   fun setUp() {
-    SignalStore.account().setAci(ServiceId.ACI.from(UUID.randomUUID()))
-    SignalStore.account().setPni(ServiceId.PNI.from(UUID.randomUUID()))
-    SignalStore.account().setE164("+15558675309")
+    SignalStore.account.setAci(ServiceId.ACI.from(UUID.randomUUID()))
+    SignalStore.account.setPni(ServiceId.PNI.from(UUID.randomUUID()))
+    SignalStore.account.setE164("+15558675309")
 
     SignalDatabase.attachments.deleteAllAttachments()
   }
@@ -103,15 +111,6 @@ class AttachmentTableTest_deduping {
     test {
       val id1 = insertWithData(DATA_A, TransformProperties(videoTrim = true, videoTrimStartTimeUs = 0, videoTrimEndTimeUs = 1))
       val id2 = insertWithData(DATA_A, TransformProperties(videoTrim = true, videoTrimStartTimeUs = 0, videoTrimEndTimeUs = 2))
-
-      assertDataFilesAreDifferent(id1, id2)
-      assertDataHashStartMatches(id1, id2)
-    }
-
-    // Non-matching mp4 fast start
-    test {
-      val id1 = insertWithData(DATA_A, TransformProperties(mp4FastStart = true))
-      val id2 = insertWithData(DATA_A, TransformProperties(mp4FastStart = false))
 
       assertDataFilesAreDifferent(id1, id2)
       assertDataHashStartMatches(id1, id2)
@@ -195,6 +194,8 @@ class AttachmentTableTest_deduping {
       assertDataHashEndMatches(id1, id2)
       assertSkipTransform(id1, true)
       assertSkipTransform(id2, true)
+      assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // Mimics sending two files at once. Ensures all fields are kept in sync as we compress and upload.
@@ -220,6 +221,7 @@ class AttachmentTableTest_deduping {
       assertDataHashStartMatches(id1, id2)
       assertDataHashEndMatches(id1, id2)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // Re-use the upload when uploaded recently
@@ -234,6 +236,7 @@ class AttachmentTableTest_deduping {
       assertDataHashStartMatches(id1, id2)
       assertDataHashEndMatches(id1, id2)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
       assertSkipTransform(id1, true)
       assertSkipTransform(id2, true)
     }
@@ -253,6 +256,16 @@ class AttachmentTableTest_deduping {
       assertSkipTransform(id2, true)
 
       assertDoesNotHaveRemoteFields(id2)
+      assertArchiveFieldsMatch(id1, id2)
+
+      upload(id2)
+
+      assertDataFilesAreTheSame(id1, id2)
+      assertDataHashStartMatches(id1, id2)
+      assertDataHashEndMatches(id1, id2)
+      assertSkipTransform(id1, true)
+      assertSkipTransform(id2, true)
+      assertRemoteFieldsMatch(id1, id2)
     }
 
     // This isn't so much "desirable behavior" as it is documenting how things work.
@@ -282,6 +295,7 @@ class AttachmentTableTest_deduping {
       assertSkipTransform(id1, true)
       assertSkipTransform(id1, true)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // This represents what would happen if you edited a video, sent it, then forwarded it. We should match, skip transform, and skip upload.
@@ -297,6 +311,7 @@ class AttachmentTableTest_deduping {
       assertSkipTransform(id1, true)
       assertSkipTransform(id1, true)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // This represents what would happen if you edited a video, sent it, then forwarded it, but *edited the forwarded video*. We should not dedupe.
@@ -327,6 +342,7 @@ class AttachmentTableTest_deduping {
       assertSkipTransform(id1, true)
       assertSkipTransform(id1, true)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // This represents what would happen if you sent an image using high quality, then forwarded it using standard quality.
@@ -343,6 +359,7 @@ class AttachmentTableTest_deduping {
       assertSkipTransform(id1, true)
       assertSkipTransform(id1, true)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // Make sure that files marked as unhashable are all updated together
@@ -362,6 +379,37 @@ class AttachmentTableTest_deduping {
 
       val dataFileInfo = SignalDatabase.attachments.getDataFileInfo(id1)!!
       assertTrue(dataFileInfo.hashEnd!!.startsWith("UNHASHABLE-"))
+    }
+  }
+
+  @Test
+  fun downloads() {
+    // Normal attachment download that dupes with an existing attachment
+    test {
+      val id1 = insertWithData(DATA_A)
+      upload(id1)
+
+      val id2 = insertUndownloadedPlaceholder()
+      download(id2, DATA_A)
+
+      assertDataFilesAreTheSame(id1, id2)
+      assertDataHashEndMatches(id1, id2)
+      assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
+    }
+
+    // Attachment download that dupes with an existing attachment, but has bad padding
+    test {
+      val id1 = insertWithData(DATA_A)
+      upload(id1)
+
+      val id2 = insertUndownloadedPlaceholder()
+      download(id2, DATA_A, properPadding = false)
+
+      assertDataFilesAreTheSame(id1, id2)
+      assertDataHashEndMatches(id1, id2)
+      assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
   }
 
@@ -457,6 +505,7 @@ class AttachmentTableTest_deduping {
       assertDataHashStartMatches(id1, id2)
       assertDataHashEndMatches(id1, id2)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
 
     // Making sure things work for quotes of videos, which have trickier transform properties
@@ -470,6 +519,7 @@ class AttachmentTableTest_deduping {
       assertDataFilesAreTheSame(id1, id2)
       assertDataHashEndMatches(id1, id2)
       assertRemoteFieldsMatch(id1, id2)
+      assertArchiveFieldsMatch(id1, id2)
     }
   }
 
@@ -599,6 +649,39 @@ class AttachmentTableTest_deduping {
   }
 
   private class TestContext {
+    fun insertUndownloadedPlaceholder(): AttachmentId {
+      return SignalDatabase.attachments.insertAttachmentsForMessage(
+        mmsId = 1,
+        attachments = listOf(
+          PointerAttachment(
+            contentType = "image/jpeg",
+            transferState = AttachmentTable.TRANSFER_PROGRESS_PENDING,
+            size = 100,
+            fileName = null,
+            cdn = Cdn.CDN_3,
+            location = "somelocation",
+            key = Base64.encodeWithPadding(Util.getSecretBytes(64)),
+            iv = null,
+            digest = Util.getSecretBytes(64),
+            incrementalDigest = null,
+            incrementalMacChunkSize = 0,
+            fastPreflightId = null,
+            voiceNote = false,
+            borderless = false,
+            videoGif = false,
+            width = 100,
+            height = 100,
+            uploadTimestamp = System.currentTimeMillis(),
+            caption = null,
+            stickerLocator = null,
+            blurHash = null,
+            uuid = UUID.randomUUID()
+          )
+        ),
+        quoteAttachment = emptyList()
+      ).values.first()
+    }
+
     fun insertWithData(data: ByteArray, transformProperties: TransformProperties = TransformProperties.empty()): AttachmentId {
       val uri = BlobProvider.getInstance().forData(data).createForSingleSessionInMemory()
 
@@ -647,7 +730,33 @@ class AttachmentTableTest_deduping {
     }
 
     fun upload(attachmentId: AttachmentId, uploadTimestamp: Long = System.currentTimeMillis()) {
-      SignalDatabase.attachments.finalizeAttachmentAfterUpload(attachmentId, createPointerAttachment(attachmentId, uploadTimestamp), uploadTimestamp)
+      SignalDatabase.attachments.createKeyIvIfNecessary(attachmentId)
+      SignalDatabase.attachments.finalizeAttachmentAfterUpload(attachmentId, createUploadResult(attachmentId, uploadTimestamp))
+
+      val attachment = SignalDatabase.attachments.getAttachment(attachmentId)!!
+      SignalDatabase.attachments.setArchiveData(
+        attachmentId = attachmentId,
+        archiveCdn = Cdn.CDN_3.cdnNumber,
+        archiveMediaName = attachment.getMediaName().name,
+        archiveThumbnailMediaId = MediaId(Util.getSecretBytes(15)).encode(),
+        archiveMediaId = MediaId(Util.getSecretBytes(15)).encode()
+      )
+    }
+
+    fun download(attachmentId: AttachmentId, data: ByteArray, properPadding: Boolean = true) {
+      val paddedData = if (properPadding) {
+        PaddingInputStream(data.inputStream(), data.size.toLong()).readFully()
+      } else {
+        val badPadding = ByteArray(16) { 42 }
+        data + badPadding
+      }
+
+      SignalDatabase.attachments.finalizeAttachmentAfterDownload(
+        mmsId = 1,
+        attachmentId = attachmentId,
+        inputStream = LimitedInputStream(paddedData.inputStream(), data.size.toLong()),
+        iv = Util.getSecretBytes(16)
+      )
     }
 
     fun delete(attachmentId: AttachmentId) {
@@ -740,10 +849,20 @@ class AttachmentTableTest_deduping {
 
       assertEquals(lhsAttachment.remoteLocation, rhsAttachment.remoteLocation)
       assertEquals(lhsAttachment.remoteKey, rhsAttachment.remoteKey)
+      assertArrayEquals(lhsAttachment.remoteIv, rhsAttachment.remoteIv)
       assertArrayEquals(lhsAttachment.remoteDigest, rhsAttachment.remoteDigest)
       assertArrayEquals(lhsAttachment.incrementalDigest, rhsAttachment.incrementalDigest)
       assertEquals(lhsAttachment.incrementalMacChunkSize, rhsAttachment.incrementalMacChunkSize)
       assertEquals(lhsAttachment.cdn.cdnNumber, rhsAttachment.cdn.cdnNumber)
+    }
+
+    fun assertArchiveFieldsMatch(lhs: AttachmentId, rhs: AttachmentId) {
+      val lhsAttachment = SignalDatabase.attachments.getAttachment(lhs)!!
+      val rhsAttachment = SignalDatabase.attachments.getAttachment(rhs)!!
+
+      assertEquals(lhsAttachment.archiveCdn, rhsAttachment.archiveCdn)
+      assertEquals(lhsAttachment.archiveMediaName, rhsAttachment.archiveMediaName)
+      assertEquals(lhsAttachment.archiveMediaId, rhsAttachment.archiveMediaId)
     }
 
     fun assertDoesNotHaveRemoteFields(attachmentId: AttachmentId) {
@@ -764,35 +883,20 @@ class AttachmentTableTest_deduping {
       return MediaStream(this.inputStream(), MediaUtil.IMAGE_JPEG, 2, 2)
     }
 
-    private fun createPointerAttachment(attachmentId: AttachmentId, uploadTimestamp: Long = System.currentTimeMillis()): PointerAttachment {
-      val location = "somewhere-${Random.nextLong()}"
-      val key = "somekey-${Random.nextLong()}"
-      val digest = Random.nextBytes(32)
-      val incrementalDigest = Random.nextBytes(16)
-
+    private fun createUploadResult(attachmentId: AttachmentId, uploadTimestamp: Long = System.currentTimeMillis()): AttachmentUploadResult {
       val databaseAttachment = SignalDatabase.attachments.getAttachment(attachmentId)!!
 
-      return PointerAttachment(
-        "image/jpeg",
-        AttachmentTable.TRANSFER_PROGRESS_DONE,
-        databaseAttachment.size, // size
-        null,
-        Cdn.CDN_3, // cdnNumber
-        location,
-        key,
-        digest,
-        incrementalDigest,
-        5, // incrementalMacChunkSize
-        null,
-        databaseAttachment.voiceNote,
-        databaseAttachment.borderless,
-        databaseAttachment.videoGif,
-        databaseAttachment.width,
-        databaseAttachment.height,
-        uploadTimestamp,
-        databaseAttachment.caption,
-        databaseAttachment.stickerLocator,
-        databaseAttachment.blurHash
+      return AttachmentUploadResult(
+        remoteId = SignalServiceAttachmentRemoteId.V4("somewhere-${Random.nextLong()}"),
+        cdnNumber = Cdn.CDN_3.cdnNumber,
+        key = databaseAttachment.remoteKey?.let { Base64.decode(it) } ?: Util.getSecretBytes(64),
+        iv = databaseAttachment.remoteIv ?: Util.getSecretBytes(16),
+        digest = Random.nextBytes(32),
+        incrementalDigest = Random.nextBytes(16),
+        incrementalDigestChunkSize = 5,
+        uploadTimestamp = uploadTimestamp,
+        dataSize = databaseAttachment.size,
+        blurHash = databaseAttachment.blurHash?.hash
       )
     }
   }

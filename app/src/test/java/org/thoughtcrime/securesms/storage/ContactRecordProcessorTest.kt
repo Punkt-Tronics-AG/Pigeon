@@ -1,5 +1,11 @@
 package org.thoughtcrime.securesms.storage
 
+import android.app.Application
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -7,20 +13,14 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.MockedStatic
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import org.mockito.internal.configuration.plugins.Plugins
-import org.mockito.internal.junit.JUnitRule
-import org.mockito.junit.MockitoRule
-import org.mockito.quality.Strictness
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.database.RecipientTable
-import org.thoughtcrime.securesms.keyvalue.AccountValues
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.testutil.EmptyLogger
-import org.thoughtcrime.securesms.util.FeatureFlags
+import org.thoughtcrime.securesms.testutil.MockAppDependenciesRule
 import org.whispersystems.signalservice.api.push.ServiceId.ACI
 import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.storage.SignalContactRecord
@@ -28,26 +28,26 @@ import org.whispersystems.signalservice.api.storage.StorageId
 import org.whispersystems.signalservice.internal.storage.protos.ContactRecord
 import java.util.UUID
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class ContactRecordProcessorTest {
 
-  @Rule
-  @JvmField
-  val mockitoRule: MockitoRule = JUnitRule(Plugins.getMockitoLogger(), Strictness.STRICT_STUBS)
+  @get:Rule
+  val appDependencies = MockAppDependenciesRule()
 
-  @Mock
   lateinit var recipientTable: RecipientTable
-
-  @Mock
-  lateinit var featureFlags: MockedStatic<FeatureFlags>
-
-  @Mock
-  lateinit var signalStore: MockedStatic<SignalStore>
 
   @Before
   fun setup() {
-    val mockAccountValues = mock(AccountValues::class.java)
-    Mockito.lenient().`when`(mockAccountValues.isPrimaryDevice).thenReturn(true)
-    signalStore.`when`<AccountValues> { SignalStore.account() }.thenReturn(mockAccountValues)
+    mockkObject(SignalStore)
+    every { SignalStore.account.isPrimaryDevice } returns true
+
+    recipientTable = mockk(relaxed = true)
+  }
+
+  @After
+  fun tearDown() {
+    unmockkObject(SignalStore)
   }
 
   @Test
@@ -305,9 +305,9 @@ class ContactRecordProcessorTest {
     val result = subject.merge(remote, local, TestKeyGenerator(STORAGE_ID_C))
 
     // THEN
-    assertEquals(local.aci, result.aci)
-    assertEquals(local.number.get(), result.number.get())
-    assertEquals(local.pni.get(), result.pni.get())
+    assertEquals(local.proto.aci, result.proto.aci)
+    assertEquals(local.proto.e164, result.proto.e164)
+    assertEquals(local.proto.pni, result.proto.pni)
   }
 
   @Test
@@ -337,9 +337,9 @@ class ContactRecordProcessorTest {
     val result = subject.merge(remote, local, TestKeyGenerator(STORAGE_ID_C))
 
     // THEN
-    assertEquals(local.aci, result.aci)
-    assertEquals(local.number.get(), result.number.get())
-    assertEquals(local.pni.get(), result.pni.get())
+    assertEquals(local.proto.aci, result.proto.aci)
+    assertEquals(local.proto.e164, result.proto.e164)
+    assertEquals(local.proto.pni, result.proto.pni)
   }
 
   @Test
@@ -369,9 +369,9 @@ class ContactRecordProcessorTest {
     val result = subject.merge(remote, local, TestKeyGenerator(STORAGE_ID_C))
 
     // THEN
-    assertEquals(remote.aci, result.aci)
-    assertEquals(remote.number.get(), result.number.get())
-    assertEquals(remote.pni.get(), result.pni.get())
+    assertEquals(remote.proto.aci, result.proto.aci)
+    assertEquals(remote.proto.e164, result.proto.e164)
+    assertEquals(remote.proto.pni, result.proto.pni)
   }
 
   @Test
@@ -401,9 +401,9 @@ class ContactRecordProcessorTest {
     val result = subject.merge(remote, local, TestKeyGenerator(STORAGE_ID_C))
 
     // THEN
-    assertEquals("Ghost", result.nicknameGivenName.get())
-    assertEquals("Spider", result.nicknameFamilyName.get())
-    assertEquals("Spidey Friend", result.note.get())
+    assertEquals("Ghost", result.proto.nickname?.given)
+    assertEquals("Spider", result.proto.nickname?.family)
+    assertEquals("Spidey Friend", result.proto.note)
   }
 
   private fun buildRecord(id: StorageId = STORAGE_ID_A, record: ContactRecord): SignalContactRecord {

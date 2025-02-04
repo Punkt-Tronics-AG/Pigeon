@@ -79,16 +79,20 @@ fun <T> Cursor.requireObject(column: String, serializer: IntSerializer<T>): T {
 
 @JvmOverloads
 fun Cursor.readToSingleLong(defaultValue: Long = 0): Long {
+  return readToSingleLongOrNull() ?: defaultValue
+}
+
+fun Cursor.readToSingleLongOrNull(): Long? {
   return use {
     if (it.moveToFirst()) {
-      it.getLong(0)
+      it.getLongOrNull(0)
     } else {
-      defaultValue
+      null
     }
   }
 }
 
-fun <T> Cursor.readToSingleObject(serializer: Serializer<T, Cursor>): T? {
+fun <T> Cursor.readToSingleObject(serializer: BaseSerializer<T, Cursor, *>): T? {
   return use {
     if (it.moveToFirst()) {
       serializer.deserialize(it)
@@ -194,6 +198,15 @@ inline fun Cursor.forEach(operation: (Cursor) -> Unit) {
   use {
     while (moveToNext()) {
       operation(this)
+    }
+  }
+}
+
+inline fun Cursor.forEachIndexed(operation: (Int, Cursor) -> Unit) {
+  use {
+    var i = 0
+    while (moveToNext()) {
+      operation(i++, this)
     }
   }
 }

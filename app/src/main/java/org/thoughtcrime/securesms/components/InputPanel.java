@@ -17,6 +17,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.Interpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
@@ -35,6 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.concurrent.ListenableFuture;
@@ -107,11 +110,13 @@ public class InputPanel extends ConstraintLayout
   private View            editMessageCancel;
   private ImageView       editMessageThumbnail;
   private View            editMessageTitle;
+  private FrameLayout     composeTextContainer;
 
   private MicrophoneRecorderView microphoneRecorderView;
   private SlideToCancel          slideToCancel;
   private RecordTime             recordTime;
   private ValueAnimator          quoteAnimator;
+  private ValueAnimator          editMessageAnimator;
   private VoiceNoteDraftView     voiceNoteDraftView;
 
   private @Nullable Listener listener;
@@ -150,6 +155,7 @@ public class InputPanel extends ConstraintLayout
     this.linkPreview            = findViewById(R.id.link_preview);
     this.mediaKeyboard          = findViewById(R.id.emoji_toggle);
     this.composeText            = findViewById(R.id.embedded_text_editor);
+    this.composeTextContainer   = findViewById(R.id.embedded_text_editor_container);
     this.quickCameraToggle      = findViewById(R.id.quick_camera_toggle);
     this.quickAudioToggle       = findViewById(R.id.quick_audio_toggle);
     this.buttonToggle           = findViewById(R.id.button_toggle);
@@ -172,13 +178,8 @@ public class InputPanel extends ConstraintLayout
     this.recordLockCancel.setOnClickListener(v -> microphoneRecorderView.cancelAction(true));
     }
 
-    if (SignalStore.settings().isPreferSystemEmoji()) {
-      mediaKeyboard.setVisibility(View.GONE);
-      emojiVisible = false;
-    } else {
-      mediaKeyboard.setVisibility(View.VISIBLE);
-      emojiVisible = true;
-    }
+    mediaKeyboard.setVisibility(View.VISIBLE);
+    emojiVisible = true;
 
     quoteDismiss.setOnClickListener(v -> clearQuote());
 
@@ -412,22 +413,66 @@ public class InputPanel extends ConstraintLayout
     }
   }
 
-  public void enterEditMessageMode(@NonNull RequestManager requestManager, @NonNull ConversationMessage conversationMessageToEdit, boolean fromDraft) {
-    SpannableString textToEdit = conversationMessageToEdit.getDisplayBody(getContext());
+  public void enterEditModeIfPossible(@NonNull RequestManager requestManager, @NonNull ConversationMessage conversationMessageToEdit, boolean fromDraft, boolean clearQuote) {
+    String currentText = composeText.getText() == null ? "" : composeText.getText().toString();
+    if ((messageToEdit == null && currentText.isEmpty()) || (messageToEdit != null && currentText.equals(messageToEdit.getBody()))) {
+      enterEditMessageMode(requestManager, conversationMessageToEdit, fromDraft, clearQuote);
+    } else {
+      AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext());
+      builder.setTitle(R.string.InputPanel__discard_draft);
+      builder.setMessage(R.string.InputPanel__this_action_cant_be_undone);
+      builder.setPositiveButton(R.string.InputPanel__discard, (dialog, which) -> enterEditMessageMode(requestManager, conversationMessageToEdit, fromDraft, clearQuote));
+      builder.setNegativeButton(android.R.string.cancel, null);
+      builder.show();
+    }
+}
+
+  public void enterEditMessageMode(@NonNull RequestManager requestManager, @NonNull ConversationMessage conversationMessageToEdit, boolean fromDraft, boolean clearQuote) {
+    boolean fromEditMessageMode = inEditMessageMode();
+    int originalHeight          = composeTextContainer.getMeasuredHeight();
+    SpannableString textToEdit  = conversationMessageToEdit.getDisplayBody(getContext());
+
     if (!fromDraft) {
       MessageStyler.convertSpoilersToComposeMode(textToEdit);
       composeText.setText(textToEdit);
       composeText.setSelection(textToEdit.length());
     }
+
     Quote quote = MessageRecordUtil.getQuote(conversationMessageToEdit.getMessageRecord());
-    if (quote == null) {
+    if (quote == null || clearQuote) {
       clearQuote();
     } else {
       setQuote(requestManager, quote.getId(), Recipient.resolved(quote.getAuthor()), quote.getDisplayText(), quote.getAttachment(), quote.getQuoteType());
     }
+
     this.messageToEdit = conversationMessageToEdit.getMessageRecord();
-    updateEditModeThumbnail(requestManager);
+
     updateEditModeUi();
+    updateEditModeThumbnail(requestManager);
+
+    int maxWidth = composeContainer.getWidth() - mediaKeyboard.getWidth();
+    if (!fromEditMessageMode) {
+      maxWidth -= editMessageCancel.getWidth();
+      if (editMessageCancel.getLayoutParams() instanceof MarginLayoutParams) {
+        MarginLayoutParams layoutParams = (MarginLayoutParams) editMessageCancel.getLayoutParams();
+        maxWidth -= layoutParams.leftMargin;
+      }
+    }
+    composeTextContainer.measure(MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST), MeasureSpec.UNSPECIFIED);
+    int finalHeight = composeTextContainer.getMeasuredHeight();
+
+    if (editMessageAnimator != null) {
+      editMessageAnimator.cancel();
+    }
+    editMessageAnimator = createHeightAnimator(composeTextContainer, originalHeight, finalHeight, new AnimationCompleteListener() {
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        ViewGroup.LayoutParams params = composeTextContainer.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        composeTextContainer.setLayoutParams(params);
+      }
+    });
+    editMessageAnimator.start();
   }
 
   private void updateEditModeThumbnail(@NonNull RequestManager requestManager) {
@@ -451,12 +496,29 @@ public class InputPanel extends ConstraintLayout
   }
 
   public void exitEditMessageMode() {
+    int originalHeight = composeTextContainer.getMeasuredHeight();
     if (messageToEdit != null) {
       composeText.setText("");
       messageToEdit = null;
       quoteView.setMessageType(QuoteView.MessageType.PREVIEW);
+      clearQuote();
     }
     updateEditModeUi();
+
+    composeTextContainer.measure(0, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+
+    if (editMessageAnimator != null) {
+     editMessageAnimator.cancel();
+    }
+    editMessageAnimator = createHeightAnimator(composeTextContainer, originalHeight, composeTextContainer.getMeasuredHeight(), new AnimationCompleteListener() {
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        ViewGroup.LayoutParams params = composeTextContainer.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        composeTextContainer.setLayoutParams(params);
+      }
+    });
+    editMessageAnimator.start();
   }
 
   private void updateEditModeUi() {

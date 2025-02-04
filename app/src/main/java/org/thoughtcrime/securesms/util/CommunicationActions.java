@@ -31,12 +31,14 @@ import org.signal.ringrtc.CallLinkRootKey;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
 import org.thoughtcrime.securesms.calls.links.CallLinks;
+import org.thoughtcrime.securesms.components.webrtc.v2.CallActivity;
+import org.thoughtcrime.securesms.components.webrtc.v2.CallIntent;
 import org.thoughtcrime.securesms.contacts.sync.ContactDiscovery;
 import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.database.CallLinkTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinUpdateRequiredBottomSheetDialogFragment;
@@ -46,6 +48,7 @@ import org.thoughtcrime.securesms.profiles.manage.UsernameRepository;
 import org.thoughtcrime.securesms.profiles.manage.UsernameRepository.UsernameLinkConversionResult;
 import org.thoughtcrime.securesms.proxy.ProxyBottomSheetFragment;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.service.webrtc.ActiveCallData;
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
@@ -65,18 +68,18 @@ public class CommunicationActions {
   /**
    * Start a voice call. Assumes that permission request results will be routed to a handler on the Fragment.
    */
-  public static void startVoiceCall(@NonNull Fragment fragment, @NonNull Recipient recipient) {
-    startVoiceCall(new FragmentCallContext(fragment), recipient);
+  public static void startVoiceCall(@NonNull Fragment fragment, @NonNull Recipient recipient, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVoiceCall(new FragmentCallContext(fragment), recipient, onUserAlreadyInAnotherCall);
   }
 
   /**
    * Start a voice call. Assumes that permission request results will be routed to a handler on the Activity.
    */
-  public static void startVoiceCall(@NonNull FragmentActivity activity, @NonNull Recipient recipient) {
-    startVoiceCall(new ActivityCallContext(activity), recipient);
+  public static void startVoiceCall(@NonNull FragmentActivity activity, @NonNull Recipient recipient, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVoiceCall(new ActivityCallContext(activity), recipient, onUserAlreadyInAnotherCall);
   }
 
-  private static void startVoiceCall(@NonNull CallContext callContext, @NonNull Recipient recipient) {
+  private static void startVoiceCall(@NonNull CallContext callContext, @NonNull Recipient recipient, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
     if (TelephonyUtil.isAnyPstnLineBusy(callContext.getContext())) {
       Toast.makeText(callContext.getContext(),
                      R.string.CommunicationActions_a_cellular_call_is_already_in_progress,
@@ -86,11 +89,16 @@ public class CommunicationActions {
     }
 
     if (recipient.isRegistered()) {
-      ApplicationDependencies.getSignalCallManager().isCallActive(new ResultReceiver(new Handler(Looper.getMainLooper())) {
+      AppDependencies.getSignalCallManager().isCallActive(new ResultReceiver(new Handler(Looper.getMainLooper())) {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
           if (resultCode == 1) {
-            startCallInternal(callContext, recipient, false, false);
+            ActiveCallData activeCallData = ActiveCallData.fromBundle(resultData);
+            if (Objects.equals(activeCallData.getRecipientId(), recipient.getId())) {
+              startCallInternal(callContext, recipient, false, false);
+            } else {
+              onUserAlreadyInAnotherCall.onUserAlreadyInAnotherCall();
+            }
           } else {
             if (isSignalVersion()) {
               new MaterialAlertDialogBuilder(callContext.getContext())
@@ -113,18 +121,18 @@ public class CommunicationActions {
   /**
    * Start a video call. Assumes that permission request results will be routed to a handler on the Fragment.
    */
-  public static void startVideoCall(@NonNull Fragment fragment, @NonNull Recipient recipient) {
-    startVideoCall(new FragmentCallContext(fragment), recipient, false);
+  public static void startVideoCall(@NonNull Fragment fragment, @NonNull Recipient recipient, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVideoCall(new FragmentCallContext(fragment), recipient, false, onUserAlreadyInAnotherCall);
   }
 
   /**
    * Start a video call. Assumes that permission request results will be routed to a handler on the Activity.
    */
-  public static void startVideoCall(@NonNull FragmentActivity activity, @NonNull Recipient recipient) {
-    startVideoCall(new ActivityCallContext(activity), recipient, false);
+  public static void startVideoCall(@NonNull FragmentActivity activity, @NonNull Recipient recipient, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVideoCall(new ActivityCallContext(activity), recipient, false, onUserAlreadyInAnotherCall);
   }
 
-  private static void startVideoCall(@NonNull CallContext callContext, @NonNull Recipient recipient, boolean fromCallLink) {
+  private static void startVideoCall(@NonNull CallContext callContext, @NonNull Recipient recipient, boolean fromCallLink, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
     if (TelephonyUtil.isAnyPstnLineBusy(callContext.getContext())) {
       Toast.makeText(callContext.getContext(),
                      R.string.CommunicationActions_a_cellular_call_is_already_in_progress,
@@ -133,10 +141,19 @@ public class CommunicationActions {
       return;
     }
 
-    ApplicationDependencies.getSignalCallManager().isCallActive(new ResultReceiver(new Handler(Looper.getMainLooper())) {
+    AppDependencies.getSignalCallManager().isCallActive(new ResultReceiver(new Handler(Looper.getMainLooper())) {
       @Override
       protected void onReceiveResult(int resultCode, Bundle resultData) {
-        startCallInternal(callContext, recipient, resultCode != 1, fromCallLink);
+        if (resultCode == 1) {
+          ActiveCallData activeCallData = ActiveCallData.fromBundle(resultData);
+          if (Objects.equals(activeCallData.getRecipientId(), recipient.getId())) {
+            startCallInternal(callContext, recipient, false, fromCallLink);
+          } else {
+            onUserAlreadyInAnotherCall.onUserAlreadyInAnotherCall();
+          }
+        } else {
+          startCallInternal(callContext, recipient, true, fromCallLink);
+        }
       }
     });
   }
@@ -311,13 +328,8 @@ public class CommunicationActions {
     }
   }
 
-  public static void handlePotentialCallLinkUrl(@NonNull FragmentActivity activity, @NonNull String potentialUrl) {
+  public static void handlePotentialCallLinkUrl(@NonNull FragmentActivity activity, @NonNull String potentialUrl, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
     if (!CallLinks.isCallLink(potentialUrl)) {
-      return;
-    }
-
-    if (!FeatureFlags.adHocCalling()) {
-      Toast.makeText(activity, R.string.CommunicationActions_cant_join_call, Toast.LENGTH_SHORT).show();
       return;
     }
 
@@ -332,7 +344,7 @@ public class CommunicationActions {
       return;
     }
 
-    startVideoCall(new ActivityCallContext(activity), rootKey);
+    startVideoCall(new ActivityCallContext(activity), rootKey, onUserAlreadyInAnotherCall);
   }
 
   /**
@@ -341,16 +353,11 @@ public class CommunicationActions {
    *
    * @param fragment The fragment, which will be used for context and permissions routing.
    */
-  public static void startVideoCall(@NonNull Fragment fragment, @NonNull CallLinkRootKey rootKey) {
-    startVideoCall(new FragmentCallContext(fragment), rootKey);
+  public static void startVideoCall(@NonNull Fragment fragment, @NonNull CallLinkRootKey rootKey, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVideoCall(new FragmentCallContext(fragment), rootKey, onUserAlreadyInAnotherCall);
   }
 
-  private static void startVideoCall(@NonNull CallContext callContext, @NonNull CallLinkRootKey rootKey) {
-    if (!FeatureFlags.adHocCalling()) {
-      Toast.makeText(callContext.getContext(), R.string.CommunicationActions_cant_join_call, Toast.LENGTH_SHORT).show();
-      return;
-    }
-
+  private static void startVideoCall(@NonNull CallContext callContext, @NonNull CallLinkRootKey rootKey, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
     SimpleTask.run(() -> {
       CallLinkRoomId         roomId   = CallLinkRoomId.fromBytes(rootKey.deriveRoomId());
       CallLinkTable.CallLink callLink = SignalDatabase.callLinks().getOrCreateCallLinkByRootKey(rootKey);
@@ -368,7 +375,7 @@ public class CommunicationActions {
             .setPositiveButton(android.R.string.ok, null)
             .show();
       } else {
-        startVideoCall(callContext, callLinkRecipient.get(), true);
+        startVideoCall(callContext, callLinkRecipient.get(), true, onUserAlreadyInAnotherCall);
       }
     });
   }
@@ -398,39 +405,29 @@ public class CommunicationActions {
                .withPermanentDenialDialog(callContext.getContext().getString(R.string.ConversationActivity__to_call_signal_needs_access_to_your_microphone), null, R.string.ConversationActivity_allow_access_microphone, R.string.ConversationActivity__to_start_call, callContext.getFragmentManager())
                .onAnyDenied(() -> Toast.makeText(callContext.getContext(), R.string.ConversationActivity_signal_needs_microphone_access_voice_call, Toast.LENGTH_LONG).show())
                .onAllGranted(() -> {
-                 ApplicationDependencies.getSignalCallManager().startOutgoingAudioCall(recipient);
+                 AppDependencies.getSignalCallManager().startOutgoingAudioCall(recipient);
 
                  MessageSender.onMessageSent();
 
-                 Intent activityIntent = new Intent(callContext.getContext(), WebRtcCallActivity.class);
-
-                 activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                 callContext.startActivity(activityIntent);
+                 callContext.startActivity(
+                     new CallIntent.Builder(callContext.getContext())
+                         .withIntentFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                         .build()
+                 );
                })
                .execute();
   }
 
   private static void startVideoCallInternal(@NonNull CallContext callContext, @NonNull Recipient recipient, boolean fromCallLink) {
-    callContext.getPermissionsBuilder()
-               .request(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)
-               .ifNecessary()
-               .withRationaleDialog(callContext.getContext().getString(R.string.ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s, recipient.getDisplayName(callContext.getContext())),
-                                    R.drawable.ic_mic_solid_24,
-                                    R.drawable.ic_video_solid_24_tinted)
-               .withPermanentDenialDialog(callContext.getContext().getString(R.string.ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s, recipient.getDisplayName(callContext.getContext())))
-               .onAllGranted(() -> {
-                 ApplicationDependencies.getSignalCallManager().startPreJoinCall(recipient);
+    AppDependencies.getSignalCallManager().startPreJoinCall(recipient);
 
-                 Intent activityIntent = new Intent(callContext.getContext(), WebRtcCallActivity.class);
-
-                 activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                     .putExtra(WebRtcCallActivity.EXTRA_ENABLE_VIDEO_IF_AVAILABLE, true)
-                     .putExtra(WebRtcCallActivity.EXTRA_STARTED_FROM_CALL_LINK, fromCallLink);
-
-                 callContext.startActivity(activityIntent);
-               })
-               .execute();
+    callContext.startActivity(
+        new CallIntent.Builder(callContext.getContext())
+            .withIntentFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .withEnableVideoIfAvailable(true)
+            .withStartedFromCallLink(fromCallLink)
+            .build()
+    );
   }
 
   private static void handleE164Link(Activity activity, String e164) {
@@ -555,5 +552,9 @@ public class CommunicationActions {
     public @NonNull FragmentManager getFragmentManager() {
       return fragment.getParentFragmentManager();
     }
+  }
+
+  public interface OnUserAlreadyInAnotherCall {
+    void onUserAlreadyInAnotherCall();
   }
 }

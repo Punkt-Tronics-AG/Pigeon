@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.PreferenceManager;
 
+import org.signal.billing.BillingFactory;
 import org.signal.core.util.ThreadUtil;
+import org.signal.core.util.billing.BillingApi;
 import org.signal.core.util.concurrent.DeadlockDetector;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.libsignal.net.Network;
@@ -67,11 +69,11 @@ import org.thoughtcrime.securesms.service.webrtc.SignalCallManager;
 import org.thoughtcrime.securesms.shakereport.ShakeToReport;
 import org.thoughtcrime.securesms.stories.Stories;
 import org.thoughtcrime.securesms.util.AlarmSleepTimer;
-import org.thoughtcrime.securesms.util.AppForegroundObserver;
 import org.thoughtcrime.securesms.util.ByteUnit;
 import org.thoughtcrime.securesms.util.EarlyMessageCache;
-import org.thoughtcrime.securesms.util.FeatureFlags;
+import org.thoughtcrime.securesms.util.Environment;
 import org.thoughtcrime.securesms.util.FrameRateTracker;
+import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.video.exo.GiphyMp4Cache;
 import org.thoughtcrime.securesms.video.exo.SimpleExoPlayerPool;
@@ -81,23 +83,30 @@ import org.whispersystems.signalservice.api.SignalServiceDataStore;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.SignalWebSocket;
+import org.whispersystems.signalservice.api.archive.ArchiveApi;
+import org.whispersystems.signalservice.api.attachment.AttachmentApi;
 import org.whispersystems.signalservice.api.groupsv2.ClientZkOperations;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
+import org.whispersystems.signalservice.api.keys.KeysApi;
+import org.whispersystems.signalservice.api.link.LinkDeviceApi;
 import org.whispersystems.signalservice.api.push.ServiceId.ACI;
 import org.whispersystems.signalservice.api.push.ServiceId.PNI;
+import org.whispersystems.signalservice.api.registration.RegistrationApi;
 import org.whispersystems.signalservice.api.services.CallLinksService;
 import org.whispersystems.signalservice.api.services.DonationsService;
 import org.whispersystems.signalservice.api.services.ProfileService;
+import org.whispersystems.signalservice.api.storage.StorageServiceApi;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
 import org.whispersystems.signalservice.api.util.SleepTimer;
 import org.whispersystems.signalservice.api.util.UptimeSleepTimer;
 import org.whispersystems.signalservice.api.websocket.WebSocketFactory;
 import org.whispersystems.signalservice.internal.configuration.SignalServiceConfiguration;
-import org.whispersystems.signalservice.internal.websocket.LibSignalNetwork;
+import org.whispersystems.signalservice.internal.push.PushServiceSocket;
+import org.whispersystems.signalservice.internal.websocket.LibSignalChatConnection;
+import org.whispersystems.signalservice.internal.websocket.LibSignalNetworkExtensions;
+import org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection;
 import org.whispersystems.signalservice.internal.websocket.ShadowingWebSocketConnection;
 import org.whispersystems.signalservice.internal.websocket.WebSocketConnection;
-import org.whispersystems.signalservice.internal.websocket.LibSignalChatConnection;
-import org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection;
 import org.whispersystems.signalservice.internal.websocket.WebSocketShadowingBridge;
 
 import java.util.Optional;
@@ -107,9 +116,9 @@ import java.util.function.Supplier;
 import pigeon.viewmodels.IntervalSettingsViewModel;
 
 /**
- * Implementation of {@link ApplicationDependencies.Provider} that provides real app dependencies.
+ * Implementation of {@link AppDependencies.Provider} that provides real app dependencies.
  */
-public class ApplicationDependencyProvider implements ApplicationDependencies.Provider {
+public class ApplicationDependencyProvider implements AppDependencies.Provider {
 
   private final Application context;
 
@@ -122,42 +131,38 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
+  public @NonNull PushServiceSocket providePushServiceSocket(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations) {
+    return new PushServiceSocket(signalServiceConfiguration,
+                                 new DynamicCredentialsProvider(),
+                                 BuildConfig.SIGNAL_AGENT,
+                                 groupsV2Operations.getProfileOperations(),
+                                 RemoteConfig.okHttpAutomaticRetry());
+  }
+
+  @Override
   public @NonNull GroupsV2Operations provideGroupsV2Operations(@NonNull SignalServiceConfiguration signalServiceConfiguration) {
-    return new GroupsV2Operations(provideClientZkOperations(signalServiceConfiguration), FeatureFlags.groupLimits().getHardLimit());
+    return new GroupsV2Operations(provideClientZkOperations(signalServiceConfiguration), RemoteConfig.groupLimits().getHardLimit());
   }
 
   @Override
-  public @NonNull SignalServiceAccountManager provideSignalServiceAccountManager(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations) {
-    return new SignalServiceAccountManager(signalServiceConfiguration,
-                                           new DynamicCredentialsProvider(),
-                                           BuildConfig.SIGNAL_AGENT,
-                                           groupsV2Operations,
-                                           FeatureFlags.okHttpAutomaticRetry());
+  public @NonNull SignalServiceAccountManager provideSignalServiceAccountManager(@NonNull PushServiceSocket pushServiceSocket, @NonNull GroupsV2Operations groupsV2Operations) {
+    return new SignalServiceAccountManager(pushServiceSocket, groupsV2Operations);
   }
 
   @Override
-  public @NonNull SignalServiceMessageSender provideSignalServiceMessageSender(@NonNull SignalWebSocket signalWebSocket, @NonNull SignalServiceDataStore protocolStore, @NonNull SignalServiceConfiguration signalServiceConfiguration) {
-      return new SignalServiceMessageSender(signalServiceConfiguration,
-                                            new DynamicCredentialsProvider(),
+  public @NonNull SignalServiceMessageSender provideSignalServiceMessageSender(@NonNull SignalWebSocket signalWebSocket, @NonNull SignalServiceDataStore protocolStore, @NonNull PushServiceSocket pushServiceSocket) {
+      return new SignalServiceMessageSender(pushServiceSocket,
                                             protocolStore,
                                             ReentrantSessionLock.INSTANCE,
-                                            BuildConfig.SIGNAL_AGENT,
                                             signalWebSocket,
                                             Optional.of(new SecurityEventListener(context)),
-                                            provideGroupsV2Operations(signalServiceConfiguration).getProfileOperations(),
                                             SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
-                                            ByteUnit.KILOBYTES.toBytes(256),
-                                            FeatureFlags.okHttpAutomaticRetry(),
-                                            FeatureFlags.useRxMessageSending());
+                                            ByteUnit.KILOBYTES.toBytes(256));
   }
 
   @Override
-  public @NonNull SignalServiceMessageReceiver provideSignalServiceMessageReceiver(@NonNull SignalServiceConfiguration signalServiceConfiguration) {
-    return new SignalServiceMessageReceiver(signalServiceConfiguration,
-                                            new DynamicCredentialsProvider(),
-                                            BuildConfig.SIGNAL_AGENT,
-                                            provideGroupsV2Operations(signalServiceConfiguration).getProfileOperations(),
-                                            FeatureFlags.okHttpAutomaticRetry());
+  public @NonNull SignalServiceMessageReceiver provideSignalServiceMessageReceiver(@NonNull PushServiceSocket pushServiceSocket) {
+    return new SignalServiceMessageReceiver(pushServiceSocket);
   }
 
   @Override
@@ -205,8 +210,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
-  public @NonNull IncomingMessageObserver provideIncomingMessageObserver() {
-    return new IncomingMessageObserver(context);
+  public @NonNull IncomingMessageObserver provideIncomingMessageObserver(@NonNull SignalWebSocket signalWebSocket) {
+    return new IncomingMessageObserver(context, signalWebSocket);
   }
 
   @Override
@@ -240,9 +245,11 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
-  public @NonNull LibSignalNetwork provideLibsignalNetwork(@NonNull SignalServiceConfiguration config) {
+  public @NonNull Network provideLibsignalNetwork(@NonNull SignalServiceConfiguration config) {
     Network network = new Network(BuildConfig.LIBSIGNAL_NET_ENV, StandardUserAgentInterceptor.USER_AGENT);
-    return new LibSignalNetwork(network, config);
+    LibSignalNetworkExtensions.applyConfiguration(network, config);
+
+    return network;
   }
 
   @Override
@@ -257,7 +264,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @Override
   public @NonNull DatabaseObserver provideDatabaseObserver() {
-    return new DatabaseObserver(context);
+    return new DatabaseObserver();
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -278,11 +285,6 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
-  public @NonNull AppForegroundObserver provideAppForegroundObserver() {
-    return new AppForegroundObserver();
-  }
-
-  @Override
   public @NonNull SignalCallManager provideSignalCallManager() {
     return new SignalCallManager(context);
   }
@@ -298,8 +300,8 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
-  public @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<LibSignalNetwork> libSignalNetworkSupplier) {
-    SleepTimer                   sleepTimer      = !SignalStore.account().isFcmEnabled() || SignalStore.internalValues().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer() ;
+  public @NonNull SignalWebSocket provideSignalWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
+    SleepTimer                   sleepTimer      = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
     SignalWebSocketHealthMonitor healthMonitor   = new SignalWebSocketHealthMonitor(context, sleepTimer);
     WebSocketShadowingBridge     bridge          = new DefaultWebSocketShadowingBridge(context);
     SignalWebSocket              signalWebSocket = new SignalWebSocket(provideWebSocketFactory(signalServiceConfigurationSupplier, healthMonitor, libSignalNetworkSupplier, bridge));
@@ -372,21 +374,13 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
   }
 
   @Override
-  public @NonNull DonationsService provideDonationsService(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations) {
-    return new DonationsService(signalServiceConfiguration,
-                                new DynamicCredentialsProvider(),
-                                BuildConfig.SIGNAL_AGENT,
-                                groupsV2Operations,
-                                FeatureFlags.okHttpAutomaticRetry());
+  public @NonNull DonationsService provideDonationsService(@NonNull PushServiceSocket pushServiceSocket) {
+    return new DonationsService(pushServiceSocket);
   }
 
   @Override
-  public @NonNull CallLinksService provideCallLinksService(@NonNull SignalServiceConfiguration signalServiceConfiguration, @NonNull GroupsV2Operations groupsV2Operations) {
-    return new CallLinksService(signalServiceConfiguration,
-                                new DynamicCredentialsProvider(),
-                                BuildConfig.SIGNAL_AGENT,
-                                groupsV2Operations,
-                                FeatureFlags.okHttpAutomaticRetry());
+  public @NonNull CallLinksService provideCallLinksService(@NonNull PushServiceSocket pushServiceSocket) {
+    return new CallLinksService(pushServiceSocket);
   }
 
   @Override
@@ -411,7 +405,7 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
 
   @NonNull WebSocketFactory provideWebSocketFactory(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier,
                                                     @NonNull SignalWebSocketHealthMonitor healthMonitor,
-                                                    @NonNull Supplier<LibSignalNetwork> libSignalNetworkSupplier,
+                                                    @NonNull Supplier<Network> libSignalNetworkSupplier,
                                                     @NonNull WebSocketShadowingBridge bridge)
   {
     int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
@@ -419,19 +413,30 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
     return new WebSocketFactory() {
       @Override
       public WebSocketConnection createWebSocket() {
-        return new OkHttpWebSocketConnection("normal",
-                                             signalServiceConfigurationSupplier.get(),
-                                             Optional.of(new DynamicCredentialsProvider()),
-                                             BuildConfig.SIGNAL_AGENT,
-                                             healthMonitor,
-                                             Stories.isFeatureEnabled(), pigeonAliveIntervalTime, pigeonSleepIntervalTime);
+        if (RemoteConfig.libSignalWebSocketEnabled()) {
+          Network network = libSignalNetworkSupplier.get();
+          return new LibSignalChatConnection(
+              "libsignal-auth",
+              network,
+              new DynamicCredentialsProvider(),
+              Stories.isFeatureEnabled(),
+              healthMonitor
+          );
+        } else {
+          return new OkHttpWebSocketConnection("normal",
+                                               signalServiceConfigurationSupplier.get(),
+                                               Optional.of(new DynamicCredentialsProvider()),
+                                               BuildConfig.SIGNAL_AGENT,
+                                               healthMonitor,
+                                               Stories.isFeatureEnabled(), pigeonAliveIntervalTime, pigeonSleepIntervalTime);
+        }
       }
 
       @Override
       public WebSocketConnection createUnidentifiedWebSocket() {
         int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
         int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
-        int shadowPercentage = FeatureFlags.libSignalWebSocketShadowingPercentage();
+        int shadowPercentage = RemoteConfig.libSignalWebSocketShadowingPercentage();
         if (shadowPercentage > 0) {
           return new ShadowingWebSocketConnection(
               "unauth-shadow",
@@ -440,28 +445,64 @@ public class ApplicationDependencyProvider implements ApplicationDependencies.Pr
               BuildConfig.SIGNAL_AGENT,
               healthMonitor,
               Stories.isFeatureEnabled(),
-              libSignalNetworkSupplier.get().createChatService(null),
+              LibSignalNetworkExtensions.createChatService(libSignalNetworkSupplier.get(), null, Stories.isFeatureEnabled(), null),
               shadowPercentage,
               bridge, pigeonAliveIntervalTime, pigeonSleepIntervalTime
           );
         }
-        if (FeatureFlags.libSignalWebSocketEnabled()) {
-          LibSignalNetwork network = libSignalNetworkSupplier.get();
+        if (RemoteConfig.libSignalWebSocketEnabled()) {
+          Network network = libSignalNetworkSupplier.get();
           return new LibSignalChatConnection(
               "libsignal-unauth",
-              network.createChatService(null),
-              healthMonitor,
-              false);
+              network,
+              null,
+              Stories.isFeatureEnabled(),
+              healthMonitor);
         } else {
           return new OkHttpWebSocketConnection("unidentified",
                                                signalServiceConfigurationSupplier.get(),
                                                Optional.empty(),
                                                BuildConfig.SIGNAL_AGENT,
                                                healthMonitor,
-                                               Stories.isFeatureEnabled(),  pigeonAliveIntervalTime, pigeonSleepIntervalTime);
+                                               Stories.isFeatureEnabled());
         }
       }
     };
+  }
+
+  @Override
+  public @NonNull BillingApi provideBillingApi() {
+    return BillingFactory.create(GooglePlayBillingDependencies.INSTANCE, RemoteConfig.messageBackups() && Environment.Backups.supportsGooglePlayBilling());
+  }
+
+  @Override
+  public @NonNull ArchiveApi provideArchiveApi(@NonNull PushServiceSocket pushServiceSocket) {
+    return new ArchiveApi(pushServiceSocket);
+  }
+
+  @Override
+  public @NonNull KeysApi provideKeysApi(@NonNull PushServiceSocket pushServiceSocket) {
+    return new KeysApi(pushServiceSocket);
+  }
+
+  @Override
+  public @NonNull AttachmentApi provideAttachmentApi(@NonNull SignalWebSocket signalWebSocket, @NonNull PushServiceSocket pushServiceSocket) {
+    return new AttachmentApi(signalWebSocket, pushServiceSocket);
+  }
+
+  @Override
+  public @NonNull LinkDeviceApi provideLinkDeviceApi(@NonNull PushServiceSocket pushServiceSocket) {
+    return new LinkDeviceApi(pushServiceSocket);
+  }
+
+  @Override
+  public @NonNull RegistrationApi provideRegistrationApi(@NonNull PushServiceSocket pushServiceSocket) {
+    return new RegistrationApi(pushServiceSocket);
+  }
+
+  @Override
+  public @NonNull StorageServiceApi provideStorageServiceApi(@NonNull PushServiceSocket pushServiceSocket) {
+    return new StorageServiceApi(pushServiceSocket);
   }
 
   @VisibleForTesting

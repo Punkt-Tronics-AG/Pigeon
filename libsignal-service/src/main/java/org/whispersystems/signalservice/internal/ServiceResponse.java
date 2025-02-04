@@ -84,6 +84,18 @@ public final class ServiceResponse<Result> {
     }
   }
 
+  public Result getResultOrThrow() throws Throwable {
+    if (result.isPresent()) {
+      return result.get();
+    } else if (applicationError.isPresent()) {
+      throw applicationError.get();
+    } else  if (executionError.isPresent()) {
+      throw executionError.get();
+    } else {
+      throw new AssertionError("Should never get here");
+    }
+  }
+
   public static <T> ServiceResponse<T> forResult(T result, WebsocketResponse response) {
     return new ServiceResponse<>(result, response);
   }
@@ -108,7 +120,7 @@ public final class ServiceResponse<Result> {
     if (throwable instanceof ExecutionException) {
       return forUnknownError(throwable.getCause());
     } else if (throwable instanceof NonSuccessfulResponseCodeException) {
-      return forApplicationError(throwable, ((NonSuccessfulResponseCodeException) throwable).getCode(), null);
+      return forApplicationError(throwable, ((NonSuccessfulResponseCodeException) throwable).code, null);
     } else if (throwable instanceof PushNetworkException && throwable.getCause() != null) {
       return forUnknownError(throwable.getCause());
     } else {

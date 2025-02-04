@@ -13,6 +13,7 @@ data class ManageDonationsState(
   val availableSubscriptions: List<Subscription> = emptyList(),
   val pendingOneTimeDonation: PendingOneTimeDonation? = null,
   val nonVerifiedMonthlyDonation: NonVerifiedMonthlyDonation? = null,
+  val subscriberRequiresCancel: Boolean = false,
   private val subscriptionRedemptionState: RedemptionState = RedemptionState.NONE
 ) {
 
@@ -35,15 +36,16 @@ data class ManageDonationsState(
   }
 
   sealed class TransactionState {
-    object Init : TransactionState()
-    object NetworkFailure : TransactionState()
-    object InTransaction : TransactionState()
+    data object Init : TransactionState()
+    data object NetworkFailure : TransactionState()
+    data object InTransaction : TransactionState()
     class NotInTransaction(val activeSubscription: ActiveSubscription) : TransactionState()
   }
 
   enum class RedemptionState {
     NONE,
     IN_PROGRESS,
+    SUBSCRIPTION_REFRESH,
     IS_PENDING_BANK_TRANSFER,
     FAILED
   }

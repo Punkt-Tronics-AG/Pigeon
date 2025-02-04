@@ -13,16 +13,17 @@ import org.thoughtcrime.securesms.components.webrtc.BroadcastVideoSink;
 import org.thoughtcrime.securesms.components.webrtc.EglBaseWrapper;
 import org.thoughtcrime.securesms.database.RecipientTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.CallParticipantId;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.notifications.DoNotDisturbUtil;
+import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
+import org.thoughtcrime.securesms.util.AppForegroundObserver;
 import org.thoughtcrime.securesms.util.NetworkUtil;
 import org.thoughtcrime.securesms.webrtc.locks.LockManager;
 import org.whispersystems.signalservice.api.push.ServiceId.ACI;
@@ -128,11 +129,12 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
       boolean started = webRtcInteractor.startWebRtcCallActivityIfPossible();
       if (!started) {
         Log.i(TAG, "Unable to start call activity due to OS version or not being in the foreground");
-        ApplicationDependencies.getAppForegroundObserver().addListener(webRtcInteractor.getForegroundListener());
+        AppForegroundObserver.addListener(webRtcInteractor.getForegroundListener());
       }
     }
 
-    if (shouldDisturbUserWithCall && SignalStore.settings().isCallNotificationsEnabled()) {
+    boolean isCallNotificationsEnabled = SignalStore.settings().isCallNotificationsEnabled() && NotificationChannels.getInstance().areNotificationsEnabled();
+    if (shouldDisturbUserWithCall && isCallNotificationsEnabled) {
       Uri                         ringtone     = recipient.resolve().getCallRingtone();
       RecipientTable.VibrateState vibrateState = recipient.resolve().getCallVibrate();
 
@@ -181,11 +183,16 @@ public final class IncomingGroupCallActionProcessor extends DeviceAwareActionPro
   protected @NonNull WebRtcServiceState handleAcceptCall(@NonNull WebRtcServiceState currentState, boolean answerWithVideo) {
     byte[] groupId = currentState.getCallInfoState().getCallRecipient().requireGroupId().getDecodedId();
     GroupCall groupCall = webRtcInteractor.getCallManager().createGroupCall(groupId,
-                                                                            SignalStore.internalValues().groupCallingServer(),
+                                                                            SignalStore.internal().getGroupCallingServer(),
                                                                             new byte[0],
                                                                             AUDIO_LEVELS_INTERVAL,
                                                                             RingRtcDynamicConfiguration.getAudioProcessingMethod(),
+                                                                            RingRtcDynamicConfiguration.shouldUseOboeAdm(),
                                                                             webRtcInteractor.getGroupCallObserver());
+
+    if (groupCall == null) {
+      return groupCallFailure(currentState, "RingRTC did not create a group call", null);
+    }
 
     try {
       groupCall.setOutgoingAudioMuted(true);

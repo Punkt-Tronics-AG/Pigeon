@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit
  * @param fixedContacts Contacts which are "pre-selected" (for example, already a member of a group we're adding to)
  * @param selectionLimits [SelectionLimits] describing how large the result set can be.
  * @param displayCheckBox Whether or not to display checkboxes on items.
- * @param displaySmsTag   Whether or not to display the SMS tag on items.
  * @param displaySecondaryInformation Whether or not to display phone numbers on known contacts.
  * @param mapStateToConfiguration Maps a [ContactSearchState] to a [ContactSearchConfiguration]
  * @param callbacks Hooks to help process, filter, and react to selection
@@ -87,6 +86,11 @@ class ContactSearchMediator(
       override fun onExpandClicked(expand: ContactSearchData.Expand) {
         Log.d(TAG, "onExpandClicked()")
         viewModel.expandSection(expand.sectionKey)
+      }
+
+      override fun onChatTypeClicked(view: View, chatTypeRow: ContactSearchData.ChatTypeRow, isSelected: Boolean) {
+        Log.d(TAG, "onChatTypeClicked() chatType $chatTypeRow")
+        toggleChatTypeSelection(view, chatTypeRow, isSelected)
       }
     },
     longClickCallbacks = ContactSearchAdapter.LongClickCallbacksAdapter(),
@@ -171,7 +175,7 @@ class ContactSearchMediator(
   }
 
   private fun toggleStorySelection(view: View, contactSearchData: ContactSearchData.Story, isSelected: Boolean) {
-    if (contactSearchData.recipient.isMyStory && !SignalStore.storyValues().userHasBeenNotifiedAboutStories) {
+    if (contactSearchData.recipient.isMyStory && !SignalStore.story.userHasBeenNotifiedAboutStories) {
       ChooseInitialMyStoryMembershipBottomSheetDialogFragment.show(fragment.childFragmentManager)
     } else {
       toggleSelection(view, contactSearchData, isSelected)
@@ -182,6 +186,16 @@ class ContactSearchMediator(
     return if (isSelected) {
       Log.d(TAG, "toggleSelection(OFF) ${contactSearchData.contactSearchKey}")
       callbacks.onContactDeselected(view, contactSearchData.contactSearchKey)
+      viewModel.setKeysNotSelected(setOf(contactSearchData.contactSearchKey))
+    } else {
+      Log.d(TAG, "toggleSelection(ON) ${contactSearchData.contactSearchKey}")
+      viewModel.setKeysSelected(callbacks.onBeforeContactsSelected(view, setOf(contactSearchData.contactSearchKey)))
+    }
+  }
+
+  private fun toggleChatTypeSelection(view: View, contactSearchData: ContactSearchData, isSelected: Boolean) {
+    return if (isSelected) {
+      Log.d(TAG, "toggleSelection(OFF) ${contactSearchData.contactSearchKey}")
       viewModel.setKeysNotSelected(setOf(contactSearchData.contactSearchKey))
     } else {
       Log.d(TAG, "toggleSelection(ON) ${contactSearchData.contactSearchKey}")

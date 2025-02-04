@@ -8,7 +8,7 @@ import androidx.annotation.WorkerThread;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper;
@@ -26,21 +26,21 @@ final class WallpaperCropRepository {
   private final           Context     context;
 
   public WallpaperCropRepository(@Nullable RecipientId recipientId) {
-    this.context     = ApplicationDependencies.getApplication();
+    this.context     = AppDependencies.getApplication();
     this.recipientId = recipientId;
   }
 
   @WorkerThread
   @NonNull ChatWallpaper setWallPaper(byte[] bytes) throws IOException {
     try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
-      ChatWallpaper wallpaper = WallpaperStorage.save(context, inputStream, "webp");
+      ChatWallpaper wallpaper = WallpaperStorage.save(inputStream);
 
       if (recipientId != null) {
         Log.i(TAG, "Setting image wallpaper for " + recipientId);
-        SignalDatabase.recipients().setWallpaper(recipientId, wallpaper);
+        SignalDatabase.recipients().setWallpaper(recipientId, wallpaper, true);
       } else {
         Log.i(TAG, "Setting image wallpaper for default");
-        SignalStore.wallpaper().setWallpaper(context, wallpaper);
+        SignalStore.wallpaper().setWallpaper(wallpaper);
       }
 
       return wallpaper;

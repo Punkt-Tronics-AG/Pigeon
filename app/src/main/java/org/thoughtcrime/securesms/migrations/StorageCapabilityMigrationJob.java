@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.MultiDeviceKeysUpdateJob;
@@ -12,6 +12,7 @@ import org.thoughtcrime.securesms.jobs.MultiDeviceStorageSyncRequestJob;
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
 import org.thoughtcrime.securesms.jobs.RefreshOwnProfileJob;
 import org.thoughtcrime.securesms.jobs.StorageForcePushJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 /**
@@ -49,11 +50,11 @@ public class StorageCapabilityMigrationJob extends MigrationJob {
 
   @Override
   public void performMigration() {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
+    JobManager jobManager = AppDependencies.getJobManager();
 
     jobManager.startChain(new RefreshAttributesJob()).then(new RefreshOwnProfileJob()).enqueue();
 
-    if (TextSecurePreferences.isMultiDevice(context)) {
+    if (SignalStore.account().hasLinkedDevices()) {
       Log.i(TAG, "Multi-device.");
       jobManager.startChain(new StorageForcePushJob())
                 .then(new MultiDeviceKeysUpdateJob())

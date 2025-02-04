@@ -4,7 +4,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Emitter
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import java.util.concurrent.TimeUnit
 
 /**
@@ -15,16 +15,17 @@ object RxDatabaseObserver {
 
   val conversationList: Flowable<Unit> by lazy { conversationListFlowable() }
   val notificationProfiles: Flowable<Unit> by lazy { notificationProfilesFlowable() }
+  val chatFolders: Flowable<Unit> by lazy { chatFoldersFlowable() }
 
   private fun conversationListFlowable(): Flowable<Unit> {
     return databaseFlowable { listener ->
-      ApplicationDependencies.getDatabaseObserver().registerConversationListObserver(listener)
+      AppDependencies.databaseObserver.registerConversationListObserver(listener)
     }
   }
 
   fun conversation(threadId: Long): Flowable<Unit> {
     return databaseFlowable { listener ->
-      ApplicationDependencies.getDatabaseObserver().registerVerboseConversationObserver(threadId, listener)
+      AppDependencies.databaseObserver.registerVerboseConversationObserver(threadId, listener)
     }
   }
 
@@ -32,8 +33,14 @@ object RxDatabaseObserver {
   private fun notificationProfilesFlowable(): Flowable<Unit> {
     return Flowable.combineLatest(
       Flowable.interval(0, 30, TimeUnit.SECONDS),
-      databaseFlowable { ApplicationDependencies.getDatabaseObserver().registerNotificationProfileObserver(it) }
+      databaseFlowable { AppDependencies.databaseObserver.registerNotificationProfileObserver(it) }
     ) { _, _ -> Unit }
+  }
+
+  private fun chatFoldersFlowable(): Flowable<Unit> {
+    return databaseFlowable { listener ->
+      AppDependencies.databaseObserver.registerChatFolderObserver(listener)
+    }
   }
 
   private fun databaseFlowable(registerObserver: (RxObserver) -> Unit): Flowable<Unit> {
@@ -42,7 +49,7 @@ object RxDatabaseObserver {
         val listener = RxObserver(it)
 
         registerObserver(listener)
-        it.setCancellable { ApplicationDependencies.getDatabaseObserver().unregisterObserver(listener) }
+        it.setCancellable { AppDependencies.databaseObserver.unregisterObserver(listener) }
 
         listener.prime()
       },

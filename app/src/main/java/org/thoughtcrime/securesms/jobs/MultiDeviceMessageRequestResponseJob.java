@@ -5,11 +5,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.jobmanager.JsonJobData;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
+import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -98,12 +98,12 @@ public class MultiDeviceMessageRequestResponseJob extends BaseJob {
       throw new NotPushRegisteredException();
     }
 
-    if (!TextSecurePreferences.isMultiDevice(context)) {
+    if (!SignalStore.account().hasLinkedDevices()) {
       Log.i(TAG, "Not multi device, aborting...");
       return;
     }
 
-    SignalServiceMessageSender messageSender = ApplicationDependencies.getSignalServiceMessageSender();
+    SignalServiceMessageSender messageSender = AppDependencies.getSignalServiceMessageSender();
     Recipient                  recipient     = Recipient.resolved(threadRecipient);
 
     if (!recipient.isGroup() && !recipient.getHasServiceId()) {
@@ -122,8 +122,8 @@ public class MultiDeviceMessageRequestResponseJob extends BaseJob {
     }
 
     if (response != null) {
-      messageSender.sendSyncMessage(SignalServiceSyncMessage.forMessageRequestResponse(response),
-                                    UnidentifiedAccessUtil.getAccessForSync(context));
+      messageSender.sendSyncMessage(SignalServiceSyncMessage.forMessageRequestResponse(response)
+      );
     } else {
       Log.w(TAG, recipient.getId() + " not registered!");
     }

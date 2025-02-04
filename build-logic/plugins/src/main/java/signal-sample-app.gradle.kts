@@ -18,6 +18,8 @@ val signalJavaVersion: JavaVersion by rootProject.extra
 val signalKotlinJvmTarget: String by rootProject.extra
 
 plugins {
+  // We cannot use the version catalog in the plugins block in convention plugins (it's not supported).
+  // Instead, plugin versions are controlled through the dependencies block in the build.gradle.kts.
   id("com.android.application")
   id("kotlin-android")
   id("ktlint")
@@ -33,7 +35,6 @@ android {
 
     minSdk = signalMinSdkVersion
     targetSdk = signalTargetSdkVersion
-    multiDexEnabled = true
   }
 
   compileOptions {
@@ -47,11 +48,12 @@ android {
   }
 
   buildFeatures {
+    buildConfig = true
     compose = true
   }
 
   composeOptions {
-    kotlinCompilerExtensionVersion = "1.4.4"
+    kotlinCompilerExtensionVersion = "1.5.4"
   }
 }
 
@@ -69,7 +71,6 @@ dependencies {
   implementation(libs.rxjava3.rxandroid)
   implementation(libs.rxjava3.rxjava)
   implementation(libs.rxjava3.rxkotlin)
-  implementation(libs.androidx.multidex)
   implementation(libs.material.material)
   implementation(libs.androidx.constraintlayout)
   implementation(libs.kotlin.stdlib.jdk8)
@@ -80,9 +81,6 @@ dependencies {
   ktlintRuleset(libs.ktlint.twitter.compose)
 
   testImplementation(testLibs.junit.junit)
-  testImplementation(testLibs.mockito.core)
-  testImplementation(testLibs.mockito.android)
-  testImplementation(testLibs.mockito.kotlin)
   testImplementation(testLibs.robolectric.robolectric)
   testImplementation(testLibs.androidx.test.core)
   testImplementation(testLibs.androidx.test.core.ktx)

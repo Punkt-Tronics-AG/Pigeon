@@ -19,7 +19,7 @@ import org.thoughtcrime.securesms.database.AttachmentTable.TransformProperties
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.DistributionListId
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.AttachmentDownloadJob
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediasend.Media
@@ -64,7 +64,7 @@ object Stories {
    */
   @JvmStatic
   fun isFeatureEnabled(): Boolean {
-    return !SignalStore.storyValues().isFeatureDisabled
+    return !SignalStore.story.isFeatureDisabled
   }
 
   fun getHeaderAction(onClick: () -> Unit): HeaderAction {
@@ -83,7 +83,7 @@ object Stories {
 
   fun sendTextStories(messages: List<OutgoingMessage>): Completable {
     return Completable.create { emitter ->
-      MessageSender.sendStories(ApplicationDependencies.getApplication(), messages, null, null)
+      MessageSender.sendStories(AppDependencies.application, messages, null, null)
       emitter.onComplete()
     }
   }
@@ -136,11 +136,11 @@ object Stories {
   fun enqueueAttachmentsFromStoryForDownloadSync(record: MmsMessageRecord, ignoreAutoDownloadConstraints: Boolean) {
     SignalDatabase.attachments.getAttachmentsForMessage(record.id).filterNot { it.isSticker }.forEach {
       val job = AttachmentDownloadJob(record.id, it.attachmentId, ignoreAutoDownloadConstraints)
-      ApplicationDependencies.getJobManager().add(job)
+      AppDependencies.jobManager.add(job)
     }
 
     if (record.hasLinkPreview() && record.linkPreviews[0].attachmentId != null) {
-      ApplicationDependencies.getJobManager().add(
+      AppDependencies.jobManager.add(
         AttachmentDownloadJob(record.id, record.linkPreviews[0].attachmentId!!, true)
       )
     }
@@ -200,7 +200,7 @@ object Stories {
     @WorkerThread
     fun canPreUploadMedia(media: Media): Boolean {
       return when {
-        MediaUtil.isVideo(media.mimeType) -> getSendRequirements(media) != SendRequirements.REQUIRES_CLIP
+        MediaUtil.isVideo(media.contentType) -> getSendRequirements(media) != SendRequirements.REQUIRES_CLIP
         else -> true
       }
     }
@@ -239,11 +239,11 @@ object Stories {
     }
 
     private fun canClipMedia(media: Media): Boolean {
-      return MediaUtil.isVideo(media.mimeType) && MediaConstraints.isVideoTranscodeAvailable()
+      return MediaUtil.isVideo(media.contentType) && MediaConstraints.isVideoTranscodeAvailable()
     }
 
     private fun getContentDuration(media: Media): DurationResult {
-      return if (MediaUtil.isVideo(media.mimeType)) {
+      return if (MediaUtil.isVideo(media.contentType)) {
         val mediaDuration = if (media.duration == 0L && media.transformProperties.map(TransformProperties::shouldSkipTransform).orElse(true)) {
           getVideoDuration(media.uri)
         } else if (media.transformProperties.map { it.videoTrim }.orElse(false)) {
@@ -279,7 +279,7 @@ object Stories {
       var player: ExoPlayer? = null
       val countDownLatch = CountDownLatch(1)
       ThreadUtil.runOnMainSync {
-        val mainThreadPlayer = ApplicationDependencies.getExoPlayerPool().get("stories_duration_check")
+        val mainThreadPlayer = AppDependencies.exoPlayerPool.get("stories_duration_check")
         if (mainThreadPlayer == null) {
           Log.w(TAG, "Could not get a player from the pool, so we cannot get the length of the video.")
           countDownLatch.countDown()
@@ -309,7 +309,7 @@ object Stories {
       ThreadUtil.runOnMainSync {
         val mainThreadPlayer = player
         if (mainThreadPlayer != null) {
-          ApplicationDependencies.getExoPlayerPool().pool(mainThreadPlayer)
+          AppDependencies.exoPlayerPool.pool(mainThreadPlayer)
         }
       }
 
@@ -349,7 +349,7 @@ object Stories {
       Log.d(TAG, "Transforming media clip: ${transformProperties.videoTrimStartTimeUs.microseconds.inWholeSeconds}s to ${transformProperties.videoTrimEndTimeUs.microseconds.inWholeSeconds}s")
       return Media(
         media.uri,
-        media.mimeType,
+        media.contentType,
         media.date,
         media.width,
         media.height,
@@ -359,7 +359,8 @@ object Stories {
         media.isVideoGif,
         media.bucketId,
         media.caption,
-        Optional.of(transformProperties)
+        Optional.of(transformProperties),
+        media.fileName
       )
     }
 
@@ -398,6 +399,7 @@ object Stories {
         videoSlide.isVideoGif,
         Optional.empty(),
         videoSlide.caption,
+        Optional.empty(),
         Optional.empty()
       )
     }

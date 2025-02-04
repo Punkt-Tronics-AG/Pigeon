@@ -25,16 +25,20 @@ import org.thoughtcrime.securesms.database.MessageTypes;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.documents.NetworkFailure;
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList;
+import org.thoughtcrime.securesms.database.model.databaseprotos.CryptoValue;
 import org.thoughtcrime.securesms.database.model.databaseprotos.GiftBadge;
 import org.thoughtcrime.securesms.database.model.databaseprotos.MessageExtras;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.mms.Slide;
 import org.thoughtcrime.securesms.mms.SlideDeck;
+import org.thoughtcrime.securesms.payments.CryptoValueUtil;
 import org.thoughtcrime.securesms.payments.Payment;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.whispersystems.signalservice.api.payments.FormatterOptions;
+import org.whispersystems.signalservice.api.payments.Money;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,6 +94,7 @@ public class MmsMessageRecord extends MessageRecord {
                           int subscriptionId,
                           long expiresIn,
                           long expireStarted,
+                          int expireTimerVersion,
                           boolean viewOnce,
                           boolean hasReadReceipt,
                           @Nullable Quote quote,
@@ -117,7 +122,7 @@ public class MmsMessageRecord extends MessageRecord {
   {
     super(id, body, fromRecipient, fromDeviceId, toRecipient,
           dateSent, dateReceived, dateServer, threadId, Status.STATUS_NONE, hasDeliveryReceipt,
-          mailbox, mismatches, failures, subscriptionId, expiresIn, expireStarted, hasReadReceipt,
+          mailbox, mismatches, failures, subscriptionId, expiresIn, expireStarted, expireTimerVersion, hasReadReceipt,
           unidentified, reactions, remoteDelete, notifiedTimestamp, viewed, receiptTimestamp, originalMessageId, revisionNumber, messageExtras);
 
     this.slideDeck        = slideDeck;
@@ -219,6 +224,18 @@ public class MmsMessageRecord extends MessageRecord {
       return emphasisAdded(context.getString(R.string.MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported));
     } else if (isPaymentNotification() && payment != null) {
       return new SpannableString(context.getString(R.string.MessageRecord__payment_s, payment.getAmount().toString(FormatterOptions.defaults())));
+    } else if (isPaymentTombstone() || isPaymentNotification()) {
+      MessageExtras extras = getMessageExtras();
+
+      Money amount = null;
+      if (extras != null && extras.paymentTombstone != null && extras.paymentTombstone.amount != null) {
+        amount = CryptoValueUtil.cryptoValueToMoney(extras.paymentTombstone.amount);
+      }
+      if (amount == null) {
+        return new SpannableString(context.getString(R.string.MessageRecord__payment_tombstone));
+      } else {
+        return new SpannableString(context.getString(R.string.MessageRecord__payment_s, amount.toString(FormatterOptions.defaults())));
+      }
     }
 
     return super.getDisplayBody(context);
@@ -292,9 +309,22 @@ public class MmsMessageRecord extends MessageRecord {
     return latestRevisionId;
   }
 
+  @Override
+  public boolean canDeleteSync() {
+    return (isSent() || MessageTypes.isInboxType(type)) &&
+           (isSecure() || isPush()) &&
+           (type & MessageTypes.GROUP_MASK) == 0 &&
+           (type & MessageTypes.KEY_EXCHANGE_MASK) == 0 &&
+           !isReportedSpam() &&
+           !isMessageRequestAccepted() &&
+           storyType == StoryType.NONE &&
+           getDateSent() > 0 &&
+           (parentStoryId == null || parentStoryId.isDirectReply());
+  }
+
   public @NonNull MmsMessageRecord withReactions(@NonNull List<ReactionRecord> reactions) {
     return new MmsMessageRecord(getId(), getFromRecipient(), getFromDeviceId(), getToRecipient(), getDateSent(), getDateReceived(), getServerTimestamp(), hasDeliveryReceipt(), getThreadId(), getBody(), getSlideDeck(),
-                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), isViewOnce(),
+                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), getExpireTimerVersion(), isViewOnce(),
                                 hasReadReceipt(), getQuote(), getSharedContacts(), getLinkPreviews(), isUnidentified(), reactions, isRemoteDelete(), mentionsSelf,
                                 getNotifiedTimestamp(), isViewed(), getReceiptTimestamp(), getMessageRanges(), getStoryType(), getParentStoryId(), getGiftBadge(), getPayment(), getCall(), getScheduledDate(), getLatestRevisionId(),
                                 getOriginalMessageId(), getRevisionNumber(), isRead(), getMessageExtras());
@@ -302,7 +332,7 @@ public class MmsMessageRecord extends MessageRecord {
 
   public @NonNull MmsMessageRecord withoutQuote() {
     return new MmsMessageRecord(getId(), getFromRecipient(), getFromDeviceId(), getToRecipient(), getDateSent(), getDateReceived(), getServerTimestamp(), hasDeliveryReceipt(), getThreadId(), getBody(), getSlideDeck(),
-                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), isViewOnce(),
+                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), getExpireTimerVersion(), isViewOnce(),
                                 hasReadReceipt(), null, getSharedContacts(), getLinkPreviews(), isUnidentified(), getReactions(), isRemoteDelete(), mentionsSelf,
                                 getNotifiedTimestamp(), isViewed(), getReceiptTimestamp(), getMessageRanges(), getStoryType(), getParentStoryId(), getGiftBadge(), getPayment(), getCall(), getScheduledDate(), getLatestRevisionId(),
                                 getOriginalMessageId(), getRevisionNumber(), isRead(), getMessageExtras());
@@ -324,7 +354,7 @@ public class MmsMessageRecord extends MessageRecord {
     SlideDeck                slideDeck        = MessageTable.MmsReader.buildSlideDeck(slideAttachments);
 
     return new MmsMessageRecord(getId(), getFromRecipient(), getFromDeviceId(), getToRecipient(), getDateSent(), getDateReceived(), getServerTimestamp(), hasDeliveryReceipt(), getThreadId(), getBody(), slideDeck,
-                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), isViewOnce(),
+                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), getExpireTimerVersion(), isViewOnce(),
                                 hasReadReceipt(), quote, contacts, linkPreviews, isUnidentified(), getReactions(), isRemoteDelete(), mentionsSelf,
                                 getNotifiedTimestamp(), isViewed(), getReceiptTimestamp(), getMessageRanges(), getStoryType(), getParentStoryId(), getGiftBadge(), getPayment(), getCall(), getScheduledDate(), getLatestRevisionId(),
                                 getOriginalMessageId(), getRevisionNumber(), isRead(), getMessageExtras());
@@ -332,7 +362,7 @@ public class MmsMessageRecord extends MessageRecord {
 
   public @NonNull MmsMessageRecord withPayment(@NonNull Payment payment) {
     return new MmsMessageRecord(getId(), getFromRecipient(), getFromDeviceId(), getToRecipient(), getDateSent(), getDateReceived(), getServerTimestamp(), hasDeliveryReceipt(), getThreadId(), getBody(), getSlideDeck(),
-                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), isViewOnce(),
+                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), getExpireTimerVersion(), isViewOnce(),
                                 hasReadReceipt(), getQuote(), getSharedContacts(), getLinkPreviews(), isUnidentified(), getReactions(), isRemoteDelete(), mentionsSelf,
                                 getNotifiedTimestamp(), isViewed(), getReceiptTimestamp(), getMessageRanges(), getStoryType(), getParentStoryId(), getGiftBadge(), payment, getCall(), getScheduledDate(), getLatestRevisionId(),
                                 getOriginalMessageId(), getRevisionNumber(), isRead(), getMessageExtras());
@@ -341,7 +371,7 @@ public class MmsMessageRecord extends MessageRecord {
 
   public @NonNull MmsMessageRecord withCall(@Nullable CallTable.Call call) {
     return new MmsMessageRecord(getId(), getFromRecipient(), getFromDeviceId(), getToRecipient(), getDateSent(), getDateReceived(), getServerTimestamp(), hasDeliveryReceipt(), getThreadId(), getBody(), getSlideDeck(),
-                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), isViewOnce(),
+                                getType(), getIdentityKeyMismatches(), getNetworkFailures(), getSubscriptionId(), getExpiresIn(), getExpireStarted(), getExpireTimerVersion(), isViewOnce(),
                                 hasReadReceipt(), getQuote(), getSharedContacts(), getLinkPreviews(), isUnidentified(), getReactions(), isRemoteDelete(), mentionsSelf,
                                 getNotifiedTimestamp(), isViewed(), getReceiptTimestamp(), getMessageRanges(), getStoryType(), getParentStoryId(), getGiftBadge(), getPayment(), call, getScheduledDate(), getLatestRevisionId(),
                                 getOriginalMessageId(), getRevisionNumber(), isRead(), getMessageExtras());

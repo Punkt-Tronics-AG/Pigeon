@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:viewBindingIgnore="true"
-    style="@style/Mp02.Signal.Background"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:descendantFocusability="blocksDescendants"
-        android:visibility="gone">
-
-        <include layout="@layout/dsl_settings_toolbar" />
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    <include layout="@layout/dsl_settings_toolbar" />
 
     <include
         layout="@layout/fragment_registration_enter_code"
+        android:id="@+id/code_entry_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

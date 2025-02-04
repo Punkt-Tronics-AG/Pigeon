@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,19 +42,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.signal.core.ui.Buttons
+import org.signal.core.ui.Dialogs
 import org.signal.core.ui.Previews
 import org.signal.core.ui.Scaffolds
 import org.signal.core.ui.SignalPreview
 import org.signal.core.ui.theme.SignalTheme
+import org.signal.core.util.bytes
 import org.signal.core.util.money.FiatMoney
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.v2.MessageBackupTier
+import org.thoughtcrime.securesms.fonts.SignalSymbols
+import org.thoughtcrime.securesms.fonts.SignalSymbols.SignalSymbol
 import org.thoughtcrime.securesms.payments.FiatMoneyUtil
+import org.thoughtcrime.securesms.util.ByteUnit
 import java.math.BigDecimal
 import java.util.Currency
+import kotlin.time.Duration.Companion.days
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Screen which allows the user to select their preferred backup type.
@@ -60,8 +68,10 @@ import java.util.Currency
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun MessageBackupsTypeSelectionScreen(
+  stage: MessageBackupsStage,
+  currentBackupTier: MessageBackupTier?,
   selectedBackupTier: MessageBackupTier?,
-  availableBackupTiers: List<MessageBackupTier>,
+  availableBackupTypes: List<MessageBackupsType>,
   onMessageBackupsTierSelected: (MessageBackupTier) -> Unit,
   onNavigationClick: () -> Unit,
   onReadMoreClicked: () -> Unit,
@@ -75,7 +85,7 @@ fun MessageBackupsTypeSelectionScreen(
     Column(
       modifier = Modifier
         .padding(paddingValues)
-        .padding(horizontal = dimensionResource(id = R.dimen.core_ui__gutter))
+        .padding(horizontal = dimensionResource(id = CoreUiR.dimen.gutter))
         .fillMaxSize()
     ) {
       LazyColumn(
@@ -86,7 +96,7 @@ fun MessageBackupsTypeSelectionScreen(
       ) {
         item {
           Image(
-            painter = painterResource(id = R.drawable.ic_signal_logo_large), // TODO [message-backups] Finalized art asset
+            painter = painterResource(id = R.drawable.image_signal_backups_plans),
             contentDescription = null,
             modifier = Modifier.size(88.dp)
           )
@@ -94,31 +104,33 @@ fun MessageBackupsTypeSelectionScreen(
 
         item {
           Text(
-            text = "Choose your backup type", // TODO [message-backups] Finalized copy
+            text = stringResource(id = R.string.MessagesBackupsTypeSelectionScreen__choose_your_backup_plan),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(top = 12.dp)
           )
         }
 
         item {
-          // TODO [message-backups] Finalized copy
           val primaryColor = MaterialTheme.colorScheme.primary
           val readMoreString = buildAnnotatedString {
-            append("All backups are end-to-end encrypted. Signal is a non-profit—paying for backups helps support our mission. ")
+            append(stringResource(id = R.string.MessageBackupsTypeSelectionScreen__all_backups_are_end_to_end_encrypted))
+
+            val readMore = stringResource(id = R.string.MessageBackupsTypeSelectionScreen__read_more)
+            append(" ")
             withAnnotation(tag = "URL", annotation = "read-more") {
               withStyle(
                 style = SpanStyle(
                   color = primaryColor
                 )
               ) {
-                append("Read more")
+                append(readMore)
               }
             }
           }
 
           ClickableText(
             text = readMoreString,
-            style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
+            style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface),
             onClick = { offset ->
               readMoreString
                 .getStringAnnotations(tag = "URL", start = offset, end = offset)
@@ -129,30 +141,44 @@ fun MessageBackupsTypeSelectionScreen(
         }
 
         itemsIndexed(
-          availableBackupTiers,
-          { _, item -> item }
+          availableBackupTypes,
+          { _, item -> item.tier }
         ) { index, item ->
-          val type = remember(item) {
-            getTierDetails(item)
-          }
           MessageBackupsTypeBlock(
-            messageBackupsType = type,
-            isSelected = item == selectedBackupTier,
-            onSelected = { onMessageBackupsTierSelected(item) },
+            messageBackupsType = item,
+            isCurrent = item.tier == currentBackupTier,
+            isSelected = item.tier == selectedBackupTier,
+            onSelected = { onMessageBackupsTierSelected(item.tier) },
             modifier = Modifier.padding(top = if (index == 0) 20.dp else 18.dp)
           )
         }
       }
 
+      val hasCurrentBackupTier = currentBackupTier != null
+
       Buttons.LargePrimary(
         onClick = onNextClicked,
+        enabled = selectedBackupTier != currentBackupTier && selectedBackupTier != null,
         modifier = Modifier
           .fillMaxWidth()
-          .padding(vertical = 16.dp)
+          .padding(vertical = if (hasCurrentBackupTier) 10.dp else 16.dp)
       ) {
         Text(
-          text = "Next" // TODO [message-backups] Finalized copy
+          text = stringResource(
+            id = if (currentBackupTier == null) {
+              R.string.MessageBackupsTypeSelectionScreen__next
+            } else {
+              R.string.MessageBackupsTypeSelectionScreen__change_backup_type
+            }
+          )
         )
+      }
+
+      when (stage) {
+        MessageBackupsStage.CREATING_IN_APP_PAYMENT -> Dialogs.IndeterminateProgressDialog()
+        MessageBackupsStage.PROCESS_PAYMENT -> Dialogs.IndeterminateProgressDialog()
+        MessageBackupsStage.PROCESS_FREE -> Dialogs.IndeterminateProgressDialog()
+        else -> Unit
       }
     }
   }
@@ -165,12 +191,33 @@ private fun MessageBackupsTypeSelectionScreenPreview() {
 
   Previews.Preview {
     MessageBackupsTypeSelectionScreen(
+      stage = MessageBackupsStage.TYPE_SELECTION,
       selectedBackupTier = MessageBackupTier.FREE,
-      availableBackupTiers = listOf(MessageBackupTier.FREE, MessageBackupTier.PAID),
+      availableBackupTypes = testBackupTypes(),
       onMessageBackupsTierSelected = { selectedBackupsType = it },
       onNavigationClick = {},
       onReadMoreClicked = {},
-      onNextClicked = {}
+      onNextClicked = {},
+      currentBackupTier = null
+    )
+  }
+}
+
+@SignalPreview
+@Composable
+private fun MessageBackupsTypeSelectionScreenWithCurrentTierPreview() {
+  var selectedBackupsType by remember { mutableStateOf(MessageBackupTier.FREE) }
+
+  Previews.Preview {
+    MessageBackupsTypeSelectionScreen(
+      stage = MessageBackupsStage.TYPE_SELECTION,
+      selectedBackupTier = MessageBackupTier.FREE,
+      availableBackupTypes = testBackupTypes(),
+      onMessageBackupsTierSelected = { selectedBackupsType = it },
+      onNavigationClick = {},
+      onReadMoreClicked = {},
+      onNextClicked = {},
+      currentBackupTier = MessageBackupTier.PAID
     )
   }
 }
@@ -178,10 +225,12 @@ private fun MessageBackupsTypeSelectionScreenPreview() {
 @Composable
 fun MessageBackupsTypeBlock(
   messageBackupsType: MessageBackupsType,
+  isCurrent: Boolean,
   isSelected: Boolean,
   onSelected: () -> Unit,
   modifier: Modifier = Modifier,
-  enabled: Boolean = true
+  enabled: Boolean = true,
+  iconColors: MessageBackupsTypeIconColors = MessageBackupsTypeIconColors.default()
 ) {
   val borderColor = if (isSelected) {
     MaterialTheme.colorScheme.primary
@@ -204,15 +253,42 @@ fun MessageBackupsTypeBlock(
       .clickable(onClick = onSelected, enabled = enabled)
       .padding(vertical = 16.dp, horizontal = 20.dp)
   ) {
+    if (isCurrent) {
+      Text(
+        text = buildAnnotatedString {
+          SignalSymbol(weight = SignalSymbols.Weight.REGULAR, glyph = SignalSymbols.Glyph.CHECKMARK)
+          append(" ")
+          append(stringResource(R.string.MessageBackupsTypeSelectionScreen__current_plan))
+        },
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+          .padding(bottom = 12.dp)
+          .background(
+            color = SignalTheme.colors.colorTransparent1,
+            shape = RoundedCornerShape(14.dp)
+          )
+          .padding(vertical = 4.dp, horizontal = 12.dp)
+      )
+    }
+
     Text(
-      text = formatCostPerMonth(messageBackupsType.pricePerMonth),
+      text = getFormattedPricePerMonth(messageBackupsType),
       style = MaterialTheme.typography.titleSmall
     )
 
     Text(
-      text = messageBackupsType.title,
+      text = when (messageBackupsType) {
+        is MessageBackupsType.Free -> pluralStringResource(id = R.plurals.MessageBackupsTypeSelectionScreen__text_plus_d_days_of_media, messageBackupsType.mediaRetentionDays, messageBackupsType.mediaRetentionDays)
+        is MessageBackupsType.Paid -> stringResource(id = R.string.MessageBackupsTypeSelectionScreen__text_plus_all_your_media)
+      },
       style = MaterialTheme.typography.titleMedium
     )
+
+    val featureIconTint = if (isSelected) {
+      iconColors.iconColorSelected
+    } else {
+      iconColors.iconColorNormal
+    }
 
     Column(
       verticalArrangement = spacedBy(4.dp),
@@ -220,69 +296,101 @@ fun MessageBackupsTypeBlock(
         .padding(top = 8.dp)
         .padding(horizontal = 16.dp)
     ) {
-      messageBackupsType.features.forEach {
-        MessageBackupsTypeFeatureRow(messageBackupsTypeFeature = it)
+      getFeatures(messageBackupsType = messageBackupsType).forEach {
+        MessageBackupsTypeFeatureRow(messageBackupsTypeFeature = it, iconTint = featureIconTint)
       }
     }
   }
 }
 
 @Composable
-private fun formatCostPerMonth(pricePerMonth: FiatMoney): String {
-  return if (pricePerMonth.amount == BigDecimal.ZERO) {
-    "Free"
-  } else {
-    "${FiatMoneyUtil.format(LocalContext.current.resources, pricePerMonth, FiatMoneyUtil.formatOptions().trimZerosAfterDecimal())}/month"
+private fun getFormattedPricePerMonth(messageBackupsType: MessageBackupsType): String {
+  return when (messageBackupsType) {
+    is MessageBackupsType.Free -> stringResource(id = R.string.MessageBackupsTypeSelectionScreen__free)
+    is MessageBackupsType.Paid -> {
+      val formattedAmount = FiatMoneyUtil.format(LocalContext.current.resources, messageBackupsType.pricePerMonth, FiatMoneyUtil.formatOptions().trimZerosAfterDecimal())
+      stringResource(id = R.string.MessageBackupsTypeSelectionScreen__s_month, formattedAmount)
+    }
   }
 }
 
-@Stable
-data class MessageBackupsType(
-  val tier: MessageBackupTier,
-  val pricePerMonth: FiatMoney,
-  val title: String,
-  val features: ImmutableList<MessageBackupsTypeFeature>
-)
-
-fun getTierDetails(tier: MessageBackupTier): MessageBackupsType {
-  return when (tier) {
-    MessageBackupTier.FREE -> MessageBackupsType(
-      tier = MessageBackupTier.FREE,
-      pricePerMonth = FiatMoney(BigDecimal.ZERO, Currency.getInstance("USD")),
-      title = "Text + 30 days of media",
-      features = persistentListOf(
-        MessageBackupsTypeFeature(
-          iconResourceId = R.drawable.symbol_thread_compact_bold_16,
-          label = "Full text message backup"
-        ),
-        MessageBackupsTypeFeature(
-          iconResourceId = R.drawable.symbol_album_compact_bold_16,
-          label = "Last 30 days of media"
+@Composable
+private fun getFeatures(messageBackupsType: MessageBackupsType): List<MessageBackupsTypeFeature> {
+  return when (messageBackupsType) {
+    is MessageBackupsType.Free -> persistentListOf(
+      MessageBackupsTypeFeature(
+        iconResourceId = R.drawable.symbol_thread_compact_bold_16,
+        label = stringResource(id = R.string.MessageBackupsTypeSelectionScreen__full_text_message_backup)
+      ),
+      MessageBackupsTypeFeature(
+        iconResourceId = R.drawable.symbol_album_compact_bold_16,
+        label = pluralStringResource(
+          id = R.plurals.MessageBackupsTypeSelectionScreen__last_d_days_of_media,
+          count = messageBackupsType.mediaRetentionDays,
+          messageBackupsType.mediaRetentionDays
         )
       )
     )
-    MessageBackupTier.PAID -> MessageBackupsType(
-      tier = MessageBackupTier.PAID,
-      pricePerMonth = FiatMoney(BigDecimal.valueOf(3), Currency.getInstance("USD")),
-      title = "Text + All your media",
-      features = persistentListOf(
+
+    is MessageBackupsType.Paid -> {
+      val photoCount = messageBackupsType.storageAllowanceBytes / ByteUnit.MEGABYTES.toBytes(2)
+      val photoCountThousands = photoCount / 1000
+      val sizeUnitString = messageBackupsType.storageAllowanceBytes.bytes.toUnitString(spaced = false)
+
+      persistentListOf(
         MessageBackupsTypeFeature(
           iconResourceId = R.drawable.symbol_thread_compact_bold_16,
-          label = "Full text message backup"
+          label = stringResource(id = R.string.MessageBackupsTypeSelectionScreen__full_text_message_backup)
         ),
         MessageBackupsTypeFeature(
           iconResourceId = R.drawable.symbol_album_compact_bold_16,
-          label = "Full media backup"
+          label = stringResource(id = R.string.MessageBackupsTypeSelectionScreen__full_media_backup)
         ),
         MessageBackupsTypeFeature(
           iconResourceId = R.drawable.symbol_thread_compact_bold_16,
-          label = "1TB of storage (~250K photos)"
+          label = stringResource(
+            id = R.string.MessageBackupsTypeSelectionScreen__s_of_storage_s_photos,
+            sizeUnitString,
+            "~${photoCountThousands}K"
+          )
         ),
         MessageBackupsTypeFeature(
           iconResourceId = R.drawable.symbol_heart_compact_bold_16,
-          label = "Thanks for supporting Signal!"
+          label = stringResource(id = R.string.MessageBackupsTypeSelectionScreen__thanks_for_supporting_signal)
         )
       )
+    }
+  }
+}
+
+fun testBackupTypes(): List<MessageBackupsType> {
+  return listOf(
+    MessageBackupsType.Free(
+      mediaRetentionDays = 30
+    ),
+    MessageBackupsType.Paid(
+      pricePerMonth = FiatMoney(BigDecimal.ONE, Currency.getInstance("USD")),
+      storageAllowanceBytes = 107374182400,
+      mediaTtl = 30.days
     )
+  )
+}
+
+/**
+ * Feature row iconography coloring
+ */
+@Immutable
+data class MessageBackupsTypeIconColors(
+  val iconColorNormal: Color,
+  val iconColorSelected: Color
+) {
+  companion object {
+    @Composable
+    fun default(): MessageBackupsTypeIconColors {
+      return MessageBackupsTypeIconColors(
+        iconColorNormal = MaterialTheme.colorScheme.onSurfaceVariant,
+        iconColorSelected = MaterialTheme.colorScheme.primary
+      )
+    }
   }
 }

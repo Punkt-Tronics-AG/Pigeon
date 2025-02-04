@@ -50,6 +50,7 @@ message ManifestRecord {
       GROUPV2                 = 3;
       ACCOUNT                 = 4;
       STORY_DISTRIBUTION_LIST = 5;
+      CALL_LINK               = 7;
     }
 
     bytes raw  = 1;
@@ -59,7 +60,8 @@ message ManifestRecord {
            uint64     version      = 1;
            uint32     sourceDevice = 3;
   repeated Identifier identifiers  = 2;
-  // Next ID: 4
+           bytes      recordIkm    = 4;
+  // Next ID: 5
 }
 
 message StorageRecord {
@@ -69,6 +71,7 @@ message StorageRecord {
     GroupV2Record               groupV2               = 3;
     AccountRecord               account               = 4;
     StoryDistributionListRecord storyDistributionList = 5;
+    CallLinkRecord              callLink              = 7;
   }
 }
 
@@ -182,41 +185,58 @@ message AccountRecord {
     Color color    = 3;
   }
 
-           bytes                  profileKey                      = 1;
-           string                 givenName                       = 2;
-           string                 familyName                      = 3;
-           string                 avatarUrlPath                   = 4;
-           bool                   noteToSelfArchived              = 5;
-           bool                   readReceipts                    = 6;
-           bool                   sealedSenderIndicators          = 7;
-           bool                   typingIndicators                = 8;
-           reserved            /* proxiedLinkPreviews */            9;
-           bool                   noteToSelfMarkedUnread          = 10;
-           bool                   linkPreviews                    = 11;
-           PhoneNumberSharingMode phoneNumberSharingMode          = 12;
-           bool                   unlistedPhoneNumber             = 13;
-  repeated PinnedConversation     pinnedConversations             = 14;
-           bool                   preferContactAvatars            = 15;
-           Payments               payments                        = 16;
-           uint32                 universalExpireTimer            = 17;
-           bool                   primarySendsSms                 = 18;
-           string                 e164                            = 19;
-  repeated string                 preferredReactionEmoji          = 20;
-           bytes                  subscriberId                    = 21;
-           string                 subscriberCurrencyCode          = 22;
-           bool                   displayBadgesOnProfile          = 23;
-           bool                   subscriptionManuallyCancelled   = 24;
-           bool                   keepMutedChatsArchived          = 25;
-           bool                   hasSetMyStoriesPrivacy          = 26;
-           bool                   hasViewedOnboardingStory        = 27;
-           reserved            /* storiesDisabled */                28;
-           bool                   storiesDisabled                 = 29;
-           OptionalBool           storyViewReceiptsEnabled        = 30;
-           reserved            /* hasReadOnboardingStory */         31;
-           bool                   hasSeenGroupStoryEducationSheet = 32;
-           string                 username                        = 33;
-           bool                   hasCompletedUsernameOnboarding  = 34;
-           UsernameLink           usernameLink                    = 35;
+  message IAPSubscriberData {
+    bytes subscriberId = 1;
+
+    oneof iapSubscriptionId {
+      // Identifies an Android Play Store IAP subscription.
+      string purchaseToken         = 2;
+      // Identifies an iOS App Store IAP subscription.
+      uint64 originalTransactionId = 3;
+    }
+  }
+
+           bytes                  profileKey                            = 1;
+           string                 givenName                             = 2;
+           string                 familyName                            = 3;
+           string                 avatarUrlPath                         = 4;
+           bool                   noteToSelfArchived                    = 5;
+           bool                   readReceipts                          = 6;
+           bool                   sealedSenderIndicators                = 7;
+           bool                   typingIndicators                      = 8;
+           reserved            /* proxiedLinkPreviews */                  9;
+           bool                   noteToSelfMarkedUnread                = 10;
+           bool                   linkPreviews                          = 11;
+           PhoneNumberSharingMode phoneNumberSharingMode                = 12;
+           bool                   unlistedPhoneNumber                   = 13;
+  repeated PinnedConversation     pinnedConversations                   = 14;
+           bool                   preferContactAvatars                  = 15;
+           Payments               payments                              = 16;
+           uint32                 universalExpireTimer                  = 17;
+           bool                   primarySendsSms                       = 18;
+           string                 e164                                  = 19;
+  repeated string                 preferredReactionEmoji                = 20;
+           bytes                  subscriberId                          = 21;
+           string                 subscriberCurrencyCode                = 22;
+           bool                   displayBadgesOnProfile                = 23;
+           bool                   subscriptionManuallyCancelled         = 24;
+           bool                   keepMutedChatsArchived                = 25;
+           bool                   hasSetMyStoriesPrivacy                = 26;
+           bool                   hasViewedOnboardingStory              = 27;
+           reserved            /* storiesDisabled */                      28;
+           bool                   storiesDisabled                       = 29;
+           OptionalBool           storyViewReceiptsEnabled              = 30;
+           reserved            /* hasReadOnboardingStory */               31;
+           bool                   hasSeenGroupStoryEducationSheet       = 32;
+           string                 username                              = 33;
+           bool                   hasCompletedUsernameOnboarding        = 34;
+           UsernameLink           usernameLink                          = 35;
+           reserved            /* backupsSubscriberId */                  36;
+           reserved            /* backupsSubscriberCurrencyCode */        37;
+           reserved            /* backupsSubscriptionManuallyCancelled */ 38;
+  optional bool                   hasBackup                             = 39; // Set to true after backups are enabled and one is uploaded.
+  optional uint64                 backupTier                            = 40; // See zkgroup for integer particular values
+           IAPSubscriberData      backupSubscriberData                  = 41;
 }
 
 message StoryDistributionListRecord {
@@ -226,4 +246,10 @@ message StoryDistributionListRecord {
            uint64 deletedAtTimestamp  = 4;
            bool   allowsReplies       = 5;
            bool   isBlockList         = 6;
+}
+
+message CallLinkRecord {
+  bytes rootKey               = 1;
+  bytes adminPasskey          = 2;
+  uint64 deletedAtTimestampMs = 3;
 }

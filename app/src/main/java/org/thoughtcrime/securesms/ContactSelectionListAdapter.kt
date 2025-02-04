@@ -135,7 +135,7 @@ class ContactSelectionListAdapter(
     private val emptyText: TextView = itemView.findViewById(R.id.search_no_results)
 
     override fun bind(model: EmptyModel) {
-      emptyText.text = context.getString(R.string.SearchFragment_no_results, model.empty.query)
+      emptyText.text = context.getString(R.string.SearchFragment_no_results, model.empty.query ?: "")
     }
   }
 
@@ -170,7 +170,7 @@ class ContactSelectionListAdapter(
       FIND_BY_PHONE_NUMBER("find-by-phone-number");
 
       companion object {
-        fun fromCode(code: String) = values().first { it.code == code }
+        fun fromCode(code: String) = entries.first { it.code == code }
       }
     }
 

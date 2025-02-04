@@ -14,12 +14,13 @@ import org.thoughtcrime.securesms.components.settings.app.subscription.errors.Un
 import org.thoughtcrime.securesms.components.settings.app.subscription.getBoostBadges
 import org.thoughtcrime.securesms.components.settings.app.subscription.getGiftBadges
 import org.thoughtcrime.securesms.components.settings.app.subscription.getSubscriptionLevels
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
-import org.thoughtcrime.securesms.jobs.SubscriptionReceiptRequestResponseJob
+import org.thoughtcrime.securesms.database.model.InAppPaymentSubscriberRecord
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.rx.RxStore
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription
 import java.util.Locale
+import kotlin.concurrent.withLock
 
 class InternalDonorErrorConfigurationViewModel : ViewModel() {
 
@@ -31,7 +32,7 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
   init {
     val giftBadges: Single<List<Badge>> = Single
       .fromCallable {
-        ApplicationDependencies.getDonationsService()
+        AppDependencies.donationsService
           .getDonationsConfiguration(Locale.getDefault())
       }
       .flatMap { it.flattenResult() }
@@ -40,7 +41,7 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
 
     val boostBadges: Single<List<Badge>> = Single
       .fromCallable {
-        ApplicationDependencies.getDonationsService()
+        AppDependencies.donationsService
           .getDonationsConfiguration(Locale.getDefault())
       }
       .flatMap { it.flattenResult() }
@@ -49,7 +50,7 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
 
     val subscriptionBadges: Single<List<Badge>> = Single
       .fromCallable {
-        ApplicationDependencies.getDonationsService()
+        AppDependencies.donationsService
           .getDonationsConfiguration(Locale.getDefault())
       }
       .flatMap { it.flattenResult() }
@@ -77,8 +78,8 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
   fun setSelectedUnexpectedSubscriptionCancellation(unexpectedSubscriptionCancellationIndex: Int) {
     store.update {
       it.copy(
-        selectedUnexpectedSubscriptionCancellation = if (unexpectedSubscriptionCancellationIndex in UnexpectedSubscriptionCancellation.values().indices) {
-          UnexpectedSubscriptionCancellation.values()[unexpectedSubscriptionCancellationIndex]
+        selectedUnexpectedSubscriptionCancellation = if (unexpectedSubscriptionCancellationIndex in UnexpectedSubscriptionCancellation.entries.toTypedArray().indices) {
+          UnexpectedSubscriptionCancellation.entries[unexpectedSubscriptionCancellationIndex]
         } else {
           null
         }
@@ -89,8 +90,8 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
   fun setStripeDeclineCode(stripeDeclineCodeIndex: Int) {
     store.update {
       it.copy(
-        selectedStripeDeclineCode = if (stripeDeclineCodeIndex in StripeDeclineCode.Code.values().indices) {
-          StripeDeclineCode.Code.values()[stripeDeclineCodeIndex]
+        selectedStripeDeclineCode = if (stripeDeclineCodeIndex in StripeDeclineCode.Code.entries.toTypedArray().indices) {
+          StripeDeclineCode.Code.entries[stripeDeclineCodeIndex]
         } else {
           null
         }
@@ -101,7 +102,7 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
   fun save(): Completable {
     val snapshot = store.state
     val saveState = Completable.fromAction {
-      synchronized(SubscriptionReceiptRequestResponseJob.MUTEX) {
+      InAppPaymentSubscriberRecord.Type.DONATION.lock.withLock {
         when {
           snapshot.selectedBadge?.isGift() == true -> handleGiftExpiration(snapshot)
           snapshot.selectedBadge?.isBoost() == true -> handleBoostExpiration(snapshot)
@@ -116,12 +117,12 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
 
   fun clearErrorState(): Completable {
     return Completable.fromAction {
-      synchronized(SubscriptionReceiptRequestResponseJob.MUTEX) {
-        SignalStore.donationsValues().setExpiredBadge(null)
-        SignalStore.donationsValues().setExpiredGiftBadge(null)
-        SignalStore.donationsValues().unexpectedSubscriptionCancelationReason = null
-        SignalStore.donationsValues().unexpectedSubscriptionCancelationTimestamp = 0L
-        SignalStore.donationsValues().setUnexpectedSubscriptionCancelationChargeFailure(null)
+      InAppPaymentSubscriberRecord.Type.DONATION.lock.withLock {
+        SignalStore.inAppPayments.setExpiredBadge(null)
+        SignalStore.inAppPayments.setExpiredGiftBadge(null)
+        SignalStore.inAppPayments.unexpectedSubscriptionCancelationReason = null
+        SignalStore.inAppPayments.unexpectedSubscriptionCancelationTimestamp = 0L
+        SignalStore.inAppPayments.setUnexpectedSubscriptionCancelationChargeFailure(null)
       }
 
       store.update {
@@ -135,24 +136,24 @@ class InternalDonorErrorConfigurationViewModel : ViewModel() {
   }
 
   private fun handleBoostExpiration(state: InternalDonorErrorConfigurationState) {
-    SignalStore.donationsValues().setExpiredBadge(state.selectedBadge)
+    SignalStore.inAppPayments.setExpiredBadge(state.selectedBadge)
   }
 
   private fun handleGiftExpiration(state: InternalDonorErrorConfigurationState) {
-    SignalStore.donationsValues().setExpiredGiftBadge(state.selectedBadge)
+    SignalStore.inAppPayments.setExpiredGiftBadge(state.selectedBadge)
   }
 
   private fun handleSubscriptionExpiration(state: InternalDonorErrorConfigurationState) {
-    SignalStore.donationsValues().setExpiredBadge(state.selectedBadge)
-    SignalStore.donationsValues().clearUserManuallyCancelled()
+    SignalStore.inAppPayments.updateLocalStateForLocalSubscribe(InAppPaymentSubscriberRecord.Type.DONATION)
+    SignalStore.inAppPayments.setExpiredBadge(state.selectedBadge)
     handleSubscriptionPaymentFailure(state)
   }
 
   private fun handleSubscriptionPaymentFailure(state: InternalDonorErrorConfigurationState) {
-    SignalStore.donationsValues().unexpectedSubscriptionCancelationReason = state.selectedUnexpectedSubscriptionCancellation?.status
-    SignalStore.donationsValues().unexpectedSubscriptionCancelationTimestamp = System.currentTimeMillis()
-    SignalStore.donationsValues().showMonthlyDonationCanceledDialog = true
-    SignalStore.donationsValues().setUnexpectedSubscriptionCancelationChargeFailure(
+    SignalStore.inAppPayments.unexpectedSubscriptionCancelationReason = state.selectedUnexpectedSubscriptionCancellation?.status
+    SignalStore.inAppPayments.unexpectedSubscriptionCancelationTimestamp = System.currentTimeMillis()
+    SignalStore.inAppPayments.showMonthlyDonationCanceledDialog = true
+    SignalStore.inAppPayments.setUnexpectedSubscriptionCancelationChargeFailure(
       state.selectedStripeDeclineCode?.let {
         ActiveSubscription.ChargeFailure(
           it.code,

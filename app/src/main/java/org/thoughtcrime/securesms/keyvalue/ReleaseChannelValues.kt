@@ -2,7 +2,7 @@ package org.thoughtcrime.securesms.keyvalue
 
 import org.thoughtcrime.securesms.recipients.RecipientId
 
-internal class ReleaseChannelValues(store: KeyValueStore) : SignalStoreValues(store) {
+class ReleaseChannelValues(store: KeyValueStore) : SignalStoreValues(store) {
 
   companion object {
     private const val KEY_RELEASE_CHANNEL_RECIPIENT_ID = "releasechannel.recipient_id"
@@ -10,11 +10,12 @@ internal class ReleaseChannelValues(store: KeyValueStore) : SignalStoreValues(st
     private const val KEY_PREVIOUS_MANIFEST_MD5 = "releasechannel.previous_manifest_md5"
     private const val KEY_HIGHEST_VERSION_NOTE_RECEIVED = "releasechannel.highest_version_note_received"
     private const val KEY_MET_CONVERSATION_REQUIREMENT = "releasechannel.met_conversation_requirement"
+    private const val KEY_HAS_UPDATED_AVATAR = "releasechannel.has_updated_avatar"
   }
 
-  override fun onFirstEverAppLaunch() = Unit
+  public override fun onFirstEverAppLaunch() = Unit
 
-  override fun getKeysToIncludeInBackup(): List<String> = listOf(
+  public override fun getKeysToIncludeInBackup(): List<String> = listOf(
     KEY_RELEASE_CHANNEL_RECIPIENT_ID
   )
 
@@ -32,12 +33,9 @@ internal class ReleaseChannelValues(store: KeyValueStore) : SignalStoreValues(st
     putString(KEY_RELEASE_CHANNEL_RECIPIENT_ID, id.serialize())
   }
 
-  fun clearReleaseChannelRecipientId() {
-    putString(KEY_RELEASE_CHANNEL_RECIPIENT_ID, "")
-  }
-
   var nextScheduledCheck by longValue(KEY_NEXT_SCHEDULED_CHECK, 0)
   var previousManifestMd5 by blobValue(KEY_PREVIOUS_MANIFEST_MD5, ByteArray(0))
   var highestVersionNoteReceived by integerValue(KEY_HIGHEST_VERSION_NOTE_RECEIVED, 0)
   var hasMetConversationRequirement by booleanValue(KEY_MET_CONVERSATION_REQUIREMENT, false)
+  var hasUpdatedAvatar by booleanValue(KEY_HAS_UPDATED_AVATAR, false)
 }

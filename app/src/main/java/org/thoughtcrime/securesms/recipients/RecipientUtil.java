@@ -15,7 +15,7 @@ import org.thoughtcrime.securesms.database.RecipientTable.RegisteredState;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupChangeBusyException;
 import org.thoughtcrime.securesms.groups.GroupChangeException;
 import org.thoughtcrime.securesms.groups.GroupChangeFailedException;
@@ -27,6 +27,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.mms.OutgoingMessage;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.util.ExpirationTimerUtil;
 import org.whispersystems.signalservice.api.push.ServiceId;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.push.exceptions.NotFoundException;
@@ -175,12 +176,12 @@ public class RecipientUtil {
     if (recipient.isSystemContact() || recipient.isProfileSharing() || isProfileSharedViaGroup(recipient)) {
       SignalDatabase.recipients().setProfileSharing(recipient.getId(), false);
 
-      ApplicationDependencies.getJobManager().startChain(new RefreshOwnProfileJob())
-                                             .then(new RotateProfileKeyJob())
-                                             .enqueue();
+      AppDependencies.getJobManager().startChain(new RefreshOwnProfileJob())
+                     .then(new RotateProfileKeyJob())
+                     .enqueue();
     }
 
-    ApplicationDependencies.getJobManager().add(new MultiDeviceBlockedUpdateJob());
+    AppDependencies.getJobManager().add(new MultiDeviceBlockedUpdateJob());
     StorageSyncHelper.scheduleSyncForDataChange();
   }
 
@@ -193,7 +194,7 @@ public class RecipientUtil {
 
     SignalDatabase.recipients().setBlocked(recipient.getId(), false);
     SignalDatabase.recipients().setProfileSharing(recipient.getId(), true);
-    ApplicationDependencies.getJobManager().add(new MultiDeviceBlockedUpdateJob());
+    AppDependencies.getJobManager().add(new MultiDeviceBlockedUpdateJob());
     StorageSyncHelper.scheduleSyncForDataChange();
   }
 
@@ -324,21 +325,23 @@ public class RecipientUtil {
   /**
    * Checks if a universal timer is set and if the thread should have it set on it. Attempts to abort quickly and perform
    * minimal database access.
+   *
+   * @return The new expire timer version if the timer was set, otherwise null.
    */
   @WorkerThread
-  public static boolean setAndSendUniversalExpireTimerIfNecessary(@NonNull Context context, @NonNull Recipient recipient, long threadId) {
+  public static @Nullable Integer setAndSendUniversalExpireTimerIfNecessary(@NonNull Context context, @NonNull Recipient recipient, long threadId) {
     int defaultTimer = SignalStore.settings().getUniversalExpireTimer();
     if (defaultTimer == 0 || recipient.isGroup() || recipient.isDistributionList() || recipient.getExpiresInSeconds() != 0 || !recipient.isRegistered()) {
-      return false;
+      return null;
     }
 
     if (threadId == -1 || SignalDatabase.messages().canSetUniversalTimer(threadId)) {
-      SignalDatabase.recipients().setExpireMessages(recipient.getId(), defaultTimer);
-      OutgoingMessage outgoingMessage = OutgoingMessage.expirationUpdateMessage(recipient, System.currentTimeMillis(), defaultTimer * 1000L);
+      int expireTimerVersion = SignalDatabase.recipients().setExpireMessagesAndIncrementVersion(recipient.getId(), defaultTimer);
+      OutgoingMessage outgoingMessage = OutgoingMessage.expirationUpdateMessage(recipient, System.currentTimeMillis(), defaultTimer * 1000L, expireTimerVersion);
       MessageSender.send(context, outgoingMessage, SignalDatabase.threads().getOrCreateThreadIdFor(recipient), MessageSender.SendType.SIGNAL, null, null);
-      return true;
+      return expireTimerVersion;
     }
-    return false;
+    return null;
   }
 
   @WorkerThread

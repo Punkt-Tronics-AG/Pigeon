@@ -6,7 +6,6 @@
 package org.thoughtcrime.securesms.backup.v2.ui.subscription
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,14 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.Buttons
 import org.signal.core.ui.Previews
 import org.signal.core.ui.Scaffolds
-import org.signal.core.ui.theme.SignalTheme
 import org.thoughtcrime.securesms.R
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Educational content which allows user to proceed to set up automatic backups
@@ -48,13 +47,13 @@ fun MessageBackupsEducationScreen(
   Scaffolds.Settings(
     onNavigationClick = onNavigationClick,
     navigationIconPainter = painterResource(id = R.drawable.symbol_x_24),
-    title = "Chat backups" // TODO [message-backups] Finalized copy
+    title = ""
   ) {
     Column(
       modifier = Modifier
         .fillMaxSize()
         .padding(it)
-        .padding(horizontal = dimensionResource(id = R.dimen.core_ui__gutter))
+        .padding(horizontal = dimensionResource(id = CoreUiR.dimen.gutter))
     ) {
       LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -64,17 +63,17 @@ fun MessageBackupsEducationScreen(
       ) {
         item {
           Image(
-            painter = painterResource(id = R.drawable.ic_signal_logo_large), // TODO [message-backups] Final image asset
+            painter = painterResource(id = R.drawable.image_signal_backups),
             contentDescription = null,
             modifier = Modifier
-              .padding(top = 48.dp)
-              .size(88.dp)
+              .padding(top = 24.dp)
+              .size(80.dp)
           )
         }
 
         item {
           Text(
-            text = "Chat Backups", // TODO [message-backups] Finalized copy
+            text = stringResource(id = R.string.RemoteBackupsSettingsFragment__signal_backups),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(top = 15.dp)
           )
@@ -82,7 +81,7 @@ fun MessageBackupsEducationScreen(
 
         item {
           Text(
-            text = "Back up your messages and media and using Signal’s secure, end-to-end encrypted storage service. Never lose a message when you get a new phone or reinstall Signal.", // TODO [message-backups] Finalized copy
+            text = stringResource(id = R.string.MessageBackupsEducationScreen__backup_your_messages_and_media),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -97,17 +96,17 @@ fun MessageBackupsEducationScreen(
           ) {
             NotableFeatureRow(
               painter = painterResource(id = R.drawable.symbol_lock_compact_20),
-              text = "End-to-end Encrypted" // TODO [message-backups] Finalized copy
+              text = stringResource(id = R.string.MessageBackupsEducationScreen__end_to_end_encrypted)
             )
 
             NotableFeatureRow(
               painter = painterResource(id = R.drawable.symbol_check_square_compact_20),
-              text = "Optional, always" // TODO [message-backups] Finalized copy
+              text = stringResource(id = R.string.MessageBackupsEducationScreen__optional_always)
             )
 
             NotableFeatureRow(
               painter = painterResource(id = R.drawable.symbol_trash_compact_20),
-              text = "Delete your backup anytime" // TODO [message-backups] Finalized copy
+              text = stringResource(id = R.string.MessageBackupsEducationScreen__delete_your_backup_anytime)
             )
           }
         }
@@ -118,7 +117,7 @@ fun MessageBackupsEducationScreen(
         modifier = Modifier.fillMaxWidth()
       ) {
         Text(
-          text = "Enable backups" // TODO [message-backups] Finalized copy
+          text = stringResource(id = R.string.MessageBackupsEducationScreen__enable_backups)
         )
       }
 
@@ -129,7 +128,7 @@ fun MessageBackupsEducationScreen(
           .padding(bottom = 16.dp)
       ) {
         Text(
-          text = "Learn more" // TODO [message-backups] Finalized copy
+          text = stringResource(id = R.string.MessageBackupsEducationScreen__learn_more)
         )
       }
     }
@@ -174,7 +173,6 @@ private fun NotableFeatureRow(
       modifier = Modifier
         .padding(end = 8.dp)
         .size(32.dp)
-        .background(color = SignalTheme.colors.colorSurface2, shape = CircleShape)
         .padding(6.dp)
     )
 

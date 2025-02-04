@@ -6,16 +6,17 @@
 package org.thoughtcrime.securesms.backup.v2.ui.subscription
 
 import org.thoughtcrime.securesms.backup.v2.MessageBackupTier
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.gateway.GatewayResponse
+import org.thoughtcrime.securesms.database.InAppPaymentTable
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.lock.v2.PinKeyboardType
+import org.whispersystems.signalservice.api.AccountEntropyPool
 
 data class MessageBackupsFlowState(
-  val selectedMessageBackupTier: MessageBackupTier? = null,
-  val currentMessageBackupTier: MessageBackupTier? = null,
-  val availableBackupTiers: List<MessageBackupTier> = emptyList(),
-  val selectedPaymentGateway: GatewayResponse.Gateway? = null,
-  val availablePaymentGateways: List<GatewayResponse.Gateway> = emptyList(),
-  val pin: String = "",
-  val pinKeyboardType: PinKeyboardType = SignalStore.pinValues().keyboardType
+  val selectedMessageBackupTier: MessageBackupTier? = SignalStore.backup.backupTier,
+  val currentMessageBackupTier: MessageBackupTier? = SignalStore.backup.backupTier,
+  val availableBackupTypes: List<MessageBackupsType> = emptyList(),
+  val inAppPayment: InAppPaymentTable.InAppPayment? = null,
+  val startScreen: MessageBackupsStage,
+  val stage: MessageBackupsStage = startScreen,
+  val accountEntropyPool: AccountEntropyPool = SignalStore.account.accountEntropyPool,
+  val failure: Throwable? = null
 )

@@ -38,6 +38,8 @@ import org.signal.core.util.concurrent.SettableFuture;
 import org.signal.core.util.logging.Log;
 import org.signal.glide.transforms.SignalDownsampleStrategy;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.attachments.Attachment;
+import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.blurhash.BlurHash;
 import org.thoughtcrime.securesms.components.transfercontrols.TransferControlView;
 import org.thoughtcrime.securesms.database.AttachmentTable;
@@ -48,6 +50,7 @@ import org.thoughtcrime.securesms.mms.SlideClickListener;
 import org.thoughtcrime.securesms.mms.SlidesClickedListener;
 import org.thoughtcrime.securesms.mms.VideoSlide;
 import org.thoughtcrime.securesms.stories.StoryTextPostModel;
+import org.thoughtcrime.securesms.util.AttachmentUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.views.Stub;
@@ -370,7 +373,16 @@ public class ThumbnailView extends FrameLayout {
       transferControlViewStub.get().setSlides(List.of(slide));
     }
     int transferState = TransferControlView.getTransferState(List.of(slide));
-    transferControlViewStub.get().setVisible(showControls && transferState != AttachmentTable.TRANSFER_PROGRESS_DONE && transferState != AttachmentTable.TRANSFER_PROGRESS_PERMANENT_FAILURE);
+    boolean isOffloadedImage = (transferState == AttachmentTable.TRANSFER_RESTORE_OFFLOADED && MediaUtil.isImageType(slide.getContentType())) && AttachmentUtil.isRestoreOnOpenPermitted(getContext(), slide.asAttachment());
+
+    if (!showControls ||
+        transferState == AttachmentTable.TRANSFER_PROGRESS_DONE ||
+        transferState == AttachmentTable.TRANSFER_PROGRESS_PERMANENT_FAILURE ||
+        isOffloadedImage) {
+      transferControlViewStub.get().setVisible(false);
+    } else {
+      transferControlViewStub.get().setVisible(true);
+    }
 
     if (slide.getUri() != null && slide.hasPlayOverlay() &&
         (slide.getTransferState() == AttachmentTable.TRANSFER_PROGRESS_DONE || isPreview))
@@ -394,9 +406,22 @@ public class ThumbnailView extends FrameLayout {
       return new SettableFuture<>(false);
     }
 
-    Log.i(TAG, "loading part with id " + slide.asAttachment().getUri()
+    Attachment slideAttachment = slide.asAttachment();
+    String     id;
+    if (slideAttachment instanceof DatabaseAttachment) {
+      id = ((DatabaseAttachment) slideAttachment).attachmentId.serialize();
+    } else {
+      final Uri uri = slideAttachment.getUri();
+      if (uri != null) {
+        id = slideAttachment.getUri().toString();
+      } else {
+        id = slideAttachment.getClass().getSimpleName();
+      }
+    }
+
+    Log.i(TAG, "loading part with id " + id
                + ", progress " + slide.getTransferState() + ", fast preflight id: " +
-               slide.asAttachment().fastPreflightId);
+               slideAttachment.fastPreflightId);
 
     BlurHash previousBlurHash = this.slide != null ? this.slide.getPlaceholderBlur() : null;
 
@@ -412,7 +437,10 @@ public class ThumbnailView extends FrameLayout {
     SettableFuture<Boolean> result        = new SettableFuture<>();
     boolean                 resultHandled = false;
 
-    if (slide.hasPlaceholder() && (previousBlurHash == null || !Objects.equals(slide.getPlaceholderBlur(), previousBlurHash))) {
+    if (slide.hasThumbnail()) {
+      buildArchiveThumbnailRequestBuilder(requestManager, slide).into(new GlideBitmapListeningTarget(blurHash, result));
+      resultHandled = true;
+    } else if (slide.hasPlaceholder() && (previousBlurHash == null || !Objects.equals(slide.getPlaceholderBlur(), previousBlurHash))) {
       buildPlaceholderRequestBuilder(requestManager, slide).into(new GlideBitmapListeningTarget(blurHash, result));
       resultHandled = true;
     } else if (!slide.hasPlaceholder()) {
@@ -420,7 +448,7 @@ public class ThumbnailView extends FrameLayout {
       blurHash.setImageDrawable(null);
     }
 
-    if (slide.getUri() != null) {
+    if (slide.getDisplayUri() != null) {
       if (!MediaUtil.isJpegType(slide.getContentType()) && !MediaUtil.isVideoType(slide.getContentType())) {
         SettableFuture<Boolean> thumbnailFuture = new SettableFuture<>();
         thumbnailFuture.deferTo(result);
@@ -542,7 +570,7 @@ public class ThumbnailView extends FrameLayout {
   }
 
   private RequestBuilder<Drawable> buildThumbnailRequestBuilder(@NonNull RequestManager requestManager, @NonNull Slide slide) {
-    RequestBuilder<Drawable> requestBuilder = applySizing(requestManager.load(new DecryptableUri(Objects.requireNonNull(slide.getUri())))
+    RequestBuilder<Drawable> requestBuilder = applySizing(requestManager.load(new DecryptableUri(Objects.requireNonNull(slide.getDisplayUri())))
                                                               .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                                                               .downsample(SignalDownsampleStrategy.CENTER_OUTSIDE_NO_UPSCALE)
                                                               .transition(withCrossFade()));
@@ -611,6 +639,25 @@ public class ThumbnailView extends FrameLayout {
     }
   }
 
+  private RequestBuilder<Bitmap> buildArchiveThumbnailRequestBuilder(@NonNull RequestManager requestManager, @NonNull Slide slide) {
+    RequestBuilder<Bitmap> bitmap = requestManager.asBitmap();
+
+    Uri thumbnailUri = slide.getThumbnailUri();
+
+    if (thumbnailUri != null) {
+      bitmap = bitmap.load(slide.getThumbnailUri());
+    } else {
+      bitmap = bitmap.load(slide.getPlaceholderRes(getContext().getTheme()));
+    }
+
+    final RequestBuilder<Bitmap> resizedRequest = applySizing(bitmap.diskCacheStrategy(DiskCacheStrategy.NONE));
+    if (thumbnailUri != null) {
+      return resizedRequest.centerCrop();
+    } else {
+      return resizedRequest;
+    }
+  }
+
   private <TranscodeType> RequestBuilder<TranscodeType> applySizing(@NonNull RequestBuilder<TranscodeType> request) {
     int[] size = new int[2];
     fillTargetDimensions(size, dimens, bounds);
@@ -648,13 +695,8 @@ public class ThumbnailView extends FrameLayout {
   private class ThumbnailClickDispatcher implements View.OnClickListener {
     @Override
     public void onClick(View view) {
-      boolean validThumbnail = slide != null &&
-                               slide.asAttachment().getUri() != null &&
-                               slide.getTransferState() == AttachmentTable.TRANSFER_PROGRESS_DONE;
-
-      boolean permanentFailure = slide != null && slide.asAttachment().isPermanentlyFailed();
-
-      if (thumbnailClickListener != null && (validThumbnail || permanentFailure)) {
+      boolean controlsVisible = transferControlViewStub.getVisibility() == View.VISIBLE && !transferControlViewStub.get().isGone();
+      if (thumbnailClickListener != null && !controlsVisible) {
         thumbnailClickListener.onClick(view, slide);
       } else if (parentClickListener != null) {
         parentClickListener.onClick(view);

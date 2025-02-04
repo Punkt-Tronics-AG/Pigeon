@@ -1,4 +1,4 @@
-@file:Suppress("ktlint:filename")
+@file:Suppress("ktlint:standard:filename")
 
 package org.thoughtcrime.securesms.components.settings
 
@@ -114,9 +114,10 @@ class DSLConfiguration {
     iconEnd: DSLSettingsIcon? = null,
     isEnabled: Boolean = true,
     onClick: () -> Unit,
-    onLongClick: (() -> Boolean)? = null
+    onLongClick: (() -> Boolean)? = null,
+    onDisabledClicked: () -> Unit = {}
   ) {
-    val preference = ClickPreference(title, summary, icon, iconEnd, isEnabled, onClick, onLongClick)
+    val preference = ClickPreference(title, summary, icon, iconEnd, isEnabled, onClick, onLongClick, onDisabledClicked)
     children.add(preference)
   }
 
@@ -169,18 +170,20 @@ class DSLConfiguration {
     text: DSLSettingsText,
     icon: DSLSettingsIcon? = null,
     isEnabled: Boolean = true,
+    disableOnClick: Boolean = false,
     onClick: () -> Unit
   ) {
-    val preference = Button.Model.Primary(text, icon, isEnabled, onClick)
+    val preference = Button.Model.Primary(text, icon, isEnabled, disableOnClick, onClick)
     children.add(preference)
   }
 
   fun primaryWrappedButton(
     text: DSLSettingsText,
     isEnabled: Boolean = true,
+    disableOnClick: Boolean = false,
     onClick: () -> Unit
   ) {
-    val preference = Button.Model.PrimaryWrapped(text, null, isEnabled, onClick)
+    val preference = Button.Model.PrimaryWrapped(text, null, isEnabled, disableOnClick, onClick)
     children.add(preference)
   }
 
@@ -188,9 +191,10 @@ class DSLConfiguration {
     text: DSLSettingsText,
     icon: DSLSettingsIcon? = null,
     isEnabled: Boolean = true,
+    disableOnClick: Boolean = false,
     onClick: () -> Unit
   ) {
-    val preference = Button.Model.Tonal(text, icon, isEnabled, onClick)
+    val preference = Button.Model.Tonal(text, icon, isEnabled, disableOnClick, onClick)
     children.add(preference)
   }
 
@@ -198,9 +202,10 @@ class DSLConfiguration {
     text: DSLSettingsText,
     icon: DSLSettingsIcon? = null,
     isEnabled: Boolean = true,
+    disableOnClick: Boolean = false,
     onClick: () -> Unit
   ) {
-    val preference = Button.Model.TonalWrapped(text, icon, isEnabled, onClick)
+    val preference = Button.Model.TonalWrapped(text, icon, isEnabled, disableOnClick, onClick)
     children.add(preference)
   }
 
@@ -208,9 +213,10 @@ class DSLConfiguration {
     text: DSLSettingsText,
     icon: DSLSettingsIcon? = null,
     isEnabled: Boolean = true,
+    disableOnClick: Boolean = false,
     onClick: () -> Unit
   ) {
-    val preference = Button.Model.SecondaryNoOutline(text, icon, isEnabled, onClick)
+    val preference = Button.Model.SecondaryNoOutline(text, icon, isEnabled, disableOnClick, onClick)
     children.add(preference)
   }
 
@@ -358,7 +364,8 @@ class ClickPreference(
   override val iconEnd: DSLSettingsIcon? = null,
   override val isEnabled: Boolean = true,
   val onClick: () -> Unit,
-  val onLongClick: (() -> Boolean)? = null
+  val onLongClick: (() -> Boolean)? = null,
+  val onDisabledClicked: () -> Unit = {}
 ) : PreferenceModel<ClickPreference>()
 
 class LongClickPreference(

@@ -7,6 +7,8 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
+import org.thoughtcrime.securesms.backup.v2.BackupRepository
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.lock.v2.PinKeyboardType
 import org.thoughtcrime.securesms.lock.v2.SvrConstants
 import org.thoughtcrime.securesms.util.DefaultValueLiveData
@@ -35,7 +37,11 @@ class PinRestoreViewModel : ViewModel() {
     }
 
     disposables += Single
-      .fromCallable { repo.restoreMasterKeyPostRegistration(pin, pinKeyboardType) }
+      .fromCallable {
+        val response = repo.restoreMasterKeyPostRegistration(pin, pinKeyboardType)
+        BackupRepository.restoreBackupTier(SignalStore.account.requireAci())
+        response
+      }
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe { result ->

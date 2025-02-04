@@ -11,10 +11,11 @@ import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.StickerTable;
 import org.thoughtcrime.securesms.database.StickerTable.StickerPackRecordReader;
 import org.thoughtcrime.securesms.database.model.StickerPackRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.MultiDeviceStickerPackOperationJob;
 import org.thoughtcrime.securesms.jobs.StickerPackDownloadJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ final class StickerManagementRepository {
 
   void fetchUnretrievedReferencePacks() {
     SignalExecutors.SERIAL.execute(() -> {
-      JobManager jobManager = ApplicationDependencies.getJobManager();
+      JobManager jobManager = AppDependencies.getJobManager();
 
       try (Cursor cursor = attachmentDatabase.getUnavailableStickerPacks()) {
         while (cursor != null && cursor.moveToNext()) {
@@ -60,9 +61,9 @@ final class StickerManagementRepository {
       try (StickerPackRecordReader reader = new StickerPackRecordReader(stickerDatabase.getAllStickerPacks())) {
         StickerPackRecord record;
         while ((record = reader.getNext()) != null) {
-          if (record.isInstalled()) {
+          if (record.isInstalled) {
             installedPacks.add(record);
-          } else if (BlessedPacks.contains(record.getPackId())) {
+          } else if (BlessedPacks.contains(record.packId)) {
             blessedPacks.add(record);
           } else {
             availablePacks.add(record);
@@ -78,15 +79,15 @@ final class StickerManagementRepository {
     SignalExecutors.SERIAL.execute(() -> {
       stickerDatabase.uninstallPack(packId);
 
-      if (TextSecurePreferences.isMultiDevice(context)) {
-        ApplicationDependencies.getJobManager().add(new MultiDeviceStickerPackOperationJob(packId, packKey, MultiDeviceStickerPackOperationJob.Type.REMOVE));
+      if (SignalStore.account().hasLinkedDevices()) {
+        AppDependencies.getJobManager().add(new MultiDeviceStickerPackOperationJob(packId, packKey, MultiDeviceStickerPackOperationJob.Type.REMOVE));
       }
     });
   }
 
   void installStickerPack(@NonNull String packId, @NonNull String packKey, boolean notify) {
     SignalExecutors.SERIAL.execute(() -> {
-      JobManager jobManager = ApplicationDependencies.getJobManager();
+      JobManager jobManager = AppDependencies.getJobManager();
 
       if (stickerDatabase.isPackAvailableAsReference(packId)) {
         stickerDatabase.markPackAsInstalled(packId, notify);
@@ -94,7 +95,7 @@ final class StickerManagementRepository {
 
       jobManager.add(StickerPackDownloadJob.forInstall(packId, packKey, notify));
 
-      if (TextSecurePreferences.isMultiDevice(context)) {
+      if (SignalStore.account().hasLinkedDevices()) {
         jobManager.add(new MultiDeviceStickerPackOperationJob(packId, packKey, MultiDeviceStickerPackOperationJob.Type.INSTALL));
       }
     });

@@ -81,13 +81,13 @@ import org.thoughtcrime.securesms.PassphraseRequiredActivity
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.app.usernamelinks.main.UsernameQrScannerActivity
 import org.thoughtcrime.securesms.invites.InviteActions
-import org.thoughtcrime.securesms.permissions.compose.Permissions
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberVisualTransformation
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.registration.util.CountryPrefix
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
 import org.thoughtcrime.securesms.util.viewModel
 import org.whispersystems.signalservice.api.util.PhoneNumberFormatter
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Allows the user to look up another Signal user by phone number or username and
@@ -142,13 +142,6 @@ class FindByActivity : PassphraseRequiredActivity() {
             ) {
               val context = LocalContext.current
 
-              val cameraPermissionController = Permissions.cameraPermissionHandler(
-                rationale = stringResource(id = R.string.PaymentsTransferFragment__to_scan_a_qr_code_signal_needs_access_to_the_camera),
-                onPermissionGranted = {
-                  qrScanLauncher.launch(Unit)
-                }
-              )
-
               Content(
                 paddingValues = it,
                 state = state,
@@ -171,7 +164,7 @@ class FindByActivity : PassphraseRequiredActivity() {
                   navController.navigate("select-country-prefix")
                 },
                 onQrCodeScanClicked = {
-                  cameraPermissionController.request()
+                  qrScanLauncher.launch(Unit)
                 }
               )
             }
@@ -399,7 +392,7 @@ private fun Content(
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
-          .padding(horizontal = dimensionResource(id = R.dimen.core_ui__gutter))
+          .padding(horizontal = dimensionResource(id = CoreUiR.dimen.gutter))
           .padding(top = 8.dp)
       )
 
@@ -585,7 +578,7 @@ private fun CountryPrefixRowItem(
     modifier = Modifier
       .fillMaxWidth()
       .clickable(onClick = onClick)
-      .padding(horizontal = dimensionResource(id = R.dimen.core_ui__gutter))
+      .padding(horizontal = dimensionResource(id = CoreUiR.dimen.gutter))
       .padding(top = 16.dp, bottom = 14.dp)
   ) {
     Text(

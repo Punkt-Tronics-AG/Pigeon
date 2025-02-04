@@ -417,7 +417,7 @@ class NotificationsSettingsFragment : DSLSettingsFragment(R.string.preferences__
   }
 
   private fun launchMessageSoundSelectionIntent() {
-    val current = SignalStore.settings().messageNotificationSound
+    val current = SignalStore.settings.messageNotificationSound
 
     val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
@@ -444,7 +444,7 @@ class NotificationsSettingsFragment : DSLSettingsFragment(R.string.preferences__
   }
 
   private fun launchCallRingtoneSelectionIntent() {
-    val current = SignalStore.settings().callRingtone
+    val current = SignalStore.settings.callRingtone
 
     val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)

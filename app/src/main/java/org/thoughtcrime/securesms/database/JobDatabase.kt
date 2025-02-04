@@ -7,12 +7,13 @@ import android.database.Cursor
 import androidx.core.content.contentValuesOf
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 import net.zetetic.database.sqlcipher.SQLiteOpenHelper
-import org.signal.core.util.CursorUtil
-import org.signal.core.util.concurrent.SignalExecutors
+import org.signal.core.util.SqlUtil
 import org.signal.core.util.delete
+import org.signal.core.util.forEach
 import org.signal.core.util.insertInto
 import org.signal.core.util.logging.Log
 import org.signal.core.util.readToList
+import org.signal.core.util.readToSingleObject
 import org.signal.core.util.requireBlob
 import org.signal.core.util.requireBoolean
 import org.signal.core.util.requireInt
@@ -29,6 +30,8 @@ import org.thoughtcrime.securesms.jobmanager.persistence.ConstraintSpec
 import org.thoughtcrime.securesms.jobmanager.persistence.DependencySpec
 import org.thoughtcrime.securesms.jobmanager.persistence.FullSpec
 import org.thoughtcrime.securesms.jobmanager.persistence.JobSpec
+import org.thoughtcrime.securesms.jobs.MinimalJobSpec
+import java.util.function.Predicate
 
 class JobDatabase(
   application: Application,
@@ -40,7 +43,7 @@ class JobDatabase(
   null,
   DATABASE_VERSION,
   0,
-  SqlCipherErrorHandler(DATABASE_NAME),
+  SqlCipherDeletingErrorHandler(DATABASE_NAME),
   SqlCipherDatabaseHook(),
   true
 ),
@@ -60,7 +63,9 @@ class JobDatabase(
     const val SERIALIZED_DATA = "serialized_data"
     const val SERIALIZED_INPUT_DATA = "serialized_input_data"
     const val IS_RUNNING = "is_running"
-    const val PRIORITY = "priority"
+    const val GLOBAL_PRIORITY = "global_priority"
+    const val QUEUE_PRIORITY = "queue_priority"
+    const val INITIAL_DELAY = "initial_delay"
 
     val CREATE_TABLE =
       """
@@ -78,7 +83,9 @@ class JobDatabase(
           $SERIALIZED_INPUT_DATA TEXT DEFAULT NULL, 
           $IS_RUNNING INTEGER,
           $NEXT_BACKOFF_INTERVAL INTEGER,
-          $PRIORITY INTEGER DEFAULT 0
+          $GLOBAL_PRIORITY INTEGER DEFAULT 0,
+          $QUEUE_PRIORITY INTEGER DEFAULT 0,
+          $INITIAL_DELAY INTEGER DEFAULT 0
         )
       """.trimIndent()
   }
@@ -123,21 +130,6 @@ class JobDatabase(
     db.execSQL(Jobs.CREATE_TABLE)
     db.execSQL(Constraints.CREATE_TABLE)
     db.execSQL(Dependencies.CREATE_TABLE)
-
-    if (SignalDatabase.hasTable("job_spec")) {
-      Log.i(TAG, "Found old job_spec table. Migrating data.")
-      migrateJobSpecsFromPreviousDatabase(SignalDatabase.rawDatabase, db)
-    }
-
-    if (SignalDatabase.hasTable("constraint_spec")) {
-      Log.i(TAG, "Found old constraint_spec table. Migrating data.")
-      migrateConstraintSpecsFromPreviousDatabase(SignalDatabase.rawDatabase, db)
-    }
-
-    if (SignalDatabase.hasTable("dependency_spec")) {
-      Log.i(TAG, "Found old dependency_spec table. Migrating data.")
-      migrateDependencySpecsFromPreviousDatabase(SignalDatabase.rawDatabase, db)
-    }
   }
 
   override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -152,18 +144,20 @@ class JobDatabase(
     if (oldVersion < 3) {
       db.execSQL("ALTER TABLE job_spec ADD COLUMN priority INTEGER DEFAULT 0")
     }
+
+    if (oldVersion < 4) {
+      db.execSQL("ALTER TABLE job_spec RENAME COLUMN priority TO global_priority")
+      db.execSQL("ALTER TABLE job_spec ADD COLUMN queue_priority INTEGER DEFAULT 0")
+    }
+
+    if (oldVersion < 5) {
+      db.execSQL("ALTER TABLE job_spec ADD COLUMN initial_delay INTEGER DEFAULT 0")
+    }
   }
 
   override fun onOpen(db: SQLiteDatabase) {
     Log.i(TAG, "onOpen()")
-
     db.setForeignKeyConstraintsEnabled(true)
-
-    SignalExecutors.BOUNDED.execute {
-      dropTableIfPresent("job_spec")
-      dropTableIfPresent("constraint_spec")
-      dropTableIfPresent("dependency_spec")
-    }
   }
 
   @Synchronized
@@ -182,7 +176,58 @@ class JobDatabase(
   }
 
   @Synchronized
-  fun getAllJobSpecs(): List<JobSpec> {
+  fun getJobSpecs(limit: Int): List<JobSpec> {
+    return readableDatabase
+      .select()
+      .from(Jobs.TABLE_NAME)
+      .orderBy("${Jobs.CREATE_TIME}, ${Jobs.ID} ASC")
+      .limit(limit)
+      .run()
+      .readToList { it.toJobSpec() }
+  }
+
+  @Synchronized
+  fun getMostEligibleJobInQueue(queue: String): JobSpec? {
+    return readableDatabase
+      .select()
+      .from(Jobs.TABLE_NAME)
+      .where("${Jobs.QUEUE_KEY} = ?", queue)
+      .orderBy("${Jobs.GLOBAL_PRIORITY} DESC, ${Jobs.QUEUE_PRIORITY} DESC, ${Jobs.CREATE_TIME} ASC, ${Jobs.ID} ASC")
+      .limit(1)
+      .run()
+      .readToSingleObject { it.toJobSpec() }
+  }
+
+  @Synchronized
+  fun getAllMatchingFilter(predicate: Predicate<JobSpec>): List<JobSpec> {
+    val output: MutableList<JobSpec> = mutableListOf()
+
+    readableDatabase
+      .select()
+      .from(Jobs.TABLE_NAME)
+      .run()
+      .readToList { cursor ->
+        val jobSpec = cursor.toJobSpec()
+        if (predicate.test(jobSpec)) {
+          output += jobSpec
+        }
+      }
+
+    return output
+  }
+
+  @Synchronized
+  fun getJobSpec(id: String): JobSpec? {
+    return readableDatabase
+      .select()
+      .from(Jobs.TABLE_NAME)
+      .where("${Jobs.JOB_SPEC_ID} = ?", id)
+      .run()
+      .readToSingleObject { it.toJobSpec() }
+  }
+
+  @Synchronized
+  fun getAllMinimalJobSpecs(): List<MinimalJobSpec> {
     val columns = arrayOf(
       Jobs.ID,
       Jobs.JOB_SPEC_ID,
@@ -191,18 +236,27 @@ class JobDatabase(
       Jobs.CREATE_TIME,
       Jobs.LAST_RUN_ATTEMPT_TIME,
       Jobs.NEXT_BACKOFF_INTERVAL,
-      Jobs.RUN_ATTEMPT,
-      Jobs.MAX_ATTEMPTS,
-      Jobs.LIFESPAN,
-      Jobs.SERIALIZED_DATA,
-      Jobs.SERIALIZED_INPUT_DATA,
       Jobs.IS_RUNNING,
-      Jobs.PRIORITY
+      Jobs.GLOBAL_PRIORITY,
+      Jobs.QUEUE_PRIORITY,
+      Jobs.INITIAL_DELAY
     )
     return readableDatabase
       .query(Jobs.TABLE_NAME, columns, null, null, null, null, "${Jobs.CREATE_TIME}, ${Jobs.ID} ASC")
       .readToList { cursor ->
-        jobSpecFromCursor(cursor)
+        MinimalJobSpec(
+          id = cursor.requireNonNullString(Jobs.JOB_SPEC_ID),
+          factoryKey = cursor.requireNonNullString(Jobs.FACTORY_KEY),
+          queueKey = cursor.requireString(Jobs.QUEUE_KEY),
+          createTime = cursor.requireLong(Jobs.CREATE_TIME),
+          lastRunAttemptTime = cursor.requireLong(Jobs.LAST_RUN_ATTEMPT_TIME),
+          nextBackoffInterval = cursor.requireLong(Jobs.NEXT_BACKOFF_INTERVAL),
+          globalPriority = cursor.requireInt(Jobs.GLOBAL_PRIORITY),
+          queuePriority = cursor.requireInt(Jobs.QUEUE_PRIORITY),
+          isRunning = cursor.requireBoolean(Jobs.IS_RUNNING),
+          isMemoryOnly = false,
+          initialDelay = cursor.requireLong(Jobs.INITIAL_DELAY)
+        )
       }
   }
 
@@ -252,24 +306,39 @@ class JobDatabase(
         .filterNot { it.isMemoryOnly }
         .forEach { job ->
           db.update(Jobs.TABLE_NAME)
-            .values(
-              Jobs.JOB_SPEC_ID to job.id,
-              Jobs.FACTORY_KEY to job.factoryKey,
-              Jobs.QUEUE_KEY to job.queueKey,
-              Jobs.CREATE_TIME to job.createTime,
-              Jobs.LAST_RUN_ATTEMPT_TIME to job.lastRunAttemptTime,
-              Jobs.NEXT_BACKOFF_INTERVAL to job.nextBackoffInterval,
-              Jobs.RUN_ATTEMPT to job.runAttempt,
-              Jobs.MAX_ATTEMPTS to job.maxAttempts,
-              Jobs.LIFESPAN to job.lifespan,
-              Jobs.SERIALIZED_DATA to job.serializedData,
-              Jobs.SERIALIZED_INPUT_DATA to job.serializedInputData,
-              Jobs.IS_RUNNING to if (job.isRunning) 1 else 0
-            )
+            .values(job.toContentValues())
             .where("${Jobs.JOB_SPEC_ID} = ?", job.id)
             .run()
         }
     }
+  }
+
+  @Synchronized
+  fun transformJobs(transformer: (JobSpec) -> JobSpec): List<JobSpec> {
+    val transformed: MutableList<JobSpec> = mutableListOf()
+
+    writableDatabase.withinTransaction { db ->
+      readableDatabase
+        .select()
+        .from(Jobs.TABLE_NAME)
+        .run()
+        .forEach { cursor ->
+          val jobSpec = cursor.toJobSpec()
+          val updated = transformer(jobSpec)
+          if (updated != jobSpec) {
+            transformed += updated
+          }
+        }
+
+      for (job in transformed) {
+        db.update(Jobs.TABLE_NAME)
+          .values(job.toContentValues())
+          .where("${Jobs.JOB_SPEC_ID} = ?", job.id)
+          .run()
+      }
+    }
+
+    return transformed
   }
 
   @Synchronized
@@ -296,14 +365,30 @@ class JobDatabase(
   }
 
   @Synchronized
-  fun getAllConstraintSpecs(): List<ConstraintSpec> {
+  fun getConstraintSpecs(limit: Int): List<ConstraintSpec> {
     return readableDatabase
       .select()
       .from(Constraints.TABLE_NAME)
+      .limit(limit)
       .run()
-      .readToList { cursor ->
-        constraintSpecFromCursor(cursor)
-      }
+      .readToList { it.toConstraintSpec() }
+  }
+
+  fun getConstraintSpecsForJobs(jobIds: Collection<String>): List<ConstraintSpec> {
+    val output: MutableList<ConstraintSpec> = mutableListOf()
+
+    for (query in SqlUtil.buildCollectionQuery(Constraints.JOB_SPEC_ID, jobIds)) {
+      readableDatabase
+        .select()
+        .from(Constraints.TABLE_NAME)
+        .where(query.where, query.whereArgs)
+        .run()
+        .forEach {
+          output += it.toConstraintSpec()
+        }
+    }
+
+    return output
   }
 
   @Synchronized
@@ -312,9 +397,7 @@ class JobDatabase(
       .select()
       .from(Dependencies.TABLE_NAME)
       .run()
-      .readToList { cursor ->
-        dependencySpecFromCursor(cursor)
-      }
+      .readToList { it.toDependencySpec() }
   }
 
   private fun insertJobSpec(db: SQLiteDatabase, job: JobSpec) {
@@ -325,21 +408,7 @@ class JobDatabase(
     check(db.inTransaction())
 
     db.insertInto(Jobs.TABLE_NAME)
-      .values(
-        Jobs.JOB_SPEC_ID to job.id,
-        Jobs.FACTORY_KEY to job.factoryKey,
-        Jobs.QUEUE_KEY to job.queueKey,
-        Jobs.CREATE_TIME to job.createTime,
-        Jobs.LAST_RUN_ATTEMPT_TIME to job.lastRunAttemptTime,
-        Jobs.NEXT_BACKOFF_INTERVAL to job.nextBackoffInterval,
-        Jobs.RUN_ATTEMPT to job.runAttempt,
-        Jobs.MAX_ATTEMPTS to job.maxAttempts,
-        Jobs.LIFESPAN to job.lifespan,
-        Jobs.SERIALIZED_DATA to job.serializedData,
-        Jobs.SERIALIZED_INPUT_DATA to job.serializedInputData,
-        Jobs.IS_RUNNING to if (job.isRunning) 1 else 0,
-        Jobs.PRIORITY to job.priority
-      )
+      .values(job.toContentValues())
       .run(SQLiteDatabase.CONFLICT_IGNORE)
   }
 
@@ -373,37 +442,39 @@ class JobDatabase(
       }
   }
 
-  private fun jobSpecFromCursor(cursor: Cursor): JobSpec {
+  private fun Cursor.toJobSpec(): JobSpec {
     return JobSpec(
-      id = cursor.requireNonNullString(Jobs.JOB_SPEC_ID),
-      factoryKey = cursor.requireNonNullString(Jobs.FACTORY_KEY),
-      queueKey = cursor.requireString(Jobs.QUEUE_KEY),
-      createTime = cursor.requireLong(Jobs.CREATE_TIME),
-      lastRunAttemptTime = cursor.requireLong(Jobs.LAST_RUN_ATTEMPT_TIME),
-      nextBackoffInterval = cursor.requireLong(Jobs.NEXT_BACKOFF_INTERVAL),
-      runAttempt = cursor.requireInt(Jobs.RUN_ATTEMPT),
-      maxAttempts = cursor.requireInt(Jobs.MAX_ATTEMPTS),
-      lifespan = cursor.requireLong(Jobs.LIFESPAN),
-      serializedData = cursor.requireBlob(Jobs.SERIALIZED_DATA),
-      serializedInputData = cursor.requireBlob(Jobs.SERIALIZED_INPUT_DATA),
-      isRunning = cursor.requireBoolean(Jobs.IS_RUNNING),
+      id = this.requireNonNullString(Jobs.JOB_SPEC_ID),
+      factoryKey = this.requireNonNullString(Jobs.FACTORY_KEY),
+      queueKey = this.requireString(Jobs.QUEUE_KEY),
+      createTime = this.requireLong(Jobs.CREATE_TIME),
+      lastRunAttemptTime = this.requireLong(Jobs.LAST_RUN_ATTEMPT_TIME),
+      nextBackoffInterval = this.requireLong(Jobs.NEXT_BACKOFF_INTERVAL),
+      runAttempt = this.requireInt(Jobs.RUN_ATTEMPT),
+      maxAttempts = this.requireInt(Jobs.MAX_ATTEMPTS),
+      lifespan = this.requireLong(Jobs.LIFESPAN),
+      serializedData = this.requireBlob(Jobs.SERIALIZED_DATA),
+      serializedInputData = this.requireBlob(Jobs.SERIALIZED_INPUT_DATA),
+      isRunning = this.requireBoolean(Jobs.IS_RUNNING),
       isMemoryOnly = false,
-      priority = cursor.requireInt(Jobs.PRIORITY)
+      globalPriority = this.requireInt(Jobs.GLOBAL_PRIORITY),
+      queuePriority = this.requireInt(Jobs.QUEUE_PRIORITY),
+      initialDelay = this.requireLong(Jobs.INITIAL_DELAY)
     )
   }
 
-  private fun constraintSpecFromCursor(cursor: Cursor): ConstraintSpec {
+  private fun Cursor.toConstraintSpec(): ConstraintSpec {
     return ConstraintSpec(
-      jobSpecId = cursor.requireNonNullString(Constraints.JOB_SPEC_ID),
-      factoryKey = cursor.requireNonNullString(Constraints.FACTORY_KEY),
+      jobSpecId = this.requireNonNullString(Constraints.JOB_SPEC_ID),
+      factoryKey = this.requireNonNullString(Constraints.FACTORY_KEY),
       isMemoryOnly = false
     )
   }
 
-  private fun dependencySpecFromCursor(cursor: Cursor): DependencySpec {
+  private fun Cursor.toDependencySpec(): DependencySpec {
     return DependencySpec(
-      jobId = cursor.requireNonNullString(Dependencies.JOB_SPEC_ID),
-      dependsOnJobId = cursor.requireNonNullString(Dependencies.DEPENDS_ON_JOB_SPEC_ID),
+      jobId = this.requireNonNullString(Dependencies.JOB_SPEC_ID),
+      dependsOnJobId = this.requireNonNullString(Dependencies.DEPENDS_ON_JOB_SPEC_ID),
       isMemoryOnly = false
     )
   }
@@ -412,21 +483,34 @@ class JobDatabase(
     return writableDatabase
   }
 
-  private fun dropTableIfPresent(table: String) {
-    if (SignalDatabase.hasTable(table)) {
-      Log.i(TAG, "Dropping original $table table from the main database.")
-      SignalDatabase.rawDatabase.execSQL("DROP TABLE $table")
-    }
-  }
-
   /** Should only be used for debugging! */
   fun debugResetBackoffInterval() {
     writableDatabase.update(Jobs.TABLE_NAME, contentValuesOf(Jobs.NEXT_BACKOFF_INTERVAL to 0), null, null)
   }
 
+  private fun JobSpec.toContentValues(): ContentValues {
+    return contentValuesOf(
+      Jobs.JOB_SPEC_ID to this.id,
+      Jobs.FACTORY_KEY to this.factoryKey,
+      Jobs.QUEUE_KEY to this.queueKey,
+      Jobs.CREATE_TIME to this.createTime,
+      Jobs.LAST_RUN_ATTEMPT_TIME to this.lastRunAttemptTime,
+      Jobs.NEXT_BACKOFF_INTERVAL to this.nextBackoffInterval,
+      Jobs.RUN_ATTEMPT to this.runAttempt,
+      Jobs.MAX_ATTEMPTS to this.maxAttempts,
+      Jobs.LIFESPAN to this.lifespan,
+      Jobs.SERIALIZED_DATA to this.serializedData,
+      Jobs.SERIALIZED_INPUT_DATA to this.serializedInputData,
+      Jobs.IS_RUNNING to if (this.isRunning) 1 else 0,
+      Jobs.GLOBAL_PRIORITY to this.globalPriority,
+      Jobs.QUEUE_PRIORITY to this.queuePriority,
+      Jobs.INITIAL_DELAY to this.initialDelay
+    )
+  }
+
   companion object {
     private val TAG = Log.tag(JobDatabase::class.java)
-    private const val DATABASE_VERSION = 3
+    private const val DATABASE_VERSION = 5
     private const val DATABASE_NAME = "signal-jobmanager.db"
 
     @SuppressLint("StaticFieldLeak")
@@ -444,49 +528,6 @@ class JobDatabase(
         }
       }
       return instance!!
-    }
-
-    private fun migrateJobSpecsFromPreviousDatabase(oldDb: SQLiteDatabase, newDb: SQLiteDatabase) {
-      oldDb.rawQuery("SELECT * FROM job_spec", null).use { cursor ->
-        while (cursor.moveToNext()) {
-          val values = ContentValues()
-          values.put(Jobs.JOB_SPEC_ID, CursorUtil.requireString(cursor, "job_spec_id"))
-          values.put(Jobs.FACTORY_KEY, CursorUtil.requireString(cursor, "factory_key"))
-          values.put(Jobs.QUEUE_KEY, CursorUtil.requireString(cursor, "queue_key"))
-          values.put(Jobs.CREATE_TIME, CursorUtil.requireLong(cursor, "create_time"))
-          values.put(Jobs.LAST_RUN_ATTEMPT_TIME, 0)
-          values.put(Jobs.NEXT_BACKOFF_INTERVAL, 0)
-          values.put(Jobs.RUN_ATTEMPT, CursorUtil.requireInt(cursor, "run_attempt"))
-          values.put(Jobs.MAX_ATTEMPTS, CursorUtil.requireInt(cursor, "max_attempts"))
-          values.put(Jobs.LIFESPAN, CursorUtil.requireLong(cursor, "lifespan"))
-          values.put(Jobs.SERIALIZED_DATA, CursorUtil.requireString(cursor, "serialized_data"))
-          values.put(Jobs.SERIALIZED_INPUT_DATA, CursorUtil.requireString(cursor, "serialized_input_data"))
-          values.put(Jobs.IS_RUNNING, CursorUtil.requireInt(cursor, "is_running"))
-          newDb.insert(Jobs.TABLE_NAME, null, values)
-        }
-      }
-    }
-
-    private fun migrateConstraintSpecsFromPreviousDatabase(oldDb: SQLiteDatabase, newDb: SQLiteDatabase) {
-      oldDb.rawQuery("SELECT * FROM constraint_spec", null).use { cursor ->
-        while (cursor.moveToNext()) {
-          val values = ContentValues()
-          values.put(Constraints.JOB_SPEC_ID, CursorUtil.requireString(cursor, "job_spec_id"))
-          values.put(Constraints.FACTORY_KEY, CursorUtil.requireString(cursor, "factory_key"))
-          newDb.insert(Constraints.TABLE_NAME, null, values)
-        }
-      }
-    }
-
-    private fun migrateDependencySpecsFromPreviousDatabase(oldDb: SQLiteDatabase, newDb: SQLiteDatabase) {
-      oldDb.rawQuery("SELECT * FROM dependency_spec", null).use { cursor ->
-        while (cursor.moveToNext()) {
-          val values = ContentValues()
-          values.put(Dependencies.JOB_SPEC_ID, CursorUtil.requireString(cursor, "job_spec_id"))
-          values.put(Dependencies.DEPENDS_ON_JOB_SPEC_ID, CursorUtil.requireString(cursor, "depends_on_job_spec_id"))
-          newDb.insert(Dependencies.TABLE_NAME, null, values)
-        }
-      }
     }
   }
 }

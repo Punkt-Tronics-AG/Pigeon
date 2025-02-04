@@ -5,25 +5,10 @@
 
 package org.thoughtcrime.securesms
 
-import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
+import assertk.Assert
+import assertk.assertions.isFalse
+import java.util.Optional
 
-fun <T : Any?> T.assertIsNull() {
-  MatcherAssert.assertThat(this, Matchers.nullValue())
-}
-
-fun <T : Any?> T.assertIsNotNull() {
-  MatcherAssert.assertThat(this, Matchers.notNullValue())
-}
-
-infix fun <T : Any?> T.assertIs(expected: T) {
-  MatcherAssert.assertThat(this, Matchers.`is`(expected))
-}
-
-infix fun <T : Any> T.assertIsNot(expected: T) {
-  MatcherAssert.assertThat(this, Matchers.not(Matchers.`is`(expected)))
-}
-
-infix fun <E, T : Collection<E>> T.assertIsSize(expected: Int) {
-  MatcherAssert.assertThat(this, Matchers.hasSize(expected))
+fun <T> Assert<Optional<T>>.isAbsent() {
+  transform { it.isPresent }.isFalse()
 }

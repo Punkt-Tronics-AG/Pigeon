@@ -4,13 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.PaymentTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.payments.proto.PaymentMetaData;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -75,7 +75,7 @@ public final class MultiDeviceOutgoingPaymentSyncJob extends BaseJob {
       throw new NotPushRegisteredException();
     }
 
-    if (!TextSecurePreferences.isMultiDevice(context)) {
+    if (!SignalStore.account().hasLinkedDevices()) {
       Log.i(TAG, "Not multi device, aborting...");
       return;
     }
@@ -116,9 +116,9 @@ public final class MultiDeviceOutgoingPaymentSyncJob extends BaseJob {
                                                                                txoIdentification.keyImages);
 
 
-    ApplicationDependencies.getSignalServiceMessageSender()
-                           .sendSyncMessage(SignalServiceSyncMessage.forOutgoingPayment(outgoingPaymentMessage),
-                                            UnidentifiedAccessUtil.getAccessForSync(context));
+    AppDependencies.getSignalServiceMessageSender()
+                   .sendSyncMessage(SignalServiceSyncMessage.forOutgoingPayment(outgoingPaymentMessage)
+                   );
   }
 
   @Override

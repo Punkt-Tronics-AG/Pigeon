@@ -32,7 +32,7 @@ import org.thoughtcrime.securesms.database.model.Mention;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.Util;
@@ -72,7 +72,7 @@ public class SearchRepository {
   private final Executor serialExecutor;
 
   public SearchRepository(@NonNull String noteToSelfTitle) {
-    this.context           = ApplicationDependencies.getApplication().getApplicationContext();
+    this.context           = AppDependencies.getApplication().getApplicationContext();
     this.noteToSelfTitle   = noteToSelfTitle;
     this.searchDatabase    = SignalDatabase.messageSearch();
     this.threadTable       = SignalDatabase.threads();
@@ -473,6 +473,14 @@ public class SearchRepository {
       long        threadId                = CursorUtil.requireLong(cursor, MessageTable.THREAD_ID);
       int         messageId               = CursorUtil.requireInt(cursor, SearchTable.MESSAGE_ID);
       boolean     isMms                   = CursorUtil.requireInt(cursor, SearchTable.IS_MMS) == 1;
+
+      if (body == null) {
+        body = "";
+      }
+
+      if (bodySnippet == null) {
+        bodySnippet = "";
+      }
 
       return new MessageResult(conversationRecipient, messageRecipient, body, bodySnippet, threadId, messageId, receivedMs, isMms);
     }

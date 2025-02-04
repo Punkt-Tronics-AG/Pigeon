@@ -12,7 +12,7 @@ import com.google.i18n.phonenumbers.ShortNumberInfo;
 
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.util.Pair;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.signal.core.util.SetUtil;
@@ -29,8 +29,9 @@ public class PhoneNumberFormatter {
 
   private static final String TAG = Log.tag(PhoneNumberFormatter.class);
 
+  private static final String UNKNOWN_NUMBER = "Unknown";
+
   private static final Set<String>  EXCLUDE_FROM_MANUAL_SHORTCODE_4 = SetUtil.newHashSet("AC", "NC", "NU", "TK");
-  private static final Set<String>  MANUAL_SHORTCODE_6              = SetUtil.newHashSet("DE", "FI", "GB", "SK");
   private static final Set<Integer> NATIONAL_FORMAT_COUNTRY_CODES   = SetUtil.newHashSet(1 /*US*/, 44 /*UK*/);
 
   private static final Pattern US_NO_AREACODE = Pattern.compile("^(\\d{7})$");
@@ -79,7 +80,7 @@ public class PhoneNumberFormatter {
   }
 
   public static @NonNull String prettyPrint(@NonNull String e164) {
-    return StringUtil.forceLtr(get(ApplicationDependencies.getApplication()).prettyPrintFormat(e164));
+    return StringUtil.forceLtr(get(AppDependencies.getApplication()).prettyPrintFormat(e164));
   }
 
   public @NonNull String prettyPrintFormat(@NonNull String e164) {
@@ -101,13 +102,21 @@ public class PhoneNumberFormatter {
   }
 
   public static int getLocalCountryCode() {
-    Optional<PhoneNumber> localNumber = get(ApplicationDependencies.getApplication()).localNumber;
+    Optional<PhoneNumber> localNumber = get(AppDependencies.getApplication()).localNumber;
     return localNumber != null && localNumber.isPresent() ? localNumber.get().countryCode : 0;
+  }
+
+  public @Nullable String formatOrNull(@Nullable String number) {
+    String formatted = format(number);
+    if (formatted.equals(UNKNOWN_NUMBER)) {
+      return null;
+    }
+    return formatted;
   }
 
 
   public @NonNull String format(@Nullable String number) {
-    if (number == null)                       return "Unknown";
+    if (number == null)                       return UNKNOWN_NUMBER;
     if (GroupId.isEncodedGroup(number))       return number;
     if (ALPHA_PATTERN.matcher(number).find()) return number.trim();
 
@@ -118,11 +127,7 @@ public class PhoneNumberFormatter {
       else                             return number.trim();
     }
 
-    if (bareNumber.length() <= 6 && MANUAL_SHORTCODE_6.contains(localCountryCode)) {
-      return bareNumber;
-    }
-
-    if (bareNumber.length() <= 4 && !EXCLUDE_FROM_MANUAL_SHORTCODE_4.contains(localCountryCode)) {
+    if (bareNumber.length() <= 6) {
       return bareNumber;
     }
 

@@ -19,6 +19,7 @@ package org.thoughtcrime.securesms.database.model;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 
@@ -32,6 +33,7 @@ import androidx.core.content.ContextCompat;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.Base64;
 import org.signal.core.util.StringUtil;
 import org.signal.core.util.logging.Log;
 import org.signal.storageservice.protos.groups.local.DecryptedGroup;
@@ -57,7 +59,6 @@ import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.signal.core.util.Base64;
 import org.thoughtcrime.securesms.util.DateUtils;
 import org.thoughtcrime.securesms.util.ExpirationUtil;
 import org.thoughtcrime.securesms.util.GroupUtil;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -97,6 +99,7 @@ public abstract class MessageRecord extends DisplayRecord {
   private final int                      subscriptionId;
   private final long                     expiresIn;
   private final long                     expireStarted;
+  private final int                      expireTimerVersion;
   private final boolean                  unidentified;
   private final List<ReactionRecord>     reactions;
   private final long                     serverTimestamp;
@@ -117,6 +120,7 @@ public abstract class MessageRecord extends DisplayRecord {
                 int subscriptionId,
                 long expiresIn,
                 long expireStarted,
+                int expireTimerVersion,
                 boolean hasReadReceipt,
                 boolean unidentified,
                 @NonNull List<ReactionRecord> reactions,
@@ -138,6 +142,7 @@ public abstract class MessageRecord extends DisplayRecord {
     this.subscriptionId      = subscriptionId;
     this.expiresIn           = expiresIn;
     this.expireStarted       = expireStarted;
+    this.expireTimerVersion  = expireTimerVersion;
     this.unidentified        = unidentified;
     this.reactions           = reactions;
     this.serverTimestamp     = dateServer;
@@ -221,8 +226,8 @@ public abstract class MessageRecord extends DisplayRecord {
     } else if (isIdentityUpdate()) {
       return fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_your_safety_number_with_s_has_changed, r.getDisplayName(context)), R.drawable.ic_update_safety_number_16);
     } else if (isIdentityVerified()) {
-      if (isOutgoing()) return fromRecipient(getToRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified, r.getDisplayName(context)), R.drawable.ic_update_verified_16);
-      else              return fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device, r.getDisplayName(context)), R.drawable.ic_update_verified_16);
+      if (isOutgoing()) return fromRecipient(getToRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified, r.getDisplayName(context)), R.drawable.ic_safety_number_16);
+      else              return fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device, r.getDisplayName(context)), R.drawable.ic_safety_number_16);
     } else if (isIdentityDefault()) {
       if (isOutgoing()) return fromRecipient(getToRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_unverified, r.getDisplayName(context)), R.drawable.ic_update_info_16);
       else              return fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device, r.getDisplayName(context)), R.drawable.ic_update_info_16);
@@ -230,7 +235,7 @@ public abstract class MessageRecord extends DisplayRecord {
       return getProfileChangeDescription(context);
     } else if (isChangeNumber()) {
       return fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_s_changed_their_phone_number, r.getDisplayName(context)), R.drawable.ic_phone_16);
-    } else if (isBoostRequest()) {
+    } else if (isReleaseChannelDonationRequest()) {
       return staticUpdateDescription(context.getString(R.string.MessageRecord_like_this_new_feature_help_support_signal_with_a_one_time_donation), 0);
     } else if (isEndSession()) {
       if (isOutgoing()) return staticUpdateDescription(context.getString(R.string.SmsMessageRecord_secure_session_reset), R.drawable.ic_update_info_16);
@@ -269,7 +274,7 @@ public abstract class MessageRecord extends DisplayRecord {
       int messageResource = R.string.MessageRecord__you_can_no_longer_send_sms_messages_in_signal;
       return fromRecipient(getFromRecipient(), r -> context.getString(messageResource, r.getDisplayName(context)), R.drawable.ic_update_info_16);
     } else if (isPaymentsRequestToActivate()) {
-      return isOutgoing() ? fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_you_sent_request, r.getShortDisplayName(context)), R.drawable.ic_card_activate_payments)
+      return isOutgoing() ? fromRecipient(getToRecipient(), r -> context.getString(R.string.MessageRecord_you_sent_request, r.getShortDisplayName(context)), R.drawable.ic_card_activate_payments)
                           : fromRecipient(getFromRecipient(), r -> context.getString(R.string.MessageRecord_wants_you_to_activate_payments, r.getShortDisplayName(context)), R.drawable.ic_card_activate_payments);
    } else if (isPaymentsActivated()) {
       return isOutgoing() ? staticUpdateDescription(context.getString(R.string.MessageRecord_you_activated_payments), R.drawable.ic_card_activate_payments)
@@ -308,6 +313,14 @@ public abstract class MessageRecord extends DisplayRecord {
       return null;
     }
 
+    if (messageExtras != null && messageExtras.gv2UpdateDescription != null) {
+      return messageExtras.gv2UpdateDescription.gv2ChangeDescription;
+    }
+
+    if (TextUtils.isEmpty(getBody())) {
+      return null;
+    }
+
     DecryptedGroupV2Context decryptedGroupV2Context;
     try {
       byte[] decoded = Base64.decode(getBody());
@@ -342,7 +355,7 @@ public abstract class MessageRecord extends DisplayRecord {
       if (messageExtras.gv2UpdateDescription.groupChangeUpdate != null) {
         GroupsV2UpdateMessageProducer updateMessageProducer = new GroupsV2UpdateMessageProducer(context, SignalStore.account().getServiceIds(), recipientClickHandler);
 
-        return UpdateDescription.concatWithNewLines(updateMessageProducer.describeChanges(messageExtras.gv2UpdateDescription.groupChangeUpdate.updates));
+        return concatWithNewLinesCapped(context, updateMessageProducer.describeChanges(messageExtras.gv2UpdateDescription.groupChangeUpdate.updates));
       } else if (messageExtras.gv2UpdateDescription.gv2ChangeDescription != null) {
         return getGv2ChangeDescription(context, messageExtras.gv2UpdateDescription.gv2ChangeDescription, recipientClickHandler);
       } else {
@@ -357,7 +370,7 @@ public abstract class MessageRecord extends DisplayRecord {
       GroupsV2UpdateMessageProducer  updateMessageProducer   = new GroupsV2UpdateMessageProducer(context, SignalStore.account().getServiceIds(), recipientClickHandler);
 
       if (decryptedGroupV2Context.change != null && ((decryptedGroupV2Context.groupState != null && decryptedGroupV2Context.groupState.revision != 0) || decryptedGroupV2Context.previousGroupState != null)) {
-        return UpdateDescription.concatWithNewLines(updateMessageProducer.describeChanges(decryptedGroupV2Context.previousGroupState, decryptedGroupV2Context.change));
+        return concatWithNewLinesCapped(context, updateMessageProducer.describeChanges(decryptedGroupV2Context.previousGroupState, decryptedGroupV2Context.change));
       } else {
         List<UpdateDescription> newGroupDescriptions = new ArrayList<>();
         newGroupDescriptions.add(updateMessageProducer.describeNewGroup(decryptedGroupV2Context.groupState, decryptedGroupV2Context.change));
@@ -369,12 +382,20 @@ public abstract class MessageRecord extends DisplayRecord {
         if (selfCreatedGroup(decryptedGroupV2Context.change)) {
           newGroupDescriptions.add(staticUpdateDescription(context.getString(R.string.MessageRecord_invite_friends_to_this_group), 0));
         }
-        return UpdateDescription.concatWithNewLines(newGroupDescriptions);
+        return concatWithNewLinesCapped(context, newGroupDescriptions);
       }
     } catch (IllegalArgumentException | IllegalStateException e) {
       Log.w(TAG, "GV2 Message update detail could not be read", e);
       return staticUpdateDescription(context.getString(R.string.MessageRecord_group_updated), R.drawable.ic_update_group_16);
     }
+  }
+
+  private static @NonNull UpdateDescription concatWithNewLinesCapped(@NonNull Context context, @NonNull List<UpdateDescription> updateDescriptions) {
+    if (updateDescriptions.size() > 100) {
+      // Arbitrary update description collapse cap, otherwise the long string can cause issues
+      return staticUpdateDescription(context.getString(R.string.MessageRecord_group_updated), R.drawable.ic_update_group_16);
+    }
+    return UpdateDescription.concatWithNewLines(updateDescriptions);
   }
 
   public @Nullable InviteAddState getGv2AddInviteState() {
@@ -460,8 +481,19 @@ public abstract class MessageRecord extends DisplayRecord {
         }
 
         return staticUpdateDescription(updateMessage, R.drawable.ic_update_profile_16);
+      } else if (profileChangeDetails.deprecatedLearnedProfileName != null) {
+        return staticUpdateDescription(context.getString(R.string.MessageRecord_started_this_chat, profileChangeDetails.deprecatedLearnedProfileName.previous), R.drawable.symbol_thread_16);
       } else if (profileChangeDetails.learnedProfileName != null) {
-        return staticUpdateDescription(context.getString(R.string.MessageRecord_started_this_chat, profileChangeDetails.learnedProfileName.previous), R.drawable.symbol_thread_16);
+        String previouslyKnownAs;
+        if (!Util.isEmpty(profileChangeDetails.learnedProfileName.e164)) {
+          previouslyKnownAs = PhoneNumberFormatter.prettyPrint(profileChangeDetails.learnedProfileName.e164);
+        } else {
+          previouslyKnownAs = profileChangeDetails.learnedProfileName.username;
+        }
+
+        if (!Util.isEmpty(previouslyKnownAs)) {
+          return staticUpdateDescription(context.getString(R.string.MessageRecord_started_this_chat, previouslyKnownAs), R.drawable.symbol_thread_16);
+        }
       }
     }
 
@@ -487,17 +519,17 @@ public abstract class MessageRecord extends DisplayRecord {
         updates.add(staticUpdateDescription(context.getResources().getQuantityString(R.plurals.MessageRecord_members_couldnt_be_added_to_the_new_group_and_have_been_removed, count, count), R.drawable.ic_update_group_remove_16));
       }
 
-      return UpdateDescription.concatWithNewLines(updates);
+      return concatWithNewLinesCapped(context, updates);
     }
   }
 
   public static @NonNull UpdateDescription getGroupCallUpdateDescription(@NonNull Context context, @NonNull String body, boolean withTime) {
     GroupCallUpdateDetails groupCallUpdateDetails = GroupCallUpdateDetailsUtil.parse(body);
 
-    List<ACI> joinedMembers = Stream.of(groupCallUpdateDetails.inCallUuids)
+    List<ServiceId> joinedMembers = Stream.of(groupCallUpdateDetails.inCallUuids)
                                           .map(UuidUtil::parseOrNull)
                                           .withoutNulls()
-                                          .map(ACI::from)
+                                          .<ServiceId>map(ACI::from)
                                           .toList();
 
     UpdateDescription.SpannableFactory stringFactory = new GroupCallUpdateMessageFactory(context, joinedMembers, withTime, groupCallUpdateDetails);
@@ -585,6 +617,9 @@ public abstract class MessageRecord extends DisplayRecord {
     if ((isPush() || isCallLog()) && getDateSent() < getDateReceived()) {
       return getDateSent();
     }
+    if (isEditMessage()) {
+      return getDateSent();
+    }
     return getDateReceived();
   }
 
@@ -652,7 +687,7 @@ public abstract class MessageRecord extends DisplayRecord {
     return isGroupAction() || isJoined() || isExpirationTimerUpdate() || isCallLog() ||
            isEndSession() || isIdentityUpdate() || isIdentityVerified() || isIdentityDefault() ||
            isProfileChange() || isGroupV1MigrationEvent() || isChatSessionRefresh() || isBadDecryptType() ||
-           isChangeNumber() || isBoostRequest() || isThreadMergeEventType() || isSmsExportType() || isSessionSwitchoverEventType() ||
+           isChangeNumber() || isReleaseChannelDonationRequest() || isThreadMergeEventType() || isSmsExportType() || isSessionSwitchoverEventType() ||
            isPaymentsRequestToActivate() || isPaymentsActivated() || isReportedSpam() || isMessageRequestAccepted();
   }
 
@@ -707,7 +742,7 @@ public abstract class MessageRecord extends DisplayRecord {
   }
 
   public int hashCode() {
-    return (int)getId();
+    return Objects.hash(id, isMms());
   }
 
   public int getSubscriptionId() {
@@ -720,6 +755,10 @@ public abstract class MessageRecord extends DisplayRecord {
 
   public long getExpireStarted() {
     return expireStarted;
+  }
+
+  public int getExpireTimerVersion() {
+    return expireTimerVersion;
   }
 
   public boolean isUnidentified() {
@@ -800,6 +839,13 @@ public abstract class MessageRecord extends DisplayRecord {
 
   public int getRevisionNumber() {
     return revisionNumber;
+  }
+
+  /**
+   * A message that can be correctly identified and delete sync'd across devices.
+   */
+  public boolean canDeleteSync() {
+    return false;
   }
 
   public static final class InviteAddState {

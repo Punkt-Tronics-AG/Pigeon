@@ -1,8 +1,13 @@
+/*
+ * Copyright 2024 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package org.thoughtcrime.securesms.service;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.thoughtcrime.securesms.BaseUnitTest;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,12 +15,22 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.Mockito.when;
 
-public class VerificationCodeParserTest extends BaseUnitTest {
+/**
+ * Tests {@link VerificationCodeParser}
+ */
+@RunWith(Parameterized.class)
+public class VerificationCodeParserTest {
 
+  private final String input;
+  private final String expectedOutput;
+
+  public VerificationCodeParserTest(String input, String expectedOutput) {
+    this.input = input;
+    this.expectedOutput = expectedOutput;
+  }
+
+  @Parameterized.Parameters(name = "{index}: test with input={0} and expectedOutput={1}")
   public static Collection<String[]> challenges() {
     return Arrays.asList(new String[][]{
         {"Your TextSecure verification code: 337-337", "337337"},
@@ -82,23 +97,15 @@ public class VerificationCodeParserTest extends BaseUnitTest {
         {"【SIGNAL】 Your code is: 423-431", "423431"},
         {"<#>【SIGNAL】<#> Your code: 298-763\nabAbCDEFO1g", "298763"},
 
-        {"SIGNAL: Your code is: 123456\nDo not share this code\n\nabAbCDEFO1g", "123456"}
+        { "SIGNAL: Your code is: 123456\nDo not share this code\n\nabAbCDEFO1g", "123456" },
+        { "SIGNAL: Your code is: 123456\nDo not share this code. Signal will never ask for it.\n\ndoDiFGKPO1r", "123456" }
     });
-  }
-
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    when(sharedPreferences.getBoolean(contains("pref_verifying"), anyBoolean())).thenReturn(true);
   }
 
   @Test
   public void testChallenges() {
-    for (String[] challenge : challenges()) {
-      Optional<String> result = VerificationCodeParser.parse(challenge[0]);
-      assertTrue(result.isPresent());
-      assertEquals(challenge[1], result.get());
-    }
+    Optional<String> result = VerificationCodeParser.parse(input);
+    assertTrue(result.isPresent());
+    assertEquals(expectedOutput, result.get());
   }
 }

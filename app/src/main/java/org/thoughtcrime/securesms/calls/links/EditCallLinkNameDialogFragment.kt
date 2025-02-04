@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -38,6 +37,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import org.signal.core.ui.Buttons
 import org.signal.core.ui.Scaffolds
+import org.signal.core.util.BreakIteratorCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeDialogFragment
 
@@ -45,6 +45,8 @@ class EditCallLinkNameDialogFragment : ComposeDialogFragment() {
 
   companion object {
     const val RESULT_KEY = "edit_call_link_name"
+
+    private const val MAX_CHARACTER_COUNT = 32
   }
 
   private val args: EditCallLinkNameDialogFragmentArgs by navArgs()
@@ -61,7 +63,6 @@ class EditCallLinkNameDialogFragment : ComposeDialogFragment() {
     return dialog
   }
 
-  @OptIn(ExperimentalMaterial3Api::class)
   @Preview
   @Composable
   override fun DialogContent() {
@@ -81,12 +82,13 @@ class EditCallLinkNameDialogFragment : ComposeDialogFragment() {
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { paddingValues ->
       val focusRequester = remember { FocusRequester() }
+      val breakIterator = remember { BreakIteratorCompat.getInstance() }
 
       Surface(modifier = Modifier.padding(paddingValues)) {
         Column(
           modifier = Modifier
             .padding(
-              horizontal = dimensionResource(id = org.signal.core.ui.R.dimen.core_ui__gutter)
+              horizontal = dimensionResource(id = org.signal.core.ui.R.dimen.gutter)
             )
             .padding(top = 20.dp, bottom = 16.dp)
         ) {
@@ -95,7 +97,9 @@ class EditCallLinkNameDialogFragment : ComposeDialogFragment() {
             label = {
               Text(text = stringResource(id = R.string.EditCallLinkNameDialogFragment__call_name))
             },
-            onValueChange = { callName = it },
+            onValueChange = {
+              callName = it.copy(text = breakIterator.apply { setText(it.text) }.take(32).toString())
+            },
             singleLine = true,
             modifier = Modifier
               .fillMaxWidth()

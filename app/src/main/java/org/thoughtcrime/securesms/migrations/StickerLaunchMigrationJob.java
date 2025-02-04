@@ -7,11 +7,12 @@ import androidx.annotation.Nullable;
 
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.StickerTable;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.MultiDeviceStickerPackOperationJob;
 import org.thoughtcrime.securesms.jobs.StickerPackDownloadJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
@@ -49,7 +50,7 @@ public class StickerLaunchMigrationJob extends MigrationJob {
   }
 
   private static void installPack(@NonNull Context context, @NonNull BlessedPacks.Pack pack) {
-    JobManager   jobManager      = ApplicationDependencies.getJobManager();
+    JobManager   jobManager      = AppDependencies.getJobManager();
     StickerTable stickerDatabase = SignalDatabase.stickers();
 
     if (stickerDatabase.isPackAvailableAsReference(pack.getPackId())) {
@@ -58,7 +59,7 @@ public class StickerLaunchMigrationJob extends MigrationJob {
 
     jobManager.add(StickerPackDownloadJob.forInstall(pack.getPackId(), pack.getPackKey(), false));
 
-    if (TextSecurePreferences.isMultiDevice(context)) {
+    if (SignalStore.account().hasLinkedDevices()) {
       jobManager.add(new MultiDeviceStickerPackOperationJob(pack.getPackId(), pack.getPackKey(), MultiDeviceStickerPackOperationJob.Type.INSTALL));
     }
   }

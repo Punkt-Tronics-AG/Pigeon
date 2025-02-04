@@ -1,6 +1,7 @@
 package org.signal.donations.json
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 
 /**
  * Stripe intent status, from:
@@ -22,6 +23,11 @@ enum class StripeIntentStatus(private val code: String) {
   companion object {
     @JvmStatic
     @JsonCreator
-    fun fromCode(code: String): StripeIntentStatus = StripeIntentStatus.values().first { it.code == code }
+    fun fromCode(code: String): StripeIntentStatus = entries.first { it.code == code }
+  }
+
+  @JsonValue
+  fun toValue(): String {
+    return code
   }
 }

@@ -45,7 +45,7 @@ class PinsForAllSchedule implements MegaphoneSchedule {
       return false;
     }
 
-    if (SignalStore.svr().hasPin()) {
+    if (SignalStore.svr().hasOptedInWithAccess()) {
       return false;
     }
 
@@ -53,7 +53,7 @@ class PinsForAllSchedule implements MegaphoneSchedule {
       return true;
     }
 
-    if (SignalStore.registrationValues().pinWasRequiredAtRegistration()) {
+    if (SignalStore.registration().pinWasRequiredAtRegistration()) {
       return false;
     }
 
@@ -61,7 +61,7 @@ class PinsForAllSchedule implements MegaphoneSchedule {
   }
 
   private static boolean pinCreationFailedDuringRegistration() {
-    return SignalStore.registrationValues().pinWasRequiredAtRegistration() &&
-           !SignalStore.svr().hasPin();
+    return SignalStore.registration().pinWasRequiredAtRegistration() &&
+           !SignalStore.svr().hasOptedInWithAccess();
   }
 }

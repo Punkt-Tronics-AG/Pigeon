@@ -91,9 +91,9 @@ public class GroupActionProcessor extends DeviceAwareActionProcessor {
     seen.add(Recipient.self());
 
     for (GroupCall.RemoteDeviceState device : remoteDeviceStates) {
-      Recipient                   recipient         = Recipient.externalPush(ACI.from(device.getUserId()));
-      CallParticipantId           callParticipantId = new CallParticipantId(device.getDemuxId(), recipient.getId());
-      CallParticipant             callParticipant   = participants.get(callParticipantId);
+      Recipient         recipient         = Recipient.externalPush(ACI.from(device.getUserId()));
+      CallParticipantId callParticipantId = new CallParticipantId(device.getDemuxId(), recipient.getId());
+      CallParticipant   callParticipant   = participants.get(callParticipantId);
 
       BroadcastVideoSink videoSink;
       VideoTrack         videoTrack = device.getVideoTrack();
@@ -325,10 +325,25 @@ public class GroupActionProcessor extends DeviceAwareActionProcessor {
                                .changeCallInfoState()
                                .callState(WebRtcViewModel.State.CALL_DISCONNECTED)
                                .groupCallState(WebRtcViewModel.GroupCallState.DISCONNECTED)
+                               .setGroupCallEndReason(groupCallEndReason)
                                .build();
 
     webRtcInteractor.postStateUpdate(currentState);
 
     return terminateGroupCall(currentState);
+  }
+
+  @Override
+  protected @NonNull WebRtcServiceState handleResendMediaKeys(@NonNull WebRtcServiceState currentState) {
+    GroupCall groupCall = currentState.getCallInfoState().getGroupCall();
+    if (groupCall != null) {
+      try {
+        currentState.getCallInfoState().getGroupCall().resendMediaKeys();
+      } catch (CallException e) {
+        return groupCallFailure(currentState, "Unable to resend media keys", e);
+      }
+    }
+
+    return currentState;
   }
 }

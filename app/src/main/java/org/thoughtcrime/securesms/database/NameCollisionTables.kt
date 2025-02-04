@@ -55,16 +55,12 @@ class NameCollisionTables(
 
     private val PROFILE_CHANGE_TIMEOUT = 1.days
 
-    fun createTables(db: SQLiteDatabase) {
-      db.execSQL(NameCollisionTable.CREATE_TABLE)
-      db.execSQL(NameCollisionMembershipTable.CREATE_TABLE)
-    }
+    val CREATE_TABLE = arrayOf(
+      NameCollisionTable.CREATE_TABLE,
+      NameCollisionMembershipTable.CREATE_TABLE
+    )
 
-    fun createIndexes(db: SQLiteDatabase) {
-      NameCollisionMembershipTable.CREATE_INDEXES.forEach {
-        db.execSQL(it)
-      }
-    }
+    val CREATE_INDEXES = NameCollisionMembershipTable.CREATE_INDEXES
   }
 
   /**
@@ -181,7 +177,12 @@ class NameCollisionTables(
 
     val groupMembers: Optional<List<RecipientId>> = SignalDatabase.groups.getGroup(recipientId).map { it.members }
     val invalidCollisions: Set<ReviewRecipient> = collisions.filter {
-      groupMembers.isPresent && (it.recipient.id !in groupMembers.get())
+      if (groupMembers.isPresent) {
+        val notAMember = it.recipient.id !in groupMembers.get()
+        val unregistered = it.recipient.isUnregistered
+
+        notAMember || unregistered
+      } else false
     }.toSet()
 
     val groups = (collisions - invalidCollisions).groupBy { SqlUtil.buildCaseInsensitiveGlobPattern(it.recipient.getDisplayName(context)) }

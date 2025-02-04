@@ -6,9 +6,12 @@
 package org.thoughtcrime.securesms.components.webrtc.controls
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -29,8 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rxjava3.subscribeAsState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,14 +51,19 @@ import androidx.lifecycle.toLiveData
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Observable
+import org.signal.core.ui.Dialogs
 import org.signal.core.ui.Dividers
+import org.signal.core.ui.Previews
 import org.signal.core.ui.Rows
+import org.signal.core.ui.theme.LocalExtendedColors
 import org.signal.core.ui.theme.SignalTheme
-import org.signal.ringrtc.CallLinkState
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.avatar.fallback.FallbackAvatar
+import org.thoughtcrime.securesms.avatar.fallback.FallbackAvatarImage
 import org.thoughtcrime.securesms.components.AvatarImageView
 import org.thoughtcrime.securesms.components.webrtc.WebRtcCallViewModel
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.conversation.colors.AvatarColor
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.events.CallParticipant
 import org.thoughtcrime.securesms.events.GroupCallRaiseHandEvent
 import org.thoughtcrime.securesms.events.WebRtcViewModel
@@ -107,7 +117,6 @@ object CallInfoView {
           controlAndInfoState = controlAndInfoState,
           onShareLinkClicked = callbacks::onShareLinkClicked,
           onEditNameClicked = onEditNameClicked,
-          onToggleAdminApprovalClicked = callbacks::onToggleAdminApprovalClicked,
           onBlock = callbacks::onBlock,
           modifier = modifier
         )
@@ -118,7 +127,6 @@ object CallInfoView {
   interface Callbacks {
     fun onShareLinkClicked()
     fun onEditNameClicked(name: String)
-    fun onToggleAdminApprovalClicked(checked: Boolean)
     fun onBlock(callParticipant: CallParticipant)
   }
 }
@@ -130,11 +138,10 @@ private fun CallInfoPreview() {
     Surface {
       val remoteParticipants = listOf(CallParticipant(recipient = Recipient.UNKNOWN))
       CallInfo(
-        participantsState = ParticipantsState(remoteParticipants = remoteParticipants, raisedHands = remoteParticipants.map { GroupCallRaiseHandEvent(it.recipient, System.currentTimeMillis()) }),
+        participantsState = ParticipantsState(remoteParticipants = remoteParticipants, raisedHands = remoteParticipants.map { GroupCallRaiseHandEvent(it, System.currentTimeMillis()) }),
         controlAndInfoState = ControlAndInfoState(),
         onShareLinkClicked = { },
         onEditNameClicked = { },
-        onToggleAdminApprovalClicked = { },
         onBlock = { }
       )
     }
@@ -147,7 +154,6 @@ private fun CallInfo(
   controlAndInfoState: ControlAndInfoState,
   onShareLinkClicked: () -> Unit,
   onEditNameClicked: () -> Unit,
-  onToggleAdminApprovalClicked: (Boolean) -> Unit,
   onBlock: (CallParticipant) -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -216,11 +222,13 @@ private fun CallInfo(
       }
 
       items(
-        items = participantsState.raisedHands,
-        key = { it.sender.id },
-        contentType = { null }
+        items = participantsState.raisedHands.map { it.sender },
+        key = {
+          val key: Long = it.callParticipantId.demuxId // Due to a bug in how the Compose toolchain inlines saveable states, this Long needs to be set into its own variable within the lambda before being returned.
+          key
+        }
       ) {
-        HandRaisedRow(recipient = it.sender)
+        HandRaisedRow(recipient = it.recipient, it.getShortRecipientDisplayName(LocalContext.current), it.isSelf && it.isPrimary)
       }
 
       item {
@@ -256,6 +264,15 @@ private fun CallInfo(
           isSelfAdmin = controlAndInfoState.isSelfAdmin() && !participantsState.inCallLobby,
           onBlockClicked = onBlock
         )
+      }
+
+      if (participantsState.inCallLobby && participantsState.unknownParticipantCount > 0) {
+        item {
+          UnknownMembersRow(
+            unknownMemberCount = participantsState.unknownParticipantCount,
+            allCallMembersAreUnknown = participantsState.participantsForList.isEmpty()
+          )
+        }
       }
     } else if (participantsState.isGroupCall()) {
       items(
@@ -297,11 +314,6 @@ private fun CallInfo(
             stringResource(id = R.string.CallLinkDetailsFragment__add_call_name)
           },
           onClick = onEditNameClicked
-        )
-        Rows.ToggleRow(
-          checked = controlAndInfoState.callLink.state.restrictions == CallLinkState.Restrictions.ADMIN_APPROVAL,
-          text = stringResource(id = R.string.CallLinkDetailsFragment__approve_all_members),
-          onCheckChanged = onToggleAdminApprovalClicked
         )
       }
     }
@@ -346,7 +358,7 @@ private fun CallParticipantRowPreview() {
 private fun HandRaisedRowPreview() {
   SignalTheme(isDarkMode = true) {
     Surface {
-      HandRaisedRow(Recipient.UNKNOWN, canLowerHand = true)
+      HandRaisedRow(Recipient.UNKNOWN, "Peter Parker", canLowerHand = true)
     }
   }
 }
@@ -371,10 +383,10 @@ private fun CallParticipantRow(
 }
 
 @Composable
-private fun HandRaisedRow(recipient: Recipient, canLowerHand: Boolean = recipient.isSelf) {
+private fun HandRaisedRow(recipient: Recipient, name: String, canLowerHand: Boolean) {
   CallParticipantRow(
     initialRecipient = recipient,
-    name = recipient.getShortDisplayName(LocalContext.current),
+    name = name,
     showIcons = true,
     isVideoEnabled = true,
     isMicrophoneEnabled = true,
@@ -492,7 +504,7 @@ private fun showLowerHandDialog(context: Context) {
     .setTitle(R.string.CallOverflowPopupWindow__lower_your_hand)
     .setPositiveButton(
       R.string.CallOverflowPopupWindow__lower_hand
-    ) { _, _ -> ApplicationDependencies.getSignalCallManager().raiseHand(false) }
+    ) { _, _ -> AppDependencies.signalCallManager.raiseHand(false) }
     .setNegativeButton(R.string.CallOverflowPopupWindow__cancel, null)
     .show()
 }
@@ -514,6 +526,129 @@ private fun GroupMemberRow(
   ) {}
 }
 
+@Composable
+private fun UnknownMembersRow(
+  unknownMemberCount: Int,
+  allCallMembersAreUnknown: Boolean
+) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(Rows.defaultPadding())
+  ) {
+    when (unknownMemberCount) {
+      1 -> SingleUnknownAvatar()
+      2 -> TwoUnknownAvatars()
+      else -> ThreeUnknownAvatars()
+    }
+
+    val textResId = if (allCallMembersAreUnknown) {
+      R.plurals.CallInfoView__d_people
+    } else {
+      R.plurals.CallInfoView__plus_d_people
+    }
+
+    Text(
+      text = pluralStringResource(
+        id = textResId,
+        count = unknownMemberCount,
+        unknownMemberCount
+      ),
+      modifier = Modifier
+        .weight(1f)
+        .align(Alignment.CenterVertically)
+        .padding(horizontal = 24.dp)
+    )
+
+    var displayDialog by remember { mutableStateOf(false) }
+
+    Icon(
+      painter = painterResource(id = R.drawable.symbol_info_24),
+      contentDescription = stringResource(id = R.string.CallInfoView__more_information),
+      modifier = Modifier.clickable(onClick = {
+        displayDialog = true
+      })
+    )
+
+    if (displayDialog) {
+      Dialogs.SimpleMessageDialog(
+        message = stringResource(id = R.string.CallInfoView__before_joining_a_call),
+        dismiss = stringResource(id = R.string.CallInfoView__got_it),
+        onDismiss = { displayDialog = false }
+      )
+    }
+  }
+}
+
+@Composable
+private fun SingleUnknownAvatar() {
+  FallbackAvatarImage(
+    fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+    modifier = Modifier.size(40.dp)
+  )
+}
+
+@Composable
+private fun TwoUnknownAvatars() {
+  Box(modifier = Modifier.width(40.dp)) {
+    FallbackAvatarImage(
+      fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+      modifier = Modifier
+        .size(34.dp)
+        .align(Alignment.CenterStart)
+    )
+
+    FallbackAvatarImage(
+      fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+      modifier = Modifier
+        .size(38.dp)
+        .align(Alignment.CenterEnd)
+        .border(width = 2.dp, color = LocalExtendedColors.current.colorSurface1, shape = CircleShape)
+    )
+  }
+}
+
+@Composable
+private fun ThreeUnknownAvatars() {
+  Box(modifier = Modifier.width(40.dp)) {
+    FallbackAvatarImage(
+      fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+      modifier = Modifier
+        .size(27.dp)
+        .align(Alignment.CenterStart)
+    )
+
+    FallbackAvatarImage(
+      fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+      modifier = Modifier
+        .size(31.dp)
+        .align(Alignment.Center)
+        .border(width = 2.dp, color = SignalTheme.colors.colorSurface1, shape = CircleShape)
+    )
+
+    FallbackAvatarImage(
+      fallbackAvatar = FallbackAvatar.Resource.Person(AvatarColor.random()),
+      modifier = Modifier
+        .size(31.dp)
+        .align(Alignment.CenterEnd)
+        .border(width = 2.dp, color = SignalTheme.colors.colorSurface1, shape = CircleShape)
+    )
+  }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun UnknownMembersRowPreview() {
+  Previews.BottomSheetPreview {
+    Column {
+      UnknownMembersRow(unknownMemberCount = 1, allCallMembersAreUnknown = true)
+      UnknownMembersRow(unknownMemberCount = 1, allCallMembersAreUnknown = false)
+      UnknownMembersRow(unknownMemberCount = 2, allCallMembersAreUnknown = false)
+      UnknownMembersRow(unknownMemberCount = 3, allCallMembersAreUnknown = false)
+    }
+  }
+}
+
 private data class ParticipantsState(
   val inCallLobby: Boolean = false,
   val ringGroup: Boolean = true,
@@ -530,7 +665,9 @@ private data class ParticipantsState(
     listOf(localParticipant) + remoteParticipants
   } else {
     remoteParticipants
-  }
+  }.filter { it.recipient.isProfileSharing }
+
+  val unknownParticipantCount = remoteParticipants.count { !it.recipient.isProfileSharing }
 
   val participantCountForDisplay: Int = if (participantCount == 0) {
     participantsForList.size

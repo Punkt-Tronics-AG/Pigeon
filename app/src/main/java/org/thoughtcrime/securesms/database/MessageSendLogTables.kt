@@ -11,12 +11,13 @@ import org.signal.core.util.readToList
 import org.signal.core.util.requireBoolean
 import org.signal.core.util.requireLong
 import org.signal.core.util.toInt
+import org.signal.core.util.update
 import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.MessageLogEntry
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.RecipientAccessList
+import org.thoughtcrime.securesms.util.RemoteConfig
 import org.whispersystems.signalservice.api.crypto.ContentHint
 import org.whispersystems.signalservice.api.messages.SendMessageResult
 import org.whispersystems.signalservice.internal.push.Content
@@ -89,13 +90,16 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
       "CREATE INDEX msl_payload_date_sent_index ON $TABLE_NAME ($DATE_SENT)"
     )
 
+    const val AFTER_MESSAGE_DELETE_TRIGGER_NAME = "msl_message_delete"
+    const val AFTER_MESSAGE_DELETE_TRIGGER = """
+      CREATE TRIGGER $AFTER_MESSAGE_DELETE_TRIGGER_NAME AFTER DELETE ON ${MessageTable.TABLE_NAME} 
+      BEGIN 
+        DELETE FROM $TABLE_NAME WHERE $ID IN (SELECT ${MslMessageTable.PAYLOAD_ID} FROM ${MslMessageTable.TABLE_NAME} WHERE ${MslMessageTable.MESSAGE_ID} = old.${MessageTable.ID});
+      END
+    """
+
     val CREATE_TRIGGERS = arrayOf(
-      """
-        CREATE TRIGGER msl_message_delete AFTER DELETE ON ${MessageTable.TABLE_NAME} 
-        BEGIN 
-          DELETE FROM $TABLE_NAME WHERE $ID IN (SELECT ${MslMessageTable.PAYLOAD_ID} FROM ${MslMessageTable.TABLE_NAME} WHERE ${MslMessageTable.MESSAGE_ID} = old.${MessageTable.ID});
-        END
-      """,
+      AFTER_MESSAGE_DELETE_TRIGGER,
       """
         CREATE TRIGGER msl_attachment_delete AFTER DELETE ON ${AttachmentTable.TABLE_NAME}
         BEGIN
@@ -153,7 +157,7 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
 
   /** @return The ID of the inserted entry, or -1 if none was inserted. Can be used with [addRecipientToExistingEntryIfPossible] */
   fun insertIfPossible(recipientId: RecipientId, sentTimestamp: Long, sendMessageResult: SendMessageResult, contentHint: ContentHint, messageId: MessageId, urgent: Boolean): Long {
-    if (!FeatureFlags.retryReceipts()) return -1
+    if (!RemoteConfig.retryReceipts) return -1
 
     if (sendMessageResult.isSuccess && sendMessageResult.success.content.isPresent) {
       val recipientDevice = listOf(RecipientDevice(recipientId, sendMessageResult.success.devices))
@@ -165,7 +169,7 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
 
   /** @return The ID of the inserted entry, or -1 if none was inserted. Can be used with [addRecipientToExistingEntryIfPossible] */
   fun insertIfPossible(recipientId: RecipientId, sentTimestamp: Long, sendMessageResult: SendMessageResult, contentHint: ContentHint, messageIds: List<MessageId>, urgent: Boolean): Long {
-    if (!FeatureFlags.retryReceipts()) return -1
+    if (!RemoteConfig.retryReceipts) return -1
 
     if (sendMessageResult.isSuccess && sendMessageResult.success.content.isPresent) {
       val recipientDevice = listOf(RecipientDevice(recipientId, sendMessageResult.success.devices))
@@ -177,7 +181,7 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
 
   /** @return The ID of the inserted entry, or -1 if none was inserted. Can be used with [addRecipientToExistingEntryIfPossible] */
   fun insertIfPossible(sentTimestamp: Long, possibleRecipients: List<Recipient>, results: List<SendMessageResult>, contentHint: ContentHint, messageId: MessageId, urgent: Boolean): Long {
-    if (!FeatureFlags.retryReceipts()) return -1
+    if (!RemoteConfig.retryReceipts) return -1
 
     val accessList = RecipientAccessList(possibleRecipients)
 
@@ -198,7 +202,7 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
   }
 
   fun addRecipientToExistingEntryIfPossible(payloadId: Long, recipientId: RecipientId, sentTimestamp: Long, sendMessageResult: SendMessageResult, contentHint: ContentHint, messageId: MessageId, urgent: Boolean): Long {
-    if (!FeatureFlags.retryReceipts()) return payloadId
+    if (!RemoteConfig.retryReceipts) return payloadId
 
     if (sendMessageResult.isSuccess && sendMessageResult.success.content.isPresent) {
       val db = databaseHelper.signalWritableDatabase
@@ -274,9 +278,9 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
   }
 
   fun getLogEntry(recipientId: RecipientId, device: Int, dateSent: Long): MessageLogEntry? {
-    if (!FeatureFlags.retryReceipts()) return null
+    if (!RemoteConfig.retryReceipts) return null
 
-    trimOldMessages(System.currentTimeMillis(), FeatureFlags.retryRespondMaxAge())
+    trimOldMessages(System.currentTimeMillis(), RemoteConfig.retryRespondMaxAge)
 
     val db = databaseHelper.signalReadableDatabase
     val table = "${MslPayloadTable.TABLE_NAME} LEFT JOIN ${MslRecipientTable.TABLE_NAME} ON ${MslPayloadTable.TABLE_NAME}.${MslPayloadTable.ID} = ${MslRecipientTable.TABLE_NAME}.${MslRecipientTable.PAYLOAD_ID}"
@@ -356,7 +360,7 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
   }
 
   fun deleteAllForRecipient(recipientId: RecipientId) {
-    if (!FeatureFlags.retryReceipts()) return
+    if (!RemoteConfig.retryReceipts) return
 
     writableDatabase
       .delete(MslRecipientTable.TABLE_NAME)
@@ -381,16 +385,49 @@ class MessageSendLogTables constructor(context: Context?, databaseHelper: Signal
     db.delete(MslPayloadTable.TABLE_NAME, query, args)
   }
 
-  override fun remapRecipient(oldRecipientId: RecipientId, newRecipientId: RecipientId) {
-    val values = ContentValues().apply {
-      put(MslRecipientTable.RECIPIENT_ID, newRecipientId.serialize())
-    }
+  /**
+   * Drop the trigger for updating the [MslPayloadTable] on message deletes. Should only be used for expected large deletes.
+   * The caller must be in a transaction and called with a matching [restoreAfterMessageDeleteTrigger] before the transaction
+   * completes.
+   *
+   * Note: The caller is not responsible for performing the missing trigger operations and they will be performed in
+   * [restoreAfterMessageDeleteTrigger].
+   */
+  fun dropAfterMessageDeleteTrigger() {
+    check(SignalDatabase.inTransaction)
+    writableDatabase.execSQL("DROP TRIGGER IF EXISTS ${MslPayloadTable.AFTER_MESSAGE_DELETE_TRIGGER_NAME}")
+  }
 
-    val db = databaseHelper.signalWritableDatabase
-    val query = "${MslRecipientTable.RECIPIENT_ID} = ?"
-    val args = SqlUtil.buildArgs(oldRecipientId.serialize())
+  /**
+   * Restore the trigger for updating the [MslPayloadTable] on message deletes. Must only be called within the same transaction after calling
+   * [dropAfterMessageDeleteTrigger].
+   */
+  fun restoreAfterMessageDeleteTrigger() {
+    check(SignalDatabase.inTransaction)
 
-    db.update(MslRecipientTable.TABLE_NAME, values, query, args)
+    val restoreDeleteMessagesOperation = """
+      DELETE FROM ${MslPayloadTable.TABLE_NAME} 
+      WHERE ${MslPayloadTable.TABLE_NAME}.${MslPayloadTable.ID} IN (
+        SELECT ${MslMessageTable.TABLE_NAME}.${MslMessageTable.PAYLOAD_ID} 
+        FROM ${MslMessageTable.TABLE_NAME} 
+        WHERE ${MslMessageTable.TABLE_NAME}.${MslMessageTable.MESSAGE_ID} NOT IN (
+          SELECT ${MessageTable.TABLE_NAME}.${MessageTable.ID} FROM ${MessageTable.TABLE_NAME}
+        )
+      )
+    """
+
+    writableDatabase.execSQL(restoreDeleteMessagesOperation)
+    writableDatabase.execSQL(MslPayloadTable.AFTER_MESSAGE_DELETE_TRIGGER)
+  }
+
+  override fun remapRecipient(fromId: RecipientId, toId: RecipientId) {
+    val count = writableDatabase
+      .update(MslRecipientTable.TABLE_NAME)
+      .values(MslRecipientTable.RECIPIENT_ID to toId.serialize())
+      .where("${MslRecipientTable.RECIPIENT_ID} = ?", fromId)
+      .run()
+
+    Log.d(TAG, "Remapped $fromId to $toId. count: $count")
   }
 
   private data class RecipientDevice(val recipientId: RecipientId, val devices: List<Int>)

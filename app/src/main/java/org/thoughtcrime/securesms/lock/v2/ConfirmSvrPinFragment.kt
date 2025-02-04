@@ -9,10 +9,10 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.lock.v2.ConfirmSvrPinViewModel.SaveAnimation
 import org.thoughtcrime.securesms.megaphone.Megaphones
-import org.thoughtcrime.securesms.registration.RegistrationUtil
+import org.thoughtcrime.securesms.registration.util.RegistrationUtil
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
 import org.thoughtcrime.securesms.util.SpanUtil
 
@@ -81,7 +81,6 @@ internal class ConfirmSvrPinFragment : BaseSvrPinFragment<ConfirmSvrPinViewModel
       SaveAnimation.NONE -> confirm.cancelSpinning()
       SaveAnimation.LOADING -> confirm.setSpinning()
       SaveAnimation.SUCCESS -> {
-        confirm.cancelSpinning()
         requireActivity().setResult(Activity.RESULT_OK)
         closeNavGraphBranch()
         RegistrationUtil.maybeMarkRegistrationComplete()
@@ -117,6 +116,6 @@ internal class ConfirmSvrPinFragment : BaseSvrPinFragment<ConfirmSvrPinViewModel
   }
 
   private fun markMegaphoneSeenIfNecessary() {
-    ApplicationDependencies.getMegaphoneRepository().markSeen(Megaphones.Event.PINS_FOR_ALL)
+    AppDependencies.megaphoneRepository.markSeen(Megaphones.Event.PINS_FOR_ALL)
   }
 }

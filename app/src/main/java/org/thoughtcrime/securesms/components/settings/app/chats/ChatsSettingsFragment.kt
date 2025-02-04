@@ -1,15 +1,13 @@
 package org.thoughtcrime.securesms.components.settings.app.chats
 
-import android.content.Intent
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.backup.v2.ui.subscription.MessageBackupsFlowActivity
 import org.thoughtcrime.securesms.components.settings.DSLConfiguration
 import org.thoughtcrime.securesms.components.settings.DSLSettingsFragment
 import org.thoughtcrime.securesms.components.settings.DSLSettingsText
 import org.thoughtcrime.securesms.components.settings.configure
-import org.thoughtcrime.securesms.util.FeatureFlags
+import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.isSignalVersion
@@ -65,6 +63,27 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
 
       dividerPref()
 
+      sectionHeaderPref(R.string.ChatsSettingsFragment__chat_folders)
+
+      if (state.folderCount == 1) {
+        clickPref(
+          title = DSLSettingsText.from(R.string.ChatsSettingsFragment__add_chat_folder),
+          onClick = {
+            Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_chatFoldersFragment)
+          }
+        )
+      } else {
+        clickPref(
+          title = DSLSettingsText.from(R.string.ChatsSettingsFragment__add_edit_chat_folder),
+          summary = DSLSettingsText.from(resources.getQuantityString(R.plurals.ChatsSettingsFragment__d_folder, state.folderCount, state.folderCount)),
+          onClick = {
+            Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_chatFoldersFragment)
+          }
+        )
+      }
+
+      dividerPref()
+
       sectionHeaderPref(R.string.ChatsSettingsFragment__keyboard)
 
       switchPref(
@@ -76,38 +95,26 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
       )
 
       switchPref(
-        title = DSLSettingsText.from(R.string.ChatsSettingsFragment__enter_key_sends),
+        title = DSLSettingsText.from(R.string.ChatsSettingsFragment__send_with_enter),
         isChecked = state.enterKeySends,
         onClick = {
           viewModel.setEnterKeySends(!state.enterKeySends)
         }
       )
 
-      dividerPref()
+      if (!RemoteConfig.messageBackups) {
+        dividerPref()
 
-      sectionHeaderPref(R.string.preferences_chats__backups)
+        sectionHeaderPref(R.string.preferences_chats__backups)
 
-      if (FeatureFlags.messageBackups() || state.remoteBackupsEnabled) {
         clickPref(
-          title = DSLSettingsText.from("Signal Backups"), // TODO [message-backups] -- Finalized copy
-          summary = DSLSettingsText.from(if (state.remoteBackupsEnabled) R.string.arrays__enabled else R.string.arrays__disabled),
+          title = DSLSettingsText.from(R.string.preferences_chats__chat_backups),
+          summary = DSLSettingsText.from(if (state.localBackupsEnabled) R.string.arrays__enabled else R.string.arrays__disabled),
           onClick = {
-            if (state.remoteBackupsEnabled) {
-              Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_remoteBackupsSettingsFragment)
-            } else {
-              startActivity(Intent(requireContext(), MessageBackupsFlowActivity::class.java))
-            }
+            Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_backupsPreferenceFragment)
           }
         )
       }
-
-      clickPref(
-        title = DSLSettingsText.from(R.string.preferences_chats__chat_backups),
-        summary = DSLSettingsText.from(if (state.localBackupsEnabled) R.string.arrays__enabled else R.string.arrays__disabled),
-        onClick = {
-          Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_backupsPreferenceFragment)
-        }
-      )
     }
   }
 }

@@ -100,6 +100,7 @@ object StoryContextMenu {
 
       ShareCompat.IntentBuilder(fragment.requireContext())
         .setText(shareText)
+        .setType("text/plain")
         .createChooserIntent()
     } else {
       val attachment: Attachment = messageRecord.slideDeck.firstSlide!!.asAttachment()
@@ -152,6 +153,7 @@ object StoryContextMenu {
     anchorView: View,
     storyViewerPageState: StoryViewerPageState,
     onHide: (StoryPost) -> Unit,
+    onUnhide: (StoryPost) -> Unit,
     onForward: (StoryPost) -> Unit,
     onShare: (StoryPost) -> Unit,
     onGoToChat: (StoryPost) -> Unit,
@@ -171,7 +173,7 @@ object StoryContextMenu {
       canHide = !selectedStory.sender.shouldHideStory,
       callbacks = object : Callbacks {
         override fun onHide() = onHide(selectedStory)
-        override fun onUnhide() = throw NotImplementedError()
+        override fun onUnhide() = onUnhide(selectedStory)
         override fun onForward() = onForward(selectedStory)
         override fun onShare() = onShare(selectedStory)
         override fun onGoToChat() = onGoToChat(selectedStory)

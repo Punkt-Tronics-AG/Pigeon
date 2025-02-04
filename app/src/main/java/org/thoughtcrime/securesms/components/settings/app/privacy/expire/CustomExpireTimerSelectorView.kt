@@ -45,11 +45,11 @@ class CustomExpireTimerSelectorView @JvmOverloads constructor(
       return
     }
 
-    TimerUnit.values()
+    TimerUnit.entries
       .find { (timer / it.valueMultiplier) < it.maxValue }
       ?.let { timerUnit ->
         valuePicker.value = (timer / timerUnit.valueMultiplier).toInt()
-        unitPicker.value = TimerUnit.values().indexOf(timerUnit)
+        unitPicker.value = TimerUnit.entries.indexOf(timerUnit)
         unitChange(unitPicker.value)
       }
   }
@@ -59,10 +59,16 @@ class CustomExpireTimerSelectorView @JvmOverloads constructor(
   }
 
   private fun unitChange(newValue: Int) {
-    val timerUnit: TimerUnit = TimerUnit.values()[newValue]
+    val timerUnit: TimerUnit = TimerUnit.entries[newValue]
 
     valuePicker.minValue = timerUnit.minValue
     valuePicker.maxValue = timerUnit.maxValue
+  }
+
+  fun setUnits(minValue: Int, maxValue: Int, timeUnitRes: Int) {
+    unitPicker.minValue = minValue
+    unitPicker.maxValue = maxValue
+    unitPicker.displayedValues = context.resources.getStringArray(timeUnitRes)
   }
 
   private enum class TimerUnit(val minValue: Int, val maxValue: Int, val valueMultiplier: Long) {
@@ -73,7 +79,7 @@ class CustomExpireTimerSelectorView @JvmOverloads constructor(
     WEEKS(1, 4, TimeUnit.DAYS.toSeconds(7));
 
     companion object {
-      fun get(value: Int) = values()[value]
+      fun get(value: Int) = entries[value]
     }
   }
 }

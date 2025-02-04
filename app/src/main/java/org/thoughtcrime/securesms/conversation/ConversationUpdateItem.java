@@ -186,7 +186,7 @@ public final class ConversationUpdateItem extends FrameLayout
                       shouldCollapse(messageRecord, nextMessageRecord),
                       hasWallpaper);
 
-    presentActionButton(hasWallpaper, conversationMessage.getMessageRecord().isBoostRequest());
+    presentActionButton(hasWallpaper, conversationMessage.getMessageRecord().isReleaseChannelDonationRequest());
 
     updateSelectedState();
   }
@@ -452,11 +452,11 @@ public final class ConversationUpdateItem extends FrameLayout
       boolean                isRingingOnLocalDevice = groupCallUpdateDetails.isRingingOnLocalDevice;
       boolean                endedRecently          = GroupCallUpdateDetailsUtil.checkCallEndedRecently(groupCallUpdateDetails);
       UpdateDescription      updateDescription      = MessageRecord.getGroupCallUpdateDescription(getContext(), conversationMessage.getMessageRecord().getBody(), true);
-      Collection<ACI>        acis                   = updateDescription.getMentioned();
+      Collection<ServiceId>  serviceIds             = updateDescription.getMentioned();
 
       int text = 0;
-      if (Util.hasItems(acis) || isRingingOnLocalDevice) {
-        if (acis.contains(SignalStore.account().requireAci())) {
+      if (Util.hasItems(serviceIds) || isRingingOnLocalDevice) {
+        if (serviceIds.contains(SignalStore.account().requireAci())) {
           text = R.string.ConversationUpdateItem_return_to_call;
         } else if (GroupCallUpdateDetailsUtil.parse(conversationMessage.getMessageRecord().getBody()).isCallFull) {
           text = R.string.ConversationUpdateItem_call_is_full;
@@ -538,7 +538,7 @@ public final class ConversationUpdateItem extends FrameLayout
           eventListener.onBlockJoinRequest(conversationMessage.getMessageRecord().getFromRecipient());
         }
       });
-    } else if (conversationMessage.getMessageRecord().isBoostRequest()) {
+    } else if (conversationMessage.getMessageRecord().isReleaseChannelDonationRequest()) {
       actionButton.setVisibility(VISIBLE);
       actionButton.setOnClickListener(v -> {
         if (batchSelected.isEmpty() && eventListener != null) {
@@ -556,7 +556,7 @@ public final class ConversationUpdateItem extends FrameLayout
       });
 
       actionButton.setText(R.string.ConversationActivity__invite_to_signal);
-    } else if (conversationMessage.getMessageRecord().isPaymentsRequestToActivate() && !conversationMessage.getMessageRecord().isOutgoing() && !SignalStore.paymentsValues().mobileCoinPaymentsEnabled()) {
+    } else if (conversationMessage.getMessageRecord().isPaymentsRequestToActivate() && !conversationMessage.getMessageRecord().isOutgoing() && !SignalStore.payments().mobileCoinPaymentsEnabled()) {
       actionButton.setText(R.string.ConversationUpdateItem_activate_payments);
       actionButton.setVisibility(VISIBLE);
       actionButton.setOnClickListener(v -> {
@@ -580,6 +580,14 @@ public final class ConversationUpdateItem extends FrameLayout
           eventListener.onReportSpamLearnMoreClicked();
         }
       });
+    } else if (conversationMessage.getMessageRecord().isProfileChange() && !conversationMessage.getMessageRecord().getFromRecipient().isSelf()) {
+      actionButton.setText(R.string.ConversationUpdateItem_update);
+      actionButton.setVisibility(VISIBLE);
+      actionButton.setOnClickListener(v -> {
+        if (batchSelected.isEmpty() && eventListener != null) {
+          eventListener.onChangeProfileNameUpdateContact(conversationMessage.getMessageRecord().getFromRecipient());
+        }
+      });
     } else if (conversationMessage.getMessageRecord().isMessageRequestAccepted()) {
       actionButton.setText(R.string.ConversationUpdateItem_options);
       actionButton.setVisibility(VISIBLE);
@@ -588,7 +596,7 @@ public final class ConversationUpdateItem extends FrameLayout
           eventListener.onMessageRequestAcceptOptionsClicked();
         }
       });
-    } else{
+    } else {
       actionButton.setVisibility(GONE);
       actionButton.setOnClickListener(null);
     }
@@ -734,7 +742,9 @@ public final class ConversationUpdateItem extends FrameLayout
         return;
       }
 
-      IdentityUtil.getRemoteIdentityKey(getContext(), messageRecord.getToRecipient()).addListener(new ListenableFuture.Listener<>() {
+      Recipient recipient = messageRecord.isIdentityUpdate() ? messageRecord.getFromRecipient() : messageRecord.getToRecipient();
+
+      IdentityUtil.getRemoteIdentityKey(getContext(), recipient).addListener(new ListenableFuture.Listener<>() {
         @Override
         public void onSuccess(Optional<IdentityRecord> result) {
           if (result.isPresent()) {

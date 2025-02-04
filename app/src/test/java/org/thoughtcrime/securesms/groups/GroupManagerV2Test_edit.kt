@@ -1,16 +1,17 @@
-@file:Suppress("ClassName")
-
 package org.thoughtcrime.securesms.groups
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.slot
+import io.mockk.unmockkAll
 import io.mockk.verify
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers
-import org.hamcrest.Matchers.`is`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,21 +21,24 @@ import org.robolectric.annotation.Config
 import org.signal.core.util.Hex
 import org.signal.core.util.ThreadUtil
 import org.signal.core.util.logging.Log
+import org.signal.libsignal.protocol.logging.SignalProtocolLogger
 import org.signal.libsignal.protocol.logging.SignalProtocolLoggerProvider
 import org.signal.libsignal.zkgroup.groups.GroupMasterKey
 import org.signal.libsignal.zkgroup.groups.GroupSecretParams
+import org.signal.storageservice.protos.groups.GroupChangeResponse
 import org.signal.storageservice.protos.groups.Member
 import org.signal.storageservice.protos.groups.local.DecryptedGroup
-import org.signal.storageservice.protos.groups.local.DecryptedMember
-import org.thoughtcrime.securesms.SignalStoreRule
 import org.thoughtcrime.securesms.TestZkGroupServer
 import org.thoughtcrime.securesms.database.GroupStateTestData
 import org.thoughtcrime.securesms.database.GroupTable
 import org.thoughtcrime.securesms.database.model.databaseprotos.member
 import org.thoughtcrime.securesms.groups.v2.GroupCandidateHelper
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger
 import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.testutil.MockAppDependenciesRule
 import org.thoughtcrime.securesms.testutil.SystemOutLogger
+import org.thoughtcrime.securesms.util.RemoteConfig
 import org.whispersystems.signalservice.api.groupsv2.ClientZkOperations
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Api
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations
@@ -43,10 +47,10 @@ import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.push.ServiceIds
 import java.util.UUID
 
+@Suppress("ClassName")
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, application = Application::class)
 class GroupManagerV2Test_edit {
-
   companion object {
     val server: TestZkGroupServer = TestZkGroupServer()
     val masterKey: GroupMasterKey = GroupMasterKey(Hex.fromStringCondensed("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"))
@@ -57,9 +61,10 @@ class GroupManagerV2Test_edit {
     val selfPni: PNI = PNI.from(UUID.randomUUID())
     val serviceIds: ServiceIds = ServiceIds(selfAci, selfPni)
     val otherAci: ACI = ACI.from(UUID.randomUUID())
-    val selfAndOthers: List<DecryptedMember> = listOf(member(selfAci), member(otherAci))
-    val others: List<DecryptedMember> = listOf(member(otherAci))
   }
+
+  @get:Rule
+  val appDependencies = MockAppDependenciesRule()
 
   private lateinit var groupTable: GroupTable
   private lateinit var groupsV2API: GroupsV2Api
@@ -71,15 +76,17 @@ class GroupManagerV2Test_edit {
 
   private lateinit var manager: GroupManagerV2
 
-  @get:Rule
-  val signalStore: SignalStoreRule = SignalStoreRule()
-
   @Suppress("UsePropertyAccessSyntax")
   @Before
   fun setUp() {
+    mockkObject(RemoteConfig)
+    mockkObject(SignalStore)
+    every { RemoteConfig.internalUser } returns false
+
     ThreadUtil.enforceAssertions = false
     Log.initialize(SystemOutLogger())
     SignalProtocolLoggerProvider.setProvider(CustomSignalProtocolLogger())
+    SignalProtocolLoggerProvider.initializeLogging(SignalProtocolLogger.INFO)
 
     val clientZkOperations = ClientZkOperations(server.getServerPublicParams())
 
@@ -103,15 +110,20 @@ class GroupManagerV2Test_edit {
     )
   }
 
+  @After
+  fun tearDown() {
+    unmockkAll()
+  }
+
   private fun given(init: GroupStateTestData.() -> Unit) {
     val data = GroupStateTestData(masterKey, groupOperations)
     data.init()
 
     every { groupTable.getGroup(groupId) } returns data.groupRecord
     every { groupTable.requireGroup(groupId) } returns data.groupRecord.get()
-    every { groupTable.update(any<GroupId.V2>(), any()) } returns Unit
+    every { groupTable.update(any<GroupId.V2>(), any(), any()) } returns Unit
     every { sendGroupUpdateHelper.sendGroupUpdate(masterKey, any(), any(), any()) } returns GroupManagerV2.RecipientAndThread(Recipient.UNKNOWN, 1)
-    every { groupsV2API.patchGroup(any(), any(), any()) } returns data.groupChange!!
+    every { groupsV2API.patchGroup(any(), any(), any()) } returns GroupChangeResponse(groupChange = data.groupChange!!)
   }
 
   private fun editGroup(perform: GroupManagerV2.GroupEditor.() -> Unit) {
@@ -120,7 +132,7 @@ class GroupManagerV2Test_edit {
 
   private fun then(then: (DecryptedGroup) -> Unit) {
     val decryptedGroupArg = slot<DecryptedGroup>()
-    verify { groupTable.update(groupId, capture(decryptedGroupArg)) }
+    verify { groupTable.update(groupId, capture(decryptedGroupArg), any()) }
     then(decryptedGroupArg.captured)
   }
 
@@ -146,9 +158,9 @@ class GroupManagerV2Test_edit {
     }
 
     then { patchedGroup ->
-      assertThat("Revision updated by one", patchedGroup.revision, `is`(6))
-      assertThat("Self is no longer in the group", patchedGroup.members.find { it.aciBytes == selfAci.toByteString() }, Matchers.nullValue())
-      assertThat("Other is now an admin in the group", patchedGroup.members.find { it.aciBytes == otherAci.toByteString() }?.role, `is`(Member.Role.ADMINISTRATOR))
+      assertThat(patchedGroup.revision, "Revision updated by one").isEqualTo(6)
+      assertThat(patchedGroup.members.find { it.aciBytes == selfAci.toByteString() }, "Self is no longer in the group").isNull()
+      assertThat(patchedGroup.members.find { it.aciBytes == otherAci.toByteString() }?.role, "Other is now an admin in the group").isEqualTo(Member.Role.ADMINISTRATOR)
     }
   }
 }

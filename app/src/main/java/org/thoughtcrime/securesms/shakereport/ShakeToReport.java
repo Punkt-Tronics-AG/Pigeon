@@ -17,10 +17,11 @@ import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragment;
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragmentArgs;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogRepository;
 import org.thoughtcrime.securesms.sharing.MultiShareArgs;
+import org.thoughtcrime.securesms.util.AppForegroundObserver;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 
@@ -47,26 +48,26 @@ public final class ShakeToReport implements ShakeDetector.Listener {
   }
 
   public void enable() {
-    if (!SignalStore.internalValues().shakeToReport()) return;
+    if (!SignalStore.internal().getShakeToReport()) return;
 
     detector.start(ServiceUtil.getSensorManager(application));
   }
 
   public void disable() {
-    if (!SignalStore.internalValues().shakeToReport()) return;
+    if (!SignalStore.internal().getShakeToReport()) return;
 
     detector.stop();
   }
 
   public void registerActivity(@NonNull AppCompatActivity activity) {
-    if (!SignalStore.internalValues().shakeToReport()) return;
+    if (!SignalStore.internal().getShakeToReport()) return;
 
     this.weakActivity = new WeakReference<>(activity);
   }
 
   @Override
   public void onShakeDetected() {
-    if (!SignalStore.internalValues().shakeToReport()) return;
+    if (!SignalStore.internal().getShakeToReport()) return;
 
     AppCompatActivity activity = weakActivity.get();
     if (activity == null) {
@@ -142,7 +143,7 @@ public final class ShakeToReport implements ShakeDetector.Listener {
   }
 
   private void enableIfVisible() {
-    if (ApplicationDependencies.getAppForegroundObserver().isForegrounded()) {
+    if (AppForegroundObserver.isForegrounded()) {
       enable();
     }
   }

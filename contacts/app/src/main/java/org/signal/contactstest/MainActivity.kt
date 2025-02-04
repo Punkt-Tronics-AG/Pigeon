@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "You must provide permissions to continue.", Toast.LENGTH_SHORT).show()
       }
     }
-""
+
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
   }
 
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
       callMimetype = "vnd.android.cursor.item/vnd.org.signal.contacts.test.call",
       syncTag = "__TEST",
       videoCallMimetype = "",
-      videoCallPrompt = {""},
+      videoCallPrompt = { "" }
     )
   }
 }

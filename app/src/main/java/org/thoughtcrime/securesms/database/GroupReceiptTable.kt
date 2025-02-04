@@ -8,6 +8,7 @@ import org.signal.core.util.SqlUtil
 import org.signal.core.util.delete
 import org.signal.core.util.deleteAll
 import org.signal.core.util.forEach
+import org.signal.core.util.logging.Log
 import org.signal.core.util.readToList
 import org.signal.core.util.requireBoolean
 import org.signal.core.util.requireInt
@@ -20,6 +21,8 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 
 class GroupReceiptTable(context: Context?, databaseHelper: SignalDatabase?) : DatabaseTable(context, databaseHelper), RecipientIdDatabaseReference {
   companion object {
+    private val TAG = Log.tag(GroupReceiptTable::class)
+
     const val TABLE_NAME = "group_receipts"
     private const val ID = "_id"
     const val MMS_ID = "mms_id"
@@ -133,27 +136,24 @@ class GroupReceiptTable(context: Context?, databaseHelper: SignalDatabase?) : Da
       .readToList { it.toGroupReceiptInfo() }
   }
 
-  fun getGroupReceiptInfoForMessages(ids: Set<Long>): Map<Long, List<GroupReceiptInfo>> {
+  fun getGroupReceiptInfoForMessages(ids: Collection<Long>): Map<Long, List<GroupReceiptInfo>> {
     if (ids.isEmpty()) {
       return emptyMap()
     }
 
     val messageIdsToGroupReceipts: MutableMap<Long, MutableList<GroupReceiptInfo>> = mutableMapOf()
 
-    val args: List<Array<String>> = ids.map { SqlUtil.buildArgs(it) }
-
-    SqlUtil.buildCustomCollectionQuery("$MMS_ID = ?", args).forEach { query ->
-      readableDatabase
-        .select()
-        .from(TABLE_NAME)
-        .where(query.where, query.whereArgs)
-        .run()
-        .forEach { cursor ->
-          val messageId = cursor.requireLong(MMS_ID)
-          val receipts = messageIdsToGroupReceipts.getOrPut(messageId) { mutableListOf() }
-          receipts += cursor.toGroupReceiptInfo()
-        }
-    }
+    val query = SqlUtil.buildFastCollectionQuery(MMS_ID, ids)
+    readableDatabase
+      .select()
+      .from(TABLE_NAME)
+      .where(query.where, query.whereArgs)
+      .run()
+      .forEach { cursor ->
+        val messageId = cursor.requireLong(MMS_ID)
+        val receipts = messageIdsToGroupReceipts.getOrPut(messageId) { mutableListOf() }
+        receipts += cursor.toGroupReceiptInfo()
+      }
 
     return messageIdsToGroupReceipts
   }
@@ -177,11 +177,13 @@ class GroupReceiptTable(context: Context?, databaseHelper: SignalDatabase?) : Da
   }
 
   override fun remapRecipient(fromId: RecipientId, toId: RecipientId) {
-    writableDatabase
+    val count = writableDatabase
       .update(TABLE_NAME)
       .values(RECIPIENT_ID to toId.serialize())
       .where("$RECIPIENT_ID = ?", fromId)
       .run()
+
+    Log.d(TAG, "Remapped $fromId to $toId. count: $count")
   }
 
   private fun Cursor.toGroupReceiptInfo(): GroupReceiptInfo {

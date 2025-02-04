@@ -45,17 +45,17 @@ import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.database.model.StoryType;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.AttachmentCompressionJob;
 import org.thoughtcrime.securesms.jobs.AttachmentCopyJob;
-import org.thoughtcrime.securesms.jobs.AttachmentMarkUploadedJob;
+import org.thoughtcrime.securesms.jobs.MarkNoteToSelfAttachmentUploadedJob;
 import org.thoughtcrime.securesms.jobs.AttachmentUploadJob;
+import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.ProfileKeySendJob;
 import org.thoughtcrime.securesms.jobs.PushDistributionListSendJob;
 import org.thoughtcrime.securesms.jobs.PushGroupSendJob;
-import org.thoughtcrime.securesms.jobs.IndividualSendJob;
 import org.thoughtcrime.securesms.jobs.ReactionSendJob;
 import org.thoughtcrime.securesms.jobs.RemoteDeleteSendJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
@@ -97,7 +97,7 @@ public class MessageSender {
   public static void sendProfileKey(final long threadId) {
     ProfileKeySendJob job = ProfileKeySendJob.create(threadId, false);
     if (job != null) {
-      ApplicationDependencies.getJobManager().add(job);
+      AppDependencies.getJobManager().add(job);
     }
   }
 
@@ -144,7 +144,7 @@ public class MessageSender {
 
       dependencyGraph = UploadDependencyGraph.create(
           messages,
-          ApplicationDependencies.getJobManager(),
+          AppDependencies.getJobManager(),
           attachment -> {
             try {
               return SignalDatabase.attachments().insertAttachmentForPreUpload(attachment);
@@ -210,7 +210,7 @@ public class MessageSender {
     onMessageSent();
 
     for (long threadId : threads) {
-      threadTable.update(threadId, true);
+      threadTable.update(threadId, true, true);
     }
   }
 
@@ -242,7 +242,7 @@ public class MessageSender {
 
       sendMessageInternal(context, recipient, sendType, messageId, Collections.emptyList(), message.getScheduledDate() > 0);
       onMessageSent();
-      threadTable.update(allocatedThreadId, true);
+      threadTable.update(allocatedThreadId, true, true);
 
       return allocatedThreadId;
     } catch (MmsException e) {
@@ -251,12 +251,11 @@ public class MessageSender {
     }
   }
 
-  public static long sendPushWithPreUploadedMedia(final Context context,
-                                                  final OutgoingMessage message,
-                                                  final Collection<PreUploadResult> preUploadResults,
-                                                  final long threadId,
-                                                  final MessageTable.InsertListener insertListener)
-  {
+  public static boolean sendPushWithPreUploadedMedia(final Context context,
+                                                     final OutgoingMessage message,
+                                                     final Collection<PreUploadResult> preUploadResults,
+                                                     final long threadId,
+                                                     final MessageTable.InsertListener insertListener)  {
     Log.i(TAG, "Sending media message with pre-uploads to " + message.getThreadRecipient().getId() + ", thread: " + threadId + ", pre-uploads: " + preUploadResults);
     Preconditions.checkArgument(message.getAttachments().isEmpty(), "If the media is pre-uploaded, there should be no attachments on the message.");
 
@@ -267,24 +266,30 @@ public class MessageSender {
 
       Recipient recipient         = message.getThreadRecipient();
       long      allocatedThreadId = threadTable.getOrCreateValidThreadId(message.getThreadRecipient(), threadId);
-      long      messageId         = mmsDatabase.insertMessageOutbox(applyUniversalExpireTimerIfNecessary(context, recipient, message, allocatedThreadId),
-                                                                    allocatedThreadId,
-                                                                    false,
-                                                                    insertListener);
 
       List<AttachmentId> attachmentIds = Stream.of(preUploadResults).map(PreUploadResult::getAttachmentId).toList();
       List<String>       jobIds        = Stream.of(preUploadResults).map(PreUploadResult::getJobIds).flatMap(Stream::of).toList();
+
+      if (!attachmentDatabase.hasAttachments(attachmentIds)) {
+        Log.w(TAG, "Attachments not found in database for " + message.getThreadRecipient().getId() + ", thread: " + threadId + ", pre-uploads: " + preUploadResults);
+        return false;
+      }
+
+      long messageId = mmsDatabase.insertMessageOutbox(applyUniversalExpireTimerIfNecessary(context, recipient, message, allocatedThreadId),
+                                                       allocatedThreadId,
+                                                       false,
+                                                       insertListener);
 
       attachmentDatabase.updateMessageId(attachmentIds, messageId, message.getStoryType().isStory());
 
       sendMessageInternal(context, recipient, SendType.SIGNAL, messageId, jobIds, false);
       onMessageSent();
-      threadTable.update(allocatedThreadId, true);
+      threadTable.update(allocatedThreadId, true, true);
 
-      return allocatedThreadId;
+      return true;
     } catch (MmsException e) {
       Log.w(TAG, e);
-      return threadId;
+      return false;
     }
   }
 
@@ -297,7 +302,7 @@ public class MessageSender {
     Preconditions.checkArgument(messages.size() > 0, "No messages!");
     Preconditions.checkArgument(Stream.of(messages).allMatch(m -> m.getAttachments().isEmpty()), "Messages can't have attachments! They should be pre-uploaded.");
 
-    JobManager         jobManager             = ApplicationDependencies.getJobManager();
+    JobManager         jobManager             = AppDependencies.getJobManager();
     AttachmentTable    attachmentDatabase     = SignalDatabase.attachments();
     MessageTable       mmsDatabase            = SignalDatabase.messages();
     ThreadTable        threadTable            = SignalDatabase.threads();
@@ -422,10 +427,10 @@ public class MessageSender {
       Job compressionJob = AttachmentCompressionJob.fromAttachment(databaseAttachment, false, -1);
       Job uploadJob      = new AttachmentUploadJob(databaseAttachment.attachmentId);
 
-      ApplicationDependencies.getJobManager()
-                             .startChain(compressionJob)
-                             .then(uploadJob)
-                             .enqueue();
+      AppDependencies.getJobManager()
+                     .startChain(compressionJob)
+                     .then(uploadJob)
+                     .enqueue();
 
       return new PreUploadResult(media, databaseAttachment.attachmentId, Arrays.asList(compressionJob.getId(), uploadJob.getId()));
     } catch (MmsException e) {
@@ -439,7 +444,7 @@ public class MessageSender {
     SignalDatabase.reactions().addReaction(messageId, reaction);
 
     try {
-      ApplicationDependencies.getJobManager().add(ReactionSendJob.create(context, messageId, reaction, false));
+      AppDependencies.getJobManager().add(ReactionSendJob.create(context, messageId, reaction, false));
       onMessageSent();
     } catch (NoSuchMessageException e) {
       Log.w(TAG, "[sendNewReaction] Could not find message! Ignoring.");
@@ -450,7 +455,7 @@ public class MessageSender {
     SignalDatabase.reactions().deleteReaction(messageId, reaction.getAuthor());
 
     try {
-      ApplicationDependencies.getJobManager().add(ReactionSendJob.create(context, messageId, reaction, true));
+      AppDependencies.getJobManager().add(ReactionSendJob.create(context, messageId, reaction, true));
       onMessageSent();
     } catch (NoSuchMessageException e) {
       Log.w(TAG, "[sendReactionRemoval] Could not find message! Ignoring.");
@@ -513,8 +518,12 @@ public class MessageSender {
   }
 
   private static @NonNull OutgoingMessage applyUniversalExpireTimerIfNecessary(@NonNull Context context, @NonNull Recipient recipient, @NonNull OutgoingMessage outgoingMessage, long threadId) {
-    if (!outgoingMessage.isExpirationUpdate() && outgoingMessage.getExpiresIn() == 0 && RecipientUtil.setAndSendUniversalExpireTimerIfNecessary(context, recipient, threadId)) {
-      return outgoingMessage.withExpiry(TimeUnit.SECONDS.toMillis(SignalStore.settings().getUniversalExpireTimer()));
+    if (!outgoingMessage.isExpirationUpdate() && outgoingMessage.getExpiresIn() == 0) {
+      Integer expireTimerVersion = RecipientUtil.setAndSendUniversalExpireTimerIfNecessary(context, recipient, threadId);
+
+      if (expireTimerVersion != null) {
+        return outgoingMessage.withExpiry(TimeUnit.SECONDS.toMillis(SignalStore.settings().getUniversalExpireTimer()), expireTimerVersion);
+      }
     }
     return outgoingMessage;
   }
@@ -540,7 +549,7 @@ public class MessageSender {
   }
 
   private static void sendMediaPush(Context context, Recipient recipient, long messageId, @NonNull Collection<String> uploadJobIds) {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
+    JobManager jobManager = AppDependencies.getJobManager();
 
     if (uploadJobIds.size() > 0) {
       Job mediaSend = IndividualSendJob.create(messageId, recipient, true, false);
@@ -551,7 +560,7 @@ public class MessageSender {
   }
 
   private static void sendGroupPush(@NonNull Context context, @NonNull Recipient recipient, long messageId, @NonNull Set<RecipientId> filterRecipientIds, @NonNull Collection<String> uploadJobIds) {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
+    JobManager jobManager = AppDependencies.getJobManager();
 
     if (uploadJobIds.size() > 0) {
       Job groupSend = new PushGroupSendJob(messageId, recipient.getId(), filterRecipientIds, !uploadJobIds.isEmpty(), false);
@@ -562,7 +571,7 @@ public class MessageSender {
   }
 
   private static void sendDistributionList(@NonNull Context context, @NonNull Recipient recipient, long messageId, @NonNull Set<RecipientId> filterRecipientIds, @NonNull Collection<String> uploadJobIds) {
-    JobManager jobManager = ApplicationDependencies.getJobManager();
+    JobManager jobManager = AppDependencies.getJobManager();
 
     if (uploadJobIds.size() > 0) {
       Job groupSend = new PushDistributionListSendJob(messageId, recipient.getId(), !uploadJobIds.isEmpty(), filterRecipientIds);
@@ -605,12 +614,12 @@ public class MessageSender {
            recipient.isSelf()                   &&
            sendType == SendType.SIGNAL          &&
            SignalStore.account().isRegistered() &&
-           !TextSecurePreferences.isMultiDevice(context);
+           !SignalStore.account().hasLinkedDevices();
   }
 
   private static void sendLocalMediaSelf(long messageId) {
     try {
-      ExpiringMessageManager expirationManager = ApplicationDependencies.getExpiringMessageManager();
+      ExpiringMessageManager expirationManager = AppDependencies.getExpiringMessageManager();
       MessageTable           mmsDatabase    = SignalDatabase.messages();
       OutgoingMessage        message        = mmsDatabase.getOutgoingMessage(messageId);
       SyncMessageId          syncId         = new SyncMessageId(Recipient.self().getId(), message.getSentTimeMillis());
@@ -634,13 +643,13 @@ public class MessageSender {
                                                              .map(a -> AttachmentCompressionJob.fromAttachment((DatabaseAttachment) a, false, -1))
                                                              .toList();
 
-      List<AttachmentMarkUploadedJob> fakeUploadJobs = Stream.of(attachments)
-                                                             .map(a -> new AttachmentMarkUploadedJob(messageId, ((DatabaseAttachment) a).attachmentId))
-                                                             .toList();
+      List<MarkNoteToSelfAttachmentUploadedJob> fakeUploadJobs = Stream.of(attachments)
+                                                                       .map(a -> new MarkNoteToSelfAttachmentUploadedJob(messageId, ((DatabaseAttachment) a).attachmentId))
+                                                                       .toList();
 
-      ApplicationDependencies.getJobManager().startChain(compressionJobs)
-                                             .then(fakeUploadJobs)
-                                             .enqueue();
+      AppDependencies.getJobManager().startChain(compressionJobs)
+                     .then(fakeUploadJobs)
+                     .enqueue();
 
       mmsDatabase.markAsSent(messageId, true);
       mmsDatabase.markUnidentified(messageId, true);

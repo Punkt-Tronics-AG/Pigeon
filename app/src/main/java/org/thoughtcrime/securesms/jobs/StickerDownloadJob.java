@@ -8,7 +8,7 @@ import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.StickerTable;
 import org.thoughtcrime.securesms.database.model.IncomingSticker;
 import org.thoughtcrime.securesms.database.model.StickerRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
@@ -82,7 +82,7 @@ public class StickerDownloadJob extends BaseJob {
 
     StickerRecord stickerRecord = db.getSticker(sticker.getPackId(), sticker.getStickerId(), sticker.isCover());
     if (stickerRecord != null) {
-      try (InputStream stream = PartAuthority.getAttachmentStream(context, stickerRecord.getUri())) {
+      try (InputStream stream = PartAuthority.getAttachmentStream(context, stickerRecord.uri)) {
         if (stream != null) {
           Log.w(TAG, "Sticker already downloaded.");
           return;
@@ -97,7 +97,7 @@ public class StickerDownloadJob extends BaseJob {
       return;
     }
 
-    SignalServiceMessageReceiver receiver     = ApplicationDependencies.getSignalServiceMessageReceiver();
+    SignalServiceMessageReceiver receiver     = AppDependencies.getSignalServiceMessageReceiver();
     byte[]                       packIdBytes  = Hex.fromStringCondensed(sticker.getPackId ());
     byte[]                       packKeyBytes = Hex.fromStringCondensed(sticker.getPackKey());
     InputStream                  stream       = receiver.retrieveSticker(packIdBytes, packKeyBytes, sticker.getStickerId());

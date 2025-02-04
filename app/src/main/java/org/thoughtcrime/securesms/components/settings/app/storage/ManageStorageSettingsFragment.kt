@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.components.settings.app.storage
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +26,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -61,11 +63,15 @@ import org.signal.core.ui.SignalPreview
 import org.signal.core.ui.Texts
 import org.signal.core.ui.theme.SignalTheme
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.billing.upgrade.UpgradeToEnableOptimizedStorageSheet
+import org.thoughtcrime.securesms.billing.upgrade.UpgradeToPaidTierBottomSheet
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.database.MediaTable
 import org.thoughtcrime.securesms.keyvalue.KeepMessagesDuration
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity
 import org.thoughtcrime.securesms.preferences.widgets.StorageGraphView
+import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.viewModel
 import pigeon.extensions.isSignalVersion
@@ -78,9 +84,16 @@ class ManageStorageSettingsFragment : ComposeFragment() {
 
   private val viewModel by viewModel<ManageStorageSettingsViewModel> { ManageStorageSettingsViewModel() }
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    UpgradeToPaidTierBottomSheet.addResultListener(this) {
+      viewModel.setOptimizeStorage(true)
+    }
+  }
+
+  @ExperimentalMaterial3Api
   @Composable
   override fun FragmentContent() {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val navController = rememberNavController()
 
@@ -100,7 +113,17 @@ class ManageStorageSettingsFragment : ComposeFragment() {
             onReviewStorage = { startActivity(MediaOverviewActivity.forAll(requireContext())) },
             onSetKeepMessages = { navController.navigate("set-keep-messages") },
             onSetChatLengthLimit = { navController.navigate("set-chat-length-limit") },
-            onDeleteChatHistory = { navController.navigate("confirm-delete-chat-history") }
+            onSyncTrimThreadDeletes = { viewModel.setSyncTrimDeletes(it) },
+            onDeleteChatHistory = { navController.navigate("confirm-delete-chat-history") },
+            onToggleOnDeviceStorageOptimization = { enabled ->
+              if (state.isPaidTierPending) {
+                navController.navigate("paid-tier-pending")
+              } else if (state.onDeviceStorageOptimizationState == ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.REQUIRES_PAID_TIER) {
+                UpgradeToEnableOptimizedStorageSheet().show(parentFragmentManager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG)
+              } else {
+                viewModel.setOptimizeStorage(enabled)
+              }
+            }
           )
         }
 
@@ -136,7 +159,11 @@ class ManageStorageSettingsFragment : ComposeFragment() {
         dialog("confirm-delete-chat-history") {
           Dialogs.SimpleAlertDialog(
             title = stringResource(id = R.string.preferences_storage__delete_message_history),
-            body = stringResource(id = R.string.preferences_storage__this_will_delete_all_message_history_and_media_from_your_device),
+            body = if (SignalStore.account.hasLinkedDevices) {
+              stringResource(id = R.string.preferences_storage__this_will_delete_all_message_history_and_media_from_your_device_linked_device)
+            } else {
+              stringResource(id = R.string.preferences_storage__this_will_delete_all_message_history_and_media_from_your_device)
+            },
             confirm = stringResource(id = R.string.delete),
             confirmColor = MaterialTheme.colorScheme.error,
             dismiss = stringResource(id = android.R.string.cancel),
@@ -148,7 +175,11 @@ class ManageStorageSettingsFragment : ComposeFragment() {
         dialog("double-confirm-delete-chat-history", dialogProperties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)) {
           Dialogs.SimpleAlertDialog(
             title = stringResource(id = R.string.preferences_storage__are_you_sure_you_want_to_delete_all_message_history),
-            body = stringResource(id = R.string.preferences_storage__all_message_history_will_be_permanently_removed_this_action_cannot_be_undone),
+            body = if (SignalStore.account.hasLinkedDevices) {
+              stringResource(id = R.string.preferences_storage__all_message_history_will_be_permanently_removed_this_action_cannot_be_undone_linked_device)
+            } else {
+              stringResource(id = R.string.preferences_storage__all_message_history_will_be_permanently_removed_this_action_cannot_be_undone)
+            },
             confirm = stringResource(id = R.string.preferences_storage__delete_all_now),
             confirmColor = MaterialTheme.colorScheme.error,
             dismiss = stringResource(id = android.R.string.cancel),
@@ -208,6 +239,18 @@ class ManageStorageSettingsFragment : ComposeFragment() {
             onDismiss = { navController.popBackStack() }
           )
         }
+
+        dialog(
+          route = "paid-tier-pending"
+        ) {
+          Dialogs.SimpleAlertDialog(
+            title = "",
+            body = stringResource(R.string.ManageStorageSettingsFragment__storage_optimization_can_only_be_used),
+            confirm = stringResource(android.R.string.ok),
+            onConfirm = {},
+            onDismiss = { navController.popBackStack() }
+          )
+        }
       }
     }
   }
@@ -225,7 +268,9 @@ private fun ManageStorageSettingsScreen(
   onReviewStorage: () -> Unit = {},
   onSetKeepMessages: () -> Unit = {},
   onSetChatLengthLimit: () -> Unit = {},
-  onDeleteChatHistory: () -> Unit = {}
+  onSyncTrimThreadDeletes: (Boolean) -> Unit = {},
+  onDeleteChatHistory: () -> Unit = {},
+  onToggleOnDeviceStorageOptimization: (Boolean) -> Unit = {}
 ) {
   Scaffolds.Settings(
     title = stringResource(id = R.string.preferences__storage),
@@ -243,7 +288,20 @@ private fun ManageStorageSettingsScreen(
 
         StorageOverview(state.breakdown, onReviewStorage)
 
+      if (state.onDeviceStorageOptimizationState > ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.FEATURE_NOT_AVAILABLE) {
         Dividers.Default()
+
+        Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment__on_device_storage))
+
+        Rows.ToggleRow(
+          checked = state.onDeviceStorageOptimizationState == ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.ENABLED,
+          text = stringResource(id = R.string.ManageStorageSettingsFragment__optimize_on_device_storage),
+          label = stringResource(id = R.string.ManageStorageSettingsFragment__unused_media_will_be_offloaded),
+          onCheckChanged = onToggleOnDeviceStorageOptimization
+        )
+      }
+
+      Dividers.Default()
 
       }
 
@@ -267,6 +325,13 @@ private fun ManageStorageSettingsScreen(
           stringResource(id = R.string.preferences_storage__none)
         },
         onClick = onSetChatLengthLimit
+      )
+
+      Rows.ToggleRow(
+        text = stringResource(id = R.string.ManageStorageSettingsFragment_apply_limits_title),
+        label = stringResource(id = R.string.ManageStorageSettingsFragment_apply_limits_description),
+        checked = state.syncTrimDeletes,
+        onCheckChanged = onSyncTrimThreadDeletes
       )
 
       Dividers.Default()
@@ -327,7 +392,7 @@ private fun SetKeepMessagesScreen(
         .verticalScroll(rememberScrollState())
     ) {
       KeepMessagesDuration
-        .values()
+        .entries
         .forEach {
           Rows.RadioRow(
             text = stringResource(id = it.stringResource),
@@ -496,7 +561,9 @@ private fun ManageStorageSettingsScreenPreview() {
     ManageStorageSettingsScreen(
       state = ManageStorageSettingsViewModel.ManageStorageState(
         keepMessagesDuration = KeepMessagesDuration.FOREVER,
-        lengthLimit = ManageStorageSettingsViewModel.ManageStorageState.NO_LIMIT
+        lengthLimit = ManageStorageSettingsViewModel.ManageStorageState.NO_LIMIT,
+        syncTrimDeletes = true,
+        onDeviceStorageOptimizationState = ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.DISABLED
       )
     )
   }

@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -40,10 +39,12 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.concurrent.SignalExecutors
+import org.signal.core.util.concurrent.addTo
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment
+import org.thoughtcrime.securesms.components.DeleteSyncEducationDialog
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.components.mention.MentionAnnotation
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragment
@@ -52,7 +53,7 @@ import org.thoughtcrime.securesms.database.DatabaseObserver
 import org.thoughtcrime.securesms.database.MediaTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.databinding.FragmentMediaPreviewV2Binding
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.mediapreview.caption.ExpandingCaptionView
 import org.thoughtcrime.securesms.mediapreview.mediarail.CenterDecoration
 import org.thoughtcrime.securesms.mediapreview.mediarail.MediaRailAdapter
@@ -149,8 +150,8 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     val startingAttachmentId = PartAuthority.requireAttachmentId(args.initialMediaUri)
     val threadId = args.threadId
     viewModel.fetchAttachments(requireContext(), startingAttachmentId, threadId, sorting)
-    val dbObserver = DatabaseObserver.Observer { viewModel.fetchAttachments(requireContext(), startingAttachmentId, threadId, sorting, true) }
-    ApplicationDependencies.getDatabaseObserver().registerAttachmentObserver(dbObserver)
+    val dbObserver = DatabaseObserver.Observer { viewModel.refetchAttachments(requireContext(), startingAttachmentId, threadId, sorting) }
+    AppDependencies.databaseObserver.registerAttachmentUpdatedObserver(dbObserver)
     this.dbChangeObserver = dbObserver
   }
 
@@ -208,7 +209,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
   }
 
   private fun bindCurrentState(currentState: MediaPreviewV2State) {
-    if (currentState.position == -1 && currentState.mediaRecords.isEmpty()) {
+    if (currentState.position < 0 && currentState.mediaRecords.isEmpty()) {
       onMediaNotAvailable()
       return
     }
@@ -223,7 +224,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     val currentPosition = currentState.position
 
     val backingItems = currentState.mediaRecords.mapNotNull { it.attachment }
-    if (backingItems.isEmpty()) {
+    if (backingItems.isEmpty() || currentPosition < 0) {
       onMediaNotAvailable()
       return
     }
@@ -240,12 +241,12 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
    * {@link OnPageChangeCallback}.
    */
   private fun bindMediaReadyState(currentState: MediaPreviewV2State) {
-    if (currentState.mediaRecords.isEmpty()) {
+    val currentPosition: Int = currentState.position
+    if (currentState.mediaRecords.isEmpty() || currentPosition < 0) {
       onMediaNotAvailable()
       return
     }
 
-    val currentPosition: Int = currentState.position
     val currentItem: MediaTable.MediaRecord = currentState.mediaRecords[currentPosition]
     val currentItemTag: String? = pagerAdapter.getFragmentTag(currentPosition)
 
@@ -509,7 +510,7 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     super.onDestroy()
     val observer = dbChangeObserver
     if (observer != null) {
-      ApplicationDependencies.getDatabaseObserver().unregisterObserver(observer)
+      AppDependencies.databaseObserver.unregisterObserver(observer)
       dbChangeObserver = null
     }
   }
@@ -524,10 +525,10 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
     val uri = attachment?.uri
     if (attachment != null && uri != null) {
       MultiselectForwardFragmentArgs.create(
-        requireContext(),
-        mediaItem.threadId,
-        uri,
-        attachment.contentType
+        context = requireContext(),
+        threadId = mediaItem.threadId,
+        mediaUri = uri,
+        contentType = attachment.contentType
       ) { args: MultiselectForwardFragmentArgs ->
         MultiselectForwardFragment.showBottomSheet(childFragmentManager, args)
       }
@@ -556,10 +557,10 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
   }
 
   private fun saveToDisk(mediaItem: MediaTable.MediaRecord) {
-    SaveAttachmentTask.showWarningDialog(requireContext()) { _: DialogInterface?, _: Int ->
+    SaveAttachmentTask.showWarningDialogIfNecessary(requireContext()) {
       if (StorageUtil.canWriteToMediaStore()) {
         performSaveToDisk(mediaItem)
-        return@showWarningDialog
+        return@showWarningDialogIfNecessary
       }
       Permissions.with(this)
         .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -584,6 +585,15 @@ class MediaPreviewV2Fragment : LoggingFragment(R.layout.fragment_media_preview_v
 
   private fun deleteMedia(mediaItem: MediaTable.MediaRecord) {
     val attachment: DatabaseAttachment = mediaItem.attachment ?: return
+
+    if (DeleteSyncEducationDialog.shouldShow()) {
+      DeleteSyncEducationDialog
+        .show(childFragmentManager)
+        .subscribe { deleteMedia(mediaItem) }
+        .addTo(lifecycleDisposable)
+
+      return
+    }
 
     MaterialAlertDialogBuilder(requireContext()).apply {
       setIcon(R.drawable.symbol_error_triangle_fill_24)

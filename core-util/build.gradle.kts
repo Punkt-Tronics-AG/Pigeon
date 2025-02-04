@@ -11,9 +11,9 @@ dependencies {
   api(project(":core-util-jvm"))
 
   implementation(libs.androidx.sqlite)
+  implementation(libs.androidx.documentfile)
 
   testImplementation(testLibs.junit.junit)
-  testImplementation(testLibs.mockito.core)
   testImplementation(testLibs.robolectric.robolectric)
 }
 

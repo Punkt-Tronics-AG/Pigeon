@@ -8,6 +8,8 @@ package org.thoughtcrime.securesms.jobs
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import assertk.assertThat
+import assertk.assertions.isTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,12 +18,11 @@ import org.thoughtcrime.securesms.attachments.UriAttachment
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.UriAttachmentBuilder
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.mms.SentMediaQuality
 import org.thoughtcrime.securesms.providers.BlobProvider
 import org.thoughtcrime.securesms.testing.SignalActivityRule
-import org.thoughtcrime.securesms.testing.assertIs
 import org.thoughtcrime.securesms.util.MediaUtil
 import java.util.Optional
 import java.util.concurrent.CountDownLatch
@@ -38,7 +39,7 @@ class AttachmentCompressionJobTest {
       StreamUtil.readFully(it)
     }
 
-    val blob = BlobProvider.getInstance().forData(imageBytes).createForSingleSessionOnDisk(ApplicationDependencies.getApplication())
+    val blob = BlobProvider.getInstance().forData(imageBytes).createForSingleSessionOnDisk(AppDependencies.application)
 
     val firstPreUpload = createAttachment(1, blob, AttachmentTable.TransformProperties.empty())
     val firstDatabaseAttachment = SignalDatabase.attachments.insertAttachmentForPreUpload(firstPreUpload)
@@ -51,12 +52,12 @@ class AttachmentCompressionJobTest {
 
     val secondJobLatch = CountDownLatch(1)
     val jobThread = Thread {
-      firstCompressionJob.setContext(ApplicationDependencies.getApplication())
+      firstCompressionJob.setContext(AppDependencies.application)
       firstJobResult = firstCompressionJob.run()
 
       secondJobLatch.await()
 
-      secondCompressionJob!!.setContext(ApplicationDependencies.getApplication())
+      secondCompressionJob!!.setContext(AppDependencies.application)
       secondJobResult = secondCompressionJob!!.run()
     }
 
@@ -69,8 +70,8 @@ class AttachmentCompressionJobTest {
 
     jobThread.join()
 
-    firstJobResult!!.isSuccess assertIs true
-    secondJobResult!!.isSuccess assertIs true
+    assertThat(firstJobResult!!.isSuccess).isTrue()
+    assertThat(secondJobResult!!.isSuccess).isTrue()
   }
 
   private fun createAttachment(id: Long, uri: Uri, transformProperties: AttachmentTable.TransformProperties): UriAttachment {

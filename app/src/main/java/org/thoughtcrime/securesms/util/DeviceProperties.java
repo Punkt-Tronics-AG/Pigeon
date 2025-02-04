@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 
 /**
  * Easy access to various properties of the device, typically to make performance-related decisions.
@@ -30,11 +31,11 @@ public final class DeviceProperties {
       return false;
     }
 
-    if (memoryMb < FeatureFlags.animatedStickerMinimumTotalMemoryMb()) {
+    if (memoryMb < RemoteConfig.animatedStickerMinimumTotalMemoryMb()) {
       return false;
     }
 
-    if (getMemoryClass(context) < FeatureFlags.animatedStickerMinimumMemoryClass()) {
+    if (getMemoryClass(context) < RemoteConfig.animatedStickerMinimumMemoryClass()) {
       return false;
     }
 
@@ -63,6 +64,13 @@ public final class DeviceProperties {
     activityManager.getMemoryInfo(info);
 
     return info;
+  }
+
+  public static boolean isBackgroundRestricted() {
+    if (Build.VERSION.SDK_INT >= 28) {
+      return isBackgroundRestricted(AppDependencies.getApplication());
+    }
+    return false;
   }
 
   @RequiresApi(28)

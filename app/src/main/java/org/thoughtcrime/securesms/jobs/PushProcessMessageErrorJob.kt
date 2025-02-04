@@ -8,7 +8,7 @@ package org.thoughtcrime.securesms.jobs
 import android.content.Context
 import androidx.annotation.WorkerThread
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.JsonJobData
@@ -66,7 +66,7 @@ class PushProcessMessageErrorJob private constructor(
     override fun create(parameters: Parameters, serializedData: ByteArray?): PushProcessMessageErrorJob {
       val data = JsonJobData.deserialize(serializedData)
 
-      val state = MessageState.values()[data.getInt(KEY_MESSAGE_STATE)]
+      val state = MessageState.entries[data.getInt(KEY_MESSAGE_STATE)]
       check(state != MessageState.DECRYPTED_OK && state != MessageState.NOOP)
 
       val exceptionMetadata = ExceptionMetadata(
@@ -92,7 +92,7 @@ class PushProcessMessageErrorJob private constructor(
 
     @WorkerThread
     private fun createParameters(exceptionMetadata: ExceptionMetadata): Parameters {
-      val context: Context = ApplicationDependencies.getApplication()
+      val context: Context = AppDependencies.application
 
       val recipient = exceptionMetadata.groupId?.let { Recipient.externalPossiblyMigratedGroup(it) } ?: Recipient.external(context, exceptionMetadata.sender)
 

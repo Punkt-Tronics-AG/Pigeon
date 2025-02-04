@@ -45,23 +45,25 @@ class CreateReleaseChannelJob private constructor(parameters: Parameters) : Base
   override fun onFailure() = Unit
 
   override fun onRun() {
-    if (!SignalStore.account().isRegistered) {
+    if (!SignalStore.account.isRegistered) {
       Log.i(TAG, "Not registered, skipping.")
       return
     }
 
-    if (SignalStore.releaseChannelValues().releaseChannelRecipientId != null) {
-      Log.i(TAG, "Already created Release Channel recipient ${SignalStore.releaseChannelValues().releaseChannelRecipientId}")
+    if (SignalStore.releaseChannel.releaseChannelRecipientId != null) {
+      Log.i(TAG, "Already created Release Channel recipient ${SignalStore.releaseChannel.releaseChannelRecipientId}")
 
-      val recipient = Recipient.resolved(SignalStore.releaseChannelValues().releaseChannelRecipientId!!)
-      if (recipient.profileAvatar == null || recipient.profileAvatar?.isEmpty() == true) {
+      val recipient = Recipient.resolved(SignalStore.releaseChannel.releaseChannelRecipientId!!)
+      if (recipient.profileAvatar.isNullOrEmpty() || !SignalStore.releaseChannel.hasUpdatedAvatar) {
+        SignalStore.releaseChannel.hasUpdatedAvatar = true
         setAvatar(recipient.id)
       }
     } else {
       val recipients = SignalDatabase.recipients
 
       val releaseChannelId: RecipientId = recipients.insertReleaseChannelRecipient()
-      SignalStore.releaseChannelValues().setReleaseChannelRecipientId(releaseChannelId)
+      SignalStore.releaseChannel.setReleaseChannelRecipientId(releaseChannelId)
+      SignalStore.releaseChannel.hasUpdatedAvatar = true
 
       recipients.setProfileName(releaseChannelId, ProfileName.asGiven("Signal"))
       recipients.setMuted(releaseChannelId, Long.MAX_VALUE)
@@ -75,7 +77,7 @@ class CreateReleaseChannelJob private constructor(parameters: Parameters) : Base
       context,
       Avatar.Resource(
         R.drawable.ic_signal_logo_large,
-        Avatars.ColorPair(ContextCompat.getColor(context, R.color.core_ultramarine), ContextCompat.getColor(context, R.color.core_white), "")
+        Avatars.ColorPair(ContextCompat.getColor(context, R.color.notification_background_ultramarine), ContextCompat.getColor(context, R.color.core_white), "")
       ),
       onAvatarRendered = { media ->
         AvatarHelper.setAvatar(context, id, BlobProvider.getInstance().getStream(context, media.uri))

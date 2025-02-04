@@ -31,6 +31,11 @@ enum class DonationErrorSource(private val code: String) {
    */
   KEEP_ALIVE("keep-alive"),
 
+  /**
+   * Refers to backup payments.
+   */
+  BACKUPS("backups"),
+
   UNKNOWN("unknown");
 
   fun serialize(): String = code
@@ -38,7 +43,7 @@ enum class DonationErrorSource(private val code: String) {
   companion object {
     @JvmStatic
     fun deserialize(code: String): DonationErrorSource {
-      return values().firstOrNull { it.code == code } ?: UNKNOWN
+      return entries.firstOrNull { it.code == code } ?: UNKNOWN
     }
   }
 }

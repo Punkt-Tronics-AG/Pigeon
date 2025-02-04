@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import org.signal.core.util.StringUtil
 import org.signal.core.util.dp
@@ -42,11 +43,10 @@ import org.thoughtcrime.securesms.conversation.v2.computed.FormattedDate
 import org.thoughtcrime.securesms.conversation.v2.data.ConversationMessageElement
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.longmessage.TAG
 import org.thoughtcrime.securesms.recipients.Recipient
-import org.thoughtcrime.securesms.recipients.RecipientForeverObserver
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.InterceptableLongClickCopyLinkSpan
 import org.thoughtcrime.securesms.util.LongClickMovementMethod
@@ -74,7 +74,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
   private val binding: V2ConversationItemTextOnlyBindingBridge,
   private val conversationContext: V2ConversationContext,
   footerDelegate: V2FooterPositionDelegate = V2FooterPositionDelegate(binding)
-) : V2ConversationItemViewHolder<Model>(binding.root, conversationContext), Multiselectable, InteractiveConversationElement, RecipientForeverObserver {
+) : V2ConversationItemViewHolder<Model>(binding.root, conversationContext), Multiselectable, InteractiveConversationElement, Observer<Recipient> {
 
   companion object {
     private val STYLE_FACTORY = SearchUtil.StyleFactory { arrayOf<CharacterStyle>(BackgroundColorSpan(Color.YELLOW), ForegroundColorSpan(Color.BLACK)) }
@@ -172,7 +172,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     binding.body.setOnLongClickListener(passthroughClickListener)
 
     binding.body.isFocusable = false
-    binding.body.setTextSize(TypedValue.COMPLEX_UNIT_SP, SignalStore.settings().messageFontSize.toFloat())
+    binding.body.setTextSize(TypedValue.COMPLEX_UNIT_SP, SignalStore.settings.messageFontSize.toFloat())
     binding.body.movementMethod = LongClickMovementMethod.getInstance(context)
 
     if (binding.isIncoming) {
@@ -216,12 +216,12 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     check(model is ConversationMessageElement)
 
     if (this::conversationMessage.isInitialized) {
-      conversationMessage.messageRecord.fromRecipient.live().removeForeverObserver(this)
+      conversationMessage.messageRecord.fromRecipient.live().removeObserver(this)
     }
 
     conversationMessage = model.conversationMessage
     if (conversationMessage.threadRecipient.isGroup) {
-      conversationMessage.messageRecord.fromRecipient.live().observeForever(this)
+      conversationMessage.messageRecord.fromRecipient.live().observe(conversationContext.lifecycleOwner, this)
     }
 
     shape = shapeDelegate.setMessageShape(
@@ -532,7 +532,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
         timer.startAnimation()
 
         if (record.expireStarted + record.expiresIn <= System.currentTimeMillis()) {
-          ApplicationDependencies.getExpiringMessageManager().checkSchedule()
+          AppDependencies.expiringMessageManager.checkSchedule()
         }
       } else if (!record.isOutgoing && !record.isMediaPending) {
         conversationContext.onStartExpirationTimeout(record)
@@ -705,7 +705,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
         }
 
         binding.footerDate.setOnClickListener {
-          conversationContext.clickListener.onEditedIndicatorClicked(record)
+          conversationContext.clickListener.onEditedIndicatorClicked(conversationMessage)
         }
       }
 
@@ -775,7 +775,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       messageRecord.isFailed -> {
         conversationContext.clickListener.onMessageWithErrorClicked(messageRecord)
       }
-      messageRecord.isRateLimited && SignalStore.rateLimit().needsRecaptcha() -> {
+      messageRecord.isRateLimited && SignalStore.rateLimit.needsRecaptcha() -> {
         conversationContext.clickListener.onMessageWithRecaptchaNeededClicked(messageRecord)
       }
       messageRecord.isOutgoing && messageRecord.isIdentityMismatchFailure -> {
@@ -818,7 +818,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     }
   }
 
-  override fun onRecipientChanged(recipient: Recipient) {
+  override fun onChanged(recipient: Recipient) {
     presentSender()
   }
 }

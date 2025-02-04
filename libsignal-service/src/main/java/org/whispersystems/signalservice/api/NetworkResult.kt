@@ -6,7 +6,13 @@
 package org.whispersystems.signalservice.api
 
 import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResponseCodeException
+import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
+import org.whispersystems.signalservice.internal.util.JsonUtil
+import org.whispersystems.signalservice.internal.websocket.WebSocketRequestMessage
+import org.whispersystems.signalservice.internal.websocket.WebsocketResponse
 import java.io.IOException
+import java.util.concurrent.TimeoutException
+import kotlin.reflect.KClass
 
 typealias StatusCodeErrorAction = (NetworkResult.StatusCodeError<*>) -> Unit
 
@@ -30,17 +36,95 @@ sealed class NetworkResult<T>(
   companion object {
     /**
      * A convenience method to capture the common case of making a request.
-     * Perform the network action in the [fetch] lambda, returning your result.
+     * Perform the network action in the [fetcher], returning your result.
      * Common exceptions will be caught and translated to errors.
      */
-    fun <T> fromFetch(fetch: () -> T): NetworkResult<T> = try {
-      Success(fetch())
+    @JvmStatic
+    fun <T> fromFetch(fetcher: Fetcher<T>): NetworkResult<T> = try {
+      Success(fetcher.fetch())
     } catch (e: NonSuccessfulResponseCodeException) {
-      StatusCodeError(e.code, e.body, e)
+      StatusCodeError(e)
     } catch (e: IOException) {
       NetworkError(e)
     } catch (e: Throwable) {
       ApplicationError(e)
+    }
+
+    /**
+     * A convenience method to convert a websocket request into a network result with simple conversion of the response body to the desired class.
+     * Common exceptions will be caught and translated to errors.
+     */
+    @JvmStatic
+    fun <T : Any> fromWebSocketRequest(
+      signalWebSocket: SignalWebSocket,
+      request: WebSocketRequestMessage,
+      clazz: KClass<T>
+    ): NetworkResult<T> = try {
+      val result: Result<T> = signalWebSocket.request(request)
+        .map { response: WebsocketResponse -> Result.success(JsonUtil.fromJson(response.body, clazz.java)) }
+        .onErrorReturn { Result.failure<T>(it) }
+        .blockingGet()
+      Success(result.getOrThrow())
+    } catch (e: NonSuccessfulResponseCodeException) {
+      StatusCodeError(e)
+    } catch (e: IOException) {
+      NetworkError(e)
+    } catch (e: TimeoutException) {
+      NetworkError(PushNetworkException(e))
+    } catch (e: Throwable) {
+      ApplicationError(e)
+    }
+
+    /**
+     * A convenience method to convert a websocket request into a network result with the ability to convert the response to your target class.
+     * Common exceptions will be caught and translated to errors.
+     */
+    @JvmStatic
+    fun <T : Any> fromWebSocketRequest(
+      signalWebSocket: SignalWebSocket,
+      request: WebSocketRequestMessage,
+      webSocketResponseConverter: WebSocketResponseConverter<T>
+    ): NetworkResult<T> = try {
+      val result = signalWebSocket.request(request)
+        .map { response: WebsocketResponse -> webSocketResponseConverter.convert(response) }
+        .blockingGet()
+      Success(result)
+    } catch (e: NonSuccessfulResponseCodeException) {
+      StatusCodeError(e)
+    } catch (e: IOException) {
+      NetworkError(e)
+    } catch (e: Throwable) {
+      ApplicationError(e)
+    }
+
+    /**
+     * Runs [operation] to perform a network call. If [shouldRetry] returns false for the result, then returns it. Otherwise will call [operation] repeatedly
+     * until [shouldRetry] returns false or is called [maxAttempts] number of times.
+     *
+     * @param maxAttempts Max attempts to try the network operation, must be 1 or more, default is 5
+     * @param shouldRetry Predicate to determine if network operation should be retried, default is any [NetworkError] result is retried
+     * @param logAttempt Log each attempt before [operation] is called, default is noop
+     * @param operation Network operation that can be called repeatedly for each attempt
+     */
+    fun <T : Any?> withRetry(
+      maxAttempts: Int = 5,
+      shouldRetry: (NetworkResult<T>) -> Boolean = { it is NetworkError },
+      logAttempt: (attempt: Int, maxAttempts: Int) -> Unit = { _, _ -> },
+      operation: () -> NetworkResult<T>
+    ): NetworkResult<T> {
+      require(maxAttempts > 0)
+
+      lateinit var result: NetworkResult<T>
+      for (attempt in 0 until maxAttempts) {
+        logAttempt(attempt, maxAttempts)
+        result = operation()
+
+        if (!shouldRetry(result)) {
+          return result
+        }
+      }
+
+      return result
     }
   }
 
@@ -51,7 +135,9 @@ sealed class NetworkResult<T>(
   data class NetworkError<T>(val exception: IOException) : NetworkResult<T>()
 
   /** Indicates we got a response, but it was a non-2xx response. */
-  data class StatusCodeError<T>(val code: Int, val body: String?, val exception: NonSuccessfulResponseCodeException) : NetworkResult<T>()
+  data class StatusCodeError<T>(val code: Int, val stringBody: String?, val binaryBody: ByteArray?, val exception: NonSuccessfulResponseCodeException) : NetworkResult<T>() {
+    constructor(e: NonSuccessfulResponseCodeException) : this(e.code, e.stringBody, e.binaryBody, e)
+  }
 
   /** Indicates that the application somehow failed in a way unrelated to network activity. Usually a runtime crash. */
   data class ApplicationError<T>(val throwable: Throwable) : NetworkResult<T>()
@@ -87,6 +173,8 @@ sealed class NetworkResult<T>(
    * If it's non-successful, [transform] lambda is not run, and instead the original failure will be propagated.
    * Useful for changing the type of a result.
    *
+   * If an exception is thrown during [transform], this is mapped to an [ApplicationError].
+   *
    * ```kotlin
    * val user: NetworkResult<LocalUserModel> = NetworkResult
    *   .fromFetch { fetchRemoteUserModel() }
@@ -95,10 +183,45 @@ sealed class NetworkResult<T>(
    */
   fun <R> map(transform: (T) -> R): NetworkResult<R> {
     return when (this) {
-      is Success -> Success(transform(this.result)).runOnStatusCodeError(statusCodeErrorActions)
+      is Success -> {
+        try {
+          Success(transform(this.result)).runOnStatusCodeError(statusCodeErrorActions)
+        } catch (e: Throwable) {
+          ApplicationError<R>(e).runOnStatusCodeError(statusCodeErrorActions)
+        }
+      }
+
       is NetworkError -> NetworkError<R>(exception).runOnStatusCodeError(statusCodeErrorActions)
       is ApplicationError -> ApplicationError<R>(throwable).runOnStatusCodeError(statusCodeErrorActions)
-      is StatusCodeError -> StatusCodeError<R>(code, body, exception).runOnStatusCodeError(statusCodeErrorActions)
+      is StatusCodeError -> StatusCodeError<R>(code, stringBody, binaryBody, exception).runOnStatusCodeError(statusCodeErrorActions)
+    }
+  }
+
+  /**
+   * Provides the ability to fallback to [fromFetch] if the current [NetworkResult] is non-successful.
+   *
+   * The [fallback] will only be triggered on non-[Success] results. You can provide a [unless] to limit what kinds of errors you fallback on
+   * (the default is to fallback on every error).
+   *
+   * This primary usecase of this is to make a websocket request (see [fromWebSocketRequest]) and fallback to rest upon failure.
+   *
+   * ```kotlin
+   * val user: NetworkResult<LocalUserModel> = NetworkResult
+   *   .fromWebSocketRequest(websocket, request, LocalUserMode.class.java)
+   *   .fallbackTo { result -> NetworkResult.fromFetch { http.getUser() } }
+   * ```
+   *
+   * @param unless If this lamba returns true, the fallback will not be triggered.
+   */
+  fun fallbackToFetch(unless: (NetworkResult<T>) -> Boolean = { false }, fallback: Fetcher<T>): NetworkResult<T> {
+    if (this is Success) {
+      return this
+    }
+
+    return if (unless(this)) {
+      fromFetch(fallback)
+    } else {
+      this
     }
   }
 
@@ -120,13 +243,13 @@ sealed class NetworkResult<T>(
       is Success -> result(this.result).runOnStatusCodeError(statusCodeErrorActions)
       is NetworkError -> NetworkError<R>(exception).runOnStatusCodeError(statusCodeErrorActions)
       is ApplicationError -> ApplicationError<R>(throwable).runOnStatusCodeError(statusCodeErrorActions)
-      is StatusCodeError -> StatusCodeError<R>(code, body, exception).runOnStatusCodeError(statusCodeErrorActions)
+      is StatusCodeError -> StatusCodeError<R>(code, stringBody, binaryBody, exception).runOnStatusCodeError(statusCodeErrorActions)
     }
   }
 
   /**
    * Will perform an operation if the result at this point in the chain is successful. Note that it runs if the chain is _currently_ successful. It does not
-   * depend on anything futher down the chain.
+   * depend on anything further down the chain.
    *
    * ```kotlin
    * val networkResult: NetworkResult<MyData> = NetworkResult
@@ -174,5 +297,15 @@ sealed class NetworkResult<T>(
     }
 
     return this
+  }
+
+  fun interface Fetcher<T> {
+    @Throws(Exception::class)
+    fun fetch(): T
+  }
+
+  fun interface WebSocketResponseConverter<T> {
+    @Throws(Exception::class)
+    fun convert(response: WebsocketResponse): T
   }
 }

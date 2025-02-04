@@ -6,13 +6,12 @@
 package org.thoughtcrime.securesms.jobs
 
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.JsonJobData
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.thoughtcrime.securesms.util.FeatureFlags
 import java.util.concurrent.TimeUnit
 
 /**
@@ -46,18 +45,13 @@ internal class CallLinkPeekJob private constructor(
   )
 
   override fun onRun() {
-    if (!FeatureFlags.adHocCalling()) {
-      Log.i(TAG, "Ad hoc calling is disabled. Dropping peek for call link.")
-      return
-    }
-
     val recipient = Recipient.resolved(callLinkRecipientId)
     if (!recipient.isCallLink) {
       Log.w(TAG, "Recipient was not a call link. Ignoring.")
       return
     }
 
-    ApplicationDependencies.getSignalCallManager().peekCallLinkCall(callLinkRecipientId)
+    AppDependencies.signalCallManager.peekCallLinkCall(callLinkRecipientId)
   }
 
   override fun onShouldRetry(e: Exception): Boolean = false

@@ -10,22 +10,43 @@ import org.thoughtcrime.securesms.calls.links.UpdateCallLinkRepository
 import org.thoughtcrime.securesms.database.CallLinkTable
 import org.thoughtcrime.securesms.database.DatabaseObserver
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
-import org.thoughtcrime.securesms.jobs.CallLinkPeekJob
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.CallLogEventSendJob
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
 import org.thoughtcrime.securesms.service.webrtc.links.UpdateCallLinkResult
 
 class CallLogRepository(
   private val updateCallLinkRepository: UpdateCallLinkRepository = UpdateCallLinkRepository(),
-  private val callLogPeekHelper: CallLogPeekHelper
+  private val callLogPeekHelper: CallLogPeekHelper,
+  private val callEventCache: CallEventCache
 ) : CallLogPagedDataSource.CallRepository {
+
+  companion object {
+    fun listenForCallTableChanges(): Observable<Unit> {
+      return Observable.create { emitter ->
+        fun refresh() {
+          emitter.onNext(Unit)
+        }
+
+        val databaseObserver = DatabaseObserver.Observer {
+          refresh()
+        }
+
+        AppDependencies.databaseObserver.registerCallUpdateObserver(databaseObserver)
+
+        emitter.setCancellable {
+          AppDependencies.databaseObserver.unregisterObserver(databaseObserver)
+        }
+      }
+    }
+  }
+
   override fun getCallsCount(query: String?, filter: CallLogFilter): Int {
-    return SignalDatabase.calls.getCallsCount(query, filter)
+    return callEventCache.getCallEventsCount(CallEventCache.FilterState(query ?: "", filter))
   }
 
   override fun getCalls(query: String?, filter: CallLogFilter, start: Int, length: Int): List<CallLogRow> {
-    return SignalDatabase.calls.getCalls(start, length, query, filter)
+    return callEventCache.getCallEvents(CallEventCache.FilterState(query ?: "", filter), length, start)
   }
 
   override fun getCallLinksCount(query: String?, filter: CallLogFilter): Int {
@@ -48,30 +69,15 @@ class CallLogRepository(
     }
   }
 
+  fun listenForChanges(): Observable<Unit> {
+    return callEventCache.listenForChanges()
+  }
+
   fun markAllCallEventsRead() {
     SignalExecutors.BOUNDED_IO.execute {
       val latestCall = SignalDatabase.calls.getLatestCall() ?: return@execute
       SignalDatabase.calls.markAllCallEventsRead()
-      ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forMarkedAsRead(latestCall))
-    }
-  }
-
-  fun listenForChanges(): Observable<Unit> {
-    return Observable.create { emitter ->
-      fun refresh() {
-        emitter.onNext(Unit)
-      }
-
-      val databaseObserver = DatabaseObserver.Observer {
-        refresh()
-      }
-
-      ApplicationDependencies.getDatabaseObserver().registerConversationListObserver(databaseObserver)
-      ApplicationDependencies.getDatabaseObserver().registerCallUpdateObserver(databaseObserver)
-
-      emitter.setCancellable {
-        ApplicationDependencies.getDatabaseObserver().unregisterObserver(databaseObserver)
-      }
+      AppDependencies.jobManager.add(CallLogEventSendJob.forMarkedAsRead(latestCall))
     }
   }
 
@@ -106,7 +112,7 @@ class CallLogRepository(
         val latestCall = SignalDatabase.calls.getLatestCall() ?: return@withinTransaction
         SignalDatabase.calls.deleteNonAdHocCallEventsOnOrBefore(latestCall.timestamp)
         SignalDatabase.callLinks.deleteNonAdminCallLinksOnOrBefore(latestCall.timestamp)
-        ApplicationDependencies.getJobManager().add(CallLogEventSendJob.forClearHistory(latestCall))
+        AppDependencies.jobManager.add(CallLogEventSendJob.forClearHistory(latestCall))
       }
 
       SignalDatabase.callLinks.getAllAdminCallLinksExcept(emptySet())
@@ -151,36 +157,11 @@ class CallLogRepository(
         updateCallLinkRepository.deleteCallLink(it.credentials!!)
       }
     ).reduce(0) { acc, current ->
-      acc + (if (current is UpdateCallLinkResult.Update) 0 else 1)
+      acc + (if (current is UpdateCallLinkResult.Delete) 0 else 1)
     }.doOnTerminate {
       SignalDatabase.calls.updateAdHocCallEventDeletionTimestamps()
     }.doOnDispose {
       SignalDatabase.calls.updateAdHocCallEventDeletionTimestamps()
     }
-  }
-
-  fun peekCallLinks(): Completable {
-    return Completable.fromAction {
-      val callLinks: List<CallLogRow.CallLink> = SignalDatabase.callLinks.getCallLinks(
-        query = null,
-        offset = 0,
-        limit = 10
-      )
-
-      val callEvents: List<CallLogRow.Call> = SignalDatabase.calls.getCalls(
-        offset = 0,
-        limit = 10,
-        searchTerm = null,
-        filter = CallLogFilter.AD_HOC
-      )
-
-      val recipients = (callLinks.map { it.recipient } + callEvents.map { it.peer }).toSet()
-
-      val jobs = recipients.take(10).map {
-        CallLinkPeekJob(it.id)
-      }
-
-      ApplicationDependencies.getJobManager().addAll(jobs)
-    }.subscribeOn(Schedulers.io())
   }
 }

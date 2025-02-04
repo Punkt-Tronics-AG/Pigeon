@@ -8,10 +8,12 @@ import androidx.annotation.NonNull;
 import com.annimon.stream.Stream;
 
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.jobs.MinimalJobSpec;
 import org.thoughtcrime.securesms.util.WakeLockUtil;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 /**
  * A thread that constantly checks for available {@link Job}s owned by the {@link JobController}.
@@ -27,12 +29,12 @@ class JobRunner extends Thread {
 
   private static long WAKE_LOCK_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
-  private final Application   application;
-  private final int           id;
-  private final JobController jobController;
-  private final JobPredicate  jobPredicate;
+  private final Application               application;
+  private final int                       id;
+  private final JobController             jobController;
+  private final Predicate<MinimalJobSpec> jobPredicate;
 
-  JobRunner(@NonNull Application application, int id, @NonNull JobController jobController, @NonNull JobPredicate predicate) {
+  JobRunner(@NonNull Application application, int id, @NonNull JobController jobController, @NonNull Predicate<MinimalJobSpec> predicate) {
     super("signal-JobRunner-" + id);
 
     this.application   = application;
@@ -83,12 +85,15 @@ class JobRunner extends Thread {
 
     try {
       wakeLock = WakeLockUtil.acquire(application, PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TIMEOUT, job.getId());
-      result = job.run();
+      result   = job.run();
 
       if (job.isCanceled()) {
         Log.w(TAG, JobLogger.format(job, String.valueOf(id), "Failing because the job was canceled."));
         result = Job.Result.failure();
       }
+    } catch (RuntimeException e) {
+      Log.w(TAG, JobLogger.format(job, String.valueOf(id), "Failing fatally due to an unexpected runtime exception."), e);
+      return Job.Result.fatalFailure(e);
     } catch (Exception e) {
       Log.w(TAG, JobLogger.format(job, String.valueOf(id), "Failing due to an unexpected exception."), e);
       return Job.Result.failure();

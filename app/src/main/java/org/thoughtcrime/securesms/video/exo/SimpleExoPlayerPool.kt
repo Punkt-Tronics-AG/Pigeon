@@ -6,12 +6,14 @@ import androidx.annotation.OptIn
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.TransferListener
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.net.ContentProxySelector
 import org.thoughtcrime.securesms.util.AppForegroundObserver
 import org.thoughtcrime.securesms.util.DeviceProperties
@@ -23,12 +25,12 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(markerClass = [UnstableApi::class])
 class SimpleExoPlayerPool(context: Context) : ExoPlayerPool<ExoPlayer>(MAXIMUM_RESERVED_PLAYERS) {
   private val context: Context = context.applicationContext
-  private val okHttpClient = ApplicationDependencies.getOkHttpClient().newBuilder().proxySelector(ContentProxySelector()).build()
-  private val dataSourceFactory: DataSource.Factory = SignalDataSource.Factory(ApplicationDependencies.getApplication(), okHttpClient, null)
+  private val okHttpClient = AppDependencies.okHttpClient.newBuilder().proxySelector(ContentProxySelector()).build()
+  private val dataSourceFactory: DataSource.Factory = SignalDataSource.Factory(AppDependencies.application, okHttpClient, DataSourceTransferListener)
   private val mediaSourceFactory: MediaSource.Factory = DefaultMediaSourceFactory(dataSourceFactory)
 
   init {
-    ApplicationDependencies.getAppForegroundObserver().addListener(this)
+    AppForegroundObserver.addListener(this)
   }
 
   /**
@@ -51,7 +53,7 @@ class SimpleExoPlayerPool(context: Context) : ExoPlayerPool<ExoPlayer>(MAXIMUM_R
       return maxInstances
     }
 
-    return if (DeviceProperties.isLowMemoryDevice(ApplicationDependencies.getApplication())) {
+    return if (DeviceProperties.isLowMemoryDevice(AppDependencies.application)) {
       MAXIMUM_SUPPORTED_PLAYBACK_PRE_23_LOW_MEM
     } else {
       MAXIMUM_SUPPORTED_PLAYBACK_PRE_23
@@ -210,6 +212,24 @@ abstract class ExoPlayerPool<T : ExoPlayer>(
         reserved = acc.reserved + if (state.reserved) 1 else 0,
         owners = if (!state.available) acc.owners + OwnershipInfo(state.tag!!, state.reserved) else acc.owners
       )
+    }
+  }
+
+  @UnstableApi
+  object DataSourceTransferListener : TransferListener {
+    private val TAG = Log.tag(DataSourceTransferListener::class)
+    override fun onTransferInitializing(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) {
+      Log.d(TAG, "onTransferInitializing() for ${source.uri}")
+    }
+
+    override fun onTransferStart(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) {
+      Log.d(TAG, "onTransferStart() for ${source.uri}")
+    }
+
+    override fun onBytesTransferred(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean, bytesTransferred: Int) {}
+
+    override fun onTransferEnd(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) {
+      Log.d(TAG, "onTransferEnd() for ${source.uri}")
     }
   }
 

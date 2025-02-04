@@ -10,7 +10,7 @@ import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList
 import org.thoughtcrime.securesms.database.model.toBodyRangeList
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.jobs.AttachmentDownloadJob
 import org.thoughtcrime.securesms.jobs.PushProcessEarlyMessagesJob
@@ -56,7 +56,7 @@ object EditMessageProcessor {
       warn(envelope.timestamp!!, "[handleEditMessage] Could not find matching message! timestamp: ${editMessage.targetSentTimestamp}  author: ${senderRecipient.id}")
 
       if (earlyMessageCacheEntry != null) {
-        ApplicationDependencies.getEarlyMessageCache().store(senderRecipient.id, editMessage.targetSentTimestamp!!, earlyMessageCacheEntry)
+        AppDependencies.earlyMessageCache.store(senderRecipient.id, editMessage.targetSentTimestamp!!, earlyMessageCacheEntry)
         PushProcessEarlyMessagesJob.enqueue()
       }
 
@@ -95,11 +95,11 @@ object EditMessageProcessor {
 
     if (insertResult != null) {
       SignalExecutors.BOUNDED.execute {
-        ApplicationDependencies.getJobManager().add(SendDeliveryReceiptJob(senderRecipient.id, message.timestamp!!, MessageId(insertResult.messageId)))
+        AppDependencies.jobManager.add(SendDeliveryReceiptJob(senderRecipient.id, message.timestamp!!, MessageId(insertResult.messageId)))
       }
 
       if (targetMessage.expireStarted > 0) {
-        ApplicationDependencies.getExpiringMessageManager()
+        AppDependencies.expiringMessageManager
           .scheduleDeletion(
             insertResult.messageId,
             true,
@@ -108,7 +108,7 @@ object EditMessageProcessor {
           )
       }
 
-      ApplicationDependencies.getMessageNotifier().updateNotification(context, forConversation(insertResult.threadId))
+      AppDependencies.messageNotifier.updateNotification(context, forConversation(insertResult.threadId))
     }
   }
 
@@ -122,7 +122,7 @@ object EditMessageProcessor {
   ): InsertResult? {
     val messageRanges: BodyRangeList? = message.bodyRanges.filter { it.mentionAci == null }.toList().toBodyRangeList()
     val targetQuote = targetMessage.quote
-    val quote: QuoteModel? = if (targetQuote != null && message.quote != null) {
+    val quote: QuoteModel? = if (targetQuote != null && (message.quote != null || (targetMessage.parentStoryId != null && message.storyContext != null))) {
       QuoteModel(
         targetQuote.id,
         targetQuote.author,
@@ -153,6 +153,7 @@ object EditMessageProcessor {
       groupId = groupId,
       attachments = attachments,
       quote = quote,
+      parentStoryId = targetMessage.parentStoryId,
       sharedContacts = emptyList(),
       linkPreviews = DataMessageProcessor.getLinkPreviews(message.preview, message.body ?: "", false),
       mentions = DataMessageProcessor.getMentions(message.bodyRanges),
@@ -166,7 +167,7 @@ object EditMessageProcessor {
         val downloadJobs: List<AttachmentDownloadJob> = insertResult.insertedAttachments.mapNotNull { (_, attachmentId) ->
           AttachmentDownloadJob(insertResult.messageId, attachmentId, false)
         }
-        ApplicationDependencies.getJobManager().addAll(downloadJobs)
+        AppDependencies.jobManager.addAll(downloadJobs)
       }
     }
     return insertResult
@@ -188,6 +189,7 @@ object EditMessageProcessor {
       receivedTimeMillis = targetMessage.dateReceived,
       body = message.body,
       groupId = groupId,
+      parentStoryId = targetMessage.parentStoryId,
       expiresIn = targetMessage.expiresIn,
       isUnidentified = metadata.sealedSender,
       serverGuid = envelope.serverGuid

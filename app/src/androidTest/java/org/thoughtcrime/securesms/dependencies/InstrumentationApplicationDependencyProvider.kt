@@ -1,6 +1,9 @@
 package org.thoughtcrime.securesms.dependencies
 
 import android.app.Application
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
 import okhttp3.ConnectionSpec
 import okhttp3.Response
 import okhttp3.WebSocket
@@ -10,10 +13,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import okio.ByteString
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import org.signal.core.util.Base64
+import org.signal.core.util.billing.BillingApi
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess
@@ -23,6 +24,9 @@ import org.thoughtcrime.securesms.testing.Get
 import org.thoughtcrime.securesms.testing.Verb
 import org.thoughtcrime.securesms.testing.runSync
 import org.thoughtcrime.securesms.testing.success
+import org.whispersystems.signalservice.api.SignalServiceDataStore
+import org.whispersystems.signalservice.api.SignalServiceMessageSender
+import org.whispersystems.signalservice.api.SignalWebSocket
 import org.whispersystems.signalservice.api.push.TrustStore
 import org.whispersystems.signalservice.internal.configuration.SignalCdnUrl
 import org.whispersystems.signalservice.internal.configuration.SignalCdsiUrl
@@ -30,6 +34,8 @@ import org.whispersystems.signalservice.internal.configuration.SignalServiceConf
 import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl
 import org.whispersystems.signalservice.internal.configuration.SignalStorageUrl
 import org.whispersystems.signalservice.internal.configuration.SignalSvr2Url
+import org.whispersystems.signalservice.internal.push.PushServiceSocket
+import java.net.InetAddress
 import java.util.Optional
 
 /**
@@ -37,34 +43,41 @@ import java.util.Optional
  *
  * Handles setting up a mock web server for API calls, and provides mockable versions of [SignalServiceNetworkAccess].
  */
-class InstrumentationApplicationDependencyProvider(val application: Application, private val default: ApplicationDependencyProvider) : ApplicationDependencies.Provider by default {
+class InstrumentationApplicationDependencyProvider(val application: Application, private val default: ApplicationDependencyProvider) : AppDependencies.Provider by default {
 
   private val serviceTrustStore: TrustStore
   private val uncensoredConfiguration: SignalServiceConfiguration
   private val serviceNetworkAccessMock: SignalServiceNetworkAccess
   private val recipientCache: LiveRecipientCache
+  private var signalServiceMessageSender: SignalServiceMessageSender? = null
+  private var billingApi: BillingApi = mockk()
 
   init {
     runSync {
       webServer = MockWebServer()
+      webServer.start(InetAddress.getByAddress(byteArrayOf(0x7f, 0x0, 0x0, 0x1)), 8080)
+
       baseUrl = webServer.url("").toString()
 
       addMockWebRequestHandlers(
         Get("/v1/websocket/?login=") {
           MockResponse().success().withWebSocketUpgrade(mockIdentifiedWebSocket)
         },
-        Get("/v1/websocket", { !it.path.contains("login") }) {
+        Get("/v1/websocket", {
+          val path = it.path
+          return@Get path == null || !path.contains("login")
+        }) {
           MockResponse().success().withWebSocketUpgrade(object : WebSocketListener() {})
         }
       )
     }
 
-    webServer.setDispatcher(object : Dispatcher() {
+    webServer.dispatcher = object : Dispatcher() {
       override fun dispatch(request: RecordedRequest): MockResponse {
         val handler = handlers.firstOrNull { it.requestPredicate(request) }
         return handler?.responseFactory?.invoke(request) ?: MockResponse().setResponseCode(500)
       }
-    })
+    }
 
     serviceTrustStore = SignalServiceTrustStore(application)
     uncensoredConfiguration = SignalServiceConfiguration(
@@ -81,17 +94,23 @@ class InstrumentationApplicationDependencyProvider(val application: Application,
       signalProxy = Optional.empty(),
       zkGroupServerPublicParams = Base64.decode(BuildConfig.ZKGROUP_SERVER_PUBLIC_PARAMS),
       genericServerPublicParams = Base64.decode(BuildConfig.GENERIC_SERVER_PUBLIC_PARAMS),
-      backupServerPublicParams = Base64.decode(BuildConfig.BACKUP_SERVER_PUBLIC_PARAMS)
+      backupServerPublicParams = Base64.decode(BuildConfig.BACKUP_SERVER_PUBLIC_PARAMS),
+      censored = false
     )
 
-    serviceNetworkAccessMock = mock {
-      on { getConfiguration() } doReturn uncensoredConfiguration
-      on { getConfiguration(any()) } doReturn uncensoredConfiguration
-      on { uncensoredConfiguration } doReturn uncensoredConfiguration
-    }
+    serviceNetworkAccessMock = mockk()
+
+    every { serviceNetworkAccessMock.isCensored() } returns false
+    every { serviceNetworkAccessMock.isCensored(any()) } returns false
+    every { serviceNetworkAccessMock.isCountryCodeCensoredByDefault(any()) } returns false
+    every { serviceNetworkAccessMock.getConfiguration() } returns uncensoredConfiguration
+    every { serviceNetworkAccessMock.getConfiguration(any()) } returns uncensoredConfiguration
+    every { serviceNetworkAccessMock.uncensoredConfiguration } returns uncensoredConfiguration
 
     recipientCache = LiveRecipientCache(application) { r -> r.run() }
   }
+
+  override fun provideBillingApi(): BillingApi = billingApi
 
   override fun provideSignalServiceNetworkAccess(): SignalServiceNetworkAccess {
     return serviceNetworkAccessMock
@@ -99,6 +118,17 @@ class InstrumentationApplicationDependencyProvider(val application: Application,
 
   override fun provideRecipientCache(): LiveRecipientCache {
     return recipientCache
+  }
+
+  override fun provideSignalServiceMessageSender(
+    signalWebSocket: SignalWebSocket,
+    protocolStore: SignalServiceDataStore,
+    pushServiceSocket: PushServiceSocket
+  ): SignalServiceMessageSender {
+    if (signalServiceMessageSender == null) {
+      signalServiceMessageSender = spyk(objToCopy = default.provideSignalServiceMessageSender(signalWebSocket, protocolStore, pushServiceSocket))
+    }
+    return signalServiceMessageSender!!
   }
 
   class MockWebSocket : WebSocketListener() {

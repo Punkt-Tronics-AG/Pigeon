@@ -14,6 +14,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import net.zetetic.database.sqlcipher.SQLiteStatement;
 import net.zetetic.database.sqlcipher.SQLiteTransactionListener;
 
+import org.signal.core.util.logging.Log;
 import org.signal.core.util.tracing.Tracer;
 
 import java.io.IOException;
@@ -317,13 +318,11 @@ public class SQLiteDatabase implements SupportSQLiteDatabase {
   public void endTransaction() {
     trace("endTransaction()", wrapped::endTransaction);
     traceLockEnd();
-    if (!wrapped.inTransaction()) {
-      Set<Runnable> tasks = getPostSuccessfulTransactionTasks();
-      for (Runnable r : new HashSet<>(tasks)) {
-        r.run();
-      }
-      tasks.clear();
+    Set<Runnable> tasks = getPostSuccessfulTransactionTasks();
+    for (Runnable r : new HashSet<>(tasks)) {
+      r.run();
     }
+    tasks.clear();
   }
 
   public void setTransactionSuccessful() {

@@ -7,14 +7,12 @@ import androidx.annotation.Nullable;
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.zkgroup.profiles.ProfileKey;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
-import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
@@ -68,7 +66,7 @@ public class MultiDeviceProfileKeyUpdateJob extends BaseJob {
       throw new NotPushRegisteredException();
     }
 
-    if (!TextSecurePreferences.isMultiDevice(context)) {
+    if (!SignalStore.account().hasLinkedDevices()) {
       Log.i(TAG, "Not multi device...");
       return;
     }
@@ -86,20 +84,22 @@ public class MultiDeviceProfileKeyUpdateJob extends BaseJob {
                                 profileKey,
                                 Optional.empty(),
                                 Optional.empty(),
+                                Optional.empty(),
                                 false));
 
     out.close();
 
-    SignalServiceMessageSender    messageSender    = ApplicationDependencies.getSignalServiceMessageSender();
+    SignalServiceMessageSender    messageSender    = AppDependencies.getSignalServiceMessageSender();
     SignalServiceAttachmentStream attachmentStream = SignalServiceAttachment.newStreamBuilder()
                                                                             .withStream(new ByteArrayInputStream(baos.toByteArray()))
                                                                             .withContentType("application/octet-stream")
                                                                             .withLength(baos.toByteArray().length)
+                                                                            .withResumableUploadSpec(messageSender.getResumableUploadSpec())
                                                                             .build();
 
     SignalServiceSyncMessage      syncMessage      = SignalServiceSyncMessage.forContacts(new ContactsMessage(attachmentStream, false));
 
-    messageSender.sendSyncMessage(syncMessage, UnidentifiedAccessUtil.getAccessForSync(context));
+    messageSender.sendSyncMessage(syncMessage);
   }
 
   @Override

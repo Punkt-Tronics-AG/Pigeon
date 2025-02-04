@@ -10,7 +10,7 @@ import org.signal.core.util.logging.Log;
 import org.signal.ringrtc.CallException;
 import org.signal.ringrtc.CallId;
 import org.signal.ringrtc.CallManager.CallEvent;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.ringrtc.CallState;
@@ -51,7 +51,7 @@ public class ActiveCallActionProcessorDelegate extends WebRtcActionProcessor {
   @Override
   protected @NonNull WebRtcServiceState handleIsInCallQuery(@NonNull WebRtcServiceState currentState, @Nullable ResultReceiver resultReceiver) {
     if (resultReceiver != null) {
-      resultReceiver.send(1, null);
+      resultReceiver.send(1, ActiveCallData.fromCallState(currentState).toBundle());
     }
     return currentState;
   }
@@ -95,8 +95,8 @@ public class ActiveCallActionProcessorDelegate extends WebRtcActionProcessor {
       Log.i(tag, "handleLocalHangup(): call_id: " + remotePeer.getCallId());
     }
 
-    ApplicationDependencies.getSignalServiceAccountManager().cancelInFlightRequests();
-    ApplicationDependencies.getSignalServiceMessageSender().cancelInFlightRequests();
+    AppDependencies.getSignalServiceAccountManager().cancelInFlightRequests();
+    AppDependencies.getSignalServiceMessageSender().cancelInFlightRequests();
 
     try {
       webRtcInteractor.getCallManager().hangup();

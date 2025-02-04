@@ -68,6 +68,17 @@ class MediaPreviewV2ViewModel : ViewModel() {
     }
   }
 
+  fun refetchAttachments(context: Context, startingAttachmentId: AttachmentId, threadId: Long, sorting: MediaTable.Sorting) {
+    val state = store.state
+    val currentAttachmentId = if (state.position in state.mediaRecords.indices) {
+      state.mediaRecords[state.position].attachment?.attachmentId
+    } else {
+      null
+    }
+
+    fetchAttachments(context, currentAttachmentId ?: startingAttachmentId, threadId, sorting, true)
+  }
+
   fun initialize(showThread: Boolean, allMediaInAlbumRail: Boolean, leftIsRecent: Boolean) {
     if (store.state.loadState == MediaPreviewV2State.LoadState.INIT) {
       store.update { oldState ->
@@ -93,7 +104,7 @@ class MediaPreviewV2ViewModel : ViewModel() {
   }
 
   fun localDelete(context: Context, attachment: DatabaseAttachment): Completable {
-    return repository.localDelete(context, attachment).subscribeOn(Schedulers.io())
+    return repository.localDelete(attachment).subscribeOn(Schedulers.io())
   }
 
   fun jumpToFragment(context: Context, messageId: Long): Single<Intent> {
@@ -131,6 +142,7 @@ fun MediaTable.MediaRecord.toMedia(): Media? {
     attachment.videoGif,
     Optional.empty(),
     Optional.ofNullable(attachment.caption),
+    Optional.empty(),
     Optional.empty()
   )
 }

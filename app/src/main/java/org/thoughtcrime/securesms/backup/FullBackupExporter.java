@@ -45,7 +45,7 @@ import org.thoughtcrime.securesms.database.SessionTable;
 import org.thoughtcrime.securesms.database.SignedPreKeyTable;
 import org.thoughtcrime.securesms.database.StickerTable;
 import org.thoughtcrime.securesms.database.model.AvatarPickerDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.keyvalue.KeyValueDataSet;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
@@ -235,7 +235,7 @@ public class FullBackupExporter extends FullBackupBase {
 
     count += TextSecurePreferences.getPreferencesToSaveToBackupCount(context);
 
-    KeyValueDataSet dataSet = KeyValueDatabase.getInstance(ApplicationDependencies.getApplication())
+    KeyValueDataSet dataSet = KeyValueDatabase.getInstance(AppDependencies.getApplication())
                                               .getDataSet();
     for (String key : SignalStore.getKeysToIncludeInBackup()) {
       if (dataSet.containsKey(key)) {
@@ -483,7 +483,7 @@ public class FullBackupExporter extends FullBackupBase {
                                    long estimatedCount)
       throws IOException
   {
-    long rowId = cursor.getLong(cursor.getColumnIndexOrThrow(StickerTable._ID));
+    long rowId = cursor.getLong(cursor.getColumnIndexOrThrow(StickerTable.ID));
     long size  = cursor.getLong(cursor.getColumnIndexOrThrow(StickerTable.FILE_LENGTH));
 
     String data   = cursor.getString(cursor.getColumnIndexOrThrow(StickerTable.FILE_PATH));
@@ -536,7 +536,7 @@ public class FullBackupExporter extends FullBackupBase {
                                      long estimatedCount,
                                      BackupCancellationSignal cancellationSignal) throws IOException
   {
-    KeyValueDataSet dataSet = KeyValueDatabase.getInstance(ApplicationDependencies.getApplication())
+    KeyValueDataSet dataSet = KeyValueDatabase.getInstance(AppDependencies.getApplication())
                                               .getDataSet();
 
     for (String key : keysToIncludeInBackup) {

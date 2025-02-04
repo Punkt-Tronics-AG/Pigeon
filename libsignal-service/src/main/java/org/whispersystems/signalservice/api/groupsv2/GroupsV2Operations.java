@@ -7,9 +7,11 @@ import org.signal.libsignal.zkgroup.ServerPublicParams;
 import org.signal.libsignal.zkgroup.VerificationFailedException;
 import org.signal.libsignal.zkgroup.auth.ClientZkAuthOperations;
 import org.signal.libsignal.zkgroup.groups.ClientZkGroupCipher;
+import org.signal.libsignal.zkgroup.groups.GroupIdentifier;
 import org.signal.libsignal.zkgroup.groups.GroupSecretParams;
 import org.signal.libsignal.zkgroup.groups.ProfileKeyCiphertext;
 import org.signal.libsignal.zkgroup.groups.UuidCiphertext;
+import org.signal.libsignal.zkgroup.groupsend.GroupSendEndorsementsResponse;
 import org.signal.libsignal.zkgroup.profiles.ClientZkProfileOperations;
 import org.signal.libsignal.zkgroup.profiles.ExpiringProfileKeyCredential;
 import org.signal.libsignal.zkgroup.profiles.ProfileKey;
@@ -44,6 +46,7 @@ import org.whispersystems.signalservice.api.util.UuidUtil;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +55,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import okio.ByteString;
 
@@ -154,7 +160,7 @@ public final class GroupsV2Operations {
     private final GroupSecretParams   groupSecretParams;
     private final ClientZkGroupCipher clientZkGroupCipher;
 
-    private GroupOperations(GroupSecretParams groupSecretParams) {
+    public GroupOperations(GroupSecretParams groupSecretParams) {
       this.groupSecretParams   = groupSecretParams;
       this.clientZkGroupCipher = new ClientZkGroupCipher(groupSecretParams);
     }
@@ -425,33 +431,13 @@ public final class GroupsV2Operations {
       return new PendingMember.Builder().member(member);
     }
 
-    public PartialDecryptedGroup partialDecryptGroup(Group group)
-        throws VerificationFailedException, InvalidGroupStateException
+    public @Nonnull DecryptedGroupResponse decryptGroup(@Nonnull Group group, @Nonnull byte[] groupSendEndorsementsBytes)
+        throws VerificationFailedException, InvalidGroupStateException, InvalidInputException
     {
-      List<Member>                 membersList             = group.members;
-      List<PendingMember>          pendingMembersList      = group.pendingMembers;
-      List<DecryptedMember>        decryptedMembers        = new ArrayList<>(membersList.size());
-      List<DecryptedPendingMember> decryptedPendingMembers = new ArrayList<>(pendingMembersList.size());
+      DecryptedGroup                decryptedGroup                = decryptGroup(group);
+      GroupSendEndorsementsResponse groupSendEndorsementsResponse = groupSendEndorsementsBytes.length > 0 ? new GroupSendEndorsementsResponse(groupSendEndorsementsBytes) : null;
 
-      for (Member member : membersList) {
-        ACI memberAci = decryptAci(member.userId);
-        decryptedMembers.add(new DecryptedMember.Builder().aciBytes(memberAci.toByteString())
-                                                          .joinedAtRevision(member.joinedAtRevision)
-                                                          .build());
-      }
-
-      for (PendingMember member : pendingMembersList) {
-        ServiceId pendingMemberServiceId = decryptServiceIdOrUnknown(member.member.userId);
-        decryptedPendingMembers.add(new DecryptedPendingMember.Builder().serviceIdBytes(pendingMemberServiceId.toByteString()).build());
-      }
-
-      DecryptedGroup decryptedGroup = new DecryptedGroup.Builder()
-                                                        .revision(group.revision)
-                                                        .members(decryptedMembers)
-                                                        .pendingMembers(decryptedPendingMembers)
-                                                        .build();
-
-      return new PartialDecryptedGroup(group, decryptedGroup, GroupsV2Operations.this, groupSecretParams);
+      return new DecryptedGroupResponse(decryptedGroup, groupSendEndorsementsResponse);
     }
 
     public DecryptedGroup decryptGroup(Group group)
@@ -502,14 +488,13 @@ public final class GroupsV2Operations {
     }
 
     /**
-     * @param verifySignature You might want to avoid verification if you already know it's correct, or you
-     *                        are not going to pass to other clients.
-     *                        <p>
-     *                        Also, if you know it's version 0, do not verify because changes for version 0
-     *                        are not signed, but should be empty.
+     * @param verification You might want to avoid verification if you already know it's correct, or you are not going to pass to other clients.
+     *                     <p>
+     *                     Also, if you know it's version 0, do not verify because changes for version 0 are not signed, but should be empty.
+     *
      * @return {@link Optional#empty()} if the epoch for the change is higher that this code can decrypt.
      */
-    public Optional<DecryptedGroupChange> decryptChange(GroupChange groupChange, boolean verifySignature)
+    public Optional<DecryptedGroupChange> decryptChange(GroupChange groupChange, @Nonnull DecryptChangeVerificationMode verification)
         throws IOException, VerificationFailedException, InvalidGroupStateException
     {
       if (groupChange.changeEpoch > HIGHEST_KNOWN_EPOCH) {
@@ -517,7 +502,14 @@ public final class GroupsV2Operations {
         return Optional.empty();
       }
 
-      GroupChange.Actions actions = verifySignature ? getVerifiedActions(groupChange) : getActions(groupChange);
+      GroupChange.Actions actions = verification.verify() ? getVerifiedActions(groupChange) : getActions(groupChange);
+
+      if (verification.verify()) {
+        GroupIdentifier groupId = verification.groupId();
+        if (groupId == null || !Arrays.equals(groupId.serialize(), actions.groupId.toByteArray())) {
+           throw new VerificationFailedException("Invalid group id");
+        }
+      }
 
       return Optional.of(decryptChange(actions));
     }
@@ -532,13 +524,15 @@ public final class GroupsV2Operations {
         throws VerificationFailedException, InvalidGroupStateException
     {
       DecryptedGroupChange.Builder builder = new DecryptedGroupChange.Builder();
+      ServiceId                    editorServiceId;
 
       // Field 1
       if (source != null) {
-        builder.editorServiceIdBytes(source.toByteString());
+        editorServiceId = source;
       } else {
-        builder.editorServiceIdBytes(decryptServiceIdToBinary(actions.sourceServiceId));
+        editorServiceId = decryptServiceId(actions.sourceServiceId);
       }
+      builder.editorServiceIdBytes(editorServiceId.toByteString());
 
       // Field 2
       builder.revision(actions.revision);
@@ -759,6 +753,24 @@ public final class GroupsV2Operations {
                                                            .build());
       }
       builder.promotePendingPniAciMembers(promotePendingPniAciMembers);
+
+      if (editorServiceId instanceof ServiceId.PNI) {
+        if (actions.addMembers.size() == 1 && builder.newMembers.size() == 1) {
+          GroupChange.Actions.AddMemberAction addMemberAction = actions.addMembers.get(0);
+          DecryptedMember                     decryptedMember = builder.newMembers.get(0);
+
+          if (addMemberAction.joinFromInviteLink) {
+            Log.d(TAG, "Replacing PNI editor with ACI for buggy join from invite link");
+            builder.editorServiceIdBytes(decryptedMember.aciBytes);
+          } else {
+            Log.w(TAG, "Unable to replace PNI editor with ACI for add member update");
+            builder.editorServiceIdBytes(ByteString.EMPTY);
+          }
+        } else if (actions.deletePendingMembers.isEmpty() && actions.promotePendingPniAciMembers.isEmpty()) {
+          Log.w(TAG, "Received group change with PNI editor for a non-PNI editor eligible update, clearing editor");
+          builder.editorServiceIdBytes(ByteString.EMPTY);
+        }
+      }
 
       return builder.build();
     }
@@ -1048,6 +1060,51 @@ public final class GroupsV2Operations {
       return ids;
     }
 
+    public @Nullable ReceivedGroupSendEndorsements receiveGroupSendEndorsements(@Nonnull ACI selfAci,
+                                                                                @Nonnull DecryptedGroup decryptedGroup,
+                                                                                @Nullable ByteString groupSendEndorsementsResponse)
+    {
+      if (groupSendEndorsementsResponse != null && groupSendEndorsementsResponse.size() > 0) {
+        try {
+          return receiveGroupSendEndorsements(selfAci, decryptedGroup, new GroupSendEndorsementsResponse(groupSendEndorsementsResponse.toByteArray()));
+        } catch (InvalidInputException e) {
+          Log.w(TAG, "Unable to parse send endorsements response", e);
+        }
+      }
+
+      return null;
+    }
+
+    public @Nullable ReceivedGroupSendEndorsements receiveGroupSendEndorsements(@Nonnull ACI selfAci,
+                                                                                @Nonnull DecryptedGroup decryptedGroup,
+                                                                                @Nullable GroupSendEndorsementsResponse groupSendEndorsementsResponse)
+    {
+      if (groupSendEndorsementsResponse == null) {
+        return null;
+      }
+
+      List<ACI> members = decryptedGroup.members.stream().map(m -> ACI.parseOrThrow(m.aciBytes)).collect(Collectors.toList());
+
+      if (!members.contains(selfAci)) {
+        Log.w(TAG, "Attempting to receive endorsements for group state we aren't in, aborting");
+        return null;
+      }
+
+      GroupSendEndorsementsResponse.ReceivedEndorsements endorsements = null;
+      try {
+        endorsements = groupSendEndorsementsResponse.receive(
+            members.stream().map(ACI::getLibSignalAci).collect(Collectors.toList()),
+            selfAci.getLibSignalAci(),
+            groupSecretParams,
+            serverPublicParams
+        );
+      } catch (VerificationFailedException e) {
+        Log.w(TAG, "Unable to receive send endorsements for group", e);
+      }
+
+      return endorsements != null ? new ReceivedGroupSendEndorsements(groupSendEndorsementsResponse.getExpiration(), members, endorsements)
+                                  : null;
+    }
   }
 
   public static class NewGroup {

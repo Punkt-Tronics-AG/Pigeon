@@ -4,9 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.media.AudioManager
 import android.os.Bundle
 import android.text.SpannableString
@@ -14,6 +14,7 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.method.ScrollingMovementMethod
 import android.text.style.ClickableSpan
+import android.text.style.StyleSpan
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -28,7 +29,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.animation.PathInterpolatorCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -37,6 +37,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicatorSpec
 import com.google.android.material.progressindicator.IndeterminateDrawable
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -52,13 +53,9 @@ import org.thoughtcrime.securesms.components.emoji.EmojiTextView
 import org.thoughtcrime.securesms.components.segmentedprogressbar.SegmentedProgressBar
 import org.thoughtcrime.securesms.components.segmentedprogressbar.SegmentedProgressBarListener
 import org.thoughtcrime.securesms.components.spoiler.SpoilerAnnotation
-import org.thoughtcrime.securesms.contacts.avatars.FallbackContactPhoto
-import org.thoughtcrime.securesms.contacts.avatars.FallbackPhoto20dp
-import org.thoughtcrime.securesms.contacts.avatars.GeneratedContactPhoto
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchKey
 import org.thoughtcrime.securesms.conversation.ConversationIntents
 import org.thoughtcrime.securesms.conversation.MessageStyler
-import org.thoughtcrime.securesms.conversation.colors.AvatarColor
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardBottomSheet
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragment
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragmentArgs
@@ -72,7 +69,6 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.ui.bottomsheet.RecipientBottomSheetDialogFragment
 import org.thoughtcrime.securesms.safety.SafetyNumberBottomSheet
 import org.thoughtcrime.securesms.stories.StorySlateView
-import org.thoughtcrime.securesms.stories.StoryTextPostView
 import org.thoughtcrime.securesms.stories.StoryVolumeOverlayView
 import org.thoughtcrime.securesms.stories.dialogs.StoryContextMenu
 import org.thoughtcrime.securesms.stories.dialogs.StoryDialogs
@@ -135,6 +131,9 @@ class StoryViewerPageFragment :
   private var volumeDebouncer: Debouncer = Debouncer(3, TimeUnit.SECONDS)
 
   private val storyViewStateViewModel: StoryViewStateViewModel by viewModels()
+
+  private var textStoryIntersectProcessingEvents: Boolean = false
+  private val textStoryIntersectHitRect: Rect = Rect()
 
   private val viewModel: StoryViewerPageViewModel by viewModels(
     factoryProducer = {
@@ -226,9 +225,6 @@ class StoryViewerPageFragment :
       storyCaptionContainer,
       addToGroupStoryButtonWrapper
     )
-
-    senderAvatar.setFallbackPhotoProvider(FallbackPhotoProvider())
-    groupAvatar.setFallbackPhotoProvider(FallbackPhotoProvider())
 
     closeView.setOnClickListener {
       requireActivity().onBackPressed()
@@ -545,16 +541,30 @@ class StoryViewerPageFragment :
 
   private fun checkEventIntersectsClickableSpan(cardWrapper: ViewGroup, event: MotionEvent): Boolean {
     if (viewModel.getPost()?.content?.isText() != true) {
+      textStoryIntersectProcessingEvents = false
       return false
     }
 
     val action = event.action
     if (action != MotionEvent.ACTION_DOWN && action != MotionEvent.ACTION_UP) {
-      return false
+      return textStoryIntersectProcessingEvents
     }
 
-    val storyTextPostView = cardWrapper.findViewById<StoryTextPostView>(R.id.text)
-    val textView = storyTextPostView.findViewById<TextView>(R.id.text_story_post_text)
+    if (checkTextSpanIntersect(cardWrapper, event)) {
+      textStoryIntersectProcessingEvents = true
+      return true
+    }
+
+    if (checkLinkPreviewIntersect(cardWrapper, event)) {
+      textStoryIntersectProcessingEvents = true
+      return true
+    }
+
+    return false
+  }
+
+  private fun checkTextSpanIntersect(cardWrapper: ViewGroup, event: MotionEvent): Boolean {
+    val textView = cardWrapper.findViewById<TextView>(R.id.text_story_post_text)
     val spanned = textView.text as? Spanned ?: return false
 
     val textViewProjection = Projection.relativeToParent(cardWrapper, textView, null)
@@ -579,12 +589,28 @@ class StoryViewerPageFragment :
     }
 
     val clickables = spanned.getSpans(off, off, ClickableSpan::class.java)
-    if (clickables.isNotEmpty()) {
-      return true
-    }
+    return clickables.isNotEmpty()
+  }
 
-    val linkPreview = storyTextPostView.findViewById<View>(R.id.text_story_post_link_preview)
-    return linkPreview.isVisible
+  private fun checkLinkPreviewIntersect(cardWrapper: ViewGroup, event: MotionEvent): Boolean {
+    Log.d(TAG, "Checking motion event for link preview intersect: ${event.x} ${event.y}")
+
+    val linkPreviewView = cardWrapper.findViewById<View>(R.id.text_story_post_link_preview)
+    val viewProjection = Projection.relativeToParent(cardWrapper, linkPreviewView, null)
+      .translateY(linkPreviewView.translationY)
+
+    textStoryIntersectHitRect.set(
+      viewProjection.x.toInt(),
+      viewProjection.y.toInt(),
+      viewProjection.x.toInt() + viewProjection.width,
+      viewProjection.y.toInt() + viewProjection.height
+    )
+
+    viewProjection.release()
+
+    Log.d(TAG, "${event.x}, ${event.y} within $textStoryIntersectHitRect? ${textStoryIntersectHitRect.contains(event.x.toInt(), event.y.toInt())}")
+
+    return textStoryIntersectHitRect.contains(event.x.toInt(), event.y.toInt())
   }
 
   private fun calculateDurationForText(textContent: StoryPost.Content.TextContent): Long {
@@ -899,7 +925,9 @@ class StoryViewerPageFragment :
     caption.visible = displayBody.isNotEmpty()
     caption.requestLayout()
     caption.movementMethod = LinkMovementMethod.getInstance()
-    caption.setOverflowText(getString(R.string.StoryViewerPageFragment__see_more))
+    val overflow = SpannableString(getString(R.string.StoryViewerPageFragment__read_more))
+    overflow.setSpan(StyleSpan(Typeface.BOLD), 0, overflow.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    caption.setOverflowText(overflow)
     caption.maxLines = 5
     caption.text = displayBody
     caption.setMaxLength(280)
@@ -1136,6 +1164,13 @@ class StoryViewerPageFragment :
           }
         }
       },
+      onUnhide = {
+        lifecycleDisposable += viewModel.unhideStory().subscribe {
+          Snackbar
+            .make(requireView(), R.string.StoryViewerPageFragment__story_no_longer_hidden, Snackbar.LENGTH_SHORT)
+            .show()
+        }
+      },
       onShare = {
         StoryContextMenu.share(this, it.conversationMessage.messageRecord as MmsMessageRecord)
       },
@@ -1341,30 +1376,6 @@ class StoryViewerPageFragment :
       }
 
       return true
-    }
-  }
-
-  private class FallbackPhotoProvider : Recipient.FallbackPhotoProvider() {
-    override val photoForGroup: FallbackContactPhoto
-      get() = FallbackPhoto20dp(R.drawable.symbol_group_20)
-
-    override val photoForResolvingRecipient: FallbackContactPhoto
-      get() = throw UnsupportedOperationException("This provider does not support resolving recipients")
-
-    override val photoForLocalNumber: FallbackContactPhoto
-      get() = throw UnsupportedOperationException("This provider does not support local number")
-
-    override fun getPhotoForRecipientWithName(name: String, targetSize: Int): FallbackContactPhoto {
-      return FixedSizeGeneratedContactPhoto(name, R.drawable.symbol_person_20)
-    }
-
-    override val photoForRecipientWithoutName: FallbackContactPhoto
-      get() = FallbackPhoto20dp(R.drawable.symbol_person_20)
-  }
-
-  private class FixedSizeGeneratedContactPhoto(name: String, fallbackResId: Int) : GeneratedContactPhoto(name, fallbackResId) {
-    override fun newFallbackDrawable(context: Context, color: AvatarColor, inverted: Boolean): Drawable {
-      return FallbackPhoto20dp(fallbackResId).asDrawable(context, color, inverted)
     }
   }
 

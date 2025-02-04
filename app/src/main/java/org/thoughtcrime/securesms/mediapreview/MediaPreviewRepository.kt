@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.SignalDatabase.Companion.media
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
+import org.thoughtcrime.securesms.jobs.MultiDeviceDeleteSyncJob
 import org.thoughtcrime.securesms.longmessage.resolveBody
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.sms.MessageSender
@@ -58,31 +59,47 @@ class MediaPreviewRepository {
           val frontLimit: Int = limit / 2
           val windowStart = if (startingRow >= frontLimit) startingRow - frontLimit else 0
 
-          itemPosition = startingRow - windowStart
-
           cursor.moveToPosition(windowStart)
 
           for (i in 0..limit) {
             val element = MediaTable.MediaRecord.from(cursor)
-            mediaRecords.add(element)
+            if (element.attachment?.transferState == AttachmentTable.TRANSFER_PROGRESS_DONE ||
+              element.attachment?.transferState == AttachmentTable.TRANSFER_PROGRESS_STARTED ||
+              element.attachment?.thumbnailUri != null
+            ) {
+              mediaRecords.add(element)
+
+              if (startingAttachmentId.id == cursor.requireLong(AttachmentTable.ID)) {
+                itemPosition = mediaRecords.lastIndex
+              }
+            }
+
             if (!cursor.moveToNext()) {
               break
             }
           }
+
+          if (itemPosition == -1) {
+            Log.w(TAG, "Unable to find target image for $startingAttachmentId")
+          }
         }
+
         val messageIds = mediaRecords.mapNotNull { it.attachment?.mmsId }.toSet()
         val messages: Map<Long, SpannableString> = SignalDatabase.messages.getMessages(messageIds)
           .map { it as MmsMessageRecord }
           .associate { it.id to it.resolveBody(context).getDisplayBody(context) }
 
-        Result(itemPosition, mediaRecords.toList(), messages)
+        Result(if (mediaRecords.isNotEmpty()) itemPosition.coerceIn(mediaRecords.indices) else itemPosition, mediaRecords, messages)
       }
     }.subscribeOn(Schedulers.io()).toFlowable()
   }
 
-  fun localDelete(context: Context, attachment: DatabaseAttachment): Completable {
+  fun localDelete(attachment: DatabaseAttachment): Completable {
     return Completable.fromRunnable {
-      AttachmentUtil.deleteAttachment(context.applicationContext, attachment)
+      val deletedMessageRecord = AttachmentUtil.deleteAttachment(attachment)
+      if (deletedMessageRecord != null) {
+        MultiDeviceDeleteSyncJob.enqueueMessageDeletes(setOf(deletedMessageRecord))
+      }
     }.subscribeOn(Schedulers.io())
   }
 

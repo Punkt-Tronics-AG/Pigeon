@@ -9,15 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
-import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.mms.SentMediaQuality;
 import org.thoughtcrime.securesms.preferences.widgets.NotificationPrivacyPreference;
-import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.util.SingleLiveEvent;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.webrtc.CallDataMode;
@@ -70,14 +66,34 @@ public final class SettingsValues extends SignalStoreValues {
   private static final String CENSORSHIP_CIRCUMVENTION_ENABLED        = "settings.censorshipCircumventionEnabled";
   private static final String KEEP_MUTED_CHATS_ARCHIVED               = "settings.keepMutedChatsArchived";
   private static final String USE_COMPACT_NAVIGATION_BAR              = "settings.useCompactNavigationBar";
+  private static final String THREAD_TRIM_SYNC_TO_LINKED_DEVICES      = "settings.storage.syncThreadTrimDeletes";
+  private static final String PASSPHRASE_DISABLED                     = "settings.passphrase.disabled";
+  private static final String PASSPHRASE_TIMEOUT_ENABLED              = "settings.passphrase.timeout.enabled";
+  private static final String PASSPHRASE_TIMEOUT                      = "settings.passphrase.timeout";
+  private static final String SCREEN_LOCK_ENABLED                     = "settings.screen.lock.enabled";
+  private static final String SCREEN_LOCK_TIMEOUT                     = "settings.screen.lock.timeout";
 
   public static final int BACKUP_DEFAULT_HOUR   = 2;
   public static final int BACKUP_DEFAULT_MINUTE = 0;
 
   private final SingleLiveEvent<String> onConfigurationSettingChanged = new SingleLiveEvent<>();
 
-  SettingsValues(@NonNull KeyValueStore store) {
+  SettingsValues(@NonNull KeyValueStore store, Context context) {
     super(store);
+
+    if (!store.containsKey(SCREEN_LOCK_ENABLED)) {
+      migrateFromSharedPrefsV1(context);
+    }
+  }
+
+  private void migrateFromSharedPrefsV1(@NonNull Context context) {
+    Log.i(TAG, "[V1] Migrating screen lock values from shared prefs.");
+
+    putBoolean(PASSPHRASE_DISABLED, TextSecurePreferences.getBooleanPreference(context, "pref_disable_passphrase", true));
+    putBoolean(PASSPHRASE_TIMEOUT_ENABLED, TextSecurePreferences.getBooleanPreference(context, "pref_timeout_passphrase", false));
+    putInteger(PASSPHRASE_TIMEOUT, TextSecurePreferences.getIntegerPreference(context, "pref_timeout_interval", 5 * 60));
+    putBoolean(SCREEN_LOCK_ENABLED, TextSecurePreferences.getBooleanPreference(context, "pref_android_screen_lock", false));
+    putLong(SCREEN_LOCK_TIMEOUT, TextSecurePreferences.getLongPreference(context, "pref_android_screen_lock_timeout", 0));
   }
 
   @Override
@@ -123,7 +139,13 @@ public final class SettingsValues extends SignalStoreValues {
                          UNIVERSAL_EXPIRE_TIMER,
                          SENT_MEDIA_QUALITY,
                          KEEP_MUTED_CHATS_ARCHIVED,
-                         USE_COMPACT_NAVIGATION_BAR);
+                         USE_COMPACT_NAVIGATION_BAR,
+                         THREAD_TRIM_SYNC_TO_LINKED_DEVICES,
+                         PASSPHRASE_DISABLED,
+                         PASSPHRASE_TIMEOUT_ENABLED,
+                         PASSPHRASE_TIMEOUT,
+                         SCREEN_LOCK_ENABLED,
+                         SCREEN_LOCK_TIMEOUT);
   }
 
   public @NonNull LiveData<String> getOnConfigurationSettingChanged() {
@@ -162,6 +184,18 @@ public final class SettingsValues extends SignalStoreValues {
     putInteger(THREAD_TRIM_LENGTH, length);
   }
 
+  public boolean shouldSyncThreadTrimDeletes() {
+    if (!getStore().containsKey(THREAD_TRIM_SYNC_TO_LINKED_DEVICES)) {
+      setSyncThreadTrimDeletes(!isTrimByLengthEnabled() && getKeepMessagesDuration() == KeepMessagesDuration.FOREVER);
+    }
+
+    return getBoolean(THREAD_TRIM_SYNC_TO_LINKED_DEVICES, true);
+  }
+
+  public void setSyncThreadTrimDeletes(boolean syncDeletes) {
+    putBoolean(THREAD_TRIM_SYNC_TO_LINKED_DEVICES, syncDeletes);
+  }
+
   public void setSignalBackupDirectory(@NonNull Uri uri) {
     putString(SIGNAL_BACKUP_DIRECTORY, uri.toString());
     putString(SIGNAL_LATEST_BACKUP_DIRECTORY, uri.toString());
@@ -196,7 +230,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull Theme getTheme() {
-    return Theme.deserialize(getString(THEME, TextSecurePreferences.getTheme(ApplicationDependencies.getApplication())));
+    return Theme.deserialize(getString(THEME, TextSecurePreferences.getTheme(AppDependencies.getApplication())));
   }
 
   public void setTheme(@NonNull Theme theme) {
@@ -205,7 +239,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public int getMessageFontSize() {
-    return getInteger(MESSAGE_FONT_SIZE, TextSecurePreferences.getMessageBodyTextSize(ApplicationDependencies.getApplication()));
+    return getInteger(MESSAGE_FONT_SIZE, TextSecurePreferences.getMessageBodyTextSize(AppDependencies.getApplication()));
   }
 
   public int getMessageQuoteFontSize(@NonNull Context context) {
@@ -241,16 +275,16 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull String getLanguage() {
-    return TextSecurePreferences.getLanguage(ApplicationDependencies.getApplication());
+    return TextSecurePreferences.getLanguage(AppDependencies.getApplication());
   }
 
   public void setLanguage(@NonNull String language) {
-    TextSecurePreferences.setLanguage(ApplicationDependencies.getApplication(), language);
+    TextSecurePreferences.setLanguage(AppDependencies.getApplication(), language);
     onConfigurationSettingChanged.postValue(LANGUAGE);
   }
 
   public boolean isPreferSystemEmoji() {
-    return getBoolean(PREFER_SYSTEM_EMOJI, TextSecurePreferences.isSystemEmojiPreferred(ApplicationDependencies.getApplication()));
+    return getBoolean(PREFER_SYSTEM_EMOJI, TextSecurePreferences.isSystemEmojiPreferred(AppDependencies.getApplication()));
   }
 
   public void setPreferSystemEmoji(boolean useSystemEmoji) {
@@ -258,7 +292,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isEnterKeySends() {
-    return getBoolean(ENTER_KEY_SENDS, TextSecurePreferences.isEnterSendsEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(ENTER_KEY_SENDS, TextSecurePreferences.isEnterSendsEnabled(AppDependencies.getApplication()));
   }
 
   public void setEnterKeySends(boolean enterKeySends) {
@@ -266,7 +300,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isBackupEnabled() {
-    return getBoolean(BACKUPS_ENABLED, TextSecurePreferences.isBackupEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(BACKUPS_ENABLED, TextSecurePreferences.isBackupEnabled(AppDependencies.getApplication()));
   }
 
   public void setBackupEnabled(boolean backupEnabled) {
@@ -287,7 +321,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isSmsDeliveryReportsEnabled() {
-    return getBoolean(SMS_DELIVERY_REPORTS_ENABLED, TextSecurePreferences.isSmsDeliveryReportsEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(SMS_DELIVERY_REPORTS_ENABLED, TextSecurePreferences.isSmsDeliveryReportsEnabled(AppDependencies.getApplication()));
   }
 
   public void setSmsDeliveryReportsEnabled(boolean smsDeliveryReportsEnabled) {
@@ -295,7 +329,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isWifiCallingCompatibilityModeEnabled() {
-    return getBoolean(WIFI_CALLING_COMPATIBILITY_MODE_ENABLED, TextSecurePreferences.isWifiSmsEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(WIFI_CALLING_COMPATIBILITY_MODE_ENABLED, TextSecurePreferences.isWifiSmsEnabled(AppDependencies.getApplication()));
   }
 
   public void setWifiCallingCompatibilityModeEnabled(boolean wifiCallingCompatibilityModeEnabled) {
@@ -307,7 +341,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isMessageNotificationsEnabled() {
-    return getBoolean(MESSAGE_NOTIFICATIONS_ENABLED, TextSecurePreferences.isNotificationsEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(MESSAGE_NOTIFICATIONS_ENABLED, TextSecurePreferences.isNotificationsEnabled(AppDependencies.getApplication()));
   }
 
   public void setMessageNotificationSound(@NonNull Uri sound) {
@@ -315,7 +349,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull Uri getMessageNotificationSound() {
-    String result = getString(MESSAGE_NOTIFICATION_SOUND, TextSecurePreferences.getNotificationRingtone(ApplicationDependencies.getApplication()).toString());
+    String result = getString(MESSAGE_NOTIFICATION_SOUND, TextSecurePreferences.getNotificationRingtone(AppDependencies.getApplication()).toString());
 
     if (result.startsWith("file:")) {
       result = Settings.System.DEFAULT_NOTIFICATION_URI.toString();
@@ -325,7 +359,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isMessageVibrateEnabled() {
-    return getBoolean(MESSAGE_VIBRATE_ENABLED, TextSecurePreferences.isNotificationVibrateEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(MESSAGE_VIBRATE_ENABLED, TextSecurePreferences.isNotificationVibrateEnabled(AppDependencies.getApplication()));
   }
 
   public void setMessageVibrateEnabled(boolean messageVibrateEnabled) {
@@ -333,7 +367,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull String getMessageLedColor() {
-    return getString(MESSAGE_LED_COLOR, TextSecurePreferences.getNotificationLedColor(ApplicationDependencies.getApplication()));
+    return getString(MESSAGE_LED_COLOR, TextSecurePreferences.getNotificationLedColor(AppDependencies.getApplication()));
   }
 
   public void setMessageLedColor(@NonNull String ledColor) {
@@ -341,7 +375,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull String getMessageLedBlinkPattern() {
-    return getString(MESSAGE_LED_BLINK_PATTERN, TextSecurePreferences.getNotificationLedPattern(ApplicationDependencies.getApplication()));
+    return getString(MESSAGE_LED_BLINK_PATTERN, TextSecurePreferences.getNotificationLedPattern(AppDependencies.getApplication()));
   }
 
   public void setMessageLedBlinkPattern(@NonNull String blinkPattern) {
@@ -349,7 +383,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isMessageNotificationsInChatSoundsEnabled() {
-    return getBoolean(MESSAGE_IN_CHAT_SOUNDS_ENABLED, TextSecurePreferences.isInThreadNotifications(ApplicationDependencies.getApplication()));
+    return getBoolean(MESSAGE_IN_CHAT_SOUNDS_ENABLED, TextSecurePreferences.isInThreadNotifications(AppDependencies.getApplication()));
   }
 
   public void setMessageNotificationsInChatSoundsEnabled(boolean inChatSoundsEnabled) {
@@ -357,7 +391,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public int getMessageNotificationsRepeatAlerts() {
-    return getInteger(MESSAGE_REPEAT_ALERTS, TextSecurePreferences.getRepeatAlertsCount(ApplicationDependencies.getApplication()));
+    return getInteger(MESSAGE_REPEAT_ALERTS, TextSecurePreferences.getRepeatAlertsCount(AppDependencies.getApplication()));
   }
 
   public void setMessageNotificationsRepeatAlerts(int count) {
@@ -365,7 +399,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull NotificationPrivacyPreference getMessageNotificationsPrivacy() {
-    return new NotificationPrivacyPreference(getString(MESSAGE_NOTIFICATION_PRIVACY, TextSecurePreferences.getNotificationPrivacy(ApplicationDependencies.getApplication()).toString()));
+    return new NotificationPrivacyPreference(getString(MESSAGE_NOTIFICATION_PRIVACY, TextSecurePreferences.getNotificationPrivacy(AppDependencies.getApplication()).toString()));
   }
 
   public void setMessageNotificationsPrivacy(@NonNull NotificationPrivacyPreference messageNotificationsPrivacy) {
@@ -373,7 +407,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isCallNotificationsEnabled() {
-    return getBoolean(CALL_NOTIFICATIONS_ENABLED, TextSecurePreferences.isCallNotificationsEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(CALL_NOTIFICATIONS_ENABLED, TextSecurePreferences.isCallNotificationsEnabled(AppDependencies.getApplication()));
   }
 
   public void setCallNotificationsEnabled(boolean callNotificationsEnabled) {
@@ -381,7 +415,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public @NonNull Uri getCallRingtone() {
-    String result = getString(CALL_RINGTONE, TextSecurePreferences.getCallNotificationRingtone(ApplicationDependencies.getApplication()).toString());
+    String result = getString(CALL_RINGTONE, TextSecurePreferences.getCallNotificationRingtone(AppDependencies.getApplication()).toString());
 
     if (result != null && result.startsWith("file:")) {
       result = Settings.System.DEFAULT_RINGTONE_URI.toString();
@@ -395,7 +429,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isCallVibrateEnabled() {
-    return getBoolean(CALL_VIBRATE_ENABLED, TextSecurePreferences.isCallNotificationVibrateEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(CALL_VIBRATE_ENABLED, TextSecurePreferences.isCallNotificationVibrateEnabled(AppDependencies.getApplication()));
   }
 
   public void setCallVibrateEnabled(boolean callVibrateEnabled) {
@@ -403,7 +437,7 @@ public final class SettingsValues extends SignalStoreValues {
   }
 
   public boolean isNotifyWhenContactJoinsSignal() {
-    return getBoolean(NOTIFY_WHEN_CONTACT_JOINS_SIGNAL, TextSecurePreferences.isNewContactsNotificationEnabled(ApplicationDependencies.getApplication()));
+    return getBoolean(NOTIFY_WHEN_CONTACT_JOINS_SIGNAL, TextSecurePreferences.isNewContactsNotificationEnabled(AppDependencies.getApplication()));
   }
 
   public void setNotifyWhenContactJoinsSignal(boolean notifyWhenContactJoinsSignal) {
@@ -449,6 +483,46 @@ public final class SettingsValues extends SignalStoreValues {
 
   public boolean getUseCompactNavigationBar() {
     return getBoolean(USE_COMPACT_NAVIGATION_BAR, false);
+  }
+
+  public void setPassphraseDisabled(boolean disabled) {
+    putBoolean(PASSPHRASE_DISABLED, disabled);
+  }
+
+  public boolean getPassphraseDisabled() {
+    return getBoolean(PASSPHRASE_DISABLED, true);
+  }
+
+  public void setPassphraseTimeoutEnabled(boolean enabled) {
+    putBoolean(PASSPHRASE_TIMEOUT_ENABLED, enabled);
+  }
+
+  public boolean getPassphraseTimeoutEnabled() {
+    return getBoolean(PASSPHRASE_TIMEOUT_ENABLED, false);
+  }
+
+  public void setPassphraseTimeout(int minutes) {
+    putLong(PASSPHRASE_TIMEOUT, minutes);
+  }
+
+  public int getPassphraseTimeout() {
+    return getInteger(PASSPHRASE_TIMEOUT, 0);
+  }
+
+  public void setScreenLockEnabled(boolean enabled) {
+    putBoolean(SCREEN_LOCK_ENABLED, enabled);
+  }
+
+  public boolean getScreenLockEnabled() {
+    return getBoolean(SCREEN_LOCK_ENABLED, false);
+  }
+
+  public void setScreenLockTimeout(long seconds) {
+    putLong(SCREEN_LOCK_TIMEOUT, seconds);
+  }
+
+  public long getScreenLockTimeout() {
+    return getLong(SCREEN_LOCK_TIMEOUT, 0);
   }
 
   private @Nullable Uri getUri(@NonNull String key) {

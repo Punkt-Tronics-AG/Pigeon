@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Signal Messenger, LLC
+ * Copyright 2024 Signal Messenger, LLC
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
@@ -50,7 +50,7 @@ object WelcomePermissions {
   @JvmStatic
   fun getWelcomePermissions(isUserBackupSelectionRequired: Boolean): Array<String> {
     if (isSignalVersion()) {
-      return Permissions.values().map { it.getPermissions(isUserBackupSelectionRequired) }.flatten().toTypedArray()
+      return Permissions.entries.map { it.getPermissions(isUserBackupSelectionRequired) }.flatten().toTypedArray()
     } else {
       return  arrayOf(Manifest.permission.WRITE_CONTACTS,
         Manifest.permission.READ_CONTACTS,

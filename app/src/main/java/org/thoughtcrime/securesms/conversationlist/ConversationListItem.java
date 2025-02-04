@@ -136,6 +136,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
   private View                uncheckedView;
   private View                checkedView;
   private View                unreadMentions;
+  private View                pinnedView;
   private int                 thumbSize;
   private GlideLiveDataTarget thumbTarget;
 
@@ -222,7 +223,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
                    @NonNull ConversationSet selectedConversations)
   {
     focusOnLeft(this);
-    bindThread(lifecycleOwner, thread, glideRequests, locale, typingThreads, selectedConversations, null, false);
+    bindThread(lifecycleOwner, thread, glideRequests, locale, typingThreads, selectedConversations, null, false, true);
   }
 
   public void bindThread(@NonNull LifecycleOwner lifecycleOwner,
@@ -232,7 +233,8 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
                          @NonNull Set<Long> typingThreads,
                          @NonNull ConversationSet selectedConversations,
                          @Nullable String highlightSubstring,
-                         boolean appendSystemContactIcon)
+                         boolean appendSystemContactIcon,
+                         boolean showPinned)
   {
     this.threadId           = thread.getThreadId();
     this.requestManager     = requestManager;
@@ -257,9 +259,9 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     if (highlightSubstring != null) {
       String name = recipient.get().isSelf() ? getContext().getString(R.string.note_to_self) : recipient.get().getDisplayName(getContext());
 
-      this.fromView.setText(recipient.get(), SearchUtil.getHighlightedSpan(locale, searchStyleFactory, name, highlightSubstring, SearchUtil.MATCH_ALL), suffix);
+      this.fromView.setText(recipient.get(), SearchUtil.getHighlightedSpan(locale, searchStyleFactory, name, highlightSubstring, SearchUtil.MATCH_ALL), suffix, true, false, showPinned && thread.isPinned());
     } else {
-      this.fromView.setText(recipient.get(), suffix);
+      this.fromView.setText(recipient.get(), recipient.get().getDisplayName(getContext()), suffix, true, false, showPinned && thread.isPinned());
     }
 
     this.typingThreads = typingThreads;
@@ -571,9 +573,9 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       } else {
         name = recipient.getDisplayName(getContext());
       }
-      fromView.setText(recipient, SearchUtil.getHighlightedSpan(locale, searchStyleFactory, new SpannableString(name), highlightSubstring, SearchUtil.MATCH_ALL), null, thread != null);
+      fromView.setText(recipient, SearchUtil.getHighlightedSpan(locale, searchStyleFactory, new SpannableString(name), highlightSubstring, SearchUtil.MATCH_ALL), null, thread != null, false, thread != null && thread.isPinned());
     } else {
-      fromView.setText(recipient);
+      fromView.setText(recipient, recipient.getDisplayName(getContext()), null, true, false, thread != null && thread.isPinned());
     }
     contactPhotoImage.setAvatar(requestManager, recipient, !batchMode, false);
     setBadgeFromRecipient(recipient);
@@ -659,7 +661,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
       return emphasisAdded(context, context.getString(R.string.ThreadRecord_message_could_not_be_processed), defaultTint);
     } else if (MessageTypes.isProfileChange(thread.getType())) {
       return emphasisAdded(context, "", defaultTint);
-    } else if (MessageTypes.isChangeNumber(thread.getType()) || MessageTypes.isBoostRequest(thread.getType())) {
+    } else if (MessageTypes.isChangeNumber(thread.getType()) || MessageTypes.isReleaseChannelDonationRequest(thread.getType())) {
       return emphasisAdded(context, "", defaultTint);
     } else if (MessageTypes.isBadDecryptType(thread.getType())) {
       return emphasisAdded(context, context.getString(R.string.ThreadRecord_delivery_issue), defaultTint);

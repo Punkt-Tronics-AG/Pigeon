@@ -25,7 +25,7 @@ import org.thoughtcrime.securesms.database.documents.NetworkFailure;
 import org.thoughtcrime.securesms.database.model.GroupRecord;
 import org.thoughtcrime.securesms.database.model.MessageId;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobLogger;
@@ -37,6 +37,7 @@ import org.thoughtcrime.securesms.messages.StorySendUtil;
 import org.thoughtcrime.securesms.mms.MessageGroupContext;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingMessage;
+import org.thoughtcrime.securesms.ratelimit.ProofRequiredExceptionHandler;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
@@ -124,7 +125,7 @@ public final class PushGroupSendJob extends PushSendJob {
         if (!filterAddresses.isEmpty()) {
           throw new MmsException("Cannot schedule a group message with filter addresses!");
         }
-        ApplicationDependencies.getScheduledMessageManager().scheduleIfNecessary();
+        AppDependencies.getScheduledMessageManager().scheduleIfNecessary();
         return;
       }
 
@@ -188,7 +189,7 @@ public final class PushGroupSendJob extends PushSendJob {
 
     SignalLocalMetrics.GroupMessageSend.setSentTimestamp(messageId, message.getSentTimeMillis());
 
-    ApplicationDependencies.getJobManager().cancelAllInQueue(TypingSendJob.getQueue(threadId));
+    AppDependencies.getJobManager().cancelAllInQueue(TypingSendJob.getQueue(threadId));
 
     if (database.isSent(messageId)) {
       log(TAG, String.valueOf(message.getSentTimeMillis()), "Message " + messageId + " was already sent. Ignoring.");
@@ -456,7 +457,12 @@ public final class PushGroupSendJob extends PushSendJob {
     SignalDatabase.groupReceipts().setUnidentified(successUnidentifiedStatus, messageId);
 
     if (proofRequired != null) {
-      handleProofRequiredException(context, proofRequired, groupRecipient, threadId, messageId, true);
+      ProofRequiredExceptionHandler.Result result = ProofRequiredExceptionHandler.handle(context, proofRequired, groupRecipient, threadId, messageId);
+      if (result.isRetry()) {
+        throw new RetryLaterException();
+      } else {
+        throw proofRequired;
+      }
     }
 
     if (existingNetworkFailures.isEmpty() && existingIdentityMismatches.isEmpty()) {
@@ -470,8 +476,8 @@ public final class PushGroupSendJob extends PushSendJob {
 
       if (message.getExpiresIn() > 0 && !message.isExpirationUpdate()) {
         database.markExpireStarted(messageId);
-        ApplicationDependencies.getExpiringMessageManager()
-                               .scheduleDeletion(messageId, true, message.getExpiresIn());
+        AppDependencies.getExpiringMessageManager()
+                       .scheduleDeletion(messageId, true, message.getExpiresIn());
       }
 
       if (message.isViewOnce()) {
@@ -479,7 +485,7 @@ public final class PushGroupSendJob extends PushSendJob {
       }
 
       if (message.getStoryType().isStory()) {
-        ApplicationDependencies.getExpireStoriesManager().scheduleIfNecessary();
+        AppDependencies.getExpireStoriesManager().scheduleIfNecessary();
       }
     } else if (!existingIdentityMismatches.isEmpty()) {
       Log.w(TAG, "Failing because there were " + existingIdentityMismatches.size() + " identity mismatches.");

@@ -2,12 +2,11 @@ package org.thoughtcrime.securesms.jobs
 
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.DataRestoreConstraint
 import org.thoughtcrime.securesms.transport.RetryLaterException
 import java.lang.Exception
-import java.lang.IllegalStateException
 import kotlin.time.Duration.Companion.seconds
 
 class RebuildMessageSearchIndexJob private constructor(params: Parameters) : BaseJob(params) {
@@ -18,7 +17,7 @@ class RebuildMessageSearchIndexJob private constructor(params: Parameters) : Bas
     const val KEY = "RebuildMessageSearchIndexJob"
 
     fun enqueue() {
-      ApplicationDependencies.getJobManager().add(RebuildMessageSearchIndexJob())
+      AppDependencies.jobManager.add(RebuildMessageSearchIndexJob())
     }
   }
 
@@ -37,10 +36,11 @@ class RebuildMessageSearchIndexJob private constructor(params: Parameters) : Bas
   override fun onFailure() = Unit
 
   override fun onRun() {
-    try {
-      SignalDatabase.messageSearch.rebuildIndex()
-    } catch (e: IllegalStateException) {
-      throw RetryLaterException(e)
+    val success = SignalDatabase.messageSearch.rebuildIndex()
+
+    if (!success) {
+      Log.w(TAG, "Failed to rebuild search index. Resetting tables. That will enqueue another copy of this job as a side-effect.")
+      SignalDatabase.messageSearch.fullyResetTables()
     }
   }
 

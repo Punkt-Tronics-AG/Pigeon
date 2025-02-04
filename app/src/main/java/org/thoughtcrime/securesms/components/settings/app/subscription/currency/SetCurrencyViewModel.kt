@@ -4,25 +4,29 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import org.signal.donations.InAppPaymentType
 import org.thoughtcrime.securesms.BuildConfig
+import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentsRepository
+import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentsRepository.requireSubscriberType
+import org.thoughtcrime.securesms.database.model.InAppPaymentSubscriberRecord
+import org.thoughtcrime.securesms.database.model.databaseprotos.InAppPaymentData
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.subscription.Subscriber
 import org.thoughtcrime.securesms.util.livedata.Store
 import org.whispersystems.signalservice.api.subscriptions.SubscriberId
 import java.util.Currency
 import java.util.Locale
 
 class SetCurrencyViewModel(
-  private val isOneTime: Boolean,
+  private val inAppPaymentType: InAppPaymentType,
   supportedCurrencyCodes: List<String>
 ) : ViewModel() {
 
   private val store = Store(
     SetCurrencyState(
-      selectedCurrencyCode = if (isOneTime) {
-        SignalStore.donationsValues().getOneTimeCurrency().currencyCode
+      selectedCurrencyCode = if (inAppPaymentType.recurring) {
+        SignalStore.inAppPayments.getRecurringDonationCurrency().currencyCode
       } else {
-        SignalStore.donationsValues().getSubscriptionCurrency().currencyCode
+        SignalStore.inAppPayments.getOneTimeCurrency().currencyCode
       },
       currencies = supportedCurrencyCodes
         .map(Currency::getInstance)
@@ -30,24 +34,32 @@ class SetCurrencyViewModel(
     )
   )
 
+  init {
+    check(inAppPaymentType != InAppPaymentType.RECURRING_BACKUP) { "Setting currency is unsupported for backups." }
+  }
+
   val state: LiveData<SetCurrencyState> = store.stateLiveData
 
   fun setSelectedCurrency(selectedCurrencyCode: String) {
     store.update { it.copy(selectedCurrencyCode = selectedCurrencyCode) }
 
-    if (isOneTime) {
-      SignalStore.donationsValues().setOneTimeCurrency(Currency.getInstance(selectedCurrencyCode))
+    if (!inAppPaymentType.recurring) {
+      SignalStore.inAppPayments.setOneTimeCurrency(Currency.getInstance(selectedCurrencyCode))
     } else {
       val currency = Currency.getInstance(selectedCurrencyCode)
-      val subscriber = SignalStore.donationsValues().getSubscriber(currency)
+      val subscriber = InAppPaymentsRepository.getRecurringDonationSubscriber(currency)
 
       if (subscriber != null) {
-        SignalStore.donationsValues().setSubscriber(subscriber)
+        InAppPaymentsRepository.setSubscriber(subscriber)
       } else {
-        SignalStore.donationsValues().setSubscriber(
-          Subscriber(
+        InAppPaymentsRepository.setSubscriber(
+          InAppPaymentSubscriberRecord(
             subscriberId = SubscriberId.generate(),
-            currencyCode = currency.currencyCode
+            currency = currency,
+            type = inAppPaymentType.requireSubscriberType(),
+            requiresCancel = false,
+            paymentMethodType = InAppPaymentData.PaymentMethodType.UNKNOWN,
+            iapSubscriptionId = null
           )
         )
       }
@@ -83,9 +95,9 @@ class SetCurrencyViewModel(
     }
   }
 
-  class Factory(private val isOneTime: Boolean, private val supportedCurrencyCodes: List<String>) : ViewModelProvider.Factory {
+  class Factory(private val inAppPaymentType: InAppPaymentType, private val supportedCurrencyCodes: List<String>) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-      return modelClass.cast(SetCurrencyViewModel(isOneTime, supportedCurrencyCodes))!!
+      return modelClass.cast(SetCurrencyViewModel(inAppPaymentType, supportedCurrencyCodes))!!
     }
   }
 }

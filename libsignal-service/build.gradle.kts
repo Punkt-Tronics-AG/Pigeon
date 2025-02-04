@@ -1,3 +1,9 @@
+/*
+ * Copyright 2024 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -26,15 +32,19 @@ java {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-  kotlinOptions {
-    jvmTarget = signalKotlinJvmTarget
+  kotlin {
+    compilerOptions {
+      jvmTarget = JvmTarget.fromTarget(signalKotlinJvmTarget)
+      freeCompilerArgs = listOf("-Xjvm-default=all")
+    }
   }
 }
 
 afterEvaluate {
   listOf(
     "runKtlintCheckOverMainSourceSet",
-    "runKtlintFormatOverMainSourceSet"
+    "runKtlintFormatOverMainSourceSet",
+    "sourcesJar"
   ).forEach { taskName ->
     tasks.named(taskName) {
       mustRunAfter(tasks.named("generateMainProtos"))
@@ -43,7 +53,7 @@ afterEvaluate {
 }
 
 ktlint {
-  version.set("0.49.1")
+  version.set("1.2.1")
 
   filter {
     exclude { entry ->
@@ -88,13 +98,14 @@ dependencies {
   api(libs.rxjava3.rxjava)
 
   implementation(libs.kotlin.stdlib.jdk8)
+  implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.kotlinx.coroutines.core.jvm)
 
   implementation(project(":core-util-jvm"))
 
   testImplementation(testLibs.junit.junit)
-  testImplementation(testLibs.assertj.core)
+  testImplementation(testLibs.assertk)
   testImplementation(testLibs.conscrypt.openjdk.uber)
-  testImplementation(testLibs.mockito.core)
   testImplementation(testLibs.mockk)
 
   testFixturesImplementation(libs.libsignal.client)

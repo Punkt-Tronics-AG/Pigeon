@@ -16,7 +16,7 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.util.Debouncer;
 
 // TODO [nicholas]: move to v2 package and make package-private. convert to Kotlin
@@ -26,7 +26,8 @@ public final class SignalStrengthPhoneStateListener extends PhoneStateListener
   private static final String TAG = Log.tag(SignalStrengthPhoneStateListener.class);
 
   private final Callback  callback;
-  private final Debouncer debouncer = new Debouncer(1000);
+  private final Debouncer  debouncer    = new Debouncer(1000);
+  private volatile boolean hasLowSignal = true;
 
   @SuppressWarnings("deprecation")
   public SignalStrengthPhoneStateListener(@NonNull LifecycleOwner lifecycleOwner, @NonNull Callback callback) {
@@ -40,10 +41,14 @@ public final class SignalStrengthPhoneStateListener extends PhoneStateListener
     if (signalStrength == null) return;
 
     if (isLowLevel(signalStrength)) {
+      hasLowSignal = true;
       Log.w(TAG, "No cell signal detected");
       debouncer.publish(callback::onNoCellSignalPresent);
     } else {
-      Log.i(TAG, "Cell signal detected");
+      if (hasLowSignal) {
+        hasLowSignal = false;
+        Log.i(TAG, "Cell signal detected");
+      }
       debouncer.clear();
       callback.onCellSignalPresent();
     }
@@ -66,14 +71,14 @@ public final class SignalStrengthPhoneStateListener extends PhoneStateListener
 
   @Override
   public void onResume(@NonNull LifecycleOwner owner) {
-    TelephonyManager telephonyManager = (TelephonyManager) ApplicationDependencies.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
+    TelephonyManager telephonyManager = (TelephonyManager) AppDependencies.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
     telephonyManager.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     Log.i(TAG, "Listening to cell phone signal strength changes");
   }
 
   @Override
   public void onPause(@NonNull LifecycleOwner owner) {
-    TelephonyManager telephonyManager = (TelephonyManager) ApplicationDependencies.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
+    TelephonyManager telephonyManager = (TelephonyManager) AppDependencies.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
     telephonyManager.listen(this, PhoneStateListener.LISTEN_NONE);
     Log.i(TAG, "Stopped listening to cell phone signal strength changes");
   }

@@ -37,7 +37,8 @@ message Envelope {
   reserved      /*updatedPni*/           15; // Not used presently, may be used in the future
   optional bool   story                = 16;
   optional bytes  reportingToken       = 17;
-  // NEXT ID: 18
+  reserved                               18;  // internal server use
+  // NEXT ID: 19
 }
 
 message Content {
@@ -176,7 +177,8 @@ message DataMessage {
       optional string prefix      = 3;
       optional string suffix      = 4;
       optional string middleName  = 5;
-      optional string displayName = 6;
+      reserved      /*displayName*/ 6;
+      optional string nickname    = 7;
     }
 
     message Phone {
@@ -331,6 +333,7 @@ message DataMessage {
   optional GroupContextV2     groupV2                 = 15;
   optional uint32             flags                   = 4;
   optional uint32             expireTimer             = 5;
+  optional uint32             expireTimerVersion      = 23;
   optional bytes              profileKey              = 6;
   optional uint64             timestamp               = 7;
   optional Quote              quote                   = 8;
@@ -543,7 +546,10 @@ message SyncMessage {
   message Keys {
     // @deprecated
     optional bytes storageService = 1;
-    optional bytes master         = 2;
+    // @deprecated
+    optional bytes master = 2;
+    optional string accountEntropyPool = 3;
+    optional bytes mediaRootBackupKey = 4;
   }
 
   message MessageRequestResponse {
@@ -614,6 +620,7 @@ message SyncMessage {
       ACCEPTED       = 1;
       NOT_ACCEPTED   = 2;
       DELETE         = 3;
+      OBSERVED       = 4;
     }
 
     optional bytes     conversationId = 1;
@@ -627,7 +634,7 @@ message SyncMessage {
   message CallLinkUpdate {
     enum Type {
       UPDATE = 0;
-      DELETE = 1;
+      reserved 1; // was DELETE, superseded by storage service
     }
 
     optional bytes rootKey      = 1;
@@ -653,6 +660,58 @@ message SyncMessage {
     optional uint64 callId        = 4;
   }
 
+  message DeleteForMe {
+    message ConversationIdentifier {
+      oneof identifier {
+        string threadServiceId = 1;
+        bytes threadGroupId = 2;
+        string threadE164 = 3;
+      }
+    }
+
+    message AddressableMessage {
+      oneof author {
+        string authorServiceId = 1;
+        string authorE164 = 2;
+      }
+      optional uint64 sentTimestamp = 3;
+    }
+
+    message MessageDeletes {
+      optional ConversationIdentifier conversation = 1;
+      repeated AddressableMessage messages = 2;
+    }
+
+    message AttachmentDelete {
+      optional ConversationIdentifier conversation = 1;
+      optional AddressableMessage targetMessage = 2;
+      optional bytes uuid = 3; // The `uuid` from the `Attachment`.
+      optional bytes fallbackDigest = 4;
+      optional bytes fallbackPlaintextHash = 5;
+    }
+
+    message ConversationDelete {
+      optional ConversationIdentifier conversation = 1;
+      repeated AddressableMessage mostRecentMessages = 2;
+      repeated AddressableMessage mostRecentNonExpiringMessages = 4;
+      optional bool isFullDelete = 3;
+    }
+
+    message LocalOnlyConversationDelete {
+      optional ConversationIdentifier conversation = 1;
+    }
+
+    repeated MessageDeletes messageDeletes = 1;
+    repeated ConversationDelete conversationDeletes = 2;
+    repeated LocalOnlyConversationDelete localOnlyConversationDeletes = 3;
+    repeated AttachmentDelete attachmentDeletes = 4;
+  }
+
+  message DeviceNameChange {
+    reserved          /*name*/ 1;
+    optional uint32 deviceId = 2;
+  }
+
   optional Sent                   sent                   = 1;
   optional Contacts               contacts               = 2;
   reserved                      /*groups*/                 3;
@@ -674,6 +733,8 @@ message SyncMessage {
   optional CallEvent              callEvent              = 19;
   optional CallLinkUpdate         callLinkUpdate         = 20;
   optional CallLogEvent           callLogEvent           = 21;
+  optional DeleteForMe            deleteForMe            = 22;
+  optional DeviceNameChange       deviceNameChange       = 23;
 }
 
 message AttachmentPointer {
@@ -705,7 +766,8 @@ message AttachmentPointer {
   optional string  blurHash                = 12;
   optional uint64  uploadTimestamp         = 13;
   optional uint32  cdnNumber               = 14;
-  // Next ID: 19
+  optional bytes   uuid                    = 20;
+  // Next ID: 21
 }
 
 message GroupContext {
@@ -742,17 +804,18 @@ message ContactDetails {
     optional uint32 length      = 2;
   }
 
-  optional string   number        = 1;
-  optional string   aci           = 9;
-  optional string   name          = 2;
-  optional Avatar   avatar        = 3;
-  optional string   color         = 4;
-  optional Verified verified      = 5;
-  optional bytes    profileKey    = 6;
-  reserved          /*blocked*/     7;
-  optional uint32   expireTimer   = 8;
-  optional uint32   inboxPosition = 10;
-  optional bool     archived      = 11;
+  optional string   number             = 1;
+  optional string   aci                = 9;
+  optional string   name               = 2;
+  optional Avatar   avatar             = 3;
+  optional string   color              = 4;
+  optional Verified verified           = 5;
+  optional bytes    profileKey         = 6;
+  reserved          /*blocked*/          7;
+  optional uint32   expireTimer        = 8;
+  optional uint32   expireTimerVersion = 12;
+  optional uint32   inboxPosition      = 10;
+  optional bool     archived           = 11;
 }
 
 message GroupDetails {
@@ -766,17 +829,17 @@ message GroupDetails {
     optional string e164  = 2;
   }
 
-  optional bytes  id            = 1;
-  optional string name          = 2;
-  repeated string membersE164   = 3;
-  repeated Member members       = 9;
-  optional Avatar avatar        = 4;
-  optional bool   active        = 5 [default = true];
-  optional uint32 expireTimer   = 6;
-  optional string color         = 7;
-  optional bool   blocked       = 8;
-  optional uint32 inboxPosition = 10;
-  optional bool   archived      = 11;
+  optional bytes  id                 = 1;
+  optional string name               = 2;
+  repeated string membersE164        = 3;
+  repeated Member members            = 9;
+  optional Avatar avatar             = 4;
+  optional bool   active             = 5 [default = true];
+  optional uint32 expireTimer        = 6;
+  optional string color              = 7;
+  optional bool   blocked            = 8;
+  optional uint32 inboxPosition      = 10;
+  optional bool   archived           = 11;
 }
 
 message PaymentAddress {

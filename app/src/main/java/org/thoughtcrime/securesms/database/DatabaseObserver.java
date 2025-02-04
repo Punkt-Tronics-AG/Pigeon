@@ -1,7 +1,5 @@
 package org.thoughtcrime.securesms.database;
 
-import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
@@ -24,7 +22,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Allows listening to database changes to varying degrees of specificity.
- *
+ * <p>
  * A replacement for the observer system in {@link DatabaseTable}. We should move to this over time.
  */
 public class DatabaseObserver {
@@ -46,10 +44,11 @@ public class DatabaseObserver {
   private static final String KEY_SCHEDULED_MESSAGES    = "ScheduledMessages";
   private static final String KEY_CONVERSATION_DELETES  = "ConversationDeletes";
 
-  private static final String KEY_CALL_UPDATES          = "CallUpdates";
-  private static final String KEY_CALL_LINK_UPDATES     = "CallLinkUpdates";
+  private static final String KEY_CALL_UPDATES      = "CallUpdates";
+  private static final String KEY_CALL_LINK_UPDATES = "CallLinkUpdates";
+  private static final String KEY_IN_APP_PAYMENTS   = "InAppPayments";
+  private static final String KEY_CHAT_FOLDER       = "ChatFolder";
 
-  private final Application application;
   private final Executor    executor;
 
   private final Set<Observer>                      conversationListObservers;
@@ -62,16 +61,18 @@ public class DatabaseObserver {
   private final Set<Observer>                      chatColorsObservers;
   private final Set<Observer>                      stickerObservers;
   private final Set<Observer>                      stickerPackObservers;
-  private final Set<Observer>                      attachmentObservers;
+  private final Set<Observer>                      attachmentUpdatedObservers;
+  private final Set<Observer>                      attachmentDeletedObservers;
   private final Set<MessageObserver>               messageUpdateObservers;
   private final Map<Long, Set<MessageObserver>>    messageInsertObservers;
   private final Set<Observer>                      notificationProfileObservers;
   private final Map<RecipientId, Set<Observer>>    storyObservers;
   private final Set<Observer>                      callUpdateObservers;
   private final Map<CallLinkRoomId, Set<Observer>> callLinkObservers;
+  private final Set<InAppPaymentObserver>          inAppPaymentObservers;
+  private final Set<Observer>                      chatFolderObservers;
 
-  public DatabaseObserver(Application application) {
-    this.application                  = application;
+  public DatabaseObserver() {
     this.executor                     = new SerialExecutor(SignalExecutors.BOUNDED);
     this.conversationListObservers    = new HashSet<>();
     this.conversationObservers        = new HashMap<>();
@@ -82,7 +83,8 @@ public class DatabaseObserver {
     this.chatColorsObservers          = new HashSet<>();
     this.stickerObservers             = new HashSet<>();
     this.stickerPackObservers         = new HashSet<>();
-    this.attachmentObservers          = new HashSet<>();
+    this.attachmentUpdatedObservers   = new HashSet<>();
+    this.attachmentDeletedObservers   = new HashSet<>();
     this.messageUpdateObservers       = new HashSet<>();
     this.messageInsertObservers       = new HashMap<>();
     this.notificationProfileObservers = new HashSet<>();
@@ -90,6 +92,8 @@ public class DatabaseObserver {
     this.scheduledMessageObservers    = new HashMap<>();
     this.callUpdateObservers          = new HashSet<>();
     this.callLinkObservers            = new HashMap<>();
+    this.inAppPaymentObservers        = new HashSet<>();
+    this.chatFolderObservers          = new HashSet<>();
   }
 
   public void registerConversationListObserver(@NonNull Observer listener) {
@@ -146,9 +150,15 @@ public class DatabaseObserver {
     });
   }
 
-  public void registerAttachmentObserver(@NonNull Observer listener) {
+  public void registerAttachmentUpdatedObserver(@NonNull Observer listener) {
     executor.execute(() -> {
-      attachmentObservers.add(listener);
+      attachmentUpdatedObservers.add(listener);
+    });
+  }
+
+  public void registerAttachmentDeletedObserver(@NonNull Observer listener) {
+    executor.execute(() -> {
+      attachmentDeletedObservers.add(listener);
     });
   }
 
@@ -195,6 +205,14 @@ public class DatabaseObserver {
     });
   }
 
+  public void registerInAppPaymentObserver(@NonNull InAppPaymentObserver observer) {
+    executor.execute(() -> inAppPaymentObservers.add(observer));
+  }
+
+  public void registerChatFolderObserver(@NonNull Observer observer) {
+    executor.execute(() -> chatFolderObservers.add(observer));
+  }
+
   public void unregisterObserver(@NonNull Observer listener) {
     executor.execute(() -> {
       conversationListObservers.remove(listener);
@@ -204,13 +222,15 @@ public class DatabaseObserver {
       chatColorsObservers.remove(listener);
       stickerObservers.remove(listener);
       stickerPackObservers.remove(listener);
-      attachmentObservers.remove(listener);
+      attachmentUpdatedObservers.remove(listener);
+      attachmentDeletedObservers.remove(listener);
       notificationProfileObservers.remove(listener);
       unregisterMapped(storyObservers, listener);
       unregisterMapped(scheduledMessageObservers, listener);
       unregisterMapped(conversationDeleteObservers, listener);
       callUpdateObservers.remove(listener);
       unregisterMapped(callLinkObservers, listener);
+      chatFolderObservers.remove(listener);
     });
   }
 
@@ -218,6 +238,12 @@ public class DatabaseObserver {
     executor.execute(() -> {
       messageUpdateObservers.remove(listener);
       unregisterMapped(messageInsertObservers, listener);
+    });
+  }
+
+  public void unregisterObserver(@NonNull InAppPaymentObserver listener) {
+    executor.execute(() -> {
+      inAppPaymentObservers.remove(listener);
     });
   }
 
@@ -294,9 +320,16 @@ public class DatabaseObserver {
     });
   }
 
-  public void notifyAttachmentObservers() {
+  public void notifyAttachmentUpdatedObservers() {
     runPostSuccessfulTransaction(KEY_ATTACHMENTS, () -> {
-      notifySet(attachmentObservers);
+      notifySet(attachmentUpdatedObservers);
+    });
+  }
+
+  public void notifyAttachmentDeletedObservers() {
+    runPostSuccessfulTransaction(KEY_ATTACHMENTS, () -> {
+      notifySet(attachmentDeletedObservers);
+      notifySet(attachmentUpdatedObservers);
     });
   }
 
@@ -354,6 +387,16 @@ public class DatabaseObserver {
 
   public void notifyCallLinkObservers(@NonNull CallLinkRoomId callLinkRoomId) {
     runPostSuccessfulTransaction(KEY_CALL_LINK_UPDATES, () -> notifyMapped(callLinkObservers, callLinkRoomId));
+  }
+
+  public void notifyInAppPaymentsObservers(@NonNull InAppPaymentTable.InAppPayment inAppPayment) {
+    runPostSuccessfulTransaction(KEY_IN_APP_PAYMENTS, () -> {
+      inAppPaymentObservers.forEach(item -> item.onInAppPaymentChanged(inAppPayment));
+    });
+  }
+
+  public void notifyChatFolderObservers() {
+    runPostSuccessfulTransaction(KEY_CHAT_FOLDER, () -> notifySet(chatFolderObservers));
   }
 
   private void runPostSuccessfulTransaction(@NonNull String dedupeKey, @NonNull Runnable runnable) {
@@ -420,5 +463,9 @@ public class DatabaseObserver {
 
   public interface MessageObserver {
     void onMessageChanged(@NonNull MessageId messageId);
+  }
+
+  public interface InAppPaymentObserver {
+    void onInAppPaymentChanged(@NonNull InAppPaymentTable.InAppPayment inAppPayment);
   }
 }

@@ -27,18 +27,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.thoughtcrime.video.app.R
 import org.thoughtcrime.video.app.transcode.composables.ConfigureEncodingParameters
 import org.thoughtcrime.video.app.transcode.composables.SelectInput
 import org.thoughtcrime.video.app.transcode.composables.SelectOutput
 import org.thoughtcrime.video.app.transcode.composables.TranscodingJobProgress
+import org.thoughtcrime.video.app.transcode.composables.WorkState
 import org.thoughtcrime.video.app.ui.theme.SignalTheme
 
 /**
@@ -65,9 +66,9 @@ class TranscodeTestActivity : AppCompatActivity() {
     setContent {
       SignalTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          val transcodingJobs = viewModel.getTranscodingJobsAsState().collectAsState(emptyList())
+          val transcodingJobs = viewModel.getTranscodingJobsAsState().collectAsStateWithLifecycle(emptyList())
           if (transcodingJobs.value.isNotEmpty()) {
-            TranscodingJobProgress(transcodingJobs = transcodingJobs.value, resetButtonOnClick = { viewModel.reset() })
+            TranscodingJobProgress(transcodingJobs = transcodingJobs.value.map { WorkState.fromInfo(it) }, resetButtonOnClick = { viewModel.reset() })
           } else if (viewModel.selectedVideos.isEmpty()) {
             SelectInput { pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)) }
           } else if (viewModel.outputDirectory == null) {

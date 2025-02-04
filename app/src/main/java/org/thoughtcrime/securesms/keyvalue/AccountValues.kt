@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import androidx.annotation.VisibleForTesting
 import org.signal.core.util.Base64
 import org.signal.core.util.logging.Log
+import org.signal.core.util.nullIfBlank
 import org.signal.libsignal.protocol.IdentityKey
 import org.signal.libsignal.protocol.IdentityKeyPair
 import org.signal.libsignal.protocol.ecc.Curve
@@ -16,12 +16,13 @@ import org.thoughtcrime.securesms.crypto.MasterCipher
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil
 import org.thoughtcrime.securesms.crypto.storage.PreKeyMetadataStore
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.PreKeysSyncJob
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.service.KeyCachingService
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.thoughtcrime.securesms.util.Util
+import org.whispersystems.signalservice.api.AccountEntropyPool
 import org.whispersystems.signalservice.api.push.ServiceId.ACI
 import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.push.ServiceIds
@@ -30,8 +31,11 @@ import org.whispersystems.signalservice.api.push.UsernameLinkComponents
 import org.whispersystems.signalservice.api.util.UuidUtil
 import org.whispersystems.signalservice.api.util.toByteArray
 import java.security.SecureRandom
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import org.signal.libsignal.messagebackup.AccountEntropyPool as LibSignalAccountEntropyPool
 
-internal class AccountValues internal constructor(store: KeyValueStore) : SignalStoreValues(store) {
+class AccountValues internal constructor(store: KeyValueStore, context: Context) : SignalStoreValues(store) {
 
   companion object {
     private val TAG = Log.tag(AccountValues::class.java)
@@ -73,26 +77,29 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
     private const val KEY_USERNAME_SYNC_STATE = "phoneNumberPrivacy.usernameSyncState"
     private const val KEY_USERNAME_SYNC_ERROR_COUNT = "phoneNumberPrivacy.usernameErrorCount"
 
-    @VisibleForTesting
-    const val KEY_E164 = "account.e164"
+    private const val KEY_E164 = "account.e164"
+    private const val KEY_ACI = "account.aci"
+    private const val KEY_PNI = "account.pni"
+    private const val KEY_IS_REGISTERED = "account.is_registered"
 
-    @VisibleForTesting
-    const val KEY_ACI = "account.aci"
+    private const val KEY_HAS_LINKED_DEVICES = "account.has_linked_devices"
 
-    @VisibleForTesting
-    const val KEY_PNI = "account.pni"
+    private const val KEY_ACCOUNT_ENTROPY_POOL = "account.account_entropy_pool"
 
-    @VisibleForTesting
-    const val KEY_IS_REGISTERED = "account.is_registered"
+    private val AEP_LOCK = ReentrantLock()
   }
 
   init {
     if (!store.containsKey(KEY_ACI)) {
-      migrateFromSharedPrefsV1(ApplicationDependencies.getApplication())
+      migrateFromSharedPrefsV1(context)
     }
 
     if (!store.containsKey(KEY_ACI_IDENTITY_PUBLIC_KEY)) {
-      migrateFromSharedPrefsV2(ApplicationDependencies.getApplication())
+      migrateFromSharedPrefsV2(context)
+    }
+
+    if (!store.containsKey(KEY_HAS_LINKED_DEVICES)) {
+      migrateFromSharedPrefsV3(context)
     }
 
     store.getString(KEY_PNI, null)?.let { pni ->
@@ -111,8 +118,36 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
       KEY_PNI_IDENTITY_PUBLIC_KEY,
       KEY_PNI_IDENTITY_PRIVATE_KEY,
       KEY_USERNAME,
-      KEY_USERNAME_LINK_SERVER_ID
+      KEY_USERNAME_LINK_ENTROPY,
+      KEY_USERNAME_LINK_SERVER_ID,
+      KEY_ACCOUNT_ENTROPY_POOL
     )
+  }
+
+  val accountEntropyPool: AccountEntropyPool
+    get() {
+      AEP_LOCK.withLock {
+        getString(KEY_ACCOUNT_ENTROPY_POOL, null)?.let {
+          return AccountEntropyPool(it)
+        }
+
+        Log.i(TAG, "Generating Account Entropy Pool (AEP)...")
+        val newAep = LibSignalAccountEntropyPool.generate()
+        putString(KEY_ACCOUNT_ENTROPY_POOL, newAep)
+        return AccountEntropyPool(newAep)
+      }
+    }
+
+  fun restoreAccountEntropyPool(aep: AccountEntropyPool) {
+    AEP_LOCK.withLock {
+      store.beginWrite().putString(KEY_ACCOUNT_ENTROPY_POOL, aep.value).commit()
+    }
+  }
+
+  fun resetAccountEntropyPool() {
+    AEP_LOCK.withLock {
+      store.beginWrite().putString(KEY_ACCOUNT_ENTROPY_POOL, null).commit()
+    }
   }
 
   /** The local user's [ACI]. */
@@ -360,7 +395,7 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
 
     putBoolean(KEY_IS_REGISTERED, registered)
 
-    ApplicationDependencies.getIncomingMessageObserver().notifyRegistrationChanged()
+    AppDependencies.incomingMessageObserver.notifyRegistrationChanged()
 
     if (previous != registered) {
       Recipient.self().live().refresh()
@@ -378,7 +413,7 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
   fun clearRegistrationButKeepCredentials() {
     putBoolean(KEY_IS_REGISTERED, false)
 
-    ApplicationDependencies.getIncomingMessageObserver().notifyRegistrationChanged()
+    AppDependencies.incomingMessageObserver.notifyRegistrationChanged()
 
     Recipient.self().live().refresh()
   }
@@ -402,10 +437,10 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
   var username: String?
     get() {
       val value = getString(KEY_USERNAME, null)
-      return if (value.isNullOrBlank()) null else value
+      return value.nullIfBlank()
     }
     set(value) {
-      putString(KEY_USERNAME, value)
+      putString(KEY_USERNAME, value.nullIfBlank())
     }
 
   /** The local user's username link components, if set. */
@@ -449,8 +484,14 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
     val self = Recipient.self()
 
     SignalDatabase.recipients.setProfileKey(self.id, newProfileKey)
-    ApplicationDependencies.getGroupsV2Authorization().clear()
+    AppDependencies.groupsV2Authorization.clear()
   }
+
+  /**
+   * Whether or not the user has linked devices.
+   */
+  @get:JvmName("hasLinkedDevices")
+  var hasLinkedDevices by booleanValue(KEY_HAS_LINKED_DEVICES, false)
 
   /** Do not alter. If you need to migrate more stuff, create a new method. */
   private fun migrateFromSharedPrefsV1(context: Context) {
@@ -535,6 +576,13 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
       .commit()
   }
 
+  /** Do not alter. If you need to migrate more stuff, create a new method. */
+  private fun migrateFromSharedPrefsV3(context: Context) {
+    Log.i(TAG, "[V3] Migrating account values from shared prefs.")
+
+    putBoolean(KEY_HAS_LINKED_DEVICES, TextSecurePreferences.getBooleanPreference(context, "pref_multi_device", false))
+  }
+
   private fun SharedPreferences.hasStringData(key: String): Boolean {
     return this.getString(key, null) != null
   }
@@ -553,7 +601,7 @@ internal class AccountValues internal constructor(store: KeyValueStore) : Signal
 
     companion object {
       fun deserialize(value: Long): UsernameSyncState {
-        return values().firstOrNull { it.value == value } ?: throw IllegalArgumentException("Invalid value: $value")
+        return entries.firstOrNull { it.value == value } ?: throw IllegalArgumentException("Invalid value: $value")
       }
     }
   }

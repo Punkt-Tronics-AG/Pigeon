@@ -21,10 +21,29 @@ dependencyResolutionManagement {
     maven {
       url = uri("https://dl.cloudsmith.io/qxAgwaeEE1vN8aLU/mobilecoin/mobilecoin/maven/")
     }
-    jcenter {
-      content {
-        includeVersion("mobi.upod", "time-duration-picker", "1.1.3")
-      }
+  }
+  versionCatalogs {
+    // libs.versions.toml is automatically registered.
+    create("benchmarkLibs") {
+      from(files("gradle/benchmark-libs.versions.toml"))
+    }
+    create("testLibs") {
+      from(files("gradle/test-libs.versions.toml"))
+    }
+    create("lintLibs") {
+      from(files("gradle/lint-libs.versions.toml"))
+    }
+  }
+}
+
+// To build libsignal from source, set the libsignalClientPath property in gradle.properties.
+val libsignalClientPath = if (extra.has("libsignalClientPath")) extra.get("libsignalClientPath") else null
+if (libsignalClientPath is String) {
+  includeBuild(rootDir.resolve(libsignalClientPath + "/java")) {
+    name = "libsignal-client"
+    dependencySubstitution {
+      substitute(module("org.signal:libsignal-client")).using(project(":client"))
+      substitute(module("org.signal:libsignal-android")).using(project(":android"))
     }
   }
 }
@@ -56,6 +75,7 @@ include(":benchmark")
 include(":microbenchmark")
 include(":video")
 include(":video-app")
+include(":billing")
 
 project(":app").name = "Signal-Android"
 project(":paging").projectDir = file("paging/lib")
@@ -83,5 +103,3 @@ project(":video").projectDir = file("video/lib")
 project(":video-app").projectDir = file("video/app")
 
 rootProject.name = "Signal"
-
-apply(from = "dependencies.gradle.kts")

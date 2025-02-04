@@ -2,9 +2,12 @@ package org.thoughtcrime.securesms.components.settings.app.subscription.boost
 
 import android.app.Application
 import android.text.SpannableStringBuilder
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertNotNull
-import junit.framework.Assert.assertNull
+import android.widget.TextView
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.test.core.app.ApplicationProvider
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,6 +97,19 @@ class BoostTest__MoneyFilter {
     val filterResult = testSubject.filter(editable, 0, editable.length, dest, 0, 0)
 
     assertNull(filterResult)
+  }
+
+  @Test
+  fun `Given USD, when I enter 1000, then I expect successful filter`() {
+    val view = AppCompatEditText(ApplicationProvider.getApplicationContext())
+    val testSubject = Boost.MoneyFilter(usd, text = view)
+
+    view.keyListener = testSubject
+    view.addTextChangedListener(testSubject)
+
+    view.setText("1000", TextView.BufferType.EDITABLE)
+
+    assertEquals("$1,000", view.text.toString())
   }
 
   @Test

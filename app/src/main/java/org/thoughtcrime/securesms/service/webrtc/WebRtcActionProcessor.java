@@ -24,7 +24,7 @@ import org.thoughtcrime.securesms.components.webrtc.EglBaseWrapper;
 import org.thoughtcrime.securesms.components.webrtc.GroupCallSafetyNumberChangeNotificationUtil;
 import org.thoughtcrime.securesms.database.CallTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.groups.GroupId;
@@ -44,6 +44,7 @@ import org.thoughtcrime.securesms.service.webrtc.WebRtcData.ReceivedOfferMetadat
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcEphemeralState;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceStateBuilder;
+import org.thoughtcrime.securesms.util.AppForegroundObserver;
 import org.thoughtcrime.securesms.util.NetworkUtil;
 import org.thoughtcrime.securesms.util.TelephonyUtil;
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager;
@@ -99,7 +100,7 @@ public abstract class WebRtcActionProcessor {
 
   protected @NonNull WebRtcServiceState handleIsInCallQuery(@NonNull WebRtcServiceState currentState, @Nullable ResultReceiver resultReceiver) {
     if (resultReceiver != null) {
-      resultReceiver.send(0, null);
+      resultReceiver.send(0, ActiveCallData.fromCallState(currentState).toBundle());
     }
     return currentState;
   }
@@ -692,7 +693,7 @@ public abstract class WebRtcActionProcessor {
       activePeer = remotePeer;
     }
 
-    ApplicationDependencies.getAppForegroundObserver().removeListener(webRtcInteractor.getForegroundListener());
+    AppForegroundObserver.removeListener(webRtcInteractor.getForegroundListener());
 
     if (activePeer.getState() != CallState.IDLE) {
       webRtcInteractor.updatePhoneState(LockManager.PhoneState.PROCESSING);
@@ -792,6 +793,11 @@ public abstract class WebRtcActionProcessor {
     return currentState;
   }
 
+  protected @NonNull WebRtcServiceState handleResendMediaKeys(@NonNull WebRtcServiceState currentState) {
+    Log.i(tag, "handleResendMediaKeys not processed");
+    return currentState;
+  }
+
   protected @NonNull WebRtcServiceState handleReceivedOpaqueMessage(@NonNull WebRtcServiceState currentState, @NonNull WebRtcData.OpaqueMessageMetadata opaqueMessageMetadata) {
     Log.i(tag, "handleReceivedOpaqueMessage():");
 
@@ -844,7 +850,7 @@ public abstract class WebRtcActionProcessor {
     return currentState;
   }
 
-  protected @NonNull WebRtcServiceState groupCallFailure(@NonNull WebRtcServiceState currentState, @NonNull String message, @NonNull Throwable error) {
+  protected @NonNull WebRtcServiceState groupCallFailure(@NonNull WebRtcServiceState currentState, @NonNull String message, @Nullable Throwable error) {
     Log.w(tag, "groupCallFailure(): " + message, error);
 
     GroupCall groupCall = currentState.getCallInfoState().getGroupCall();

@@ -2,8 +2,8 @@ import org.gradle.kotlin.dsl.extra
 
 plugins {
   `kotlin-dsl`
+  alias(libs.plugins.ktlint)
   id("groovy-gradle-plugin")
-  id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
 }
 
 val signalJavaVersion: JavaVersion by rootProject.extra
@@ -14,16 +14,18 @@ java {
   targetCompatibility = signalJavaVersion
 }
 
-kotlinDslPluginOptions {
-  jvmTarget.set(signalKotlinJvmTarget)
+kotlin {
+  jvmToolchain {
+    languageVersion.set(JavaLanguageVersion.of(signalKotlinJvmTarget))
+  }
 }
 
 dependencies {
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.android.library)
   implementation(libs.android.application)
-  implementation(project(":tools"))
   implementation(libs.ktlint)
+  implementation(project(":tools"))
 
   // These allow us to reference the dependency catalog inside of our compiled plugins
   implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))

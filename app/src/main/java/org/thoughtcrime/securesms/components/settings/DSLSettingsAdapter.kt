@@ -128,15 +128,20 @@ class ClickPreferenceViewHolder(itemView: View) : PreferenceViewHolder<ClickPref
         0.5f
       }
     }
-    itemView.setOnClickListener { model.onClick() }
-    itemView.setOnLongClickListener { model.onLongClick?.invoke() ?: false }
+    if (!itemView.isEnabled && model.onDisabledClicked != null) {
+      itemView.isEnabled = true
+      itemView.setOnClickListener { model.onDisabledClicked() }
+    } else {
+      itemView.setOnClickListener { model.onClick() }
+      itemView.setOnLongClickListener { model.onLongClick?.invoke() ?: false }
+    }
   }
 }
 
 class LongClickPreferenceViewHolder(itemView: View) : PreferenceViewHolder<LongClickPreference>(itemView) {
   override fun bind(model: LongClickPreference) {
     super.bind(model)
-    itemView.setOnLongClickListener() {
+    itemView.setOnLongClickListener {
       model.onLongClick()
       true
     }

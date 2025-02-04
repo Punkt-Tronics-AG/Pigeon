@@ -8,8 +8,9 @@ import androidx.annotation.NonNull;
 
 import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.model.PendingRetryReceiptModel;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.signal.core.util.CursorUtil;
 import org.signal.core.util.SqlUtil;
@@ -23,6 +24,8 @@ import java.util.List;
  * Do not use directly! The only class that should be accessing this is {@link PendingRetryReceiptCache}
  */
 public final class PendingRetryReceiptTable extends DatabaseTable implements RecipientIdDatabaseReference, ThreadIdDatabaseReference {
+
+  private static final String TAG = Log.tag(PendingRetryReceiptTable.class);
 
   public static final String TABLE_NAME = "pending_retry_receipts";
 
@@ -87,9 +90,11 @@ public final class PendingRetryReceiptTable extends DatabaseTable implements Rec
   public void remapRecipient(@NonNull RecipientId fromId, @NonNull RecipientId toId) {
     ContentValues values = new ContentValues();
     values.put(AUTHOR, toId.serialize());
-    getWritableDatabase().update(TABLE_NAME, values, AUTHOR + " = ?", SqlUtil.buildArgs(fromId));
+    int count = getWritableDatabase().update(TABLE_NAME, values, AUTHOR + " = ?", SqlUtil.buildArgs(fromId));
     
-    ApplicationDependencies.getPendingRetryReceiptCache().clear();
+    AppDependencies.getPendingRetryReceiptCache().clear();
+
+    Log.d(TAG, "Remapped " + fromId + " to " + toId + ". count: " + count);
   }
 
   @Override
@@ -98,6 +103,6 @@ public final class PendingRetryReceiptTable extends DatabaseTable implements Rec
     values.put(THREAD_ID, toId);
     getWritableDatabase().update(TABLE_NAME, values, THREAD_ID + " = ?", SqlUtil.buildArgs(fromId));
 
-    ApplicationDependencies.getPendingRetryReceiptCache().clear();
+    AppDependencies.getPendingRetryReceiptCache().clear();
   }
 }

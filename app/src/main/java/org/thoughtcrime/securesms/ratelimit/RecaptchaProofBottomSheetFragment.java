@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -31,6 +32,8 @@ import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 public final class RecaptchaProofBottomSheetFragment extends BottomSheetDialogFragment {
 
   private static final String TAG = Log.tag(RecaptchaProofBottomSheetFragment.class);
+
+  private ActivityResultLauncher<Void> launcher;
 
   public static void show(@NonNull FragmentManager manager) {
     new RecaptchaProofBottomSheetFragment().show(manager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
@@ -76,10 +79,24 @@ public final class RecaptchaProofBottomSheetFragment extends BottomSheetDialogFr
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.recaptcha_required_bottom_sheet, container, false);
 
-    view.findViewById(R.id.recaptcha_sheet_ok_button).setOnClickListener(v -> {
+          Activity activity = requireActivity();
+    final Callback callback;
+
+    if (activity instanceof Callback) {
+      callback = (Callback) activity;
+    } else {
+      callback = null;
+    }
+
+    launcher = registerForActivityResult(new RecaptchaProofActivity.RecaptchaProofContract(), (isOk) -> {
+      if (isOk && callback != null) {
+        callback.onProofCompleted();
+      }
+
       dismissAllowingStateLoss();
-      startActivity(RecaptchaProofActivity.getIntent(requireContext()));
     });
+
+    view.findViewById(R.id.recaptcha_sheet_ok_button).setOnClickListener(v -> launcher.launch(null));
 
     focusOnLeft(view.findViewById(R.id.recaptcha_sheet_ok_button));
 
@@ -101,5 +118,13 @@ public final class RecaptchaProofBottomSheetFragment extends BottomSheetDialogFr
     } else {
       Log.i(TAG, "Ignoring repeat show.");
     }
+  }
+
+  /**
+   * Optional callback interface to be invoked when the user successfully completes a push challenge.
+   * This is expected to be implemented on the activity which is displaying this fragment.
+   */
+  public interface Callback {
+    void onProofCompleted();
   }
 }

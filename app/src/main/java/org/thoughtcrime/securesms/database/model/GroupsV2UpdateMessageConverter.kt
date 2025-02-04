@@ -5,9 +5,9 @@
 
 package org.thoughtcrime.securesms.database.model
 
-import ProtoUtil.isNullOrEmpty
 import okio.ByteString
 import org.signal.core.util.StringUtil
+import org.signal.core.util.isNullOrEmpty
 import org.signal.storageservice.protos.groups.AccessControl
 import org.signal.storageservice.protos.groups.AccessControl.AccessRequired
 import org.signal.storageservice.protos.groups.Member
@@ -50,7 +50,7 @@ import org.thoughtcrime.securesms.backup.v2.proto.SelfInvitedOtherUserToGroupUpd
 import org.thoughtcrime.securesms.backup.v2.proto.SelfInvitedToGroupUpdate
 import org.thoughtcrime.securesms.database.model.databaseprotos.DecryptedGroupV2Context
 import org.whispersystems.signalservice.api.groupsv2.DecryptedGroupUtil
-import org.whispersystems.signalservice.api.push.ServiceId.Companion.parseOrNull
+import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.push.ServiceIds
 import org.whispersystems.signalservice.api.util.UuidUtil
 import java.util.LinkedList
@@ -126,16 +126,16 @@ object GroupsV2UpdateMessageConverter {
   fun translateDecryptedChangeUpdate(selfIds: ServiceIds, groupContext: DecryptedGroupV2Context): GroupChangeChatUpdate {
     var previousGroupState = groupContext.previousGroupState
     val change = groupContext.change!!
-    if (DecryptedGroup().equals(previousGroupState)) {
+    if (DecryptedGroup() == previousGroupState) {
       previousGroupState = null
     }
     val updates: MutableList<GroupChangeChatUpdate.Update> = LinkedList()
     var editorUnknown = change.editorServiceIdBytes.size == 0
-    val editorServiceId = if (editorUnknown) null else parseOrNull(change.editorServiceIdBytes)
+    val editorServiceId = if (editorUnknown) null else ServiceId.parseOrNull(change.editorServiceIdBytes)
     if (editorServiceId == null || editorServiceId.isUnknown) {
       editorUnknown = true
     }
-    translateMemberAdditions(change, editorUnknown, updates)
+    translateMemberAdditions(change, editorUnknown, editorServiceId, updates)
     translateModifyMemberRoles(change, editorUnknown, updates)
     translateInvitations(selfIds, change, editorUnknown, updates)
     translateRevokedInvitations(selfIds, change, editorUnknown, updates)
@@ -160,7 +160,7 @@ object GroupsV2UpdateMessageConverter {
   }
 
   @JvmStatic
-  fun translateMemberAdditions(change: DecryptedGroupChange, editorUnknown: Boolean, updates: MutableList<GroupChangeChatUpdate.Update>) {
+  fun translateMemberAdditions(change: DecryptedGroupChange, editorUnknown: Boolean, editorServiceId: ServiceId?, updates: MutableList<GroupChangeChatUpdate.Update>) {
     for (member in change.newMembers) {
       if (!editorUnknown && member.aciBytes == change.editorServiceIdBytes) {
         updates.add(
@@ -172,7 +172,7 @@ object GroupsV2UpdateMessageConverter {
         updates.add(
           GroupChangeChatUpdate.Update(
             groupMemberAddedUpdate = GroupMemberAddedUpdate(
-              updaterAci = if (editorUnknown) null else change.editorServiceIdBytes,
+              updaterAci = if (editorUnknown || editorServiceId is ServiceId.PNI) null else change.editorServiceIdBytes,
               newMemberAci = member.aciBytes,
               hadOpenInvitation = false
             )
@@ -253,10 +253,13 @@ object GroupsV2UpdateMessageConverter {
           )
         )
       } else {
+        val serviceId = ServiceId.parseOrNull(invitee.serviceIdBytes)
         revokedInvitees.add(
-          GroupInvitationRevokedUpdate.Invitee(
-            inviteeAci = invitee.serviceIdBytes
-          )
+          when (serviceId) {
+            is ServiceId.ACI -> GroupInvitationRevokedUpdate.Invitee(inviteeAci = serviceId.toByteString())
+            is ServiceId.PNI -> GroupInvitationRevokedUpdate.Invitee(inviteePni = serviceId.toByteStringWithoutPrefix())
+            else -> throw IllegalStateException()
+          }
         )
       }
     }
@@ -384,7 +387,7 @@ object GroupsV2UpdateMessageConverter {
       updates.add(
         GroupChangeChatUpdate.Update(
           groupExpirationTimerUpdate = GroupExpirationTimerUpdate(
-            expiresInMs = (change.newTimer!!.duration * 1000L).toUInt().toInt(),
+            expiresInMs = (change.newTimer!!.duration * 1000L).toUInt().toLong(),
             updaterAci = if (editorUnknown) null else change.editorServiceIdBytes
           )
         )
@@ -465,6 +468,7 @@ object GroupsV2UpdateMessageConverter {
           }
         )
       }
+
       AccessRequired.ADMINISTRATOR -> {
         groupLinkEnabled = true
         updates.add(
@@ -485,6 +489,7 @@ object GroupsV2UpdateMessageConverter {
           }
         )
       }
+
       AccessRequired.UNSATISFIABLE -> {
         updates.add(
           GroupChangeChatUpdate.Update(
@@ -494,6 +499,7 @@ object GroupsV2UpdateMessageConverter {
           )
         )
       }
+
       else -> {}
     }
     if (!groupLinkEnabled && change.newInviteLinkPassword.size > 0) {

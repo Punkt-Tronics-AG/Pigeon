@@ -58,12 +58,11 @@
 
     <fragment
         android:id="@+id/countryPickerFragment"
-        android:name="org.thoughtcrime.securesms.registration.fragments.CountryPickerFragment"
+        android:name="org.thoughtcrime.securesms.components.settings.app.changenumber.ChangeNumberCountryPickerFragment"
         tools:layout="@layout/fragment_registration_country_picker">
 
         <argument
             android:name="result_key"
-            android:defaultValue="@null"
             app:argType="string"
             app:nullable="true" />
     </fragment>
@@ -74,7 +73,6 @@
         tools:layout="@layout/fragment_change_phone_number_verify">
 
         <argument android:name="sms_listener_enabled"
-            android:defaultValue="false"
             app:argType="boolean" />
 
         <action
@@ -97,12 +95,12 @@
 
     <fragment
         android:id="@+id/captchaFragment"
-        android:name="org.thoughtcrime.securesms.registration.fragments.CaptchaFragment"
+        android:name="org.thoughtcrime.securesms.components.settings.app.changenumber.ChangeNumberCaptchaFragment"
         tools:layout="@layout/fragment_registration_captcha" />
 
     <fragment
         android:id="@+id/changeNumberEnterCodeFragment"
-        android:name="org.thoughtcrime.securesms.components.settings.app.changenumber.ChangeNumberEnterSmsCodeFragment"
+        android:name="org.thoughtcrime.securesms.components.settings.app.changenumber.ChangeNumberEnterCodeFragment"
         tools:layout="@layout/fragment_change_number_enter_code">
 
         <action
@@ -171,14 +169,5 @@
         android:id="@+id/changeNumberPinDiffers"
         android:name="org.thoughtcrime.securesms.components.settings.app.changenumber.ChangeNumberPinDiffersFragment"
         tools:layout="@layout/fragment_change_number_pin_differs" />
-
-    <action
-        android:id="@+id/action_pop_app_settings_change_number"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit"
-        app:popUpTo="@id/changePhoneNumberFragment"
-        app:popUpToInclusive="true" />
 
 </navigation>

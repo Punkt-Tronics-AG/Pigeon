@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.profiles.manage;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,9 +52,9 @@ public class EditProfileNameFragment extends Fragment {
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    this.givenName  = view.findViewById(R.id.edit_profile_name_given_name);
-    this.familyName = view.findViewById(R.id.edit_profile_name_family_name);
-    this.saveButton = view.findViewById(R.id.edit_profile_name_save);
+    this.givenName         = view.findViewById(R.id.edit_profile_name_given_name);
+    this.familyName        = view.findViewById(R.id.edit_profile_name_family_name);
+    this.saveButton        = view.findViewById(R.id.edit_profile_name_save);
     this.managePhoneNumber = view.findViewById(R.id.manage_phone_number);
 
     if (BuildExtensionsKt.isPigeonVersion()) {
@@ -159,7 +160,7 @@ public class EditProfileNameFragment extends Fragment {
     text.setFocusable(enabled);
     if (isSignalVersion()) {
       if (enabled) {
-        text.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME);
+        text.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
       } else {
         text.clearFocus();
         text.setInputType(EditorInfo.TYPE_NULL);

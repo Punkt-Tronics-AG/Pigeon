@@ -36,10 +36,10 @@ class ApkUpdatePackageInstallerReceiver : BroadcastReceiver() {
 
     when (statusCode) {
       PackageInstaller.STATUS_SUCCESS -> {
-        if (SignalStore.apkUpdate().lastApkUploadTime != SignalStore.apkUpdate().pendingApkUploadTime) {
-          Log.i(TAG, "Update installed successfully! Updating our lastApkUploadTime to ${SignalStore.apkUpdate().pendingApkUploadTime}")
-          SignalStore.apkUpdate().lastApkUploadTime = SignalStore.apkUpdate().pendingApkUploadTime
-          ApkUpdateNotifications.showAutoUpdateSuccess(context)
+        if (SignalStore.apkUpdate.lastApkUploadTime != SignalStore.apkUpdate.pendingApkUploadTime) {
+          Log.i(TAG, "Update installed successfully! Updating our lastApkUploadTime to ${SignalStore.apkUpdate.pendingApkUploadTime}")
+          SignalStore.apkUpdate.lastApkUploadTime = SignalStore.apkUpdate.pendingApkUploadTime
+          ApkUpdateNotifications.showUpdateSuccess(context, userInitiated)
         } else {
           Log.i(TAG, "Spurious 'success' notification?")
         }

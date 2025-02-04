@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 
@@ -57,19 +58,7 @@ public class DonationsService {
     }
   }
 
-  public DonationsService(
-      SignalServiceConfiguration configuration,
-      CredentialsProvider credentialsProvider,
-      String signalAgent,
-      GroupsV2Operations groupsV2Operations,
-      boolean automaticNetworkRetry
-  )
-  {
-    this(new PushServiceSocket(configuration, credentialsProvider, signalAgent, groupsV2Operations.getProfileOperations(), automaticNetworkRetry));
-  }
-
-  // Visible for testing.
-  DonationsService(@NonNull PushServiceSocket pushServiceSocket) {
+  public DonationsService(@NonNull PushServiceSocket pushServiceSocket) {
     this.pushServiceSocket = pushServiceSocket;
   }
 
@@ -80,9 +69,23 @@ public class DonationsService {
    * @param visible                       Whether the badge will be visible on the user's profile immediately after redemption
    * @param primary                       Whether the badge will be made primary immediately after redemption
    */
-  public ServiceResponse<EmptyResponse> redeemReceipt(ReceiptCredentialPresentation receiptCredentialPresentation, boolean visible, boolean primary) {
+  public ServiceResponse<EmptyResponse> redeemDonationReceipt(ReceiptCredentialPresentation receiptCredentialPresentation, boolean visible, boolean primary) {
     try {
       pushServiceSocket.redeemDonationReceipt(receiptCredentialPresentation, visible, primary);
+      return ServiceResponse.forResult(EmptyResponse.INSTANCE, 200, null);
+    } catch (Exception e) {
+      return ServiceResponse.<EmptyResponse>forUnknownError(e);
+    }
+  }
+
+  /**
+   * Allows a user to redeem a given receipt they were given after submitting a donation successfully.
+   *
+   * @param receiptCredentialPresentation Receipt
+   */
+  public ServiceResponse<EmptyResponse> redeemArchivesReceipt(ReceiptCredentialPresentation receiptCredentialPresentation) {
+    try {
+      pushServiceSocket.redeemArchivesReceipt(receiptCredentialPresentation);
       return ServiceResponse.forResult(EmptyResponse.INSTANCE, 200, null);
     } catch (Exception e) {
       return ServiceResponse.<EmptyResponse>forUnknownError(e);
@@ -165,19 +168,37 @@ public class DonationsService {
    * @param level          The new level to subscribe to
    * @param currencyCode   The currencyCode the user is using for payment
    * @param idempotencyKey url-safe-base64-encoded random 16-byte value (see description)
-   * @param mutex          A mutex to lock on to avoid a situation where this subscription update happens *as* we are trying to get a credential receipt.
+   * @param lock           A lock to lock on to avoid a situation where this subscription update happens *as* we are trying to get a credential receipt.
    */
   public ServiceResponse<EmptyResponse> updateSubscriptionLevel(SubscriberId subscriberId,
                                                                 String level,
                                                                 String currencyCode,
                                                                 String idempotencyKey,
-                                                                Object mutex
+                                                                Lock lock
   )
   {
     return wrapInServiceResponse(() -> {
-      synchronized (mutex) {
+      lock.lock();
+
+      try {
         pushServiceSocket.updateSubscriptionLevel(subscriberId.serialize(), level, currencyCode, idempotencyKey);
+      } finally {
+        lock.unlock();
       }
+
+      return new Pair<>(EmptyResponse.INSTANCE, 200);
+    });
+  }
+
+  public ServiceResponse<EmptyResponse> linkGooglePlayBillingPurchaseTokenToSubscriberId(SubscriberId subscriberId, String purchaseToken, Lock lock) {
+    return wrapInServiceResponse(() -> {
+      lock.lock();
+      try {
+        pushServiceSocket.linkPlayBillingPurchaseToken(subscriberId.serialize(), purchaseToken);
+      } finally {
+        lock.unlock();
+      }
+
       return new Pair<>(EmptyResponse.INSTANCE, 200);
     });
   }
@@ -367,7 +388,7 @@ public class DonationsService {
       return ServiceResponse.forResult(responseAndCode.first(), responseAndCode.second(), null);
     } catch (NonSuccessfulResponseCodeException e) {
       Log.w(TAG, "Bad response code from server.", e);
-      return ServiceResponse.forApplicationError(e, e.getCode(), e.getMessage());
+      return ServiceResponse.forApplicationError(e, e.code, e.getMessage());
     } catch (IOException e) {
       Log.w(TAG, "An unknown error occurred.", e);
       return ServiceResponse.forUnknownError(e);

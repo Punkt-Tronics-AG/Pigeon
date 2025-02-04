@@ -38,8 +38,8 @@ class ExpireTimerSettingsRepository(val context: Context) {
           consumer.invoke(Result.failure(e))
         }
       } else {
-        SignalDatabase.recipients.setExpireMessages(recipientId, newExpirationTime)
-        val outgoingMessage = OutgoingMessage.expirationUpdateMessage(Recipient.resolved(recipientId), System.currentTimeMillis(), newExpirationTime * 1000L)
+        val expireTimerVersion = SignalDatabase.recipients.setExpireMessagesAndIncrementVersion(recipientId, newExpirationTime)
+        val outgoingMessage = OutgoingMessage.expirationUpdateMessage(Recipient.resolved(recipientId), System.currentTimeMillis(), newExpirationTime * 1000L, expireTimerVersion)
         MessageSender.send(context, outgoingMessage, getThreadId(recipientId), MessageSender.SendType.SIGNAL, null, null)
         consumer.invoke(Result.success(newExpirationTime))
       }
@@ -48,7 +48,7 @@ class ExpireTimerSettingsRepository(val context: Context) {
 
   fun setUniversalExpireTimerSeconds(newExpirationTime: Int, onDone: () -> Unit) {
     SignalExecutors.BOUNDED.execute {
-      SignalStore.settings().universalExpireTimer = newExpirationTime
+      SignalStore.settings.universalExpireTimer = newExpirationTime
       SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
       StorageSyncHelper.scheduleSyncForDataChange()
       onDone.invoke()

@@ -8,17 +8,15 @@ package org.thoughtcrime.securesms.jobs
 import okio.ByteString.Companion.toByteString
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
 import org.thoughtcrime.securesms.jobs.protos.CallLinkUpdateSendJobData
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException
 import org.whispersystems.signalservice.internal.push.SyncMessage.CallLinkUpdate
-import java.util.Optional
 import java.util.concurrent.TimeUnit
 
 /**
@@ -54,7 +52,6 @@ class CallLinkUpdateSendJob private constructor(
     .type(
       when (callLinkUpdateType) {
         CallLinkUpdate.Type.UPDATE -> CallLinkUpdateSendJobData.Type.UPDATE
-        CallLinkUpdate.Type.DELETE -> CallLinkUpdateSendJobData.Type.DELETE
       }
     )
     .build()
@@ -65,11 +62,6 @@ class CallLinkUpdateSendJob private constructor(
   override fun onFailure() = Unit
 
   override fun onRun() {
-    if (!FeatureFlags.adHocCalling()) {
-      Log.i(TAG, "Call links are not enabled. Exiting.")
-      return
-    }
-
     val callLink = SignalDatabase.callLinks.getCallLinkByRoomId(callLinkRoomId)
     if (callLink?.credentials == null) {
       Log.i(TAG, "Call link not found or missing credentials. Exiting.")
@@ -82,12 +74,8 @@ class CallLinkUpdateSendJob private constructor(
       type = callLinkUpdateType
     )
 
-    ApplicationDependencies.getSignalServiceMessageSender()
-      .sendSyncMessage(SignalServiceSyncMessage.forCallLinkUpdate(callLinkUpdate), Optional.empty())
-
-    if (callLinkUpdateType == CallLinkUpdate.Type.DELETE) {
-      SignalDatabase.callLinks.deleteCallLink(callLinkRoomId)
-    }
+    AppDependencies.signalServiceMessageSender
+      .sendSyncMessage(SignalServiceSyncMessage.forCallLinkUpdate(callLinkUpdate))
   }
 
   override fun onShouldRetry(e: Exception): Boolean {
@@ -103,7 +91,6 @@ class CallLinkUpdateSendJob private constructor(
       val jobData = CallLinkUpdateSendJobData.ADAPTER.decode(serializedData!!)
       val type: CallLinkUpdate.Type = when (jobData.type) {
         CallLinkUpdateSendJobData.Type.UPDATE, null -> CallLinkUpdate.Type.UPDATE
-        CallLinkUpdateSendJobData.Type.DELETE -> CallLinkUpdate.Type.DELETE
       }
 
       return CallLinkUpdateSendJob(

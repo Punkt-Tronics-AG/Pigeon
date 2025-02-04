@@ -1,13 +1,14 @@
 package org.thoughtcrime.securesms.emoji
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import org.thoughtcrime.securesms.components.emoji.Emoji
 import org.thoughtcrime.securesms.components.emoji.EmojiPageModel
 import org.thoughtcrime.securesms.components.emoji.StaticEmojiPageModel
 import org.thoughtcrime.securesms.components.emoji.parsing.EmojiDrawInfo
 import org.thoughtcrime.securesms.components.emoji.parsing.EmojiTree
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.ScreenDensity
 import java.io.InputStream
@@ -103,11 +104,11 @@ class EmojiSource(
     }
 
     private fun loadRemoteBasedEmojis(): EmojiSource? {
-      if (SignalStore.internalValues().forceBuiltInEmoji()) {
+      if (SignalStore.internal.forceBuiltInEmoji) {
         return null
       }
 
-      val context = ApplicationDependencies.getApplication()
+      val context = AppDependencies.application
       val version = EmojiFiles.Version.readVersion(context) ?: return null
       val emojiData = EmojiFiles.getLatestEmojiData(context, version)?.let {
         it.copy(
@@ -122,8 +123,9 @@ class EmojiSource(
       }
     }
 
-    private fun loadAssetBasedEmojis(): EmojiSource {
-      val emojiData: InputStream = ApplicationDependencies.getApplication().assets.open("emoji/emoji_data.json")
+    @VisibleForTesting
+    fun loadAssetBasedEmojis(): EmojiSource {
+      val emojiData: InputStream = AppDependencies.application.assets.open("emoji/emoji_data.json")
 
       emojiData.use {
         val parsedData: ParsedEmojiData = EmojiJsonParser.parse(it, ::getAssetsUri).getOrThrow()

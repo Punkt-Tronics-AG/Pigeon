@@ -55,6 +55,7 @@ object AttachmentUploadUtil {
       .withResumableUploadSpec(ResumableUploadSpec.from(uploadSpec))
       .withCancelationSignal(cancellationSignal)
       .withListener(progressListener)
+      .withUuid(attachment.uuid)
 
     if (MediaUtil.isImageType(attachment.contentType)) {
       builder.withBlurHash(getImageBlurHash(context, attachment))
@@ -68,7 +69,7 @@ object AttachmentUploadUtil {
   @Throws(IOException::class)
   private fun getImageBlurHash(context: Context, attachment: Attachment): String? {
     if (attachment.blurHash != null) {
-      return attachment.blurHash!!.hash
+      return attachment.blurHash.hash
     }
 
     if (attachment.uri == null) {

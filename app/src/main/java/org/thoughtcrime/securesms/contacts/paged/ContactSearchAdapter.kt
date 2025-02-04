@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
@@ -14,8 +15,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import org.signal.core.util.BreakIteratorCompat
-import org.signal.core.util.dp
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.avatar.fallback.FallbackAvatar
 import org.thoughtcrime.securesms.avatar.view.AvatarView
 import org.thoughtcrime.securesms.badges.BadgeImageView
 import org.thoughtcrime.securesms.components.AvatarImageView
@@ -25,8 +26,6 @@ import org.thoughtcrime.securesms.components.emoji.EmojiUtil
 import org.thoughtcrime.securesms.components.menu.ActionItem
 import org.thoughtcrime.securesms.components.menu.SignalContextMenu
 import org.thoughtcrime.securesms.contacts.LetterHeaderDecoration
-import org.thoughtcrime.securesms.contacts.avatars.FallbackContactPhoto
-import org.thoughtcrime.securesms.contacts.avatars.GeneratedContactPhoto
 import org.thoughtcrime.securesms.database.model.DistributionListPrivacyMode
 import org.thoughtcrime.securesms.database.model.StoryViewState
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -62,6 +61,7 @@ open class ContactSearchAdapter(
     registerKnownRecipientItems(this, fixedContacts, displayOptions, onClickCallbacks::onKnownRecipientClicked, longClickCallbacks::onKnownRecipientLongClick, callButtonClickCallbacks)
     registerHeaders(this)
     registerExpands(this, onClickCallbacks::onExpandClicked)
+    registerChatTypeItems(this, onClickCallbacks::onChatTypeClicked)
     registerFactory(UnknownRecipientModel::class.java, LayoutFactory({ UnknownRecipientViewHolder(it, onClickCallbacks::onUnknownRecipientClicked, displayOptions.displayCheckBox) }, R.layout.contact_search_unknown_item))
   }
 
@@ -122,11 +122,18 @@ open class ContactSearchAdapter(
       )
     }
 
+    fun registerChatTypeItems(mappingAdapter: MappingAdapter, chatTypeRowListener: OnClickedCallback<ContactSearchData.ChatTypeRow>) {
+      mappingAdapter.registerFactory(
+        ChatTypeModel::class.java,
+        LayoutFactory({ ChatTypeViewHolder(it, chatTypeRowListener) }, R.layout.contact_search_chat_type_item)
+      )
+    }
+
     fun toMappingModelList(contactSearchData: List<ContactSearchData?>, selection: Set<ContactSearchKey>, arbitraryRepository: ArbitraryRepository?): MappingModelList {
       return MappingModelList(
         contactSearchData.filterNotNull().map {
           when (it) {
-            is ContactSearchData.Story -> StoryModel(it, selection.contains(it.contactSearchKey), SignalStore.storyValues().userHasBeenNotifiedAboutStories)
+            is ContactSearchData.Story -> StoryModel(it, selection.contains(it.contactSearchKey), SignalStore.story.userHasBeenNotifiedAboutStories)
             is ContactSearchData.KnownRecipient -> RecipientModel(it, selection.contains(it.contactSearchKey), it.shortSummary)
             is ContactSearchData.Expand -> ExpandModel(it)
             is ContactSearchData.Header -> HeaderModel(it)
@@ -137,6 +144,7 @@ open class ContactSearchAdapter(
             is ContactSearchData.Empty -> EmptyModel(it)
             is ContactSearchData.GroupWithMembers -> GroupWithMembersModel(it)
             is ContactSearchData.UnknownRecipient -> UnknownRecipientModel(it)
+            is ContactSearchData.ChatTypeRow -> ChatTypeModel(it, selection.contains(it.contactSearchKey))
           }
         }
       )
@@ -249,10 +257,10 @@ open class ContactSearchAdapter(
 
     fun bindAvatar(model: StoryModel) {
       if (model.story.recipient.isMyStory) {
-        avatar.setFallbackPhotoProvider(MyStoryFallbackPhotoProvider(Recipient.self().getDisplayName(context), 40.dp))
+        avatar.setFallbackAvatarProvider(MyStoryFallbackAvatarProvider)
         avatar.displayProfileAvatar(Recipient.self())
       } else {
-        avatar.setFallbackPhotoProvider(Recipient.DEFAULT_FALLBACK_PHOTO_PROVIDER)
+        avatar.setFallbackAvatarProvider(null)
         avatar.displayChatAvatar(getRecipient(model))
       }
       groupStoryIndicator.visible = showStoryRing && model.story.recipient.isGroup
@@ -314,9 +322,14 @@ open class ContactSearchAdapter(
       }
     }
 
-    private class MyStoryFallbackPhotoProvider(private val name: String, private val targetSize: Int) : Recipient.FallbackPhotoProvider() {
-      override val photoForLocalNumber: FallbackContactPhoto
-        get() = GeneratedContactPhoto(name, R.drawable.symbol_person_40, targetSize)
+    private object MyStoryFallbackAvatarProvider : AvatarImageView.FallbackAvatarProvider {
+      override fun getFallbackAvatar(recipient: Recipient): FallbackAvatar {
+        if (recipient.isSelf) {
+          return FallbackAvatar.Resource.Person(recipient.avatarColor)
+        }
+
+        return super.getFallbackAvatar(recipient)
+      }
     }
 
     override fun onAttachedToWindow() {
@@ -513,7 +526,6 @@ open class ContactSearchAdapter(
     protected val name: FromTextView = itemView.findViewById(R.id.name)
     protected val number: TextView = itemView.findViewById(R.id.number)
     protected val label: TextView = itemView.findViewById(R.id.label)
-    protected val smsTag: View = itemView.findViewById(R.id.sms_tag)
     private val startAudio: View = itemView.findViewById(R.id.start_audio)
     private val startVideo: View = itemView.findViewById(R.id.start_video)
 
@@ -550,7 +562,6 @@ open class ContactSearchAdapter(
       bindAvatar(model)
       bindNumberField(model)
       bindLabelField(model)
-      bindSmsTagField(model)
       bindCallButtons(model)
     }
 
@@ -585,14 +596,6 @@ open class ContactSearchAdapter(
       label.visible = false
     }
 
-    protected open fun bindSmsTagField(model: T) {
-      smsTag.visible = when (displayOptions.displaySmsTag) {
-        DisplaySmsTag.DEFAULT -> isSmsContact(model)
-        DisplaySmsTag.IF_NOT_REGISTERED -> isNotRegistered(model)
-        DisplaySmsTag.NEVER -> false
-      }
-    }
-
     protected open fun bindLongPress(model: T) = Unit
 
     private fun bindCallButtons(model: T) {
@@ -612,14 +615,6 @@ open class ContactSearchAdapter(
         startVideo.visible = false
         startAudio.visible = false
       }
-    }
-
-    private fun isSmsContact(model: T): Boolean {
-      return getRecipient(model).isUnregistered && !getRecipient(model).isDistributionList
-    }
-
-    private fun isNotRegistered(model: T): Boolean {
-      return getRecipient(model).isUnregistered && !getRecipient(model).isDistributionList
     }
 
     abstract fun isSelected(model: T): Boolean
@@ -697,6 +692,7 @@ open class ContactSearchAdapter(
           ContactSearchConfiguration.SectionKey.MESSAGES -> R.string.ContactsCursorLoader__messages
           ContactSearchConfiguration.SectionKey.GROUPS_WITH_MEMBERS -> R.string.ContactsCursorLoader_group_members
           ContactSearchConfiguration.SectionKey.CONTACTS_WITHOUT_THREADS -> R.string.ContactsCursorLoader_contacts
+          ContactSearchConfiguration.SectionKey.CHAT_TYPES -> R.string.ContactsCursorLoader__chat_types
           else -> error("This section does not support HEADER")
         }
       )
@@ -734,12 +730,54 @@ open class ContactSearchAdapter(
     }
   }
 
+  /**
+   * Mapping Model for chat types.
+   */
+  class ChatTypeModel(val data: ContactSearchData.ChatTypeRow, val isSelected: Boolean) : MappingModel<ChatTypeModel> {
+    override fun areItemsTheSame(newItem: ChatTypeModel): Boolean = data == newItem.data
+    override fun areContentsTheSame(newItem: ChatTypeModel): Boolean = data == newItem.data && isSelected == newItem.isSelected
+  }
+
+  /**
+   * View Holder for chat types
+   */
+  private class ChatTypeViewHolder(
+    itemView: View,
+    val onClick: OnClickedCallback<ContactSearchData.ChatTypeRow>
+  ) : MappingViewHolder<ChatTypeModel>(itemView) {
+
+    val image: ImageView = itemView.findViewById(R.id.image)
+    val name: TextView = itemView.findViewById(R.id.name)
+    val checkbox: CheckBox = itemView.findViewById(R.id.check_box)
+
+    override fun bind(model: ChatTypeModel) {
+      itemView.setOnClickListener { onClick.onClicked(itemView, model.data, model.isSelected) }
+
+      image.setImageResource(model.data.imageResId)
+
+      if (model.data.chatType == ChatType.INDIVIDUAL) {
+        name.text = context.getString(R.string.ChatFoldersFragment__one_on_one_chats)
+      }
+      if (model.data.chatType == ChatType.GROUPS) {
+        name.text = context.getString(R.string.ChatFoldersFragment__groups)
+      }
+
+      checkbox.isChecked = model.isSelected
+    }
+  }
+
   private class IsSelfComparator : Comparator<Recipient> {
     override fun compare(lhs: Recipient?, rhs: Recipient?): Int {
       val isLeftSelf = lhs?.isSelf == true
       val isRightSelf = rhs?.isSelf == true
 
-      return if (isLeftSelf == isRightSelf) 0 else if (isLeftSelf) 1 else -1
+      return if (isLeftSelf == isRightSelf) {
+        0
+      } else if (isLeftSelf) {
+        1
+      } else {
+        -1
+      }
     }
   }
 
@@ -747,12 +785,6 @@ open class ContactSearchAdapter(
     fun onOpenStorySettings(story: ContactSearchData.Story)
     fun onRemoveGroupStory(story: ContactSearchData.Story, isSelected: Boolean)
     fun onDeletePrivateStory(story: ContactSearchData.Story, isSelected: Boolean)
-  }
-
-  enum class DisplaySmsTag {
-    DEFAULT,
-    IF_NOT_REGISTERED,
-    NEVER
   }
 
   /**
@@ -766,7 +798,6 @@ open class ContactSearchAdapter(
 
   data class DisplayOptions(
     val displayCheckBox: Boolean = false,
-    val displaySmsTag: DisplaySmsTag = DisplaySmsTag.NEVER,
     val displaySecondaryInformation: DisplaySecondaryInformation = DisplaySecondaryInformation.NEVER,
     val displayCallButtons: Boolean = false,
     val displayStoryRing: Boolean = false
@@ -787,6 +818,7 @@ open class ContactSearchAdapter(
     fun onUnknownRecipientClicked(view: View, unknownRecipient: ContactSearchData.UnknownRecipient, isSelected: Boolean) {
       throw NotImplementedError()
     }
+    fun onChatTypeClicked(view: View, chatTypeRow: ContactSearchData.ChatTypeRow, isSelected: Boolean)
   }
 
   interface CallButtonClickCallbacks {

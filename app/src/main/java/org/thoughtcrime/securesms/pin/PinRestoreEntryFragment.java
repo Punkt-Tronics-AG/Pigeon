@@ -24,22 +24,23 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.LoggingFragment;
 import org.thoughtcrime.securesms.MainActivity;
+import org.thoughtcrime.securesms.PassphraseRequiredActivity;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.backup.v2.ui.subscription.MessageBackupsTestRestoreActivity;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobs.ProfileUploadJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.lock.v2.SvrConstants;
 import org.thoughtcrime.securesms.lock.v2.PinKeyboardType;
+import org.thoughtcrime.securesms.lock.v2.SvrConstants;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.registration.RegistrationUtil;
+import org.thoughtcrime.securesms.registration.util.RegistrationUtil;
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate;
+import org.thoughtcrime.securesms.restore.RestoreActivity;
 import org.thoughtcrime.securesms.util.CommunicationActions;
+import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.thoughtcrime.securesms.util.SupportEmailUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
@@ -250,8 +251,10 @@ public class PinRestoreEntryFragment extends LoggingFragment {
 
     Activity activity = requireActivity();
 
-    if (BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED && isSignalVersion()) {
-      startActivity(MessageBackupsTestRestoreActivity.Companion.getIntent(activity));
+    if (RemoteConfig.messageBackups() && !SignalStore.registration().hasCompletedRestore()) {
+      final Intent transferOrRestore = RestoreActivity.getRestoreIntent(activity);
+      transferOrRestore.putExtra(PassphraseRequiredActivity.NEXT_INTENT_EXTRA, MainActivity.clearTop(requireContext()));
+      startActivity(transferOrRestore);
     } else if (Recipient.self().getProfileName().isEmpty() || !AvatarHelper.hasAvatar(activity, Recipient.self().getId())) {
       final Intent main    = MainActivity.clearTop(activity);
       final Intent profile = CreateProfileActivity.getIntentForUserProfile(activity);
@@ -260,7 +263,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
       startActivity(profile);
     } else {
       RegistrationUtil.maybeMarkRegistrationComplete();
-      ApplicationDependencies.getJobManager().add(new ProfileUploadJob());
+      AppDependencies.getJobManager().add(new ProfileUploadJob());
       startActivity(MainActivity.clearTop(activity));
     }
 

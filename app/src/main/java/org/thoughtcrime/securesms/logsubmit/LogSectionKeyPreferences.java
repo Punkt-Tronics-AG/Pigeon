@@ -19,9 +19,9 @@ final class LogSectionKeyPreferences implements LogSection {
 
   @Override
   public @NonNull CharSequence getContent(@NonNull Context context) {
-    return new StringBuilder().append("Screen Lock              : ").append(TextSecurePreferences.isScreenLockEnabled(context)).append("\n")
-                              .append("Screen Lock Timeout      : ").append(TextSecurePreferences.getScreenLockTimeout(context)).append("\n")
-                              .append("Password Disabled        : ").append(TextSecurePreferences.isPasswordDisabled(context)).append("\n")
+    return new StringBuilder().append("Screen Lock              : ").append(SignalStore.settings().getScreenLockEnabled()).append("\n")
+                              .append("Screen Lock Timeout      : ").append(SignalStore.settings().getScreenLockTimeout()).append("\n")
+                              .append("Password Disabled        : ").append(SignalStore.settings().getPassphraseDisabled()).append("\n")
                               .append("Prefer Contact Photos    : ").append(SignalStore.settings().isPreferSystemContactPhotos()).append("\n")
                               .append("Call Data Mode           : ").append(SignalStore.settings().getCallDataMode()).append("\n")
                               .append("Media Quality            : ").append(SignalStore.settings().getSentMediaQuality()).append("\n")
@@ -36,7 +36,8 @@ final class LogSectionKeyPreferences implements LogSection {
                               .append("Roaming Download         : ").append(Util.join(TextSecurePreferences.getRoamingMediaDownloadAllowed(context), ",")).append("\n")
                               .append("Mobile Download          : ").append(Util.join(TextSecurePreferences.getMobileMediaDownloadAllowed(context), ",")).append("\n")
                               .append("Phone Number Sharing     : ").append(SignalStore.phoneNumberPrivacy().isPhoneNumberSharingEnabled()).append(" (").append(SignalStore.phoneNumberPrivacy().getPhoneNumberSharingMode()).append(")\n")
-                              .append("Phone Number Discoverable: ").append(SignalStore.phoneNumberPrivacy().getPhoneNumberDiscoverabilityMode()).append("\n");
+                              .append("Phone Number Discoverable: ").append(SignalStore.phoneNumberPrivacy().getPhoneNumberDiscoverabilityMode()).append("\n")
+                              .append("Incognito keyboard       : ").append(TextSecurePreferences.isIncognitoKeyboardEnabled(context)).append("\n");
   }
 
   private static String getThreadTrimmingString() {

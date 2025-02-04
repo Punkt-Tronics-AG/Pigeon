@@ -21,7 +21,9 @@ import com.annimon.stream.Stream;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.database.AttachmentTable;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.signal.core.util.SqlUtil;
@@ -55,7 +57,7 @@ public class MediaRepository {
    * Retrieves a list of folders that contain media.
    */
   public void getFolders(@NonNull Context context, @NonNull Callback<List<MediaFolder>> callback) {
-    if (!StorageUtil.canReadFromMediaStore()) {
+    if (!StorageUtil.canReadAnyFromMediaStore()) {
       Log.w(TAG, "No storage permissions!", new Throwable());
       callback.onComplete(Collections.emptyList());
       return;
@@ -69,12 +71,12 @@ public class MediaRepository {
    */
   public Single<List<Media>> getRecentMedia() {
     return Single.<List<Media>>fromCallable(() -> {
-                   if (!StorageUtil.canReadFromMediaStore()) {
+                   if (!StorageUtil.canReadAnyFromMediaStore()) {
                      Log.w(TAG, "No storage permissions!", new Throwable());
                      return Collections.emptyList();
                    }
 
-                   return getMediaInBucket(ApplicationDependencies.getApplication(), Media.ALL_MEDIA_BUCKET_ID);
+                   return getMediaInBucket(AppDependencies.getApplication(), Media.ALL_MEDIA_BUCKET_ID);
                  })
                  .onErrorReturn(t -> {
                    Log.w(TAG, "Unable to get recent media", t);
@@ -87,7 +89,7 @@ public class MediaRepository {
    * Retrieves a list of media items (images and videos) that are present int he specified bucket.
    */
   public void getMediaInBucket(@NonNull Context context, @NonNull String bucketId, @NonNull Callback<List<Media>> callback) {
-    if (!StorageUtil.canReadFromMediaStore()) {
+    if (!StorageUtil.canReadAnyFromMediaStore()) {
       Log.w(TAG, "No storage permissions!", new Throwable());
       callback.onComplete(Collections.emptyList());
       return;
@@ -106,7 +108,7 @@ public class MediaRepository {
       return;
     }
 
-    if (!StorageUtil.canReadFromMediaStore()) {
+    if (!StorageUtil.canReadAnyFromMediaStore()) {
       Log.w(TAG, "No storage permissions!", new Throwable());
       callback.onComplete(media);
       return;
@@ -117,7 +119,7 @@ public class MediaRepository {
   }
 
   void getMostRecentItem(@NonNull Context context, @NonNull Callback<Optional<Media>> callback) {
-    if (!StorageUtil.canReadFromMediaStore()) {
+    if (!StorageUtil.canReadAnyFromMediaStore()) {
       Log.w(TAG, "No storage permissions!", new Throwable());
       callback.onComplete(Optional.empty());
       return;
@@ -275,7 +277,7 @@ public class MediaRepository {
         long   size        = cursor.getLong(cursor.getColumnIndexOrThrow(Images.Media.SIZE));
         long   duration    = !isImage ? cursor.getInt(cursor.getColumnIndexOrThrow(Video.Media.DURATION)) : 0;
 
-        media.add(fixMimeType(context, new Media(uri, mimetype, date, width, height, size, duration, false, false, Optional.of(bucketId), Optional.empty(), Optional.empty())));
+        media.add(fixMimeType(context, new Media(uri, mimetype, date, width, height, size, duration, false, false, Optional.of(bucketId), Optional.empty(), Optional.of(AttachmentTable.TransformProperties.forSentMediaQuality(SignalStore.settings().getSentMediaQuality().getCode())), Optional.empty())));
       }
     }
 
@@ -361,12 +363,12 @@ public class MediaRepository {
     }
 
     if (width == 0 || height == 0) {
-      Pair<Integer, Integer> dimens = MediaUtil.getDimensions(context, media.getMimeType(), media.getUri());
+      Pair<Integer, Integer> dimens = MediaUtil.getDimensions(context, media.getContentType(), media.getUri());
       width  = dimens.first;
       height = dimens.second;
     }
 
-    return new Media(media.getUri(), media.getMimeType(), media.getDate(), width, height, size, 0, media.isBorderless(), media.isVideoGif(), media.getBucketId(), media.getCaption(), Optional.empty());
+    return new Media(media.getUri(), media.getContentType(), media.getDate(), width, height, size, 0, media.isBorderless(), media.isVideoGif(), media.getBucketId(), media.getCaption(), Optional.empty(), Optional.empty());
   }
 
   private Media getContentResolverPopulatedMedia(@NonNull Context context, @NonNull Media media) throws IOException {
@@ -387,20 +389,20 @@ public class MediaRepository {
     }
 
     if (width == 0 || height == 0) {
-      Pair<Integer, Integer> dimens = MediaUtil.getDimensions(context, media.getMimeType(), media.getUri());
+      Pair<Integer, Integer> dimens = MediaUtil.getDimensions(context, media.getContentType(), media.getUri());
       width  = dimens.first;
       height = dimens.second;
     }
 
-    return new Media(media.getUri(), media.getMimeType(), media.getDate(), width, height, size, 0, media.isBorderless(), media.isVideoGif(), media.getBucketId(), media.getCaption(), Optional.empty());
+    return new Media(media.getUri(), media.getContentType(), media.getDate(), width, height, size, 0, media.isBorderless(), media.isVideoGif(), media.getBucketId(), media.getCaption(), Optional.empty(), Optional.empty());
   }
 
   @VisibleForTesting
   public static @NonNull Media fixMimeType(@NonNull Context context, @NonNull Media media) {
-    if (MediaUtil.isOctetStream(media.getMimeType())) {
+    if (MediaUtil.isOctetStream(media.getContentType())) {
       Log.w(TAG, "Media has mimetype octet stream");
       String newMimeType = MediaUtil.getMimeType(context, media.getUri());
-      if (newMimeType != null && !newMimeType.equals(media.getMimeType())) {
+      if (newMimeType != null && !newMimeType.equals(media.getContentType())) {
         Log.d(TAG, "Changing mime type to '" + newMimeType + "'");
         return Media.withMimeType(media, newMimeType);
       } else if (media.getSize() > 0 && media.getWidth() > 0 && media.getHeight() > 0) {

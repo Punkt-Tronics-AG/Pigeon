@@ -8,10 +8,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.thoughtcrime.securesms.conversation.colors.AvatarColor
 import org.thoughtcrime.securesms.database.DatabaseObserver
-import org.thoughtcrime.securesms.database.NotificationProfileDatabase
+import org.thoughtcrime.securesms.database.NotificationProfileTables
 import org.thoughtcrime.securesms.database.RxDatabaseObserver
 import org.thoughtcrime.securesms.database.SignalDatabase
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.notifications.profiles.NotificationProfile
 import org.thoughtcrime.securesms.notifications.profiles.NotificationProfileSchedule
@@ -24,7 +24,7 @@ import org.thoughtcrime.securesms.util.toMillis
  * One stop shop for all your Notification Profile data needs.
  */
 class NotificationProfilesRepository {
-  private val database: NotificationProfileDatabase = SignalDatabase.notificationProfiles
+  private val database: NotificationProfileTables = SignalDatabase.notificationProfiles
 
   fun getProfiles(): Flowable<List<NotificationProfile>> {
     return RxDatabaseObserver
@@ -44,7 +44,7 @@ class NotificationProfilesRepository {
         }
       }
 
-      val databaseObserver: DatabaseObserver = ApplicationDependencies.getDatabaseObserver()
+      val databaseObserver: DatabaseObserver = AppDependencies.databaseObserver
       val profileObserver = DatabaseObserver.Observer { emitProfile() }
 
       databaseObserver.registerNotificationProfileObserver(profileObserver)
@@ -54,17 +54,17 @@ class NotificationProfilesRepository {
     }.subscribeOn(Schedulers.io())
   }
 
-  fun createProfile(name: String, selectedEmoji: String): Single<NotificationProfileDatabase.NotificationProfileChangeResult> {
+  fun createProfile(name: String, selectedEmoji: String): Single<NotificationProfileTables.NotificationProfileChangeResult> {
     return Single.fromCallable { database.createProfile(name = name, emoji = selectedEmoji, color = AvatarColor.random(), createdAt = System.currentTimeMillis()) }
       .subscribeOn(Schedulers.io())
   }
 
-  fun updateProfile(profileId: Long, name: String, selectedEmoji: String): Single<NotificationProfileDatabase.NotificationProfileChangeResult> {
+  fun updateProfile(profileId: Long, name: String, selectedEmoji: String): Single<NotificationProfileTables.NotificationProfileChangeResult> {
     return Single.fromCallable { database.updateProfile(profileId = profileId, name = name, emoji = selectedEmoji) }
       .subscribeOn(Schedulers.io())
   }
 
-  fun updateProfile(profile: NotificationProfile): Single<NotificationProfileDatabase.NotificationProfileChangeResult> {
+  fun updateProfile(profile: NotificationProfile): Single<NotificationProfileTables.NotificationProfileChangeResult> {
     return Single.fromCallable { database.updateProfile(profile) }
       .subscribeOn(Schedulers.io())
   }
@@ -99,7 +99,7 @@ class NotificationProfilesRepository {
       .take(1)
       .singleOrError()
       .flatMap { updateProfile(it.copy(allowAllMentions = !it.allowAllMentions)) }
-      .map { (it as NotificationProfileDatabase.NotificationProfileChangeResult.Success).notificationProfile }
+      .map { (it as NotificationProfileTables.NotificationProfileChangeResult.Success).notificationProfile }
   }
 
   fun toggleAllowAllCalls(profileId: Long): Single<NotificationProfile> {
@@ -107,7 +107,7 @@ class NotificationProfilesRepository {
       .take(1)
       .singleOrError()
       .flatMap { updateProfile(it.copy(allowAllCalls = !it.allowAllCalls)) }
-      .map { (it as NotificationProfileDatabase.NotificationProfileChangeResult.Success).notificationProfile }
+      .map { (it as NotificationProfileTables.NotificationProfileChangeResult.Success).notificationProfile }
   }
 
   fun manuallyToggleProfile(profile: NotificationProfile, now: Long = System.currentTimeMillis()): Completable {
@@ -120,40 +120,40 @@ class NotificationProfilesRepository {
       val activeProfile = NotificationProfiles.getActiveProfile(profiles, now)
 
       if (profileId == activeProfile?.id) {
-        SignalStore.notificationProfileValues().manuallyEnabledProfile = 0
-        SignalStore.notificationProfileValues().manuallyEnabledUntil = 0
-        SignalStore.notificationProfileValues().manuallyDisabledAt = now
-        SignalStore.notificationProfileValues().lastProfilePopup = 0
-        SignalStore.notificationProfileValues().lastProfilePopupTime = 0
+        SignalStore.notificationProfile.manuallyEnabledProfile = 0
+        SignalStore.notificationProfile.manuallyEnabledUntil = 0
+        SignalStore.notificationProfile.manuallyDisabledAt = now
+        SignalStore.notificationProfile.lastProfilePopup = 0
+        SignalStore.notificationProfile.lastProfilePopupTime = 0
       } else {
         val inScheduledWindow = schedule.isCurrentlyActive(now)
-        SignalStore.notificationProfileValues().manuallyEnabledProfile = profileId
-        SignalStore.notificationProfileValues().manuallyEnabledUntil = if (inScheduledWindow) schedule.endDateTime(now.toLocalDateTime()).toMillis() else Long.MAX_VALUE
-        SignalStore.notificationProfileValues().manuallyDisabledAt = now
+        SignalStore.notificationProfile.manuallyEnabledProfile = profileId
+        SignalStore.notificationProfile.manuallyEnabledUntil = if (inScheduledWindow) schedule.endDateTime(now.toLocalDateTime()).toMillis() else Long.MAX_VALUE
+        SignalStore.notificationProfile.manuallyDisabledAt = now
       }
     }
-      .doOnComplete { ApplicationDependencies.getDatabaseObserver().notifyNotificationProfileObservers() }
+      .doOnComplete { AppDependencies.databaseObserver.notifyNotificationProfileObservers() }
       .subscribeOn(Schedulers.io())
   }
 
   fun manuallyEnableProfileForDuration(profileId: Long, enableUntil: Long, now: Long = System.currentTimeMillis()): Completable {
     return Completable.fromAction {
-      SignalStore.notificationProfileValues().manuallyEnabledProfile = profileId
-      SignalStore.notificationProfileValues().manuallyEnabledUntil = enableUntil
-      SignalStore.notificationProfileValues().manuallyDisabledAt = now
+      SignalStore.notificationProfile.manuallyEnabledProfile = profileId
+      SignalStore.notificationProfile.manuallyEnabledUntil = enableUntil
+      SignalStore.notificationProfile.manuallyDisabledAt = now
     }
-      .doOnComplete { ApplicationDependencies.getDatabaseObserver().notifyNotificationProfileObservers() }
+      .doOnComplete { AppDependencies.databaseObserver.notifyNotificationProfileObservers() }
       .subscribeOn(Schedulers.io())
   }
 
   fun manuallyEnableProfileForSchedule(profileId: Long, schedule: NotificationProfileSchedule, now: Long = System.currentTimeMillis()): Completable {
     return Completable.fromAction {
       val inScheduledWindow = schedule.isCurrentlyActive(now)
-      SignalStore.notificationProfileValues().manuallyEnabledProfile = if (inScheduledWindow) profileId else 0
-      SignalStore.notificationProfileValues().manuallyEnabledUntil = if (inScheduledWindow) schedule.endDateTime(now.toLocalDateTime()).toMillis() else Long.MAX_VALUE
-      SignalStore.notificationProfileValues().manuallyDisabledAt = if (inScheduledWindow) now else 0
+      SignalStore.notificationProfile.manuallyEnabledProfile = if (inScheduledWindow) profileId else 0
+      SignalStore.notificationProfile.manuallyEnabledUntil = if (inScheduledWindow) schedule.endDateTime(now.toLocalDateTime()).toMillis() else Long.MAX_VALUE
+      SignalStore.notificationProfile.manuallyDisabledAt = if (inScheduledWindow) now else 0
     }
-      .doOnComplete { ApplicationDependencies.getDatabaseObserver().notifyNotificationProfileObservers() }
+      .doOnComplete { AppDependencies.databaseObserver.notifyNotificationProfileObservers() }
       .subscribeOn(Schedulers.io())
   }
 

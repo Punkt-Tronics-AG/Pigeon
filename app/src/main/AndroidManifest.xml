@@ -83,11 +83,22 @@
 
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
 
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        tools:ignore="ProtectedPermissions" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <!-- For services -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <!-- For vestigial telecom integration service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
 
     <application android:name=".ApplicationContext"
                  android:icon="@mipmap/ic_launcher"
@@ -121,6 +132,7 @@
     <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
     <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
     <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
+    <meta-data android:name="android.webkit.WebView.MetricsOptOut" android:value="true" />
 
         <activity android:name="pigeon.activity.WebRtcCallVolumeActivity"
             android:theme="@style/TextSecure.DarkTheme.WebRTCCall"/>
@@ -135,9 +147,21 @@
               android:taskAffinity=".calling"
               android:resizeableActivity="false"
               android:launchMode="singleTask"
-              android:exported="false"/>
+              android:exported="false" />
 
-    <activity android:name=".messagerequests.CalleeMustAcceptMessageRequestActivity"
+        <activity
+            android:name=".components.webrtc.v2.CallActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity=".calling"
+            android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity android:name=".messagerequests.CalleeMustAcceptMessageRequestActivity"
               android:theme="@style/TextSecure.DarkNoActionBar"
               android:noHistory="true"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
@@ -206,7 +230,8 @@
 
       <meta-data
           android:name="android.service.chooser.chooser_target_service"
-                android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
+          android:value="androidx.sharetarget.ChooserTargetServiceCompat"
+          tools:targetApi="23" />
 
     </activity>
 
@@ -561,7 +586,7 @@
               android:noHistory="true"
               android:theme="@style/Signal.Transparent">
 
-        <intent-filter android:autoVerify="true">
+        <intent-filter>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
@@ -582,7 +607,17 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" android:host="signaldonations.org" android:pathPrefix="/stripe/return/ideal"/>
+            <data android:scheme="https"/>
+            <data android:host="signaldonations.org"/>
+            <data android:pathPrefix="/stripe/return/ideal"/>
+        </intent-filter>
+
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sgnl"/>
+            <data android:host="ideal"/>
         </intent-filter>
 
         <intent-filter android:autoVerify="true">
@@ -620,7 +655,7 @@
     <activity android:name=".conversation.v2.ConversationActivity"
               android:windowSoftInputMode="stateUnchanged"
               android:launchMode="singleTask"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
               android:parentActivityName=".MainActivity"
               android:resizeableActivity="true"
               android:exported="false">
@@ -645,7 +680,7 @@
               android:exported="false"/>
 
     <activity android:name=".groups.ui.invitesandrequests.ManagePendingAndRequestingMembersActivity"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
               android:exported="false"/>
 
@@ -671,7 +706,7 @@
 
     <activity android:name=".PassphrasePromptActivity"
               android:launchMode="singleTask"
-              android:theme="@style/TextSecure.LightIntroTheme"
+              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 
@@ -759,13 +794,6 @@
         android:exported="false"/>
 
     <activity
-        android:name=".backup.v2.ui.subscription.MessageBackupsFlowActivity"
-        android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-        android:exported="false"
-        android:theme="@style/Signal.DayNight.NoActionBar"
-        android:windowSoftInputMode="adjustResize" />
-
-    <activity
         android:name=".stories.settings.StorySettingsActivity"
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
         android:theme="@style/Signal.DayNight.NoActionBar"
@@ -808,13 +836,6 @@
         android:exported="false"/>
 
     <activity
-        android:name=".badges.gifts.flow.GiftFlowActivity"
-        android:configChanges="touchscreen|keyboard|keyboardHidden|screenLayout|screenSize"
-        android:theme="@style/Signal.DayNight.NoActionBar"
-        android:windowSoftInputMode="stateAlwaysHidden"
-        android:exported="false"/>
-
-    <activity
         android:name=".wallpaper.ChatWallpaperActivity"
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
         android:windowSoftInputMode="stateAlwaysHidden"
@@ -840,19 +861,24 @@
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
         android:exported="false"/>
 
-    <activity android:name=".registration.RegistrationNavigationActivity"
+    <activity android:name=".registrationv3.olddevice.TransferAccountActivity"
+        android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+        android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+        android:exported="false"/>
+
+    <activity android:name=".registration.ui.RegistrationActivity"
               android:launchMode="singleTask"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
               android:windowSoftInputMode="stateHidden"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 
-    <activity android:name=".registration.v2.ui.RegistrationV2Activity"
-              android:launchMode="singleTask"
-              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:windowSoftInputMode="stateHidden"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-              android:exported="false"/>
+    <activity android:name=".registrationv3.ui.RegistrationActivity"
+        android:launchMode="singleTask"
+        android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+        android:windowSoftInputMode="stateHidden|adjustResize"
+        android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+        android:exported="false"/>
 
     <activity android:name=".restore.RestoreActivity"
               android:launchMode="singleTask"
@@ -992,8 +1018,8 @@
               android:windowSoftInputMode="stateVisible|adjustResize"
               android:exported="false"/>
 
-    <activity android:name=".backup.v2.ui.subscription.MessageBackupsTestRestoreActivity"
-              android:theme="@style/TextSecure.LightRegistrationTheme"
+    <activity android:name=".registrationv3.ui.restore.RemoteRestoreActivity"
+              android:theme="@style/Signal.DayNight.NoActionBar"
               android:exported="false"/>
 
     <activity android:name=".profiles.manage.EditProfileActivity"
@@ -1089,13 +1115,13 @@
 
     <activity android:name=".megaphone.ClientDeprecatedActivity"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:launchMode="singleTask"
               android:exported="false"/>
 
     <activity android:name=".ratelimit.RecaptchaProofActivity"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 
     <activity android:name=".wallpaper.crop.WallpaperImageSelectionActivity"
@@ -1109,7 +1135,7 @@
               android:theme="@style/Theme.Signal.WallpaperCropper"
               android:exported="false"/>
 
-    <activity android:name=".components.settings.app.usernamelinks.main.UsernameQrImageSelectionActivity"
+    <activity android:name=".components.settings.app.usernamelinks.main.QrImageSelectionActivity"
         android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
         android:theme="@style/TextSecure.DarkNoActionBar"
         android:exported="false"/>
@@ -1124,25 +1150,28 @@
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 
-    <activity android:name=".components.settings.app.subscription.donate.DonateToSignalActivity"
-              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-              android:exported="false"/>
+    <activity android:name=".components.settings.app.subscription.donate.CheckoutFlowActivity"
+            android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+            android:exported="false"/>
 
-    <service
-        android:enabled="true"
-        android:name=".service.webrtc.WebRtcCallService"
-        android:foregroundServiceType="camera|microphone"
-        android:exported="false"/>
+    <activity android:name=".backup.v2.ui.subscription.MessageBackupsCheckoutActivity"
+            android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+            android:exported="false"/>
 
     <service
         android:enabled="true"
         android:exported="false"
-        android:name=".service.KeyCachingService" />
+        android:name=".service.KeyCachingService"
+        android:foregroundServiceType="remoteMessaging"/>
 
     <service
         android:enabled="true"
         android:name=".messages.IncomingMessageObserver$ForegroundService"
+        android:foregroundServiceType="remoteMessaging"
         android:exported="false"/>
 
     <service
@@ -1153,7 +1182,9 @@
     <service
         android:name=".service.webrtc.AndroidCallConnectionService"
         android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
-        android:exported="true">
+        android:foregroundServiceType="phoneCall"
+        android:exported="true"
+        tools:targetApi="28">
         <intent-filter>
             <action android:name="android.telecom.ConnectionService" />
         </intent-filter>
@@ -1192,14 +1223,17 @@
 
     <service
         android:name=".service.GenericForegroundService"
+        android:foregroundServiceType="dataSync"
         android:exported="false"/>
 
     <service
         android:name=".service.AttachmentProgressService"
+        android:foregroundServiceType="dataSync"
         android:exported="false"/>
 
     <service
         android:name=".service.BackupProgressService"
+        android:foregroundServiceType="dataSync"
         android:exported="false"/>
 
     <service
@@ -1208,6 +1242,7 @@
 
     <service
         android:name=".gcm.FcmFetchForegroundService"
+        android:foregroundServiceType="remoteMessaging"
         android:exported="false"/>
 
     <service android:name=".gcm.FcmReceiveService" android:exported="true">
@@ -1428,7 +1463,7 @@
     <service
         android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallManager$ActiveCallForegroundService"
         android:exported="false"
-        android:foregroundServiceType="camera|microphone" />
+        android:foregroundServiceType="dataSync|microphone|camera" />
 
     <receiver android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallManager$ActiveCallServiceReceiver" android:exported="false">
         <intent-filter>
@@ -1438,10 +1473,6 @@
             <action android:name="org.thoughtcrime.securesms.service.webrtc.ActiveCallAction.HANGUP"/>
         </intent-filter>
     </receiver>
-
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false" />
 
         <activity
             android:name=".pigeon.activity.ConversationSubMenuActivity"

@@ -183,6 +183,7 @@ message GroupChange {
     }
 
              bytes                                      sourceServiceId                 = 1;
+             bytes                                      groupId                         = 25; // Only set when receiving from server
              uint32                                     revision                        = 2;
     repeated AddMemberAction                            addMembers                      = 3;
     repeated DeleteMemberAction                         deleteMembers                   = 4;
@@ -213,13 +214,24 @@ message GroupChange {
   uint32 changeEpoch     = 3;
 }
 
+message GroupResponse {
+  Group group                         = 1;
+  bytes groupSendEndorsementsResponse = 2;
+}
+
 message GroupChanges {
   message GroupChangeState {
     GroupChange groupChange = 1;
     Group       groupState  = 2;
   }
 
-  repeated GroupChangeState groupChanges = 1;
+  repeated GroupChangeState groupChanges                  = 1;
+           bytes            groupSendEndorsementsResponse = 2;
+}
+
+message GroupChangeResponse {
+  GroupChange groupChange                   = 1;
+  bytes       groupSendEndorsementsResponse = 2;
 }
 
 message GroupAttributeBlob {

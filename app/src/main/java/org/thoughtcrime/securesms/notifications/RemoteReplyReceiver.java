@@ -30,7 +30,7 @@ import org.thoughtcrime.securesms.database.MessageTable.MarkedMessageInfo;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.model.ParentStoryId;
 import org.thoughtcrime.securesms.database.model.StoryType;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.mms.OutgoingMessage;
 import org.thoughtcrime.securesms.notifications.v2.DefaultMessageNotifier;
 import org.thoughtcrime.securesms.notifications.v2.ConversationId;
@@ -75,9 +75,10 @@ public class RemoteReplyReceiver extends BroadcastReceiver {
       SignalExecutors.BOUNDED.execute(() -> {
         long threadId;
 
-        Recipient     recipient      = Recipient.resolved(recipientId);
-        long          expiresIn      = TimeUnit.SECONDS.toMillis(recipient.getExpiresInSeconds());
-        ParentStoryId parentStoryId  = groupStoryId != Long.MIN_VALUE ? ParentStoryId.deserialize(groupStoryId) : null;
+        Recipient     recipient          = Recipient.resolved(recipientId);
+        long          expiresIn          = TimeUnit.SECONDS.toMillis(recipient.getExpiresInSeconds());
+        int           expireTimerVersion = recipient.getExpireTimerVersion();
+        ParentStoryId parentStoryId      = groupStoryId != Long.MIN_VALUE ? ParentStoryId.deserialize(groupStoryId) : null;
 
         switch (replyMethod) {
           case GroupMessage: {
@@ -86,6 +87,7 @@ public class RemoteReplyReceiver extends BroadcastReceiver {
                                                         new LinkedList<>(),
                                                         System.currentTimeMillis(),
                                                         expiresIn,
+                                                        expireTimerVersion,
                                                         false,
                                                         0,
                                                         StoryType.NONE,
@@ -114,13 +116,13 @@ public class RemoteReplyReceiver extends BroadcastReceiver {
             throw new AssertionError("Unknown Reply method");
         }
 
-        ApplicationDependencies.getMessageNotifier()
-                               .addStickyThread(new ConversationId(threadId, groupStoryId != Long.MIN_VALUE ? groupStoryId : null),
+        AppDependencies.getMessageNotifier()
+                       .addStickyThread(new ConversationId(threadId, groupStoryId != Long.MIN_VALUE ? groupStoryId : null),
                                                 intent.getLongExtra(EARLIEST_TIMESTAMP, System.currentTimeMillis()));
 
         List<MarkedMessageInfo> messageIds = SignalDatabase.threads().setRead(threadId, true);
 
-        ApplicationDependencies.getMessageNotifier().updateNotification(context);
+        AppDependencies.getMessageNotifier().updateNotification(context);
         MarkReadReceiver.process(messageIds);
       });
     }

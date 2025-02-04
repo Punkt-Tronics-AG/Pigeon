@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.attachments.Attachment
+import org.thoughtcrime.securesms.attachments.DatabaseAttachment
+import org.thoughtcrime.securesms.jobs.AttachmentDownloadJob
 import org.thoughtcrime.securesms.mediasend.Media
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.adapter.StableIdGenerator
@@ -28,7 +30,7 @@ class MediaPreviewV2Adapter(fragment: Fragment) : FragmentStateAdapter(fragment)
 
     val contentType = attachment.contentType
     val args = bundleOf(
-      MediaPreviewFragment.DATA_URI to attachment.uri,
+      MediaPreviewFragment.DATA_URI to attachment.displayUri,
       MediaPreviewFragment.DATA_CONTENT_TYPE to contentType,
       MediaPreviewFragment.DATA_SIZE to attachment.size,
       MediaPreviewFragment.AUTO_PLAY to attachment.videoGif,
@@ -43,6 +45,10 @@ class MediaPreviewV2Adapter(fragment: Fragment) : FragmentStateAdapter(fragment)
     }
 
     fragment.arguments = args
+
+    if (attachment is DatabaseAttachment) {
+      AttachmentDownloadJob.downloadAttachmentIfNeeded(attachment)
+    }
 
     return fragment
   }

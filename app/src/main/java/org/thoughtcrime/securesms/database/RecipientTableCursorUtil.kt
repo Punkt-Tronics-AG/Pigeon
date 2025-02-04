@@ -135,6 +135,7 @@ object RecipientTableCursorUtil {
       messageRingtone = Util.uri(cursor.requireString(RecipientTable.MESSAGE_RINGTONE)),
       callRingtone = Util.uri(cursor.requireString(RecipientTable.CALL_RINGTONE)),
       expireMessages = cursor.requireInt(RecipientTable.MESSAGE_EXPIRATION_TIME),
+      expireTimerVersion = cursor.requireInt(RecipientTable.MESSAGE_EXPIRATION_TIME_VERSION),
       registered = RegisteredState.fromId(cursor.requireInt(RecipientTable.REGISTERED)),
       profileKey = profileKey,
       expiringProfileKeyCredential = expiringProfileKeyCredential,
@@ -149,7 +150,7 @@ object RecipientTableCursorUtil {
       profileSharing = cursor.requireBoolean(RecipientTable.PROFILE_SHARING),
       lastProfileFetch = cursor.requireLong(RecipientTable.LAST_PROFILE_FETCH),
       notificationChannel = cursor.requireString(RecipientTable.NOTIFICATION_CHANNEL),
-      unidentifiedAccessMode = RecipientTable.UnidentifiedAccessMode.fromMode(cursor.requireInt(RecipientTable.SEALED_SENDER_MODE)),
+      sealedSenderAccessMode = RecipientTable.SealedSenderAccessMode.fromMode(cursor.requireInt(RecipientTable.SEALED_SENDER_MODE)),
       capabilities = readCapabilities(cursor),
       storageId = Base64.decodeNullableOrThrow(cursor.requireString(RecipientTable.STORAGE_SERVICE_ID)),
       mentionSetting = RecipientTable.MentionSetting.fromId(cursor.requireInt(RecipientTable.MENTION_SETTING)),
@@ -175,7 +176,7 @@ object RecipientTableCursorUtil {
     val capabilities = cursor.requireLong(RecipientTable.CAPABILITIES)
     return RecipientRecord.Capabilities(
       rawBits = capabilities,
-      paymentActivation = Recipient.Capability.deserialize(Bitmask.read(capabilities, Capabilities.PAYMENT_ACTIVATION, Capabilities.BIT_LENGTH).toInt())
+      storageServiceEncryptionV2 = Recipient.Capability.deserialize(Bitmask.read(capabilities, Capabilities.STORAGE_SERVICE_ENCRYPTION_V2, Capabilities.BIT_LENGTH).toInt())
     )
   }
 

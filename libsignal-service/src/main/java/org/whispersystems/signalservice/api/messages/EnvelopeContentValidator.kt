@@ -28,13 +28,9 @@ import org.whispersystems.signalservice.internal.push.TypingMessage
  */
 object EnvelopeContentValidator {
 
-  fun validate(envelope: Envelope, content: Content): Result {
+  fun validate(envelope: Envelope, content: Content, localAci: ACI): Result {
     if (envelope.type == Envelope.Type.PLAINTEXT_CONTENT) {
-      val result: Result? = createPlaintextResultIfInvalid(content)
-
-      if (result != null) {
-        return result
-      }
+      validatePlaintextContent(content)?.let { return it }
     }
 
     if (envelope.sourceServiceId != null && envelope.sourceServiceId.isInvalidServiceId()) {
@@ -54,7 +50,7 @@ object EnvelopeContentValidator {
     return when {
       envelope.story == true && !content.meetsStoryFlagCriteria() -> Result.Invalid("Envelope was flagged as a story, but it did not have any story-related content!")
       content.dataMessage != null -> validateDataMessage(envelope, content.dataMessage)
-      content.syncMessage != null -> validateSyncMessage(envelope, content.syncMessage)
+      content.syncMessage != null -> validateSyncMessage(envelope, content.syncMessage, localAci)
       content.callMessage != null -> Result.Valid
       content.nullMessage != null -> Result.Valid
       content.receiptMessage != null -> validateReceiptMessage(content.receiptMessage)
@@ -145,7 +141,14 @@ object EnvelopeContentValidator {
     return Result.Valid
   }
 
-  private fun validateSyncMessage(envelope: Envelope, syncMessage: SyncMessage): Result {
+  private fun validateSyncMessage(envelope: Envelope, syncMessage: SyncMessage, localAci: ACI): Result {
+    // Source serviceId was already determined to be a valid serviceId in general
+    val sourceServiceId = ServiceId.parseOrThrow(envelope.sourceServiceId!!)
+
+    if (sourceServiceId != localAci) {
+      return Result.Invalid("[SyncMessage] Source was not our own account!")
+    }
+
     if (syncMessage.sent != null) {
       val validAddress = syncMessage.sent.destinationServiceId.isValidServiceId()
       val hasDataGroup = syncMessage.sent.message?.groupV2 != null
@@ -362,38 +365,40 @@ object EnvelopeContentValidator {
     }
   }
 
-  private fun createPlaintextResultIfInvalid(content: Content): Result? {
+  private fun validatePlaintextContent(content: Content): Result? {
     val errors: MutableList<String> = mutableListOf()
-
     if (content.decryptionErrorMessage == null) {
       errors += "Missing DecryptionErrorMessage"
     }
-    if (content.storyMessage != null) {
-      errors += "Unexpected StoryMessage"
-    }
-    if (content.senderKeyDistributionMessage != null) {
-      errors += "Unexpected SenderKeyDistributionMessage"
-    }
-    if (content.callMessage != null) {
-      errors += "Unexpected CallMessage"
-    }
-    if (content.editMessage != null) {
-      errors += "Unexpected EditMessage"
-    }
-    if (content.nullMessage != null) {
-      errors += "Unexpected NullMessage"
-    }
-    if (content.pniSignatureMessage != null) {
-      errors += "Unexpected PniSignatureMessage"
-    }
-    if (content.receiptMessage != null) {
-      errors += "Unexpected ReceiptMessage"
+    if (content.dataMessage != null) {
+      errors += "Unexpected DataMessage"
     }
     if (content.syncMessage != null) {
       errors += "Unexpected SyncMessage"
     }
+    if (content.callMessage != null) {
+      errors += "Unexpected CallMessage"
+    }
+    if (content.nullMessage != null) {
+      errors += "Unexpected NullMessage"
+    }
+    if (content.receiptMessage != null) {
+      errors += "Unexpected ReceiptMessage"
+    }
     if (content.typingMessage != null) {
       errors += "Unexpected TypingMessage"
+    }
+    if (content.senderKeyDistributionMessage != null) {
+      errors += "Unexpected SenderKeyDistributionMessage"
+    }
+    if (content.storyMessage != null) {
+      errors += "Unexpected StoryMessage"
+    }
+    if (content.pniSignatureMessage != null) {
+      errors += "Unexpected PniSignatureMessage"
+    }
+    if (content.editMessage != null) {
+      errors += "Unexpected EditMessage"
     }
 
     return if (errors.isNotEmpty()) {

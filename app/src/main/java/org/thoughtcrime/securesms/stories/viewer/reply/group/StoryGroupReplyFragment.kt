@@ -44,7 +44,7 @@ import org.thoughtcrime.securesms.database.model.Mention
 import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob
 import org.thoughtcrime.securesms.keyboard.KeyboardPage
 import org.thoughtcrime.securesms.keyboard.KeyboardPagerViewModel
@@ -127,7 +127,7 @@ class StoryGroupReplyFragment :
 
       val dialog = (parentFragment as FixedRoundedCornerBottomSheetDialogFragment).dialog as BottomSheetDialog
       BottomSheetBehaviorHack.setNestedScrollingChild(dialog.behavior, view)
-      dialog.findViewById<View>(R.id.design_bottom_sheet)?.invalidate()
+      dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.invalidate()
       return false
     }
   }
@@ -199,7 +199,7 @@ class StoryGroupReplyFragment :
         viewModel.state.collect { state ->
           if (markReadHelper == null && state.threadId > 0L) {
             if (isResumed) {
-              ApplicationDependencies.getMessageNotifier().setVisibleThread(ConversationId(state.threadId, storyId))
+              AppDependencies.messageNotifier.setVisibleThread(ConversationId(state.threadId, storyId))
             }
 
             markReadHelper = MarkReadHelper(ConversationId(state.threadId, storyId), requireContext(), viewLifecycleOwner)
@@ -235,13 +235,13 @@ class StoryGroupReplyFragment :
     super.onResume()
     val threadId = viewModel.stateSnapshot.threadId
     if (threadId != 0L) {
-      ApplicationDependencies.getMessageNotifier().setVisibleThread(ConversationId(threadId, storyId))
+      AppDependencies.messageNotifier.setVisibleThread(ConversationId(threadId, storyId))
     }
   }
 
   override fun onPause() {
     super.onPause()
-    ApplicationDependencies.getMessageNotifier().setVisibleThread(null)
+    AppDependencies.messageNotifier.setVisibleThread(null)
   }
 
   override fun onDestroyView() {
@@ -362,7 +362,7 @@ class StoryGroupReplyFragment :
       performSend(body, mentions, bodyRanges)
     }
 
-    if (SignalStore.uiHints().hasNotSeenTextFormattingAlert() && composer.input.hasStyling()) {
+    if (SignalStore.uiHints.hasNotSeenTextFormattingAlert() && composer.input.hasStyling()) {
       Dialogs.showFormattedTextDialog(requireContext(), send)
     } else {
       send.run()

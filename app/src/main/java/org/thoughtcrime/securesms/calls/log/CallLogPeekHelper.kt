@@ -5,12 +5,15 @@
 
 package org.thoughtcrime.securesms.calls.log
 
+import android.os.Bundle
+import android.os.ResultReceiver
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.recipients.RecipientId
+import org.thoughtcrime.securesms.service.webrtc.ActiveCallData
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
 import org.thoughtcrime.securesms.util.ThrottledDebouncer
 import org.thoughtcrime.securesms.util.concurrent.SerialExecutor
@@ -36,6 +39,10 @@ class CallLogPeekHelper : DefaultLifecycleObserver {
 
   private var isFirstLoad = true
   private var isPaused = false
+
+  @Volatile
+  var localDeviceCallRecipientId: RecipientId = RecipientId.UNKNOWN
+    private set
 
   override fun onResume(owner: LifecycleOwner) {
     executor.execute {
@@ -147,6 +154,19 @@ class CallLogPeekHelper : DefaultLifecycleObserver {
         return@execute
       }
 
+      Log.d(TAG, "Checking if user is in a call locally.")
+
+      AppDependencies.signalCallManager.isCallActive(object : ResultReceiver(null) {
+        override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+          if (resultCode == 1 && resultData != null) {
+            val activeCallData = ActiveCallData.fromBundle(resultData)
+            localDeviceCallRecipientId = activeCallData.recipientId
+          } else {
+            localDeviceCallRecipientId = RecipientId.UNKNOWN
+          }
+        }
+      })
+
       Log.d(TAG, "Peeks in queue. Taking first $PEEK_SIZE.")
 
       val items = peekQueue.take(PEEK_SIZE)
@@ -157,8 +177,8 @@ class CallLogPeekHelper : DefaultLifecycleObserver {
 
       items.forEach {
         when (it.identifier.peekEntryType) {
-          PeekEntryType.CALL_LINK -> ApplicationDependencies.getSignalCallManager().peekCallLinkCall(it.recipientId)
-          PeekEntryType.GROUP_CALL -> ApplicationDependencies.getSignalCallManager().peekGroupCall(it.recipientId)
+          PeekEntryType.CALL_LINK -> AppDependencies.signalCallManager.peekCallLinkCall(it.recipientId)
+          PeekEntryType.GROUP_CALL -> AppDependencies.signalCallManager.peekGroupCall(it.recipientId)
         }
       }
 

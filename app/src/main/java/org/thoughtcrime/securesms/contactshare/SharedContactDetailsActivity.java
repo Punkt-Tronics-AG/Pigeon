@@ -24,8 +24,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.thoughtcrime.securesms.PassphraseRequiredActivity;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar;
 import org.thoughtcrime.securesms.database.RecipientTable;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob;
 import org.thoughtcrime.securesms.recipients.LiveRecipient;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -214,7 +215,9 @@ public class SharedContactDetailsActivity extends PassphraseRequiredActivity {
       });
 
       callButtonView.setOnClickListener(v -> {
-        ContactUtil.selectRecipientThroughDialog(this, pushUsers, dynamicLanguage.getCurrentLocale(), recipient -> CommunicationActions.startVoiceCall(this, recipient));
+        ContactUtil.selectRecipientThroughDialog(this, pushUsers, dynamicLanguage.getCurrentLocale(), recipient -> CommunicationActions.startVoiceCall(this, recipient, () -> {
+          YouAreAlreadyInACallSnackbar.show(callButtonView);
+        }));
       });
     } else if (!systemUsers.isEmpty()) {
       inviteButtonView.setVisibility(View.VISIBLE);
@@ -243,7 +246,7 @@ public class SharedContactDetailsActivity extends PassphraseRequiredActivity {
     super.onActivityResult(requestCode, resultCode, data);
 
     if (requestCode == CODE_ADD_EDIT_CONTACT && contact != null) {
-      ApplicationDependencies.getJobManager().add(new DirectoryRefreshJob(false));
+      AppDependencies.getJobManager().add(new DirectoryRefreshJob(false));
     }
   }
 }

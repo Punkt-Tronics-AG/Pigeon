@@ -55,18 +55,17 @@ import org.signal.core.ui.theme.SignalTheme
 import org.signal.core.util.getParcelableCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.TemporaryScreenshotSecurity
-import org.thoughtcrime.securesms.components.settings.app.subscription.DonationPaymentComponent
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.DonateToSignalType
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.DonationCheckoutDelegate
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.DonationProcessorAction
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.DonationProcessorActionResult
-import org.thoughtcrime.securesms.components.settings.app.subscription.donate.gateway.GatewayRequest
+import org.thoughtcrime.securesms.components.settings.app.subscription.DonationSerializationHelper.toFiatMoney
+import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentComponent
+import org.thoughtcrime.securesms.components.settings.app.subscription.donate.InAppPaymentCheckoutDelegate
+import org.thoughtcrime.securesms.components.settings.app.subscription.donate.InAppPaymentProcessorAction
+import org.thoughtcrime.securesms.components.settings.app.subscription.donate.InAppPaymentProcessorActionResult
 import org.thoughtcrime.securesms.components.settings.app.subscription.donate.stripe.StripePaymentInProgressFragment
 import org.thoughtcrime.securesms.components.settings.app.subscription.donate.stripe.StripePaymentInProgressViewModel
 import org.thoughtcrime.securesms.components.settings.app.subscription.donate.transfer.BankTransferRequestKeys
 import org.thoughtcrime.securesms.components.settings.app.subscription.donate.transfer.details.BankTransferDetailsViewModel.Field
-import org.thoughtcrime.securesms.components.settings.app.subscription.errors.DonationErrorSource
 import org.thoughtcrime.securesms.compose.ComposeFragment
+import org.thoughtcrime.securesms.database.InAppPaymentTable
 import org.thoughtcrime.securesms.payments.FiatMoneyUtil
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.fragments.requireListener
@@ -75,32 +74,26 @@ import org.thoughtcrime.securesms.util.navigation.safeNavigate
 /**
  * Collects SEPA Debit bank transfer details from the user to proceed with donation.
  */
-class BankTransferDetailsFragment : ComposeFragment(), DonationCheckoutDelegate.ErrorHandlerCallback {
+class BankTransferDetailsFragment : ComposeFragment(), InAppPaymentCheckoutDelegate.ErrorHandlerCallback {
 
   private val args: BankTransferDetailsFragmentArgs by navArgs()
   private val viewModel: BankTransferDetailsViewModel by viewModels()
 
   private val stripePaymentViewModel: StripePaymentInProgressViewModel by navGraphViewModels(
-    R.id.donate_to_signal,
+    R.id.checkout_flow,
     factoryProducer = {
-      StripePaymentInProgressViewModel.Factory(requireListener<DonationPaymentComponent>().stripeRepository)
+      StripePaymentInProgressViewModel.Factory(requireListener<InAppPaymentComponent>().stripeRepository)
     }
   )
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     TemporaryScreenshotSecurity.bindToViewLifecycleOwner(this)
 
-    val errorSource: DonationErrorSource = when (args.request.donateToSignalType) {
-      DonateToSignalType.ONE_TIME -> DonationErrorSource.ONE_TIME
-      DonateToSignalType.MONTHLY -> DonationErrorSource.MONTHLY
-      DonateToSignalType.GIFT -> DonationErrorSource.GIFT
-    }
-
-    DonationCheckoutDelegate.ErrorHandler().attach(this, this, args.request.uiSessionKey, errorSource)
+    InAppPaymentCheckoutDelegate.ErrorHandler().attach(this, this, args.inAppPayment.id)
 
     setFragmentResultListener(StripePaymentInProgressFragment.REQUEST_KEY) { _, bundle ->
-      val result: DonationProcessorActionResult = bundle.getParcelableCompat(StripePaymentInProgressFragment.REQUEST_KEY, DonationProcessorActionResult::class.java)!!
-      if (result.status == DonationProcessorActionResult.Status.SUCCESS) {
+      val result: InAppPaymentProcessorActionResult = bundle.getParcelableCompat(StripePaymentInProgressFragment.REQUEST_KEY, InAppPaymentProcessorActionResult::class.java)!!
+      if (result.status == InAppPaymentProcessorActionResult.Status.SUCCESS) {
         findNavController().popBackStack(R.id.donateToSignalFragment, false)
         setFragmentResult(BankTransferRequestKeys.REQUEST_KEY, bundle)
       }
@@ -111,16 +104,16 @@ class BankTransferDetailsFragment : ComposeFragment(), DonationCheckoutDelegate.
   override fun FragmentContent() {
     val state: BankTransferDetailsState by viewModel.state
 
-    val donateLabel = remember(args.request) {
-      if (args.request.donateToSignalType == DonateToSignalType.MONTHLY) {
+    val donateLabel = remember(args.inAppPayment) {
+      if (args.inAppPayment.type.recurring) { // TODO [message-requests] backups copy
         getString(
           R.string.BankTransferDetailsFragment__donate_s_month,
-          FiatMoneyUtil.format(resources, args.request.fiat, FiatMoneyUtil.formatOptions().trimZerosAfterDecimal())
+          FiatMoneyUtil.format(resources, args.inAppPayment.data.amount!!.toFiatMoney(), FiatMoneyUtil.formatOptions().trimZerosAfterDecimal())
         )
       } else {
         getString(
           R.string.BankTransferDetailsFragment__donate_s,
-          FiatMoneyUtil.format(resources, args.request.fiat)
+          FiatMoneyUtil.format(resources, args.inAppPayment.data.amount!!.toFiatMoney())
         )
       }
     }
@@ -153,21 +146,26 @@ class BankTransferDetailsFragment : ComposeFragment(), DonationCheckoutDelegate.
     stripePaymentViewModel.provideSEPADebitData(viewModel.state.value.asSEPADebitData())
     findNavController().safeNavigate(
       BankTransferDetailsFragmentDirections.actionBankTransferDetailsFragmentToStripePaymentInProgressFragment(
-        DonationProcessorAction.PROCESS_NEW_DONATION,
-        args.request
+        InAppPaymentProcessorAction.PROCESS_NEW_IN_APP_PAYMENT,
+        args.inAppPayment,
+        args.inAppPayment.type
       )
     )
   }
 
   override fun onUserLaunchedAnExternalApplication() = Unit
 
-  override fun navigateToDonationPending(gatewayRequest: GatewayRequest) {
-    setFragmentResult(BankTransferRequestKeys.PENDING_KEY, bundleOf(BankTransferRequestKeys.PENDING_KEY to gatewayRequest))
+  override fun navigateToDonationPending(inAppPayment: InAppPaymentTable.InAppPayment) {
+    setFragmentResult(BankTransferRequestKeys.PENDING_KEY, bundleOf(BankTransferRequestKeys.PENDING_KEY to inAppPayment))
     viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
       override fun onResume(owner: LifecycleOwner) {
         findNavController().popBackStack(R.id.donateToSignalFragment, false)
       }
     })
+  }
+
+  override fun exitCheckoutFlow() {
+    requireActivity().finishAfterTransition()
   }
 }
 

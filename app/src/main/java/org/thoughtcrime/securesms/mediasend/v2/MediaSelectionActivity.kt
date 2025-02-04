@@ -44,7 +44,6 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.safety.SafetyNumberBottomSheet
 import org.thoughtcrime.securesms.stories.Stories
 import org.thoughtcrime.securesms.util.Debouncer
-import org.thoughtcrime.securesms.util.FeatureFlags
 import org.thoughtcrime.securesms.util.FullscreenHelper
 import org.thoughtcrime.securesms.util.WindowUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
@@ -92,7 +91,7 @@ class MediaSelectionActivity :
   override fun onCreate(savedInstanceState: Bundle?, ready: Boolean) {
     setContentView(R.layout.media_selection_activity)
 
-    if (FeatureFlags.customCameraXController()) {
+    if (false) {
       requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
@@ -163,6 +162,7 @@ class MediaSelectionActivity :
           TransitionManager.beginDelayedTransition(textStoryToggle, AutoTransition().setDuration(200))
           cameraSelectedConstraintSet.applyTo(textStoryToggle)
         }
+
         R.id.textStoryPostCreationFragment -> {
           textStoryToggle.visible = canDisplayStorySwitch()
 
@@ -170,6 +170,7 @@ class MediaSelectionActivity :
           TransitionManager.beginDelayedTransition(textStoryToggle, AutoTransition().setDuration(200))
           textSelectedConstraintSet.applyTo(textStoryToggle)
         }
+
         else -> textStoryToggle.visible = false
       }
     }

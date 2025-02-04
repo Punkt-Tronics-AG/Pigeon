@@ -15,8 +15,8 @@ import org.thoughtcrime.securesms.longmessage.TAG
 import org.thoughtcrime.securesms.stories.Stories
 import org.thoughtcrime.securesms.util.rx.RxStore
 
-class ConversationListTabsViewModel(repository: ConversationListTabRepository) : ViewModel() {
-  private val store = RxStore(ConversationListTabsState())
+class ConversationListTabsViewModel(startingTab: ConversationListTab, repository: ConversationListTabRepository) : ViewModel() {
+  private val store = RxStore(ConversationListTabsState(tab = startingTab))
 
   val stateSnapshot: ConversationListTabsState
     get() = store.state
@@ -76,6 +76,10 @@ class ConversationListTabsViewModel(repository: ConversationListTabRepository) :
     performStoreUpdate { it.copy(visibilityState = it.visibilityState.copy(isMultiSelectOpen = true)) }
   }
 
+  fun isMultiSelectOpen(): Boolean {
+    return store.state.visibilityState.isMultiSelectOpen
+  }
+
   fun onMultiSelectFinished() {
     performStoreUpdate { it.copy(visibilityState = it.visibilityState.copy(isMultiSelectOpen = false)) }
   }
@@ -96,9 +100,14 @@ class ConversationListTabsViewModel(repository: ConversationListTabRepository) :
     }
   }
 
-  class Factory(private val repository: ConversationListTabRepository) : ViewModelProvider.Factory {
+  class Factory(private val startingTab: ConversationListTab?, private val repository: ConversationListTabRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-      return modelClass.cast(ConversationListTabsViewModel(repository)) as T
+      val tab = if (startingTab == null || (startingTab == ConversationListTab.STORIES && !Stories.isFeatureEnabled())) {
+        ConversationListTab.CHATS
+      } else {
+        startingTab
+      }
+      return modelClass.cast(ConversationListTabsViewModel(tab, repository)) as T
     }
   }
 }

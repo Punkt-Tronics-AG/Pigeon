@@ -23,10 +23,10 @@ class UsernameLinkQrColorPickerViewModel : ViewModel() {
 
   private val _state = mutableStateOf(
     UsernameLinkQrColorPickerState(
-      username = SignalStore.account().username!!,
+      username = SignalStore.account.username!!,
       qrCodeData = QrCodeState.Loading,
-      colorSchemes = UsernameQrCodeColorScheme.values().asList().toImmutableList(),
-      selectedColorScheme = SignalStore.misc().usernameQrCodeColorScheme
+      colorSchemes = UsernameQrCodeColorScheme.entries.toImmutableList(),
+      selectedColorScheme = SignalStore.misc.usernameQrCodeColorScheme
     )
   )
 
@@ -35,11 +35,11 @@ class UsernameLinkQrColorPickerViewModel : ViewModel() {
   private val disposable: CompositeDisposable = CompositeDisposable()
 
   init {
-    val usernameLink = SignalStore.account().usernameLink
+    val usernameLink = SignalStore.account.usernameLink
 
     if (usernameLink != null) {
       disposable += Single
-        .fromCallable { QrCodeData.forData(usernameLink.toLink(), 64) }
+        .fromCallable { QrCodeData.forData(usernameLink.toLink()) }
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe { qrData ->
@@ -59,7 +59,7 @@ class UsernameLinkQrColorPickerViewModel : ViewModel() {
   }
 
   fun onColorSelected(color: UsernameQrCodeColorScheme) {
-    SignalStore.misc().usernameQrCodeColorScheme = color
+    SignalStore.misc.usernameQrCodeColorScheme = color
     SignalExecutors.BOUNDED.run {
       SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
       StorageSyncHelper.scheduleSyncForDataChange()

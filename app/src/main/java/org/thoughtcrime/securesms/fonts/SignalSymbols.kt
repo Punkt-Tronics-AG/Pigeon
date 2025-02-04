@@ -10,6 +10,12 @@ import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.withStyle
 
 /**
  * Helper object for working with the SignalSymbols font
@@ -17,12 +23,15 @@ import android.text.style.MetricAffectingSpan
 object SignalSymbols {
 
   enum class Glyph(val unicode: Char) {
+    CHECKMARK('\u2713'),
     CHEVRON_RIGHT('\uE025'),
-    PERSON_CIRCLE('\uE05E')
+    PERSON_CIRCLE('\uE05E'),
+    LOCK('\uE041')
   }
 
   enum class Weight {
-    BOLD
+    BOLD,
+    REGULAR
   }
 
   private val cache = mutableMapOf<Weight, Typeface>()
@@ -42,9 +51,21 @@ object SignalSymbols {
     return text
   }
 
+  @Composable
+  fun AnnotatedString.Builder.SignalSymbol(weight: Weight, glyph: Glyph) {
+    withStyle(
+      SpanStyle(
+        fontFamily = FontFamily(getTypeface(LocalContext.current, weight))
+      )
+    ) {
+      append(glyph.unicode.toString())
+    }
+  }
+
   private fun getTypeface(context: Context, weight: Weight): Typeface {
     return when (weight) {
       Weight.BOLD -> getBoldWeightedFont(context)
+      Weight.REGULAR -> getRegularWeightedFont(context)
       else -> error("Unsupported weight: $weight")
     }
   }
@@ -56,6 +77,17 @@ object SignalSymbols {
       Typeface.createFromAsset(
         context.assets,
         "fonts/SignalSymbols-Bold.otf"
+      )
+    }
+  }
+
+  private fun getRegularWeightedFont(context: Context): Typeface {
+    return cache.getOrPut(
+      Weight.REGULAR
+    ) {
+      Typeface.createFromAsset(
+        context.assets,
+        "fonts/SignalSymbols-Regular.otf"
       )
     }
   }

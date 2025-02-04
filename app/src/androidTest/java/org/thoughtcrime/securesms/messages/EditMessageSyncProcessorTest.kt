@@ -3,6 +3,8 @@ package org.thoughtcrime.securesms.messages
 import android.database.Cursor
 import android.util.Base64
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +22,6 @@ import org.thoughtcrime.securesms.mms.OutgoingMessage
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.testing.MessageContentFuzzer
 import org.thoughtcrime.securesms.testing.SignalActivityRule
-import org.thoughtcrime.securesms.testing.assertIs
 import org.thoughtcrime.securesms.util.MessageTableTestUtils
 import org.whispersystems.signalservice.internal.push.Content
 import org.whispersystems.signalservice.internal.push.EditMessage
@@ -77,7 +78,7 @@ class EditMessageSyncProcessorTest {
             .build()
         ).build()
       ).build()
-      SignalDatabase.recipients.setExpireMessages(toRecipient.id, content.dataMessage?.expireTimer ?: 0)
+      SignalDatabase.recipients.setExpireMessages(toRecipient.id, content.dataMessage?.expireTimer ?: 0, content.dataMessage?.expireTimerVersion ?: 1)
       val syncTextMessage = TestMessage(
         envelope = MessageContentFuzzer.envelope(originalTimestamp),
         content = syncContent,
@@ -112,7 +113,7 @@ class EditMessageSyncProcessorTest {
 
       testResult.runSync(listOf(syncTextMessage, syncEditMessage))
 
-      SignalDatabase.recipients.setExpireMessages(toRecipient.id, (content.dataMessage?.expireTimer ?: 0) / 1000)
+      SignalDatabase.recipients.setExpireMessages(toRecipient.id, (content.dataMessage?.expireTimer ?: 0) / 1000, content.dataMessage?.expireTimerVersion ?: 1)
       val originalTextMessage = OutgoingMessage(
         threadRecipient = toRecipient,
         sentTimeMillis = originalTimestamp,
@@ -201,12 +202,12 @@ class EditMessageSyncProcessorTest {
     fun assert() {
       syncMessages.zip(localMessages)
         .forEach { (v2, v1) ->
-          v2.assertIs(v1)
+          assertThat(v2).isEqualTo(v1)
         }
 
       syncAttachments.zip(localAttachments)
         .forEach { (v2, v1) ->
-          v2.assertIs(v1)
+          assertThat(v2).isEqualTo(v1)
         }
     }
 

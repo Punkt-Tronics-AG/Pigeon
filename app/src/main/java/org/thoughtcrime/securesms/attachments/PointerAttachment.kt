@@ -3,7 +3,7 @@ package org.thoughtcrime.securesms.attachments
 import android.net.Uri
 import android.os.Parcel
 import androidx.annotation.VisibleForTesting
-import org.signal.core.util.Base64.encodeWithPadding
+import org.signal.core.util.Base64
 import org.thoughtcrime.securesms.blurhash.BlurHash
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.stickers.StickerLocator
@@ -12,17 +12,19 @@ import org.whispersystems.signalservice.api.messages.SignalServiceAttachment
 import org.whispersystems.signalservice.api.util.AttachmentPointerUtil
 import org.whispersystems.signalservice.internal.push.DataMessage
 import java.util.Optional
+import java.util.UUID
 
 class PointerAttachment : Attachment {
   @VisibleForTesting
   constructor(
-    contentType: String,
+    contentType: String?,
     transferState: Int,
     size: Long,
     fileName: String?,
     cdn: Cdn,
     location: String,
     key: String?,
+    iv: ByteArray?,
     digest: ByteArray?,
     incrementalDigest: ByteArray?,
     incrementalMacChunkSize: Int,
@@ -35,7 +37,8 @@ class PointerAttachment : Attachment {
     uploadTimestamp: Long,
     caption: String?,
     stickerLocator: StickerLocator?,
-    blurHash: BlurHash?
+    blurHash: BlurHash?,
+    uuid: UUID?
   ) : super(
     contentType = contentType,
     transferState = transferState,
@@ -44,6 +47,7 @@ class PointerAttachment : Attachment {
     cdn = cdn,
     remoteLocation = location,
     remoteKey = key,
+    remoteIv = iv,
     remoteDigest = digest,
     incrementalDigest = incrementalDigest,
     fastPreflightId = fastPreflightId,
@@ -59,7 +63,8 @@ class PointerAttachment : Attachment {
     stickerLocator = stickerLocator,
     blurHash = blurHash,
     audioHash = null,
-    transformProperties = null
+    transformProperties = null,
+    uuid = uuid
   )
 
   constructor(parcel: Parcel) : super(parcel)
@@ -83,16 +88,17 @@ class PointerAttachment : Attachment {
 
     @JvmStatic
     @JvmOverloads
-    fun forPointer(pointer: Optional<SignalServiceAttachment>, stickerLocator: StickerLocator? = null, fastPreflightId: String? = null, transferState: Int = AttachmentTable.TRANSFER_PROGRESS_PENDING): Optional<Attachment> {
-      if (!pointer.isPresent || !pointer.get().isPointer) {
+    fun forPointer(
+      pointer: Optional<SignalServiceAttachment>,
+      stickerLocator: StickerLocator? = null,
+      fastPreflightId: String? = null,
+      transferState: Int = AttachmentTable.TRANSFER_PROGRESS_PENDING
+    ): Optional<Attachment> {
+      if (!pointer.isPresent || !pointer.get().isPointer()) {
         return Optional.empty()
       }
 
-      val encodedKey: String? = if (pointer.get().asPointer().key != null) {
-        encodeWithPadding(pointer.get().asPointer().key)
-      } else {
-        null
-      }
+      val encodedKey: String? = pointer.get().asPointer().key?.let { Base64.encodeWithPadding(it) }
 
       return Optional.of(
         PointerAttachment(
@@ -103,6 +109,7 @@ class PointerAttachment : Attachment {
           cdn = Cdn.fromCdnNumber(pointer.get().asPointer().cdnNumber),
           location = pointer.get().asPointer().remoteId.toString(),
           key = encodedKey,
+          iv = null,
           digest = pointer.get().asPointer().digest.orElse(null),
           incrementalDigest = pointer.get().asPointer().incrementalDigest.orElse(null),
           incrementalMacChunkSize = pointer.get().asPointer().incrementalMacChunkSize,
@@ -115,7 +122,8 @@ class PointerAttachment : Attachment {
           uploadTimestamp = pointer.get().asPointer().uploadTimestamp,
           caption = pointer.get().asPointer().caption.orElse(null),
           stickerLocator = stickerLocator,
-          blurHash = BlurHash.parseOrNull(pointer.get().asPointer().blurHash.orElse(null))
+          blurHash = BlurHash.parseOrNull(pointer.get().asPointer().blurHash.orElse(null)),
+          uuid = pointer.get().asPointer().uuid
         )
       )
     }
@@ -139,7 +147,8 @@ class PointerAttachment : Attachment {
           fileName = quotedAttachment.fileName,
           cdn = Cdn.fromCdnNumber(thumbnail?.asPointer()?.cdnNumber ?: 0),
           location = thumbnail?.asPointer()?.remoteId?.toString() ?: "0",
-          key = if (thumbnail != null && thumbnail.asPointer().key != null) encodeWithPadding(thumbnail.asPointer().key) else null,
+          key = thumbnail?.asPointer()?.key?.let { Base64.encodeWithPadding(it) },
+          iv = null,
           digest = thumbnail?.asPointer()?.digest?.orElse(null),
           incrementalDigest = thumbnail?.asPointer()?.incrementalDigest?.orElse(null),
           incrementalMacChunkSize = thumbnail?.asPointer()?.incrementalMacChunkSize ?: 0,
@@ -152,7 +161,8 @@ class PointerAttachment : Attachment {
           uploadTimestamp = thumbnail?.asPointer()?.uploadTimestamp ?: 0,
           caption = thumbnail?.asPointer()?.caption?.orElse(null),
           stickerLocator = null,
-          blurHash = null
+          blurHash = null,
+          uuid = thumbnail?.asPointer()?.uuid
         )
       )
     }

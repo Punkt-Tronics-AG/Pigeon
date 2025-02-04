@@ -7,7 +7,6 @@ package org.thoughtcrime.securesms.components.settings.app.internal.backup
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -23,9 +22,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,10 +36,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -53,64 +54,84 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import org.signal.core.ui.Buttons
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.ui.Dividers
+import org.signal.core.ui.Previews
+import org.signal.core.ui.Rows
+import org.signal.core.ui.SignalPreview
 import org.signal.core.ui.Snackbars
-import org.signal.core.ui.theme.SignalTheme
-import org.signal.core.util.bytes
+import org.signal.core.ui.TextFields.TextField
+import org.signal.core.util.Hex
 import org.signal.core.util.getLength
-import org.signal.core.util.roundedString
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.attachments.AttachmentId
-import org.thoughtcrime.securesms.components.settings.app.internal.backup.InternalBackupPlaygroundViewModel.BackupState
-import org.thoughtcrime.securesms.components.settings.app.internal.backup.InternalBackupPlaygroundViewModel.BackupUploadState
+import org.thoughtcrime.securesms.backup.v2.MessageBackupTier
+import org.thoughtcrime.securesms.components.settings.app.internal.backup.InternalBackupPlaygroundViewModel.DialogState
 import org.thoughtcrime.securesms.components.settings.app.internal.backup.InternalBackupPlaygroundViewModel.ScreenState
 import org.thoughtcrime.securesms.compose.ComposeFragment
+import org.thoughtcrime.securesms.jobs.LocalBackupJob
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.util.Util
 
 class InternalBackupPlaygroundFragment : ComposeFragment() {
 
   private val viewModel: InternalBackupPlaygroundViewModel by viewModels()
-  private lateinit var exportFileLauncher: ActivityResultLauncher<Intent>
-  private lateinit var importFileLauncher: ActivityResultLauncher<Intent>
-  private lateinit var validateFileLauncher: ActivityResultLauncher<Intent>
+  private lateinit var saveEncryptedBackupToDiskLauncher: ActivityResultLauncher<Intent>
+  private lateinit var savePlaintextBackupToDiskLauncher: ActivityResultLauncher<Intent>
+  private lateinit var importEncryptedBackupFromDiskLauncher: ActivityResultLauncher<Intent>
+  private lateinit var savePlaintextCopyLauncher: ActivityResultLauncher<Intent>
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    exportFileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    saveEncryptedBackupToDiskLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
       if (result.resultCode == RESULT_OK) {
         result.data?.data?.let { uri ->
-          requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
-            outputStream.write(viewModel.backupData!!)
-            Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
-          } ?: Toast.makeText(requireContext(), "Failed to open output stream", Toast.LENGTH_SHORT).show()
+          viewModel.exportEncrypted(
+            openStream = { requireContext().contentResolver.openOutputStream(uri)!! },
+            appendStream = { requireContext().contentResolver.openOutputStream(uri, "wa")!! }
+          )
         } ?: Toast.makeText(requireContext(), "No URI selected", Toast.LENGTH_SHORT).show()
       }
     }
 
-    importFileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    savePlaintextBackupToDiskLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+      if (result.resultCode == RESULT_OK) {
+        result.data?.data?.let { uri ->
+          viewModel.exportPlaintext(
+            openStream = { requireContext().contentResolver.openOutputStream(uri)!! },
+            appendStream = { requireContext().contentResolver.openOutputStream(uri, "wa")!! }
+          )
+        } ?: Toast.makeText(requireContext(), "No URI selected", Toast.LENGTH_SHORT).show()
+      }
+    }
+
+    importEncryptedBackupFromDiskLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
       if (result.resultCode == RESULT_OK) {
         result.data?.data?.let { uri ->
           requireContext().contentResolver.getLength(uri)?.let { length ->
-            viewModel.import(length) { requireContext().contentResolver.openInputStream(uri)!! }
+            viewModel.importEncryptedBackup(length) { requireContext().contentResolver.openInputStream(uri)!! }
           }
         } ?: Toast.makeText(requireContext(), "No URI selected", Toast.LENGTH_SHORT).show()
       }
     }
 
-    validateFileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    savePlaintextCopyLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
       if (result.resultCode == RESULT_OK) {
         result.data?.data?.let { uri ->
-          requireContext().contentResolver.getLength(uri)?.let { length ->
-            viewModel.validate(length) { requireContext().contentResolver.openInputStream(uri)!! }
-          }
+          viewModel.fetchRemoteBackupAndWritePlaintext(requireContext().contentResolver.openOutputStream(uri))
+          Toast.makeText(requireContext(), "Check logs for progress.", Toast.LENGTH_SHORT).show()
         } ?: Toast.makeText(requireContext(), "No URI selected", Toast.LENGTH_SHORT).show()
       }
     }
@@ -118,6 +139,7 @@ class InternalBackupPlaygroundFragment : ComposeFragment() {
 
   @Composable
   override fun FragmentContent() {
+    val context = LocalContext.current
     val state by viewModel.state
     val mediaState by viewModel.mediaState
 
@@ -131,53 +153,89 @@ class InternalBackupPlaygroundFragment : ComposeFragment() {
       mainContent = {
         Screen(
           state = state,
-          onExportClicked = { viewModel.export() },
-          onImportMemoryClicked = { viewModel.import() },
-          onImportFileClicked = {
-            val intent = Intent().apply {
-              action = Intent.ACTION_GET_CONTENT
-              type = "application/octet-stream"
-              addCategory(Intent.CATEGORY_OPENABLE)
-            }
-
-            importFileLauncher.launch(intent)
-          },
-          onPlaintextClicked = { viewModel.onPlaintextToggled() },
-          onSaveToDiskClicked = {
+          onBackupTierSelected = { tier -> viewModel.onBackupTierSelected(tier) },
+          onCheckRemoteBackupStateClicked = { viewModel.checkRemoteBackupState() },
+          onEnqueueRemoteBackupClicked = { viewModel.triggerBackupJob() },
+          onHaltAllBackupJobsClicked = { viewModel.haltAllJobs() },
+          onValidateBackupClicked = { viewModel.validateBackup() },
+          onSaveEncryptedBackupToDiskClicked = {
             val intent = Intent().apply {
               action = Intent.ACTION_CREATE_DOCUMENT
               type = "application/octet-stream"
               addCategory(Intent.CATEGORY_OPENABLE)
-              putExtra(Intent.EXTRA_TITLE, "backup-${if (state.plaintext) "plaintext" else "encrypted"}-${System.currentTimeMillis()}.bin")
+              putExtra(Intent.EXTRA_TITLE, "backup-encrypted-${System.currentTimeMillis()}.bin")
             }
 
-            exportFileLauncher.launch(intent)
+            saveEncryptedBackupToDiskLauncher.launch(intent)
           },
-          onUploadToRemoteClicked = { viewModel.uploadBackupToRemote() },
-          onCheckRemoteBackupStateClicked = { viewModel.checkRemoteBackupState() },
-          onValidateFileClicked = {
+          onSavePlaintextBackupToDiskClicked = {
             val intent = Intent().apply {
-              action = Intent.ACTION_GET_CONTENT
+              action = Intent.ACTION_CREATE_DOCUMENT
               type = "application/octet-stream"
               addCategory(Intent.CATEGORY_OPENABLE)
+              putExtra(Intent.EXTRA_TITLE, "backup-plaintext-${System.currentTimeMillis()}.bin")
             }
 
-            validateFileLauncher.launch(intent)
+            savePlaintextBackupToDiskLauncher.launch(intent)
           },
-          onTriggerBackupJobClicked = { viewModel.triggerBackupJob() },
-          onRestoreFromRemoteClicked = { viewModel.restoreFromRemote() }
+          onSavePlaintextCopyOfRemoteBackupClicked = {
+            val intent = Intent().apply {
+              action = Intent.ACTION_CREATE_DOCUMENT
+              type = "application/octet-stream"
+              addCategory(Intent.CATEGORY_OPENABLE)
+              putExtra(Intent.EXTRA_TITLE, "backup-plaintext-${System.currentTimeMillis()}.binproto")
+            }
+
+            savePlaintextCopyLauncher.launch(intent)
+          },
+          onExportNewStyleLocalBackupClicked = { LocalBackupJob.enqueueArchive() },
+          onWipeDataAndRestoreFromRemoteClicked = {
+            MaterialAlertDialogBuilder(context)
+              .setTitle("Are you sure?")
+              .setMessage("This will delete all of your chats! Make sure you've finished a backup first, we don't check for you. Only do this on a test device!")
+              .setPositiveButton("Wipe and restore") { _, _ -> viewModel.wipeAllDataAndRestoreFromRemote() }
+              .show()
+          },
+          onImportEncryptedBackupFromDiskClicked = {
+            viewModel.onImportSelected()
+          },
+          onImportEncryptedBackupFromDiskDismissed = {
+            viewModel.onDialogDismissed()
+          },
+          onImportEncryptedBackupFromDiskConfirmed = { aci, backupKey ->
+            viewModel.onDialogDismissed()
+            val valid = viewModel.onImportConfirmed(aci, backupKey)
+            if (valid) {
+              val intent = Intent().apply {
+                action = Intent.ACTION_GET_CONTENT
+                type = "application/octet-stream"
+                addCategory(Intent.CATEGORY_OPENABLE)
+              }
+              importEncryptedBackupFromDiskLauncher.launch(intent)
+            } else {
+              Toast.makeText(context, "Invalid credentials!", Toast.LENGTH_SHORT).show()
+            }
+          },
+          onImportNewStyleLocalBackupClicked = {
+            MaterialAlertDialogBuilder(context)
+              .setTitle("Are you sure?")
+              .setMessage("After you choose a file to import, this will delete all of your chats, then restore them from the file! Only do this on a test device!")
+              .setPositiveButton("Wipe and restore") { _, _ -> viewModel.import(SignalStore.settings.signalBackupDirectory!!) }
+              .show()
+          }
         )
       },
       mediaContent = { snackbarHostState ->
         MediaList(
-          enabled = SignalStore.backup().backsUpMedia,
+          enabled = SignalStore.backup.backsUpMedia,
           state = mediaState,
           snackbarHostState = snackbarHostState,
           archiveAttachmentMedia = { viewModel.archiveAttachmentMedia(it) },
           deleteArchivedMedia = { viewModel.deleteArchivedMedia(it) },
           batchArchiveAttachmentMedia = { viewModel.archiveAttachmentMedia(it) },
           batchDeleteBackupAttachmentMedia = { viewModel.deleteArchivedMedia(it) },
-          restoreArchivedMedia = { viewModel.restoreArchivedMedia(it) }
+          restoreArchivedMedia = { viewModel.restoreArchivedMedia(it, asThumbnail = false) },
+          restoreArchivedMediaThumbnail = { viewModel.restoreArchivedMedia(it, asThumbnail = true) }
         )
       }
     )
@@ -215,7 +273,7 @@ fun Tabs(
             }
           },
           actions = {
-            if (tabIndex == 1 && SignalStore.backup().backsUpMedia) {
+            if (tabIndex == 1 && SignalStore.backup.backsUpMedia) {
               TextButton(onClick = onDeleteAllArchivedMedia) {
                 Text(text = "Delete All")
               }
@@ -246,172 +304,249 @@ fun Tabs(
 @Composable
 fun Screen(
   state: ScreenState,
-  onExportClicked: () -> Unit = {},
-  onImportMemoryClicked: () -> Unit = {},
-  onImportFileClicked: () -> Unit = {},
-  onPlaintextClicked: () -> Unit = {},
-  onSaveToDiskClicked: () -> Unit = {},
-  onValidateFileClicked: () -> Unit = {},
-  onUploadToRemoteClicked: () -> Unit = {},
+  onExportNewStyleLocalBackupClicked: () -> Unit = {},
+  onImportNewStyleLocalBackupClicked: () -> Unit = {},
   onCheckRemoteBackupStateClicked: () -> Unit = {},
-  onTriggerBackupJobClicked: () -> Unit = {},
-  onRestoreFromRemoteClicked: () -> Unit = {}
+  onEnqueueRemoteBackupClicked: () -> Unit = {},
+  onWipeDataAndRestoreFromRemoteClicked: () -> Unit = {},
+  onBackupTierSelected: (MessageBackupTier?) -> Unit = {},
+  onHaltAllBackupJobsClicked: () -> Unit = {},
+  onSavePlaintextCopyOfRemoteBackupClicked: () -> Unit = {},
+  onValidateBackupClicked: () -> Unit = {},
+  onSaveEncryptedBackupToDiskClicked: () -> Unit = {},
+  onSavePlaintextBackupToDiskClicked: () -> Unit = {},
+  onImportEncryptedBackupFromDiskClicked: () -> Unit = {},
+  onImportEncryptedBackupFromDiskDismissed: () -> Unit = {},
+  onImportEncryptedBackupFromDiskConfirmed: (aci: String, backupKey: String) -> Unit = { _, _ -> }
 ) {
+  val context = LocalContext.current
+  val scrollState = rememberScrollState()
+  val options = remember {
+    mapOf(
+      "None" to null,
+      "Free" to MessageBackupTier.FREE,
+      "Paid" to MessageBackupTier.PAID
+    )
+  }
+
+  when (state.dialog) {
+    DialogState.None -> Unit
+    DialogState.ImportCredentials -> {
+      ImportCredentialsDialog(
+        onSubmit = onImportEncryptedBackupFromDiskConfirmed,
+        onDismissed = onImportEncryptedBackupFromDiskDismissed
+      )
+    }
+  }
+
   Surface {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center,
       modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)
+        .verticalScroll(scrollState)
     ) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        StateLabel(text = "Plaintext?")
-        Spacer(modifier = Modifier.width(8.dp))
-        Switch(
-          checked = state.plaintext,
-          onCheckedChange = { onPlaintextClicked() }
-        )
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      Buttons.LargePrimary(
-        onClick = onExportClicked,
-        enabled = !state.backupState.inProgress
-      ) {
-        Text("Export")
-      }
-
-      Buttons.LargePrimary(
-        onClick = onTriggerBackupJobClicked,
-        enabled = !state.backupState.inProgress
-      ) {
-        Text("Trigger Backup Job")
-      }
-
-      Dividers.Default()
-
-      Buttons.LargeTonal(
-        onClick = onImportMemoryClicked,
-        enabled = state.backupState == BackupState.EXPORT_DONE
-      ) {
-        Text("Import from memory")
-      }
-      Buttons.LargeTonal(
-        onClick = onImportFileClicked
-      ) {
-        Text("Import from file")
-      }
-
-      Buttons.LargeTonal(
-        onClick = onValidateFileClicked
-      ) {
-        Text("Validate file")
-      }
-
-      Spacer(modifier = Modifier.height(16.dp))
-
-      when (state.backupState) {
-        BackupState.NONE -> {
-          StateLabel("")
-        }
-
-        BackupState.EXPORT_IN_PROGRESS -> {
-          StateLabel("Export in progress...")
-        }
-
-        BackupState.EXPORT_DONE -> {
-          StateLabel("Export complete. Sitting in memory. You can click 'Import' to import that data, save it to a file, or upload it to remote.")
-
-          Spacer(modifier = Modifier.height(8.dp))
-
-          Buttons.MediumTonal(onClick = onSaveToDiskClicked) {
-            Text("Save to file")
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Tier", fontWeight = FontWeight.Bold)
+        options.forEach { option ->
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+              selected = option.value == state.backupTier,
+              onClick = { onBackupTierSelected(option.value) }
+            )
+            Text(option.key)
           }
         }
-
-        BackupState.BACKUP_JOB_DONE -> {
-          StateLabel("Backup complete and uploaded")
-        }
-
-        BackupState.IMPORT_IN_PROGRESS -> {
-          StateLabel("Import in progress...")
-        }
       }
 
       Dividers.Default()
 
-      Buttons.LargeTonal(
+      Rows.TextRow(
+        text = {
+          Text(
+            text = state.statusMessage ?: "Status messages will appear here as you perform operations",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+      )
+
+      Dividers.Default()
+
+      Rows.TextRow(
+        text = "Check remote backup state",
+        label = "Get a summary of what your remote backup looks like (presence, size, etc).",
         onClick = onCheckRemoteBackupStateClicked
-      ) {
-        Text("Check remote backup state")
-      }
+      )
+
+      Rows.TextRow(
+        text = "Enqueue remote backup",
+        label = "Schedules a job that will perform a routine remote backup.",
+        onClick = onEnqueueRemoteBackupClicked
+      )
+
+      Rows.TextRow(
+        text = "Halt all backup jobs",
+        label = "Stops all backup-related jobs to the best of our ability.",
+        onClick = onHaltAllBackupJobsClicked
+      )
+
+      Rows.TextRow(
+        text = "Validate backup",
+        label = "Generates a new backup and reports whether it passes validation. Does not save or upload anything.",
+        onClick = onValidateBackupClicked
+      )
+
+      Rows.TextRow(
+        text = "Save encrypted backup to disk",
+        label = "Generates an encrypted backup (the same thing you would upload) and saves it to your local disk.",
+        onClick = onSaveEncryptedBackupToDiskClicked
+      )
+
+      Rows.TextRow(
+        text = "Save plaintext backup to disk",
+        label = "Generates a plaintext, uncompressed backup and saves it to your local disk.",
+        onClick = onSavePlaintextBackupToDiskClicked
+      )
+
+      Rows.TextRow(
+        text = "Save plaintext copy of remote backup",
+        label = "Downloads your most recently uploaded backup and saves it to disk, plaintext and uncompressed.",
+        onClick = onSavePlaintextCopyOfRemoteBackupClicked
+      )
+
+      Rows.TextRow(
+        text = "Perform a new-style local backup",
+        label = "Creates a local backup (in your already-chosen backup directory) using the new on-disk backup format. This is the successor to the local backups existing users can build.",
+        onClick = onExportNewStyleLocalBackupClicked
+      )
+
+      Rows.TextRow(
+        text = "Copy Account Entropy Pool (AEP)",
+        label = "Copies the Account Entropy Pool (AEP) to the clipboard, which is labeled as the \"Backup Key\" in the designs.",
+        onClick = {
+          Util.copyToClipboard(context, SignalStore.account.accountEntropyPool.value)
+          Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+        }
+      )
+
+      Rows.TextRow(
+        text = "Copy Cryptographic BackupKey",
+        label = "Copies the cryptographic BackupKey to the clipboard as a hex string. Important: this is the key that is derived from the AEP, and therefore *not* the same as the key labeled \"Backup Key\" in the designs. That's actually the AEP, listed above.",
+        onClick = {
+          Util.copyToClipboard(context, Hex.toStringCondensed(SignalStore.account.accountEntropyPool.deriveMessageBackupKey().value))
+          Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+        }
+      )
+
+      Dividers.Default()
+
+      Text(
+        text = "DANGER ZONE",
+        color = Color.Red,
+        fontWeight = FontWeight.Bold
+      )
+      Rows.TextRow(
+        text = {
+          Text(
+            text = "The following operations are potentially destructive! Only use them if you know what you're doing.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+      )
+
+      Rows.TextRow(
+        text = "Wipe data and restore from remote",
+        label = "Erases all content on your device, followed by a restore of your remote backup.",
+        onClick = onWipeDataAndRestoreFromRemoteClicked
+      )
+
+      Rows.TextRow(
+        text = "Clear backup init flag",
+        label = "Clears our local state around whether backups have been initialized or not. Will force us to make request to claim backupId and set public keys.",
+        onClick = {
+          SignalStore.backup.backupsInitialized = false
+        }
+      )
+
+      Rows.TextRow(
+        text = "Clear backup credentials",
+        label = "Clears any cached backup credentials, for both our message and media backups.",
+        onClick = {
+          SignalStore.backup.messageCredentials.clearAll()
+          SignalStore.backup.mediaCredentials.clearAll()
+        }
+      )
+
+      Rows.TextRow(
+        text = "Wipe all data and restore from file",
+        label = "Erases all content on your device, followed by a restore of an encrypted backup selected from disk.",
+        onClick = onImportEncryptedBackupFromDiskClicked
+      )
+
+      Rows.TextRow(
+        text = "Wipe all data and restore a new-style local backup",
+        label = "Erases all content on your device, followed by a restore of a previously-generated new-style local backup.",
+        onClick = onImportNewStyleLocalBackupClicked
+      )
+
+      Dividers.Default()
 
       Spacer(modifier = Modifier.height(8.dp))
-
-      when (state.remoteBackupState) {
-        is InternalBackupPlaygroundViewModel.RemoteBackupState.Available -> {
-          StateLabel("Exists/allocated. ${state.remoteBackupState.response.mediaCount} media items, using ${state.remoteBackupState.response.usedSpace} bytes (${state.remoteBackupState.response.usedSpace.bytes.inMebiBytes.roundedString(3)} MiB)")
-        }
-
-        InternalBackupPlaygroundViewModel.RemoteBackupState.GeneralError -> {
-          StateLabel("Hit an unknown error. Check the logs.")
-        }
-
-        InternalBackupPlaygroundViewModel.RemoteBackupState.NotFound -> {
-          StateLabel("Not found.")
-        }
-
-        InternalBackupPlaygroundViewModel.RemoteBackupState.Unknown -> {
-          StateLabel("Hit the button above to check the state.")
-        }
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      Buttons.LargePrimary(
-        onClick = onUploadToRemoteClicked,
-        enabled = state.backupState == BackupState.EXPORT_DONE
-      ) {
-        Text("Upload to remote")
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      Buttons.LargePrimary(onClick = onRestoreFromRemoteClicked) {
-        Text("Restore from remote")
-      }
-
-      when (state.uploadState) {
-        BackupUploadState.NONE -> {
-          StateLabel("")
-        }
-
-        BackupUploadState.UPLOAD_IN_PROGRESS -> {
-          StateLabel("Upload in progress...")
-        }
-
-        BackupUploadState.UPLOAD_DONE -> {
-          StateLabel("Upload complete.")
-        }
-
-        BackupUploadState.UPLOAD_FAILED -> {
-          StateLabel("Upload failed.")
-        }
-      }
     }
   }
 }
 
 @Composable
-private fun StateLabel(text: String) {
-  Text(
-    text = text,
-    style = MaterialTheme.typography.labelSmall,
-    textAlign = TextAlign.Center
+private fun ImportCredentialsDialog(onSubmit: (aci: String, backupKey: String) -> Unit = { _, _ -> }, onDismissed: () -> Unit = {}) {
+  val dialogScrollState = rememberScrollState()
+  var aci by remember { mutableStateOf("") }
+  var backupKey by remember { mutableStateOf("") }
+  val inputOptions = KeyboardOptions(
+    capitalization = KeyboardCapitalization.None,
+    autoCorrectEnabled = false,
+    keyboardType = KeyboardType.Ascii,
+    imeAction = ImeAction.Next
+  )
+  androidx.compose.material3.AlertDialog(
+    onDismissRequest = onDismissed,
+    title = { Text(text = "Are you sure?") },
+    text = {
+      Column(modifier = Modifier.verticalScroll(dialogScrollState)) {
+        Row(modifier = Modifier.padding(vertical = 10.dp)) {
+          Text(text = "This will delete all of your chats! It's also not entirely realistic, because normally restores only happen during registration. Only do this on a test device!")
+        }
+        Row(modifier = Modifier.padding(vertical = 10.dp)) {
+          TextField(
+            value = aci,
+            keyboardOptions = inputOptions,
+            label = { Text("ACI") },
+            supportingText = { Text("(leave blank for the current user)") },
+            onValueChange = { aci = it }
+          )
+        }
+        Row(modifier = Modifier.padding(vertical = 10.dp)) {
+          TextField(
+            value = backupKey,
+            keyboardOptions = inputOptions.copy(imeAction = ImeAction.Done),
+            label = { Text("Cryptographic BackupKey (*not* AEP!)") },
+            supportingText = { Text("(leave blank for the current user)") },
+            onValueChange = { backupKey = it }
+          )
+        }
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = {
+        onSubmit(aci, backupKey)
+      }) {
+        Text(text = "Wipe and restore")
+      }
+    },
+    modifier = Modifier,
+    properties = DialogProperties()
   )
 }
 
@@ -425,11 +560,12 @@ fun MediaList(
   deleteArchivedMedia: (InternalBackupPlaygroundViewModel.BackupAttachment) -> Unit,
   batchArchiveAttachmentMedia: (Set<AttachmentId>) -> Unit,
   batchDeleteBackupAttachmentMedia: (Set<AttachmentId>) -> Unit,
-  restoreArchivedMedia: (InternalBackupPlaygroundViewModel.BackupAttachment) -> Unit
+  restoreArchivedMedia: (InternalBackupPlaygroundViewModel.BackupAttachment) -> Unit,
+  restoreArchivedMediaThumbnail: (InternalBackupPlaygroundViewModel.BackupAttachment) -> Unit
 ) {
   if (!enabled) {
     Text(
-      text = "You do not have read/write to archive cdn enabled via SignalStore.backup()",
+      text = "You do not have read/write to archive cdn enabled via SignalStore.backup",
       modifier = Modifier
         .padding(16.dp)
     )
@@ -453,16 +589,13 @@ fun MediaList(
         val attachment = state.attachments[index]
         Row(
           modifier = Modifier
-            .combinedClickable(
-              onClick = {
-                if (selectionState.selecting) {
-                  selectionState = selectionState.copy(selected = if (selectionState.selected.contains(attachment.id)) selectionState.selected - attachment.id else selectionState.selected + attachment.id)
-                }
-              },
-              onLongClick = {
-                selectionState = if (selectionState.selecting) MediaMultiSelectState() else MediaMultiSelectState(selecting = true, selected = setOf(attachment.id))
+            .combinedClickable(onClick = {
+              if (selectionState.selecting) {
+                selectionState = selectionState.copy(selected = if (selectionState.selected.contains(attachment.id)) selectionState.selected - attachment.id else selectionState.selected + attachment.id)
               }
-            )
+            }, onLongClick = {
+              selectionState = if (selectionState.selecting) MediaMultiSelectState() else MediaMultiSelectState(selecting = true, selected = setOf(attachment.id))
+            })
             .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
           if (selectionState.selecting) {
@@ -528,6 +661,14 @@ fun MediaList(
                   }
                 )
 
+                DropdownMenuItem(
+                  text = { Text("Pseudo Restore Thumbnail") },
+                  onClick = {
+                    selectionState = selectionState.copy(expandedOption = null)
+                    restoreArchivedMediaThumbnail(attachment)
+                  }
+                )
+
                 if (attachment.dbAttachment.dataHash != null && attachment.state == InternalBackupPlaygroundViewModel.BackupAttachment.State.UPLOADED_UNDOWNLOADED) {
                   DropdownMenuItem(
                     text = { Text("Re-copy with hash") },
@@ -582,57 +723,26 @@ private data class MediaMultiSelectState(
   val expandedOption: AttachmentId? = null
 )
 
-@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@SignalPreview
 @Composable
 fun PreviewScreen() {
-  SignalTheme {
-    Surface {
-      Screen(state = ScreenState(backupState = BackupState.NONE, plaintext = false))
-    }
+  Previews.Preview {
+    Screen(state = ScreenState())
   }
 }
 
-@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@SignalPreview
 @Composable
 fun PreviewScreenExportInProgress() {
-  SignalTheme {
-    Surface {
-      Screen(state = ScreenState(backupState = BackupState.EXPORT_IN_PROGRESS, plaintext = false))
-    }
+  Previews.Preview {
+    Screen(state = ScreenState(statusMessage = "Some random status message."))
   }
 }
 
-@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@SignalPreview
 @Composable
-fun PreviewScreenExportDone() {
-  SignalTheme {
-    Surface {
-      Screen(state = ScreenState(backupState = BackupState.EXPORT_DONE, plaintext = false))
-    }
-  }
-}
-
-@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewScreenImportInProgress() {
-  SignalTheme {
-    Surface {
-      Screen(state = ScreenState(backupState = BackupState.IMPORT_IN_PROGRESS, plaintext = false))
-    }
-  }
-}
-
-@Preview(name = "Light Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Theme", group = "screen", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewScreenUploadInProgress() {
-  SignalTheme {
-    Surface {
-      Screen(state = ScreenState(uploadState = BackupUploadState.UPLOAD_IN_PROGRESS, plaintext = false))
-    }
+fun PreviewImportCredentialDialog() {
+  Previews.Preview {
+    ImportCredentialsDialog()
   }
 }

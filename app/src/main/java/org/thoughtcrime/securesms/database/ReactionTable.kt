@@ -6,10 +6,13 @@ import android.database.Cursor
 import org.signal.core.util.CursorUtil
 import org.signal.core.util.SqlUtil
 import org.signal.core.util.delete
+import org.signal.core.util.forEach
+import org.signal.core.util.logging.Log
+import org.signal.core.util.select
 import org.signal.core.util.update
 import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.ReactionRecord
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.recipients.RecipientId
 
 /**
@@ -18,6 +21,8 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 class ReactionTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTable(context, databaseHelper), RecipientIdDatabaseReference {
 
   companion object {
+    private val TAG = Log.tag(ReactionTable::class)
+
     const val TABLE_NAME = "reaction"
 
     private const val ID = "_id"
@@ -77,25 +82,25 @@ class ReactionTable(context: Context, databaseHelper: SignalDatabase) : Database
 
     val messageIdToReactions: MutableMap<Long, MutableList<ReactionRecord>> = mutableMapOf()
 
-    val args: List<Array<String>> = messageIds.map { SqlUtil.buildArgs(it) }
+    val query = SqlUtil.buildFastCollectionQuery(MESSAGE_ID, messageIds)
+    readableDatabase
+      .select()
+      .from(TABLE_NAME)
+      .where(query.where, query.whereArgs)
+      .run()
+      .forEach { cursor ->
+        val reaction: ReactionRecord = readReaction(cursor)
+        val messageId = CursorUtil.requireLong(cursor, MESSAGE_ID)
 
-    for (query: SqlUtil.Query in SqlUtil.buildCustomCollectionQuery("$MESSAGE_ID = ?", args)) {
-      readableDatabase.query(TABLE_NAME, null, query.where, query.whereArgs, null, null, null).use { cursor ->
-        while (cursor.moveToNext()) {
-          val reaction: ReactionRecord = readReaction(cursor)
-          val messageId = CursorUtil.requireLong(cursor, MESSAGE_ID)
+        var reactionsList: MutableList<ReactionRecord>? = messageIdToReactions[messageId]
 
-          var reactionsList: MutableList<ReactionRecord>? = messageIdToReactions[messageId]
-
-          if (reactionsList == null) {
-            reactionsList = mutableListOf()
-            messageIdToReactions[messageId] = reactionsList
-          }
-
-          reactionsList.add(reaction)
+        if (reactionsList == null) {
+          reactionsList = mutableListOf()
+          messageIdToReactions[messageId] = reactionsList
         }
+
+        reactionsList.add(reaction)
       }
-    }
 
     return messageIdToReactions
   }
@@ -119,7 +124,7 @@ class ReactionTable(context: Context, databaseHelper: SignalDatabase) : Database
       writableDatabase.endTransaction()
     }
 
-    ApplicationDependencies.getDatabaseObserver().notifyMessageUpdateObservers(messageId)
+    AppDependencies.databaseObserver.notifyMessageUpdateObservers(messageId)
   }
 
   fun deleteReaction(messageId: MessageId, recipientId: RecipientId) {
@@ -137,7 +142,7 @@ class ReactionTable(context: Context, databaseHelper: SignalDatabase) : Database
       writableDatabase.endTransaction()
     }
 
-    ApplicationDependencies.getDatabaseObserver().notifyMessageUpdateObservers(messageId)
+    AppDependencies.databaseObserver.notifyMessageUpdateObservers(messageId)
   }
 
   fun deleteReactions(messageId: MessageId) {
@@ -165,14 +170,14 @@ class ReactionTable(context: Context, databaseHelper: SignalDatabase) : Database
     }
   }
 
-  override fun remapRecipient(oldAuthorId: RecipientId, newAuthorId: RecipientId) {
-    val query = "$AUTHOR_ID = ?"
-    val args = SqlUtil.buildArgs(oldAuthorId)
-    val values = ContentValues().apply {
-      put(AUTHOR_ID, newAuthorId.serialize())
-    }
+  override fun remapRecipient(fromId: RecipientId, toId: RecipientId) {
+    val count = writableDatabase
+      .update(TABLE_NAME)
+      .values(AUTHOR_ID to toId.serialize())
+      .where("$AUTHOR_ID = ?", fromId)
+      .run()
 
-    readableDatabase.update(TABLE_NAME, values, query, args)
+    Log.d(TAG, "Remapped $fromId to $toId. count: $count")
   }
 
   fun deleteAbandonedReactions() {

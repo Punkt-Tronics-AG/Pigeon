@@ -220,7 +220,7 @@ private fun Content(
 
     if (!model.isSelf && model.verified) {
       AboutRow(
-        startIcon = painterResource(id = R.drawable.check),
+        startIcon = painterResource(id = R.drawable.symbol_safety_number_24),
         text = stringResource(id = R.string.AboutSheet__verified),
         modifier = Modifier.align(alignment = Alignment.Start),
         onClick = onClickSignalConnections
@@ -238,7 +238,7 @@ private fun Content(
         )
       } else {
         AboutRow(
-          startIcon = painterResource(id = R.drawable.chat_x),
+          startIcon = painterResource(id = R.drawable.symbol_chat_x),
           text = stringResource(id = R.string.AboutSheet__no_direct_message, model.shortName),
           modifier = Modifier.align(alignment = Alignment.Start),
           onClick = onClickSignalConnections

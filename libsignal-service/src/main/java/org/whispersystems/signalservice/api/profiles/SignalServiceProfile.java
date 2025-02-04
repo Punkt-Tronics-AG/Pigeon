@@ -192,23 +192,23 @@ public class SignalServiceProfile {
     @JsonProperty
     private boolean storage;
 
-    @JsonProperty
-    private boolean paymentActivation;
+    @JsonProperty("ssre2")
+    private boolean storageServiceEncryptionV2;
 
     @JsonCreator
     public Capabilities() {}
 
-    public Capabilities(boolean storage, boolean paymentActivation) {
-      this.storage           = storage;
-      this.paymentActivation = paymentActivation;
+    public Capabilities(boolean storage, boolean storageServiceEncryptionV2) {
+      this.storage                    = storage;
+      this.storageServiceEncryptionV2 = storageServiceEncryptionV2;
     }
 
     public boolean isStorage() {
       return storage;
     }
 
-    public boolean isPaymentActivation() {
-      return paymentActivation;
+    public boolean isStorageServiceEncryptionV2() {
+      return storageServiceEncryptionV2;
     }
   }
 
