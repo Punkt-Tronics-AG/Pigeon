@@ -50,7 +50,7 @@ public class EmojiEditText extends AppCompatEditText {
     if (!isInEditMode() && !SignalStore.settings().isPreferSystemEmoji()) {
       if (isSignalVersion()) {
         setFilters(appendEmojiFilter(this.getFilters(), jumboEmoji));
-        }
+      }
       setEmojiCompatEnabled(false);
     }
 
