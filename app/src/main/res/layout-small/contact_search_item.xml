@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:focusable="true"
-    android:clickable="true"
     android:layout_marginStart="@dimen/pigeon_start_margin"
+    android:clickable="true"
     android:descendantFocusability="blocksDescendants"
+    android:focusable="true"
     tools:background="@color/black"
     tools:viewBindingIgnore="true">
 
@@ -15,7 +15,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:ignore="MissingConstraints">
 
         <org.thoughtcrime.securesms.components.AvatarImageView
             android:id="@+id/contact_photo_image"
@@ -44,24 +45,21 @@
 
         <org.thoughtcrime.securesms.components.emoji.EmojiTextView
             android:id="@+id/number"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-            android:drawablePadding="4dp"
             android:ellipsize="marquee"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.Signal.Body1"
-            android:textColor="@color/signal_text_primary"
-            app:layout_constraintBottom_toTopOf="@id/check_box"
-            app:layout_constraintEnd_toStartOf="@id/sms_tag"
+            android:textAppearance="@style/TextAppearance.Signal.Body2"
+            android:textColor="@color/signal_text_secondary"
+            android:textDirection="ltr"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/label"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/contact_photo_image"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:drawableStart="@drawable/ic_bell_24"
-            tools:drawableTint="@color/signal_icon_tint_secondary"
-            tools:text="@sample/contacts.json/data/name" />
+            tools:text="@tools:sample/lorem/random" />
 
         <TextView
             android:id="@+id/label"
@@ -72,39 +70,31 @@
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Signal.Body2"
             android:textColor="@color/signal_text_secondary"
-            app:layout_constraintEnd_toEndOf="@id/number"
+            app:layout_constraintEnd_toEndOf="@id/name"
             app:layout_constraintStart_toEndOf="@id/number"
             app:layout_constraintTop_toTopOf="@id/number"
             tools:ignore="RtlSymmetry"
             tools:text="· Mobile"
             tools:visibility="gone" />
 
-        <TextView
-            android:id="@+id/sms_tag"
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/button_barrier"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="20dp"
-            android:text="@string/ContactSelectionListItem__sms"
-            android:textAppearance="@style/TextAppearance.Signal.Body2"
-            android:textColor="@color/signal_text_secondary"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/check_box"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_goneMarginEnd="0dp"
-            tools:visibility="visible" />
+            android:layout_height="wrap_content"
+            app:barrierDirection="start"
+            app:constraint_referenced_ids="start_audio,start_video" />
 
         <ImageView
             android:id="@+id/start_video"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="-12dp"
             android:importantForAccessibility="no"
+            android:padding="12dp"
             android:src="@drawable/ic_video_call_24"
             android:visibility="gone"
-            android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/sms_tag"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/signal_colorOnSurface"
             tools:visibility="visible" />
@@ -114,9 +104,9 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:importantForAccessibility="no"
+            android:padding="12dp"
             android:src="@drawable/symbol_phone_24"
             android:visibility="gone"
-            android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/start_video"
             app:layout_constraintTop_toTopOf="parent"
@@ -137,7 +127,6 @@
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/contact_selection_activity__invite_to_signal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/check_box"
             app:layout_constraintStart_toStartOf="parent"
