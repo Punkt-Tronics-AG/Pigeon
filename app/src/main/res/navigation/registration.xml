@@ -20,14 +20,6 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
         <action
-            android:id="@+id/action_pigeon_skip_restore"
-            app:destination="@id/countryCodeFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-        <action
             android:id="@+id/action_go_to_registration"
             app:destination="@id/enterPhoneNumberFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
@@ -63,72 +55,6 @@
         <argument
             android:name="welcomeAction"
             app:argType="org.thoughtcrime.securesms.registration.ui.grantpermissions.GrantPermissionsFragment$WelcomeAction" />
-
-        <action
-            android:id="@+id/action_welcomeFragment_to_termsFragment"
-            app:destination="@id/termsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-        <action
-            android:id="@+id/action_read_disclaimer"
-            app:destination="@id/discalimerFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/countryCodeFragment"
-        android:name="pigeon.fragments.CountryCodeFragment"
-        android:label="fragment_countryCodee"
-        tools:layout="@layout/pigeon_registration_country_code_fragment">
-
-        <action
-            android:id="@+id/action_countryCodeFragment_to_enterPhoneNumberFragment"
-            app:destination="@id/enterPhoneNumberFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-        <action
-            android:id="@+id/action_pickCountry"
-            app:destination="@id/countryPickerFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/chooseBackupFragment"
-        android:name="org.thoughtcrime.securesms.registration.fragments.ChooseBackupFragment"
-        android:label="fragment_choose_backup"
-        tools:layout="@layout/fragment_registration_choose_backup">
-
-        <action
-            android:id="@+id/action_restore"
-            app:destination="@id/restoreBackupFragmentV2"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/chooseBackupFragment"
-            app:popUpToInclusive="true" />
-
-        <action
-            android:id="@+id/action_skip"
-            app:destination="@id/enterPhoneNumberFragment"
-            app:enterAnim="@anim/slide_from_end"
-            app:exitAnim="@anim/slide_to_start"
-            app:popEnterAnim="@anim/slide_from_start"
-            app:popExitAnim="@anim/slide_to_end" />
 
     </fragment>
 

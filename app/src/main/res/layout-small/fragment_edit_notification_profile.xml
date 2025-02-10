@@ -69,8 +69,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
             android:inputType="textCapSentences"
-            android:maxLines="1"
-            app:emoji_forceCustom="true" />
+            android:maxLines="1" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
