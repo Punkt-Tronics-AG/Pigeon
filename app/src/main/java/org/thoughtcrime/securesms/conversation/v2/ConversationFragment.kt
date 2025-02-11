@@ -211,6 +211,7 @@ import org.thoughtcrime.securesms.conversation.v2.groups.ConversationGroupViewMo
 import org.thoughtcrime.securesms.conversation.v2.items.ChatColorsDrawable
 import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
 import org.thoughtcrime.securesms.conversation.v2.keyboard.AttachmentKeyboardFragment
+import org.thoughtcrime.securesms.crypto.SecurityEvent
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.DraftTable
 import org.thoughtcrime.securesms.database.model.IdentityRecord
@@ -759,7 +760,7 @@ class ConversationFragment :
 //          val database = messages
 //          val endSessionMessage:OutgoingMessage =  endSessionMessage(viewModel.recipientSnapshot!!, System.currentTimeMillis())
           if (viewModel.recipientSnapshot?.isGroup == false) {
-            ApplicationDependencies.getProtocolStore().aci().deleteAllSessions(viewModel.recipientSnapshot!!.requireServiceId().toString())
+            AppDependencies.protocolStore.aci().deleteAllSessions(viewModel.recipientSnapshot!!.requireServiceId().toString())
             SecurityEvent.broadcastSecurityUpdateEvent(context)
             Toast.makeText(context, R.string.conversation_secure_verified__menu_reset_secure_session, Toast.LENGTH_SHORT).show()
 

@@ -258,17 +258,18 @@ public class WebRtcCallViewModel extends ViewModel {
         SignalStore.tooltips().markGroupCallSpeakerViewSeen();
       }
 
-    CallParticipantsState state = participantsState.getValue();
-    if (showScreenShareTip &&
-        state.getFocusedParticipant().isScreenSharing() &&
-        state.isViewingFocusedParticipant() &&
-        page == CallParticipantsState.SelectedPage.GRID)
-    {
-      showScreenShareTip = false;
-      events.setValue(CallEvent.ShowSwipeToSpeakerHint.INSTANCE);
-    }
+      CallParticipantsState state = participantsState.getValue();
+      if (showScreenShareTip &&
+          state.getFocusedParticipant().isScreenSharing() &&
+          state.isViewingFocusedParticipant() &&
+          page == CallParticipantsState.SelectedPage.GRID)
+      {
+        showScreenShareTip = false;
+        events.setValue(CallEvent.ShowSwipeToSpeakerHint.INSTANCE);
+      }
 
-    participantsState.onNext(CallParticipantsState.update(participantsState.getValue(), page));
+      participantsState.onNext(CallParticipantsState.update(participantsState.getValue(), page));
+    }
   }
 
   public void onLocalPictureInPictureClicked() {

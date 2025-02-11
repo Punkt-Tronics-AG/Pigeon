@@ -422,26 +422,25 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
       ).attach(recyclerView)
     }
   }
-}
 
-fun showSearchBar() {
-  if (::_searchToolbar.isInitialized) {
-    _searchToolbar.get().requestFocus()
-    _searchToolbarContainer.visibility = View.VISIBLE
+  fun showSearchBar() {
+    if (::_searchToolbar.isInitialized) {
+      _searchToolbar.get().requestFocus()
+      _searchToolbarContainer.visibility = View.VISIBLE
+    }
   }
-}
 
-fun hideSearchBar() {
-  if (::_searchToolbar.isInitialized) {
-    _searchToolbar.get().clearText()
-    _searchToolbarContainer.visibility = View.GONE
+  fun hideSearchBar() {
+    if (::_searchToolbar.isInitialized) {
+      _searchToolbar.get().clearText()
+      _searchToolbarContainer.visibility = View.GONE
+    }
   }
-}
 
-fun hideArchivedConversations() {
-  conversationListTabsViewModel.isShowingArchived(false)
-  presentToolbarForConversationListFragment()
-  val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
-  controller.popBackStack(R.id.conversationListFragment, false)
-}
+  fun hideArchivedConversations() {
+    conversationListTabsViewModel.isShowingArchived(false)
+    presentToolbarForConversationListFragment()
+    val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
+    controller.popBackStack(R.id.conversationListFragment, false)
+  }
 }

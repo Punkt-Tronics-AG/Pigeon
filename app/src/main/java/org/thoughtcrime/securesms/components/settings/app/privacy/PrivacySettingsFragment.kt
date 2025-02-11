@@ -110,11 +110,7 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
     var showPaymentLock = true
 
     viewModel.state.observe(viewLifecycleOwner) { state ->
-      if (isSignalVersion()) {
-        adapter.submitList(getConfiguration(state).toMappingModelList())
-      } else {
-        adapter.submitList(getPigeonConfiguration(state).toMappingModelList())
-      }
+      adapter.submitList(getConfiguration(state).toMappingModelList())
       if (args.showPaymentLock && showPaymentLock) {
         showPaymentLock = false
         recyclerView?.scrollToPosition(adapter.itemCount - 1)
@@ -274,219 +270,60 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
         )
       }
 
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__screen_security),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
-        isChecked = state.screenSecurity,
-        onClick = {
-          viewModel.setScreenSecurityEnabled(!state.screenSecurity)
-
-          if (TextSecurePreferences.isScreenSecurityEnabled(requireContext())) {
-            requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-          } else {
-            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-          }
-        }
-      )
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__incognito_keyboard),
-        summary = DSLSettingsText.from(R.string.preferences__request_keyboard_to_disable),
-        isChecked = state.incognitoKeyboard,
-        onClick = {
-          viewModel.setIncognitoKeyboard(!state.incognitoKeyboard)
-        }
-      )
-
-      textPref(
-        summary = DSLSettingsText.from(incognitoSummary)
-      )
-
-      dividerPref()
-
-      sectionHeaderPref(R.string.preferences_app_protection__payments)
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__payment_lock),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__payment_lock_require_lock),
-        isChecked = state.paymentLock && ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure,
-        onClick = {
-          if (!ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure) {
-            showGoToPhoneSettings()
-          } else if (state.paymentLock) {
-            biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.BiometricDeviceAuthentication__signal)) }
-          } else {
-            viewModel.togglePaymentLock(true)
-          }
-        }
-      )
-
-      dividerPref()
-
-      clickPref(
-        title = DSLSettingsText.from(R.string.preferences__advanced),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__signal_message_and_calls),
-        onClick = {
-          Navigation.findNavController(requireView()).safeNavigate(R.id.action_privacySettingsFragment_to_advancedPrivacySettingsFragment)
-        }
-      )
-    }
-  }
-
-  private fun getPigeonConfiguration(state: PrivacySettingsState): DSLConfiguration {
-    return configure {
-      clickPref(
-        title = DSLSettingsText.from(R.string.PrivacySettingsFragment__blocked),
-        summary = DSLSettingsText.from(resources.getQuantityString(R.plurals.PrivacySettingsFragment__d_contacts, state.blockedCount, state.blockedCount)),
-        onClick = {
-          Navigation.findNavController(requireView())
-            .safeNavigate(R.id.action_privacySettingsFragment_to_blockedUsersActivity)
-        }
-      )
-
-      sectionHeaderPref(R.string.PrivacySettingsFragment__messaging)
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__read_receipts),
-        summary = DSLSettingsText.from(R.string.preferences__if_read_receipts_are_disabled_you_wont_be_able_to_see_read_receipts),
-        isChecked = state.readReceipts,
-        onClick = {
-          viewModel.setReadReceiptsEnabled(!state.readReceipts)
-        }
-      )
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__typing_indicators),
-        summary = DSLSettingsText.from(R.string.preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators),
-        isChecked = state.typingIndicators,
-        onClick = {
-          viewModel.setTypingIndicatorsEnabled(!state.typingIndicators)
-        }
-      )
-
-      sectionHeaderPref(R.string.PrivacySettingsFragment__app_security)
-
-      if (state.isObsoletePasswordEnabled) {
+      if (isSignalVersion()) {
         switchPref(
-          title = DSLSettingsText.from(R.string.preferences__enable_passphrase),
-          summary = DSLSettingsText.from(R.string.preferences__lock_signal_and_message_notifications_with_a_passphrase),
-          isChecked = true,
+          title = DSLSettingsText.from(R.string.preferences__screen_security),
+          summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
+          isChecked = state.screenSecurity,
           onClick = {
-            MaterialAlertDialogBuilder(requireContext()).apply {
-              setTitle(R.string.ApplicationPreferencesActivity_disable_passphrase)
-              setMessage(R.string.ApplicationPreferencesActivity_this_will_permanently_unlock_signal_and_message_notifications)
-              setIcon(R.drawable.symbol_error_triangle_fill_24)
-              setPositiveButton(R.string.ApplicationPreferencesActivity_disable) { _, _ ->
-                MasterSecretUtil.changeMasterSecretPassphrase(
-                  activity,
-                  KeyCachingService.getMasterSecret(context),
-                  MasterSecretUtil.UNENCRYPTED_PASSPHRASE
-                )
-                TextSecurePreferences.setPasswordDisabled(activity, true)
-                val intent = Intent(activity, KeyCachingService::class.java)
-                intent.action = KeyCachingService.DISABLE_ACTION
-                requireActivity().startService(intent)
-                viewModel.refresh()
-              }
-              setNegativeButton(android.R.string.cancel, null)
-              show()
-            }
-          }
-        )
+            viewModel.setScreenSecurityEnabled(!state.screenSecurity)
 
-        clickPref(
-          title = DSLSettingsText.from(R.string.preferences__change_passphrase),
-          summary = DSLSettingsText.from(R.string.preferences__change_your_passphrase),
-          onClick = {
-            if (MasterSecretUtil.isPassphraseInitialized(activity)) {
-              startActivity(Intent(activity, PassphraseChangeActivity::class.java))
+            if (TextSecurePreferences.isScreenSecurityEnabled(requireContext())) {
+              requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             } else {
-              Toast.makeText(
-                activity,
-                R.string.ApplicationPreferenceActivity_you_havent_set_a_passphrase_yet,
-                Toast.LENGTH_LONG
-              ).show()
+              requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
           }
         )
 
         switchPref(
-          title = DSLSettingsText.from(R.string.preferences__inactivity_timeout_passphrase),
-          summary = DSLSettingsText.from(R.string.preferences__auto_lock_signal_after_a_specified_time_interval_of_inactivity),
-          isChecked = state.isObsoletePasswordTimeoutEnabled,
+          title = DSLSettingsText.from(R.string.preferences__incognito_keyboard),
+          summary = DSLSettingsText.from(R.string.preferences__request_keyboard_to_disable),
+          isChecked = state.incognitoKeyboard,
           onClick = {
-            viewModel.setObsoletePasswordTimeoutEnabled(!state.isObsoletePasswordTimeoutEnabled)
+            viewModel.setIncognitoKeyboard(!state.incognitoKeyboard)
           }
         )
 
-        clickPref(
-          title = DSLSettingsText.from(R.string.preferences__inactivity_timeout_interval),
-          onClick = {
-            childFragmentManager.clearFragmentResult(TimeDurationPickerDialog.RESULT_DURATION)
-            childFragmentManager.clearFragmentResultListener(TimeDurationPickerDialog.RESULT_DURATION)
-            childFragmentManager.setFragmentResultListener(TimeDurationPickerDialog.RESULT_DURATION, this@PrivacySettingsFragment) { _, bundle ->
-              val timeout = bundle.getLong(TimeDurationPickerDialog.RESULT_KEY_DURATION_MILLISECONDS).milliseconds.inWholeMinutes.toInt()
-              viewModel.setObsoletePasswordTimeout(max(timeout, 1))
-            }
-            TimeDurationPickerDialog.create(state.screenLockActivityTimeout.seconds).show(childFragmentManager, null)
-          }
+        textPref(
+          summary = DSLSettingsText.from(incognitoSummary)
         )
-      } else {
-        val isKeyguardSecure = ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure
+
+      }
+
+      if (isSignalVersion()) {
+
+        dividerPref()
+
+        sectionHeaderPref(R.string.preferences_app_protection__payments)
 
         switchPref(
-          title = DSLSettingsText.from(R.string.preferences_app_protection__screen_lock),
-          summary = DSLSettingsText.from(R.string.preferences_app_protection__lock_signal_access_with_android_screen_lock_or_fingerprint),
-          isChecked = state.screenLock && isKeyguardSecure,
-          isEnabled = true,
+          title = DSLSettingsText.from(R.string.preferences__payment_lock),
+          summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__payment_lock_require_lock),
+          isChecked = state.paymentLock && ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure,
           onClick = {
-            if (isKeyguardSecure) {
-              viewModel.setScreenLockEnabled(!state.screenLock)
-
-              val intent = Intent(requireContext(), KeyCachingService::class.java)
-              intent.action = KeyCachingService.LOCK_TOGGLED_EVENT
-              requireContext().startService(intent)
-
-              ConversationUtil.refreshRecipientShortcuts()
+            if (!ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure) {
+              showGoToPhoneSettings()
+            } else if (state.paymentLock) {
+              biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.BiometricDeviceAuthentication__signal)) }
             } else {
-              Toast.makeText(requireContext(), R.string.PIN_screen_lock, Toast.LENGTH_SHORT).show()
-            }
-          }
-        )
-
-        clickPref(
-          title = DSLSettingsText.from(R.string.preferences_app_protection__screen_lock_inactivity_timeout),
-          summary = DSLSettingsText.from(getScreenLockInactivityTimeoutSummary(state.screenLockActivityTimeout)),
-          isEnabled = true,
-          onClick = {
-            if (isKeyguardSecure && state.screenLock) {
-              childFragmentManager.clearFragmentResult(TimeDurationPickerDialog.RESULT_DURATION)
-              childFragmentManager.clearFragmentResultListener(TimeDurationPickerDialog.RESULT_DURATION)
-              childFragmentManager.setFragmentResultListener(TimeDurationPickerDialog.RESULT_DURATION, this@PrivacySettingsFragment) { _, bundle ->
-                viewModel.setScreenLockTimeout(bundle.getLong(TimeDurationPickerDialog.RESULT_KEY_DURATION_MILLISECONDS).milliseconds.inWholeSeconds)
-              }
-              TimeDurationPickerDialog.create(state.screenLockActivityTimeout.seconds).show(childFragmentManager, null)
-            } else {
-              Toast.makeText(requireContext(), R.string.PIN_screen_lock_timeout, Toast.LENGTH_SHORT).show()
+              viewModel.togglePaymentLock(true)
             }
           }
         )
       }
 
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__screen_security),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
-        isChecked = state.screenSecurity,
-        onClick = {
-          viewModel.setScreenSecurityEnabled(!state.screenSecurity)
-
-          if (TextSecurePreferences.isScreenSecurityEnabled(requireContext())) {
-            requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-          } else {
-            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-          }
-        }
-      )
+      dividerPref()
 
       clickPref(
         title = DSLSettingsText.from(R.string.preferences__advanced),

@@ -464,7 +464,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
                                                Optional.empty(),
                                                BuildConfig.SIGNAL_AGENT,
                                                healthMonitor,
-                                               Stories.isFeatureEnabled());
+                                               Stories.isFeatureEnabled() ,  pigeonAliveIntervalTime, pigeonSleepIntervalTime);
         }
       }
     };

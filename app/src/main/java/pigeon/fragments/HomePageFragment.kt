@@ -14,7 +14,7 @@ import org.thoughtcrime.securesms.NewConversationActivity
 import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity.Companion.home
 import org.thoughtcrime.securesms.database.SignalDatabase.Companion.threads
 import org.thoughtcrime.securesms.databinding.PigeonFragmentHomePageBinding
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
+import org.thoughtcrime.securesms.dependencies.AppDependencies.messageNotifier
 import org.thoughtcrime.securesms.groups.ui.creategroup.CreateGroupActivity
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver
 import org.thoughtcrime.securesms.permissions.Permissions
@@ -96,7 +96,7 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
     context.cancelNotifications()
     SignalExecutors.BOUNDED.execute {
       val messageIds = threads.setAllThreadsRead()
-      ApplicationDependencies.getMessageNotifier().updateNotification(context)
+      messageNotifier.updateNotification(context)
       MarkReadReceiver.process(messageIds)
     }
   }

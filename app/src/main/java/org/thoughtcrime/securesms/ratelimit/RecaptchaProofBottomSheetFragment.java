@@ -49,7 +49,7 @@ public final class RecaptchaProofBottomSheetFragment extends BottomSheetDialogFr
   }
 
   private void setupFullHeight(BottomSheetDialog bottomSheetDialog) {
-    FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+    FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
     assert bottomSheet != null;
     BottomSheetBehavior<FrameLayout> behavior     = BottomSheetBehavior.from(bottomSheet);
     ViewGroup.LayoutParams           layoutParams = bottomSheet.getLayoutParams();

@@ -112,6 +112,7 @@ import org.thoughtcrime.securesms.banner.banners.OutdatedBuildBanner;
 import org.thoughtcrime.securesms.banner.banners.ServiceOutageBanner;
 import org.thoughtcrime.securesms.banner.banners.UnauthorizedBanner;
 import org.thoughtcrime.securesms.banner.banners.UsernameOutOfSyncBanner;
+import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar;
 import org.thoughtcrime.securesms.components.DeleteSyncEducationDialog;
 import org.thoughtcrime.securesms.components.Material3SearchToolbar;
 import org.thoughtcrime.securesms.components.RatingManager;
@@ -222,9 +223,9 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   private static final String TAG = Log.tag(ConversationListFragment.class);
 
-  private static final int MAXIMUM_PINNED_CONVERSATIONS = 4;
-  private static final int MAX_CHATS_ABOVE_FOLD = 7;
-  private static final int MAX_CONTACTS_ABOVE_FOLD = 5;
+  private static final int MAXIMUM_PINNED_CONVERSATIONS     = 4;
+  private static final int MAX_CHATS_ABOVE_FOLD             = 7;
+  private static final int MAX_CONTACTS_ABOVE_FOLD          = 5;
   private static final int MAX_GROUP_MEMBERSHIPS_ABOVE_FOLD = 5;
 
   private ActionMode                             actionMode;
@@ -398,7 +399,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     archiveDecoration = new ConversationListArchiveItemDecoration(new ColorDrawable(getResources().getColor(R.color.conversation_list_archive_background_end)));
     itemAnimator      = new ConversationListItemAnimator();
 
-    chatFolderAdapter                          = new ChatFolderAdapter(this);
+    chatFolderAdapter = new ChatFolderAdapter(this);
     DefaultItemAnimator chatFolderItemAnimator = getChatFolderItemAnimator();
 
     chatFolderList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
@@ -488,15 +489,14 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   }
 
   private @NonNull DefaultItemAnimator getChatFolderItemAnimator() {
-    int duration = 150;
+    int                 duration = 150;
     DefaultItemAnimator animator = new DefaultItemAnimator();
     animator.setAddDuration(duration);
     animator.setMoveDuration(duration);
     animator.setRemoveDuration(duration);
     animator.setChangeDuration(duration);
-    return animator;
     initializeSearchListener();
-
+    return animator;
   }
 
   @Override
@@ -528,7 +528,6 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     intent.setAction("clear.notification.from.signal");
     requireActivity().sendBroadcast(intent);
 
-    updateReminders();
     EventBus.getDefault().register(this);
     itemAnimator.disable();
     SpoilerAnnotation.resetRevealedSpoilers();
@@ -623,7 +622,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    menu.findItem(R.id.menu_clear_passphrase).setVisible(!TextSecurePreferences.isPasswordDisabled(requireContext()));
+//    menu.findItem(R.id.menu_clear_passphrase).setVisible(!textSecurePreferences.isPasswordDisabled(requireContext()));
 
     ConversationFilterRequest request             = viewModel.getConversationFilterRequest();
     boolean                   isChatFilterEnabled = request != null && request.getFilter() == ConversationFilter.UNREAD;
@@ -685,10 +684,10 @@ public class ConversationListFragment extends MainFragment implements ActionMode
         builder.addSection(new ContactSearchConfiguration.Section.Chats(
             unreadOnly,
             true,
-              new ContactSearchConfiguration.ExpandConfig(
-                  state.getExpandedSections().contains(ContactSearchConfiguration.SectionKey.CHATS),
-                  (a) -> MAX_CHATS_ABOVE_FOLD
-              )
+            new ContactSearchConfiguration.ExpandConfig(
+                state.getExpandedSections().contains(ContactSearchConfiguration.SectionKey.CHATS),
+                (a) -> MAX_CHATS_ABOVE_FOLD
+            )
         ));
 
         if (!unreadOnly) {
@@ -720,8 +719,8 @@ public class ConversationListFragment extends MainFragment implements ActionMode
         } else {
           builder.arbitrary(
               conversationFilterRequest.getSource() == ConversationFilterSource.DRAG
-                ? ConversationListSearchAdapter.ChatFilterOptions.WITHOUT_TIP.getCode()
-                : ConversationListSearchAdapter.ChatFilterOptions.WITH_TIP.getCode()
+              ? ConversationListSearchAdapter.ChatFilterOptions.WITHOUT_TIP.getCode()
+              : ConversationListSearchAdapter.ChatFilterOptions.WITH_TIP.getCode()
           );
         }
 
@@ -785,10 +784,10 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   @Override public void onCallClick(@NonNull Conversation conversation) {
     Recipient recipient = conversation.getThreadRecord().getRecipient();
-    if (recipient.isGroup()){
-      CommunicationActions.startVideoCall(this, recipient);
-    } else  {
-      CommunicationActions.startVoiceCall(this, recipient);
+    if (recipient.isGroup()) {
+      CommunicationActions.startVideoCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
+    } else {
+      CommunicationActions.startVoiceCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
     }
   }
 
@@ -983,7 +982,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
 
   private void initializeListAdapters() {
-    defaultAdapter          = new ConversationListAdapter(getViewLifecycleOwner(), Glide.with(this), this, this, this);
+    defaultAdapter = new ConversationListAdapter(getViewLifecycleOwner(), Glide.with(this), this, this, this);
 
     setAdapter(defaultAdapter);
 
@@ -1541,10 +1540,12 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     } else {
       if (viewModel.getCurrentFolder().getFolderType() == ChatFolderRecord.FolderType.ALL &&
           (conversation.getThreadRecord().getRecipient().isIndividual() ||
-          conversation.getThreadRecord().getRecipient().isPushV2Group())) {
+           conversation.getThreadRecord().getRecipient().isPushV2Group()))
+      {
         List<ChatFolderRecord> folders = viewModel.getFolders().stream().map(ChatFolderMappingModel::getChatFolder).collect(Collectors.toList());
         items.add(new ActionItem(R.drawable.symbol_folder_add, getString(R.string.ConversationListFragment_add_to_folder), () ->
-          AddToFolderBottomSheet.showChatFolderSheet(folders, conversation.getThreadRecord().getThreadId(), conversation.getThreadRecord().getRecipient().isIndividual()).show(getParentFragmentManager(), BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG)
+            AddToFolderBottomSheet.showChatFolderSheet(folders, conversation.getThreadRecord().getThreadId(), conversation.getThreadRecord().getRecipient().isIndividual())
+                                  .show(getParentFragmentManager(), BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG)
         ));
       } else if (viewModel.getCurrentFolder().getFolderType() != ChatFolderRecord.FolderType.ALL) {
         items.add(new ActionItem(R.drawable.symbol_folder_minus, getString(R.string.ConversationListFragment_remove_from_folder), () -> viewModel.removeChatFromFolder(conversation.getThreadRecord().getThreadId())));

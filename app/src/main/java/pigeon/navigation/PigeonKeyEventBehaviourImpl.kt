@@ -8,7 +8,6 @@ import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.v2.ConversationFragment
 import org.thoughtcrime.securesms.ratelimit.RecaptchaProofActivity
-import org.thoughtcrime.securesms.registration.fragments.CaptchaFragment
 
 class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
   override fun dispatchKeyEvent(event: KeyEvent, fragmentManager: FragmentManager, activity: Activity) {
@@ -19,11 +18,13 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
     when (event.keyCode) {
       KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_0 -> {
         val fragment = navFragment?.childFragmentManager?.primaryNavigationFragment
-        if (fragment is CaptchaFragment) {
-          fragment.onKeyDown(event.keyCode, event.action)
-          return
-        }
-        else if (activity is RecaptchaProofActivity) {
+        // deprecated fragment
+//        if (fragment is CaptchaFragment) {
+//          fragment.onKeyDown(event.keyCode, event.action)
+//          return
+//        }
+//        else
+          if (activity is RecaptchaProofActivity) {
           activity.onKeyDown(event.keyCode, event.action)
           return
         }

@@ -127,7 +127,7 @@ public final class RecipientBottomSheetDialogFragment extends BottomSheetDialogF
   }
 
   private void setupFullHeight(BottomSheetDialog bottomSheetDialog) {
-    FrameLayout            bottomSheet  = (FrameLayout) bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+    FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
     BottomSheetBehavior    behavior     = BottomSheetBehavior.from(bottomSheet);
     ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
 

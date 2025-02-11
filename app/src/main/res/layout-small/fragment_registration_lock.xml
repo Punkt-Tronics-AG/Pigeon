@@ -37,7 +37,7 @@
             android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/kbs_lock_pin_title" />
 
-        <com.google.android.material.textfield.TextInputEditText
+        <EditText
             android:id="@+id/kbs_lock_pin_input"
             style="@style/Mp02.Signal.Text.BigCommonTextButton"
             android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
             tools:text="@tools:sample/us_phones">
 
             <requestFocus />
-        </com.google.android.material.textfield.TextInputEditText>
+        </EditText>
 
         <TextView
             android:id="@+id/kbs_lock_pin_input_label"
@@ -83,7 +83,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/kbs_lock_pin_input_label" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:id="@+id/kbs_lock_keyboard_toggle"
             android:layout_width="match_parent"
