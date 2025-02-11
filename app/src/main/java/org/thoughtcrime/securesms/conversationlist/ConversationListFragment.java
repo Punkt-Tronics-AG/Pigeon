@@ -495,7 +495,6 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     animator.setMoveDuration(duration);
     animator.setRemoveDuration(duration);
     animator.setChangeDuration(duration);
-    initializeSearchListener();
     return animator;
   }
 

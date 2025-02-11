@@ -90,6 +90,9 @@
         <item name="colorPrimary">@color/white_not_focus</item>
         <item name="android:textColor">@color/mp02_common_text_button</item>
         <item name="android:textAlignment">textStart</item>
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:inset">0dp</item>
+        <item name="android:padding">0dp</item>
         <item name="android:singleLine">true</item>
         <item name="android:focusable">true</item>
         <item name="android:fadingEdge">horizontal</item>

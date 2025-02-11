@@ -35,6 +35,22 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
+        <action
+            android:id="@+id/action_welcomeFragment_to_termsFragment"
+            app:destination="@id/termsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+        <action
+            android:id="@+id/action_read_disclaimer"
+            app:destination="@id/discalimerFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
     </fragment>
 
     <fragment
@@ -46,11 +62,11 @@
         <action
             android:id="@+id/action_enter_phone_number"
             app:destination="@id/enterPhoneNumberFragment"
-            app:popUpTo="@+id/welcomeFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/welcomeFragment" />
 
         <argument
             android:name="welcomeAction"
@@ -64,7 +80,7 @@
         android:label="fragment_enter_phone_number"
         tools:layout="@layout/fragment_registration_enter_phone_number">
 
-         <action
+        <action
             android:id="@+id/action_enterVerificationCode"
             app:destination="@id/enterCodeFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
@@ -222,5 +238,18 @@
         app:popExitAnim="@anim/nav_default_pop_exit_anim"
         app:popUpTo="@id/welcomeFragment"
         app:popUpToInclusive="true" />
+
+    <!--     PIGEON SECTION-->
+    <fragment
+        android:id="@+id/termsFragment"
+        android:name="pigeon.fragments.TermsFragment"
+        tools:layout="@layout/pigeon_fragment_registration_terms" />
+
+    <fragment
+        android:id="@+id/discalimerFragment"
+        android:name="pigeon.fragments.DisclaimerFragment"
+        tools:layout="@layout/fragment_registration_disclaimer">
+
+    </fragment>
 
 </navigation>

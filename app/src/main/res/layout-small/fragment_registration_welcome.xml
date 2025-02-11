@@ -67,7 +67,7 @@
             app:layout_constraintBottom_toTopOf="@+id/welcome_terms_button"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/welcome_terms_button"
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="match_parent"
