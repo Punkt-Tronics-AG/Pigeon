@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.thoughtcrime.securesms.LoggingFragment
@@ -18,7 +19,7 @@ import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
 import pigeon.extensions.isSignalVersion
 
-class CountryCodeFragment : LoggingFragment(){
+class CountryCodeFragment : LoggingFragment() {
   private val sharedViewModel by activityViewModels<RegistrationViewModel>()
   private val disposables = LifecycleDisposable()
 
@@ -44,26 +45,35 @@ class CountryCodeFragment : LoggingFragment(){
 
     binding?.run {
       setDebugLogSubmitMultiTapView(verifyHeader)
-      val controller = RegistrationNumberInputController(requireContext(), this@CountryCodeFragment, EditText(context), countryCode)
+//      val controller = RegistrationNumberInputController(requireContext(), this@CountryCodeFragment, EditText(context), countryCode)
 
       nextButton.setOnClickListener { v: View -> handleRegister(v) }
       if (!isSignalVersion()) {
         countryCodeLayout.focusOnRight()
         countryCodeLayout.requestFocus()
-        val arguments = CountryPickerFragmentArgs.Builder().setResultKey(NUMBER_COUNTRY_SELECT).build()
-        countryCodeLayout.setOnClickListener { v: View? -> findNavController(v!!).safeNavigate(R.id.action_pickCountry, arguments.toBundle()) }
-        parentFragmentManager.setFragmentResultListener(NUMBER_COUNTRY_SELECT, this@CountryCodeFragment) { requestKey: String?, result: Bundle ->
-          val resultCode = result.getInt(CountryPickerFragment.KEY_COUNTRY_CODE)
-          val resultCountryName = result.getString(CountryPickerFragment.KEY_COUNTRY)
-          sharedViewModel.onCountrySelected(resultCountryName, resultCode)
-          controller.setPigeonNumberAndCountryCode(viewModel!!.number)
-          nextButton.requestFocus()
+//        val arguments = CountryPickerFragmentArgs.Builder().setResultKey(NUMBER_COUNTRY_SELECT).build()
+        countryCodeLayout.setOnClickListener {
+          findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry())
         }
+
+//        parentFragmentManager.setFragmentResultListener(NUMBER_COUNTRY_SELECT, this@CountryCodeFragment) { requestKey: String?, result: Bundle ->
+//          val resultCode = result.getInt(CountryPickerFragment.KEY_COUNTRY_CODE)
+//          val resultCountryName = result.getString(CountryPickerFragment.KEY_COUNTRY)
+//          sharedViewModel.onCountrySelected(resultCountryName, resultCode)
+//          controller.setPigeonNumberAndCountryCode(viewModel!!.number)
+//        }
+        nextButton.requestFocus()
       }
+//      }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
-      controller.prepopulateCountryCode()
-      controller.setPigeonNumberAndCountryCode(viewModel!!.number)
+//      controller.prepopulateCountryCode()
+//      controller.setPigeonNumberAndCountryCode(viewModel!!.number)
     }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    sharedViewModel.phoneNumber?.countryCode?.let { binding?.countryCode?.editText?.setText(it) }
   }
 
   private fun handleRegister(view: View) {

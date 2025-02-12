@@ -5,7 +5,6 @@
 
 package org.thoughtcrime.securesms.components.settings.app.changenumber;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.ListFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
@@ -43,7 +41,7 @@ public final class ChangeNumberCountryPickerFragment extends ListFragment implem
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
-    return inflater.inflate(R.layout.fragment_registration_country_picker, container, false);
+    return inflater.inflate(R.layout.pigeon_fragment_registration_country_picker, container, false);
   }
 
   @Override

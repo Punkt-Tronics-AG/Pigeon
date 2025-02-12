@@ -140,6 +140,15 @@ class RegistrationViewModel : ViewModel() {
     }
   }
 
+  // PIGEON CODE
+  fun setNewCountry(countryCode: Int) {
+    store.update {
+      val phoneNumber = it.phoneNumber
+      phoneNumber?.setCountryCode(countryCode)
+      it.copy(phoneNumber = phoneNumber)
+    }
+  }
+
   fun setPhoneNumber(phoneNumber: Phonenumber.PhoneNumber?) {
     store.update {
       it.copy(

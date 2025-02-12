@@ -121,7 +121,11 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
       findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.CONTINUE))
     } else {
       sharedViewModel.maybePrefillE164(requireContext())
-      findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
+      if (isSignalVersion()){
+        findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
+      } else {
+        findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())
+      }
     }
   }
 

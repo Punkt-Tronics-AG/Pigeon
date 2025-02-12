@@ -51,6 +51,14 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
+        <action
+            android:id="@+id/action_welcomeFragment_to_countryCodeFragment"
+            app:destination="@id/countryCodeFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
     </fragment>
 
     <fragment
@@ -81,7 +89,7 @@
         tools:layout="@layout/fragment_registration_enter_phone_number">
 
         <action
-            android:id="@+id/action_enterPhoneNumberFragment_to_countryCodeFragment"
+            android:id="@+id/action_enterPhoneNumberFragment_to_countryPickerFragment"
             app:destination="@id/countryCodeFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
@@ -167,6 +175,12 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/countryPickerFragment"
+        android:name="pigeon.fragments.CountryPickerFragment"
+        android:label="fragment_country_picker"
+        tools:layout="@layout/pigeon_fragment_registration_country_picker" />
 
     <fragment
         android:id="@+id/enterCodeFragment"
@@ -291,8 +305,7 @@
     <fragment
         android:id="@+id/discalimerFragment"
         android:name="pigeon.fragments.DisclaimerFragment"
-        tools:layout="@layout/fragment_registration_disclaimer">
+        tools:layout="@layout/fragment_registration_disclaimer" />
 
-    </fragment>
 
 </navigation>

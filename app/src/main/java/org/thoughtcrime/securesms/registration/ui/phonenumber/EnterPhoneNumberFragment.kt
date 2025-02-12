@@ -106,9 +106,8 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     // PIGEON CODE
     binding.countryCode.isEnabled = false
     binding.countryCode.setOnClickListener {
-      findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionEnterPhoneNumberFragmentToCountryCodeFragment())
+      findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionEnterPhoneNumberFragmentToCountryPickerFragment())
     }
-    binding.countryCode.requestFocus()
 
     spinnerAdapter = ArrayAdapter<CountryPrefix>(
       requireContext(),
