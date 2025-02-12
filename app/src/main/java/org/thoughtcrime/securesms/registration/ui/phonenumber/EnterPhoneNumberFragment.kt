@@ -220,7 +220,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   private fun handleChallenges(remainingChallenges: List<Challenge>) {
     when (remainingChallenges.first()) {
       Challenge.CAPTCHA -> moveToCaptcha()
-      Challenge.PUSH -> performPushChallenge()
+      Challenge.PUSH -> if (isSignalVersion()) performPushChallenge() else moveToCaptcha()
     }
   }
 
@@ -678,6 +678,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun moveToVerificationEntryScreen() {
+    println("PIGEON: Go to verification")
     findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionEnterVerificationCode())
     sharedViewModel.setInProgress(false)
   }
