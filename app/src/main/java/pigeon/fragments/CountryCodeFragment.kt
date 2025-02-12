@@ -1,5 +1,6 @@
 package pigeon.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -40,40 +41,33 @@ class CountryCodeFragment : LoggingFragment() {
     super.onDestroyView()
   }
 
+  @SuppressLint("SetTextI18n")
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
     binding?.run {
       setDebugLogSubmitMultiTapView(verifyHeader)
-//      val controller = RegistrationNumberInputController(requireContext(), this@CountryCodeFragment, EditText(context), countryCode)
 
       nextButton.setOnClickListener { v: View -> handleRegister(v) }
       if (!isSignalVersion()) {
         countryCodeLayout.focusOnRight()
-        countryCodeLayout.requestFocus()
-//        val arguments = CountryPickerFragmentArgs.Builder().setResultKey(NUMBER_COUNTRY_SELECT).build()
+        if (sharedViewModel.phoneNumber?.countryCode == null) {
+          countryCodeLayout.requestFocus()
+        } else {
+          nextButton.requestFocus()
+        }
         countryCodeLayout.setOnClickListener {
           findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry())
         }
-
-//        parentFragmentManager.setFragmentResultListener(NUMBER_COUNTRY_SELECT, this@CountryCodeFragment) { requestKey: String?, result: Bundle ->
-//          val resultCode = result.getInt(CountryPickerFragment.KEY_COUNTRY_CODE)
-//          val resultCountryName = result.getString(CountryPickerFragment.KEY_COUNTRY)
-//          sharedViewModel.onCountrySelected(resultCountryName, resultCode)
-//          controller.setPigeonNumberAndCountryCode(viewModel!!.number)
-//        }
-        nextButton.requestFocus()
       }
-//      }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
-//      controller.prepopulateCountryCode()
-//      controller.setPigeonNumberAndCountryCode(viewModel!!.number)
     }
-  }
+    sharedViewModel.uiState.observe(viewLifecycleOwner) {
+      val countryCode = it.pigeonCountryCode?.toString()
+      println("countryCode: $countryCode")
+      binding?.countryCode?.editText?.setText(if (countryCode != null) "+$countryCode" else "")
+    }
 
-  override fun onResume() {
-    super.onResume()
-    sharedViewModel.phoneNumber?.countryCode?.let { binding?.countryCode?.editText?.setText(it) }
   }
 
   private fun handleRegister(view: View) {

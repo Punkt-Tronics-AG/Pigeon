@@ -22,7 +22,6 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<ArrayList<Map<String, String>>> {
   private var countryFilter: EditText? = null
   private val model by activityViewModels<RegistrationViewModel>()
-  private var resultKey: String? = null
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, bundle: Bundle?): View? {
     return inflater.inflate(R.layout.pigeon_fragment_registration_country_picker, container, false)
@@ -30,11 +29,6 @@ class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<Arra
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-
-//    if (arguments != null) {
-//      val arguments: CountryPickerFragmentArgs = CountryPickerFragmentArgs.fromBundle(requireArguments())
-//      resultKey = arguments.getResultKey()
-//    }
 
     countryFilter = view.findViewById(R.id.country_search)
 
@@ -47,6 +41,7 @@ class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<Arra
     val item = listAdapter!!.getItem(position) as Map<String, String>
 
     val countryCode = item["country_code"]!!.replace("+", "").toInt()
+    val countryName = item["country_name"]
 
     model.setNewCountry(countryCode)
 

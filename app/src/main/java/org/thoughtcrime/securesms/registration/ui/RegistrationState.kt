@@ -52,7 +52,10 @@ data class RegistrationState(
   val networkError: Throwable? = null,
   val sessionCreationError: RegistrationSessionResult? = null,
   val sessionStateError: VerificationCodeRequestResult? = null,
-  val registerAccountError: RegisterAccountResult? = null
+  val registerAccountError: RegisterAccountResult? = null,
+
+  // Pigeon
+  val pigeonCountryCode: Int? = null,
 ) {
   val challengesRemaining: List<Challenge> = challengesRequested.filterNot { it in challengesPresented }
 
