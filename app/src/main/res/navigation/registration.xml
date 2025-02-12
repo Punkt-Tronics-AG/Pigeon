@@ -89,14 +89,6 @@
         tools:layout="@layout/fragment_registration_enter_phone_number">
 
         <action
-            android:id="@+id/action_enterPhoneNumberFragment_to_countryPickerFragment"
-            app:destination="@id/countryCodeFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-        <action
             android:id="@+id/action_enterVerificationCode"
             app:destination="@id/enterCodeFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
