@@ -51,6 +51,7 @@ class CountryCodeFragment : LoggingFragment() {
       nextButton.setOnClickListener { v: View -> handleRegister(v) }
       if (!isSignalVersion()) {
         countryCodeLayout.focusOnRight()
+        sharedViewModel.phoneNumber?.countryCode?.let { sharedViewModel.setNewCountry(it) }
         if (sharedViewModel.phoneNumber?.countryCode == null) {
           countryCodeLayout.requestFocus()
         } else {
@@ -62,6 +63,7 @@ class CountryCodeFragment : LoggingFragment() {
       }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
     }
+
     sharedViewModel.uiState.observe(viewLifecycleOwner) {
       val countryCode = it.pigeonCountryCode?.toString()
       println("countryCode: $countryCode")
@@ -82,7 +84,4 @@ class CountryCodeFragment : LoggingFragment() {
     MaterialAlertDialogBuilder(requireContext()).setMessage(msg).setPositiveButton(R.string.Pigeon_ok, null).show()
   }
 
-  companion object {
-    private const val NUMBER_COUNTRY_SELECT = "number_country"
-  }
 }

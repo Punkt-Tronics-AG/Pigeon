@@ -8,6 +8,7 @@ package org.thoughtcrime.securesms.registration.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -26,6 +27,9 @@ import org.thoughtcrime.securesms.registration.sms.SmsRetrieverReceiver
 import org.thoughtcrime.securesms.registrationv3.ui.restore.RemoteRestoreActivity
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
 import org.thoughtcrime.securesms.util.RemoteConfig
+import pigeon.extensions.isSignalVersion
+import pigeon.navigation.KeyEventBehaviour
+import pigeon.navigation.PigeonKeyEventBehaviourImpl
 
 /**
  * Activity to hold the entire registration process.
@@ -38,6 +42,9 @@ class RegistrationActivity : BaseActivity() {
   val sharedViewModel: RegistrationViewModel by viewModels()
 
   private var smsRetrieverReceiver: SmsRetrieverReceiver? = null
+
+  // PIGEON Code
+  private val keyEventBehaviour: KeyEventBehaviour = PigeonKeyEventBehaviourImpl()
 
   init {
     lifecycle.addObserver(SmsRetrieverObserver())
@@ -61,6 +68,15 @@ class RegistrationActivity : BaseActivity() {
   override fun onResume() {
     super.onResume()
     dynamicTheme.onResume(this)
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    // PIGEON Code
+    if (isSignalVersion()) {
+      return super.dispatchKeyEvent(event)
+    }
+    keyEventBehaviour.dispatchKeyEvent(event, supportFragmentManager, this)
+    return super.dispatchKeyEvent(event)
   }
 
   private fun handleSuccessfulVerify() {
