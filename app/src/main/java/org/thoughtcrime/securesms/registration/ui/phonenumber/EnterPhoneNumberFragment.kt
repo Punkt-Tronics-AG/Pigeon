@@ -102,12 +102,22 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     )
     phoneNumberInputLayout = binding.number.editText as TextInputEditText
     spinnerView = binding.countryCode.editText as MaterialAutoCompleteTextView
+
+    // PIGEON CODE
+    binding.countryCode.isEnabled = false
+    binding.countryCode.setOnClickListener {
+      findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionEnterPhoneNumberFragmentToCountryCodeFragment())
+    }
+    binding.countryCode.requestFocus()
+
     spinnerAdapter = ArrayAdapter<CountryPrefix>(
       requireContext(),
       R.layout.registration_country_code_dropdown_item,
       fragmentViewModel.supportedCountryPrefixes
     )
     binding.registerButton.setOnClickListener { onRegistrationButtonClicked() }
+
+
 
     binding.toolbar.title = ""
     val activity = requireActivity() as AppCompatActivity
