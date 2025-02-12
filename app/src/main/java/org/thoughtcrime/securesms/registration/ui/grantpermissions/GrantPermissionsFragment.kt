@@ -30,6 +30,7 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.restore.RestoreActivity
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isSignalVersion
 
 /**
  * Screen in account registration that provides rationales for the suggested runtime permissions.
@@ -52,6 +53,7 @@ class GrantPermissionsFragment : ComposeFragment() {
         sharedViewModel.onBackupSuccessfullyRestored()
         NavHostFragment.findNavController(this).safeNavigate(GrantPermissionsFragmentDirections.actionEnterPhoneNumber())
       }
+
       Activity.RESULT_CANCELED -> Log.w(TAG, "Backup restoration canceled.")
       else -> Log.w(TAG, "Backup restoration activity ended with unknown result code: $resultCode")
     }
@@ -68,13 +70,18 @@ class GrantPermissionsFragment : ComposeFragment() {
   override fun FragmentContent() {
     val isSearchingForBackup by this.isSearchingForBackup
 
-    GrantPermissionsScreen(
-      deviceBuildVersion = Build.VERSION.SDK_INT,
-      isSearchingForBackup = isSearchingForBackup,
-      isBackupSelectionRequired = BackupUtil.isUserSelectionRequired(LocalContext.current),
-      onNextClicked = this::launchPermissionRequests,
-      onNotNowClicked = this::proceedToNextScreen
-    )
+    if (isSignalVersion()) {
+      GrantPermissionsScreen(
+        deviceBuildVersion = Build.VERSION.SDK_INT,
+        isSearchingForBackup = isSearchingForBackup,
+        isBackupSelectionRequired = BackupUtil.isUserSelectionRequired(LocalContext.current),
+        onNextClicked = this::launchPermissionRequests,
+        onNotNowClicked = this::proceedToNextScreen
+      )
+    } else {
+      // PIGEON CODE
+      launchPermissionRequests()
+    }
   }
 
   private fun launchPermissionRequests() {

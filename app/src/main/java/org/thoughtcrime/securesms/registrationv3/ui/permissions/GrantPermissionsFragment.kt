@@ -24,6 +24,7 @@ import org.thoughtcrime.securesms.registrationv3.ui.RegistrationCheckpoint
 import org.thoughtcrime.securesms.registrationv3.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registrationv3.ui.welcome.WelcomeUserSelection
 import org.thoughtcrime.securesms.util.BackupUtil
+import pigeon.extensions.isSignalVersion
 
 /**
  * Screen in account registration that provides rationales for the suggested runtime permissions.
@@ -49,12 +50,17 @@ class GrantPermissionsFragment : ComposeFragment() {
 
   @Composable
   override fun FragmentContent() {
-    GrantPermissionsScreen(
-      deviceBuildVersion = Build.VERSION.SDK_INT,
-      isBackupSelectionRequired = BackupUtil.isUserSelectionRequired(LocalContext.current),
-      onNextClicked = this::launchPermissionRequests,
-      onNotNowClicked = this::proceedToNextScreen
-    )
+    if (isSignalVersion()) {
+      GrantPermissionsScreen(
+        deviceBuildVersion = Build.VERSION.SDK_INT,
+        isBackupSelectionRequired = BackupUtil.isUserSelectionRequired(LocalContext.current),
+        onNextClicked = this::launchPermissionRequests,
+        onNotNowClicked = this::proceedToNextScreen
+      )
+    } else {
+//      PIGEON CODE
+     launchPermissionRequests()
+    }
   }
 
   private fun launchPermissionRequests() {
