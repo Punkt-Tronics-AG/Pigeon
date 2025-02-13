@@ -6,14 +6,22 @@
 package org.thoughtcrime.securesms.registration.ui.entercode
 
 import android.content.DialogInterface
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import org.greenrobot.eventbus.EventBus
@@ -25,6 +33,7 @@ import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
+import org.thoughtcrime.securesms.components.registration.ActionCountDownButton
 import org.thoughtcrime.securesms.conversation.v2.registerForLifecycle
 import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterCodeBinding
 import org.thoughtcrime.securesms.registration.data.network.Challenge
@@ -43,6 +52,10 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.util.concurrent.AssertedSuccessListener
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.visible
+import pigeon.dialogs.EnterCodeOption
+import pigeon.extensions.focusOnRight
+import pigeon.registration.VerificationCodeObserver
+import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -54,12 +67,18 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
     private val TAG = Log.tag(EnterCodeFragment::class.java)
 
     private const val BOTTOM_SHEET_TAG = "support_bottom_sheet"
+
+    const val MSG_RECEIVED_CODE: Int = 1001
   }
 
   private val sharedViewModel by activityViewModels<RegistrationViewModel>()
   private val fragmentViewModel by viewModels<EnterCodeViewModel>()
   private val bottomSheet = ContactSupportBottomSheetFragment()
   private val binding: FragmentRegistrationEnterCodeBinding by ViewBinderDelegate(FragmentRegistrationEnterCodeBinding::bind)
+  private var pigeonOptionButton: MaterialButton? = null
+  private var pigeonCodeView: EditText? = null
+  private var pigeonSmsObserver: VerificationCodeObserver? = null
+  private val dialog = EnterCodeOption()
 
   private lateinit var phoneStateListener: SignalStrengthPhoneStateListener
 
@@ -69,16 +88,33 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
     super.onViewCreated(view, savedInstanceState)
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
 
+    // Pigeon-specific code
+    pigeonCodeView = view.findViewById(R.id.verification_code)
+    pigeonOptionButton = view.findViewById(R.id.pigeon_option_button)
+    pigeonOptionButton?.tag = false
+
+    initPigeonObserver()
+    pigeonCodeView?.focusOnRight()
+    setPigeonOnCodeFullyEnteredListener()
+    pigeonOptionButton?.setOnClickListener { v: View ->
+      val isNext = v.tag as Boolean
+      if (isNext) {
+        sharedViewModel.verifyCodeWithoutRegistrationLock(requireContext(), pigeonCodeView?.text?.toString() ?: "")
+      } else {
+        val list = ArrayList<ActionCountDownButton>()
+        list.add(binding.callMeCountDown)
+        list.add(binding.resendSmsCountDown)
+        dialog.showWithButtons(parentFragmentManager, requireContext(), list)
+      }
+    }
+
     phoneStateListener = SignalStrengthPhoneStateListener(this, PhoneStateCallback())
 
-    requireActivity().onBackPressedDispatcher.addCallback(
-      viewLifecycleOwner,
-      object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-          popBackStack()
-        }
+    requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() {
+        popBackStack()
       }
-    )
+    })
 
     binding.wrongNumber.setOnClickListener {
       popBackStack()
@@ -184,8 +220,8 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
     }
 
     when (result) {
-      is RegistrationSessionCheckResult.Success,
-      is RegistrationSessionCreationResult.Success -> throw IllegalStateException("Session error handler called on successful response!")
+      is RegistrationSessionCheckResult.Success, is RegistrationSessionCreationResult.Success -> throw IllegalStateException("Session error handler called on successful response!")
+
       is RegistrationSessionCreationResult.AttemptsExhausted -> presentRemoteErrorDialog(getString(R.string.RegistrationActivity_rate_limited_to_service))
       is RegistrationSessionCreationResult.MalformedRequest -> presentRemoteErrorDialog(getString(R.string.RegistrationActivity_unable_to_connect_to_service))
 
@@ -201,8 +237,7 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
 
       is RegistrationSessionCreationResult.ServerUnableToParse -> presentGenericError(result)
       is RegistrationSessionCheckResult.SessionNotFound -> presentGenericError(result)
-      is RegistrationSessionCheckResult.UnknownError,
-      is RegistrationSessionCreationResult.UnknownError -> presentGenericError(result)
+      is RegistrationSessionCheckResult.UnknownError, is RegistrationSessionCreationResult.UnknownError -> presentGenericError(result)
     }
   }
 
@@ -222,12 +257,14 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
           presentRemoteErrorDialog(getString(R.string.RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later))
         }
       }
+
       is VerificationCodeRequestResult.RegistrationLocked -> presentRegistrationLocked(result.timeRemaining)
       is VerificationCodeRequestResult.ExternalServiceFailure -> presentSmsGenericError(result)
       is VerificationCodeRequestResult.RequestVerificationCodeRateLimited -> {
         Log.i(TAG, result.log())
         handleRequestVerificationCodeRateLimited(result)
       }
+
       is VerificationCodeRequestResult.SubmitVerificationCodeRateLimited -> presentSubmitVerificationCodeRateLimited()
       is VerificationCodeRequestResult.TokenNotAccepted -> presentRemoteErrorDialog(getString(R.string.RegistrationActivity_we_need_to_verify_that_youre_human)) { _, _ -> moveToCaptcha() }
       else -> presentGenericError(result)
@@ -258,41 +295,35 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
   }
 
   private fun presentAccountLocked() {
-    binding.keyboard.displayLocked().addListener(
-      object : AssertedSuccessListener<Boolean>() {
-        override fun onSuccess(result: Boolean?) {
-          findNavController().safeNavigate(EnterCodeFragmentDirections.actionAccountLocked())
-        }
+    binding.keyboard.displayLocked().addListener(object : AssertedSuccessListener<Boolean>() {
+      override fun onSuccess(result: Boolean?) {
+        findNavController().safeNavigate(EnterCodeFragmentDirections.actionAccountLocked())
       }
-    )
+    })
   }
 
   private fun presentRegistrationLocked(timeRemaining: Long) {
-    binding.keyboard.displayLocked().addListener(
-      object : AssertedSuccessListener<Boolean>() {
-        override fun onSuccess(result: Boolean?) {
-          findNavController().safeNavigate(EnterCodeFragmentDirections.actionRequireKbsLockPin(timeRemaining))
-          sharedViewModel.setInProgress(false)
-        }
+    binding.keyboard.displayLocked().addListener(object : AssertedSuccessListener<Boolean>() {
+      override fun onSuccess(result: Boolean?) {
+        findNavController().safeNavigate(EnterCodeFragmentDirections.actionRequireKbsLockPin(timeRemaining))
+        sharedViewModel.setInProgress(false)
       }
-    )
+    })
   }
 
   private fun presentRateLimitedDialog() {
-    binding.keyboard.displayFailure().addListener(
-      object : AssertedSuccessListener<Boolean?>() {
-        override fun onSuccess(result: Boolean?) {
-          MaterialAlertDialogBuilder(requireContext()).apply {
-            setTitle(R.string.RegistrationActivity_too_many_attempts)
-            setMessage(R.string.RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later)
-            setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
-              fragmentViewModel.resetAllViews()
-            }
-            show()
+    binding.keyboard.displayFailure().addListener(object : AssertedSuccessListener<Boolean?>() {
+      override fun onSuccess(result: Boolean?) {
+        MaterialAlertDialogBuilder(requireContext()).apply {
+          setTitle(R.string.RegistrationActivity_too_many_attempts)
+          setMessage(R.string.RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later)
+          setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
+            fragmentViewModel.resetAllViews()
           }
+          show()
         }
       }
-    )
+    })
   }
 
   private fun presentIncorrectCodeDialog() {
@@ -308,18 +339,16 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
   }
 
   private fun presentSmsGenericError(requestResult: RegistrationResult) {
-    binding.keyboard.displayFailure().addListener(
-      object : AssertedSuccessListener<Boolean>() {
-        override fun onSuccess(result: Boolean?) {
-          Log.w(TAG, "Encountered sms provider error!", requestResult.getCause())
-          MaterialAlertDialogBuilder(requireContext()).apply {
-            setMessage(R.string.RegistrationActivity_sms_provider_error)
-            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.showKeyboard() }
-            show()
-          }
+    binding.keyboard.displayFailure().addListener(object : AssertedSuccessListener<Boolean>() {
+      override fun onSuccess(result: Boolean?) {
+        Log.w(TAG, "Encountered sms provider error!", requestResult.getCause())
+        MaterialAlertDialogBuilder(requireContext()).apply {
+          setMessage(R.string.RegistrationActivity_sms_provider_error)
+          setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.showKeyboard() }
+          show()
         }
       }
-    )
+    })
   }
 
   private fun presentRemoteErrorDialog(message: String, positiveButtonListener: DialogInterface.OnClickListener? = null) {
@@ -331,18 +360,16 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
   }
 
   private fun presentGenericError(requestResult: RegistrationResult) {
-    binding.keyboard.displayFailure().addListener(
-      object : AssertedSuccessListener<Boolean>() {
-        override fun onSuccess(result: Boolean?) {
-          Log.w(TAG, "Encountered unexpected error!", requestResult.getCause())
-          MaterialAlertDialogBuilder(requireContext()).apply {
-            setMessage(R.string.RegistrationActivity_error_connecting_to_service)
-            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.showKeyboard() }
-            show()
-          }
+    binding.keyboard.displayFailure().addListener(object : AssertedSuccessListener<Boolean>() {
+      override fun onSuccess(result: Boolean?) {
+        Log.w(TAG, "Encountered unexpected error!", requestResult.getCause())
+        MaterialAlertDialogBuilder(requireContext()).apply {
+          setMessage(R.string.RegistrationActivity_error_connecting_to_service)
+          setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.showKeyboard() }
+          show()
         }
       }
-    )
+    })
   }
 
   private fun handleRequestVerificationCodeRateLimited(result: VerificationCodeRequestResult.RequestVerificationCodeRateLimited) {
@@ -360,19 +387,17 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
   }
 
   private fun presentSubmitVerificationCodeRateLimited() {
-    binding.keyboard.displayFailure().addListener(
-      object : AssertedSuccessListener<Boolean>() {
-        override fun onSuccess(result: Boolean?) {
-          Log.w(TAG, "Submit verification code impossible, need to request a new code and restart registration")
-          MaterialAlertDialogBuilder(requireContext()).apply {
-            setMessage(R.string.RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later)
-            setPositiveButton(android.R.string.ok) { _, _ -> popBackStack() }
-            setCancelable(false)
-            show()
-          }
+    binding.keyboard.displayFailure().addListener(object : AssertedSuccessListener<Boolean>() {
+      override fun onSuccess(result: Boolean?) {
+        Log.w(TAG, "Submit verification code impossible, need to request a new code and restart registration")
+        MaterialAlertDialogBuilder(requireContext()).apply {
+          setMessage(R.string.RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later)
+          setPositiveButton(android.R.string.ok) { _, _ -> popBackStack() }
+          setCancelable(false)
+          show()
         }
       }
-    )
+    })
   }
 
   private fun popBackStack() {
@@ -398,22 +423,70 @@ class EnterCodeFragment : LoggingFragment(R.layout.fragment_registration_enter_c
 
     val finalIndex = ReceivedSmsEvent.CODE_LENGTH - 1
     autopilotCodeEntryActive = true
+
     try {
-      event.code
-        .map { it.digitToInt() }
-        .forEachIndexed { i, digit ->
-          binding.code.postDelayed({
-            binding.code.append(digit)
-            if (i == finalIndex) {
-              autopilotCodeEntryActive = false
-            }
-          }, i * 200L)
-        }
+      event.code.map { it.digitToInt() }.forEachIndexed { i, digit ->
+        binding.code.postDelayed({
+          binding.code.append(digit)
+          if (i == finalIndex) {
+            autopilotCodeEntryActive = false
+          }
+        }, i * 200L)
+      }
+      //Pigeon-specific code
+      pigeonCodeView?.setText(event.code)
+      // End of Pigeon-specific code
       Log.i(TAG, "Finished auto-filling code.")
     } catch (notADigit: IllegalArgumentException) {
       Log.w(TAG, "Failed to convert code into digits.", notADigit)
       autopilotCodeEntryActive = false
     }
+  }
+
+  private fun initPigeonObserver() {
+    val handler = CodeHandler(this)
+    pigeonSmsObserver = VerificationCodeObserver(requireContext(), handler, MSG_RECEIVED_CODE)
+    val uri = Uri.parse("content://sms")
+    requireContext().contentResolver.registerContentObserver(uri, true, pigeonSmsObserver!!)
+  }
+
+  class CodeHandler internal constructor(fragment: EnterCodeFragment) : Handler(Looper.getMainLooper()) {
+    private val mRef: WeakReference<EnterCodeFragment> = WeakReference<EnterCodeFragment>(fragment)
+
+
+    override fun handleMessage(msg: Message) {
+      super.handleMessage(msg)
+      if (msg.what == MSG_RECEIVED_CODE) {
+        val code = msg.obj as String
+        val view: EditText? = mRef.get()?.pigeonCodeView
+        view?.setText(code)
+        view?.setSelection(code.length)
+      }
+    }
+  }
+
+  private fun setPigeonOnCodeFullyEnteredListener() {
+    pigeonCodeView?.addTextChangedListener(object : TextWatcher {
+      override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+      }
+
+      override fun onTextChanged(code: CharSequence, start: Int, before: Int, count: Int) {
+        if (code.length == 6) {
+          binding.callMeCountDown.visibility = View.INVISIBLE
+          binding.resendSmsCountDown.visibility = View.INVISIBLE
+          binding.wrongNumber.visibility = View.INVISIBLE
+          pigeonOptionButton?.tag = true
+          pigeonOptionButton?.text = getString(R.string.RegistrationActivity_next)
+          pigeonOptionButton?.requestFocus()
+        } else {
+          pigeonOptionButton?.text = getString(R.string.Pigeon_Options)
+          pigeonOptionButton?.tag = false
+        }
+      }
+
+      override fun afterTextChanged(s: Editable) {
+      }
+    })
   }
 
   private inner class PhoneStateCallback : SignalStrengthPhoneStateListener.Callback {

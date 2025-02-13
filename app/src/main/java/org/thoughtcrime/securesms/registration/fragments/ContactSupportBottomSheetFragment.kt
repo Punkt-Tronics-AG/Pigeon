@@ -25,6 +25,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeBottomSheetDialogFragment
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.SupportEmailUtil
+import pigeon.extensions.isSignalVersion
 
 /**
  * Helpful bottom sheet dialog displayed during registration when the user enters the wrong verification code too many times.
@@ -160,7 +161,7 @@ class ContactSupportBottomSheetFragment : ComposeBottomSheetDialogFragment() {
   }
 
   fun showSafely(fm: FragmentManager, tag: String) {
-    if (!isAdded && !fm.isStateSaved) {
+    if (!isAdded && !fm.isStateSaved && isSignalVersion()) {
       show(fm, tag)
     }
   }

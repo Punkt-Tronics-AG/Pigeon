@@ -1,9 +1,11 @@
 package pigeon.dialogs
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import org.thoughtcrime.securesms.R
@@ -25,8 +27,10 @@ class EnterCodeOption : DialogFragment() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setStyle(STYLE_NORMAL,
-      android.R.style.Theme_Black_NoTitleBar)
+    setStyle(
+      STYLE_NORMAL,
+      android.R.style.Theme_Black_NoTitleBar
+    )
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,8 +79,12 @@ class EnterCodeOption : DialogFragment() {
     }
   }
 
-  fun showWithButtons(fragmentManager: FragmentManager, buttons: ArrayList<ActionCountDownButton>) {
-    this.buttons = buttons
-    show(fragmentManager, "dialog")
+  fun showWithButtons(fragmentManager: FragmentManager, context: Context, buttons: ArrayList<ActionCountDownButton>) {
+    this.buttons = buttons.filter { it.visibility == View.VISIBLE } as ArrayList<ActionCountDownButton>
+    if (this.buttons.isEmpty()) {
+      Toast.makeText(context, getString(R.string.no_options_available), Toast.LENGTH_SHORT).show()
+    } else {
+      show(fragmentManager, "dialog")
+    }
   }
 }

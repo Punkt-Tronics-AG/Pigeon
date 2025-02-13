@@ -11,9 +11,13 @@
     tools:viewBindingIgnore="true">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="false"
+        android:descendantFocusability="blocksDescendants"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <TextView
@@ -71,7 +75,7 @@
             android:maxWidth="150dp"
             android:maxLines="2"
             android:textColor="@color/signal_text_secondary"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintVertical_bias="1.0"
@@ -89,7 +93,7 @@
             android:maxWidth="150dp"
             android:maxLines="2"
             android:textColor="@color/signal_text_secondary"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/call_me_count_down"
             app:layout_constraintHorizontal_bias="0.0"
