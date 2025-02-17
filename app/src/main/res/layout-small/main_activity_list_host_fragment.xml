@@ -53,13 +53,6 @@
             android:visibility="gone"
             tools:viewBindingIgnore="true">
 
-            <View
-                android:id="@+id/toolbar_background"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/signal_m3_toolbar_height"
-                android:background="@color/signal_colorBackground"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <org.thoughtcrime.securesms.util.views.DarkOverflowToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -85,7 +78,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:src="@drawable/ic_contact_picture" />
+                        tools:src="@tools:sample/avatars" />
 
                     <org.thoughtcrime.securesms.badges.BadgeImageView
                         android:id="@+id/toolbar_badge"
@@ -114,6 +107,18 @@
                         android:layout_marginBottom="20dp"
                         android:alpha="0"
                         android:background="@drawable/unread_count_background"
+                        app:layout_constraintBottom_toBottomOf="@id/toolbar_icon"
+                        app:layout_constraintStart_toStartOf="@id/toolbar_icon"
+                        tools:alpha="1" />
+
+                    <View
+                        android:id="@+id/backups_failed_indicator"
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:alpha="0"
+                        android:background="@drawable/backups_failed_background"
                         app:layout_constraintBottom_toBottomOf="@id/toolbar_icon"
                         app:layout_constraintStart_toStartOf="@id/toolbar_icon"
                         tools:alpha="1" />
