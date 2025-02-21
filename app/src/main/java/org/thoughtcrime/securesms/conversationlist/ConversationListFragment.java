@@ -223,9 +223,9 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   private static final String TAG = Log.tag(ConversationListFragment.class);
 
-  private static final int MAXIMUM_PINNED_CONVERSATIONS     = 4;
-  private static final int MAX_CHATS_ABOVE_FOLD             = 7;
-  private static final int MAX_CONTACTS_ABOVE_FOLD          = 5;
+  private static final int MAXIMUM_PINNED_CONVERSATIONS = 4;
+  private static final int MAX_CHATS_ABOVE_FOLD = 7;
+  private static final int MAX_CONTACTS_ABOVE_FOLD = 5;
   private static final int MAX_GROUP_MEMBERSHIPS_ABOVE_FOLD = 5;
 
   private ActionMode                             actionMode;
@@ -399,7 +399,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     archiveDecoration = new ConversationListArchiveItemDecoration(new ColorDrawable(getResources().getColor(R.color.conversation_list_archive_background_end)));
     itemAnimator      = new ConversationListItemAnimator();
 
-    chatFolderAdapter = new ChatFolderAdapter(this);
+    chatFolderAdapter                          = new ChatFolderAdapter(this);
     DefaultItemAnimator chatFolderItemAnimator = getChatFolderItemAnimator();
 
     chatFolderList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
@@ -489,7 +489,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   }
 
   private @NonNull DefaultItemAnimator getChatFolderItemAnimator() {
-    int                 duration = 150;
+    int duration = 150;
     DefaultItemAnimator animator = new DefaultItemAnimator();
     animator.setAddDuration(duration);
     animator.setMoveDuration(duration);
@@ -683,10 +683,10 @@ public class ConversationListFragment extends MainFragment implements ActionMode
         builder.addSection(new ContactSearchConfiguration.Section.Chats(
             unreadOnly,
             true,
-            new ContactSearchConfiguration.ExpandConfig(
-                state.getExpandedSections().contains(ContactSearchConfiguration.SectionKey.CHATS),
-                (a) -> MAX_CHATS_ABOVE_FOLD
-            )
+              new ContactSearchConfiguration.ExpandConfig(
+                  state.getExpandedSections().contains(ContactSearchConfiguration.SectionKey.CHATS),
+                  (a) -> MAX_CHATS_ABOVE_FOLD
+              )
         ));
 
         if (!unreadOnly) {
@@ -718,8 +718,8 @@ public class ConversationListFragment extends MainFragment implements ActionMode
         } else {
           builder.arbitrary(
               conversationFilterRequest.getSource() == ConversationFilterSource.DRAG
-              ? ConversationListSearchAdapter.ChatFilterOptions.WITHOUT_TIP.getCode()
-              : ConversationListSearchAdapter.ChatFilterOptions.WITH_TIP.getCode()
+                ? ConversationListSearchAdapter.ChatFilterOptions.WITHOUT_TIP.getCode()
+                : ConversationListSearchAdapter.ChatFilterOptions.WITH_TIP.getCode()
           );
         }
 
@@ -981,13 +981,14 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
 
   private void initializeListAdapters() {
-    defaultAdapter = new ConversationListAdapter(getViewLifecycleOwner(), Glide.with(this), this, this, this);
+    defaultAdapter          = new ConversationListAdapter(getViewLifecycleOwner(), Glide.with(this), this, this, this);
 
     setAdapter(defaultAdapter);
 
     defaultAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
       @Override
       public void onItemRangeInserted(int positionStart, int itemCount) {
+        Log.d(TAG, "PIGEON: onItemRangeInserted");
         startupStopwatch.split("data-set");
         SignalLocalMetrics.ColdStart.onConversationListDataLoaded();
         defaultAdapter.unregisterAdapterDataObserver(this);
@@ -1118,6 +1119,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   private void onChatFoldersChanged(List<ChatFolderMappingModel> folders) {
     chatFolderList.setVisibility(folders.size() > 1 && !isArchived() ? View.VISIBLE : View.GONE);
+    Log.d(TAG, "PIGEON: onChatFoldersChanged, folders.size() = " + folders.size() + ", isArchived() = " + isArchived());
     chatFolderAdapter.submitList(new ArrayList<>(folders));
   }
 

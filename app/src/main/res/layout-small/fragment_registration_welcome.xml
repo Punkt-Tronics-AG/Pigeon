@@ -5,7 +5,7 @@
     style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".registration.fragments.WelcomeFragment"
+    tools:context="org.thoughtcrime.securesms.registration.ui.welcome.WelcomeFragment"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 

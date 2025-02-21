@@ -5,9 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:windowBackground"
-    tools:viewBindingIgnore="true">
+    android:layout_height="match_parent" tools:viewBindingIgnore="true">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_folder_list"
@@ -79,13 +77,11 @@
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/signal_colorBackground"
+            android:background="@color/colorText"
             android:clipToPadding="false"
             android:nextFocusDown="@+id/fab"
             android:nextFocusForward="@+id/fab"
-            android:paddingBottom="160dp"
             android:scrollbars="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/conversation_list_item_view"
             tools:visibility="visible" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

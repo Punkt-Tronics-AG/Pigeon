@@ -109,7 +109,12 @@ class GrantPermissionsFragment : ComposeFragment() {
 
   private fun proceedToNextScreen() {
     when (welcomeAction) {
-      WelcomeAction.CONTINUE -> findNavController().safeNavigate(GrantPermissionsFragmentDirections.actionEnterPhoneNumber())
+      WelcomeAction.CONTINUE ->
+        if (isSignalVersion()) {
+          findNavController().safeNavigate(GrantPermissionsFragmentDirections.actionEnterPhoneNumber())
+        } else {
+          findNavController().safeNavigate(GrantPermissionsFragmentDirections.actionEnterCountryCode())
+        }
       WelcomeAction.RESTORE_BACKUP -> {
         val restoreIntent = RestoreActivity.getRestoreIntent(requireActivity())
         launchRestoreActivity.launch(restoreIntent)

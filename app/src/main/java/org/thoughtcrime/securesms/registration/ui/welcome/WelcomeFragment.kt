@@ -138,8 +138,6 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
     if (isSignalVersion()) {
       CommunicationActions.openBrowserLink(requireContext(), TERMS_AND_CONDITIONS_URL)
     } else {
-      findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
-
       findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToTermsFragment())
     }
   }

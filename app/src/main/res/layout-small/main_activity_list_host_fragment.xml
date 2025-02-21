@@ -156,6 +156,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="?selectableItemBackgroundBorderless"
+                        android:importantForAccessibility="no"
                         android:padding="12dp"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -195,8 +196,7 @@
                 android:id="@+id/toolbar_barrier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="toolbar,toolbar_basic,toolbar_background" />
+                app:barrierDirection="bottom" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
