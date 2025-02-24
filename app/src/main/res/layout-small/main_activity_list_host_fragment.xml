@@ -53,6 +53,13 @@
             android:visibility="gone"
             tools:viewBindingIgnore="true">
 
+            <View
+                android:id="@+id/toolbar_background"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/signal_m3_toolbar_height"
+                android:background="@color/signal_colorBackground"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <org.thoughtcrime.securesms.util.views.DarkOverflowToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
