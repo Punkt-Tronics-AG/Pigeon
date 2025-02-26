@@ -103,16 +103,22 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
 
     (requireActivity() as AppCompatActivity).setSupportActionBar(_toolbar)
 
-    disposables += conversationListTabsViewModel.state.subscribeBy { state ->
-      val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
-      when (controller.currentDestination?.id) {
-        R.id.conversationListFragment -> goToStateFromConversationList(state, controller)
-        R.id.conversationListArchiveFragment -> Unit
-        R.id.storiesLandingFragment -> goToStateFromStories(state, controller)
-        R.id.callLogFragment -> goToStateFromCalling(state, controller)
+//    if (isSignalVersion()) {
+      disposables += conversationListTabsViewModel.state.subscribeBy { state ->
+        val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
+        when (controller.currentDestination?.id) {
+          R.id.conversationListFragment -> goToStateFromConversationList(state, controller)
+          R.id.conversationListArchiveFragment -> Unit
+          R.id.storiesLandingFragment -> goToStateFromStories(state, controller)
+          R.id.callLogFragment -> goToStateFromCalling(state, controller)
+        }
       }
-    }
+//    }
 
+//    if (isPigeonVersion()) {
+//      val controller: NavController = requireView().findViewById<View>(R.id.fragment_container).findNavController()
+//      goToStateFromConversationList(state, controller)
+//    }
     hideSearchBar()
   }
 

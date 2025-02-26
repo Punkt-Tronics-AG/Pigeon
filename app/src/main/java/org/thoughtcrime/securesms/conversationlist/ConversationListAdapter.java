@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
 
+import org.signal.glide.Log;
 import org.signal.paging.PagingController;
 import org.thoughtcrime.securesms.BindableConversationListItem;
 import org.thoughtcrime.securesms.R;
@@ -88,7 +89,8 @@ class ConversationListAdapter extends ListAdapter<Conversation, RecyclerView.Vie
     } else if (viewType == TYPE_THREAD) {
       ConversationViewHolder holder = new ConversationViewHolder(CachedInflater.from(parent.getContext())
                                                                                .inflate(R.layout.conversation_list_item_view, parent, false));
-
+      Log.i("PIGEON", "onCreateViewHolder");
+      holder.itemView.setVisibility(View.VISIBLE);
       // Pigeon code
       holder.itemView.setOnKeyListener((view, keyCode, event) -> {
         if (keyCode == KeyEvent.KEYCODE_CALL && event.getAction() == KeyEvent.ACTION_UP) {

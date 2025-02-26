@@ -283,6 +283,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     super.onCreate(icicle);
     setHasOptionsMenu(true);
     startupStopwatch = new Stopwatch("startup");
+    Log.i("PIGEON", "OnConversationList: onCreate");
   }
 
   @Override
@@ -1470,6 +1471,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   void updateEmptyState(boolean isConversationEmpty) {
     if (isConversationEmpty) {
+      Log.i("PIGEON", "PIGEON: updateEmptyState, isConversationEmpty = true");
       Log.i(TAG, "Received an empty data set.");
       fab.startPulse(3 * 1000);
       cameraFab.startPulse(3 * 1000);

@@ -7,15 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" tools:viewBindingIgnore="true">
 
-
-
     <ViewStub
         android:id="@+id/voice_note_player"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:inflatedId="@+id/voice_note_player"
-        android:layout="@layout/voice_note_player_stub"
-        app:layout_constraintTop_toBottomOf="@id/chat_folder_list" />
+        android:layout="@layout/voice_note_player_stub" />
 
     <ViewStub
         android:id="@+id/banner_compose_view"
@@ -74,26 +71,12 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorText"
-            android:clipToPadding="false"
-            android:nextFocusDown="@+id/fab"
-            android:nextFocusForward="@+id/fab"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/conversation_list_item_view"
-            tools:visibility="visible" />
-
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/coordinator"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            app:layout_anchor="@+id/list"
             app:layout_anchorGravity="center">
 
             <LinearLayout
@@ -164,5 +147,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/conversation_list_item_view"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
