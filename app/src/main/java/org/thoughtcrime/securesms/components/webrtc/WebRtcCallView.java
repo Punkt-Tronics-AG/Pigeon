@@ -436,10 +436,12 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       });
     }
 
-    SlideUpWithCallControlsBehavior behavior = (SlideUpWithCallControlsBehavior) ((CoordinatorLayout.LayoutParams) aboveControls.getLayoutParams()).getBehavior();
-    Objects.requireNonNull(behavior).setOnTopOfControlsChangedListener(topOfControls -> {
-      pictureInPictureGestureHelper.setExpandedVerticalBoundary(topOfControls);
-    });
+    if (isSignalVersion()) {
+      SlideUpWithCallControlsBehavior behavior = (SlideUpWithCallControlsBehavior) ((CoordinatorLayout.LayoutParams) aboveControls.getLayoutParams()).getBehavior();
+      Objects.requireNonNull(behavior).setOnTopOfControlsChangedListener(topOfControls -> {
+        pictureInPictureGestureHelper.setExpandedVerticalBoundary(topOfControls);
+      });
+    }
 
     if (callParticipantsOverflowGuideline != null) {
       callParticipantsRecycler.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -765,9 +767,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       pigeonPhone.setVisibility(GONE);
     }
     try {
-      String number = PhoneNumberFormatter.prettyPrint(recipient.requireE164());
       hangupLabel.requestFocus();
-      pigeonPhone.setText(number);
+      pigeonPhone.setText(recipient.requireE164());
     } catch (Exception exception) {
       exception.printStackTrace();
     }

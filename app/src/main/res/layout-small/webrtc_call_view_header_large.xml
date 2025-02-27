@@ -79,4 +79,36 @@
         app:layout_constraintTop_toTopOf="@+id/call_screen_incoming_ring_status"
         tools:text="Signal Calling..." />
 
+    <LinearLayout
+        android:id="@+id/missing_permissions_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/call_screen_status">
+
+        <TextView
+            android:id="@+id/missing_permissions_text"
+            style="@style/Signal.Text.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/WebRtcCallActivity__to_enable_video_allow_camera" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/allow_access_button"
+            style="@style/Signal.Widget.Button.Large.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/CameraXFragment_allow_access" />
+
+    </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
