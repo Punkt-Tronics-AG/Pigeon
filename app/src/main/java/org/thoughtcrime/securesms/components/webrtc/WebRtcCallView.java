@@ -768,7 +768,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
     try {
       hangupLabel.requestFocus();
-      pigeonPhone.setText(recipient.requireE164());
+      // TODO: 03/03/2025 fix me
+//      pigeonPhone.setText(recipient.requireE164());
     } catch (Exception exception) {
       exception.printStackTrace();
     }
