@@ -241,10 +241,12 @@
         android:focusableInTouchMode="false">
 
         <include
+            android:id="@+id/pigeon_header"
             layout="@layout/webrtc_call_view_header_large"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -264,7 +266,7 @@
             android:maxLines="1"
             android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/call_screen_header"
+            app:layout_constraintTop_toBottomOf="@id/pigeon_header"
             tools:visibility="gone" />
 
         <TextView
@@ -284,7 +286,7 @@
             tools:visibility="gone" />
 
         <TextView
-            android:id="@+id/call_screen_decline_call_label"
+            android:id="@+id/pigeon_decline"
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -294,11 +296,11 @@
             android:text="@string/WebRtcCallScreen__decline"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/call_screen_end_call_label"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@+id/pigeon_hangup"
+            tools:visibility="visible" />
 
         <TextView
-            android:id="@+id/call_screen_answer_call_label"
+            android:id="@+id/pigeon_answer"
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -308,34 +310,25 @@
             android:text="@string/WebRtcCallScreen__answer"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/call_screen_decline_call_label"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@+id/pigeon_decline"
+            tools:visibility="visible" />
 
-        <LinearLayout
-            android:id="@+id/call_screen_start_call_controls"
+        <TextView
+            android:id="@+id/pigeon_start_call"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:clickable="true"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:nextFocusUp="@id/call_screen_start_call_start_call"
+            android:nextFocusDown="@id/call_screen_volume_toggle"
+            android:text="@string/WebRtcCallView__start_call"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/call_screen_answer_call_label"
-            tools:visibility="visible">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/call_screen_start_call_start_call"
-                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/pigeon_start_margin"
-                android:clickable="true"
-                android:focusable="true"
-                android:nextFocusUp="@id/call_screen_start_call_start_call"
-                android:nextFocusDown="@id/call_screen_volume_toggle"
-                android:text="@string/WebRtcCallView__start_call"
-                android:textAllCaps="false" />
-
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@+id/pigeon_answer"
+            tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/call_screen_error_cancel"
@@ -353,11 +346,11 @@
             android:textAllCaps="false"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/call_screen_start_call_controls"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@id/pigeon_start_call"
+            tools:visibility="visible" />
 
         <TextView
-            android:id="@+id/call_screen_end_call_label"
+            android:id="@+id/pigeon_hangup"
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -371,7 +364,7 @@
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pigeon_phone"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/call_screen_volume_toggle"

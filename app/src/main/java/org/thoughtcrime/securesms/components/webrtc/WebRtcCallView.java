@@ -5,8 +5,8 @@
 
 package org.thoughtcrime.securesms.components.webrtc;
 
-import android.annotation.SuppressLint;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.ColorMatrix;
@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
-import androidx.compose.ui.platform.ComposeView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.Guideline;
@@ -58,7 +57,6 @@ import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -106,6 +104,9 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   private TextView                      recipientName;
   private TextView                      pigeonName;
   private TextView                      pigeonPhone;
+  private TextView                      pigeonStartCall;
+  private TextView                      pigeonDecline;
+  private TextView                      pigeonAnswer;
   private TextView                      status;
   private TextView                      incomingRingStatus;
   private ControlsListener              controlsListener;
@@ -118,7 +119,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   private PictureInPictureGestureHelper pictureInPictureGestureHelper;
   private ImageView                     overflow;
   private ImageView                     hangup;
-  private TextView                      hangupLabel;
+  private TextView                      pigeonHangup;
   private View                          topGradient;
   private View                          footerGradient;
   private View                          startCallControls;
@@ -142,7 +143,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   private Stub<View>                    callLinkWarningCard;
   private RecyclerView                  groupReactionsFeed;
   private MultiReactionBurstLayout      reactionViews;
-  private ComposeView                   raiseHandSnackbar;
+  //Signal code
+//  private ComposeView                   raiseHandSnackbar;
   private View                          missingPermissionContainer;
   private MaterialButton                allowAccessButton;
   private Guideline                     callParticipantsOverflowGuideline;
@@ -183,62 +185,72 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   protected void onFinishInflate() {
     super.onFinishInflate();
 
-    audioToggle                       = findViewById(R.id.call_screen_speaker_toggle);
-    pigeonAudioToggleLabel            = findViewById(R.id.call_screen_speaker_toggle_label);
-    pigeonVolumeToggle                = findViewById(R.id.call_screen_volume_toggle);
-    videoToggle                       = findViewById(R.id.call_screen_video_toggle);
-    micToggle                         = findViewById(R.id.call_screen_audio_mic_toggle);
-    micToggleLabel                    = findViewById(R.id.call_screen_audio_mic_toggle_label);
-    smallLocalRenderFrame             = findViewById(R.id.call_screen_pip);
-    smallLocalRender                  = findViewById(R.id.call_screen_small_local_renderer);
-    largeLocalRenderFrame             = findViewById(R.id.call_screen_large_local_renderer_frame);
-    largeLocalRender                  = findViewById(R.id.call_screen_large_local_renderer);
-    largeLocalRenderNoVideo           = findViewById(R.id.call_screen_large_local_video_off);
-    largeLocalRenderNoVideoAvatar     = findViewById(R.id.call_screen_large_local_video_off_avatar);
-    recipientName                     = findViewById(R.id.call_screen_recipient_name);
-    pigeonName                        = findViewById(R.id.pigeon_name);
-    pigeonPhone                       = findViewById(R.id.pigeon_phone);
-    status                            = findViewById(R.id.call_screen_status);
-    incomingRingStatus                = findViewById(R.id.call_screen_incoming_ring_status);
-    answer                            = findViewById(R.id.call_screen_answer_call);
-    answerWithoutVideoLabel           = findViewById(R.id.call_screen_answer_without_video_label);
-    cameraDirectionToggle             = findViewById(R.id.call_screen_camera_direction_toggle);
-    ringToggle                        = findViewById(R.id.call_screen_audio_ring_toggle);
-    overflow                          = findViewById(R.id.call_screen_overflow_button);
-    hangup                            = findViewById(R.id.call_screen_end_call);
-    hangupLabel                       = findViewById(R.id.call_screen_end_call_label);
-    answerWithoutVideo                = findViewById(R.id.call_screen_answer_without_video);
-    topGradient                       = findViewById(R.id.call_screen_header_gradient);
-    footerGradient                    = findViewById(R.id.call_screen_footer_gradient);
-    startCallControls                 = findViewById(R.id.call_screen_start_call_controls);
-    callParticipantsPager             = findViewById(R.id.call_screen_participants_pager);
-    callParticipantsRecycler          = findViewById(R.id.call_screen_participants_recycler);
-    largeHeader                       = findViewById(R.id.call_screen_header);
-    startCall                         = findViewById(R.id.call_screen_start_call_start_call);
-    errorButton                       = findViewById(R.id.call_screen_error_cancel);
-    groupCallSpeakerHint              = new Stub<>(findViewById(R.id.call_screen_group_call_speaker_hint));
-    groupCallFullStub                 = new Stub<>(findViewById(R.id.group_call_call_full_view));
-    showParticipantsGuideline         = findViewById(R.id.call_screen_show_participants_guideline);
-    aboveControlsGuideline            = findViewById(R.id.call_screen_above_controls_guideline);
-    topFoldGuideline                  = findViewById(R.id.fold_top_guideline);
-    callScreenTopFoldGuideline        = findViewById(R.id.fold_top_call_screen_guideline);
-    largeHeaderAvatar                 = findViewById(R.id.call_screen_header_avatar);
-    fullScreenShade                   = findViewById(R.id.call_screen_full_shade);
-    collapsedToolbar                  = findViewById(R.id.webrtc_call_view_toolbar_text);
-    headerToolbar                     = findViewById(R.id.webrtc_call_view_toolbar_no_text);
-    pendingParticipantsViewStub       = new Stub<>(findViewById(R.id.call_screen_pending_recipients));
-    callLinkWarningCard               = new Stub<>(findViewById(R.id.call_screen_call_link_warning));
-    groupReactionsFeed                = findViewById(R.id.call_screen_reactions_feed);
-    reactionViews                     = findViewById(R.id.call_screen_reactions_container);
-    raiseHandSnackbar                 = findViewById(R.id.call_screen_raise_hand_view);
+    audioToggle                   = findViewById(R.id.call_screen_speaker_toggle);
+    pigeonAudioToggleLabel        = findViewById(R.id.call_screen_speaker_toggle_label);
+    pigeonVolumeToggle            = findViewById(R.id.call_screen_volume_toggle);
+    videoToggle                   = findViewById(R.id.call_screen_video_toggle);
+    micToggle                     = findViewById(R.id.call_screen_audio_mic_toggle);
+    micToggleLabel                = findViewById(R.id.call_screen_audio_mic_toggle_label);
+    smallLocalRenderFrame         = findViewById(R.id.call_screen_pip);
+    smallLocalRender              = findViewById(R.id.call_screen_small_local_renderer);
+    largeLocalRenderFrame         = findViewById(R.id.call_screen_large_local_renderer_frame);
+    largeLocalRender              = findViewById(R.id.call_screen_large_local_renderer);
+    largeLocalRenderNoVideo       = findViewById(R.id.call_screen_large_local_video_off);
+    largeLocalRenderNoVideoAvatar = findViewById(R.id.call_screen_large_local_video_off_avatar);
+    recipientName                 = findViewById(R.id.call_screen_recipient_name);
+    pigeonName                    = findViewById(R.id.pigeon_name);
+    pigeonPhone                   = findViewById(R.id.pigeon_phone);
+    pigeonStartCall               = findViewById(R.id.pigeon_start_call);
+    status                        = findViewById(R.id.call_screen_status);
+    incomingRingStatus            = findViewById(R.id.call_screen_incoming_ring_status);
+    answer                        = findViewById(R.id.call_screen_answer_call);
+    answerWithoutVideoLabel       = findViewById(R.id.call_screen_answer_without_video_label);
+    cameraDirectionToggle         = findViewById(R.id.call_screen_camera_direction_toggle);
+    ringToggle                    = findViewById(R.id.call_screen_audio_ring_toggle);
+    overflow                      = findViewById(R.id.call_screen_overflow_button);
+    hangup                        = findViewById(R.id.call_screen_end_call);
+    pigeonHangup                  = findViewById(R.id.pigeon_hangup);
+    answerWithoutVideo            = findViewById(R.id.call_screen_answer_without_video);
+    topGradient                   = findViewById(R.id.call_screen_header_gradient);
+    footerGradient                = findViewById(R.id.call_screen_footer_gradient);
+    startCallControls             = findViewById(R.id.call_screen_start_call_controls);
+    callParticipantsPager         = findViewById(R.id.call_screen_participants_pager);
+    callParticipantsRecycler      = findViewById(R.id.call_screen_participants_recycler);
+    largeHeader                   = findViewById(R.id.call_screen_header);
+    startCall                     = findViewById(R.id.call_screen_start_call_start_call);
+    errorButton                   = findViewById(R.id.call_screen_error_cancel);
+    errorButton                   = findViewById(R.id.call_screen_error_cancel);
+    groupCallSpeakerHint          = new Stub<>(findViewById(R.id.call_screen_group_call_speaker_hint));
+    groupCallFullStub             = new Stub<>(findViewById(R.id.group_call_call_full_view));
+    showParticipantsGuideline     = findViewById(R.id.call_screen_show_participants_guideline);
+    aboveControlsGuideline        = findViewById(R.id.call_screen_above_controls_guideline);
+    topFoldGuideline              = findViewById(R.id.fold_top_guideline);
+    callScreenTopFoldGuideline    = findViewById(R.id.fold_top_call_screen_guideline);
+    largeHeaderAvatar             = findViewById(R.id.call_screen_header_avatar);
+    fullScreenShade               = findViewById(R.id.call_screen_full_shade);
+    collapsedToolbar              = findViewById(R.id.webrtc_call_view_toolbar_text);
+    headerToolbar                 = findViewById(R.id.webrtc_call_view_toolbar_no_text);
+    pendingParticipantsViewStub   = new Stub<>(findViewById(R.id.call_screen_pending_recipients));
+    callLinkWarningCard           = new Stub<>(findViewById(R.id.call_screen_call_link_warning));
+    groupReactionsFeed            = findViewById(R.id.call_screen_reactions_feed);
+    reactionViews                 = findViewById(R.id.call_screen_reactions_container);
+    // Signal code
+//    raiseHandSnackbar                 = findViewById(R.id.call_screen_raise_hand_view);
     missingPermissionContainer        = findViewById(R.id.missing_permissions_container);
     allowAccessButton                 = findViewById(R.id.allow_access_button);
     callParticipantsOverflowGuideline = findViewById(R.id.call_screen_participants_overflow_guideline);
     callControlsSheet                 = findViewById(R.id.call_controls_info_parent);
 
+    pigeonDecline      = findViewById(R.id.pigeon_decline);
+    pigeonAnswer  = findViewById(R.id.pigeon_answer);
+
     View decline      = findViewById(R.id.call_screen_decline_call);
     View answerLabel  = findViewById(R.id.call_screen_answer_call_label);
     View declineLabel = findViewById(R.id.call_screen_decline_call_label);
+
+
+    pigeonAnswer.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onAcceptCallWithVoiceOnlyPressed));
+    pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
 
     pigeonVolumeToggle.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onVolumePressed));
 
@@ -273,15 +285,17 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     incomingCallViews.add(answerLabel);
     incomingCallViews.add(decline);
     incomingCallViews.add(declineLabel);
+    incomingCallViews.add(pigeonAnswer);
+    incomingCallViews.add(pigeonDecline);
     incomingCallViews.add(footerGradient);
     incomingCallViews.add(incomingRingStatus);
 
     focusOnLeft(pigeonAudioToggleLabel);
     focusOnLeft(micToggleLabel);
-    focusOnLeft(answerLabel);
-    focusOnLeft(declineLabel);
+    focusOnLeft(pigeonAnswer);
+    focusOnLeft(pigeonDecline);
     focusOnLeft(startCall);
-    focusOnLeft(hangupLabel);
+    focusOnLeft(pigeonHangup);
     focusOnLeft(errorButton);
     focusOnLeft(pigeonVolumeToggle);
     // for Pigeon
@@ -337,14 +351,12 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     });
 
     hangup.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onEndCallPressed));
-    hangupLabel.setOnClickListener(v -> hangup.performClick());
+    pigeonHangup.setOnClickListener(v -> hangup.performClick());
 
-    decline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
-    declineLabel.setOnClickListener(v -> decline.performClick());
+    pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
 
     answer.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onAcceptCallPressed));
     answerWithoutVideo.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onAcceptCallWithVoiceOnlyPressed));
-    answerLabel.setOnClickListener(v -> answerWithoutVideo.performClick());
 
     pictureInPictureGestureHelper   = PictureInPictureGestureHelper.applyTo(smallLocalRenderFrame);
     pictureInPictureExpansionHelper = new PictureInPictureExpansionHelper(smallLocalRenderFrame, state -> {
@@ -371,7 +383,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
         if (controlsListener != null) {
           startCall.setEnabled(false);
           controlsListener.onStartCall(videoToggle.isChecked());
-          hangupLabel.requestFocus();
+          pigeonHangup.requestFocus();
         }
       };
       runIfNonNull(controlsListener, listener -> listener.onAudioPermissionsRequested(onGranted));
@@ -464,16 +476,14 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   }
 
   public void onKeyReceived(int keyCode, int event) {
-    View answerLabel  = findViewById(R.id.call_screen_answer_call_label);
-    View declineLabel = findViewById(R.id.call_screen_decline_call_label);
-    if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && answerLabel.getVisibility() == VISIBLE) {
-      answerLabel.performClick();
+    if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && pigeonAnswer.getVisibility() == VISIBLE) {
+      pigeonAnswer.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && startCall.getVisibility() == VISIBLE) {
       startCall.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && declineLabel.getVisibility() == VISIBLE) {
-      declineLabel.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && hangupLabel.getVisibility() == VISIBLE) {
-      hangupLabel.performClick();
+    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonDecline.getVisibility() == VISIBLE) {
+      pigeonDecline.performClick();
+    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonHangup.getVisibility() == VISIBLE) {
+      pigeonHangup.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_BACK && event == KeyEvent.ACTION_UP) {
       controlsListener.pigeonDialogClosed();
       headerToolbar.requestFocus();
@@ -588,7 +598,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     } else {
       headerToolbar.setVisibility(View.VISIBLE);
       micToggleLabel.setNextFocusDownId(headerToolbar.getId());
-      hangupLabel.setNextFocusUpId(micToggleLabel.getId());
+      pigeonHangup.setNextFocusUpId(micToggleLabel.getId());
       headerToolbar.setOnKeyListener((view, keyCode, event) -> {
         System.out.println(keyCode);
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
@@ -767,9 +777,9 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       pigeonPhone.setVisibility(GONE);
     }
     try {
-      hangupLabel.requestFocus();
+      pigeonHangup.requestFocus();
       // TODO: 03/03/2025 fix me
-//      pigeonPhone.setText(recipient.requireE164());
+//      pigeonPhone.setText(recipient.getE164().get());
     } catch (Exception exception) {
       exception.printStackTrace();
     }
@@ -845,7 +855,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
   }
 
-  public void setWebRtcControls(@NonNull WebRtcControls webRtcControls) {
+  @SuppressLint("LogTagInlined") public void setWebRtcControls(@NonNull WebRtcControls webRtcControls) {
     Set<View> lastVisibleSet = new HashSet<>(visibleViewSet);
 
     incomingRingStatus.setText(webRtcControls.displayAnswerWithoutVideo() ? R.string.Pigeon_WebRtcCallView__signal_video_call : R.string.Pigeon_WebRtcCallView__signal_call);
@@ -874,6 +884,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       visibleViewSet.add(footerGradient);
       visibleViewSet.add(startCallControls);
 
+      // pigeon code
+      visibleViewSet.add(pigeonStartCall);
+      pigeonStartCall.requestFocus();
+
       startCall.setText(webRtcControls.getStartCallButtonText());
       startCall.setEnabled(webRtcControls.isStartCallEnabled());
     }
@@ -895,6 +909,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
 
     if (webRtcControls.displayIncomingCallButtons()) {
+      Log.d("PIGEON", "displayIncomingCallButtons");
       visibleViewSet.addAll(incomingCallViews);
 
       incomingRingStatus.setText(webRtcControls.displayAnswerWithoutVideo() ? R.string.WebRtcCallView__signal_video_call : R.string.WebRtcCallView__signal_call);
@@ -908,8 +923,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       }
     }
 
+
     if (webRtcControls.displayAnswerWithoutVideo()) {
       visibleViewSet.add(answerWithoutVideo);
+      visibleViewSet.add(answerWithoutVideoLabel);
       visibleViewSet.add(answerWithoutVideoLabel);
 
       answer.setImageDrawable(AppCompatResources.getDrawable(getContext(), R.drawable.webrtc_call_screen_answer_with_video));
@@ -959,7 +976,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
 
     if (webRtcControls.displayRaiseHand()) {
-      visibleViewSet.add(raiseHandSnackbar);
+//      Signal code
+//      visibleViewSet.add(raiseHandSnackbar);
     }
 
     boolean forceUpdate = webRtcControls.adjustForFold() && !controls.adjustForFold();
@@ -983,7 +1001,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     onWindowSystemUiVisibilityChanged(getWindowSystemUiVisibility());
 
     if (controls.displayEndCall()) {
-      visibleViewSet.add(hangupLabel);
+      visibleViewSet.add(pigeonHangup);
     }
 
     if (controls.displayMuteAudio()) {
@@ -1090,7 +1108,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     for (View view : visibleViewSet) {
       view.setVisibility(VISIBLE);
 
-      if (view.getId() == hangupLabel.getId()) {
+      if (view.getId() == pigeonHangup.getId()) {
         isHangupRequest = true;
       }
     }
@@ -1114,7 +1132,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
     if (isHangupRequest && isFirstPigeonSetupFocus) {
       isFirstPigeonSetupFocus = false;
-      hangupLabel.requestFocus();
+      pigeonHangup.requestFocus();
     }
   }
 
@@ -1220,6 +1238,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
 
     void toggleControls();
+
     void onAudioPermissionsRequested(Runnable onGranted);
 
     void pigeonDialogClosed();
