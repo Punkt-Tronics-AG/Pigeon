@@ -918,8 +918,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
       if (isPigeonVersion()) {
         incomingRingStatus.setText(R.string.Pigeon_WebRtcCallView__signal_call);
-        View answerLabel = findViewById(R.id.call_screen_answer_call_label);
-        answerLabel.requestFocus();
+        pigeonAnswer.requestFocus();
       }
     }
 
