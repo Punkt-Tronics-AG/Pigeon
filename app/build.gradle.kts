@@ -20,11 +20,11 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
-val pigeonVersionCode = 127534
+val pigeonVersionCode = 127535
 val canonicalVersionCode = 1506
 val currentHotfixVersion = 0
 val maxHotfixVersions = 100
-val canonicalVersionName = "Pigeon 2.0.0023 upon Signal 7.31.1"
+val canonicalVersionName = "Pigeon 2.0.0024 upon Signal 7.31.1"
 
 
 val keystores: Map<String, Properties?> = mapOf("debug" to loadKeystoreProperties("keystore.debug.properties"))
