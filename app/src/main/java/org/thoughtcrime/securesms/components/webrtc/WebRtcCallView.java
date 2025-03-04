@@ -387,14 +387,14 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
         if (controlsListener != null) {
           startCall.setEnabled(false);
           controlsListener.onStartCall(videoToggle.isChecked());
-          pigeonHangup.requestFocus();
+          pigeonHangup.post(() -> pigeonHangup.requestFocus());
         }
       };
       runIfNonNull(controlsListener, listener -> listener.onAudioPermissionsRequested(onGranted));
     });
 
     if (pigeonStartCall.getVisibility() == VISIBLE) {
-      pigeonStartCall.requestFocus();
+      pigeonStartCall.post(() -> pigeonStartCall.requestFocus());
     }
 
     ColorMatrix greyScaleMatrix = new ColorMatrix();
@@ -490,7 +490,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       pigeonHangup.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_BACK && event == KeyEvent.ACTION_UP) {
       controlsListener.pigeonDialogClosed();
-      headerToolbar.requestFocus();
+      headerToolbar.post(() -> headerToolbar.requestFocus());
     }
   }
 
@@ -891,7 +891,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       // pigeon code
       visibleViewSet.add(pigeonStartCall);
       focusOnLeft(pigeonStartCall);
-      pigeonStartCall.requestFocus();
+      pigeonStartCall.post(() -> pigeonStartCall.requestFocus());
 
       startCall.setText(webRtcControls.getStartCallButtonText());
       startCall.setEnabled(webRtcControls.isStartCallEnabled());
@@ -923,7 +923,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
       if (isPigeonVersion()) {
         incomingRingStatus.setText(R.string.Pigeon_WebRtcCallView__signal_call);
-        pigeonAnswer.requestFocus();
+        pigeonAnswer.post(() -> pigeonAnswer.requestFocus());
       }
     }
 
@@ -991,6 +991,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       boolean controlsVisible = true;
     }
 
+    allTimeVisibleViews.add(largeHeader);
     allTimeVisibleViews.addAll(visibleViewSet);
 
     if (!visibleViewSet.equals(lastVisibleSet) ||
@@ -999,7 +1000,9 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
         (!webRtcControls.showSmallHeader() && largeHeaderAvatar.getVisibility() == View.GONE) ||
         forceUpdate)
     {
-      throttledDebouncer.publish(() -> fadeInNewUiState(webRtcControls.showSmallHeader()));
+//      throttledDebouncer.publish(() -> fadeInNewUiState(webRtcControls.showSmallHeader()));
+      //Pigeon
+      throttledDebouncer.publish(() -> fadeInNewUiState(false));
     }
 
     onWindowSystemUiVisibilityChanged(getWindowSystemUiVisibility());
@@ -1140,7 +1143,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
     if (isHangupRequest && isFirstPigeonSetupFocus) {
       isFirstPigeonSetupFocus = false;
-      pigeonHangup.requestFocus();
+      pigeonHangup.post(() -> pigeonHangup.requestFocus());
     }
   }
 

@@ -1,5 +1,7 @@
 package org.signal.core.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -8,16 +10,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -30,7 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -167,33 +171,44 @@ object Rows {
     iconModifier: Modifier = Modifier,
     label: String? = null,
     icon: Painter? = null,
-    foregroundTint: Color = SignalTheme.colors.colorNeutral,
+    foregroundTint: Color = Color(0xFFFFFFFF),
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {
+    val focusRequester = remember { FocusRequester() }
+    var textSize by remember { mutableStateOf(14.dp) }
+    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
+
     TextRow(
       text = {
         TextAndLabel(
           text = text,
           label = label,
-          textColor = foregroundTint,
+          textColor = textColor,
+//          textColor = foregroundTint,
           enabled = enabled
         )
       },
-      icon = if (icon != null) {
-        {
-          Icon(
-            painter = icon,
-            contentDescription = null,
-            tint = foregroundTint,
-            modifier = iconModifier
-          )
-        }
-      } else {
-        null
-      },
-      modifier = modifier,
+//      icon = if (icon != null ) {
+//        {
+//          Icon(
+//            painter = icon,
+//            contentDescription = null,
+//            tint = foregroundTint,
+//            modifier = iconModifier
+//          )
+//        }
+//      } else {
+//        null
+//      },
+      modifier = modifier
+        .focusRequester(focusRequester)
+        .focusable(enabled)
+        .focusOnLeft(enabled, true) { hasFocus ->
+          textSize = if (hasFocus) 36.dp else 24.dp
+          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
+        },
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -210,33 +225,44 @@ object Rows {
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
     label: String? = null,
-    foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
+    foregroundTint: Color = Color(0xFFFFFFFF),
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {
+    val focusRequester = remember { FocusRequester() }
+    var textSize by remember { mutableStateOf(14.dp) }
+    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
+
     TextRow(
       text = {
         TextAndLabel(
           text = text,
           label = label,
-          textColor = foregroundTint,
+          textColor = textColor,
+//          textColor = foregroundTint,
           enabled = enabled
         )
       },
-      icon = if (icon != null) {
-        {
-          Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = foregroundTint,
-            modifier = iconModifier
-          )
-        }
-      } else {
-        null
-      },
-      modifier = modifier,
+//      icon = if (icon != null) {
+//        {
+//          Icon(
+//            imageVector = icon,
+//            contentDescription = null,
+//            tint = foregroundTint,
+//            modifier = iconModifier
+//          )
+//        }
+//      } else {
+//        null
+//      },
+      modifier = modifier
+        .focusRequester(focusRequester)
+        .focusable(enabled)
+        .focusOnLeft(enabled, true) { hasFocus ->
+          textSize = if (hasFocus) 36.dp else 24.dp
+          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
+        },
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -254,25 +280,53 @@ object Rows {
     icon: (@Composable RowScope.() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    visible: Boolean = true
   ) {
+    if (!visible) return
+
+    val focusRequester = remember { FocusRequester() }
+    var textSize by remember { mutableStateOf(14.dp) }
+    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
+
     Row(
       modifier = modifier
+        .focusRequester(focusRequester)
+        .focusOnLeft(enabled, true) { hasFocus ->
+          textSize = if (hasFocus) 36.dp else 24.dp
+          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
+        }
         .fillMaxWidth()
         .combinedClickable(
           enabled = enabled && (onClick != null || onLongClick != null),
           onClick = onClick ?: {},
           onLongClick = onLongClick ?: {}
-        )
-        .padding(defaultPadding()),
+        ).padding(0.dp),
+//        .padding(defaultPadding()),
       verticalAlignment = CenterVertically
     ) {
-      if (icon != null) {
-        icon()
-        Spacer(modifier = Modifier.width(24.dp))
-      }
       text()
     }
+  }
+
+  // pigeon
+  @SuppressLint("LogNotSignal")
+  fun Modifier.focusOnLeft(
+    enabled: Boolean,
+    isPigeonVersion: Boolean = true,
+    onFocusChanged: (Boolean) -> Unit
+  ): Modifier = composed {
+    var isFocused by remember { mutableStateOf(false) }
+
+    this
+      .alpha(if (isPigeonVersion && !enabled) 0.5f else 1.0f)
+      .onFocusChanged { focusState ->
+        Log.d("Pigeon", "focusOnLeft: ${focusState}")
+        isFocused = focusState.isFocused
+        onFocusChanged(isFocused)
+      }
+      .focusable(enabled)
+      .padding(start = if (isFocused) 5.dp else 30.dp)
   }
 
   @Composable

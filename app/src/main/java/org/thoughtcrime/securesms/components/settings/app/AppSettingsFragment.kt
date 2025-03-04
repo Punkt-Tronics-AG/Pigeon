@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,12 +28,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -70,8 +77,11 @@ import org.thoughtcrime.securesms.database.model.InAppPaymentSubscriberRecord
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter
 import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 class AppSettingsFragment : ComposeFragment(), Callbacks {
 
@@ -172,6 +182,8 @@ private fun AppSettingsContent(
   lazyColumnModifier: Modifier = Modifier
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
+  val focusRequester = remember { FocusRequester() }
+  val focusManager = LocalFocusManager.current
 
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
@@ -180,7 +192,7 @@ private fun AppSettingsContent(
     onNavigationClick = callbacks::onNavigationClick
   ) { contentPadding ->
     Column(
-      modifier = Modifier.padding(contentPadding)
+      modifier = Modifier.padding(contentPadding).focusRequester(focusRequester)
     ) {
       bannerManager.Banner()
 
@@ -194,66 +206,311 @@ private fun AppSettingsContent(
           )
         }
 
-        when (state.backupFailureState) {
-          BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
-            item {
-              Dividers.Default()
+        if (isSignalVersion()) {
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
-                onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+          when (state.backupFailureState) {
+            BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
+              item {
+                Dividers.Default()
 
-              Dividers.Default()
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
+                  onClick = {
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
+
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
-                onClick = {
-                  BackupRepository.markBackupFailedIndicatorClicked()
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
+                  onClick = {
+                    BackupRepository.markBackupFailedIndicatorClicked()
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.ALREADY_REDEEMED -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.ALREADY_REDEEMED -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
-                onClick = {
-                  BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
+                  onClick = {
+                    BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.NONE -> Unit
+            BackupFailureState.NONE -> Unit
+          }
         }
 
         item {
           Rows.TextRow(
             text = stringResource(R.string.AccountSettingsFragment__account),
-            icon = painterResource(R.drawable.symbol_person_circle_24),
+            icon = if (isSignalVersion()) painterResource(R.drawable.symbol_person_circle_24) else null,
             onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_accountSettingsFragment)
             }
           )
         }
+
+
+        if (isSignalVersion()) {
+          // fixme
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__linked_devices),
+              icon = painterResource(R.drawable.symbol_devices_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
+              },
+              enabled = isRegisteredAndUpToDate
+            )
+          }
+        }
+
+        item {
+          val context = LocalContext.current
+          val donateUrl = stringResource(R.string.donate_url)
+
+          Rows.TextRow(
+            visible = isSignalVersion(),
+            text = {
+              Text(
+                text = stringResource(R.string.preferences__donate_to_signal),
+                modifier = Modifier.weight(1f)
+              )
+
+              if (state.hasExpiredGiftBadge) {
+                Icon(
+                  painter = painterResource(R.drawable.symbol_info_fill_24),
+                  tint = colorResource(R.color.signal_accent_primary),
+                  contentDescription = null
+                )
+              }
+            },
+            icon = {
+              Icon(
+                painter = painterResource(R.drawable.symbol_heart_24),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+              )
+            },
+            onClick = {
+              if (state.allowUserToGoToDonationManagementScreen) {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_manageDonationsFragment)
+              } else {
+                CommunicationActions.openBrowserLink(context, donateUrl)
+              }
+            },
+            onLongClick = {
+              callbacks.copyDonorBadgeSubscriberIdToClipboard()
+            }
+          )
+        }
+
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__appearance),
+              icon = painterResource(R.drawable.symbol_appearance_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_appearanceSettingsFragment)
+              }
+            )
+          }
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences_chats__chats),
+            icon = painterResource(R.drawable.symbol_chat_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
+
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__stories),
+              icon = painterResource(R.drawable.symbol_stories_24),
+              onClick = {
+                callbacks.navigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(R.string.preferences__stories))
+              },
+              enabled = isRegisteredAndUpToDate
+            )
+          }
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__notifications),
+            icon = painterResource(R.drawable.symbol_bell_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__privacy),
+            icon = painterResource(R.drawable.symbol_lock_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
+
+        if (state.showBackups) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences_chats__backups),
+              icon = painterResource(R.drawable.symbol_backup_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+              },
+              onLongClick = {
+                callbacks.copyRemoteBackupsSubscriberIdToClipboard()
+              },
+              enabled = isRegisteredAndUpToDate
+            )
+          }
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__data_and_storage),
+            icon = painterResource(R.drawable.symbol_data_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
+            }
+          )
+        }
+
+        if (isSignalVersion()) {
+          if (state.showAppUpdates) {
+            item {
+              Rows.TextRow(
+                text = "App updates",
+                icon = painterResource(R.drawable.symbol_calendar_24),
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_appUpdatesSettingsFragment)
+                }
+              )
+            }
+          }
+
+          if (state.showPayments) {
+            item {
+              Dividers.Default()
+            }
+
+            item {
+              Rows.TextRow(
+                text = {
+                  Text(
+                    text = stringResource(R.string.preferences__payments),
+                    modifier = Modifier.weight(1f)
+                  )
+
+                  if (state.unreadPaymentsCount > 0) {
+                    Text(
+                      text = state.unreadPaymentsCount.toString(),
+                      color = MaterialTheme.colorScheme.inverseOnSurface,
+                      style = MaterialTheme.typography.bodyMedium,
+                      textAlign = TextAlign.Center,
+                      modifier = Modifier
+                        .background(
+                          color = MaterialTheme.colorScheme.primary,
+                          shape = RoundedCornerShape(50)
+                        )
+                        .defaultMinSize(minWidth = 30.dp)
+                        .padding(4.dp)
+                    )
+                  }
+                },
+                icon = {
+                  Icon(
+                    painter = painterResource(R.drawable.symbol_payment_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                  )
+                },
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+                }
+              )
+            }
+          }
+
+          item {
+            Dividers.Default()
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__help),
+              icon = painterResource(R.drawable.symbol_help_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
+              }
+            )
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = painterResource(R.drawable.symbol_invite_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_inviteActivity)
+              }
+            )
+          }
+        }
+
+        if (state.showInternalPreferences || isPigeonVersion()) {
+          if (isSignalVersion()) {
+            item {
+              Dividers.Default()
+            }
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__internal_preferences),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
+              }
+            )
+          }
+        }
+
       }
     }
   }
@@ -292,7 +549,7 @@ private fun BackupsWarningRow(
 @Composable
 private fun BioRow(
   self: BioRecipientState,
-  callbacks: Callbacks
+  callbacks: Callbacks,
 ) {
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
 
@@ -307,12 +564,15 @@ private fun BioRow(
       .horizontalGutters()
   ) {
     Box {
-      AvatarImage(
-        recipient = self.recipient,
-        modifier = Modifier
-          .padding(vertical = 24.dp)
-          .size(80.dp)
-      )
+      if (isSignalVersion()) {
+        AvatarImage(
+          recipient = self.recipient,
+          modifier = Modifier
+            .padding(vertical = 24.dp)
+            .size(80.dp)
+        )
+      }
+
 
       if (self.featuredBadge != null) {
         BadgeImageMedium(
