@@ -436,14 +436,17 @@ android {
           } else {
             output.outputFileName = output.outputFileName.replace(".apk", "-$versionName.apk")
           }
+          output.versionCodeOverride = pigeonVersionCode
         } else {
           output.outputFileName = output.outputFileName.replace(".apk", "-$versionName.apk")
 
           if (currentHotfixVersion >= maxHotfixVersions) {
             throw AssertionError("Hotfix version is too large!")
           }
-          output.versionCodeOverride = pigeonVersionCode
+
+//          output.versionCodeOverride = canonicalVersionCode * postFixSize + postFix
         }
+        output.versionCodeOverride = pigeonVersionCode
       }
   }
 
