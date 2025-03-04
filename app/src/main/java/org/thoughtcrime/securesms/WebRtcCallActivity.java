@@ -287,6 +287,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
         WebRtcViewModel delayRtcViewModel = EventBus.getDefault().getStickyEvent(WebRtcViewModel.class);
         if (delayRtcViewModel == null) {
           Log.w(TAG, "Activity still without service event, finishing activity");
+          Log.i(TAG, "Pigeon: Finishing activity Activity resumed without service event, perform delay destroy");
           finish();
         } else {
           Log.i(TAG, "Event found after delay");
@@ -324,7 +325,8 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
 
     if (!callPermissionsDialogController.isAskingForPermission() && !viewModel.isCallStarting() && !isChangingConfigurations()) {
       CallParticipantsState state = viewModel.getCallParticipantsStateSnapshot();
-      if (state != null && (state.getCallState().isPreJoinOrNetworkUnavailable() || state.getCallState().isIncomingOrHandledElsewhere())) {
+      if (state != null && (state.getCallState().isPreJoinOrNetworkUnavailable() || state.getCallState().isIncomingOrHandledElsewhere()) && isSignalVersion()) {
+        Log.i(TAG, "Pigeon: Finishing activity");
         finish();
       }
     }
@@ -946,6 +948,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
     if (state != null && state.getGroupCallState().isNotIdle()) {
       if (state.getCallState().isPreJoinOrNetworkUnavailable()) {
         AppDependencies.getSignalCallManager().cancelPreJoin();
+        Log.i(TAG, "Pigeon: Finishing activity isPreJoinOrNetworkUnavailable");
         finish();
       } else {
         handleEndCall();
@@ -960,6 +963,7 @@ public class WebRtcCallActivity extends BaseActivity implements SafetyNumberChan
   }
 
   private void delayedFinish() {
+    Log.i(TAG, "PIGEON: delayedFinish");
     delayedFinish(STANDARD_DELAY_FINISH);
   }
 

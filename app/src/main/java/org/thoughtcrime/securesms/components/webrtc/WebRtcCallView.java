@@ -241,7 +241,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     callParticipantsOverflowGuideline = findViewById(R.id.call_screen_participants_overflow_guideline);
     callControlsSheet                 = findViewById(R.id.call_controls_info_parent);
 
-    pigeonDecline      = findViewById(R.id.pigeon_decline);
+    pigeonDecline = findViewById(R.id.pigeon_decline);
     pigeonAnswer  = findViewById(R.id.pigeon_answer);
 
     View decline      = findViewById(R.id.call_screen_decline_call);
@@ -249,6 +249,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     View declineLabel = findViewById(R.id.call_screen_decline_call_label);
 
 
+    pigeonStartCall.setOnClickListener(v -> controlsListener.onStartCall(false));
     pigeonAnswer.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onAcceptCallWithVoiceOnlyPressed));
     pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
 
@@ -285,11 +286,14 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     incomingCallViews.add(answerLabel);
     incomingCallViews.add(decline);
     incomingCallViews.add(declineLabel);
+
+    incomingCallViews.add(largeHeader);
     incomingCallViews.add(pigeonAnswer);
     incomingCallViews.add(pigeonDecline);
     incomingCallViews.add(footerGradient);
     incomingCallViews.add(incomingRingStatus);
 
+    focusOnLeft(pigeonStartCall);
     focusOnLeft(pigeonAudioToggleLabel);
     focusOnLeft(micToggleLabel);
     focusOnLeft(pigeonAnswer);
@@ -389,8 +393,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       runIfNonNull(controlsListener, listener -> listener.onAudioPermissionsRequested(onGranted));
     });
 
-    if (startCall.getVisibility() == VISIBLE) {
-      startCall.requestFocus();
+    if (pigeonStartCall.getVisibility() == VISIBLE) {
+      pigeonStartCall.requestFocus();
     }
 
     ColorMatrix greyScaleMatrix = new ColorMatrix();
@@ -478,8 +482,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
   public void onKeyReceived(int keyCode, int event) {
     if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && pigeonAnswer.getVisibility() == VISIBLE) {
       pigeonAnswer.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && startCall.getVisibility() == VISIBLE) {
-      startCall.performClick();
+    } else if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && pigeonStartCall.getVisibility() == VISIBLE) {
+      pigeonStartCall.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonDecline.getVisibility() == VISIBLE) {
       pigeonDecline.performClick();
     } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonHangup.getVisibility() == VISIBLE) {
@@ -886,6 +890,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
       // pigeon code
       visibleViewSet.add(pigeonStartCall);
+      focusOnLeft(pigeonStartCall);
       pigeonStartCall.requestFocus();
 
       startCall.setText(webRtcControls.getStartCallButtonText());
@@ -904,7 +909,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       groupCallFullStub.get().setVisibility(View.GONE);
     }
 
-    if (webRtcControls.displayTopViews()) {
+    if (webRtcControls.displayTopViews() || isPigeonVersion()) {
       visibleViewSet.addAll(topViews);
     }
 
@@ -1005,6 +1010,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
     if (controls.displayMuteAudio()) {
       visibleViewSet.add(micToggleLabel);
+    }
+
+    if (isPigeonVersion()) {
+      visibleViewSet.add(largeHeader);
     }
   }
 

@@ -15,6 +15,7 @@ import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 public final class WebRtcControls {
 
@@ -248,7 +249,7 @@ public final class WebRtcControls {
   }
 
   public boolean showSmallHeader() {
-    return isAtLeastOutgoing() || callState == CallState.RECONNECTING;
+    return isSignalVersion() && (isAtLeastOutgoing() || callState == CallState.RECONNECTING);
   }
 
   public boolean showFullScreenShade() {
