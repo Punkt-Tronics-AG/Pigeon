@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class BackupUtil {
 
   private static final String TAG = Log.tag(BackupUtil.class);
@@ -174,6 +176,7 @@ public class BackupUtil {
 
   @VisibleForTesting
   static @Nullable BackupInfo getBackupInfoFromSingleDocumentFile(@NonNull DocumentFile documentFile) throws BackupFileException {
+
     BackupFileState backupFileState = getBackupFileState(documentFile);
 
     if (backupFileState.isSuccess()) {
@@ -267,7 +270,8 @@ public class BackupUtil {
   }
 
   private static BackupFileState getBackupFileState(@NonNull DocumentFile documentFile) {
-    if (!documentFile.exists()) {
+    Log.d("PIGEON", "getBackupFileState: " + documentFile.getUri());
+    if (!documentFile.exists() && isSignalVersion()) {
       return BackupFileState.NOT_FOUND;
     } else if (!documentFile.canRead()) {
       return BackupFileState.NOT_READABLE;

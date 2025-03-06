@@ -35,6 +35,7 @@ import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.ViewModelFactory
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import java.util.Locale
 
 /**
@@ -52,6 +53,11 @@ class RestoreLocalBackupFragment : LoggingFragment(R.layout.fragment_restore_loc
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+
+    if (isPigeonVersion()) {
+      sharedViewModel.setBackupFileUri(BackupUtil.getLatestBackup()!!.uri)
+    }
+
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
     Log.i(TAG, "Backup restore.")
 

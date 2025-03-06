@@ -6,8 +6,10 @@
 package org.thoughtcrime.securesms.registration.ui.welcome
 
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -32,10 +34,12 @@ import org.thoughtcrime.securesms.registration.ui.grantpermissions.GrantPermissi
 import org.thoughtcrime.securesms.restore.RestoreActivity
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
+import org.thoughtcrime.securesms.util.StorageUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnLeft
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
+import java.io.File
 
 
 /**
@@ -73,6 +77,9 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
 
     if (isPigeonVersion()) {
       binding.welcomeTermsButton.focusOnLeft()
+      binding.welcomeTransferOrRestore.focusOnLeft()
+      val backupFileUri = BackupUtil.getLatestBackup()?.uri
+      binding.welcomeTransferOrRestore.visibility = if (backupFileUri == null) View.GONE else View.VISIBLE
       val disclaimerButton: TextView = view.findViewById(R.id.disclaimer_button)
       disclaimerButton.setOnClickListener { v: View? -> onDisclaimerClicked() }
 
@@ -121,7 +128,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
       findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.CONTINUE))
     } else {
       sharedViewModel.maybePrefillE164(requireContext())
-      if (isSignalVersion()){
+      if (isSignalVersion()) {
         findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
       } else {
         findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())

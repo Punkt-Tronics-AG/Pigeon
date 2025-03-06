@@ -6,22 +6,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/Mp02.Signal.Background"
-    android:fillViewport="true"
-    tools:context=".registration.fragments.RestoreBackupFragment">
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/skip_restore_button"
+            android:id="@+id/cancel_local_restore_button"
             style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:layout_marginStart="20dp"
-            android:text="@string/registration_activity__skip"
+            android:text="@string/RegistrationActivity_cancel"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/restore_button" />
@@ -45,6 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:visibility="gone"
             android:textColor="@color/white_not_focus"
             app:layout_constraintStart_toStartOf="@+id/verify_subheader"
             app:layout_constraintTop_toBottomOf="@+id/verify_subheader"
@@ -55,6 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:visibility="gone"
             android:textColor="@color/white_not_focus"
             app:layout_constraintStart_toStartOf="@+id/backup_created_text"
             app:layout_constraintTop_toBottomOf="@+id/backup_created_text"
@@ -66,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
+            android:visibility="gone"
             android:textColor="@color/white_focus"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -79,9 +81,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="40dp"
             android:layout_marginEnd="32dp"
             android:gravity="center"
+            android:textSize="20dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:textColor="@color/white"
             android:text="@string/RegistrationActivity_restore_from_backup"
             android:textAppearance="@style/Signal.Text.HeadlineMedium"

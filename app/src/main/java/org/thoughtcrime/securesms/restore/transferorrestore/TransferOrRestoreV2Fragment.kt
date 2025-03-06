@@ -18,6 +18,7 @@ import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegat
 import org.thoughtcrime.securesms.restore.RestoreViewModel
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 /**
  * This presents a list of options for the user to restore (or skip) a backup.
@@ -25,6 +26,8 @@ import org.thoughtcrime.securesms.util.navigation.safeNavigate
 class TransferOrRestoreV2Fragment : LoggingFragment(R.layout.fragment_transfer_restore_v2) {
   private val sharedViewModel by activityViewModels<RestoreViewModel>()
   private val binding: FragmentTransferRestoreV2Binding by ViewBinderDelegate(FragmentTransferRestoreV2Binding::bind)
+
+  private var isPigeonFirstTime = true
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -44,6 +47,12 @@ class TransferOrRestoreV2Fragment : LoggingFragment(R.layout.fragment_transfer_r
     }
 
     // TODO [regv2]: port backup file detection to here
+
+    if (isPigeonVersion() && isPigeonFirstTime){
+      isPigeonFirstTime = false
+      binding.transferOrRestoreFragmentRestore.performClick()
+      binding.transferOrRestoreFragmentNext.performClick()
+    }
   }
 
   private fun updateSelection(restorationType: BackupRestorationType) {

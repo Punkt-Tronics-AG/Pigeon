@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.restore.choosebackup
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -13,6 +14,7 @@ import android.os.Bundle
 import android.provider.DocumentsContract
 import android.text.method.LinkMovementMethod
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.activityViewModels
@@ -25,7 +27,9 @@ import org.thoughtcrime.securesms.databinding.FragmentChooseBackupBinding
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate
 import org.thoughtcrime.securesms.restore.RestoreViewModel
+import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 /**
  * This fragment presents a button to the user to browse their local file system for a legacy backup file.
@@ -45,17 +49,36 @@ class ChooseBackupFragment : LoggingFragment(R.layout.fragment_choose_backup) {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     RegistrationViewDelegate.setDebugLogSubmitMultiTapView(binding.chooseBackupFragmentTitle)
-    binding.chooseBackupFragmentButton.setOnClickListener { onChooseBackupSelected() }
+    binding.chooseBackupFragmentButton.setOnClickListener {
+      if (isPigeonVersion()) {
+        fetchPigeonBackupFile()
+      } else {
+        onChooseBackupSelected()
+      }
+    }
 
     binding.chooseBackupFragmentLearnMore.text = HtmlCompat.fromHtml(String.format("<a href=\"%s\">%s</a>", getString(R.string.backup_support_url), getString(R.string.ChooseBackupFragment__learn_more)), 0)
     binding.chooseBackupFragmentLearnMore.movementMethod = LinkMovementMethod.getInstance()
+
+  }
+
+  private fun fetchPigeonBackupFile() {
+    val backupFileUri = BackupUtil.getLatestBackup()?.uri
+    Log.d(TAG, "fetchPigeonBackupFile: $backupFileUri")
+    if (backupFileUri == null) {
+      Toast.makeText(requireContext(), "No backup file found", Toast.LENGTH_SHORT).show()
+    } else {
+      onUserChoseBackupFile(backupFileUri)
+    }
   }
 
   private fun onChooseBackupSelected() {
     pickMedia.launch("application/octet-stream")
   }
 
+  @SuppressLint("LogTagInlined")
   private fun onUserChoseBackupFile(backupFileUri: Uri) {
+    Log.d("PIGEON", "onUserChoseBackupFile: $backupFileUri")
     sharedViewModel.setBackupFileUri(backupFileUri)
     NavHostFragment.findNavController(this).safeNavigate(ChooseBackupFragmentDirections.actionChooseLocalBackupFragmentToRestoreLocalBackupFragment())
   }

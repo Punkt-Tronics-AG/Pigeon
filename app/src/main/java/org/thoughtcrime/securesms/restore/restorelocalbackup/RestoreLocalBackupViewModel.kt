@@ -20,6 +20,8 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.data.RegistrationRepository
 import org.thoughtcrime.securesms.registration.util.RegistrationUtil
 import org.thoughtcrime.securesms.restore.RestoreRepository
+import org.thoughtcrime.securesms.util.BackupUtil
+import pigeon.extensions.isPigeonVersion
 
 /**
  * ViewModel for [RestoreLocalBackupFragment]
@@ -35,7 +37,11 @@ class RestoreLocalBackupViewModel(fileBackupUri: Uri) : ViewModel() {
   fun prepareRestore(context: Context) {
     val backupFileUri = store.value.uri
     viewModelScope.launch {
-      val result: RestoreRepository.BackupInfoResult = RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
+      val result: RestoreRepository.BackupInfoResult = if (isPigeonVersion()){
+        RestoreRepository.getLocalBackupFromUri(context, BackupUtil.getLatestBackup()!!.uri)
+      }else {
+        RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
+      }
 
       if (result.failure && result.failureCause != null) {
         store.update {

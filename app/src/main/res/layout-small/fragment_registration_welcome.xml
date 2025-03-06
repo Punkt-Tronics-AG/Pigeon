@@ -76,18 +76,37 @@
             android:ellipsize="end"
             android:gravity="start"
             android:nextFocusUp="@id/disclaimer_button"
-            android:nextFocusDown="@id/welcome_continue_button"
+            android:nextFocusDown="@id/welcome_transfer_or_restore"
             android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="@string/RegistrationActivity_pigeon_terms_and_privacy"
-            app:layout_constraintBottom_toTopOf="@+id/welcome_continue_button"
+            app:layout_constraintBottom_toTopOf="@+id/welcome_transfer_or_restore"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/welcome_transfer_or_restore"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusUp="@id/welcome_terms_button"
+            android:nextFocusDown="@id/welcome_continue_button"
+            android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:ellipsize="marquee"
+            android:gravity="start"
+            android:layout_marginBottom="@dimen/pigeon_small_margin"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="@string/registration_activity__transfer_or_restore_account"
+            app:layout_constraintBottom_toTopOf="@+id/welcome_continue_button"
+            app:layout_constraintStart_toStartOf="@+id/welcome_continue_button" />
 
         <org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
             android:id="@+id/welcome_continue_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:nextFocusUp="@id/welcome_transfer_or_restore"
+            android:nextFocusDown="@id/welcome_continue_button"
             android:layout_marginBottom="@dimen/pigeon_big_margin"
             android:layout_marginStart="5dp"
             app:circularProgressMaterialButton__label="@string/RegistrationActivity_continue"
@@ -128,22 +147,6 @@
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="@+id/welcome_continue_button"
             app:layout_constraintTop_toTopOf="parent" />
-
-
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/welcome_transfer_or_restore"
-            style="@style/Signal.Widget.Button.Large.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="24dp"
-            android:text="@string/registration_activity__transfer_or_restore_account"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/welcome_continue_button"
-            app:layout_constraintStart_toStartOf="@+id/welcome_continue_button" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
