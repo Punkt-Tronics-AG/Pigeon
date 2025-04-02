@@ -17,6 +17,7 @@ import androidx.loader.content.Loader
 import androidx.navigation.fragment.NavHostFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
+import pigeon.base.CountryListLoader
 
 class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<ArrayList<Map<String, String>>> {
   private var countryFilter: EditText? = null
@@ -48,7 +49,7 @@ class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<Arra
   }
 
   override fun onCreateLoader(id: Int, args: Bundle?): Loader<ArrayList<Map<String, String>>> {
-    return CountryListLoader(activity)
+    return CountryListLoader(requireContext())
   }
 
   override fun onLoadFinished(
