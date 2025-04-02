@@ -58,7 +58,8 @@ class CountryCodeFragment : LoggingFragment() {
           nextButton.requestFocus()
         }
         countryCodeLayout.setOnClickListener {
-          findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry())
+          //SIGNAL CODE
+//          findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(sharedViewModel.uiState.value))
         }
       }
       disposables.bindTo(viewLifecycleOwner.lifecycle)

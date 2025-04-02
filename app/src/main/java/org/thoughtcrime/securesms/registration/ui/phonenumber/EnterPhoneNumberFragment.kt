@@ -337,38 +337,39 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       when (state.error) {
         EnterPhoneNumberState.Error.NONE -> Unit
 
-      EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER -> {
-        MaterialAlertDialogBuilder(requireContext()).apply {
-          setTitle(R.string.RegistrationActivity_invalid_number)
-          setMessage(
-            String.format(
-              getString(R.string.RegistrationActivity_the_number_you_specified_s_is_invalid),
-              state.phoneNumber
+        EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER -> {
+          MaterialAlertDialogBuilder(requireContext()).apply {
+            setTitle(R.string.RegistrationActivity_invalid_number)
+            setMessage(
+              String.format(
+                getString(R.string.RegistrationActivity_the_number_you_specified_s_is_invalid),
+                state.phoneNumber
+              )
             )
-          )
-          setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
-          setOnCancelListener { fragmentViewModel.clearError() }
-          setOnDismissListener { fragmentViewModel.clearError() }
-          show()
+            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
+            setOnCancelListener { fragmentViewModel.clearError() }
+            setOnDismissListener { fragmentViewModel.clearError() }
+            show()
+          }
         }
-      }
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_MISSING -> {
-        handlePromptForNoPlayServices()
-      }
+        EnterPhoneNumberState.Error.PLAY_SERVICES_MISSING -> {
+          handlePromptForNoPlayServices()
+        }
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_NEEDS_UPDATE -> {
-        GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, 0)?.show()
-      }
+        EnterPhoneNumberState.Error.PLAY_SERVICES_NEEDS_UPDATE -> {
+          GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, 0)?.show()
+        }
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_TRANSIENT -> {
-        MaterialAlertDialogBuilder(requireContext()).apply {
-          setTitle(R.string.RegistrationActivity_play_services_error)
-          setMessage(R.string.RegistrationActivity_google_play_services_is_updating_or_unavailable)
-          setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
-          setOnCancelListener { fragmentViewModel.clearError() }
-          setOnDismissListener { fragmentViewModel.clearError() }
-          show()
+        EnterPhoneNumberState.Error.PLAY_SERVICES_TRANSIENT -> {
+          MaterialAlertDialogBuilder(requireContext()).apply {
+            setTitle(R.string.RegistrationActivity_play_services_error)
+            setMessage(R.string.RegistrationActivity_google_play_services_is_updating_or_unavailable)
+            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
+            setOnCancelListener { fragmentViewModel.clearError() }
+            setOnDismissListener { fragmentViewModel.clearError() }
+            show()
+          }
         }
       }
     }

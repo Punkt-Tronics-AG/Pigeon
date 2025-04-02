@@ -92,8 +92,12 @@
 
     <fragment
         android:id="@+id/countryPickerFragment"
-        android:name="org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment"
-        tools:layout="@layout/fragment_registration_country_picker">
+        android:name="pigeon.fragments.CountryPickerFragment"
+        android:label="fragment_country_picker"
+        tools:layout="@layout/pigeon_fragment_registration_country_picker" >
+<!--    SIGNAL CODE-->
+<!--    android:name="org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment"-->
+<!--    tools:layout="@layout/fragment_registration_country_picker">-->
 
         <argument
             android:name="country"
@@ -194,12 +198,6 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
     </fragment>
-
-    <fragment
-        android:id="@+id/countryPickerFragment"
-        android:name="pigeon.fragments.CountryPickerFragment"
-        android:label="fragment_country_picker"
-        tools:layout="@layout/pigeon_fragment_registration_country_picker" />
 
     <fragment
         android:id="@+id/enterCodeFragment"

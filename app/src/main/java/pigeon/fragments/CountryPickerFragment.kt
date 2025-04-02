@@ -16,7 +16,6 @@ import androidx.loader.app.LoaderManager
 import androidx.loader.content.Loader
 import androidx.navigation.fragment.NavHostFragment
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.database.loaders.CountryListLoader
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 
 class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<ArrayList<Map<String, String>>> {
