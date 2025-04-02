@@ -88,6 +88,8 @@ import org.thoughtcrime.securesms.webrtc.CallParticipantsViewState
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager.ChosenAudioDeviceIdentifier
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage
+import pigeon.activity.WebRtcCallVolumeActivity
+import pigeon.extensions.isSignalVersion
 import kotlin.time.Duration.Companion.seconds
 
 /** Conversion */
@@ -1160,8 +1162,12 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     }
 
     override fun onAcceptCallPressed() {
-      if (viewModel.isAnswerWithVideoAvailable()) {
-        handleAnswerWithVideo()
+      if (isSignalVersion()) {
+        if (viewModel.isAnswerWithVideoAvailable()) {
+          handleAnswerWithVideo()
+        } else {
+          handleAnswerWithAudio()
+        }
       } else {
         handleAnswerWithAudio()
       }
@@ -1204,6 +1210,19 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     override fun onAudioPermissionsRequested(onGranted: Runnable?) {
       askAudioPermissions { onGranted?.run() }
     }
+
+    override fun onVolumePressed() {
+      handleVolumePressed()
+    }
+
+    override fun pigeonDialogClosed() {
+      callScreen.toggleControls()
+    }
+  }
+
+  // PIGEON code
+  private fun handleVolumePressed() {
+    startActivity(Intent(this, WebRtcCallVolumeActivity::class.java))
   }
 
   private inner class PendingParticipantsViewListener : PendingParticipantsListener {

@@ -251,10 +251,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
 
     pigeonStartCall.setOnClickListener(v -> controlsListener.onStartCall(false));
-    pigeonAnswer.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onAcceptCallWithVoiceOnlyPressed));
-    pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
+    pigeonAnswer.setOnClickListener(v -> controlsListener.onAcceptCallWithVoiceOnlyPressed());
+    pigeonDecline.setOnClickListener(v -> controlsListener.onDenyCallPressed());
 
-    pigeonVolumeToggle.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onVolumePressed));
+    pigeonVolumeToggle.setOnClickListener(v -> controlsListener.onVolumePressed());
 
     callParticipantsPager.setPageTransformer(new MarginPageTransformer(ViewUtil.dpToPx(4)));
 
@@ -359,7 +359,7 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     decline.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onDenyCallPressed));
 
       pigeonHangup.setOnClickListener(v -> hangup.performClick());
-      pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onDenyCallPressed));
+      pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onDenyCallPressed));
 
       answer.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onAcceptCallPressed));
     answerWithoutVideo.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onAcceptCallWithVoiceOnlyPressed));

@@ -155,14 +155,14 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
 
   @Override
   public @NonNull SignalServiceMessageSender provideSignalServiceMessageSender(@NonNull SignalWebSocket.AuthenticatedWebSocket authWebSocket, @NonNull SignalWebSocket.UnauthenticatedWebSocket unauthWebSocket, @NonNull SignalServiceDataStore protocolStore, @NonNull PushServiceSocket pushServiceSocket) {
-      return new SignalServiceMessageSender(pushServiceSocket,
-                                            protocolStore,
-                                            ReentrantSessionLock.INSTANCE,
-                                            authWebSocket,
-                                            unauthWebSocket,
-                                            Optional.of(new SecurityEventListener(context)),
-                                            SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
-                                            ByteUnit.KILOBYTES.toBytes(256));
+    return new SignalServiceMessageSender(pushServiceSocket,
+                                          protocolStore,
+                                          ReentrantSessionLock.INSTANCE,
+                                          authWebSocket,
+                                          unauthWebSocket,
+                                          Optional.of(new SecurityEventListener(context)),
+                                          SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
+                                          ByteUnit.KILOBYTES.toBytes(256));
   }
 
   @Override
@@ -183,14 +183,14 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   @Override
   public @NonNull JobManager provideJobManager() {
     JobManager.Configuration config = new JobManager.Configuration.Builder()
-                                                                  .setJobFactories(JobManagerFactories.getJobFactories(context))
-                                                                  .setConstraintFactories(JobManagerFactories.getConstraintFactories(context))
-                                                                  .setConstraintObservers(JobManagerFactories.getConstraintObservers(context))
-                                                                  .setJobStorage(new FastJobStorage(JobDatabase.getInstance(context)))
-                                                                  .setJobMigrator(new JobMigrator(TextSecurePreferences.getJobManagerVersion(context), JobManager.CURRENT_VERSION, JobManagerFactories.getJobMigrations(context)))
-                                                                  .addReservedJobRunner(new FactoryJobPredicate(PushProcessMessageJob.KEY, MarkerJob.KEY))
-                                                                  .addReservedJobRunner(new FactoryJobPredicate(IndividualSendJob.KEY, PushGroupSendJob.KEY, ReactionSendJob.KEY, TypingSendJob.KEY, GroupCallUpdateSendJob.KEY))
-                                                                  .build();
+        .setJobFactories(JobManagerFactories.getJobFactories(context))
+        .setConstraintFactories(JobManagerFactories.getConstraintFactories(context))
+        .setConstraintObservers(JobManagerFactories.getConstraintObservers(context))
+        .setJobStorage(new FastJobStorage(JobDatabase.getInstance(context)))
+        .setJobMigrator(new JobMigrator(TextSecurePreferences.getJobManagerVersion(context), JobManager.CURRENT_VERSION, JobManagerFactories.getJobMigrations(context)))
+        .addReservedJobRunner(new FactoryJobPredicate(PushProcessMessageJob.KEY, MarkerJob.KEY))
+        .addReservedJobRunner(new FactoryJobPredicate(IndividualSendJob.KEY, PushGroupSendJob.KEY, ReactionSendJob.KEY, TypingSendJob.KEY, GroupCallUpdateSendJob.KEY))
+        .build();
     return new JobManager(context, config);
   }
 
@@ -277,7 +277,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   public @NonNull Payments providePayments(@NonNull PaymentsApi paymentsApi) {
     MobileCoinConfig network;
 
-    if      (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("mainnet")) network = MobileCoinConfig.getMainNet(paymentsApi);
+    if (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("mainnet")) network = MobileCoinConfig.getMainNet(paymentsApi);
     else if (BuildConfig.MOBILE_COIN_ENVIRONMENT.equals("testnet")) network = MobileCoinConfig.getTestNet(paymentsApi);
     else throw new AssertionError("Unknown network " + BuildConfig.MOBILE_COIN_ENVIRONMENT);
 
@@ -306,13 +306,13 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
 
   @Override
   public @NonNull SignalWebSocket.AuthenticatedWebSocket provideAuthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
-    SleepTimer                   sleepTimer    = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
-    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer);
-      int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
-      int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
-      //todo PIGEON BATTERY SAVER
+    SleepTimer                   sleepTimer              = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
+    SignalWebSocketHealthMonitor healthMonitor           = new SignalWebSocketHealthMonitor(sleepTimer);
+    int                          pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+    int                          pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
+    //todo PIGEON BATTERY SAVER
 
-      WebSocketFactory authFactory = () -> {
+    WebSocketFactory authFactory = () -> {
       DynamicCredentialsProvider credentialsProvider = new DynamicCredentialsProvider();
 
       if (credentialsProvider.isInvalid()) {
@@ -332,7 +332,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
                                              Optional.of(credentialsProvider),
                                              BuildConfig.SIGNAL_AGENT,
                                              healthMonitor,
-                                             Stories.isFeatureEnabled());
+                                             Stories.isFeatureEnabled(), pigeonAliveIntervalTime, pigeonSleepIntervalTime);
       }
     };
 
@@ -352,9 +352,9 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
     SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer);
 
     WebSocketFactory unauthFactory = () -> {
-        int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
-        int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
-        //todo PIGEON BATTERY SAVER
+      int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+      int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
+      //todo PIGEON BATTERY SAVER
       if (RemoteConfig.libSignalWebSocketEnabled()) {
         Network network = libSignalNetworkSupplier.get();
         return new LibSignalChatConnection("libsignal-unauth",
@@ -368,7 +368,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
                                              Optional.empty(),
                                              BuildConfig.SIGNAL_AGENT,
                                              healthMonitor,
-                                             Stories.isFeatureEnabled());
+                                             Stories.isFeatureEnabled(), pigeonAliveIntervalTime, pigeonSleepIntervalTime);
       }
     };
 
