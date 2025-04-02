@@ -19,8 +19,11 @@ import androidx.annotation.Nullable;
 import com.google.i18n.phonenumbers.AsYouTypeFormatter;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
+import org.signal.core.util.E164Util;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.LabeledEditText;
+import org.thoughtcrime.securesms.registration.ui.countrycode.Country;
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils;
 import org.thoughtcrime.securesms.registration.viewmodel.NumberViewState;
 
 /**
@@ -150,7 +153,7 @@ public final class ChangeNumberInputController {
 
   private void setCountryDisplay(@Nullable String regionDisplayName) {
     countrySpinnerAdapter.clear();
-    if (regionDisplayName == null) {
+    if (regionDisplayName == null || regionDisplayName.isEmpty()) {
       countrySpinnerAdapter.add(context.getString(R.string.RegistrationActivity_select_your_country));
     } else {
       countrySpinnerAdapter.add(regionDisplayName);
@@ -245,7 +248,8 @@ public final class ChangeNumberInputController {
       }
 
       if (!isUpdating) {
-        callbacks.setCountry(countryCode);
+        Country country = new Country(CountryUtils.countryToEmoji(regionCode), E164Util.getRegionDisplayName(regionCode).orElse(""), countryCode, regionCode);
+        callbacks.setCountry(country);
       }
     }
 
@@ -269,6 +273,6 @@ public final class ChangeNumberInputController {
 
     void setNationalNumber(@NonNull String number);
 
-    void setCountry(int countryCode);
+    void setCountry(@NonNull Country country);
   }
 }

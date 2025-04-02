@@ -588,13 +588,6 @@
         <item quantity="few">Shranitev vseh %1$d datotek v sistemsko shrambo bo omogočila dostop do njih vsaki aplikaciji na vaši napravi.\n\nŽelite nadaljevati?</item>
         <item quantity="other">Shranitev vseh %1$d datotek v sistemsko shrambo bo omogočila dostop do njih vsaki aplikaciji na vaši napravi.\n\nŽelite nadaljevati?</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">Napaka pri shranjevanju priponke v shrambo!</item>
-        <item quantity="two">Napaka pri shranjevanju priponk v shrambo!</item>
-        <item quantity="few">Napaka pri shranjevanju priponk v shrambo!</item>
-        <item quantity="other">Napaka pri shranjevanju priponk v shrambo!</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">Ne morem shranjevati v sistemsko shrambo!</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">Shranjujem priponko</item>
         <item quantity="two">Shranjujem %1$d priponki</item>
@@ -608,11 +601,16 @@
         <item quantity="other">Shranjevanje %1$d prilog v shrambo …</item>
     </plurals>
     <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Save to phone?</string>
+    <string name="ConversationFragment__save_to_phone">Želite shraniti v telefon?</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">This media will be saved to your phone\'s storage. Other apps may be able to access it depending on your phone\'s permissions.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">Ta medij bo shranjen v pomnilnik telefona. Druge aplikacije lahko do njega dostopajo glede na dovoljenja telefona.</item>
+        <item quantity="two">Ta medija bosta shranjena v pomnilnik telefona. Druge aplikacije lahko do njega dostopajo glede na dovoljenja telefona.</item>
+        <item quantity="few">Ti mediji bodo shranjeni v pomnilnik telefona. Druge aplikacije lahko do njega dostopajo glede na dovoljenja telefona.</item>
+        <item quantity="other">Ti mediji bodo shranjeni v pomnilnik telefona. Druge aplikacije lahko do njega dostopajo glede na dovoljenja telefona.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
-    <string name="ConversationFragment_dont_show_again">Don\'t show again</string>
+    <string name="ConversationFragment_dont_show_again">Ne prikaži znova</string>
     <string name="ConversationFragment_pending">V teku …</string>
     <!-- Describes how the message was sent when looking at a message detail. Previously, messages could be through other means like SMS -->
     <string name="ConversationFragment_push">Podatkovno (Signal)</string>
@@ -688,6 +686,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">Označeno kot neželeno in blokirano</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Sprejeli ste prošnjo za pošiljanje sporočila od %1$s. Če je šlo za napako, lahko spodaj izberete ukrep.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">Skrbno preglejte</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">%1$s niso preverjena</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">%1$s niso preverjena</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">Imena profilov</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">Imena skupin</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">Fotografija ni bila prenesena. Poskusite znova.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Varnostni nasveti</string>
@@ -699,6 +709,10 @@
     <string name="SafetyTips_previous_tip">Prejšnji nasvet</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">Naslednji nasvet</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">Lažna imena in računi</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Signal vas nikoli ne bo kontaktiral in vprašal za vašo registracijsko kodo ali PIN kodo. Bodite previdni pri računih, ki se izdajajo za druge. Imena profilov izberejo imetniki računov in niso preverjena.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">Kripto ali denarne prevare</string>
     <!-- Message of tip 1 -->
@@ -715,6 +729,21 @@
     <string name="SafetyTips_tip4_title">Lažna podjetja in institucije</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">Bodite previdni, če vas kontaktirajo podjetja ali vladne agencije. Sporočila, ki vključujejo davčne agencije, kurirje in drugo, so lahko neželena sporočila.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s v Signalu izbere imetnik računa.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Imena profilov niso preverjena</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Bodite previdni pri računih, ki se izdajajo za druge</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">Ne delite osebnih podatkov z ljudmi, ki jih ne poznate</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s izberejo člani skupine.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">Bodite previdni pri skupinah, ki se izdajajo za organizacije in podjetja</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">Imena profilov članov v skupinah niso preverjena</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Počisti filter</string>
@@ -796,8 +825,13 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">Izberi mapo</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">Dodano v \"%1$s\"</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">Ta klepet je že v mapi \"%1$s\"</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">Ta klepet je že v \"%1$s\"</item>
+        <item quantity="two">Ta dva klepeta sta že v \"%1$s\"</item>
+        <item quantity="few">Ti klepeti so že v \"%1$s\"</item>
+        <item quantity="other">Ti klepeti so že v \"%1$s\"</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">Profili za obvestila</string>
@@ -966,8 +1000,20 @@
     <string name="DateUtils_tomorrow">Jutri</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">Nocoj</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s ob %2$s</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">%1$s ob %2$s</item>
+        <item quantity="two">%1$s ob %2$s</item>
+        <item quantity="few">%1$s ob %2$s</item>
+        <item quantity="other">%1$s ob %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">ob %1$s</item>
+        <item quantity="two">ob %1$s</item>
+        <item quantity="few">ob %1$s</item>
+        <item quantity="other">ob %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -1014,7 +1060,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Uporabite Signal na namiznem računalniku ali iPadu. Sporočila se bodo sinhronizirala s povezanimi napravami.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Ta račun Signal uporabite v namiznem računalniku ali iPadu.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">Poveži z novo napravo</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1054,6 +1100,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">Tapnite Nadaljuj in za potrditev vnesite kodo telefona. Ne vnašajte Signalove PIN kode.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">Nadaljuj</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">Obrnite se na podporo</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">Želite poslati sistemsko zabeležbo?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">Vaše sistemske zabeležbe nam bodo pomagale hitreje odpraviti težavo. Pošiljanje zabeležb ni obvezno.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">Pošlji s sistemsko zabeležbo</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">Pošlji brez sistemske zabeležbe</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">Prekliči</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Izvoz za Android (Link&amp;Sync) ni uspel</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">Sinhronizacija sporočila ni bila uspešna</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1118,7 +1179,7 @@
     <!-- Option in bottom sheet to transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_transfer">Prenos zgodovine sporočil</string>
     <!-- Description in bottom sheet of what transferring message history will do -->
-    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfer your text messages and your last 45 days of media</string>
+    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Prenos besedilnih sporočil in zadnjih 45 dni medijev</string>
     <!-- Option in bottom sheet to not transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_dont_transfer">Ne prenesi</string>
     <!-- Description in bottom sheet of what not transferring history will do -->
@@ -1127,7 +1188,7 @@
     <!-- Title of notification telling users that a device was linked to their account -->
     <string name="NewLinkedDeviceNotification__you_linked_new_device">Povezali ste novo napravo</string>
     <!-- Message body of notification telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Nova naprava je bila povezana z vašim računom ob %1$s. Tapnite za ogled.</string>
+    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Nova naprava je bila povezana z vašim računom %1$s. Tapnite za ogled.</string>
 
     <!-- DeviceListActivity -->
     <string name="DeviceListActivity_unlink_s">Želite prekiniti povezavo z napravo \"%1$s\"?</string>
@@ -1494,9 +1555,9 @@
     <!-- Dialog message displayed when remote restore failed -->
     <string name="RemoteRestoreActivity__error_occurred">Zgodila se je napaka in vašega računa ni bilo mogoče prenesti. Poskusite znova tako, da izberete način prenosa.</string>
     <!-- Dialog title displayed when remote restore failed because of an outdated backup version. -->
-    <string name="RemoteRestoreActivity__couldnt_restore">Couldn\'t restore this backup</string>
+    <string name="RemoteRestoreActivity__couldnt_restore">Te varnostne kopije ni bilo mogoče obnoviti</string>
     <!-- Dialog message explaining that an update to Signal is required to restore the backup. -->
-    <string name="RemoteRestoreActivity__update_latest">This version of Signal can\'t restore your backup. Update to the latest version and try again.</string>
+    <string name="RemoteRestoreActivity__update_latest">Ta različica programa Signal ne more obnoviti varnostne kopije. Posodobite na najnovejšo različico in poskusite znova.</string>
     <!-- Text on button that when pressed will redirect them to update Signal -->
     <string name="RemoteRestoreActivity__update_signal">Posodobite aplikacijo Signal</string>
     <!-- Text label button to dismiss the dialog -->
@@ -1779,7 +1840,7 @@
     <string name="Megaphones_add_a_profile_photo">Profilna fotka</string>
 
     <!-- Message body of megaphone telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Nova naprava je bila povezana z vašim računom ob %1$s.</string>
+    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Nova naprava je bila povezana z vašim računom %1$s.</string>
     <!-- Button shown on megaphone that will redirect to the linked devices screen -->
     <string name="NewLinkedDeviceMegaphone__view_device">Prikaži napravo</string>
     <!-- Button shown on megaphone to acknowledge and dismiss the megaphone -->
@@ -2030,6 +2091,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">Vaša prošnja za pridružitev skupini je bila zavrnjena s strani skrbnika_ce.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">Zavrnili ste prošnjo uporabnika_ce %1$sza pridružitev skupini.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">%1$sje zavrnil_a prošnjo uporabnika_ce %2$s za pridružitev skupini.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">Prošnja uporabnika_ce %1$s za pridružitev skupini je bila zavrnjena.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">Preklicali ste svojo prošnjo za pridružitev skupini.</string>
@@ -2074,12 +2136,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">%1$s je v klicu · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">Ste v klicu · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">%1$s in vi sta v klicu · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s in %2$s sta v klicu · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">%1$s je v klicu</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">Ste v klicu</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">%1$s in vi sta v klicu</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">%1$s in %2$s sta v klicu</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2137,6 +2203,14 @@
     <string name="MessageRecord_reported_as_spam">Prijavljeno kot neželeno</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">Sprejeli ste prošnjo za pošiljanje sporočila</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">To osebo ste blokirali</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">Odblokirali ste to osebo</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">Blokirali ste to skupino</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">Odblokirali ste to skupino</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">Sprejmi</string>
@@ -2196,6 +2270,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Prijava …</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">Želite sprejeti zahtevo?</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">Skrbno preglejte prošnje. Imena profilov izberejo imetniki računov in niso preverjena.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">Se želite pridružiti skupini?</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">Pazljivo preglejte prošnje. Imena skupin izberejo člani skupine in niso preverjena.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">Pridruži se</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Gesli se ne ujemata</string>
@@ -2220,7 +2304,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Imate preveč registriranih naprav. Za povezavo nove najprej kakšno odstranite.</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Koda QR za povezavo naprav ni veljavna.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">Povežem z napravo Signal?</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Izgleda, da želite za povezavo z napravo Signal uporabiti zunanji optični čitalnik. Prosimo, da to storite znotraj aplikacije Signal, saj je tako najvarneje.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">Če želite z računom Signal povezati namizni računalnik ali iPad, pojdite v možnost Povezane naprave in tapnite \"Poveži novo napravo\" ter znova skenirajte QR kodo. Poskrbite, da boste skenirali samo QR kode, ki prihajajo neposredno iz Signala.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">Dostop do kamere je bil trajno onemogočen. Aplikacija Signal potrebuje dovoljenje za dostop do kamere, da bi lahko skenirali kode QR. Prosimo, pojdite v Nastavitve aplikacij, izberite \"Dovoljenja\" in omogočite dovoljenje pod postavko \"Kamera\".</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">Brez dovoljenja za dostop do kamere ne morem skenirati kode QR.</string>
@@ -2600,17 +2684,28 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">Razširite pogled dvignjene roke</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">Vaša država</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">Iskanje po imenu ali mednarodni klicni kodi</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">Neznana država</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Signal povezava</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">Potrjeno</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">Imena profilov niso preverjena</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">Prošnja za pošiljanje sporočila v obravnavi</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">Z osebo %1$s ni neposrednih sporočil</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
     <string name="AboutSheet__s_is_in_your_system_contacts">%1$s je med vašimi telefonskimi stiki</string>
     <!-- Notice in a row when user has no groups in common -->
-    <string name="AboutSheet__you_have_no_groups_in_common">Nimata skupne skupine</string>
+    <string name="AboutSheet__you_have_no_groups_in_common">Ni skupnih skupin</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
     <string name="AboutSheet__review_requests_carefully">Pazljivo preglejte prošnje</string>
     <!-- Text used when user has groups in common. Placeholder is the count -->
@@ -2692,6 +2787,12 @@
     <string name="RegistrationActivity_additional_verification_required">Potrebno je dodatno preverjanje</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">Potrditvena koda bo poslana na to številko. Pošiljanje je lahko zaračunano po tarifi operaterja.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Prejeli boste potrditveno kodo. Sporočilo SMS je lahko plačljivo.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Izberite državo</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Prejeli boste klic za potrditev te številke.</string>
     <string name="RegistrationActivity_edit_number">Uredi številko</string>
     <string name="RegistrationActivity_missing_google_play_services">Manjkajoča aplikacija Google Play Services</string>
@@ -2928,6 +3029,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">Vaša zgodovina sporočil je bila združena</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s pripada %2$s</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">Blokirano</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Nadgradnja aplikacije Signal</string>
@@ -3163,8 +3266,33 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Hitri odziv ni mogoč, kadar je aplikacija Signal zaklenjena!</string>
     <string name="QuickResponseService_problem_sending_message">Težava pri pošiljanju sporočila</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">Medij je shranjen</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">Ni mogoče shranjevati v sistemsko shrambo.</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">Medij je shranjen</item>
+        <item quantity="two">Medija sta shranjena</item>
+        <item quantity="few">Mediji so shranjeni</item>
+        <item quantity="other">Mediji so shranjeni</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">Mediji so shranjeni (%1$s od %2$s ni uspel)</item>
+        <item quantity="two">Mediji so shranjeni (%1$s od %2$s nista uspela)</item>
+        <item quantity="few">Mediji so shranjeni (%1$s od %2$s niso uspeli)</item>
+        <item quantity="other">Mediji so shranjeni (%1$s od %2$s ni uspelo)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">Napaka pri shranjevanju priponke v shrambo!</item>
+        <item quantity="two">Napaka pri shranjevanju priponk v shrambo!</item>
+        <item quantity="few">Napaka pri shranjevanju priponk v shrambo!</item>
+        <item quantity="other">Napaka pri shranjevanju priponk v shrambo!</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Iskanje</string>
@@ -3409,7 +3537,8 @@
     <string name="ConversationUpdateItem_update_contact">Posodobite stik</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">Blokiraj prošnjo</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Nimate skupnih skupin. Dobro preverite prošnje.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Ni skupnih skupin</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">V tej skupini ni nikogar iz vašega imenika. Dobro preverite prošnje.</string>
     <string name="ConversationUpdateItem_view">Preglej</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">Čas poteka sporočil bo nastavljen na %1$s.</string>
@@ -3917,6 +4046,8 @@
     <string name="preferences__language">Jezik</string>
     <string name="preferences__signal_messages_and_calls">Sporočila in klici Signal</string>
     <string name="preferences__advanced_pin_settings">Napredne nastavite PIN</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">Napredne nastavite PIN</string>
     <string name="preferences__free_private_messages_and_calls">Brezplačna zasebna sporočila in klici uporabnikom_cam aplikacije Signal</string>
     <string name="preferences__submit_debug_log">Oddaj sistemsko zabeležbo</string>
     <string name="preferences__delete_account">Izbris računa</string>
@@ -4025,6 +4156,7 @@
     <string name="preferences_connection_failed">Povezovanje ni uspelo</string>
     <string name="preferences_couldnt_connect_to_the_proxy">Povezovanje s proksijem ni uspelo. Preverite proksi naslov in poskusite znova.</string>
     <string name="preferences_you_are_connected_to_the_proxy">Povezani ste s proksijem. Povezavo lahko kadarkoli prekinete v Nastavitvah.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">Uspeh</string>
     <string name="preferences_failed_to_connect">Povezovanje ni uspelo</string>
     <string name="preferences_enter_proxy_address">Vnesite naslov proksi</string>
@@ -4584,6 +4716,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">PIN zavaruje informacije shranjene na Signalu z uporabo šifriranja.</string>
     <string name="KbsMegaphone__create_pin">Ustvari PIN</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Posodobite Signalov PIN</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">Posodobite Signalov PIN in dokončajte registracijo računa.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">Posodobite PIN</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Dohodni klic</string>
@@ -4646,6 +4785,7 @@
     <string name="BackupDialog_copied_to_clipboard">Kopirano v odložišče</string>
     <string name="BackupDialog_no_file_picker_available">Ni nameščene aplikacije za upravljanje datotek.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">Vnesite geslo svoje varnostne kopije</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">Potrdi</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Uspešno ste vnesli geslo svoje varnostne kopije</string>
     <string name="BackupDialog_passphrase_was_not_correct">Geslo ni bilo pravilno</string>
@@ -4670,6 +4810,7 @@
     <string name="RegistrationActivity_code_support_subject">Registracija za storitev Signal - verifikacijska koda za Android</string>
     <string name="RegistrationActivity_incorrect_code">Napačna koda</string>
     <string name="BackupUtil_never">Nikoli</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">Neznano</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">Telefonska številka</string>
@@ -4854,6 +4995,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">Poskusite izklopiti in ponovno vklopiti Wi-Fi na obeh napravah.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">Na obeh napravah v Signalu vklopite prenos računa.</string>
     <string name="DeviceTransferSetup__go_to_support_page">Podporna stran za Signal</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">Poskusi znova</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">Čakanje na drugo napravo</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">Za začetek prenosa tapnite \"Naprej\" na drugi napravi.</string>
@@ -5371,10 +5513,11 @@
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_old_phone_number">Navesti morate svojo staro telefonsko številko</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_number_country_code">Za vašo novo številko morate navesti mednarodno kodo vaše države</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_phone_number">Navesti morate svojo novo številko</string>
-    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Your new phone number cannot be the same as your old phone number</string>
+    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Nova telefonska številka ne sme biti enaka stari telefonski številki</string>
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">Sprememba številke</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">Preverjam %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">Zahtevana potrditev, da niste robot</string>
 
@@ -5764,6 +5907,7 @@
     <string name="ConversationSettingsFragment__permissions">Dovoljenja</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Prošnje &amp; vabila</string>
     <string name="ConversationSettingsFragment__group_link">Povezava do skupine</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Dodaj kot stik</string>
     <string name="ConversationSettingsFragment__unmute">Prekini utišanje</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5879,6 +6023,7 @@
     <string name="ShareInterstitialActivity__share">Deli</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">Premik navzgor</string>
     <string name="MultiselectForwardFragment__forward_to">Posreduj</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5889,6 +6034,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">Videoposnetki bodo obrezani na 30-sekundne posnetke in poslani kot več zgodb.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Videoposnetki, poslani v zgodbe, ne smejo biti daljši od 30 s.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">Posredovana sporočila so zdaj poslana v trenutku.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">Pošlji %1$d sporočilo</item>
@@ -5944,6 +6090,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">Fotografija je nastavljena na visoko kakovost</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">Fotografija je nastavljena na standardno kakovost</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">Dodajanje medija</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">Čopič in pero</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">Obreži in zavrti</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">Sprememba kakovosti medija</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">Shranjevanje medija</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">Vklop tipkovnice emoji</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">Preklopi Enkratni ogled</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">Pošlji medij</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">Dokončanje dodajanja sporočila</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">%1$d medij je nastavljen na visoko kakovost</item>
@@ -5992,7 +6156,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">Poveži z napravo?</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">Zdi se, da poskušate povezati napravo Signal. Tapnite Nadaljuj in znova poskenirajte kodo, da jo povežete.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">Zdi se, da poskušate povezati napravo Signal. Tapnite Nadaljuj in nato \"Poveži novo napravo\" ter znova preberite QR kodo.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">Nadaljuj</string>
 
@@ -6087,6 +6251,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/mesec</string>
     <string name="MySupportPreference__renews_s">Obnovitev naročnine: %1$s</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">Obdelava transakcije …</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">Nismo mogli dodati značke. %1$s</string>
@@ -6098,7 +6263,7 @@
     <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
     <string name="MySupportPreference__learn_more">Preberite več</string>
     <!-- Displayed when a subscription refresh is being performed -->
-    <string name="MySupportPreference__checking_subscription">Checking subscription…</string>
+    <string name="MySupportPreference__checking_subscription">Preverjanje naročnine …</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Posodobite aplikacijo Signal</string>
@@ -6197,7 +6362,7 @@
     <string name="DonationsErrors__your_payment_is_still">Vaša donacija je še v obdelavi. To lahko traja nekaj minut, odvisno od vaše povezave.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">Prekinitev naročnine ni bila uspešna</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">Prekinitev naročnine zahteva povezavo z internetom.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">Vaša naprava ne podpira sistema Google Pay, zato se ne morete naročiti in si pridobiti značke. Lahko pa podprete Signal na naši spletni strani.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">Vaša naprava ne podpira donacij znotraj aplikacije, zato se ne morete naročiti in pridobiti značke. Lahko pa podprete Signal na naši spletni strani.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">Napaka omrežja. Preverite svojo internetno povezavo in poskusite znova.</string>
     <string name="NetworkFailure__retry">Ponovno</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6437,6 +6602,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Signalove novosti &amp; novice</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">To je uradni in edini klepet Signala.</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">Bodite na tekočem z novicami in obvestili o izdajah.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">To je uradni in edini klepet Signala</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">Bodite na tekočem z novicami in obvestili o izdajah</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Uradni in edini klepet Signala</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">Vse dejavnosti</string>
@@ -6499,7 +6674,7 @@
     <string name="StoriesLandingItem__info">Info</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">Pošiljanje …</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">Pošiljanje %1$d…</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">Pošiljanje ni uspelo</string>
@@ -7516,6 +7691,8 @@
     <string name="CameraControls_capture_button_accessibility_label">Gumb za zajem</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">Gumb za nadaljevanje</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">Preklopi način bliskavice</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7869,10 +8046,10 @@
     <string name="BackupAlertBottomSheet__couldnt_complete_backup">Varnostne kopije ni bilo mogoče dokončati</string>
     <!-- Sheet body for generic backup error. Placeholder is days since last backup. -->
     <plurals name="BackupAlertBottomSheet__your_device_hasnt">
-        <item quantity="one">Your device hasn\'t completed a backup for %1$d day. Make sure your device is connected to wi-fi and tap \"Back up now.\" </item>
-        <item quantity="two">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
-        <item quantity="few">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
-        <item quantity="other">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
+        <item quantity="one">Vaša naprava ni izdelala varnostne kopije že %1$d dan. Prepričajte se, da je vaša naprava povezana z Wi-Fi-jem, in tapnite \"Izdelaj varnostno kopijo\". </item>
+        <item quantity="two">Vaša naprava ni izdelala varnostne kopije že %1$d dni. Prepričajte se, da je vaša naprava povezana z Wi-Fi-jem, in tapnite \"Izdelaj varnostno kopijo\".</item>
+        <item quantity="few">Vaša naprava ni izdelala varnostne kopije že %1$d dni. Prepričajte se, da je vaša naprava povezana z Wi-Fi-jem, in tapnite \"Izdelaj varnostno kopijo\".</item>
+        <item quantity="other">Vaša naprava ni izdelala varnostne kopije že %1$d dni. Prepričajte se, da je vaša naprava povezana z Wi-Fi-jem, in tapnite \"Izdelaj varnostno kopijo\".</item>
     </plurals>
     <!-- Clickable text to learn more about the content of this bottom sheet -->
     <string name="BackupAlertBottomSheet__learn_more">Preberite več</string>
@@ -8236,6 +8413,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">Obrnite se na podporo</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">Prišlo je do napake v omrežju. Poskusite pozneje.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Varnostno kopirajte svoja sporočila in medije z uporabo Signalove varne, od konca do konca šifrirane storitve shranjevanja. Nikoli ne izgubite sporočila, ko dobite nov telefon ali ponovno namestite Signal.</string>
@@ -8389,6 +8570,26 @@
     <string name="EnterBackupKey_learn_more">Preberite več</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Preskoči in ne obnovi</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">Nepravilen varnostni ključ</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">Prepričajte se, da ste se registrirali z isto telefonsko številko in ključem za varnostno kopiranje s 64 znaki, ki ste ga shranili, ko ste omogočili varnostne kopije Signal. Brez tega ključa varnostnih kopij ni mogoče obnoviti.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">Poskusite znova</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">Pomoč za varnostni ključ</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">Nepravilen varnostni ključ</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">Predolgo (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">Neveljaven varnostni ključ</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">Varnostna kopija ni bila najdena</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Varnostni ključ, ki ste ga vnesli, je pravilen, vendar z njim ni povezana nobena varnostna kopija. Če še vedno uporabljate stari telefon, preverite, da je varnostno kopiranje omogočeno in da je bila varnostna kopija dokončana, ter poskusite znova.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">Preskoči obnovitev</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">To kodo skenirajte s starim telefonom</string>

@@ -50,7 +50,7 @@ class DistributionListTables constructor(context: Context?, databaseHelper: Sign
     const val LIST_TABLE_NAME = ListTable.TABLE_NAME
     const val PRIVACY_MODE = ListTable.PRIVACY_MODE
 
-    fun insertInitialDistributionListAtCreationTime(db: net.zetetic.database.sqlcipher.SQLiteDatabase) {
+    fun insertInitialDistributionListAtCreationTime(db: SQLiteDatabase) {
       val recipientId = db.insert(
         RecipientTable.TABLE_NAME,
         null,
@@ -414,13 +414,13 @@ class DistributionListTables constructor(context: Context?, databaseHelper: Sign
     return when (privacyMode) {
       DistributionListPrivacyMode.ALL -> {
         SignalDatabase.recipients
-          .getSignalContacts(false)!!
+          .getSignalContacts(RecipientTable.IncludeSelfMode.Exclude)
           .readToList { it.requireObject(RecipientTable.ID, RecipientId.SERIALIZER) }
       }
       DistributionListPrivacyMode.ONLY_WITH -> rawMembers
       DistributionListPrivacyMode.ALL_EXCEPT -> {
         SignalDatabase.recipients
-          .getSignalContacts(false)!!
+          .getSignalContacts(RecipientTable.IncludeSelfMode.Exclude)
           .readToList(
             predicate = { !rawMembers.contains(it) },
             mapper = { it.requireObject(RecipientTable.ID, RecipientId.SERIALIZER) }
@@ -453,7 +453,7 @@ class DistributionListTables constructor(context: Context?, databaseHelper: Sign
     readableDatabase.withinTransaction {
       privacyMode = getPrivacyMode(listId)
       rawMemberCount = getRawMemberCount(listId, privacyMode)
-      totalContactCount = SignalDatabase.recipients.getSignalContactsCount(false)
+      totalContactCount = SignalDatabase.recipients.getSignalContactsCount(RecipientTable.IncludeSelfMode.Exclude)
     }
 
     val memberCount = when (privacyMode) {

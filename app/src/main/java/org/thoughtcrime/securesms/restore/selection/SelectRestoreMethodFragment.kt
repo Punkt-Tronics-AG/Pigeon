@@ -9,10 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.signal.core.ui.Dialogs
 import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.compose.ComposeFragment
-import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registrationv3.data.QuickRegistrationRepository
 import org.thoughtcrime.securesms.registrationv3.ui.restore.RemoteRestoreActivity
 import org.thoughtcrime.securesms.registrationv3.ui.restore.RestoreMethod
@@ -22,7 +25,7 @@ import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.whispersystems.signalservice.api.registration.RestoreMethod as ApiRestoreMethod
 
 /**
- * Provide options to select restore/transfer operation and flow during quick registration.
+ * Provide options to select restore/transfer operation during quick/post registration.
  */
 class SelectRestoreMethodFragment : ComposeFragment() {
 
@@ -34,16 +37,23 @@ class SelectRestoreMethodFragment : ComposeFragment() {
       restoreMethods = viewModel.getAvailableRestoreMethods(),
       onRestoreMethodClicked = this::startRestoreMethod,
       onSkip = {
-        SignalStore.registration.markSkippedTransferOrRestore()
+        viewLifecycleOwner.lifecycleScope.launch {
+          viewModel.skipRestore()
+          viewModel.performStorageServiceAccountRestoreIfNeeded()
 
-        lifecycleScope.launch {
-          QuickRegistrationRepository.setRestoreMethodForOldDevice(ApiRestoreMethod.DECLINE)
+          if (isActive) {
+            withContext(Dispatchers.Main) {
+              startActivity(MainActivity.clearTop(requireContext()))
+              activity?.finish()
+            }
+          }
         }
-
-        startActivity(MainActivity.clearTop(requireContext()))
-        activity?.finish()
       }
-    )
+    ) {
+      if (viewModel.showStorageAccountRestoreProgress) {
+        Dialogs.IndeterminateProgressDialog()
+      }
+    }
   }
 
   private fun startRestoreMethod(method: RestoreMethod) {
@@ -58,7 +68,13 @@ class SelectRestoreMethodFragment : ComposeFragment() {
     }
 
     when (method) {
-      RestoreMethod.FROM_SIGNAL_BACKUPS -> startActivity(RemoteRestoreActivity.getIntent(requireContext()))
+      RestoreMethod.FROM_SIGNAL_BACKUPS -> {
+        if (viewModel.hasRestoredAccountEntropyPool()) {
+          startActivity(RemoteRestoreActivity.getIntent(requireContext()))
+        } else {
+          findNavController().safeNavigate(SelectRestoreMethodFragmentDirections.goToPostRestoreEnterBackupKey())
+        }
+      }
       RestoreMethod.FROM_OLD_DEVICE -> findNavController().safeNavigate(SelectRestoreMethodFragmentDirections.goToDeviceTransfer())
       RestoreMethod.FROM_LOCAL_BACKUP_V1 -> findNavController().safeNavigate(SelectRestoreMethodFragmentDirections.goToLocalBackupRestore())
       RestoreMethod.FROM_LOCAL_BACKUP_V2 -> error("Not currently supported")

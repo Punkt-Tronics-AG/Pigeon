@@ -23,15 +23,13 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import org.signal.core.util.concurrent.RxExtensions;
+import org.signal.core.util.concurrent.JvmRxExtensions;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
 import org.signal.ringrtc.CallLinkRootKey;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.WebRtcCallActivity;
 import org.thoughtcrime.securesms.calls.links.CallLinks;
-import org.thoughtcrime.securesms.components.webrtc.v2.CallActivity;
 import org.thoughtcrime.securesms.components.webrtc.v2.CallIntent;
 import org.thoughtcrime.securesms.contacts.sync.ContactDiscovery;
 import org.thoughtcrime.securesms.conversation.ConversationIntents;
@@ -318,7 +316,7 @@ public class CommunicationActions {
    * If the url is a signal.me link it will handle it.
    */
   public static void handlePotentialSignalMeUrl(@NonNull FragmentActivity activity, @NonNull String potentialUrl) {
-    String                 e164     = SignalMeUtil.parseE164FromLink(activity, potentialUrl);
+    String                 e164     = SignalMeUtil.parseE164FromLink(potentialUrl);
     UsernameLinkComponents username = UsernameRepository.parseLink(potentialUrl);
 
     if (e164 != null) {
@@ -434,7 +432,10 @@ public class CommunicationActions {
     SimpleProgressDialog.DismissibleDialog dialog = SimpleProgressDialog.showDelayed(activity, 500, 500);
 
     SimpleTask.run(() -> {
-      Recipient recipient = Recipient.external(activity, e164);
+      Recipient recipient = Recipient.external(e164);
+      if (recipient == null) {
+        return null;
+      }
 
       if (!recipient.isRegistered() || !recipient.getHasServiceId()) {
         try {
@@ -449,7 +450,7 @@ public class CommunicationActions {
     }, recipient -> {
       dialog.dismiss();
 
-      if (recipient.isRegistered() && recipient.getHasServiceId()) {
+      if (recipient != null && recipient.isRegistered() && recipient.getHasServiceId()) {
         startConversation(activity, recipient, null);
       } else {
         new MaterialAlertDialogBuilder(activity)
@@ -465,7 +466,7 @@ public class CommunicationActions {
 
     SimpleTask.run(() -> {
       try {
-        UsernameLinkConversionResult result = RxExtensions.safeBlockingGet(UsernameRepository.fetchUsernameAndAciFromLink(link));
+        UsernameLinkConversionResult result = JvmRxExtensions.safeBlockingGet(UsernameRepository.fetchUsernameAndAciFromLink(link));
 
         // TODO we could be better here and report different types of errors to the UI
         if (result instanceof UsernameLinkConversionResult.Success success) {

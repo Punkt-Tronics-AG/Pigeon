@@ -7,6 +7,7 @@ package org.thoughtcrime.securesms.backup.v2.importer
 
 import android.content.ContentValues
 import org.signal.core.util.Base64
+import org.signal.core.util.toInt
 import org.signal.libsignal.zkgroup.groups.GroupMasterKey
 import org.signal.libsignal.zkgroup.groups.GroupSecretParams
 import org.signal.storageservice.protos.groups.AccessControl
@@ -20,6 +21,7 @@ import org.signal.storageservice.protos.groups.local.DecryptedTimer
 import org.signal.storageservice.protos.groups.local.EnabledState
 import org.thoughtcrime.securesms.backup.v2.ArchiveGroup
 import org.thoughtcrime.securesms.backup.v2.proto.Group
+import org.thoughtcrime.securesms.backup.v2.util.toLocal
 import org.thoughtcrime.securesms.conversation.colors.AvatarColorHash
 import org.thoughtcrime.securesms.database.GroupTable
 import org.thoughtcrime.securesms.database.RecipientTable
@@ -51,9 +53,11 @@ object GroupArchiveImporter {
     val values = ContentValues().apply {
       put(RecipientTable.GROUP_ID, groupId.toString())
       put(RecipientTable.AVATAR_COLOR, AvatarColorHash.forGroupId(groupId).serialize())
-      put(RecipientTable.PROFILE_SHARING, group.whitelisted)
+      put(RecipientTable.PROFILE_SHARING, group.whitelisted.toInt())
+      put(RecipientTable.BLOCKED, group.blocked.toInt())
       put(RecipientTable.TYPE, RecipientTable.RecipientType.GV2.id)
       put(RecipientTable.STORAGE_SERVICE_ID, Base64.encodeWithPadding(StorageSyncHelper.generateKey()))
+      put(RecipientTable.AVATAR_COLOR, group.avatarColor?.toLocal()?.serialize())
       if (group.hideStory) {
         val extras = RecipientExtras.Builder().hideStory(true).build()
         put(RecipientTable.EXTRAS, extras.encode())

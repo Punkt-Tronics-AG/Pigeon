@@ -572,11 +572,6 @@
         <item quantity="one">ყველა %1$d მედიის მეხსიერებაში შენახვით სხვა აპლიკაციები შეძლებენ მათ ნახვას.\n\nგავაგრძელო?</item>
         <item quantity="other">ყველა %1$d მედიის მეხსიერებაში შენახვით სხვა აპლიკაციები შეძლებენ მათ ნახვას.\n\nგავაგრძელო?</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">დაფიქსირდა შეცდომა მიმაგრების მეხსიერებაში შენახვის დროს!</item>
-        <item quantity="other">მიმაგრებული ფაილების საცავში შენახვისას დაფიქსირდა შეცდომა!</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">შეუძლებელია საცავში ჩაწერა!</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">ინახება %1$d მიმაგრება</item>
         <item quantity="other">ინახება %1$d მიმაგრება</item>
@@ -586,11 +581,14 @@
         <item quantity="other">%1$d დანართს მეხსიერებაში ვინახავთ…</item>
     </plurals>
     <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Save to phone?</string>
+    <string name="ConversationFragment__save_to_phone">გსურს მობილურში შეინახო?</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">This media will be saved to your phone\'s storage. Other apps may be able to access it depending on your phone\'s permissions.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">ეს მედია ფაილი შენი მობილურის მეხსიერებაში შეინახება. შეიძლება, შენი მობილურის ნებართვებიდან გამომდინარე, სხვა აპებს მასზე წვდომა ჰქონდეთ.</item>
+        <item quantity="other">ეს მედია ფაილი შენი მობილურის მეხსიერებაში შეინახება. შეიძლება, შენი მობილურის ნებართვებიდან გამომდინარე, სხვა აპებს მასზე წვდომა ჰქონდეთ.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
-    <string name="ConversationFragment_dont_show_again">Don\'t show again</string>
+    <string name="ConversationFragment_dont_show_again">აღარ მაჩვენო</string>
     <string name="ConversationFragment_pending">მოლოდინის რეჟიმში…</string>
     <!-- Describes how the message was sent when looking at a message detail. Previously, messages could be through other means like SMS -->
     <string name="ConversationFragment_push">მონაცემები (Signal)</string>
@@ -666,6 +664,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">დარეპორტდა, როგორც სპამი და დაიბლოკა</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">შენ დაეთანხმე მიმოწერის მოთხოვნას %1$s-სგან. თუ ეს შეცდომა იყო, შეგიძლია ქვემოთ მოქმედება აირჩიო.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">ყურადღებით გადახედე</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">%1$s ვერიფიცირებული არაა</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">%1$s ვერიფიცირებული არაა</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">პროფილის სახელები</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">ჯგუფის სახელები</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">ფოტო ვერ ჩამოიტვირთა. თავიდან სცადე.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">რჩევები უსაფრთხოებაზე</string>
@@ -677,6 +687,10 @@
     <string name="SafetyTips_previous_tip">წინა რჩევა</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">შემდეგი რჩევა</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">ყალბი სახელები და ანგარიშები</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Signal არასოდეს დაგიკავშირდება შენი სარეგისტრაციო კოდის ან პინ-კოდისთვის. ფრთხილად იყავი თხოვნებთან იმ ანგარიშებიდან, რომლებიც სხვებად ასაღებენ თავს. პროფილის სახელებს მათი ანგარიშის მფლობელი ირჩევს და ვერიფიცირებული არაა.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">კრიპტო ან ფულის თაღლითობები</string>
     <!-- Message of tip 1 -->
@@ -693,6 +707,21 @@
     <string name="SafetyTips_tip4_title">ყალბი ბიზნესები და დაწესებულებები</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">ფრთხილად იყავი, თუ ბიზნესები ან სახელმწიფო უწყებები გიკავშირდებიან. შეტყობინებები, რომლებიც მოიცავს საგადასახადო სააგენტოებს, კურიერებს და სხვა, შეიძლება სპამი იყოს.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">Signal-ზე %1$s მათი ანგარიშის მფლობელის მიერაა არჩეული.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">პროფილის სახელები დადასტურებული არაა</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">ფრთხილად იყავი ანგარიშებთან, რომლებიც სხვებად ასაღებენ თავს</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">არ გაუზიარო პირადი ინფორმაცია უცნობებს</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s ამ ჯგუფის წევრებმა აირჩიეს.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">ფრთხილად იყავი ჯგუფებთან, რომლებიც ორგანიზაციებად და ბიზნესებად ასაღებენ თავს</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">ჯგუფების წევრების პროფილის სახელები დადასტურებული არ არის</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">ფილტრის გასუფთავება</string>
@@ -756,8 +785,11 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">აირჩიე საქაღალდე</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">დაემატა საქაღალდეში \"%1$s\"</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">ეს ჩატი უკვე საქაღალდეშია სახელად \"%1$s\"</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">ეს ჩატი უკვე საქაღალდეშია სახელად \"%1$s\"</item>
+        <item quantity="other">ეს ჩატი უკვე საქაღალდეშია სახელად \"%1$s\"</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">შეტყობინების პროფილი</string>
@@ -926,8 +958,16 @@
     <string name="DateUtils_tomorrow">ხვალ</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">ამაღამ</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s-ში %2$s-ზე</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">თარიღი: %1$s / დრო: %2$s</item>
+        <item quantity="other">თარიღი %1$s / დრო: %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">დრო: %1$s</item>
+        <item quantity="other">დრო: %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -974,7 +1014,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">გამოიყენე Signal-ი Desktop-ზე ან iPad-ზე. შენი შეტყობინებები შენს მიბმულ მოწყობილობებზე დასინქრონიზდება.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">გამოიყენე ეს Signal ანგარიში დესკტოპზე ან iPad-ზე.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">ახალი მოწყობილობის მიბმა</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1014,6 +1054,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">დასადასტურებლად დააჭირე გაგრძელებას და შენი მობილურის პაროლი შეიყვანე. შენი Signal-ის პინ-კოდი არ შეიყვანო.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">გაგრძელება</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">მხარდაჭერის გუნდთან დაკავშირება</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">გსურს გაუმართაობის რეესტრის ატვირთვა?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">გაუმართაობის რეესტრში ატვირთვა დაგვეხმარება, შენი პრობლემა უფრო სწრაფად მოვაგვაროთ. რეესტრში ატვირთვა არჩევითია.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">გაუმართაობის რეესტრით ატვირთვა</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">გაუმართაობის რეესტრის გარეშე ატვირთვა</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">გაუქმება</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Android-ის ექსპორტირება (Link&amp;Sync) ვერ მოხერხდა</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">შეტყობინებების სინქრონიზაცია ვერ მოხერხდა</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1078,7 +1133,7 @@
     <!-- Option in bottom sheet to transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_transfer">მიმოწერის ისტორიის გადატანა</string>
     <!-- Description in bottom sheet of what transferring message history will do -->
-    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfer your text messages and your last 45 days of media</string>
+    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">გადაიტანე შენი შეტყობინებები და ბოლო 45 დღის მედია ფაილები</string>
     <!-- Option in bottom sheet to not transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_dont_transfer">არ გადაიტანო</string>
     <!-- Description in bottom sheet of what not transferring history will do -->
@@ -1418,9 +1473,9 @@
     <!-- Dialog message displayed when remote restore failed -->
     <string name="RemoteRestoreActivity__error_occurred">შეცდომა დაფიქსირდა და შენი მონაცემების გადატანა ვერ მოხერხდა. აირჩიე გადატანის მეთოდი, რომ თავიდან სცადო.</string>
     <!-- Dialog title displayed when remote restore failed because of an outdated backup version. -->
-    <string name="RemoteRestoreActivity__couldnt_restore">Couldn\'t restore this backup</string>
+    <string name="RemoteRestoreActivity__couldnt_restore">ამ სათადარიგო ასლის აღდგენა ვერ მოხერხდა</string>
     <!-- Dialog message explaining that an update to Signal is required to restore the backup. -->
-    <string name="RemoteRestoreActivity__update_latest">This version of Signal can\'t restore your backup. Update to the latest version and try again.</string>
+    <string name="RemoteRestoreActivity__update_latest">Signal-ის ამ ვერსიაზე სათადარიგო ასლების აღდგენა შეუძლებელია. გადადი უახლეს ვერსიაზე და სცადე თავიდან.</string>
     <!-- Text on button that when pressed will redirect them to update Signal -->
     <string name="RemoteRestoreActivity__update_signal">Signal-ის განახლება</string>
     <!-- Text label button to dismiss the dialog -->
@@ -1918,6 +1973,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">ჯგუფში გაწევრიანების შენი მოთხოვნა ადმინმა უარყო.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">%1$s -ის ჯგუფში გაწევრიანების მოთხოვნა უარყავი.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">%2$s-ის ჯგუფში გაწევრიანების მოთხოვნა %1$s-მა უარყო.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">%1$s-ის ჯგუფში გაწევრიანების მოთხოვნა უარყოფილია.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">შენ გააუქმე ჯგუფში გაწევრიანების შენი მოთხოვნა.</string>
@@ -1962,12 +2018,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">%1$s არის ამ ზარზე · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">შენ ხარ ამ ზარზე · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">%1$s და შენ ქოლზე ხართ · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s და %2$s ამ ზარზე არიან · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">%1$s ამ ზარზეა</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">ამ ზარზე ხარ</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">%1$s და შენ ქოლზე ხართ</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">%1$s და %2$s ამ ზარზე არიან</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2021,6 +2081,14 @@
     <string name="MessageRecord_reported_as_spam">დარეპორტებულია, როგორც სპამი</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">შენ დაეთანხმე მიმოწერის მოთხოვნას</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">შენ დაბლოკე ეს ადამიანი</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">შენ განბლოკე ეს ადამიანი</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">ეს ჯგუფი დაბლოკე</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">ეს ჯგუფი განბლოკე</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">დასტური</string>
@@ -2072,6 +2140,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">დარეპორტება…</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">გსურს მოთხოვნა დაადასტურო?</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">ყურადღებით გადახედე მოთხოვნებს. პროფილის სახელებს მათი ანგარიშის მფლობელი ირჩევს და ვერიფიცირებული არაა.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">გსურს ჯგუფს შეუერთდე?</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">ყურადღებით გადახედე მოთხოვნებს. ჯგუფის სახელებს მათი წევრები ირჩევენ და ვერიფიცირებული არაა.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">შეუერთდი</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">პაროლ-ფრაზები არ ემთხვევა!</string>
@@ -2096,7 +2174,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">ვწუხვართ, უკვე ძალიან ბევრი მოწყობილობა გაქვს დაკავშირებული, ზოგიერთის წაშლა სცადე</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">ვწუხვართ, ეს არ არის მოწყობილობის მიბმის მოქმედი QR კოდი.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">მივაბათ Signal-ს მოწყობილობა?</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">როგორც ჩანს, Signal-ისთვის მოწყობილობის მიბმას მე-3 მხარის სკანერის გამოყენებით ცდილობ. შენი უსაფრთხოებისთვის გთხოვთ, ხელახლა დაასკანერო კოდი Signal-იდან.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">დესკტოპის ან iPad-ის ამ Signal ანგარიშთან მისაბმელად, გადადი დაკავშირებულ მოწყობილობებზე, აირჩიე „ახალი მოწყობილობის მიბმა“ და თავიდან დაასკანირე QR კოდი. დარწმუნდი, რომ მხოლოდ იმ QR კოდებს ასკანირებ, რომლებიც პირდაპირ Signal-იდან მოდის.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">Signal-ს QR კოდის დასასკანერებლად კამერის ნებართვა სჭირდება, მაგრამ ის სამუდამოდ იქნა უარყოფილი. გთხოვთ, შეხვიდე აპის პარამეტრებში, აირჩიო „ნებართვები“ და ჩართო „კამერა“.</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">QR კოდის სკანირება კამერის ნებართვის გარეშე შეუძლებელია</string>
@@ -2442,17 +2520,28 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">აწეული ხელის ვიზუალის გადიდება</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">შენი ქვეყანა</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">სახელით ან ქვეყნის კოდით ძებნა</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">უცნობი ქვეყანა</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Signal-ის კონტაქტები</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">ვერიფიცირებულია</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">პროფილის სახელები ვერიფიცირებული არაა</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">მომლოდინე მიმოწერის მოთხოვნა</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">%1$s-სთან პირადი მიმოწერა ვერ მოიძებნა</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
     <string name="AboutSheet__s_is_in_your_system_contacts">%1$s შენი მობილურის კონტაქტებშია</string>
     <!-- Notice in a row when user has no groups in common -->
-    <string name="AboutSheet__you_have_no_groups_in_common">თქვენ საერთო ჯგუფები არ გაქვთ</string>
+    <string name="AboutSheet__you_have_no_groups_in_common">საერთო ჯგუფები ვერ მოიძებნა</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
     <string name="AboutSheet__review_requests_carefully">ყურადღებით გადახედე მოთხოვნებს</string>
     <!-- Text used when user has groups in common. Placeholder is the count -->
@@ -2524,6 +2613,12 @@
     <string name="RegistrationActivity_additional_verification_required">საჭიროა დამატებითი ვერიფიკაცია</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">ვერიფიკაციის კოდი ამ ნომერზე გაიგზავნება. შეიძლება საფასური დაგეკისროს.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">თქვენ მიიღებთ დადასტურების კოდს. შეიძლება მოქმედებდეს გადამზიდავის ტარიფები.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">აირჩიე ქვეყანა</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">თქვენ მიიღებთ ზარს ამ ნომრის დასამოწმებლად.</string>
     <string name="RegistrationActivity_edit_number">ნომრის რედაქტირება</string>
     <string name="RegistrationActivity_missing_google_play_services">აკლია Google Play-ის სერვისები</string>
@@ -2758,6 +2853,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">შენი მიმოწოერის ისტორია გაერთიანდა</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s %2$s-ს ეკუთვნის</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">დაბლოკილია</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Signal-ის განახლება</string>
@@ -2987,8 +3084,27 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">სწრაფი პასუხი შეუძლებელია, როცა Signal-ი გამორთულია!</string>
     <string name="QuickResponseService_problem_sending_message">პრობლემა შეტყობინების გაგზავნისას!</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">მედია ფაილი შენახულია</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">შეუძლებელია საცავში ჩაწერა!</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">მედია ფაილი შენახულია</item>
+        <item quantity="other">მედია ფაილი შენახულია</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">მედია ფაილი შენახულია (%2$s-დან %1$s-ის შენახვა ვერ მოხერხდა)</item>
+        <item quantity="other">მედია ფაილი შენახულია (%2$s-დან %1$s-ის შენახვა ვერ მოხერხდა)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">დაფიქსირდა შეცდომა მიმაგრების მეხსიერებაში შენახვის დროს!</item>
+        <item quantity="other">მიმაგრებული ფაილების საცავში შენახვისას დაფიქსირდა შეცდომა!</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">ძიება</string>
@@ -3225,7 +3341,8 @@
     <string name="ConversationUpdateItem_update_contact">კონტაქტის განახლება</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">მოთხოვნის დაბლოკვა</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">არცერთი საერთო ჯგუფი. ყურადღებით განიხილე მოთხოვნები.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">საერთო ჯგუფები ვერ მოიძებნა</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">ამ ჯგუფში კონტაქტები არ გყავს. ყურადღებით განიხილე მოთხოვნები.</string>
     <string name="ConversationUpdateItem_view">View</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">გაქრობადი შეტყობინების დრო %1$s-ზე დაყენდება, როცა მას შეტყობინებას გაუგზავნი.</string>
@@ -3717,6 +3834,8 @@
     <string name="preferences__language">ენა</string>
     <string name="preferences__signal_messages_and_calls">Signal-ის შეტყობინებები და ზარები</string>
     <string name="preferences__advanced_pin_settings">პინ-კოდის გაფართოებული პარამეტრები</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">პინ-კოდის გაფართოებული პარამეტრები</string>
     <string name="preferences__free_private_messages_and_calls">უფასო პირადი შეტყობინებები და ზარები Signal-ის მომხმარებლებისთვის</string>
     <string name="preferences__submit_debug_log">გაუმართაობის რეესტრის გაგზავნა</string>
     <string name="preferences__delete_account">მონაცემების წაშლა</string>
@@ -3821,6 +3940,7 @@
     <string name="preferences_connection_failed">დაკავშირება ვერ მოხერხდა</string>
     <string name="preferences_couldnt_connect_to_the_proxy">პროქსისთან დაკავშირება ვერ მოხერხდა. შეამოწმე პროქსის მისამართი და თავიდან სცადე.</string>
     <string name="preferences_you_are_connected_to_the_proxy">პროქსისთან დაკავშირებული ხარ. შეგიძლია ნებისმიერ დროს გამორთო პროქსი პარამეტრებიდან.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">წარმატება</string>
     <string name="preferences_failed_to_connect">დაკავშირება ვერ მოხერხდა</string>
     <string name="preferences_enter_proxy_address">შეიყვანე პროქსის მისამართი</string>
@@ -4362,6 +4482,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">პინ-კოდები Signal-ით შენახულ ინფორმაციას დაშიფრულად ინახავენ.</string>
     <string name="KbsMegaphone__create_pin">პინ-კოდის შექმნა</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Signal-ის პინ-კოდის განახლება</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">ანგარიშის რეგისტრაციის დასასრულებლად განაახლე შენი Signal-ის პინ-კოდი.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">პინ-კოდის განახლება</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Signal-ის შემომავალი ხმოვანი ზარი</string>
@@ -4424,6 +4551,7 @@
     <string name="BackupDialog_copied_to_clipboard">დაკოპირებულია ბუფერში</string>
     <string name="BackupDialog_no_file_picker_available">ფაილის ამომრჩევი არაა ხელმისაწვდომი.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">ვერიფიცირებისთვის შეიყვანე შენი სარეზერვო კოპიების პაროლ-ფრაზა</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">ვერიფიკაცია</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">შენ წარმატებით შეიყვანე სარეზერვო კოპიების პაროლ-ფრაზა</string>
     <string name="BackupDialog_passphrase_was_not_correct">პაროლ-ფრაზა არასწორი იყო</string>
@@ -4448,6 +4576,7 @@
     <string name="RegistrationActivity_code_support_subject">Signal-ის რეგისტრაცია - დადასტურების კოდი Android-ითვის</string>
     <string name="RegistrationActivity_incorrect_code">არასწორი კოდი</string>
     <string name="BackupUtil_never">არასდროს</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">უცნობი</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">ტელეფონის ნომერი</string>
@@ -4632,6 +4761,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">სცადე Wi-Fi-ის გამორთვა და ჩართვა ორივე მოწყობილობაზე.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">დარწმუნდი, რომ ორივე მოწყობილობა გადატანის რეჟიმშია.</string>
     <string name="DeviceTransferSetup__go_to_support_page">მხარდაჭერის გვერდზე გადასვლა</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">სცადეთ ახლიდან</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">ველოდებით მეორე მოწყობილობას</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">გადაცემის დასაწყებად დააჭირე გაგრძელებას შენს მეორე მოწყობილობაზე.</string>
@@ -5133,10 +5263,11 @@
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_old_phone_number">უნდა მიუთითო შენი ძველი მობილურის ნომერი</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_number_country_code">უნდა მიუთითო შენი ახალი ნომრის ქვეყნის კოდი</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_phone_number">უნდა მიუთითო შენი ახალი მობილურის ნომერი</string>
-    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Your new phone number cannot be the same as your old phone number</string>
+    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">შენი ახალი მობილურის ნომრის ადგილას ვერ შეიყვან ძველ ნომერს</string>
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">ნომრის შეცვლა</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">მიმდინარეობს ვერიფიკაცია %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">საჭიროა Captcha-ს გავლა</string>
 
@@ -5512,6 +5643,7 @@
     <string name="ConversationSettingsFragment__permissions">ნებართვები</string>
     <string name="ConversationSettingsFragment__requests_and_invites">მოთხოვნები &amp; მოწვევები</string>
     <string name="ConversationSettingsFragment__group_link">ჯგუფის ბმული</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">კონტაქტად დამატება</string>
     <string name="ConversationSettingsFragment__unmute">მდუმარე რეჟიმის გამორთვა</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5625,6 +5757,7 @@
     <string name="ShareInterstitialActivity__share">გაზიარება</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">ზემოთ ასვლა</string>
     <string name="MultiselectForwardFragment__forward_to">გაეგზავნოთ ჩამოთვლილებს</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5635,6 +5768,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">ვიდეოები 30 წამიან კლიპებად დაიჭრება და რამოდენიმე Story-ის სახით გაიგზავნება.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Stories-ში გაგზავნილი ვიდეოები 30 წმ-ზე მეტი ვერ იქნება.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">გადაგზავნილი შეტყობინებები ახლა დაუყოვნებლივ იგზავნება.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">%1$d შეტყობინების გაგზავნა</item>
@@ -5682,6 +5816,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">ფოტო დაყენებულია მაღალ ხარისხზე</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">ფოტო სტანდარტულ ხარისხზეა დაყენებული</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">დაამატე მედია ფაილი</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">ფუნჯი და კალამი</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">მოჭრა და მობრუნება</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">მედია ფაილის ხარისხის შეცვლა</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">მედია ფაილის შენახვა</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">emoji-ების კლავიატურაზე გადართვა</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">გადართე ერთხელ ნახვა</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">მედია ფაილის გაგზავნა</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">დაასრულე შეტყობინების დამატებით</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">%1$d ელემენტი მაღალ ხარისხზეა დაყენებული</item>
@@ -5726,7 +5878,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">დავაკავშიროთ მოწყობილობა?</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">როგორც ჩანს, Signal-ის მოწყობილობის დაკავშირებას ცდილობ. დააჭირე გაგრძელებას და ისევ დაასკანირე კოდი მის დასაკავშირებლად.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">როგორც ჩანს, Signal-ის მოწყობილობის დაკავშირებას ცდილობ. დააჭირე გაგრძელებას, შემდეგ აირჩიე „ახალი მოწყობილობის მიბმა“ და თავიდან დაასკანირე QR კოდი.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">გაგრძელება</string>
 
@@ -5821,6 +5973,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/თვე</string>
     <string name="MySupportPreference__renews_s">განახლდება %1$s-ში</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">ვამუშავებთ ტრანზაქციას…</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">ემბლემის დამატება ვერ მოხერხდა. %1$s</string>
@@ -5832,7 +5985,7 @@
     <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
     <string name="MySupportPreference__learn_more">გაიგე მეტი</string>
     <!-- Displayed when a subscription refresh is being performed -->
-    <string name="MySupportPreference__checking_subscription">Checking subscription…</string>
+    <string name="MySupportPreference__checking_subscription">მიმდინარეობს გამოწერის შემოწმება…</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Signal-ის განახლება</string>
@@ -5931,7 +6084,7 @@
     <string name="DonationsErrors__your_payment_is_still">შენი დონაცია ისევ მუშავდება. ამას შეიძლება რამდენიმე წუთი დასჭირდეს შენი ინტერნეტ-კავშირიდან გამომდინარე.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">გამოწერის გაუქმება ვერ მოხერხდა</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">გამოწერის გაუქმება ინტერნეტ კავშირს საჭიროებს.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">შენს მოწყბილობას Google Pay-ის მხარდაჭერა არ აქვს, შესაბამისად გამოწერასა და ემბლემის მიღებას ვერ მოახერხებ. თუმცა Signal-ის მხარდასაჭერად დონაციის გაკეთება ჩვენს ვებსაიტზე მაინც შეგიძლია.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">შენს მოწყობილობას აპის შიდა დონაციების მხარდაჭერა არ აქვს, შესაბამისად გამოწერასა და ემბლემის მიღებას ვერ მოახერხებ. თუმცა Signal-ის მხარდასაჭერად დონაციის გაკეთება ჩვენს ვებსაიტზე მაინც შეგიძლია.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">ქსელის ხარვეზი. შეამოწმე შენი ინტერნეტ კავშირი და თავიდან სცადე.</string>
     <string name="NetworkFailure__retry">თავიდან ცდა</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6171,6 +6324,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Signal-ის გამოშვების შენიშვნები &amp; სიახლეები</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">ეს Signal-ის ოფიციალური და ერთადერთი ჩატია.</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">გაიგე სიახლეები და გამოშვების შენიშვნები.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">ეს Signal-ის ოფიციალური და ერთადერთი ჩატია</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">გაიგე სიახლეები და გამოშვების შენიშვნები</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Signal-ის ოფიციალური და ერთადერთი ჩატი</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">ყველა აქტივობა</string>
@@ -6233,7 +6396,7 @@
     <string name="StoriesLandingItem__info">ინფორმაცია</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">იგზავნება…</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">იგზავნება %1$d…</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">გაგზავნა ჩაიშალა</string>
@@ -7202,6 +7365,8 @@
     <string name="CameraControls_capture_button_accessibility_label">გადაღების ღილაკი</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">გაგრძელების ღილაკი</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">განათების რეჟიმის გადართვა</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7547,8 +7712,8 @@
     <string name="BackupAlertBottomSheet__couldnt_complete_backup">სარეზერვო კოპირება ვერ მოხერხდა</string>
     <!-- Sheet body for generic backup error. Placeholder is days since last backup. -->
     <plurals name="BackupAlertBottomSheet__your_device_hasnt">
-        <item quantity="one">Your device hasn\'t completed a backup for %1$d day. Make sure your device is connected to wi-fi and tap \"Back up now.\" </item>
-        <item quantity="other">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
+        <item quantity="one">%1$d დღეა შენს მოწყობილობას სათადარიგო ასლები არ შეუქმნია. დარწმუნდი, რომ ის Wi-Fi-სთან დაკავშირებულია და აირჩიე \"სათადარიგო ასლების შექმნა\". </item>
+        <item quantity="other">%1$d დღეა შენს მოწყობილობას სათადარიგო ასლები არ შეუქმნია. დარწმუნდი, რომ ის Wi-Fi-სთან დაკავშირებულია და აირჩიე \"სათადარიგო ასლების შექმნა\".</item>
     </plurals>
     <!-- Clickable text to learn more about the content of this bottom sheet -->
     <string name="BackupAlertBottomSheet__learn_more">გაიგე მეტი</string>
@@ -7902,6 +8067,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">მხარდაჭერის გუნდთან დაკავშირება</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">დაფიქსირდა ქსელის ხარვეზი. გთხოვთ, მოგვიანებით სცადო.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">შექმენი შენი შეტყობინებების და მედია ფაილების სარეზერვო კოპიები და გამოიყენე Signal-ის უსაფრთხო, ბოლომდე დაშიფრული შენახვის სერვისი. არასდროს დაკარგო შეტყობინებები, როდესაც ახალ მობილურს იყიდი ან Signal-ს თავიდან დააყენებ.</string>
@@ -8051,6 +8220,26 @@
     <string name="EnterBackupKey_learn_more">გაიგე მეტი</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">გამოტოვე და არ აღადგინო</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">არასწორი სათადარიგო ასლების გასაღები</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">დარწმუნდი, რომ იმავე მობილურის ნომრითა და 64-სიმბოლოიანი სათადარიგო ასლების გასაღებით რეგისტრირდები, რომელიც Signal-ის სათადარიგო ასლების ჩართვისას შეინახე. ამ გასაღების გარეშე სათადარიგო ასლებს ვერ აღადგენ.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">ახლიდან სცადე</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">სათადარიგო ასლების გასაღებზე დახმარება</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">არასწორი სათადარიგო ასლების გასაღები</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">ზედმეტად გრძელია (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">არასწორი სათადარიგო ასლების გასაღები</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">სათადარიგო ასლების მოძებნა ვერ მოხერხდა</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">შენ მიერ შეყვანილი სათადარიგო ასლების გასაღები სწორია, მაგრამ მასთან ასოცირებული სათადარიგო ასლები ვერ მოიძებნა. თუ შენი ძველი მობილური ისევ გაქვს, დარწმუნდი, რომ სათადარიგო ასლები ჩართულია, სათადარიგო ასლის შექმნა დასრულებულია და თავიდან სცადე.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">აღდგენის გამოტოვება</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">დაასკანირე ეს კოდი შენი ძველი მობილურით</string>

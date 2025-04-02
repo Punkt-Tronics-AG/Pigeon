@@ -29,7 +29,7 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
 
   private val sharedViewModel by activityViewModels<RegistrationViewModel>()
 
-  private val launchRestoreActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+  private val localBackupRestore = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
     when (val resultCode = result.resultCode) {
       Activity.RESULT_OK -> {
         sharedViewModel.onBackupSuccessfullyRestored()
@@ -47,14 +47,23 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
     SelectRestoreMethodScreen(
       restoreMethods = listOf(RestoreMethod.FROM_SIGNAL_BACKUPS, RestoreMethod.FROM_LOCAL_BACKUP_V1),
       onRestoreMethodClicked = this::startRestoreMethod,
-      onSkip = { findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL)) }
+      onSkip = {
+        sharedViewModel.skipRestore()
+        findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+      }
     )
   }
 
   private fun startRestoreMethod(method: RestoreMethod) {
     when (method) {
-      RestoreMethod.FROM_SIGNAL_BACKUPS -> findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
-      RestoreMethod.FROM_LOCAL_BACKUP_V1 -> launchRestoreActivity.launch(RestoreActivity.getLocalRestoreIntent(requireContext()))
+      RestoreMethod.FROM_SIGNAL_BACKUPS -> {
+        sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
+        findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
+      }
+      RestoreMethod.FROM_LOCAL_BACKUP_V1 -> {
+        sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = false)
+        localBackupRestore.launch(RestoreActivity.getLocalRestoreIntent(requireContext()))
+      }
       RestoreMethod.FROM_OLD_DEVICE -> error("Device transfer not supported in manual restore flow")
       RestoreMethod.FROM_LOCAL_BACKUP_V2 -> error("Not currently supported")
     }

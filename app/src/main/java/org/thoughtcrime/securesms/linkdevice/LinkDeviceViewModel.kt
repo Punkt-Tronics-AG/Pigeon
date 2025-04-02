@@ -20,6 +20,7 @@ import org.thoughtcrime.securesms.linkdevice.LinkDeviceRepository.getPlaintextDe
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.DialogState
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.OneTimeEvent
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.QrCodeState
+import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogRepository
 import org.thoughtcrime.securesms.notifications.NotificationIds
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.ServiceUtil
@@ -27,6 +28,7 @@ import org.thoughtcrime.securesms.util.Util
 import org.whispersystems.signalservice.api.backup.MessageBackupKey
 import org.whispersystems.signalservice.api.link.TransferArchiveError
 import org.whispersystems.signalservice.api.link.WaitForLinkedDeviceResponse
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -40,6 +42,7 @@ class LinkDeviceViewModel : ViewModel() {
 
   private val _state = MutableStateFlow(LinkDeviceSettingsState())
   val state = _state.asStateFlow()
+  private val submitDebugLogRepository: SubmitDebugLogRepository = SubmitDebugLogRepository()
 
   private var pollJob: Job? = null
 
@@ -178,7 +181,7 @@ class LinkDeviceViewModel : ViewModel() {
     if (LinkDeviceRepository.isValidQr(uri)) {
       _state.update {
         it.copy(
-          qrCodeState = if (uri.supportsLinkAndSync() && RemoteConfig.linkAndSync) QrCodeState.VALID_WITH_SYNC else QrCodeState.VALID_WITHOUT_SYNC,
+          qrCodeState = if (uri.supportsLinkAndSync()) QrCodeState.VALID_WITH_SYNC else QrCodeState.VALID_WITHOUT_SYNC,
           linkUri = uri,
           showFrontCamera = null
         )
@@ -222,7 +225,7 @@ class LinkDeviceViewModel : ViewModel() {
       Log.i(TAG, "Adding device with sync.")
       addDeviceWithSync(linkUri)
     } else {
-      Log.i(TAG, "Adding device without sync. (uri: ${linkUri.supportsLinkAndSync()}, remoteConfig: ${RemoteConfig.linkAndSync})")
+      Log.i(TAG, "Adding device without sync. (uri: ${linkUri.supportsLinkAndSync()})")
       addDeviceWithoutSync(linkUri)
     }
   }
@@ -259,7 +262,7 @@ class LinkDeviceViewModel : ViewModel() {
   }
 
   fun markBioAuthEducationSheetSeen(seen: Boolean) {
-    SignalStore.uiHints.markHasSeenLinkDeviceAuthSheet()
+    SignalStore.uiHints.lastSeenLinkDeviceAuthSheetTime = System.currentTimeMillis()
     _state.update {
       it.copy(
         seenBioAuthEducationSheet = seen,
@@ -285,7 +288,7 @@ class LinkDeviceViewModel : ViewModel() {
     Log.d(TAG, "[addDeviceWithSync] Got result: $result")
 
     if (result !is LinkDeviceResult.Success) {
-      Log.w(TAG, "[addDeviceWithSync] Unable to link device $result")
+      Log.w(TAG, "[addDeviceWithSync] Unable to link device $result", if (result is LinkDeviceResult.NetworkError) result.error else null)
       _state.update {
         it.copy(
           dialogState = DialogState.None
@@ -374,7 +377,7 @@ class LinkDeviceViewModel : ViewModel() {
     }
 
     if (result !is LinkDeviceResult.Success) {
-      Log.w(TAG, "Unable to link device $result")
+      Log.w(TAG, "Unable to link device $result", if (result is LinkDeviceResult.NetworkError) result.error else null)
       _state.update {
         it.copy(
           dialogState = DialogState.None
@@ -410,9 +413,10 @@ class LinkDeviceViewModel : ViewModel() {
   private fun Uri.supportsLinkAndSync(): Boolean {
     return if (RemoteConfig.internalUser) {
       this.getQueryParameter("capabilities")?.split(",")?.contains("backup") == true ||
-        this.getQueryParameter("capabilities")?.split(",")?.contains("backup2") == true
+        this.getQueryParameter("capabilities")?.split(",")?.contains("backup2") == true ||
+        this.getQueryParameter("capabilities")?.split(",")?.contains("backup3") == true
     } else {
-      this.getQueryParameter("capabilities")?.split(",")?.contains("backup") == true
+      this.getQueryParameter("capabilities")?.split(",")?.contains("backup3") == true
     }
   }
 
@@ -428,6 +432,14 @@ class LinkDeviceViewModel : ViewModel() {
       it.copy(
         linkDeviceResult = LinkDeviceResult.None,
         dialogState = DialogState.None
+      )
+    }
+  }
+
+  fun onSyncErrorContactSupport() {
+    _state.update {
+      it.copy(
+        dialogState = DialogState.ContactSupport
       )
     }
   }
@@ -496,6 +508,35 @@ class LinkDeviceViewModel : ViewModel() {
         it.copy(
           oneTimeEvent = event
         )
+      }
+    }
+  }
+
+  fun onContactSupport(includeLogs: Boolean) {
+    viewModelScope.launch {
+      if (includeLogs) {
+        _state.update {
+          it.copy(
+            dialogState = DialogState.LoadingDebugLog
+          )
+        }
+        submitDebugLogRepository.buildAndSubmitLog { result ->
+          val url = result.getOrNull()
+          _state.update {
+            it.copy(
+              debugLogUrl = url,
+              oneTimeEvent = OneTimeEvent.LaunchEmail,
+              dialogState = DialogState.None
+            )
+          }
+        }
+      } else {
+        _state.update {
+          it.copy(
+            oneTimeEvent = OneTimeEvent.LaunchEmail,
+            dialogState = DialogState.None
+          )
+        }
       }
     }
   }

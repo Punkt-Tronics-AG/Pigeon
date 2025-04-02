@@ -19,7 +19,7 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="org.thoughtcrime.securesms.ACCESS_SECRETS"/>
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
@@ -134,10 +134,7 @@
     <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
     <meta-data android:name="android.webkit.WebView.MetricsOptOut" android:value="true" />
 
-        <activity android:name="pigeon.activity.WebRtcCallVolumeActivity"
-            android:theme="@style/TextSecure.DarkTheme.WebRTCCall"/>
-
-        <activity android:name=".WebRtcCallActivity"
+    <activity android:name=".components.webrtc.v2.WebRtcCallActivity"
               android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
               android:excludeFromRecents="true"
               android:screenOrientation="landscape"
@@ -148,18 +145,6 @@
               android:resizeableActivity="false"
               android:launchMode="singleTask"
               android:exported="false" />
-
-        <activity
-            android:name=".components.webrtc.v2.CallActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
-            android:taskAffinity=".calling"
-            android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
-            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity android:name=".messagerequests.CalleeMustAcceptMessageRequestActivity"
               android:theme="@style/TextSecure.DarkNoActionBar"
@@ -883,7 +868,7 @@
     <activity android:name=".restore.RestoreActivity"
               android:launchMode="singleTask"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:windowSoftInputMode="stateHidden"
+              android:windowSoftInputMode="stateHidden|adjustResize"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 

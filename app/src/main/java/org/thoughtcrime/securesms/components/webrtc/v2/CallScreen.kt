@@ -34,8 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,9 +56,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.signal.core.ui.BottomSheets
 import org.signal.core.ui.Previews
+import org.signal.core.ui.TriggerAlignedPopupState
 import org.signal.core.util.DimensionUnit
 import org.thoughtcrime.securesms.components.webrtc.WebRtcLocalRenderState
 import org.thoughtcrime.securesms.events.CallParticipant
+import org.thoughtcrime.securesms.events.GroupCallReactionEvent
 import org.thoughtcrime.securesms.events.WebRtcViewModel
 import org.thoughtcrime.securesms.recipients.Recipient
 import kotlin.math.max
@@ -79,14 +79,23 @@ private const val SHEET_BOTTOM_PADDING = 16
 fun CallScreen(
   callRecipient: Recipient,
   webRtcCallState: WebRtcViewModel.State,
+  isRemoteVideoOffer: Boolean,
   callScreenState: CallScreenState,
   callControlsState: CallControlsState,
-  callControlsCallback: CallControlsCallback = CallControlsCallback.Empty,
+  callScreenController: CallScreenController = CallScreenController.rememberCallScreenController(
+    skipHiddenState = callControlsState.skipHiddenState,
+    onControlsToggled = {}
+  ),
+  callScreenControlsListener: CallScreenControlsListener = CallScreenControlsListener.Empty,
+  callScreenSheetDisplayListener: CallScreenSheetDisplayListener = CallScreenSheetDisplayListener.Empty,
+  additionalActionsListener: AdditionalActionsListener = AdditionalActionsListener.Empty,
   callParticipantsPagerState: CallParticipantsPagerState,
+  pendingParticipantsListener: PendingParticipantsListener = PendingParticipantsListener.Empty,
   overflowParticipants: List<CallParticipant>,
   localParticipant: CallParticipant,
   localRenderState: WebRtcLocalRenderState,
   callScreenDialogType: CallScreenDialogType,
+  reactions: List<GroupCallReactionEvent>,
   callInfoView: @Composable (Float) -> Unit,
   raiseHandSnackbar: @Composable (Modifier) -> Unit,
   onNavigationClick: () -> Unit,
@@ -94,25 +103,38 @@ fun CallScreen(
   onControlsToggled: (Boolean) -> Unit,
   onCallScreenDialogDismissed: () -> Unit = {}
 ) {
+  if (webRtcCallState == WebRtcViewModel.State.CALL_INCOMING) {
+    IncomingCallScreen(
+      callRecipient = callRecipient,
+      isVideoCall = isRemoteVideoOffer,
+      callStatus = callScreenState.callStatus,
+      callScreenControlsListener = callScreenControlsListener
+    )
+    return
+  }
+
   var peekPercentage by remember {
     mutableFloatStateOf(0f)
   }
 
-  val skipHiddenState by rememberUpdatedState(newValue = callControlsState.skipHiddenState)
-  val valueChangeOperation: (SheetValue) -> Boolean = remember {
-    {
-      !(it == SheetValue.Hidden && skipHiddenState)
-    }
+  val scaffoldState = remember(callScreenController) { callScreenController.scaffoldState }
+  val scope = rememberCoroutineScope()
+  val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
+
+  val additionalActionsPopupState = TriggerAlignedPopupState.rememberTriggerAlignedPopupState()
+  val additionalActionsState = remember(
+    callScreenState.reactions,
+    localParticipant.isHandRaised
+  ) {
+    AdditionalActionsState(
+      reactions = callScreenState.reactions,
+      isSelfHandRaised = localParticipant.isHandRaised,
+      listener = additionalActionsListener,
+      triggerAlignedPopupState = additionalActionsPopupState
+    )
   }
 
-  val scope = rememberCoroutineScope()
-  val scaffoldState = rememberBottomSheetScaffoldState(
-    bottomSheetState = rememberStandardBottomSheetState(
-      confirmValueChange = valueChangeOperation,
-      skipHiddenState = false
-    )
-  )
-  val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
+  additionalActionsPopupState.display = callScreenState.displayAdditionalActionsDialog
 
   BoxWithConstraints {
     val maxHeight = constraints.maxHeight
@@ -123,12 +145,17 @@ fun CallScreen(
     var peekHeight by remember { mutableFloatStateOf(88f) }
 
     BottomSheetScaffold(
-      scaffoldState = scaffoldState,
+      scaffoldState = callScreenController.scaffoldState,
       sheetDragHandle = null,
       sheetPeekHeight = peekHeight.dp,
       sheetMaxWidth = 540.dp,
       sheetContent = {
         BottomSheets.Handle(modifier = Modifier.align(Alignment.CenterHorizontally))
+
+        AdditionalActionsPopup(
+          onDismissRequest = callScreenControlsListener::onDismissOverflow,
+          state = additionalActionsState
+        )
 
         Box(
           modifier = Modifier
@@ -153,8 +180,10 @@ fun CallScreen(
           if (callControlsAlpha > 0f) {
             CallControls(
               callControlsState = callControlsState,
-              callControlsCallback = callControlsCallback,
+              callScreenControlsListener = callScreenControlsListener,
+              callScreenSheetDisplayListener = callScreenSheetDisplayListener,
               displayVideoTooltip = callScreenState.displayVideoTooltip,
+              additionalActionsState = additionalActionsState,
               modifier = Modifier
                 .fillMaxWidth()
                 .alpha(callControlsAlpha)
@@ -182,7 +211,8 @@ fun CallScreen(
           callControlsState = callControlsState,
           callScreenState = callScreenState,
           onPipClick = onLocalPictureInPictureClicked,
-          onControlsToggled = onControlsToggled
+          onControlsToggled = onControlsToggled,
+          callScreenController = callScreenController
         )
       }
 
@@ -202,9 +232,14 @@ fun CallScreen(
             callControlsState = callControlsState,
             callScreenState = callScreenState,
             onPipClick = onLocalPictureInPictureClicked,
-            onControlsToggled = onControlsToggled
+            onControlsToggled = onControlsToggled,
+            callScreenController = callScreenController
           )
         }
+
+        CallScreenReactionsContainer(
+          reactions = reactions
+        )
       }
 
       val onCallInfoClick: () -> Unit = {
@@ -251,6 +286,17 @@ fun CallScreen(
           .padding(bottom = padding)
           .padding(bottom = 20.dp)
       )
+
+      val state = remember(callScreenState.pendingParticipantsState) {
+        callScreenState.pendingParticipantsState
+      }
+
+      if (state != null) {
+        PendingParticipants(
+          pendingParticipantsState = state,
+          pendingParticipantsListener = pendingParticipantsListener
+        )
+      }
     }
   }
 
@@ -272,13 +318,13 @@ private fun BoxScope.Viewport(
   scaffoldState: BottomSheetScaffoldState,
   callControlsState: CallControlsState,
   callScreenState: CallScreenState,
+  callScreenController: CallScreenController,
   onPipClick: () -> Unit,
   onControlsToggled: (Boolean) -> Unit
 ) {
   if (webRtcCallState.isPreJoinOrNetworkUnavailable) {
     LargeLocalVideoRenderer(
-      localParticipant = localParticipant,
-      localRenderState = localRenderState
+      localParticipant = localParticipant
     )
   }
 
@@ -287,8 +333,8 @@ private fun BoxScope.Viewport(
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
     val scope = rememberCoroutineScope()
 
-    val hideSheet by rememberUpdatedState(newValue = scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded && !callControlsState.skipHiddenState && !callScreenState.isDisplayingAudioToggleSheet)
-    LaunchedEffect(hideSheet) {
+    val hideSheet by rememberUpdatedState(newValue = scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded && !callControlsState.skipHiddenState && !callScreenState.isDisplayingControlMenu())
+    LaunchedEffect(callScreenController.restartTimerRequests, hideSheet) {
       if (hideSheet) {
         delay(5.seconds)
         scaffoldState.bottomSheetState.hide()
@@ -305,17 +351,10 @@ private fun BoxScope.Viewport(
           modifier = Modifier
             .fillMaxWidth()
             .weight(1f)
-            .clip(MaterialTheme.shapes.extraLarge)
             .clickable(
               onClick = {
                 scope.launch {
-                  if (scaffoldState.bottomSheetState.isVisible) {
-                    scaffoldState.bottomSheetState.hide()
-                    onControlsToggled(false)
-                  } else {
-                    onControlsToggled(true)
-                    scaffoldState.bottomSheetState.show()
-                  }
+                  callScreenController.handleEvent(CallScreenController.Event.TOGGLE_CONTROLS)
                 }
               },
               enabled = !callControlsState.skipHiddenState
@@ -368,15 +407,12 @@ private fun BoxScope.Viewport(
  */
 @Composable
 private fun LargeLocalVideoRenderer(
-  localParticipant: CallParticipant,
-  localRenderState: WebRtcLocalRenderState
+  localParticipant: CallParticipant
 ) {
   LocalParticipantRenderer(
     localParticipant = localParticipant,
-    localRenderState = localRenderState,
     modifier = Modifier
       .fillMaxSize()
-      .clip(MaterialTheme.shapes.extraLarge)
   )
 }
 
@@ -406,7 +442,6 @@ private fun TinyLocalVideoRenderer(
 
   LocalParticipantRenderer(
     localParticipant = localParticipant,
-    localRenderState = localRenderState,
     modifier = modifier
       .padding(16.dp)
       .height(height)
@@ -448,7 +483,6 @@ private fun SmallMoveableLocalVideoRenderer(
   ) {
     LocalParticipantRenderer(
       localParticipant = localParticipant,
-      localRenderState = localRenderState,
       modifier = Modifier
         .fillMaxSize()
         .clip(MaterialTheme.shapes.medium)
@@ -497,6 +531,7 @@ private fun CallScreenPreview() {
     CallScreen(
       callRecipient = Recipient(systemContactName = "Test User"),
       webRtcCallState = WebRtcViewModel.State.CALL_CONNECTED,
+      isRemoteVideoOffer = false,
       callScreenState = CallScreenState(),
       callControlsState = CallControlsState(
         displayMicToggle = true,
@@ -516,7 +551,8 @@ private fun CallScreenPreview() {
       onNavigationClick = {},
       onLocalPictureInPictureClicked = {},
       overflowParticipants = emptyList(),
-      onControlsToggled = {}
+      onControlsToggled = {},
+      reactions = emptyList()
     )
   }
 }

@@ -572,11 +572,6 @@
         <item quantity="one">Desar aquest fitxer a l\'emmagatzematge permetrà que qualsevol altra aplicació del dispositiu també hi pugui accedir.\n\nVols continuar?</item>
         <item quantity="other">Desar els %1$d fitxers a l\'emmagatzematge permetrà que qualsevol altra aplicació del dispositiu també hi pugui accedir.\n\nVols continuar?</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">Error al desar el fitxer adjunt a l\'emmagatzematge!</item>
-        <item quantity="other">Error en desar els fitxers adjunts a l\'emmagatzematge.</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">No s\'ha pogut desar a l\'emmagatzematge.</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">Desant fitxer</item>
         <item quantity="other">Desant %1$d fitxers</item>
@@ -586,11 +581,14 @@
         <item quantity="other">Desant %1$d fitxers a l\'emmagatzematge…</item>
     </plurals>
     <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Save to phone?</string>
+    <string name="ConversationFragment__save_to_phone">Guardar al telèfon?</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">This media will be saved to your phone\'s storage. Other apps may be able to access it depending on your phone\'s permissions.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">Aquest arxiu es guardarà al teu telèfon. És possible que, depenent dels permisos del telèfon, altres aplicacions puguin accedir-hi.</item>
+        <item quantity="other">Aquests arxius es guardaran al teu telèfon. És possible que, depenent dels permisos del telèfon, altres aplicacions puguin accedir-hi.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
-    <string name="ConversationFragment_dont_show_again">Don\'t show again</string>
+    <string name="ConversationFragment_dont_show_again">No ho tornis a mostrar</string>
     <string name="ConversationFragment_pending">Pendent…</string>
     <!-- Describes how the message was sent when looking at a message detail. Previously, messages could be through other means like SMS -->
     <string name="ConversationFragment_push">Dades (Signal)</string>
@@ -666,6 +664,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">Reportat com a spam i bloquejat</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Has acceptat la sol·licitud de missatge de %1$s. Si es tracta d\'un error, pots escollir una de les accions que hi ha a continuació.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">Revisa amb atenció</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">%1$s no es verifiquen</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">%1$s no es verifiquen</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">Els noms del perfil</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">Els noms dels grups</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">No s\'ha pogut descarregar la foto. Torna a provar-ho.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Consells de seguretat</string>
@@ -677,6 +687,10 @@
     <string name="SafetyTips_previous_tip">Consell anterior</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">Següent consell</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">Comptes i noms falsos</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Signal mai es posarà en contacte amb tu per demanar-te el teu codi de registre o PIN. Ves amb compte quan rebis peticions de persones es fan passar per altres. Els noms de perfil els tria el titular del compte i no es verifiquen.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">Estafes de criptomoneda o diners</string>
     <!-- Message of tip 1 -->
@@ -693,6 +707,21 @@
     <string name="SafetyTips_tip4_title">Empreses i institucions falses</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">Ves amb compte amb les empreses o les agències governamentals que es posin en contacte amb tu. Els missatges que involucren agències fiscals i serveis de missatgeria, entre d\'altres, poden ser spam.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s a Signal els tria el titular del compte.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Els noms de perfil no es verifiquen</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Ves amb compte amb els comptes que es fan passar per altres</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">No comparteixis informació personal amb persones que no coneguis</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s els trien els membres del grup.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">Ves amb compte amb els grups que es fan passar per organitzacions i empreses</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">Els noms de perfil dels membres dels grups no es verifiquen</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Restablir filtres</string>
@@ -756,8 +785,11 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">Tria una carpeta</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">Afegit a \"%1$s\"</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">Aquest xat ja està a la carpeta \"%1$s\"</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">Aquest xat ja està a \"%1$s\"</item>
+        <item quantity="other">Aquests xats ja estàn a \"%1$s\"</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">Perfil de notificacions</string>
@@ -926,8 +958,16 @@
     <string name="DateUtils_tomorrow">Demà</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">Aquesta nit</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s a %2$s</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">el %1$s a les %2$s</item>
+        <item quantity="other">el %1$s a les %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">a la %1$s</item>
+        <item quantity="other">a les %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -974,7 +1014,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Utilitzar Signal per a Escriptori o iPad. Els teus missatges se sincronitzaran a tots els teus dispositius connectats.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Utilitzar aquest compte de Signal en un ordinador o iPad.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">Vincular un nou dispositiu</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1014,6 +1054,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">Toca continuar i introdueix el patró de bloqueig del teu telèfon per confirmar. No introdueixis el teu PIN de Signal.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">Continuar</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">Contacta amb el servei d\'assistència</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">Vols enviar un registre de depuració?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">Els vostres registres de depuració ens ajudaran a solucionar el problema més de pressa. Enviar-nos-els és opcional.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">Envia-ho amb el registre de depuració</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">Envia-ho sense el registre de depuració</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">Cancel·lar</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Error en l\'exportació d\'Android Link&amp;Sync</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">La sincronització de missatges ha fallat</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1036,7 +1091,7 @@
     <!-- Dialog title shown when a device is unlinked -->
     <string name="LinkDeviceFragment__device_unlinked">Dispositiu desenllaçat</string>
     <!-- Dialog body shown when a device is unlinked where %1$s is the date and time the device was originally linked (eg Jan 15 at 9:00pm) -->
-    <string name="LinkDeviceFragment__the_device_that_was">El dispositiu enllaçat el %1$s ja no està enllaçat.</string>
+    <string name="LinkDeviceFragment__the_device_that_was">El dispositiu enllaçat %1$s ja no està enllaçat.</string>
     <!-- Button to dismiss dialog -->
     <string name="LinkDeviceFragment__ok">D\'acord</string>
 
@@ -1078,7 +1133,7 @@
     <!-- Option in bottom sheet to transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_transfer">Transferir l\'historial de missatges</string>
     <!-- Description in bottom sheet of what transferring message history will do -->
-    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfer your text messages and your last 45 days of media</string>
+    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfereix tots els missatges de text i els últims 45 dies d\'arxius multimèdia</string>
     <!-- Option in bottom sheet to not transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_dont_transfer">No transferir</string>
     <!-- Description in bottom sheet of what not transferring history will do -->
@@ -1087,7 +1142,7 @@
     <!-- Title of notification telling users that a device was linked to their account -->
     <string name="NewLinkedDeviceNotification__you_linked_new_device">Has vinculat un nou dispositiu</string>
     <!-- Message body of notification telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">S\'ha vinculat un nou dispositiu al teu compte a les %1$s. Toca per veure.</string>
+    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">S\'ha vinculat un nou dispositiu al teu compte %1$s. Toca per veure.</string>
 
     <!-- DeviceListActivity -->
     <string name="DeviceListActivity_unlink_s">Voleu desenllaçar «%1$s»?</string>
@@ -1418,9 +1473,9 @@
     <!-- Dialog message displayed when remote restore failed -->
     <string name="RemoteRestoreActivity__error_occurred">S\'ha produït un error i el teu compte no s\'ha pogut transferir. Torna-ho a provar triant el teu mètode de transferència.</string>
     <!-- Dialog title displayed when remote restore failed because of an outdated backup version. -->
-    <string name="RemoteRestoreActivity__couldnt_restore">Couldn\'t restore this backup</string>
+    <string name="RemoteRestoreActivity__couldnt_restore">No s\'ha pogut restaurar aquesta còpia de seguretat</string>
     <!-- Dialog message explaining that an update to Signal is required to restore the backup. -->
-    <string name="RemoteRestoreActivity__update_latest">This version of Signal can\'t restore your backup. Update to the latest version and try again.</string>
+    <string name="RemoteRestoreActivity__update_latest">Aquesta versió de Signal no pot restaurar la teva còpia de seguretat. Actualitza a la versió més recent i torna-ho a provar.</string>
     <!-- Text on button that when pressed will redirect them to update Signal -->
     <string name="RemoteRestoreActivity__update_signal">Actualitza el Signal</string>
     <!-- Text label button to dismiss the dialog -->
@@ -1683,7 +1738,7 @@
     <string name="Megaphones_add_a_profile_photo">Foto de perfil</string>
 
     <!-- Message body of megaphone telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">S\'ha vinculat un nou dispositiu al teu compte a les %1$s.</string>
+    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">S\'ha vinculat un nou dispositiu al teu compte %1$s.</string>
     <!-- Button shown on megaphone that will redirect to the linked devices screen -->
     <string name="NewLinkedDeviceMegaphone__view_device">Veure dispositiu</string>
     <!-- Button shown on megaphone to acknowledge and dismiss the megaphone -->
@@ -1918,6 +1973,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">Un administrador ha rebutjat la sol·licitud per afegir-vos al grup.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">Heu rebutjat una sol·licitud d\'adhesió al grup de %1$s.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">%1$s ha rebutjat una sol·licitud de %2$sper afegir-se al grup.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">S\'ha rebutjat la sol·licitud de %1$sper afegir-se al grup.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">Heu cancel·lat la sol·licitud per afegir-vos al grup.</string>
@@ -1962,12 +2018,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">%1$s és a la trucada · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">Ets a la trucada · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">%1$s i tu sou a la trucada · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s i %2$s són a la trucada · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">%1$s és a la trucada</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">Ets a la trucada</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">%1$s i tu sou a la trucada</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">%1$s i %2$s són a la trucada</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2021,6 +2081,14 @@
     <string name="MessageRecord_reported_as_spam">Se n\'ha informat com a spam</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">Has acceptat la sol·licitud de missatge</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">Has bloquejat aquesta persona</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">Has desbloquejat aquesta persona</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">Has bloquejat aquest grup</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">Has desbloquejat aquest grup</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">Ho accepto</string>
@@ -2072,6 +2140,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Denunciar…</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">Acceptar la sol·licitud?</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">Revisa les sol·licituds amb atenció. Els noms de perfil els tria el titular del compte i no es verifiquen.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">Unir-te al grup?</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">Revisa les sol·licituds amb atenció. Els noms dels grups els trien els membres del grup i no es verifiquen.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">Unir-me</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Les contrasenyes no coincideixen!</string>
@@ -2096,7 +2174,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Teniu massa dispositius enllaçats, proveu de suprimir-ne algun.</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Això no és un codi QR amb enllaç vàlid.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">Voleu enllaçar un dispositiu de Signal?</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Sembla que esteu provant d\'enllaçar un dispositiu de Signal amb un escàner extern. Per seguretat, torneu a escanejar el codi dins del Signal.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">Per enllaçar un ordinador o un iPad amb aquest compte de Signal, ves a Dispositius vinculats, toca \"Vincular un nou dispositiu\" i torna a escanejar el codi QR. Assegura\'t que només escaneges codis QR que provenen directament de Signal.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">El Signal necessita el permís de la càmera per tal d\'escanejar un codi QR, però s\'ha denegat permanentment. Si us plau, continueu cap al menú de configuració de l\'aplicació, seleccioneu Permisos i activeu-hi la càmera.</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">No es pot escanejar un codi QR sense permís de la càmera.</string>
@@ -2442,17 +2520,28 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">Ampliar la vista de mà aixecada</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">El teu país</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">Busca per nom o prefix del número</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">País desconegut</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Connexió de Signal</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">Verificat</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">Els noms de perfil no es verifiquen</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">Sol·licitud de missatge pendent</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">No hi ha missatges directes amb %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
     <string name="AboutSheet__s_is_in_your_system_contacts">%1$s és als contactes del teu telèfon</string>
     <!-- Notice in a row when user has no groups in common -->
-    <string name="AboutSheet__you_have_no_groups_in_common">No teniu cap grup en comú</string>
+    <string name="AboutSheet__you_have_no_groups_in_common">No hi ha grups en comú.</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
     <string name="AboutSheet__review_requests_carefully">Reviseu les sol·licituds amb atenció.</string>
     <!-- Text used when user has groups in common. Placeholder is the count -->
@@ -2524,6 +2613,12 @@
     <string name="RegistrationActivity_additional_verification_required">Cal verificació addicional</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">S\'enviarà un codi de verificació a aquest número. El teu operador pot aplicar tarifes.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Rebreu un codi de verificació. La vostra operadora podria aplicar algun càrrec.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Selecciona un país</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Rebreu una trucada per a verificar aquest número.</string>
     <string name="RegistrationActivity_edit_number">Edita el número</string>
     <string name="RegistrationActivity_missing_google_play_services">No hi ha el Google Play Services.</string>
@@ -2758,6 +2853,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">El teu historial de missatges s\'ha combinat</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s pertany a %2$s</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">Bloquejat</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Actualització del Signal</string>
@@ -2987,8 +3084,27 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">La resposta ràpida no és disponible si el Signal està blocat!</string>
     <string name="QuickResponseService_problem_sending_message">S\'ha produït un problema en enviar el missatge!</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">Arxiu multimèdia guardat</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">No s\'ha pogut desar a l\'emmagatzematge.</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">Arxiu multimèdia guardat</item>
+        <item quantity="other">Arxius multimèdia guardats</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">Arxius multimèdia guardats (%1$s de %2$s ha fallat)</item>
+        <item quantity="other">Arxius multimèdia guardats (%1$s de %2$s han fallat)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">Error al desar el fitxer adjunt a l\'emmagatzematge!</item>
+        <item quantity="other">Error en desar els fitxers adjunts a l\'emmagatzematge.</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Cerca</string>
@@ -3225,7 +3341,8 @@
     <string name="ConversationUpdateItem_update_contact">Actualitza el contacte</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">Bloqueja la sol·licitud</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Cap grup en comú. Reviseu les sol·licituds amb atenció.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">No hi ha grups en comú.</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">Cap contacte en aquest grup. Reviseu les sol·licituds amb atenció.</string>
     <string name="ConversationUpdateItem_view">Vista</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">El temps de desaparició del missatge s\'establirà a %1$s quan els n\'envieu un.</string>
@@ -3717,6 +3834,8 @@
     <string name="preferences__language">Llengua</string>
     <string name="preferences__signal_messages_and_calls">Missatges i trucades del Signal</string>
     <string name="preferences__advanced_pin_settings">Configuració avançada del PIN</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">Configuració avançada del PIN</string>
     <string name="preferences__free_private_messages_and_calls">Missatges i trucades privades gratuïtes per als usuaris del Signal</string>
     <string name="preferences__submit_debug_log">Envia un registre de depuració</string>
     <string name="preferences__delete_account">Eliminar el compte</string>
@@ -3821,6 +3940,7 @@
     <string name="preferences_connection_failed">Ha fallat la connexió.</string>
     <string name="preferences_couldnt_connect_to_the_proxy">No s\'ha pogut connectar amb l\'intermediari. Comproveu-ne l\'adreça i torneu-ho a provar.</string>
     <string name="preferences_you_are_connected_to_the_proxy">Esteu connectat amb l\'intermediari. Podeu desactivar-lo en qualsevol moment des de la configuració.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">Correcte</string>
     <string name="preferences_failed_to_connect">Ha fallat la connexió.</string>
     <string name="preferences_enter_proxy_address">Introduïu l\'adreça del servidor intermediari</string>
@@ -4362,6 +4482,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">Els PIN mantenen encriptada la informació desada amb el Signal.</string>
     <string name="KbsMegaphone__create_pin">Crea un PIN</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Actualitzar PIN de Signal</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">Actualitza el teu PIN de Signal per completar el registre del compte.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">Actualitza el PIN</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Trucada de veu Signal entrant</string>
@@ -4424,6 +4551,7 @@
     <string name="BackupDialog_copied_to_clipboard">Copiat al porta-retalls</string>
     <string name="BackupDialog_no_file_picker_available">No hi ha selector de fitxers disponible.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">Escriviu la contrasenya de còpia de seguretat per verificar-la.</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">Verificació</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Heu escrit correctament la contrasenya de còpia de seguretat.</string>
     <string name="BackupDialog_passphrase_was_not_correct">La contrasenya no és correcta.</string>
@@ -4448,6 +4576,7 @@
     <string name="RegistrationActivity_code_support_subject">Registre del Signal - Codi de verificació per a Android</string>
     <string name="RegistrationActivity_incorrect_code">Codi incorrecte</string>
     <string name="BackupUtil_never">Mai</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">Desconegut</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">Número de telèfon</string>
@@ -4632,6 +4761,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">Proveu de desactivar i activar la Wi-Fi en tots dos dispositius.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">Assegureu-vos que tots dos dispositius estiguin en mode de transferència.</string>
     <string name="DeviceTransferSetup__go_to_support_page">Ves a la pàgina d\'assistència</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">Torna a provar-ho</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">S\'espera un altre dispositiu</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">Toqueu Continua a l’altre dispositiu per iniciar la transferència.</string>
@@ -5133,10 +5263,11 @@
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_old_phone_number">Heu d\'especificar el número de telèfon antic.</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_number_country_code">Heu d\'especificar el codi de país del número nou.</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_phone_number">Heu d\'especificar el número de telèfon nou.</string>
-    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Your new phone number cannot be the same as your old phone number</string>
+    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">El teu nou número de telèfon no pot ser el mateix que el teu número anterior</string>
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">Canvia el número</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">Es verifica %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">Cal CAPTCHA</string>
 
@@ -5512,6 +5643,7 @@
     <string name="ConversationSettingsFragment__permissions">Permisos</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Sol·licituds i invitacions</string>
     <string name="ConversationSettingsFragment__group_link">Enllaç del grup</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Afegeix com a contacte</string>
     <string name="ConversationSettingsFragment__unmute">No la silenciïs</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5625,6 +5757,7 @@
     <string name="ShareInterstitialActivity__share">Comparteix-lo</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">Amunt</string>
     <string name="MultiselectForwardFragment__forward_to">Reenvia a</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5635,6 +5768,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">Els vídeos es retallaran en clips de 30 segons i es pujaran com múltiples Històries.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Els vídeos que pugis a Històries no poden durar més de 30 segons.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">Ara els missatges reenviats s\'envien immediatament.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">Envia %1$d missatge</item>
@@ -5682,6 +5816,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">Foto configurada en alta qualitat</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">Foto configurada en qualitat estàndard</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">Afegir Arxius multimèdia</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">Pinzell i bolígraf</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">Retalla i gira</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">Canviar la qualitat de l\'arxiu</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">Guardar Arxius multimèdia</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">Canvia al teclat d\'emojis</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">Activar visualització única</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">Enviar Arxius multimèdia</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">Finalitzar Afegir missatge</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">%1$d element configurat en alta qualitat</item>
@@ -5726,7 +5878,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">Enllaçar un dispositiu?</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">Sembla que estàs intentant enllaçar un dispositiu Signal. Toca Continuar i torna a escanejar el codi per enllaçar-lo.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">Sembla que estàs intentant enllaçar un dispositiu a Signal. Toca \"Continuar\", selecciona \"Vincular un nou dispositiu\" i torna a escanejar el codi QR.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">Continuar</string>
 
@@ -5821,6 +5973,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/ mes</string>
     <string name="MySupportPreference__renews_s">Renovacions %1$s</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">Es processa la transacció…</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">No s\'ha pogut afegir la insígnia. %1$s</string>
@@ -5832,7 +5985,7 @@
     <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
     <string name="MySupportPreference__learn_more">Més informació</string>
     <!-- Displayed when a subscription refresh is being performed -->
-    <string name="MySupportPreference__checking_subscription">Checking subscription…</string>
+    <string name="MySupportPreference__checking_subscription">Comprovant subscripció…</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Actualitza el Signal</string>
@@ -5931,7 +6084,7 @@
     <string name="DonationsErrors__your_payment_is_still">La teva donació encara s\'està processant. Això pot trigar uns quants minuts segons la teva connexió.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">No s\'ha pogut cancel·lar la subscripció.</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">La cancel·lació de la subscripció requereix una connexió a Internet.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">El teu dispositiu no és compatible amb Google Pay, de manera que no t\'hi pots subscriure per guanyar una insígnia. Pots donar suport al Signal fent una donació al nostre lloc web.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">El teu dispositiu no és compatible amb les donacions dins de l\'app, de manera que no t\'hi pots subscriure per guanyar una insígnia. Pots donar suport a Signal fent una donació al nostre lloc web.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">Error de connexió. Comproveu la connexió i torneu-ho a provar.</string>
     <string name="NetworkFailure__retry">Torneu a provar-ho</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6171,6 +6324,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Notes de la versió del Signal i Notícies</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">Aquest és l\'únic xat oficial de Signal</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">Estigues al dia de les notícies i les notes de versió.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">Aquest és l\'únic xat oficial de Signal</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">Estigues al dia de les notícies i les notes de versió</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Xat oficial i únic de Signal</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">Tota l\'activitat</string>
@@ -6233,7 +6396,7 @@
     <string name="StoriesLandingItem__info">Informació</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">S\'envia…</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">S\'envia %1$d…</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">L\'enviament ha fallat</string>
@@ -7202,6 +7365,8 @@
     <string name="CameraControls_capture_button_accessibility_label">Botó de captura</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">Botó continuar</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">Activar Mode flash</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7547,8 +7712,8 @@
     <string name="BackupAlertBottomSheet__couldnt_complete_backup">No s\'ha pogut completar la còpia de seguretat</string>
     <!-- Sheet body for generic backup error. Placeholder is days since last backup. -->
     <plurals name="BackupAlertBottomSheet__your_device_hasnt">
-        <item quantity="one">Your device hasn\'t completed a backup for %1$d day. Make sure your device is connected to wi-fi and tap \"Back up now.\" </item>
-        <item quantity="other">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
+        <item quantity="one">El teu dispositiu no ha fet una còpia de seguretat des de fa %1$d dia. Assegura\'t que el dispositiu estigui connectat a una xarxa wifi i toca \"Fer una còpia de seguretat ara\". </item>
+        <item quantity="other">El teu dispositiu no ha fet una còpia de seguretat en els últims %1$d dies. Assegura\'t que el dispositiu estigui connectat a una xarxa wifi i toca \"Fer una còpia de seguretat ara\".</item>
     </plurals>
     <!-- Clickable text to learn more about the content of this bottom sheet -->
     <string name="BackupAlertBottomSheet__learn_more">Més informació</string>
@@ -7902,6 +8067,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">Contacta amb el servei d\'assistència</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">S\'ha produït un error de xarxa. Torna-ho a provar més tard.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Fes una còpia de seguretat dels teus missatges i arxius multimèdia utilitzant el servei d\'emmagatzematge xifrat d\'extrem a extrem de Signal. No perdis mai cap missatge quan et canviïs el telèfon o tornis a instal·lar Signal.</string>
@@ -8051,6 +8220,26 @@
     <string name="EnterBackupKey_learn_more">Més informació</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Ometre la restauració</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">Clau de còpia de seguretat incorrecta</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">Assegura\'t de registrar-te amb el mateix número de telèfon i la clau de còpia de seguretat de 64 caràcters que has guardat en activar les còpies de seguretat de Signal. Sense aquesta clau, no es poden recuperar les còpies de seguretat.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">Torna a provar-ho</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">Ajuda amb la clau de còpia de seguretat</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">Clau de còpia de seguretat incorrecta</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">Massa llarg (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">Clau de còpia de seguretat no vàlida</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">No s\'ha trobat la còpia de seguretat</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">La clau de la còpia de seguretat que has introduït és correcta, però no hi ha cap còpia de seguretat associada a ella. Si encara tens el teu telèfon antic, assegura\'t que les còpies de seguretat estan habilitades i que s\'ha completat una còpia de seguretat, i torna-ho a intentar.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">Ometre la restauració</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">Escaneja aquest codi amb el teu mòbil antic</string>

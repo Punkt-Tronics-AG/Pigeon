@@ -828,9 +828,11 @@ class CallTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTabl
     )
 
     if (call != null) {
-      Log.d(TAG, "Updating call database record.")
-      updateGroupCallState(call, peekJoinedUuids)
-      AppDependencies.databaseObserver.notifyCallUpdateObservers()
+      Log.d(TAG, "Updating call database record for call $callId.")
+      if (updateGroupCallState(call, peekJoinedUuids)) {
+        Log.d(TAG, "Change detected for call $callId, notifying update observers.")
+        AppDependencies.databaseObserver.notifyCallUpdateObservers()
+      }
     } else {
       Log.d(TAG, "No call database record to update!")
     }
@@ -1525,7 +1527,7 @@ class CallTable(context: Context, databaseHelper: SignalDatabase) : DatabaseTabl
       @JvmStatic
       fun from(event: CallEvent.Event?): Event? {
         return when (event) {
-          null, CallEvent.Event.UNKNOWN_ACTION, CallEvent.Event.OBSERVED -> null
+          null, CallEvent.Event.UNKNOWN_EVENT, CallEvent.Event.OBSERVED -> null
           CallEvent.Event.ACCEPTED -> ACCEPTED
           CallEvent.Event.NOT_ACCEPTED -> NOT_ACCEPTED
           CallEvent.Event.DELETE -> DELETE

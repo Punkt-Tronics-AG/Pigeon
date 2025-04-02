@@ -59,12 +59,14 @@ class InAppPaymentRedemptionJob private constructor(
 
     fun create(
       inAppPayment: InAppPaymentTable.InAppPayment? = null,
-      makePrimary: Boolean = false
+      makePrimary: Boolean = false,
+      isFromAuthCheck: Boolean = false
     ): Job {
       return create(
         inAppPayment = inAppPayment,
         giftMessageId = null,
-        makePrimary = makePrimary
+        makePrimary = makePrimary,
+        isFromAuthCheck = isFromAuthCheck
       )
     }
 
@@ -82,13 +84,15 @@ class InAppPaymentRedemptionJob private constructor(
     private fun create(
       inAppPayment: InAppPaymentTable.InAppPayment? = null,
       makePrimary: Boolean = false,
+      isFromAuthCheck: Boolean = false,
       giftMessageId: MessageId? = null
     ): Job {
       return InAppPaymentRedemptionJob(
         jobData = InAppPaymentRedemptionJobData(
           inAppPaymentId = inAppPayment?.id?.rowId,
           giftMessageId = giftMessageId?.id,
-          makePrimary = makePrimary
+          makePrimary = makePrimary,
+          isFromAuthCheck = isFromAuthCheck
         ),
         parameters = Parameters.Builder()
           .addConstraint(NetworkConstraint.KEY)
@@ -236,6 +240,7 @@ class InAppPaymentRedemptionJob private constructor(
 
       SignalDatabase.inAppPayments.update(
         inAppPayment = inAppPayment.copy(
+          state = InAppPaymentTable.State.END,
           data = inAppPayment.data.copy(
             error = protoError
           )
@@ -243,9 +248,11 @@ class InAppPaymentRedemptionJob private constructor(
       )
     }
 
-    Log.i(TAG, "InAppPayment with ID $inAppPaymentId was successfully redeemed. Response code: ${serviceResponse.status}")
+    Log.i(TAG, "InAppPayment with ID $inAppPaymentId was successfully redeemed. Response code: ${serviceResponse.status}, Will notify: ${jobData.isFromAuthCheck}")
+
     SignalDatabase.inAppPayments.update(
       inAppPayment = inAppPayment.copy(
+        notified = !jobData.isFromAuthCheck,
         state = InAppPaymentTable.State.END,
         data = inAppPayment.data.copy(
           redemption = inAppPayment.data.redemption.copy(

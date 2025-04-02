@@ -43,6 +43,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @deprecated Use {@link SaveAttachmentUtil} instead.
+ */
+@Deprecated
 public class SaveAttachmentTask extends ProgressDialogAsyncTask<SaveAttachmentTask.Attachment, Void, Pair<Integer, String>> {
   private static final String TAG = Log.tag(SaveAttachmentTask.class);
 
@@ -391,14 +395,16 @@ public class SaveAttachmentTask extends ProgressDialogAsyncTask<SaveAttachmentTa
     switch (result.first()) {
       case FAILURE:
         Toast.makeText(context,
-                       context.getResources().getQuantityText(R.plurals.ConversationFragment_error_while_saving_attachments_to_sd_card, attachmentCount),
+                       context.getResources().getQuantityText(R.plurals.SaveAttachment_error_while_saving_attachments_to_sd_card, attachmentCount),
                        Toast.LENGTH_LONG).show();
         break;
       case SUCCESS:
-        Toast.makeText(context, R.string.SaveAttachmentTask_saved, Toast.LENGTH_LONG).show();
+        Toast.makeText(context,
+                       context.getResources().getQuantityText(R.plurals.SaveAttachment_saved_success, attachmentCount),
+                       Toast.LENGTH_LONG).show();
         break;
       case WRITE_ACCESS_FAILURE:
-        Toast.makeText(context, R.string.ConversationFragment_unable_to_write_to_sd_card_exclamation, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, R.string.SaveAttachment_unable_to_write_to_sd_card_exclamation, Toast.LENGTH_LONG).show();
         break;
     }
   }
@@ -435,7 +441,7 @@ public class SaveAttachmentTask extends ProgressDialogAsyncTask<SaveAttachmentTa
     }
   }
 
-  public static void showWarningDialogIfNecessary(Context context, Runnable onSave) {
+  public static void showWarningDialogIfNecessary(Context context, int count, Runnable onSave) {
     if (SignalStore.uiHints().hasDismissedSaveStorageWarning()) {
       onSave.run();
     } else {
@@ -443,7 +449,7 @@ public class SaveAttachmentTask extends ProgressDialogAsyncTask<SaveAttachmentTa
           .setView(R.layout.dialog_save_attachment)
           .setTitle(R.string.ConversationFragment__save_to_phone)
           .setCancelable(true)
-          .setMessage(R.string.ConversationFragment__this_media_will_be_saved)
+          .setMessage(context.getResources().getQuantityString(R.plurals.ConversationFragment__this_media_will_be_saved, count, count))
           .setPositiveButton(R.string.save, ((dialog, i) -> {
             CheckBox checkbox = ((AlertDialog) dialog).findViewById(R.id.checkbox);
             if (checkbox.isChecked()) {

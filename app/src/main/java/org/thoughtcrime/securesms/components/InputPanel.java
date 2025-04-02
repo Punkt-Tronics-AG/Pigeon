@@ -62,7 +62,6 @@ import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
 import org.thoughtcrime.securesms.database.model.Quote;
 import org.thoughtcrime.securesms.database.model.StickerRecord;
 import org.thoughtcrime.securesms.keyboard.KeyboardPage;
-import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.linkpreview.LinkPreviewRepository;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader;
@@ -635,8 +634,19 @@ public class InputPanel extends ConstraintLayout
     if (listener != null) listener.onRecorderLocked();
   }
 
+  @Override
+  public void onRecordSaved() {
+    Log.d(TAG, "Recording saved");
+    onRecordHideEvent();
+    if (listener != null) listener.onRecorderSaveDraft();
+  }
+
   public void onPause() {
     this.microphoneRecorderView.cancelAction(false);
+  }
+
+  public void onSaveRecordDraft() {
+    this.microphoneRecorderView.saveAction();
   }
 
   public @NonNull Observer<VoiceNotePlaybackState> getPlaybackStateObserver() {
@@ -704,7 +714,7 @@ public class InputPanel extends ConstraintLayout
     return microphoneRecorderView.isRecordingLocked();
   }
 
-  public void releaseRecordingLock() {
+  public void releaseRecordingLockAndSend() {
     microphoneRecorderView.unlockAction();
   }
 
@@ -806,6 +816,7 @@ public class InputPanel extends ConstraintLayout
   public interface Listener extends VoiceNoteDraftView.Listener {
     void onRecorderStarted();
     void onRecorderLocked();
+    void onRecorderSaveDraft();
     void onRecorderFinished();
     void onRecorderCanceled(boolean byUser);
     void onRecorderPermissionRequired();

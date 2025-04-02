@@ -9,10 +9,10 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
+import org.signal.core.util.StringUtil;
 import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.SingleLiveEvent;
-import org.signal.core.util.StringUtil;
 
 public final class EditProfileNameViewModel extends ViewModel {
 

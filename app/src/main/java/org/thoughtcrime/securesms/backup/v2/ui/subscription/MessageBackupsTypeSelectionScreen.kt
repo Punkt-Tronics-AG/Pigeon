@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -69,6 +70,7 @@ import org.signal.core.ui.R as CoreUiR
 @Composable
 fun MessageBackupsTypeSelectionScreen(
   stage: MessageBackupsStage,
+  paymentReadyState: MessageBackupsFlowState.PaymentReadyState,
   currentBackupTier: MessageBackupTier?,
   selectedBackupTier: MessageBackupTier?,
   availableBackupTypes: List<MessageBackupsType>,
@@ -93,6 +95,7 @@ fun MessageBackupsTypeSelectionScreen(
         modifier = Modifier
           .fillMaxWidth()
           .weight(1f)
+          .testTag("message-backups-type-selection-screen-lazy-column")
       ) {
         item {
           Image(
@@ -158,7 +161,7 @@ fun MessageBackupsTypeSelectionScreen(
 
       Buttons.LargePrimary(
         onClick = onNextClicked,
-        enabled = selectedBackupTier != currentBackupTier && selectedBackupTier != null,
+        enabled = selectedBackupTier != currentBackupTier && selectedBackupTier != null && paymentReadyState == MessageBackupsFlowState.PaymentReadyState.READY,
         modifier = Modifier
           .fillMaxWidth()
           .padding(vertical = if (hasCurrentBackupTier) 10.dp else 16.dp)
@@ -198,7 +201,8 @@ private fun MessageBackupsTypeSelectionScreenPreview() {
       onNavigationClick = {},
       onReadMoreClicked = {},
       onNextClicked = {},
-      currentBackupTier = null
+      currentBackupTier = null,
+      paymentReadyState = MessageBackupsFlowState.PaymentReadyState.READY
     )
   }
 }
@@ -217,7 +221,8 @@ private fun MessageBackupsTypeSelectionScreenWithCurrentTierPreview() {
       onNavigationClick = {},
       onReadMoreClicked = {},
       onNextClicked = {},
-      currentBackupTier = MessageBackupTier.PAID
+      currentBackupTier = MessageBackupTier.PAID,
+      paymentReadyState = MessageBackupsFlowState.PaymentReadyState.READY
     )
   }
 }

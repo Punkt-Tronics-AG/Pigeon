@@ -34,7 +34,6 @@ import org.signal.ringrtc.NetworkRoute;
 import org.signal.ringrtc.PeekInfo;
 import org.signal.ringrtc.Remote;
 import org.signal.storageservice.protos.groups.GroupExternalCredential;
-import org.thoughtcrime.securesms.WebRtcCallActivity;
 import org.thoughtcrime.securesms.components.webrtc.v2.CallIntent;
 import org.thoughtcrime.securesms.crypto.SealedSenderAccessUtil;
 import org.thoughtcrime.securesms.database.CallLinkTable;
@@ -54,6 +53,7 @@ import org.thoughtcrime.securesms.jobs.GroupCallUpdateSendJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.messages.GroupSendUtil;
+import org.thoughtcrime.securesms.net.SignalNetwork;
 import org.thoughtcrime.securesms.notifications.v2.ConversationId;
 import org.thoughtcrime.securesms.ratelimit.ProofRequiredExceptionHandler;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -75,6 +75,8 @@ import org.thoughtcrime.securesms.webrtc.CallNotificationBuilder;
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager;
 import org.thoughtcrime.securesms.webrtc.locks.LockManager;
 import org.webrtc.PeerConnection;
+import org.whispersystems.signalservice.api.NetworkResult;
+import org.whispersystems.signalservice.api.NetworkResultUtil;
 import org.whispersystems.signalservice.api.crypto.SealedSenderAccess;
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
 import org.whispersystems.signalservice.api.messages.SendMessageResult;
@@ -538,7 +540,7 @@ public final class SignalCallManager implements CallManager.Observer, GroupCall.
       return false;
     }
 
-    context.startActivity(new Intent(context, WebRtcCallActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    context.startActivity(new Intent(context, CallIntent.getActivityClass()).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     return true;
   }
 
@@ -617,11 +619,9 @@ public final class SignalCallManager implements CallManager.Observer, GroupCall.
         case REMOTE_CONNECTED:
           return p.handleCallConnected(s, remotePeer);
         case REMOTE_AUDIO_ENABLE:
-          // TODO: Implement handling when the remote enables audio.
-          break;
+          return p.handleRemoteAudioEnable(s, true);
         case REMOTE_AUDIO_DISABLE:
-          // TODO: Implement handling when the remote disables audio.
-          break;
+          return p.handleRemoteAudioEnable(s, false);
         case REMOTE_VIDEO_ENABLE:
           return p.handleRemoteVideoEnable(s, true);
         case REMOTE_VIDEO_DISABLE:
@@ -879,9 +879,10 @@ public final class SignalCallManager implements CallManager.Observer, GroupCall.
         headerPairs = Collections.emptyList();
       }
 
-      CallingResponse response = AppDependencies.getSignalServiceMessageSender()
-                                                .makeCallingRequest(requestId, url, httpMethod.name(), headerPairs, body);
+      NetworkResult<CallingResponse> result = SignalNetwork.calling()
+                                                           .makeCallingRequest(requestId, url, httpMethod.name(), headerPairs, body);
 
+      CallingResponse response = ((NetworkResult.Success<CallingResponse>) result).getResult();
       try {
         if (response instanceof CallingResponse.Success) {
           CallingResponse.Success success = (CallingResponse.Success) response;
@@ -1032,7 +1033,7 @@ public final class SignalCallManager implements CallManager.Observer, GroupCall.
   public void retrieveTurnServers(@NonNull RemotePeer remotePeer) {
     networkExecutor.execute(() -> {
       try {
-        List<TurnServerInfo> turnServerInfos = AppDependencies.getSignalServiceAccountManager().getTurnServerInfo();
+        List<TurnServerInfo> turnServerInfos = NetworkResultUtil.toBasicLegacy(SignalNetwork.calling().getTurnServerInfo());
         List<PeerConnection.IceServer> iceServers = mapToIceServers(turnServerInfos);
         process((s, p) -> {
           RemotePeer activePeer = s.getCallInfoState().getActivePeer();

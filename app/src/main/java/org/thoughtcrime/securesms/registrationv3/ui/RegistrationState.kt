@@ -26,6 +26,7 @@ data class RegistrationState(
   val sessionId: String? = null,
   val enteredCode: String = "",
   val phoneNumber: Phonenumber.PhoneNumber? = fetchExistingE164FromValues(),
+  val nationalNumber: String = "",
   val inProgress: Boolean = false,
   val isReRegister: Boolean = false,
   val recoveryPassword: String? = null,
@@ -73,5 +74,23 @@ data class RegistrationState(
         return null
       }
     }
+  }
+
+  fun toNavigationStateOnly(): NavigationState {
+    return NavigationState(challengesRequested, challengesPresented, captchaToken, registrationCheckpoint, canSkipSms)
+  }
+
+  /**
+   * Subset of [RegistrationState] useful for deciding on navigation. Prevents other properties updating from re-triggering
+   * navigation decisions.
+   */
+  data class NavigationState(
+    val challengesRequested: List<Challenge>,
+    val challengesPresented: Set<Challenge>,
+    val captchaToken: String? = null,
+    val registrationCheckpoint: RegistrationCheckpoint,
+    val canSkipSms: Boolean
+  ) {
+    val challengesRemaining: List<Challenge> = challengesRequested.filterNot { it in challengesPresented }
   }
 }

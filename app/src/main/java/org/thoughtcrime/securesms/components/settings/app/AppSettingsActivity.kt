@@ -18,11 +18,11 @@ import org.thoughtcrime.securesms.components.settings.app.subscription.StripeRep
 import org.thoughtcrime.securesms.help.HelpFragment
 import org.thoughtcrime.securesms.keyvalue.SettingsValues
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.service.KeyCachingService
 import org.thoughtcrime.securesms.util.CachedInflater
 import org.thoughtcrime.securesms.util.DynamicTheme
+import org.thoughtcrime.securesms.util.SignalE164Util
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 
 private const val START_LOCATION = "app.settings.start.location"
@@ -72,7 +72,7 @@ class AppSettingsActivity : DSLSettingsActivity(), InAppPaymentComponent {
         StartLocation.CHAT_FOLDERS -> AppSettingsFragmentDirections.actionDirectToChatFoldersFragment()
         StartLocation.CREATE_CHAT_FOLDER -> AppSettingsFragmentDirections.actionDirectToCreateFoldersFragment(
           CreateFoldersFragmentArgs.fromBundle(intent.getBundleExtra(START_ARGUMENTS)!!).folderId,
-          CreateFoldersFragmentArgs.fromBundle(intent.getBundleExtra(START_ARGUMENTS)!!).threadId
+          CreateFoldersFragmentArgs.fromBundle(intent.getBundleExtra(START_ARGUMENTS)!!).threadIds
         )
         StartLocation.BACKUPS_SETTINGS -> AppSettingsFragmentDirections.actionDirectToBackupsSettingsFragment()
       }
@@ -106,7 +106,7 @@ class AppSettingsActivity : DSLSettingsActivity(), InAppPaymentComponent {
       when (intent.getStringExtra(EXTRA_PERFORM_ACTION_ON_CREATE)) {
         ACTION_CHANGE_NUMBER_SUCCESS -> {
           MaterialAlertDialogBuilder(this)
-            .setMessage(getString(R.string.ChangeNumber__your_phone_number_has_changed_to_s, PhoneNumberFormatter.prettyPrint(Recipient.self().requireE164())))
+            .setMessage(getString(R.string.ChangeNumber__your_phone_number_has_changed_to_s, SignalE164Util.prettyPrint(Recipient.self().requireE164())))
             .setPositiveButton(R.string.ChangeNumber__okay, null)
             .show()
         }
@@ -209,8 +209,8 @@ class AppSettingsActivity : DSLSettingsActivity(), InAppPaymentComponent {
     fun chatFolders(context: Context): Intent = getIntentForStartLocation(context, StartLocation.CHAT_FOLDERS)
 
     @JvmStatic
-    fun createChatFolder(context: Context, id: Long = -1, threadId: Long?): Intent {
-      val arguments = CreateFoldersFragmentArgs.Builder(id, threadId ?: -1)
+    fun createChatFolder(context: Context, id: Long = -1, threadIds: LongArray?): Intent {
+      val arguments = CreateFoldersFragmentArgs.Builder(id, threadIds ?: longArrayOf())
         .build()
         .toBundle()
 

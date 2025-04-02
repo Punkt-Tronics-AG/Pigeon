@@ -8,6 +8,7 @@ package org.thoughtcrime.securesms.backup.v2.processor
 import android.content.Context
 import okio.ByteString.Companion.EMPTY
 import okio.ByteString.Companion.toByteString
+import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.backup.v2.ImportState
@@ -67,8 +68,9 @@ object AccountDataArchiveProcessor {
           givenName = selfRecord.signalProfileName.givenName,
           familyName = selfRecord.signalProfileName.familyName,
           avatarUrlPath = selfRecord.signalProfileAvatar ?: "",
+          svrPin = SignalStore.svr.pin ?: "",
           username = selfRecord.username?.takeIf { it.isNotBlank() },
-          usernameLink = if (signalStore.accountValues.usernameLink != null) {
+          usernameLink = if (selfRecord.username.isNotNullOrBlank() && signalStore.accountValues.usernameLink != null) {
             AccountData.UsernameLink(
               entropy = signalStore.accountValues.usernameLink?.entropy?.toByteString() ?: EMPTY,
               serverId = signalStore.accountValues.usernameLink?.serverId?.toByteArray()?.toByteString() ?: EMPTY,
@@ -113,6 +115,9 @@ object AccountDataArchiveProcessor {
     SignalDatabase.recipients.restoreSelfFromBackup(accountData, selfId)
 
     SignalStore.account.setRegistered(true)
+    if (accountData.svrPin.isNotBlank()) {
+      SignalStore.svr.setPin(accountData.svrPin)
+    }
 
     val context = AppDependencies.application
     val settings = accountData.accountSettings

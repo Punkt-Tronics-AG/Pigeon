@@ -148,7 +148,7 @@ public class CreateGroupActivity extends ContactSelectionActivity implements Con
 
     AlertDialog progress = SimpleProgressDialog.show(this);
 
-    SimpleTask.run(getLifecycle(), () -> RecipientRepository.lookupNewE164(this, number), result -> {
+    SimpleTask.run(getLifecycle(), () -> RecipientRepository.lookupNewE164(number), result -> {
       progress.dismiss();
 
       if (result instanceof RecipientRepository.LookupResult.Success) {
@@ -220,7 +220,7 @@ public class CreateGroupActivity extends ContactSelectionActivity implements Con
     SimpleTask.run(getLifecycle(), () -> {
       List<RecipientId> ids = contactsFragment.getSelectedContacts()
                                               .stream()
-                                              .map(selectedContact -> selectedContact.getOrCreateRecipientId(this))
+                                              .map(selectedContact -> selectedContact.getOrCreateRecipientId())
                                               .collect(Collectors.toList());
 
       List<Recipient> resolved = Recipient.resolvedList(ids);

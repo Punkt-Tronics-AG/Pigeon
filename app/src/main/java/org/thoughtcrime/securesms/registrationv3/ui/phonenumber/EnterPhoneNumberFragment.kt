@@ -32,13 +32,13 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.i18n.phonenumbers.AsYouTypeFormatter
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
 import org.signal.core.util.ThreadUtil
+import org.signal.core.util.getParcelableCompat
 import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.LoggingFragment
@@ -46,7 +46,6 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding
 import org.thoughtcrime.securesms.dependencies.AppDependencies
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter
 import org.thoughtcrime.securesms.registration.data.network.Challenge
 import org.thoughtcrime.securesms.registration.data.network.RegisterAccountResult
 import org.thoughtcrime.securesms.registration.data.network.RegistrationResult
@@ -55,6 +54,8 @@ import org.thoughtcrime.securesms.registration.data.network.RegistrationSessionC
 import org.thoughtcrime.securesms.registration.data.network.RegistrationSessionResult
 import org.thoughtcrime.securesms.registration.data.network.VerificationCodeRequestResult
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
+import org.thoughtcrime.securesms.registration.ui.countrycode.Country
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment
 import org.thoughtcrime.securesms.registration.ui.toE164
 import org.thoughtcrime.securesms.registration.util.CountryPrefix
 import org.thoughtcrime.securesms.registrationv3.data.RegistrationRepository
@@ -64,6 +65,7 @@ import org.thoughtcrime.securesms.registrationv3.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.Dialogs
 import org.thoughtcrime.securesms.util.PlayServicesUtil
+import org.thoughtcrime.securesms.util.SignalE164Util
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.ViewUtil
@@ -90,7 +92,8 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
 
   private lateinit var spinnerAdapter: ArrayAdapter<CountryPrefix>
   private lateinit var phoneNumberInputLayout: TextInputEditText
-  private lateinit var spinnerView: MaterialAutoCompleteTextView
+  private lateinit var spinnerView: TextInputEditText
+  private lateinit var countryPickerView: View
 
   private var currentPhoneNumberFormatter: AsYouTypeFormatter? = null
 
@@ -106,7 +109,21 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       }
     )
     phoneNumberInputLayout = binding.number.editText as TextInputEditText
-    spinnerView = binding.countryCode.editText as MaterialAutoCompleteTextView
+    spinnerView = binding.countryCode.editText as TextInputEditText
+    countryPickerView = binding.countryPicker
+
+    countryPickerView.setOnClickListener {
+      moveToCountryPickerScreen()
+    }
+
+    parentFragmentManager.setFragmentResultListener(
+      CountryCodeFragment.REQUEST_KEY_COUNTRY,
+      this
+    ) { _, bundle ->
+      val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
+      fragmentViewModel.setCountry(country.countryCode, country)
+    }
+
     spinnerAdapter = ArrayAdapter<CountryPrefix>(
       requireContext(),
       R.layout.registration_country_code_dropdown_item,
@@ -143,34 +160,45 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
         handleRegistrationErrorResponse(it)
         sharedViewModel.registerAccountErrorShown()
       }
-
-      if (sharedState.challengesRequested.contains(Challenge.CAPTCHA) && sharedState.captchaToken.isNotNullOrBlank()) {
-        sharedViewModel.submitCaptchaToken(requireContext())
-      } else if (sharedState.challengesRemaining.isNotEmpty()) {
-        handleChallenges(sharedState.challengesRemaining)
-      } else if (sharedState.registrationCheckpoint >= RegistrationCheckpoint.PHONE_NUMBER_CONFIRMED && sharedState.canSkipSms) {
-        moveToEnterPinScreen()
-      } else if (sharedState.registrationCheckpoint >= RegistrationCheckpoint.VERIFICATION_CODE_REQUESTED) {
-        moveToVerificationEntryScreen()
-      }
     }
+
+    sharedViewModel
+      .uiState
+      .map { it.toNavigationStateOnly() }
+      .distinctUntilChanged()
+      .observe(viewLifecycleOwner) { sharedState ->
+        if (sharedState.challengesRequested.contains(Challenge.CAPTCHA) && sharedState.captchaToken.isNotNullOrBlank()) {
+          sharedViewModel.submitCaptchaToken(requireContext())
+        } else if (sharedState.challengesRemaining.isNotEmpty()) {
+          handleChallenges(sharedState.challengesRemaining)
+        } else if (sharedState.registrationCheckpoint >= RegistrationCheckpoint.PHONE_NUMBER_CONFIRMED && sharedState.canSkipSms) {
+          moveToEnterPinScreen()
+        } else if (sharedState.registrationCheckpoint >= RegistrationCheckpoint.VERIFICATION_CODE_REQUESTED) {
+          moveToVerificationEntryScreen()
+        }
+      }
 
     fragmentViewModel
       .uiState
       .map { it.phoneNumberRegionCode }
       .distinctUntilChanged()
       .observe(viewLifecycleOwner) { regionCode ->
-        currentPhoneNumberFormatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
-        reformatText(phoneNumberInputLayout.text)
-        phoneNumberInputLayout.requestFocus()
+        if (regionCode.isNotNullOrBlank()) {
+          currentPhoneNumberFormatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
+          reformatText(phoneNumberInputLayout.text)
+          phoneNumberInputLayout.requestFocus()
+        }
       }
 
     fragmentViewModel.uiState.observe(viewLifecycleOwner) { fragmentState ->
       if (fragmentViewModel.isEnteredNumberPossible(fragmentState)) {
         sharedViewModel.setPhoneNumber(fragmentViewModel.parsePhoneNumber(fragmentState))
+        sharedViewModel.nationalNumber = ""
       } else {
         sharedViewModel.setPhoneNumber(null)
       }
+
+      updateCountrySelection(fragmentState.country)
 
       if (fragmentState.error != EnterPhoneNumberState.Error.NONE) {
         presentLocalError(fragmentState)
@@ -180,12 +208,16 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     initializeInputFields()
 
     val existingPhoneNumber = sharedViewModel.phoneNumber
+    val existingNationalNumber = sharedViewModel.nationalNumber
     if (existingPhoneNumber != null) {
       fragmentViewModel.restoreState(existingPhoneNumber)
       spinnerView.setText(existingPhoneNumber.countryCode.toString())
       phoneNumberInputLayout.setText(existingPhoneNumber.nationalNumber.toString())
+    } else if (spinnerView.text?.isEmpty() == true) {
+      spinnerView.setText(fragmentViewModel.getDefaultCountryCode(requireContext()).toString())
+      phoneNumberInputLayout.setText(existingNationalNumber)
     } else {
-      spinnerView.setText(fragmentViewModel.countryPrefix().toString())
+      phoneNumberInputLayout.setText(existingNationalNumber)
     }
 
     if (enterPhoneNumberMode == EnterPhoneNumberMode.RESTART_AFTER_COLLECTION && (savedInstanceState == null && !processedResumeMode)) {
@@ -193,6 +225,20 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       startNormalRegistration()
     } else {
       ViewUtil.focusAndShowKeyboard(phoneNumberInputLayout)
+    }
+  }
+
+  private fun updateCountrySelection(country: Country?) {
+    if (country != null) {
+      binding.countryEmoji.visible = true
+      binding.countryEmoji.text = country.emoji
+      binding.country.text = country.name
+      if (spinnerView.text.toString() != country.countryCode.toString()) {
+        spinnerView.setText(country.countryCode.toString())
+      }
+    } else {
+      binding.countryEmoji.visible = false
+      binding.country.text = getString(R.string.RegistrationActivity_select_a_country)
     }
   }
 
@@ -234,6 +280,9 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       if (sanitized.isNotNullOrBlank()) {
         val countryCode: Int = sanitized.toInt()
         fragmentViewModel.setCountry(countryCode)
+      } else {
+        binding.countryCode.editText?.setHint(R.string.RegistrationActivity_default_country_code)
+        fragmentViewModel.clearCountry()
       }
     }
 
@@ -241,6 +290,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       afterTextChanged = {
         reformatText(it)
         fragmentViewModel.setPhoneNumber(it?.toString())
+        sharedViewModel.nationalNumber = it?.toString() ?: ""
       }
     )
 
@@ -261,26 +311,6 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
         return@setOnEditorActionListener true
       }
       false
-    }
-
-    spinnerView.threshold = 100
-    spinnerView.setAdapter(spinnerAdapter)
-    spinnerView.addTextChangedListener(afterTextChanged = ::onCountryDropDownChanged)
-  }
-
-  private fun onCountryDropDownChanged(s: Editable?) {
-    if (s.isNullOrEmpty()) {
-      return
-    }
-
-    if (s[0] != '+') {
-      s.insert(0, "+")
-    }
-
-    fragmentViewModel.supportedCountryPrefixes.firstOrNull { it.toString() == s.toString() }?.let {
-      fragmentViewModel.setCountry(it.digits)
-      val numberLength: Int = phoneNumberInputLayout.text?.length ?: 0
-      phoneNumberInputLayout.setSelection(numberLength, numberLength)
     }
   }
 
@@ -614,7 +644,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     }
 
     val message: CharSequence = SpannableStringBuilder().apply {
-      append(SpanUtil.bold(PhoneNumberFormatter.prettyPrint(phoneNumber.toE164())))
+      append(SpanUtil.bold(SignalE164Util.prettyPrint(phoneNumber.toE164())))
       if (!canSkipSms) {
         append("\n\n")
         append(getString(R.string.RegistrationActivity_a_verification_code_will_be_sent_to_this_number))
@@ -667,6 +697,10 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     sharedViewModel.setInProgress(false)
   }
 
+  private fun moveToCountryPickerScreen() {
+    findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionCountryPicker(fragmentViewModel.country))
+  }
+
   private fun popBackStack() {
     sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.INITIALIZATION)
     findNavController().popBackStack()
@@ -687,13 +721,11 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       menuInflater.inflate(R.menu.enter_phone_number, menu)
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-      return if (menuItem.itemId == R.id.phone_menu_use_proxy) {
-        NavHostFragment.findNavController(this@EnterPhoneNumberFragment).safeNavigate(EnterPhoneNumberFragmentDirections.actionEditProxy())
-        true
-      } else {
-        false
-      }
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean = if (menuItem.itemId == R.id.phone_menu_use_proxy) {
+      NavHostFragment.findNavController(this@EnterPhoneNumberFragment).safeNavigate(EnterPhoneNumberFragmentDirections.actionEditProxy())
+      true
+    } else {
+      false
     }
   }
 }

@@ -75,6 +75,22 @@ class ScrubberTest(private val input: String, private val expected: String) {
           "Longest number E164:<90596>"
         ),
         arrayOf(
+          "An E164 number KEEP_E164::+15551234567",
+          "An E164 number KEEP_E164::+1********67"
+        ),
+        arrayOf(
+          "A UK number KEEP_E164::+447700900000",
+          "A UK number KEEP_E164::+4*********00"
+        ),
+        arrayOf(
+          "A Japanese number KEEP_E164::08011112222",
+          "A Japanese number KEEP_E164::08*******22"
+        ),
+        arrayOf(
+          "A Japanese number (KEEP_E164::08011112222)",
+          "A Japanese number (KEEP_E164::08*******22)"
+        ),
+        arrayOf(
           "One more than longest number +1234567890123456",
           "One more than longest number E164:<78d5b>6"
         ),
@@ -89,6 +105,10 @@ class ScrubberTest(private val input: String, private val expected: String) {
         arrayOf(
           "A short email a@def.com",
           "A short email a...@..."
+        ),
+        arrayOf(
+          "This is not an email Success(result=org.whispersystems.signalservice.api.archive.ArchiveMediaResponse@1ea5e6)",
+          "This is not an email Success(result=org.whispersystems.signalservice.api.archive.ArchiveMediaResponse@1ea5e6)"
         ),
         arrayOf(
           "A email with multiple parts before the @ d.c+b.a@mulitpart.domain.com and a multipart domain",

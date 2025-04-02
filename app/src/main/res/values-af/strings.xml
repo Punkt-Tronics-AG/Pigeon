@@ -572,11 +572,6 @@
         <item quantity="one">As jy hierdie media op jou toestel stoor, kan enige ander toepassings op jou toestel toegang daartoe verkry.\n\nGaan voort?</item>
         <item quantity="other">As jy al %1$d media stoor, kan enige ander toepassings op jou toestel toegang daartoe verkry.\n\nGaan voort?</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">Fout tydens die stoor van aanhangsel op die toestel!</item>
-        <item quantity="other">Fout tydens die berg van aanhangsels op die toestel!</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">Kan nie na berging skryf nie!</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">Besig om aanhangsel te stoor</item>
         <item quantity="other">Besig om %1$d aanhangsels te stoor</item>
@@ -588,7 +583,10 @@
     <!-- Dialog title asking to save media to your phone\'s storage -->
     <string name="ConversationFragment__save_to_phone">Stoor op foon?</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">Hierdie media sal in jou foon se stoorruimte gestoor word. Ander toepassings kan moontlik toegang daartoe kry, na gelang van jou foon se toestemmings.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">Hierdie medium sal in jou foon se stoorruimte gestoor word. Ander toepassings kan moontlik toegang daartoe kry, na gelang van jou foon se toestemmings.</item>
+        <item quantity="other">Hierdie media sal in jou foon se stoorruimte gestoor word. Ander toepassings kan moontlik toegang daartoe kry, na gelang van jou foon se toestemmings.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
     <string name="ConversationFragment_dont_show_again">Moenie weer wys nie</string>
     <string name="ConversationFragment_pending">Hangend…</string>
@@ -666,6 +664,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">As slenterpos gerapporteer en versper</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Jy het \'n boodskapversoek van %1$s aanvaar. As dit \'n fout was, kan jy \'n aksie hier onder kies.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">Gaan noukeurig na</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">%1$s is nie geverifieer nie</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">%1$s is nie geverifieer nie</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">Profielname</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">Groepname</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">Kon nie foto aflaai nie. Probeer weer.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Veiligheidswenke</string>
@@ -677,6 +687,10 @@
     <string name="SafetyTips_previous_tip">Vorige wenk</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">Volgende wenk</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">Vals name en rekeninge</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Signal sal jou nooit vir jou registrasiekode of PIN kontak nie. Wees versigtig vir rekeninge wat ander naboots. Profielname word deur hul rekeninghouer gekies en word nie geverifieer nie.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">Kripto- of geldslenters</string>
     <!-- Message of tip 1 -->
@@ -693,6 +707,21 @@
     <string name="SafetyTips_tip4_title">Vals besighede en instansies</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">Wees versigtig vir besighede of regeringsinstansies wat jou kontak. Boodskappe waarby die Inkomstediens, koeriers en so meer betrokke is, kan slenterpos wees.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s in Signal word deur hul rekeninghouer gekies.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Profielname is nie geverifieer nie</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Wees versigtig vir rekeninge wat ander naboots</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">Moenie persoonlike inligting deel met mense wat jy nie ken nie</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s word deur lede van die groep gekies.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">Wees versigtig vir groepe wat organisasies en besighede naboots</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">Profielname van lede in groepe word nie geverifieer nie</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Maak filter skoon</string>
@@ -756,8 +785,11 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">Kies \'n vouer</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">By \"%1$s\" bygevoeg</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">Hierdie klets is reeds in die vouer \"%1$s\"</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">Hierdie klets is reeds in \"%1$s\"</item>
+        <item quantity="other">Hierdie kletse is reeds in \"%1$s\"</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">Kennisgewingsprofiel</string>
@@ -926,8 +958,16 @@
     <string name="DateUtils_tomorrow">Môre</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">Vanaand</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s om %2$s</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">op %1$s om %2$s</item>
+        <item quantity="other">op %1$s om %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">om %1$s</item>
+        <item quantity="other">om %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -974,7 +1014,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Gebruik Signal op rekenaar of iPad. Jou boodskappe sal met jou gekoppelde toestelle gesinchroniseer word.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Gebruik hierdie Signal-rekening op \'n rekenaar of iPad.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">Koppel \'n nuwe toestel</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1014,6 +1054,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">Tik op \"gaan voort\" en ontsluit jou foon om te bevestig. Moenie jou Signal-PIN invoer nie.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">Gaan voort</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">Kontak Steundiens</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">Dien ontfout-log in?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">Jou ontfout-logs sal ons help om jou probleem vinniger op te los. Die indiening van jou logs is opsioneel.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">Dien met ontfout-log in</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">Dien sonder ontfout-log in</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">Kanselleer</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Android-uitvoer (Link&amp;Sync) het misluk</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">Boodskapsinchronisering het misluk</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1036,7 +1091,7 @@
     <!-- Dialog title shown when a device is unlinked -->
     <string name="LinkDeviceFragment__device_unlinked">Toestel ontkoppel</string>
     <!-- Dialog body shown when a device is unlinked where %1$s is the date and time the device was originally linked (eg Jan 15 at 9:00pm) -->
-    <string name="LinkDeviceFragment__the_device_that_was">Die toestel wat op %1$s gekoppel is, is nie meer gekoppel nie.</string>
+    <string name="LinkDeviceFragment__the_device_that_was">Die toestel wat %1$s gekoppel is, is nie meer gekoppel nie.</string>
     <!-- Button to dismiss dialog -->
     <string name="LinkDeviceFragment__ok">Goed</string>
 
@@ -1087,7 +1142,7 @@
     <!-- Title of notification telling users that a device was linked to their account -->
     <string name="NewLinkedDeviceNotification__you_linked_new_device">Jy het \'n nuwe toestel gekoppel</string>
     <!-- Message body of notification telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">\'n Nuwe toestel is om %1$s aan jou rekening gekoppel. Tik om te bekyk.</string>
+    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">\'n Nuwe toestel is %1$s aan jou rekening gekoppel. Tik om te bekyk.</string>
 
     <!-- DeviceListActivity -->
     <string name="DeviceListActivity_unlink_s">Ontkoppel \"%1$s\"?</string>
@@ -1683,7 +1738,7 @@
     <string name="Megaphones_add_a_profile_photo">Profielfoto</string>
 
     <!-- Message body of megaphone telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">\'n Nuwe toestel is om %1$s aan jou rekening gekoppel.</string>
+    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">\'n Nuwe toestel is %1$s aan jou rekening gekoppel.</string>
     <!-- Button shown on megaphone that will redirect to the linked devices screen -->
     <string name="NewLinkedDeviceMegaphone__view_device">Bekyk toestel</string>
     <!-- Button shown on megaphone to acknowledge and dismiss the megaphone -->
@@ -1918,6 +1973,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">Jou versoek om by die groep aan te sluit is deur ’n admin geweier.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">Jy het ’n versoek van %1$s om by die groep aan te sluit, geweier.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">%1$s het ’n versoek van %2$s om by die groep aan te sluit geweier.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">’n Versoek van %1$s om by die groep aan te sluit is geweier.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">Jy het jou versoek om by die groep aan te sluit, gekanselleer.</string>
@@ -1962,12 +2018,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">%1$s is in die oproep · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">Jy is in die oproep · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">%1$s en jy is in die oproep · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s en %2$s is in die oproep · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">%1$s is in die oproep</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">Jy is in die oproep</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">%1$s en jy is in die oproep</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">%1$s en %2$s is in die oproep</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2021,6 +2081,14 @@
     <string name="MessageRecord_reported_as_spam">As slenterpos gerapporteer</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">Jy het die boodskapversoek aanvaar</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">Jy het hierdie persoon geblokkeer</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">Jy het hierdie persoon ontsper</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">Jy het hierdie groep versper</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">Jy het hierdie groep ontsper</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">Aanvaar</string>
@@ -2072,6 +2140,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Rapporteer…</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">Aanvaar versoek?</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">Gaan versoeke noukeurig na. Profielname word deur hul rekeningeienaar gekies en word nie geverifieer nie.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">Sluit aan by groep?</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">Gaan versoeke noukeurig na. Groepname word deur lede van die groep gekies en word nie geverifieer nie.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">Sluit aan</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Wagwoorde stem nie ooreen nie!</string>
@@ -2096,7 +2174,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Jammer, jy het te veel toestelle reeds gekoppel. Probeer om sommige van die toestelle te verwyder</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Jammer, dit is nie \'n geldige QR-kode vir toestelkoppeling nie.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">Koppel \'n Signal-toestel?</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Dit lyk of jy \'n Signal-toestel probeer koppel met gebruik van \'n 3e-party-skandeerder. Vir jou beskerming, skandeer asseblief weer die kode van binne Signal.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">Om \'n rekenaar of iPad aan hierdie Signal-rekening te koppel, gaan na Gekoppelde toestelle, tik op \"Koppel \'n nuwe toestel\" en skandeer die QR-kode weer. Maak seker jy skandeer slegs QR-kodes wat direk van Signal af kom.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">Signal het die Kamera-toestemming nodig om \'n QR-kode te skandeer, maar dit is permanent geweier. Gaan asseblief na die toepassinginstellings, kies \"Toestemmings\" en aktiveer \"Kamera\".</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">Kan nie \'n QR-kode sonder die Kameratoestemming skandeer nie</string>
@@ -2442,17 +2520,28 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">Meer inligting oor opgesteekte hand</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">Jou land</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">Soek volgens landnaam of -kode</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">Onbekende land</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Signal-kontak</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">Geverifieer</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">Profielname is nie geverifieer nie</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">Hangende boodskapversoek</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">Geen direkte boodskappe nie met %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
     <string name="AboutSheet__s_is_in_your_system_contacts">%1$s is in jou telefoonkontakte</string>
     <!-- Notice in a row when user has no groups in common -->
-    <string name="AboutSheet__you_have_no_groups_in_common">Julle het geen groepe gemeen nie</string>
+    <string name="AboutSheet__you_have_no_groups_in_common">Geen groepe gemeen nie</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
     <string name="AboutSheet__review_requests_carefully">Gaan versoeke noukeurig na</string>
     <!-- Text used when user has groups in common. Placeholder is the count -->
@@ -2524,6 +2613,12 @@
     <string name="RegistrationActivity_additional_verification_required">Bykomende verifiëring word vereis</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">\'n Verifiëringskode sal na hierdie nommer gestuur word. Draer-/diensverskafferstariewe kan van toepassing wees.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Jy sal ’n verifikasiekode ontvang. Jy sal dalk draer-/diensverskafferfooie moet betaal.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Kies \'n land</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Jy sal ’n oproep kry om hierdie nommer te verifieer.</string>
     <string name="RegistrationActivity_edit_number">Wysig nommer</string>
     <string name="RegistrationActivity_missing_google_play_services">Geen Google Play Services nie</string>
@@ -2758,6 +2853,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">Jou boodskapgeskiedenis is saamgevoeg</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s behoort aan %2$s</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">Versper</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Signal-bywerking</string>
@@ -2987,8 +3084,27 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Snelrespons nie beskikbaar as Signal gesluit is nie!</string>
     <string name="QuickResponseService_problem_sending_message">Probleem met versending van boodskap!</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">Media gestoor</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">Kan nie na berging skryf nie!</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">Medium gestoor</item>
+        <item quantity="other">Media gestoor</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">Medium gestoor (%1$s van %2$s het misluk)</item>
+        <item quantity="other">Media gestoor (%1$s van %2$s het misluk)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">Fout tydens die stoor van aanhangsel op die toestel!</item>
+        <item quantity="other">Fout tydens die berg van aanhangsels op die toestel!</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Soek</string>
@@ -3225,7 +3341,8 @@
     <string name="ConversationUpdateItem_update_contact">Werk kontak by</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">Versper versoek</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Geen groepe in gemeen nie. Gaan versoeke noukeuring na.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Geen groepe gemeen nie</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">Geen kontakte in hierdie groep nie. Gaan versoeke noukeurig na.</string>
     <string name="ConversationUpdateItem_view">Bekyk</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">Die verdwynboodskaptyd sal op %1$s gestel word wanneer jy ’n boodskap aan hulle stuur.</string>
@@ -3717,6 +3834,8 @@
     <string name="preferences__language">Taal</string>
     <string name="preferences__signal_messages_and_calls">Signal-boodskappe en -oproepe</string>
     <string name="preferences__advanced_pin_settings">Gevorderde PIN-instellings</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">Gevorderde PIN-instellings</string>
     <string name="preferences__free_private_messages_and_calls">Gratis privaat-boodskappe en -oproepe na Signal gebruikers</string>
     <string name="preferences__submit_debug_log">Dien ontfout-log in</string>
     <string name="preferences__delete_account">Skrap rekening</string>
@@ -3821,6 +3940,7 @@
     <string name="preferences_connection_failed">Verbinding het misluk</string>
     <string name="preferences_couldnt_connect_to_the_proxy">Kon nie aan die tussenganger verbind nie. Gaan die tussengangeradres na en probeer weer.</string>
     <string name="preferences_you_are_connected_to_the_proxy">Jy is aan die tussenganger verbind. Jy kan die tussenganger op enige tydstip in Instellings afskakel.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">Sukses</string>
     <string name="preferences_failed_to_connect">Kon nie verbind nie</string>
     <string name="preferences_enter_proxy_address">Sleutel tussengangeradres in</string>
@@ -4362,6 +4482,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">PIN\'s hou inligting wat met Signal gestoor is, geënkripteer.</string>
     <string name="KbsMegaphone__create_pin">Skep PIN</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Doen opdatering van Signal-PIN</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">Doen opdatering van jou Signal-PIN om rekeningregistrasie te voltooi.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">Werk PIN by</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Inkomende Signal-stemoproep</string>
@@ -4424,6 +4551,7 @@
     <string name="BackupDialog_copied_to_clipboard">Na knipbord gekopieer</string>
     <string name="BackupDialog_no_file_picker_available">Geen lêerkieser beskikbaar nie.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">Voer jou rugsteun-wagwoordfrase in om te verifieer</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">Verifieer</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Jy het jou wagwoordfrase suksesvol ingevoer</string>
     <string name="BackupDialog_passphrase_was_not_correct">Wagwoordfrase verkeerd</string>
@@ -4448,6 +4576,7 @@
     <string name="RegistrationActivity_code_support_subject">Signal-registrasie - verifikasiekode vir Android</string>
     <string name="RegistrationActivity_incorrect_code">Verkeerde kode</string>
     <string name="BackupUtil_never">Nooit</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">Onbekend</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">Telefoonnommer</string>
@@ -4632,6 +4761,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">Probeer om Wi-Fi af en aan te skakel, op beide toestelle.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">Maak seker beide toestelle is in oordragmodus.</string>
     <string name="DeviceTransferSetup__go_to_support_page">Gaan na ondersteuningsbladsy</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">Probeer weer</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">Wag vir ander toestel</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">Tik Gaan voort op jou ander toestel om die oordrag te begin.</string>
@@ -5137,6 +5267,7 @@
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">Verander nommer</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">Bevestig tans %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">Captcha word vereis</string>
 
@@ -5512,6 +5643,7 @@
     <string name="ConversationSettingsFragment__permissions">Toestemmings</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Versoeke &amp; uitnodigings</string>
     <string name="ConversationSettingsFragment__group_link">Groepskakel</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Voeg by as ’n kontak</string>
     <string name="ConversationSettingsFragment__unmute">Ontdemp</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5625,6 +5757,7 @@
     <string name="ShareInterstitialActivity__share">Deel</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">Navigeer op</string>
     <string name="MultiselectForwardFragment__forward_to">Stuur aan na</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5635,6 +5768,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">Video\'s sal tot 30s-grepe verkort en as veelvuldige Stories gestuur word.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Video\'s wat na Stories gestuur word, kan nie langer as 30s wees nie.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">Aangestuurde boodskappe word nou onmiddellik gestuur.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">Stuur %1$d boodskap</item>
@@ -5682,6 +5816,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">Foto op hoë kwaliteit gestel</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">Foto op standaardkwaliteit gestel</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">Voeg \'n medium by</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">Kwas en pen</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">Snoei en roteer</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">Verander mediakwaliteit</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">Stoor media</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">Skakel emoji-toetsbord aan of af</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">Verwissel skermbeeld eenmaal</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">Stuur media</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">Voltooi byvoeging van \'n boodskap</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">%1$d item op hoë kwaliteit gestel</item>
@@ -5726,7 +5878,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">Koppel toestel?</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">Dit lyk of jy \'n Signal-toestel probeer koppel. Tik op gaan voort en skandeer die kode weer om dit te koppel.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">Dit lyk of jy \'n Signal-toestel probeer koppel. Tik op Gaan voort en tik dan op \"Koppel \'n nuwe toestel\" en skandeer die QR-kode weer.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">Gaan voort</string>
 
@@ -5821,6 +5973,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/maand</string>
     <string name="MySupportPreference__renews_s">Hernu %1$s</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">Transaksie word verwerk…</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">Kon nie wapen byvoeg nie. %1$s</string>
@@ -5931,7 +6084,7 @@
     <string name="DonationsErrors__your_payment_is_still">Jou skenking word nog verwerk. Dit kan \'n paar minute neem, afhangende van jou verbinding.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">Kon nie intekening kanselleer nie</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">Intekeningkansellasie vereis ’n internetverbinding.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">Jou toestel ondersteun nie Google Pay nie. Jy kan dus nie inteken om ’n wapen te verdien nie. Jy kan Signal steeds ondersteun deur ’n skenking op ons webwerf te maak.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">Jou toestel ondersteun nie skenkings binne die toepassing nie. Jy kan dus nie inteken om ’n wapen te verdien nie. Jy kan Signal steeds ondersteun deur ’n skenking op ons webwerf te maak.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">Netwerkfout. Gaan jou verbinding na en probeer weer.</string>
     <string name="NetworkFailure__retry">Probeer weer</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6171,6 +6324,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Signal Vrystellingsnotas &amp; Nuus</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">Hierdie is die amptelike en enigste klets van Signal.</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">Bly op datum met nuus en vrystellingnotas.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">Hierdie is die amptelike en enigste klets van Signal</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">Bly op datum met nuus en vrystellingnotas</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Amptelike en enigste Signal-klets</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">Alle aktiwiteit</string>
@@ -6233,7 +6396,7 @@
     <string name="StoriesLandingItem__info">Inligting</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">Stuur tans…</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">Besig om %1$d… te stuur</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">Kon nie stuur nie</string>
@@ -7202,6 +7365,8 @@
     <string name="CameraControls_capture_button_accessibility_label">Afneemknoppie</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">Gaan Voort-knoppie</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">Skakel flitsmodus aan of af</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7902,6 +8067,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">Kontak Steundiens</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">\'n Netwerkfout het voorgekom. Probeer asseblief later weer.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Rugsteun jou boodskappe en media met gebruik van Signal se veilige, end-tot-end-geënkripteerde stoorruimtediens. Moet nooit \'n boodskap verloor wanneer jy \'n nuwe foon kry of Signal herinstalleer nie.</string>
@@ -8051,6 +8220,26 @@
     <string name="EnterBackupKey_learn_more">Vind meer uit</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Slaan oor en moenie herwin nie</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">Verkeerde rugsteunsleutel</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">Maak seker jy registreer met dieselfde telefoonnommer en 64-karakter-rugsteunsleutel wat jy gestoor het toe jy Signal-rugsteun geaktiveer het. Rugsteun kan nie sonder hierdie sleutel herwin word nie.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">Probeer weer</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">Hulp met rugsteunsleutel</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">Verkeerde rugsteunsleutel</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">Te lank (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">Ongeldige rugsteunsleutel</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">Rugsteun nie gevind nie</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Die rugsteunsleutel wat jy ingevoer het is korrek, maar daar is geen rugsteun daarmee geassosieer nie. As jy nog jou ou foon het, maak seker dat rugsteune geaktiveer is, dat \'n rugsteun voltooi is en probeer weer.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">Slaan herstel oor</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">Skandeer hierdie kode met jou ou foon</string>

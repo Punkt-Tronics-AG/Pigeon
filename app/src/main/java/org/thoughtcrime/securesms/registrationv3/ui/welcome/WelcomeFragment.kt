@@ -27,6 +27,7 @@ import org.thoughtcrime.securesms.registrationv3.ui.phonenumber.EnterPhoneNumber
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import org.thoughtcrime.securesms.util.visible
 
 /**
  * First screen that is displayed on the very first app launch.
@@ -49,6 +50,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     binding.welcomeContinueButton.setOnClickListener { onContinueClicked() }
     binding.welcomeTermsButton.setOnClickListener { onTermsClicked() }
     binding.welcomeTransferOrRestore.setOnClickListener { onRestoreOrTransferClicked() }
+    binding.welcomeTransferOrRestore.visible = !sharedViewModel.isReregister
 
     childFragmentManager.setFragmentResultListener(RestoreWelcomeBottomSheet.REQUEST_KEY, viewLifecycleOwner) { requestKey, bundle ->
       if (requestKey == RestoreWelcomeBottomSheet.REQUEST_KEY) {
@@ -72,6 +74,11 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
         }
       }
     }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    sharedViewModel.resetRestoreDecision()
   }
 
   private fun onContinueClicked() {
@@ -104,12 +111,19 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
   }
 
   private fun navigateToNextScreenViaRestore(userSelection: WelcomeUserSelection) {
+    sharedViewModel.maybePrefillE164(requireContext())
     sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
 
     when (userSelection) {
       WelcomeUserSelection.CONTINUE -> throw IllegalArgumentException()
-      WelcomeUserSelection.RESTORE_WITH_OLD_PHONE -> findNavController().safeNavigate(WelcomeFragmentDirections.goToRestoreViaQr())
-      WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> findNavController().safeNavigate(WelcomeFragmentDirections.goToSelectRestoreMethod(userSelection))
+      WelcomeUserSelection.RESTORE_WITH_OLD_PHONE -> {
+        sharedViewModel.intendToRestore(hasOldDevice = true, fromRemote = true)
+        findNavController().safeNavigate(WelcomeFragmentDirections.goToRestoreViaQr())
+      }
+      WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> {
+        sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
+        findNavController().safeNavigate(WelcomeFragmentDirections.goToSelectRestoreMethod(userSelection))
+      }
     }
   }
 

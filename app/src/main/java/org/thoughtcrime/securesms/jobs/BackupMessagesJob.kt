@@ -93,6 +93,7 @@ class BackupMessagesJob private constructor(
     if (!isCanceled) {
       Log.w(TAG, "Failed to backup user messages. Marking failure state.")
       SignalStore.backup.markMessageBackupFailure()
+      ArchiveUploadProgress.onMainBackupFileUploadFailure()
     }
   }
 
@@ -215,7 +216,7 @@ class BackupMessagesJob private constructor(
 
     stopwatch.split("export")
 
-    when (val result = ArchiveValidator.validate(tempBackupFile, backupKey)) {
+    when (val result = ArchiveValidator.validate(tempBackupFile, backupKey, forTransfer = false)) {
       ArchiveValidator.ValidationResult.Success -> {
         Log.d(TAG, "Successfully passed validation.")
       }
@@ -225,8 +226,14 @@ class BackupMessagesJob private constructor(
         return BackupFileResult.Retry
       }
 
-      is ArchiveValidator.ValidationResult.ValidationError -> {
+      is ArchiveValidator.ValidationResult.MessageValidationError -> {
         Log.w(TAG, "The backup file fails validation! Message: ${result.exception.message}, Details: ${result.messageDetails}")
+        ArchiveUploadProgress.onValidationFailure()
+        return BackupFileResult.Failure
+      }
+
+      is ArchiveValidator.ValidationResult.RecipientDuplicateE164Error -> {
+        Log.w(TAG, "The backup file fails validation with a duplicate recipient! Message: ${result.exception.message}, Details: ${result.details}")
         ArchiveUploadProgress.onValidationFailure()
         return BackupFileResult.Failure
       }

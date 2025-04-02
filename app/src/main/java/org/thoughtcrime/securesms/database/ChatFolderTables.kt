@@ -33,7 +33,7 @@ class ChatFolderTables(context: Context?, databaseHelper: SignalDatabase?) : Dat
     @JvmField
     val CREATE_INDEXES: Array<String> = ChatFolderTable.CREATE_INDEX + ChatFolderMembershipTable.CREATE_INDEXES
 
-    fun insertInitialChatFoldersAtCreationTime(db: net.zetetic.database.sqlcipher.SQLiteDatabase) {
+    fun insertInitialChatFoldersAtCreationTime(db: SQLiteDatabase) {
       db.insert(ChatFolderTable.TABLE_NAME, null, getAllChatsFolderContentValues())
     }
 
@@ -380,15 +380,17 @@ class ChatFolderTables(context: Context?, databaseHelper: SignalDatabase?) : Dat
   /**
    * Adds a thread to a chat folder
    */
-  fun addToFolder(folderId: Long, threadId: Long) {
+  fun addToFolder(folderId: Long, threadIds: List<Long>) {
     writableDatabase.withinTransaction { db ->
-      db.insertInto(ChatFolderMembershipTable.TABLE_NAME)
-        .values(
-          ChatFolderMembershipTable.CHAT_FOLDER_ID to folderId,
-          ChatFolderMembershipTable.THREAD_ID to threadId,
-          ChatFolderMembershipTable.MEMBERSHIP_TYPE to MembershipType.INCLUDED.value
-        )
-        .run(SQLiteDatabase.CONFLICT_REPLACE)
+      threadIds.forEach { threadId ->
+        db.insertInto(ChatFolderMembershipTable.TABLE_NAME)
+          .values(
+            ChatFolderMembershipTable.CHAT_FOLDER_ID to folderId,
+            ChatFolderMembershipTable.THREAD_ID to threadId,
+            ChatFolderMembershipTable.MEMBERSHIP_TYPE to MembershipType.INCLUDED.value
+          )
+          .run(SQLiteDatabase.CONFLICT_REPLACE)
+      }
 
       AppDependencies.databaseObserver.notifyChatFolderObservers()
     }

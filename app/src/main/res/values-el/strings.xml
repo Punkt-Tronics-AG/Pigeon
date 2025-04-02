@@ -572,11 +572,6 @@
         <item quantity="one">Αν αποθηκεύσεις αυτό το πολυμέσο στη μνήμη, επιτρέπεις σε άλλες εφαρμογές της συσκευής σου να έχουν πρόσβαση σε αυτό.\n\nΣυνέχεια;</item>
         <item quantity="other">Αν αποθηκεύσεις και τα %1$d πολυμέσα στη μνήμη, επιτρέπεις σε άλλες εφαρμογές της συσκευής σου να έχουν πρόσβαση σε αυτά.\n\nΣυνέχεια;</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">Σφάλμα με την αποθήκευση του συνημμένου στην μνήμη!</item>
-        <item quantity="other">Σφάλμα κατά την αποθήκευση των συνημμένων στον αποθηκευτικό χώρο!</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">Αδύνατη η εγγραφή στον αποθηκευτικό χώρο!</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">Το συνημμένο αποθηκεύεται</item>
         <item quantity="other">%1$d συνημμένα αποθηκεύονται</item>
@@ -586,11 +581,14 @@
         <item quantity="other">%1$d συνημμένα αποθηκεύονται στη μνήνη…</item>
     </plurals>
     <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Save to phone?</string>
+    <string name="ConversationFragment__save_to_phone">Αποθήκευση στο τηλέφωνο;</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">This media will be saved to your phone\'s storage. Other apps may be able to access it depending on your phone\'s permissions.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">Το πολυμέσο θα αποθηκευτεί στον αποθηκευτικό χώρο του τηλεφώνου σου. Άλλες εφαρμογές μπορεί να έχουν πρόσβαση σε αυτό, ανάλογα με τις άδειες του τηλεφώνου σου.</item>
+        <item quantity="other">Τα πολυμέσα θα αποθηκευτούν στον αποθηκευτικό χώρο του τηλεφώνου σου. Άλλες εφαρμογές μπορεί να έχουν πρόσβαση σε αυτά, ανάλογα με τις άδειες του τηλεφώνου σου.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
-    <string name="ConversationFragment_dont_show_again">Don\'t show again</string>
+    <string name="ConversationFragment_dont_show_again">Να μην εμφανιστεί ξανά</string>
     <string name="ConversationFragment_pending">Σε εκκρεμότητα…</string>
     <!-- Describes how the message was sent when looking at a message detail. Previously, messages could be through other means like SMS -->
     <string name="ConversationFragment_push">Δεδομένα (Signal)</string>
@@ -666,6 +664,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">Έγινε αναφορά ως ανεπιθύμητο και αποκλείστηκε</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Αποδέχτηκες ένα αίτημα μηνύματος από τον χρήστη %1$s. Αν ήταν λάθος, μπορείς να επιλέξεις μια ενέργεια παρακάτω.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">Προσεκτικός έλεγχος</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">Τα %1$s δεν είναι επαληθευμένα</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">Τα %1$s δεν είναι επαληθευμένα</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">Ονόματα προφίλ</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">Ονόματα ομάδας</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">Η λήψη της φωτογραφίας απέτυχε. Ξαναπροσπάθησε.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Συμβουλές ασφαλείας</string>
@@ -677,6 +687,10 @@
     <string name="SafetyTips_previous_tip">Προηγούμενη συμβουλή</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">Επόμενη συμβουλή</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">Ψεύτικα ονόματα και λογαριασμοί</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Η Signal δεν θα επικοινωνήσει ποτέ μαζί σου για τον κωδικό εγγραφής ή το PIN σου. Να προσέχεις για αιτήματα που υποδύονται άλλους. Τα ονόματα προφίλ επιλέγονται από τον κάτοχο του λογαριασμού και δεν είναι επαληθευμένα.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">Απάτες κρυπτονομισμάτων ή χρημάτων</string>
     <!-- Message of tip 1 -->
@@ -693,6 +707,21 @@
     <string name="SafetyTips_tip4_title">Ψεύτικες επιχειρήσεις και ιδρύματα</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">Να προσέχεις με τις επιχειρήσεις ή τις κυβερνητικές υπηρεσίες που επικοινωνούν μαζί σου. Τα μηνύματα που αφορούν φορολογικές υπηρεσίες, ταχυμεταφορείς και πολλά άλλα μπορεί να είναι spam.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">Τα %1$s στο Signal επιλέγονται από τον κάτοχο του λογαριασμού.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Τα ονόματα προφίλ δεν είναι επαληθευμένα</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Να προσέχεις για λογαριασμούς που υποδύνται άλλους</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">Μην μοιράζεσαι προσωπικές πληροφορίες με άτομα που δεν γνωρίζεις</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">Τα %1$s επιλέγονται από μέλη αυτής της ομάδας.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">Να προσέχεις για ομάδες που υποδύονται οργανισμούς και επιχειρήσεις</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">Τα ονόματα προφίλ των μελών σε ομάδες δεν είναι επαληθευμένα</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Διαγραφή φίλτρου</string>
@@ -756,8 +785,11 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">Επιλογή φακέλου</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">Προστέθηκε στον \"%1$s\"</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">Αυτή η συνομιλία βρίσκεται ήδη στον φάκελο \"%1$s\"</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">Αυτή η συνομιλία είναι ήδη στο \"%1$s\"</item>
+        <item quantity="other">Αυτές οι συνομιλίες είναι ήδη στο \"%1$s\"</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">Προφίλ ειδοποιήσεων</string>
@@ -926,8 +958,16 @@
     <string name="DateUtils_tomorrow">Αύριο</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">Απόψε</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s στις %2$s</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">στις %1$s στη %2$s</item>
+        <item quantity="other">στις %1$s στις %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">στη %1$s</item>
+        <item quantity="other">στις %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -974,7 +1014,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Χρησιμοποίησε το Signal σε υπολογιστή ή iPad. Τα μηνύματά σου θα συγχρονιστούν στις συνδεδεμένες συσκευές σου.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Χρησιμοποίησε αυτόν τον λογαριασμό Signal σε υπολογιστή ή iPad.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">Σύνδεση νέας συσκευής</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1014,6 +1054,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">Πάτα «συνέχεια» και γράψε τον κωδικό του κινητού σου για επιβεβαίωση. Μην γράψεις το PIN του Signal σου.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">Συνέχεια</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">Επικοινωνία με την υποστήριξη</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">Αποστολή αρχείου καταγραφής αποσφαλμάτωσης;</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">Τα αρχεία καταγραφής θα μας βοηθήσουν στην γρηγορότερη επίλυση του προβλήματος. Η υποβολή των αρχείων είναι προαιρετική.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">Υποβολή με αρχείο καταγραφής</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">Υποβολή χωρίς αρχείο καταγραφής</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">Ακύρωση</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Αποτυχία εξαγωγής (Link&amp;Sync) Android</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">Ο συγχρονισμός μηνυμάτων απέτυχε</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1036,7 +1091,7 @@
     <!-- Dialog title shown when a device is unlinked -->
     <string name="LinkDeviceFragment__device_unlinked">Η συσκευή αποσυνδέθηκε</string>
     <!-- Dialog body shown when a device is unlinked where %1$s is the date and time the device was originally linked (eg Jan 15 at 9:00pm) -->
-    <string name="LinkDeviceFragment__the_device_that_was">Η συσκευή που ήταν συνδεδεμένη στο %1$s δεν είναι πλέον συνδεδεμένη.</string>
+    <string name="LinkDeviceFragment__the_device_that_was">Η συσκευή που συνδέθηκε %1$s δεν είναι πλέον συνδεδεμένη.</string>
     <!-- Button to dismiss dialog -->
     <string name="LinkDeviceFragment__ok">OK</string>
 
@@ -1078,7 +1133,7 @@
     <!-- Option in bottom sheet to transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_transfer">Μεταφορά ιστορικού μηνυμάτων</string>
     <!-- Description in bottom sheet of what transferring message history will do -->
-    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfer your text messages and your last 45 days of media</string>
+    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Μετάφερε τα μηνύματα κειμένου σου και τα πολυμέσα των τελευταίων 45 ημερών</string>
     <!-- Option in bottom sheet to not transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_dont_transfer">Να μη γίνει μεταφορά</string>
     <!-- Description in bottom sheet of what not transferring history will do -->
@@ -1087,7 +1142,7 @@
     <!-- Title of notification telling users that a device was linked to their account -->
     <string name="NewLinkedDeviceNotification__you_linked_new_device">Έχεις συνδέσει μια νέα συσκευή</string>
     <!-- Message body of notification telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Μια νέα συσκευή συνδέθηκε με τον λογαριασμό σου στις %1$s. Πάτα για να τη δεις.</string>
+    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Μια νέα συσκευή συνδέθηκε με τον λογαριασμό σου %1$s. Πάτα για να τη δεις.</string>
 
     <!-- DeviceListActivity -->
     <string name="DeviceListActivity_unlink_s">Αποσύνδεση της \"%1$s\";</string>
@@ -1418,9 +1473,9 @@
     <!-- Dialog message displayed when remote restore failed -->
     <string name="RemoteRestoreActivity__error_occurred">Παρουσιάστηκε σφάλμα και δεν ήταν δυνατή η μεταφορά του λογαριασμού σου. Δοκίμασε ξανά επιλέγοντας τη μέθοδο μεταφοράς.</string>
     <!-- Dialog title displayed when remote restore failed because of an outdated backup version. -->
-    <string name="RemoteRestoreActivity__couldnt_restore">Couldn\'t restore this backup</string>
+    <string name="RemoteRestoreActivity__couldnt_restore">Δεν ήταν δυνατή η επαναφορά αυτού του αντιγράφου ασφαλείας</string>
     <!-- Dialog message explaining that an update to Signal is required to restore the backup. -->
-    <string name="RemoteRestoreActivity__update_latest">This version of Signal can\'t restore your backup. Update to the latest version and try again.</string>
+    <string name="RemoteRestoreActivity__update_latest">Αυτή η έκδοση του Signal δεν μπορεί να επαναφέρει το αντίγραφο ασφαλείας σου. Ενημέρωσε το Signal στην τελευταία έκδοση και δοκίμασε ξανά.</string>
     <!-- Text on button that when pressed will redirect them to update Signal -->
     <string name="RemoteRestoreActivity__update_signal">Αναβάθμιση του Signal</string>
     <!-- Text label button to dismiss the dialog -->
@@ -1683,7 +1738,7 @@
     <string name="Megaphones_add_a_profile_photo">Βάλε φώτο προφίλ</string>
 
     <!-- Message body of megaphone telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Μια νέα συσκευή συνδέθηκε με τον λογαριασμό σου στις %1$s.</string>
+    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Μια νέα συσκευή συνδέθηκε με τον λογαριασμό σου %1$s.</string>
     <!-- Button shown on megaphone that will redirect to the linked devices screen -->
     <string name="NewLinkedDeviceMegaphone__view_device">Προβολή συσκευής</string>
     <!-- Button shown on megaphone to acknowledge and dismiss the megaphone -->
@@ -1918,6 +1973,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">Το αίτημά σου να μπεις στην ομάδα απορρίφθηκε από κάποιον διαχειριστή.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">Απέρριψες το αίτημα του/της %1$s να μπει στην ομάδα.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">Ο/Η %1$s απέρριψε το αίτημα του/της %2$s να μπει στην ομάδα.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">Το αίτημα του/της %1$s να μπει στην ομάδα απορρίφθηκε.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">Ακύρωσες το αίτημά σου για είσοδο στην ομάδα.</string>
@@ -1962,12 +2018,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">Ο/Η %1$s είναι στην κλήση · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">Είσαι στην κλήση · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">Ο χρήστης %1$s και εσύ είστε στην κλήση · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">Οι %1$s και %2$s είναι στην κλήση · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">Ο/Η %1$s είναι στην κλήση</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">Είσαι στην κλήση</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">Ο χρήστης %1$s και εσύ είστε στην κλήση</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">Οι %1$s και %2$s είναι στην κλήση</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2021,6 +2081,14 @@
     <string name="MessageRecord_reported_as_spam">Έγινε αναφορά ως ανεπιθύμητο</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">Αποδέχτηκες το αίτημα μηνύματος</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">Έχεις μπλοκάρει αυτό το άτομο</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">Κατάργησες τον αποκλεισμό αυτού του ατόμου</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">Απέκλεισες αυτήν την ομάδα</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">Κατάργησες τον αποκλεισμό αυτής της ομάδας</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">Αποδοχή</string>
@@ -2072,6 +2140,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Αναφορά…</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">Αποδοχή αιτήματος;</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">Έλεγξε τα αιτήματα προσεκτικά. Τα ονόματα προφίλ επιλέγονται από τον κάτοχο του λογαριασμού και δεν είναι επαληθευμένα.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">Θες να μπεις στην ομάδα;</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">Έλεγξε τα αιτήματα προσεκτικά. Τα ονόματα των ομάδων επιλέγονται από τα μέλη της ομάδας και δεν είναι επαληθευμένα.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">Σύνδεση</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Τα συνθηματικά δεν ταιριάζουν!</string>
@@ -2096,7 +2174,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Δυστυχώς έχεις πάρα πολλές συσκευές συνδεμένες, προσπάθησε να διαγράψεις κάποιες</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Συγγνώμη, αυτός δεν είναι ένας έγκυρος κωδικός QR για σύνδεση συσκευών.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">Σύνδεση κάποιας συσκευής Signal;</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Φαίνεται πως προσπαθείς να συνδέσεις μια συσκευή Signal χρησιμοποιώντας κάποιο άλλο πρόγραμμα σκαναρίσματος. Για την προστασία σου, παρακαλώ σκάναρε ξανά τον κωδικό μέσω του Signal.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">Για να συνδέσεις έναν υπολογιστή ή ένα iPad σε αυτόν τον λογαριασμό Signal, πήγαινε στις Συνδεδεμένες συσκευές, πάτησε «Σύνδεση νέας συσκευής» και σάρωσε ξανά τον κωδικό QR. Βεβαιώσου ότι σαρώνεις μόνο κωδικούς QR που προέρχονται απευθείας από το Signal.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">Το Signal χρειάζεται τα δικαιώματα Κάμερας για το σκανάρισμα του κωδικού QR, αλλά αυτά δεν έχουν δοθεί μόνιμα. Παρακαλώ πήγαινε στις ρυθμίσεις εφαρμογών, επέλεξε τα \"Δικαιώματα\", και ενεργοποίησε την \"Κάμερα\".</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">Δεν μπορούμε να σκανάρουμε QR κωδικούς χωρίς τα δικαιώματα Κάμερας</string>
@@ -2442,17 +2520,28 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">Ανάπτυξη της προβολής σηκωμένου χεριού</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">Η χώρα σου</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">Αναζήτηση με όνομα ή κωδικό χώρας</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">Άγνωστη χώρα</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Επαφές Signal</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">Επιβεβαιωμένος</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">Τα ονόματα προφίλ δεν είναι επαληθευμένα</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">Αίτημα μηνύματος σε εκκρεμότητα</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">Δεν υπάρχουν άμεσα μηνύματα με τον χρήστη %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
     <string name="AboutSheet__s_is_in_your_system_contacts">Ο χρήστης %1$s βρίσκεται στις επαφές του τηλεφώνου σου</string>
     <!-- Notice in a row when user has no groups in common -->
-    <string name="AboutSheet__you_have_no_groups_in_common">Δεν έχετε κοινές ομάδες</string>
+    <string name="AboutSheet__you_have_no_groups_in_common">Καμία κοινή ομάδα</string>
     <!-- Notice when a user is not a connection to review requests carefully -->
     <string name="AboutSheet__review_requests_carefully">Επιθεώρησε τα αιτήματα προσεκτικά</string>
     <!-- Text used when user has groups in common. Placeholder is the count -->
@@ -2524,6 +2613,12 @@
     <string name="RegistrationActivity_additional_verification_required">Απαιτείται πρόσθετη επαλήθευση</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">Θα σταλεί κωδικός επαλήθευσης σε αυτό το νούμερο. Ενδέχεται να ισχύουν χρεώσεις εταιρείας κινητής τηλεφωνίας.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Θα λάβεις έναν κωδικό επαλήθευσης. Μπορεί να υπάρξουν χρεώσεις παρόχου.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Επιλογή χώρας</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Θα λάβεις μια κλήση για την επαλήθευση αυτού του αριθμού.</string>
     <string name="RegistrationActivity_edit_number">Επεξεργασία αριθμού</string>
     <string name="RegistrationActivity_missing_google_play_services">Υπηρεσίες Google Play που λείπουν</string>
@@ -2758,6 +2853,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">Το ιστορικό μηνυμάτων σου έχει συγχωνευθεί</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">Ο αριθμός %1$s ανήκει στον χρήστη %2$s</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">Λίστα αποκλεισμού</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Αναβάθμιση Signal</string>
@@ -2987,8 +3084,27 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Η γρήγορη απάντηση δεν είναι διαθέσιμη όταν το Signal είναι κλειδωμένο!</string>
     <string name="QuickResponseService_problem_sending_message">Πρόβλημα με την αποστολή μηνύματος!</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">Τα πολυμέσα αποθηκεύτηκαν</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">Αδύνατη η εγγραφή στον αποθηκευτικό χώρο!</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">Το πολυμέσο αποθηκεύτηκε</item>
+        <item quantity="other">Τα πολυμέσα αποθηκεύτηκαν</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">Το πολυμέσο αποθηκεύτηκε (αποτυχία %1$s από %2$s)</item>
+        <item quantity="other">Τα πολυμέσα αποθηκεύτηκαν (αποτυχία %1$s από %2$s)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">Σφάλμα με την αποθήκευση του συνημμένου στην μνήμη!</item>
+        <item quantity="other">Σφάλμα κατά την αποθήκευση των συνημμένων στον αποθηκευτικό χώρο!</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Αναζήτηση</string>
@@ -3225,7 +3341,8 @@
     <string name="ConversationUpdateItem_update_contact">Ανανέωση επαφής</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">Αποκλεισμός αιτήματος</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Χωρίς κοινές ομάδες. Εξέτασε τα αιτήματα προσεκτικά.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Καμία κοινή ομάδα</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">Ομάδα με καμία γνωστή επαφή. Εξέτασε τα αιτήματα προσεκτικά.</string>
     <string name="ConversationUpdateItem_view">Εμφάνιση</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">Ο χρόνος εξαφάνισης μηνυμάτων θα οριστεί σε %1$s όταν του/της στείλεις μήνύμα.</string>
@@ -3717,6 +3834,8 @@
     <string name="preferences__language">Γλώσσα</string>
     <string name="preferences__signal_messages_and_calls">Μηνύματα και κλήσεις του Signal</string>
     <string name="preferences__advanced_pin_settings">Ρυθμίσεις PIN για προχωρημένους</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">Ρυθμίσεις PIN για προχωρημένους</string>
     <string name="preferences__free_private_messages_and_calls">Δωρεάν προσωπικά μηνύματα και κλήσεις προς τους χρήστες και τις χρήστριες του Signal</string>
     <string name="preferences__submit_debug_log">Αποστολή αρχείου συμβάντων αποσφαλμάτωσης</string>
     <string name="preferences__delete_account">Διαγραφή λογαριασμού</string>
@@ -3821,6 +3940,7 @@
     <string name="preferences_connection_failed">Αποτυχία σύνδεσης</string>
     <string name="preferences_couldnt_connect_to_the_proxy">Αποτυχία σύνδεσης το proxy. Έλεγξε τη διεύθυνση proxy και ξαναπροσπάθησε.</string>
     <string name="preferences_you_are_connected_to_the_proxy">Έχεις συνδεθεί στο proxy. Μπορείς να το απενεργοποιήσεις οποιαδήποτε στιγμή στις Ρυθμίσεις.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">Επιτυχία</string>
     <string name="preferences_failed_to_connect">Αποτυχία σύνδεσης</string>
     <string name="preferences_enter_proxy_address">Εισαγωγή διεύθυνσης proxy</string>
@@ -4362,6 +4482,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">Τα PIN κρατούν τις πληροφορίες που αποθηκεύονται στο Signal κρυπτογραφημένες.</string>
     <string name="KbsMegaphone__create_pin">Δημιουργία PIN</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Ενημέρωση PIN Signal</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">Ενημέρωσε το PIN Signal για να ολοκληρώσεις την εγγραφή λογαριασμού.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">Ανανέωση PIN</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Εισερχόμενη ηχητική κλήση Signal</string>
@@ -4424,6 +4551,7 @@
     <string name="BackupDialog_copied_to_clipboard">Αντιγράφηκε στο πρόχειρο</string>
     <string name="BackupDialog_no_file_picker_available">Δεν υπάρχει διαθέσιμη εφαρμογή επιλογής αρχείων.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">Εισάγετε το συνθηματικό αντιγράφου ασφαλείας για επιβεβαίωση</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">Επιβεβαίωση</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Εισάγατε το συνθηματικό αντιγράφου ασφαλείας με επιτυχία</string>
     <string name="BackupDialog_passphrase_was_not_correct">Το συνθηματικό δεν ήταν σωστό</string>
@@ -4448,6 +4576,7 @@
     <string name="RegistrationActivity_code_support_subject">Εγγραφή Signal - Κωδικός επαλήθευσης για Android</string>
     <string name="RegistrationActivity_incorrect_code">Λάθος κωδικός</string>
     <string name="BackupUtil_never">Ποτέ</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">Άγνωστο</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">Αριθμός τηλεφώνου</string>
@@ -4632,6 +4761,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">Δοκίμασε να κλείσεις και να ξανανοίξεις το Wi-Fi και στις δύο συσκευές.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">Επιβεβαίωσε πως και οι δύο συσκευές είναι στη κατάσταση μεταφοράς.</string>
     <string name="DeviceTransferSetup__go_to_support_page">Πήγαινε στη σελίδα υποστήριξης</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">Ξαναπροσπάθησε</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">Αναμονή για την άλλη συσκευή</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">Πάτα Συνέχεια στην άλλη σου συσκευή για να ξεκινήσεις τη μεταφορά.</string>
@@ -5133,10 +5263,11 @@
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_old_phone_number">Πρέπει να προσδιορίσεις τον παλιό αριθμό τηλεφώνου σου</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_number_country_code">Πρέπει να προσδιορίσεις τον κωδικό χώρας του νέου σου αριθμού</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_phone_number">Πρέπει να προσδιορίσεις τον νέο αριθμό τηλεφώνου σου</string>
-    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Your new phone number cannot be the same as your old phone number</string>
+    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Ο νέος αριθμός σου τηλεφώνου δεν μπορεί να είναι ίδιος με τον παλιό σου</string>
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">Αλλαγή αριθμού</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">Επιβεβαίωση του %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">Απαιτείται Captcha</string>
 
@@ -5512,6 +5643,7 @@
     <string name="ConversationSettingsFragment__permissions">Άδειες</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Αιτήματα &amp; προσκλήσεις</string>
     <string name="ConversationSettingsFragment__group_link">Σύνδεσμος ομάδας</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Προσθήκη ως επαφή</string>
     <string name="ConversationSettingsFragment__unmute">Αναίρεση σίγασης</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5625,6 +5757,7 @@
     <string name="ShareInterstitialActivity__share">Μοιράσου</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">Μετάβαση προς τα πάνω</string>
     <string name="MultiselectForwardFragment__forward_to">Προώθηση σε</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5635,6 +5768,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">Τα βίντεο θα κόβονται σε κλιπ των 30 δευτερολέπτων και θα στέλνονται ως πολλές Ιστορίες.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Τα βίντεο που στέλνονται σε Ιστορίες δεν πρέπει να έχουν διάρκεια μεγαλύτερη των 30 δευτερολέπτων.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">Πλέον τα προωθημένα μηνύματα στέλνονται αμέσως.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">Αποστολή %1$d μηνύματος</item>
@@ -5682,6 +5816,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">Ρύθμιση φωτογραφίας σε υψηλή ποιότητα</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">Ρύθμιση φωτογραφίας σε τυπική ποιότητα</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">Προσθήκη πολυμέσου</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">Πινέλο και στυλό</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">Περικοπή και περιστροφή</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">Αλλαγή ποιότητας πολυμέσων</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">Αποθήκευση πολυμέσων</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">Εναλλαγή πληκτρολογίου emoji</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">Εναλλαγή μιας μόνο προβολής</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">Αποστολή πολυμέσων</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">Ολοκλήρωση προσθήκης ενός μηνύματος</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">Ρύθμιση %1$d αντικειμένου σε υψηλή ποιότητα</item>
@@ -5726,7 +5878,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">Σύνδεση συσκευής;</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">Φαίνεται πως προσπαθείς να συνδέσεις μια συσκευή Signal. Πάτησε «Συνέχεια» και σκάναρε ξανά τον κωδικό για να την συνδέσεις.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">Φαίνεται πως προσπαθείς να συνδέσεις μια συσκευή Signal. Πάτησε «Συνέχεια», μετά «Σύνδεση νέας συσκευής» και σάρωσε ξανά τον κωδικό QR.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">Συνέχεια</string>
 
@@ -5821,6 +5973,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/μήνα</string>
     <string name="MySupportPreference__renews_s">Ανανεώνεται %1$s</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">Επεξεργασία συναλλαγής…</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">Αδυναμία προσθήκης σήματος. %1$s</string>
@@ -5832,7 +5985,7 @@
     <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
     <string name="MySupportPreference__learn_more">Μάθε περισσότερα</string>
     <!-- Displayed when a subscription refresh is being performed -->
-    <string name="MySupportPreference__checking_subscription">Checking subscription…</string>
+    <string name="MySupportPreference__checking_subscription">Έλεγχος συνδρομής…</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Αναβάθμιση του Signal</string>
@@ -5931,7 +6084,7 @@
     <string name="DonationsErrors__your_payment_is_still">Η δωρεά σου είναι ακόμη σε επεξεργασία. Μπορεί να διαρκέσει μερικά λεπτά, ανάλογα με τη σύνδεσή σου.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">Αποτυχία ακύρωσης συνδρομής</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">Πρέπει να υπάρχει σύνδεση στο διαδίκτυο για την ακύρωση της συνδρομής.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">Η συσκευή σου δεν υποστηρίζει το Google Pay, οπότε δεν μπορείς να γίνεις συνδρομητής για να λάβεις σήμα. Μπορείς όμως να υποστηρίξεις το Signal κάνοντας μια δωρεά στην ιστοσελίδα μας.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">Η συσκευή σου δεν υποστηρίζει δωρεές μέσω εφαρμογής, οπότε δεν μπορείς να γίνεις συνδρομητής για να λάβεις σήμα. Μπορείς όμως να υποστηρίξεις το Signal κάνοντας μια δωρεά στην ιστοσελίδα μας.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">Σφάλμα δικτύου. Έλεγξε τη σύνδεσή σου και ξαναπροσπάθησε.</string>
     <string name="NetworkFailure__retry">Επανάληψη</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6171,6 +6324,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Σημειώσεις έκδοσης &amp; Νέα του Signal</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">Αυτή είναι η επίσημη και μοναδική συνομιλία από το Signal.</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">Μην χάσεις ξανά τα νέα και τις σημειώσεις έκδοσης.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">Αυτή είναι η επίσημη και μοναδική συνομιλία από το Signal</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">Μην χάσεις ξανά τα νέα και τις σημειώσεις έκδοσης</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Επίσημη και μοναδική συνομιλία από το Signal</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">Όλη η δραστηριότητα</string>
@@ -6233,7 +6396,7 @@
     <string name="StoriesLandingItem__info">Πληροφορίες</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">Στέλνεται…</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">Αποστολή %1$d…</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">Αποτυχία αποστολής</string>
@@ -7202,6 +7365,8 @@
     <string name="CameraControls_capture_button_accessibility_label">Κουμπί Λήψη</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">Κουμπί Συνέχεια</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">Εναλλαγή λειτουργίας φλας</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7547,8 +7712,8 @@
     <string name="BackupAlertBottomSheet__couldnt_complete_backup">Δεν ήταν δυνατή η ολοκλήρωση δημιουργίας αντιγράφων ασφαλείας</string>
     <!-- Sheet body for generic backup error. Placeholder is days since last backup. -->
     <plurals name="BackupAlertBottomSheet__your_device_hasnt">
-        <item quantity="one">Your device hasn\'t completed a backup for %1$d day. Make sure your device is connected to wi-fi and tap \"Back up now.\" </item>
-        <item quantity="other">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
+        <item quantity="one">Η συσκευή σου δεν έχει ολοκληρώσει τη δημιουργία αντιγράφων ασφαλείας για %1$d ημέρα. Βεβαιώσου ότι η συσκευή σου είναι συνδεδεμένη σε wi-fi και πάτησε «Δημιουργία αντιγράφων ασφαλείας τώρα.» </item>
+        <item quantity="other">Η συσκευή σου δεν έχει ολοκληρώσει τη δημιουργία αντιγράφων ασφαλείας για %1$d ημέρες. Βεβαιώσου ότι η συσκευή σου είναι συνδεδεμένη σε wi-fi και πάτησε «Δημιουργία αντιγράφων ασφαλείας τώρα.»</item>
     </plurals>
     <!-- Clickable text to learn more about the content of this bottom sheet -->
     <string name="BackupAlertBottomSheet__learn_more">Μάθε περισσότερα</string>
@@ -7902,6 +8067,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">Επικοινωνία με την υποστήριξη</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">Παρουσιάστηκε αποτυχία δικτύου. Δοκίμασε αργότερα.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Δημιούργησε αντίγραφα ασφαλείας των μηνυμάτων και των πολυμέσων σου και χρησιμοποίησε την ασφαλή, κρυπτογραφημένη από άκρο σε άκρο υπηρεσία αποθήκευσης του Signal. Δε θα χάσεις τα μηνύματά σου αν αγοράσεις νέο τηλέφωνο ή επανεγκαταστήσεις το Signal.</string>
@@ -8051,6 +8220,26 @@
     <string name="EnterBackupKey_learn_more">Μάθε περισσότερα</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Παράλειψη, χωρίς επαναφορά</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">Λανθασμένο εφεδρικό κλειδί</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">Βεβαιώσου ότι εγγράφεσαι με τον ίδιο αριθμό τηλεφώνου και εφεδρικό κλειδί 64 χαρακτήρων που αποθήκευσες κατά την ενεργοποίηση των αντιγράφων ασφαλείας Signal. Τα αντίγραφα ασφαλείας δεν μπορούν να ανακτηθούν χωρίς αυτό το κλειδί.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">Δοκίμασε ξανά</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">Βοήθεια για εφεδρικό κλειδί</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">Λανθασμένο εφεδρικό κλειδί</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">Πολύ μακροσκελές (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">Μη έγκυρο εφεδρικό κλειδί</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">Το αντίγραφο ασφαλείας δεν βρέθηκε</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Το εφεδρικό κλειδί που εισήγαγες είναι σωστό, αλλά δεν υπάρχει αντίγραφο ασφαλείας που να σχετίζεται με αυτό. Εάν εξακολουθείς να έχεις το παλιό σου τηλέφωνο, βεβαιώσου ότι τα αντίγραφα ασφαλείας είναι ενεργοποιημένα και ότι έχει ολοκληρωθεί το αντίγραφο ασφαλείας και δοκίμασε ξανά.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">Παράλειψη επαναφοράς</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">Σάρωσε αυτόν τον κωδικό με το παλιό σου τηλέφωνο</string>

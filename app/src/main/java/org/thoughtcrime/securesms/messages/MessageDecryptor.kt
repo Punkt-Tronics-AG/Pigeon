@@ -10,6 +10,7 @@ import com.squareup.wire.internal.toUnmodifiableList
 import org.signal.core.util.PendingIntentFlags
 import org.signal.core.util.isAbsent
 import org.signal.core.util.logging.Log
+import org.signal.core.util.logging.logW
 import org.signal.core.util.roundedString
 import org.signal.libsignal.metadata.InvalidMetadataMessageException
 import org.signal.libsignal.metadata.InvalidMetadataVersionException
@@ -197,9 +198,9 @@ object MessageDecryptor {
       }
 
       // TODO We can move this to the "message processing" stage once we give it access to the envelope. But for now it'll stay here.
-      if (envelope.reportingToken != null && envelope.reportingToken!!.size > 0) {
+      if (envelope.report_spam_token != null && envelope.report_spam_token!!.size > 0) {
         val sender = RecipientId.from(cipherResult.metadata.sourceServiceId)
-        SignalDatabase.recipients.setReportingToken(sender, envelope.reportingToken!!.toByteArray())
+        SignalDatabase.recipients.setReportingToken(sender, envelope.report_spam_token!!.toByteArray())
       }
 
       Result.Success(envelope, serverDeliveredTimestamp, cipherResult.content, cipherResult.metadata, followUpOperations.toUnmodifiableList())
@@ -223,8 +224,9 @@ object MessageDecryptor {
             Log.w(TAG, "${logPrefix(envelope, e)} Retry receipts disabled! Enqueuing a session reset job, which will also insert an error message.", e, true)
 
             followUpOperations += FollowUpOperation {
-              val sender: Recipient = Recipient.external(context, e.sender)
-              AutomaticSessionResetJob(sender.id, e.senderDevice, envelope.timestamp!!).asChain()
+              Recipient.external(e.sender)?.let {
+                AutomaticSessionResetJob(it.id, e.senderDevice, envelope.timestamp!!).asChain()
+              } ?: null.logW(TAG, "${logPrefix(envelope, e)} Failed to create a recipient with the provided identifier!")
             }
 
             Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations.toUnmodifiableList())
@@ -281,7 +283,7 @@ object MessageDecryptor {
     val contentHint: ContentHint = ContentHint.fromType(protocolException.contentHint)
     val senderDevice: Int = protocolException.senderDevice
     val receivedTimestamp: Long = System.currentTimeMillis()
-    val sender: Recipient = Recipient.external(context, protocolException.sender)
+    val sender: Recipient = Recipient.external(protocolException.sender) ?: return Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations)
     val senderServiceId: ServiceId? = ServiceId.parseOrNull(protocolException.sender)
 
     if (sender.isSelf) {

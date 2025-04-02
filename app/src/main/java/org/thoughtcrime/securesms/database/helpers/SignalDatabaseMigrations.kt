@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.database.helpers
 import android.app.Application
 import android.content.Context
 import android.database.sqlite.SQLiteException
-import net.zetetic.database.sqlcipher.SQLiteDatabase
 import org.signal.core.util.areForeignKeyConstraintsEnabled
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.database.SignalDatabase
@@ -120,6 +119,10 @@ import org.thoughtcrime.securesms.database.helpers.migration.V260_RemapQuoteAuth
 import org.thoughtcrime.securesms.database.helpers.migration.V261_RemapCallRingers
 import org.thoughtcrime.securesms.database.helpers.migration.V263_InAppPaymentsSubscriberTableRebuild
 import org.thoughtcrime.securesms.database.helpers.migration.V264_FixGroupAddMemberUpdate
+import org.thoughtcrime.securesms.database.helpers.migration.V265_FixFtsTriggers
+import org.thoughtcrime.securesms.database.helpers.migration.V266_UniqueThreadPinOrder
+import org.thoughtcrime.securesms.database.helpers.migration.V267_FixGroupInvitationDeclinedUpdate
+import org.thoughtcrime.securesms.database.SQLiteDatabase as SignalSqliteDatabase
 
 /**
  * Contains all of the database migrations for [SignalDatabase]. Broken into a separate file for cleanliness.
@@ -243,13 +246,16 @@ object SignalDatabaseMigrations {
     261 to V261_RemapCallRingers,
     // V263 was originally V262, but a typo in the version mapping caused it not to be run.
     263 to V263_InAppPaymentsSubscriberTableRebuild,
-    264 to V264_FixGroupAddMemberUpdate
+    264 to V264_FixGroupAddMemberUpdate,
+    265 to V265_FixFtsTriggers,
+    266 to V266_UniqueThreadPinOrder,
+    267 to V267_FixGroupInvitationDeclinedUpdate
   )
 
-  const val DATABASE_VERSION = 264
+  const val DATABASE_VERSION = 268
 
   @JvmStatic
-  fun migrate(context: Application, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+  fun migrate(context: Application, db: SignalSqliteDatabase, oldVersion: Int, newVersion: Int) {
     val initialForeignKeyState = db.areForeignKeyConstraintsEnabled()
 
     for (migrationData in migrations) {

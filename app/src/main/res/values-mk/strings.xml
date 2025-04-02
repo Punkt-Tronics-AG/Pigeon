@@ -572,11 +572,6 @@
         <item quantity="one">Со зачувување на оваа медија во складот, сите други апликации ќе добијат пристап до неа.\n\nСакате да продолжите?</item>
         <item quantity="other">Со зачувување на сите %1$d медии во складот, сите други апликации ќе добијат пристап до нив.\n\nСакате да продолжите?</item>
     </plurals>
-    <plurals name="ConversationFragment_error_while_saving_attachments_to_sd_card">
-        <item quantity="one">Грешка при зачувување на прилогот во складот!</item>
-        <item quantity="other">Грешка при зачувување на прилози во складот!</item>
-    </plurals>
-    <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">Не може да се запишува во складот!</string>
     <plurals name="ConversationFragment_saving_n_attachments">
         <item quantity="one">Зачувувам прилог</item>
         <item quantity="other">Зачувувам %1$d прилози</item>
@@ -586,11 +581,14 @@
         <item quantity="other">Зачувувам %1$d прилози во складот…</item>
     </plurals>
     <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Save to phone?</string>
+    <string name="ConversationFragment__save_to_phone">Да се зачува на телефон?</string>
     <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <string name="ConversationFragment__this_media_will_be_saved">This media will be saved to your phone\'s storage. Other apps may be able to access it depending on your phone\'s permissions.</string>
+    <plurals name="ConversationFragment__this_media_will_be_saved">
+        <item quantity="one">Оваа медиумска датотека ќе се зачува на вашиот телефон. Други апликации може да имаат пристап до неа, во зависност од овозможените дозволи на вашиот телефон.</item>
+        <item quantity="other">Овие медиумски датотеки ќе се зачуваат на вашиот телефон. Други апликации може да имаат пристап до неа, во зависност од овозможените дозволи на вашиот телефон.</item>
+    </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
-    <string name="ConversationFragment_dont_show_again">Don\'t show again</string>
+    <string name="ConversationFragment_dont_show_again">Не прикажувај повторно</string>
     <string name="ConversationFragment_pending">На чекање…</string>
     <!-- Describes how the message was sent when looking at a message detail. Previously, messages could be through other means like SMS -->
     <string name="ConversationFragment_push">Интернет (Signal)</string>
@@ -666,6 +664,18 @@
     <string name="ConversationFragment_reported_as_spam_and_blocked">Пријавено како спам и блокирано</string>
     <!-- Dialog message shown after accepting a message request and tapping on options from the conversation event -->
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Прифативте барање за разговор од %1$s. Ако ова беше по грешка, можете да изберете дејство подолу.</string>
+    <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
+    <string name="ConversationFragment_review_carefully">Внимателно прегледајте</string>
+    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
+    <string name="ConversationFragment_profile_names_not_verified">%1$s не се верифицирани</string>
+    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
+    <string name="ConversationFragment_group_names_not_verified">%1$s не се верифицирани</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
+    <string name="ConversationFragment_profile_names">Имињата на профилите</string>
+    <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
+    <string name="ConversationFragment_group_names">Имињата на групите</string>
+    <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
+    <string name="ConversationFragment_photo_failed">Фотографијата не успеа да се преземе. Обидете се повторно.</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Совети за безбедност</string>
@@ -677,6 +687,10 @@
     <string name="SafetyTips_previous_tip">Претходен совет</string>
     <!-- Button text to move to the next tip -->
     <string name="SafetyTips_next_tip">Следен совет</string>
+    <!-- Title of tip 0 -->
+    <string name="SafetyTips_tip0_title">Лажни имиња и кориснички сметки</string>
+    <!-- Message of tip 0 -->
+    <string name="SafetyTips_tip0_message">Signal никогаш нема да ве контактира и да ви бара код за регистрација или PIN. Внимателно со барања од луѓе кои лажно се претставуваат. Имињата на профилите ги избира сопственикот на корисничката сметка и не се верифицирани.</string>
     <!-- Title of tip 1 -->
     <string name="SafetyTips_tip1_title">Измами со крипто или пари</string>
     <!-- Message of tip 1 -->
@@ -693,6 +707,21 @@
     <string name="SafetyTips_tip4_title">Лажни фирми и институции</string>
     <!-- Message of tip 4 -->
     <string name="SafetyTips_tip4_message">Обрнете внимание кога ве контактираат фирми или државни органи. Пораките кои вклучуваат даночни служби, курири и слично може да бидат спам.</string>
+
+    <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
+    <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s на Signal ги избира сопственикот на корисничката сметка.</string>
+    <!-- Bottom sheet text explaining that profile names are not verified. -->
+    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Имињата на профилите не се верифицирани</string>
+    <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Внимателно со барања од кориснички сметки кои лажно се претставуваат</string>
+    <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
+    <string name="ProfileNameBottomSheet__dont_share_personal">Не споделувајте лични информации со луѓе што не ги познавате</string>
+    <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
+    <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s ги избираат членовите на групата.</string>
+    <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
+    <string name="ProfileNameBottomSheet__be_cautious_of_groups">Внимателно со групи што лажно се претставуваат како организации и фирми</string>
+    <!-- Bottom sheet text explaining that profile names of group members are not verified -->
+    <string name="ProfileNameBottomSheet__profile_names_in_groups">Имињата на профилите на членовите во групите не се верифицирани</string>
 
     <!-- Label for a button displayed in conversation list to clear the chat filter -->
     <string name="ConversationListFragment__clear_filter">Отстрани го филтерот</string>
@@ -756,8 +785,11 @@
     <string name="AddToFolderBottomSheet_choose_a_folder">Одберете папка</string>
     <!-- Toast shown when a chat has been added to a folder, where %s is the name of the folder -->
     <string name="AddToFolderBottomSheet_added_to_s">Додадено во „%1$s“</string>
-    <!-- Toast shown when a user tries to add a chat to a folder, but the folder already has that chat. %s is the name of the folder -->
-    <string name="AddToFolderBottomSheet_this_chat_is_already">Овој разговор е веќе во папката „%1$s“</string>
+    <!-- Toast shown when a user tries to add chats to a folder, but the folder already has those chats. %s is the name of the folder -->
+    <plurals name="AddToFolderBottomSheet_these_chat_are_already_in_s">
+        <item quantity="one">Овој разговор е веќе во „%1$s“</item>
+        <item quantity="other">Овие разговори се веќе во „%1$s“</item>
+    </plurals>
 
     <!-- Show in conversation list overflow menu to open selection bottom sheet -->
     <string name="ConversationListFragment__notification_profile">Профил за известување</string>
@@ -926,8 +958,16 @@
     <string name="DateUtils_tomorrow">Утре</string>
     <!-- Used in the context: Tonight at 9:00pm for example. Specifically this is after 7pm -->
     <string name="DateUtils_tonight">Ноќва</string>
-    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. Jan 15 at 9:00pm -->
-    <string name="DateUtils_date_at">%1$s во %2$s</string>
+    <!-- Used when showing the time a device was linked. %1$s is replaced with the date while %2$s is replaced with the time. e.g. on Jan 15 at 9:00pm -->
+    <plurals name="DateUtils_date_time_at">
+        <item quantity="one">на %1$s во %2$s</item>
+        <item quantity="other">на %1$s во %2$s</item>
+    </plurals>
+    <!-- Used when showing the time a device was linked. e.g. at 9:00pm -->
+    <plurals name="DateUtils_time_at">
+        <item quantity="one">во %1$s</item>
+        <item quantity="other">во %1$s</item>
+    </plurals>
 
     <!-- Scheduled Messages -->
     <!-- Title for dialog that shows all the users scheduled messages for a chat -->
@@ -974,7 +1014,7 @@
 
     <!-- LinkDeviceFragment -->
     <!-- Description for how Signal will work with a linked device (eg desktop, iPad) -->
-    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Користете Signal на десктоп или iPad. Вашите пораки ќе се синхронизираат на поврзаните уреди.</string>
+    <string name="LinkDeviceFragment__use_signal_on_desktop_ipad">Користете ја оваа корисничка сметка на Signal на десктоп или iPad.</string>
     <!-- Button prompting users to link a new device to their account -->
     <string name="LinkDeviceFragment__link_a_new_device">Поврзете нов уред</string>
     <!-- Text explaining that on linked devices, messages will be encrypted where %s will be replaced with an image-->
@@ -1014,6 +1054,21 @@
     <string name="LinkDeviceFragment__tap_continue_and_enter_phone">Доперете на „продолжи“ и отклучете го телефонот за да потврдите. Не го внесувајте вашиот Signal PIN.</string>
     <!-- Button that dismisses the bottom sheet -->
     <string name="LinkDeviceFragment__continue">Продолжи</string>
+    <!-- Option on button to contact support -->
+    <string name="LinkDeviceFragment__contact_support">Контактирајте го тимот за корисничка поддршка</string>
+    <!-- Title of dialog asking users if they want to submit debug logs when contacting support -->
+    <string name="LinkDeviceFragment__submit_debug_log">Сакате да испратите запис за отстранување грешки?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="LinkDeviceFragment__your_debug_logs">Вашите записи за дебагирање ни помагаат побрзо да го решиме вашиот проблем. Поднесувањето на записите не е задолжително.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_with_debug">Испратете со запис за дебагирање</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="LinkDeviceFragment__submit_without_debug">Испратете без запис за дебагирање</string>
+    <!-- Button option to dismiss dialog -->
+    <string name="LinkDeviceFragment__cancel">Откажи</string>
+    <!-- Email subject when contacting support on a linked device syncing issue -->
+    <string name="LinkDeviceFragment__link_sync_failure_support_email">Извозот на податоци на Android (Link&amp;Sync) е неуспешен</string>
+  <!-- Removed by excludeNonTranslatables <string name="LinkDeviceFragment__link_sync_failure_support_email_filter" translatable="false">Android Link&amp;Sync Export Failed</string> -->
     <!-- Title of a dialog letting the user know that syncing messages to their linked device failed -->
     <string name="LinkDeviceFragment__sync_failure_title">Синхронизацијата на пораките е неуспешна</string>
     <!-- Body of a dialog letting the user know that syncing messages to their linked device failed -->
@@ -1036,7 +1091,7 @@
     <!-- Dialog title shown when a device is unlinked -->
     <string name="LinkDeviceFragment__device_unlinked">Поврзувањето со уредот е отстрането</string>
     <!-- Dialog body shown when a device is unlinked where %1$s is the date and time the device was originally linked (eg Jan 15 at 9:00pm) -->
-    <string name="LinkDeviceFragment__the_device_that_was">Уредот што беше поврзан на %1$s повеќе не е поврзан.</string>
+    <string name="LinkDeviceFragment__the_device_that_was">Уредот што беше поврзан %1$s повеќе не е поврзан.</string>
     <!-- Button to dismiss dialog -->
     <string name="LinkDeviceFragment__ok">Во ред</string>
 
@@ -1078,7 +1133,7 @@
     <!-- Option in bottom sheet to transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_transfer">Пренесете ја историјата на пораки</string>
     <!-- Description in bottom sheet of what transferring message history will do -->
-    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Transfer your text messages and your last 45 days of media</string>
+    <string name="LinkDeviceSyncBottomSheet_transfer_your_text">Префрлете ги вашите текстуални пораки, како и медиумските датотеки од последните 45 дена</string>
     <!-- Option in bottom sheet to not transfer message history -->
     <string name="LinkDeviceSyncBottomSheet_dont_transfer">Не префрлајте</string>
     <!-- Description in bottom sheet of what not transferring history will do -->
@@ -1087,7 +1142,7 @@
     <!-- Title of notification telling users that a device was linked to their account -->
     <string name="NewLinkedDeviceNotification__you_linked_new_device">Поврзавте нов уред</string>
     <!-- Message body of notification telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Нов уред беше поврзан со вашата корисничка сметка на %1$s. Допрете за да го видите.</string>
+    <string name="NewLinkedDeviceNotification__a_new_device_was_linked">Нов уред беше поврзан со вашата корисничка сметка %1$s. Допрете за да го видите.</string>
 
     <!-- DeviceListActivity -->
     <string name="DeviceListActivity_unlink_s">Да се прекине поврзувањето со „%1$s“?</string>
@@ -1418,9 +1473,9 @@
     <!-- Dialog message displayed when remote restore failed -->
     <string name="RemoteRestoreActivity__error_occurred">Настана грешка и вашата корисничка сметка не можеше да се пренесе. Обидете се повторно со избирање на вашиот начин на пренос.</string>
     <!-- Dialog title displayed when remote restore failed because of an outdated backup version. -->
-    <string name="RemoteRestoreActivity__couldnt_restore">Couldn\'t restore this backup</string>
+    <string name="RemoteRestoreActivity__couldnt_restore">Не може да се врати оваа резервна копија</string>
     <!-- Dialog message explaining that an update to Signal is required to restore the backup. -->
-    <string name="RemoteRestoreActivity__update_latest">This version of Signal can\'t restore your backup. Update to the latest version and try again.</string>
+    <string name="RemoteRestoreActivity__update_latest">Оваа верзија на Signal не може да ја врати вашата резервна копија. Ажурирајте на последната верзија и обидете се повторно.</string>
     <!-- Text on button that when pressed will redirect them to update Signal -->
     <string name="RemoteRestoreActivity__update_signal">Ажурирај го Signal</string>
     <!-- Text label button to dismiss the dialog -->
@@ -1683,7 +1738,7 @@
     <string name="Megaphones_add_a_profile_photo">Додај слика</string>
 
     <!-- Message body of megaphone telling users that a device was linked to their account. %1$s is the time it was linked -->
-    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Нов уред беше поврзан со вашата корисничка сметка на %1$s.</string>
+    <string name="NewLinkedDeviceMegaphone__a_new_device_was_linked">Нов уред беше поврзан со вашата корисничка сметка %1$s.</string>
     <!-- Button shown on megaphone that will redirect to the linked devices screen -->
     <string name="NewLinkedDeviceMegaphone__view_device">Види го уредот</string>
     <!-- Button shown on megaphone to acknowledge and dismiss the megaphone -->
@@ -1918,6 +1973,7 @@
 
     <!-- GV2 group link deny -->
     <string name="MessageRecord_your_request_to_join_the_group_has_been_denied_by_an_admin">Вашето барање да се приклучите на групата е одбиено од администраторот.</string>
+    <string name="MessageRecord_you_denied_a_request_to_join_the_group_from_s">Одбивте барање за придружување на групата од %1$s.</string>
     <string name="MessageRecord_s_denied_a_request_to_join_the_group_from_s">%1$s го одби барањето на %2$s за приклучување на групата.</string>
     <string name="MessageRecord_a_request_to_join_the_group_from_s_has_been_denied">Барањето на %1$s за приклучување на групата е одбиено.</string>
     <string name="MessageRecord_you_canceled_your_request_to_join_the_group">Го откажавте барањето за приклучување во групата.</string>
@@ -1962,12 +2018,16 @@
     <string name="MessageRecord_s_is_in_the_call_s">%1$s е на повикот · %2$s</string>
     <!-- Chat log text for an ongoing group call only the local user has joined with a placeholder for formatted time -->
     <string name="MessageRecord_you_are_in_the_call_s1">Вие сте на повикот · %1$s</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user and %2$s is the formatted time -->
+    <string name="MessageRecord_s_and_you_are_in_the_call_s1">На повик сте со %1$s · %2$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders for the short display name of the users that joined and a placeholder for formatted time -->
     <string name="MessageRecord_s_and_s_are_in_the_call_s1">%1$s и %2$s се на повикот · %3$s</string>
     <!-- Chat log text for an ongoing group call that has one participant -->
     <string name="MessageRecord_s_is_in_the_call">%1$s е на повикот</string>
     <!-- Chat log text for an ongoing group call only the local user has joined -->
     <string name="MessageRecord_you_are_in_the_call">Вие сте на повикот</string>
+    <!-- Chat log text for an ongoing group call with you and another participant where %1$s is the short display name of the other user -->
+    <string name="MessageRecord_s_and_you_are_in_the_call">На повик сте со %1$s</string>
     <!-- Chat log text for an ongoing group call with two participants with two placeholders, each for the short display name of the users that joined -->
     <string name="MessageRecord_s_and_s_are_in_the_call">%1$s и %2$s се на овој повик</string>
     <!-- Chat log text for a group call that ended within the last 5 minutes -->
@@ -2021,6 +2081,14 @@
     <string name="MessageRecord_reported_as_spam">Пријавено како спам</string>
     <!-- Update message shown in chat after accept a message request -->
     <string name="MessageRecord_you_accepted_the_message_request">Го прифативте ова барање за разговор</string>
+    <!-- Update message shown in chat after you block a person -->
+    <string name="MessageRecord_you_blocked_this_person">Ја блокиравте оваа личност</string>
+    <!-- Update message shown in chat after you unblock a person -->
+    <string name="MessageRecord_you_unblocked_this_person">Ја деблокиравте оваа личност</string>
+    <!-- Update message shown in chat after you block a group -->
+    <string name="MessageRecord_you_blocked_this_group">Ја блокиравте групата</string>
+    <!-- Update message shown in chat after you unblock a group -->
+    <string name="MessageRecord_you_unblocked_this_group">Ја деблокиравте групата</string>
 
     <!-- MessageRequestBottomView -->
     <string name="MessageRequestBottomView_accept">Прифати</string>
@@ -2072,6 +2140,16 @@
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Пријавете…</string>
+    <!-- Alert dialog title to accept a message request -->
+    <string name="MessageRequestBottomView_accept_request">Сакате да го прифатите барањето?</string>
+    <!-- Alert dialog body to review the message request carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully">Внимателно прегледајте ги барањата. Имињата на профилите ги избира сопственикот на корисничката сметка и не се верифицирани.</string>
+    <!-- Alert dialog title to accept a message request to join a group -->
+    <string name="MessageRequestBottomView_join_group">Сакате да се придружите на групата?</string>
+    <!-- Alert dialog body to review the message request for a group carefully -->
+    <string name="MessageRequestBottomView_review_requests_carefully_groups">Внимателно прегледајте ги барањата. Имињата на групите ги избираат членовите на групата и не се верифицирани.</string>
+    <!-- Button text to join a group -->
+    <string name="MessageRequestBottomView_join">Приклучете се</string>
 
     <!-- PassphraseChangeActivity -->
     <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Лозинките не се совпаѓаат!</string>
@@ -2096,7 +2174,7 @@
     <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Извинете, имате премногу поврзани уреди, обидете се да отстраните некои од нив</string>
     <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Извинете, ова не е валиден QR код за поврзување со уредот.</string>
     <string name="DeviceProvisioningActivity_link_a_signal_device">Да поврзам уред со Signal?</string>
-    <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Изгледа дека сакате да поврзете Signal уред користејќи скенер од 3та страна. За Ваша заштита, Ве молиме повторно скенирајте го кодот преку Signal.</string>
+    <string name="DeviceProvisioningActivity_to_link_a_desktop_or_ipad_to_this_signal_account">За да поврзете десктоп или iPad на оваа корисничка сметка на Signal, одете до „Поврзани уреди“ и допрете на „Поврзете нов уред“ и скенирајте го QR кодот повторно. Скенирајте само QR кодови што доаѓаат директно од Signal.</string>
 
     <string name="DeviceActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code">Signal има потреба од дозвола до камерата за да може да го скенира QR кодот. Оваа дозвола е трајно одбиена. Ве молиме продолжете до менито за поставувања, изберете „Дозволи“ и вклучете „Камера“.</string>
     <string name="DeviceActivity_unable_to_scan_a_qr_code_without_the_camera_permission">Не може да се скенира QR кодот без дозвола до камерата</string>
@@ -2442,11 +2520,22 @@
     <!-- An accessibility label for screen readers on a view that can be expanded -->
     <string name="CallOverflowPopupWindow__expand_snackbar_accessibility_label">Проширете го приказот на крената рака</string>
 
+    <!-- Toolbar title of country picker selection page -->
+    <string name="CountryCodeFragment__your_country">Вашата држава</string>
+    <!-- Hint text in search bar to either enter in a country name or number -->
+    <string name="CountryCodeFragment__search_by">Пребарувајте по име или повикувачки број на држава</string>
+    <!-- Text shown when displaying a list of countries that indicates an unknown country    -->
+    <string name="CountryCodeFragment__unknown_country">Непозната држава</string>
+
     <!-- AboutSheet -->
     <!-- Displayed in a sheet row and allows user to open signal connection explanation on tap -->
     <string name="AboutSheet__signal_connection">Signal врска</string>
     <!-- Displayed in a sheet row describing that the user has marked this contact as \'verified\' from within the app -->
     <string name="AboutSheet__verified">Проверено</string>
+    <!-- Displayed in a sheet row that tells users that profile names are not verified -->
+    <string name="AboutSheet__profile_names_are_not_verified">Имињата на профилите не се верифицирани</string>
+    <!-- Displayed in a sheet row describing that the user is in a message request state with the person -->
+    <string name="AboutSheet__pending_message_request">Барање за разговор на чекање</string>
     <!-- Displayed in bottom sheet describing that the user has no direct messages with this person. The placeholder is a person\'s name. -->
     <string name="AboutSheet__no_direct_message">Немате директни пораки со %1$s</string>
     <!-- Explains that the given user (placeholder is short name) is in the users system contact -->
@@ -2524,6 +2613,12 @@
     <string name="RegistrationActivity_additional_verification_required">Потребна е дополнителна проверка</string>
     <!-- Dialog message shown when we need to verify sms and carrier rates may apply. -->
     <string name="RegistrationActivity_a_verification_code_will_be_sent_to_this_number">На овој број ќе се испрати код за проверка. Можно е да ви се наплатат тарифи на операторот.</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Ќе примите код за проверка. Можно е да важат цените од операторот.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Изберете држава</string>
+    <!-- Hint text explaining that this is where the country code should go -->
+    <string name="RegistrationActivity_default_country_code">0</string>
     <string name="RegistrationActivity_you_will_receive_a_call_to_verify_this_number">Ќе примите повик за проверка на овој број.</string>
     <string name="RegistrationActivity_edit_number">Уреди го бројот</string>
     <string name="RegistrationActivity_missing_google_play_services">Недостасуваат Google Play услуги</string>
@@ -2758,6 +2853,8 @@
     <string name="ThreadRecord_message_history_has_been_merged">Историјата на вашиот разговор е споена</string>
     <!--  Displayed in the conversation list when identities have been merged. The first placeholder is a phone number, and the second is a person\'s name -->
     <string name="ThreadRecord_s_belongs_to_s">%1$s припаѓа на %2$s</string>
+    <!-- Displayed in the conversation list when a person has been blocked -->
+    <string name="ThreadRecord_blocked">Блокиран</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Signal ажурирање</string>
@@ -2987,8 +3084,27 @@
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Брз одговор е недостапен кога Signal е заклучен!</string>
     <string name="QuickResponseService_problem_sending_message">Проблем со испраќање на порака!</string>
 
-    <!-- A small toast notification to let the user know their image/video/audio was downloaded and saved to their device, accessible in other apps. -->
-    <string name="SaveAttachmentTask_saved">Медиумската датотека е зачувана</string>
+    <!-- A toast notification that is shown when the app does not have sufficient permissions to save media files to the device storage. -->
+    <string name="SaveAttachment_unable_to_write_to_sd_card_exclamation">Не може да се запишува во складот!</string>
+
+    <!-- A toast notification that is shown after image/video/audio media was successfully downloaded and saved to the device storage, accessible in other apps. -->
+    <plurals name="SaveAttachment_saved_success">
+        <item quantity="one">Медиумската датотека е зачувана</item>
+        <item quantity="other">Медиумските датотеки се зачувани</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after some image/video/audio media was successfully downloaded and saved to the device storage, but some failed to save
+         %1$s is the number of items that failed to save and %2$s is the total number of items that the user requested to save. -->
+    <plurals name="SaveAttachment_saved_success_n_failures">
+        <item quantity="one">Медиумската датотека е зачувана (%1$s од %2$s се неуспешни)</item>
+        <item quantity="other">Медиумските датотеки се зачувани (%1$s од %2$s се неуспешни)</item>
+    </plurals>
+
+    <!-- A toast notification that is shown after all of the requested image/video/audio media failed to save to the device storage. -->
+    <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
+        <item quantity="one">Грешка при зачувување на прилогот во складот!</item>
+        <item quantity="other">Грешка при зачувување на прилози во складот!</item>
+    </plurals>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Барај</string>
@@ -3225,7 +3341,8 @@
     <string name="ConversationUpdateItem_update_contact">Ажурирај контакт</string>
     <!-- Update item button text to show to block a recipient from requesting to join via group link -->
     <string name="ConversationUpdateItem_block_request">Блокирај барање</string>
-    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Немате заеднички групи. Внимателно прегледајте ги барањата.</string>
+    <!-- Text shown in conversation header that the account messaging the user does not have any groups in common with them -->
+    <string name="ConversationUpdateItem_no_groups_in_common_review_requests_carefully">Немате заеднички групи</string>
     <string name="ConversationUpdateItem_no_contacts_in_this_group_review_requests_carefully">Нема контакти во оваа група. Внимателно прегледајте ги барањата.</string>
     <string name="ConversationUpdateItem_view">Поглед</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">Времето на исчезнувачките пораки ќе биде поставено на %1$s кога ќе им испратите порака.</string>
@@ -3717,6 +3834,8 @@
     <string name="preferences__language">Јазик</string>
     <string name="preferences__signal_messages_and_calls">Signal пораки и повици</string>
     <string name="preferences__advanced_pin_settings">Напредни поставувања за PIN</string>
+    <!-- Title of toolbar for the advanced pin settings screen -->
+    <string name="preferences__advanced_pin_settings_title">Напредни поставувања за PIN</string>
     <string name="preferences__free_private_messages_and_calls">Бесплатни приватни пораки и повици кон Signal корисниците</string>
     <string name="preferences__submit_debug_log">Испрати запис за отстранување грешки</string>
     <string name="preferences__delete_account">Избришете ја вашата корисничка сметка</string>
@@ -3821,6 +3940,7 @@
     <string name="preferences_connection_failed">Врската не успеа</string>
     <string name="preferences_couldnt_connect_to_the_proxy">Не може да се поврзе со proxy серверот. Проверете ја proxy адресата и обидете се повторно.</string>
     <string name="preferences_you_are_connected_to_the_proxy">Поврзани сте за proxy. Можете да го исклучите proxy серверот во било кое време во поставувањата.</string>
+    <!-- Title of alert dialog after a successful connection to the proxy -->
     <string name="preferences_success">Успешно се поврзав</string>
     <string name="preferences_failed_to_connect">Не успеав да се поврзам</string>
     <string name="preferences_enter_proxy_address">Внесете proxy адреса</string>
@@ -4362,6 +4482,13 @@
     <string name="KbsMegaphone__pins_keep_information_thats_stored_with_signal_encrytped">PIN кодовите ги чуваат шифрирани информациите складирани во Signal.</string>
     <string name="KbsMegaphone__create_pin">Создадете PIN</string>
 
+    <!-- Title for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_signal_pin">Ажурирајте го Signal PIN кодот</string>
+    <!-- Message for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__message">Ажурирајте го Signal PIN кодот за да ја регистрирате корисничката сметка.</string>
+    <!-- Button text for megaphone shown after registration without a pin but with aep to prompt the user to enter their pin -->
+    <string name="UpdatePinMegaphone__update_pin">Ажурирај PIN</string>
+
     <!-- CallNotificationBuilder -->
     <!-- Displayed in a notification when a Signal voice call is ringing -->
     <string name="CallNotificationBuilder__incoming_signal_voice_call">Дојдовен Signal гласовен повик</string>
@@ -4424,6 +4551,7 @@
     <string name="BackupDialog_copied_to_clipboard">Копирано на таблата со исечоци</string>
     <string name="BackupDialog_no_file_picker_available">Не е достапен одбирач за датотеки.</string>
     <string name="BackupDialog_enter_backup_passphrase_to_verify">Внесете ја Вашата лозинка за резервни копии за проверка</string>
+    <!-- Confirmation button text on an alert dialog to verify whether the entered backup phrase was correct -->
     <string name="BackupDialog_verify">Провери</string>
     <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Успешно ја внесовте лозинката за резервна копија</string>
     <string name="BackupDialog_passphrase_was_not_correct">Лозинката не е точна</string>
@@ -4448,6 +4576,7 @@
     <string name="RegistrationActivity_code_support_subject">Регистрација на Signal - Код за проверка за Android</string>
     <string name="RegistrationActivity_incorrect_code">Погрешен код</string>
     <string name="BackupUtil_never">Никогаш</string>
+    <!-- Subtext below last backup time when we do not know when the last backup was -->
     <string name="BackupUtil_unknown">Непознато</string>
     <!-- Phone number heading displayed as a screen title -->
     <string name="preferences_app_protection__phone_number">Телефонски број</string>
@@ -4632,6 +4761,7 @@
     <string name="DeviceTransferSetup__try_turning_wifi_off_and_on_on_both_devices">Пробајте да го исклучите и вклучите Wi-Fi и на двата уреда.</string>
     <string name="DeviceTransferSetup__make_sure_both_devices_are_in_transfer_mode">Осигурајте се дека и двата уреда се во режим за префрлување.</string>
     <string name="DeviceTransferSetup__go_to_support_page">Оди на страницата за поддршка</string>
+    <!-- Button text when a device transfer could not occur and to try again -->
     <string name="DeviceTransferSetup__try_again">Обиди сѐ повторно</string>
     <string name="DeviceTransferSetup__waiting_for_other_device">Го чекам другиот уред</string>
     <string name="DeviceTransferSetup__tap_continue_on_your_other_device_to_start_the_transfer">Допрете „Продолжи“ на другиот уред за да почне трансферот.</string>
@@ -5133,10 +5263,11 @@
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_old_phone_number">Мора да го внесете Вашиот стар телефонски број</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_number_country_code">Мора да внесете повикувачки број на државата за Вашиот нов број</string>
     <string name="ChangeNumberEnterPhoneNumberFragment__you_must_specify_your_new_phone_number">Мора да го внесете Вашиот нов телефонски број</string>
-    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Your new phone number cannot be the same as your old phone number</string>
+    <string name="ChangeNumberEnterPhoneNumberFragment__your_new_phone_number_can_not_be_same_as_your_old_phone_number">Вашиот нов телефонски број не може да биде ист како стариот телефонски број</string>
 
     <!-- ChangeNumberVerifyFragment -->
     <string name="ChangeNumberVerifyFragment__change_number">Смени го бројот</string>
+    <!-- Text shown when verifying a new phone number where %1$s is the number being changed -->
     <string name="ChangeNumberVerifyFragment__verifying_s">Проверувам %1$s</string>
     <string name="ChangeNumberVerifyFragment__captcha_required">Потребна е проверка</string>
 
@@ -5512,6 +5643,7 @@
     <string name="ConversationSettingsFragment__permissions">Дозволи</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Барања и покани</string>
     <string name="ConversationSettingsFragment__group_link">Групен линк</string>
+    <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Додај како контакт</string>
     <string name="ConversationSettingsFragment__unmute">Вклучи известувања</string>
     <!-- The subtitle for a settings item that describes how long the user\'s chat is muted. If a chat is muted, you will not receive notifications unless @mentioned. The placeholder represents a time (e.g. 10pm, March 4, etc). -->
@@ -5625,6 +5757,7 @@
     <string name="ShareInterstitialActivity__share">Сподели</string>
 
     <!-- DSLSettingsToolbar -->
+    <!-- Content description describing the back arrow on toolbars -->
     <string name="DSLSettingsToolbar__navigate_up">Оди нагоре</string>
     <string name="MultiselectForwardFragment__forward_to">Препрати до</string>
     <!-- Displayed when sharing content to people via the fragment -->
@@ -5635,6 +5768,7 @@
     <string name="MultiselectForwardFragment__videos_will_be_trimmed">Видеата ќе се скратат на исечоци од 30 секунди и ќе се испратат како многукратни приказни.</string>
     <!-- Displayed when user selects a video that cannot be sent as a story -->
     <string name="MultiselectForwardFragment__videos_sent_to_stories_cant">Видеата кои се испраќаат како приказна не може да бидат подолги од 30 секунди.</string>
+    <!-- Body in alert dialog telling users that messages are now sent immediately -->
     <string name="MultiselectForwardFragment__forwarded_messages_are_now">Препратените пораки сега се испраќаат веднаш.</string>
     <plurals name="MultiselectForwardFragment_send_d_messages">
         <item quantity="one">Испрати %1$d пораки</item>
@@ -5682,6 +5816,24 @@
     <string name="MediaReviewFragment__photo_set_to_high_quality">Сликата е поставена на висок квалитет</string>
     <!-- Small notification presented to the user when they set their still image to be sent in standard (lower than high) visual quality. -->
     <string name="MediaReviewFragment__photo_set_to_standard_quality">Сликата е поставена на стандарден квалитет</string>
+    <!-- Accessibility label describing the add media button on the Media review screen -->
+    <string name="MediaReviewFragment__add_media_accessibility_label">Додајте медиумска датотека</string>
+    <!-- Accessibility label describing the brush and pen button on the Media review screen -->
+    <string name="MediaReviewFragment__brush_pen_accessibility_label">Четка и пенкало</string>
+    <!-- Accessibility label describing the crop and rotate button on the Media review screen -->
+    <string name="MediaReviewFragment__crop_rotate_accessibility_label">Исечи и ротирај</string>
+    <!-- Accessibility label describing the change media quality button on the Media review screen -->
+    <string name="MediaReviewFragment__change_media_quality_accessibility_label">Сменете го квалитетот на медиумската датотека</string>
+    <!-- Accessibility label describing the save media button on the Media review screen -->
+    <string name="MediaReviewFragment__save_media_accessibility_label">Зачувајте ја медиумската датотека</string>
+    <!-- Accessibility label describing the toggle emoji keyboard button on the Media review screen -->
+    <string name="MediaReviewFragment__emoji_toggle_accessibility_label">Вклучи/исклучи емоџи тастатура</string>
+    <!-- Accessibility label describing the toggle view once button on the Media review screen -->
+    <string name="MediaReviewFragment__view_once_toggle_accessibility_label">Копче за еднократен преглед</string>
+    <!-- Accessibility label describing the send media button on the Media review screen -->
+    <string name="MediaReviewFragment__send_media_accessibility_label">Испратете ја медиумската датотека</string>
+    <!-- Accessibility label describing the finish adding a message button on the Media review screen dialog -->
+    <string name="MediaReviewFragment__finish_adding_a_message_accessibility_label">Завршете со додавање порака</string>
     <!-- Small notification presented to the user when they set multiple media items to be sent in high visual quality. -->
     <plurals name="MediaReviewFragment__items_set_to_high_quality">
         <item quantity="one">%1$d датотека е поставена на висок квалитет</item>
@@ -5726,7 +5878,7 @@
     <!-- The title of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
     <string name="MediaCaptureFragment_device_link_dialog_title">Сакате да се поврзе уредот?</string>
     <!-- The body of a dialog notifying that the user scanned a QR code that could be used to link a Signal device. -->
-    <string name="MediaCaptureFragment_device_link_dialog_body">Изгледа дека сакате да поврзете Signal уред. Допрете „продолжи“ и скенирајте го кодот уште еднаш за поврзување.</string>
+    <string name="MediaCaptureFragment_it_looks_like_youre_trying">Изгледа дека сакате да поврзете Signal уред. Допрете na „Продолжи“, па допрете на „Поврзете нов уред“ и скенирајте го QR кодот повторно.</string>
     <!-- The label of a dialog asking the user if they would like to continue to the linked device settings screen. -->
     <string name="MediaCaptureFragment_device_link_dialog_continue">Продолжи</string>
 
@@ -5821,6 +5973,7 @@
 
     <string name="MySupportPreference__s_per_month">%1$s/месец</string>
     <string name="MySupportPreference__renews_s">Се обновува на %1$s</string>
+    <!-- Subtitle shown when processing a donation transaction -->
     <string name="MySupportPreference__processing_transaction">Трансакцијата се обработува…</string>
     <!-- Displayed on "My Support" screen when user badge failed to be added to their account -->
     <string name="MySupportPreference__couldnt_add_badge_s">Не може да се додаде беџ. %1$s</string>
@@ -5832,7 +5985,7 @@
     <!-- Displayed in the pending help dialog, used to launch user to more details about bank transfers -->
     <string name="MySupportPreference__learn_more">Дознајте повеќе</string>
     <!-- Displayed when a subscription refresh is being performed -->
-    <string name="MySupportPreference__checking_subscription">Checking subscription…</string>
+    <string name="MySupportPreference__checking_subscription">Се проверува претплатата…</string>
 
     <!-- Title of dialog telling user they need to update signal as it expired -->
     <string name="UpdateSignalExpiredDialog__title">Ажурирај го Signal</string>
@@ -5931,7 +6084,7 @@
     <string name="DonationsErrors__your_payment_is_still">Вашата донација сѐ уште се обработува. Ова може да потрае неколку минути, во зависност од вашата мрежна поврзаност.</string>
     <string name="DonationsErrors__failed_to_cancel_subscription">Откажувањето на претплатата е неуспешно</string>
     <string name="DonationsErrors__subscription_cancellation_requires_an_internet_connection">За откажување на претплата потребна е интернет врска.</string>
-    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support_google_pay_so_you_can_t_subscribe_to_earn_a_badge_you_can_still_support_signal_by_making_a_donation_on_our_website">Вашиот уред не поддржува Google Pay, затоа не можете да се претплатите за да добиете беџ. Сѐ уште можете да го поддржите Signal преку донација на нашата веб-локација.</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__your_device_doesn_t_support">Вашиот уред не поддржува донации во апликацијата, затоа не можете да се претплатите за да добиете беџ. Сѐ уште можете да го поддржите Signal преку донација на нашата веб-локација.</string>
     <string name="NetworkFailure__network_error_check_your_connection_and_try_again">Грешка во мрежата. Проверете ја Вашата интернет врска и обидете се повторно.</string>
     <string name="NetworkFailure__retry">Обидете се повторно</string>
     <!-- Displayed as a dialog title when the selected recipient for a gift doesn\'t support gifting -->
@@ -6171,6 +6324,16 @@
 
     <!-- Description shown for the Signal Release Notes channel -->
     <string name="ReleaseNotes__signal_release_notes_and_news">Белешки за нова верзија на Signal и новости</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat_period">Ова е официјалниот и единствен разговор со Signal.</string>
+    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date_period">Бидете во тек со новостите и белешките за новите верзии.</string>
+    <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__this_is_official_chat">Ова е официјалниот и единствен разговор со Signal</string>
+    <!-- Text description in Signal Release channel details explaining what the channel is for -->
+    <string name="ReleaseNotes__keep_up_to_date">Бидете во тек со новостите и белешките за новите верзии</string>
+    <!-- Subtitle for the Signal Release channel explaining that it is the only chat from Signal -->
+    <string name="ReleaseNotes__official_only_chat">Официјален и единствен разговор со Signal</string>
 
     <!-- Donation receipts activity title -->
     <string name="DonationReceiptListFragment__all_activity">Цела активност</string>
@@ -6233,7 +6396,7 @@
     <string name="StoriesLandingItem__info">Информации</string>
     <!-- Label when a story is pending sending -->
     <string name="StoriesLandingItem__sending">Се испраќа…</string>
-    <!-- Label when multiple stories are pending sending -->
+    <!-- Label when multiple stories are pending sending where %1$d is the number of stories being sent -->
     <string name="StoriesLandingItem__sending_d">Се испраќа %1$d…</string>
     <!-- Label when a story fails to send due to networking -->
     <string name="StoriesLandingItem__send_failed">Испраќањето е неуспешно</string>
@@ -7202,6 +7365,8 @@
     <string name="CameraControls_capture_button_accessibility_label">Копче за снимање</string>
     <!-- Accessibility label describing the continue button on the camera screen -->
     <string name="CameraControls_continue_button_accessibility_label">Копче за продолжување</string>
+    <!-- Accessibility label describing the flash Mode toggle button on the camera screen -->
+    <string name="CameraControls_toggle_flash_mode_accessibility_label">Копче за блиц</string>
 
     <!-- CallPreference -->
     <!-- Generic group call in call info -->
@@ -7547,8 +7712,8 @@
     <string name="BackupAlertBottomSheet__couldnt_complete_backup">Не можеше да се направи резервна копија</string>
     <!-- Sheet body for generic backup error. Placeholder is days since last backup. -->
     <plurals name="BackupAlertBottomSheet__your_device_hasnt">
-        <item quantity="one">Your device hasn\'t completed a backup for %1$d day. Make sure your device is connected to wi-fi and tap \"Back up now.\" </item>
-        <item quantity="other">Your device hasn\'t completed a backup for %1$d days. Make sure your device is connected to wi-fi and tap \"Back up now.\"</item>
+        <item quantity="one">Вашиот уред нема направено резервна копија %1$d ден. Проверете дали уредот e поврзан на Wi-Fi и допрете на „Направи резервна копија сега“. </item>
+        <item quantity="other">Вашиот уред нема направено резервна копија %1$d дена. Проверете дали уредот e поврзан на Wi-Fi и допрете на „Направи резервна копија сега“.</item>
     </plurals>
     <!-- Clickable text to learn more about the content of this bottom sheet -->
     <string name="BackupAlertBottomSheet__learn_more">Дознајте повеќе</string>
@@ -7902,6 +8067,10 @@
     <!-- Action button label to contact support -->
     <string name="SubscriptionNotFoundBottomSheet__contact_support">Контактирајте го тимот за корисничка поддршка</string>
 
+    <!-- MessageBackupsFlowFragment -->
+    <!-- Body for network failure dialog in message backups checkout flow -->
+    <string name="MessageBackupsFlowFragment__a_network_failure_occurred">Имаше проблем со мрежата. Обидете се повторно подоцна.</string>
+
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
     <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Направете резервна копија на вашите пораки и медиумски датотеки со користење на безбедната и целосно шифрирана услуга за складирање на Signal. Не губете ниту една порака кога ќе земете нов телефон или ќе ја реинсталирате Signal апликацијата.</string>
@@ -8051,6 +8220,26 @@
     <string name="EnterBackupKey_learn_more">Дознајте повеќе</string>
     <!-- Backup key not known bottom sheet button to skip backup key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Прескокнете и не враќајте</string>
+    <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_title">Неточен клуч за резервни копии</string>
+    <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
+    <string name="EnterBackupKey_incorrect_backup_key_message">Проверете дали се регистрирате со истиот телефонски број и клучот за резервни копии од 64 знаци што го зачувавте кога овозможивте резервни копии на Signal. Резервните копии не може да се вратат без овој клуч.</string>
+    <!-- Dialog positive button text to try entering their backup key again -->
+    <string name="EnterBackupKey_try_again">Обидете се повторно</string>
+    <!-- Dialog negative button text to get help with backup key -->
+    <string name="EnterBackupKey_backup_key_help">Помош за клуч за резервни копии</string>
+    <!-- Text field error text when the backup key provided has been confirmed invalid -->
+    <string name="EnterBackupKey_incorrect_backup_key_error">Неточен клуч за резервни копии</string>
+    <!-- Text field error text when the backup key is too long -->
+    <string name="EnterBackupKey_too_long_error">Предолго (%1$d/%2$d)</string>
+    <!-- Text field error when the backup key is invalid -->
+    <string name="EnterBackupKey_invalid_backup_key_error">Неважечки клуч за резервни копии</string>
+    <!-- Dialog title shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_not_found">Резервната копија не е пронајдена</string>
+    <!-- Dialog message shown during registration and trying to restore a remote backup -->
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Клучот за резервни копии што го имате внесено е точен, но нема резервна копија поврзана со него. Ако сè уште го имате стариот телефон, проверете дали се овозможени резервните копии и дaли е направена резервна копија и обидете се повторно.</string>
+    <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
+    <string name="EnterBackupKey_skip_restore">Прескокни враќање</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">Скенирајте го овој код со вашиот стар телефон</string>

@@ -59,7 +59,7 @@ class RemoteBackupsSettingsViewModel : ViewModel() {
     RemoteBackupsSettingsState(
       backupsEnabled = SignalStore.backup.areBackupsEnabled,
       lastBackupTimestamp = SignalStore.backup.lastBackupTime,
-      backupSize = SignalStore.backup.totalBackupSize,
+      backupMediaSize = SignalStore.backup.totalBackupSize,
       backupsFrequency = SignalStore.backup.backupFrequency,
       canBackUpUsingCellular = SignalStore.backup.backupWithCellular,
       canRestoreUsingCellular = SignalStore.backup.restoreWithCellular
@@ -162,7 +162,7 @@ class RemoteBackupsSettingsViewModel : ViewModel() {
         backupsEnabled = SignalStore.backup.areBackupsEnabled,
         backupState = RemoteBackupsSettingsState.BackupState.Loading,
         lastBackupTimestamp = SignalStore.backup.lastBackupTime,
-        backupSize = SignalStore.backup.totalBackupSize,
+        backupMediaSize = SignalStore.backup.totalBackupSize,
         backupsFrequency = SignalStore.backup.backupFrequency,
         canBackUpUsingCellular = SignalStore.backup.backupWithCellular,
         canRestoreUsingCellular = SignalStore.backup.restoreWithCellular
@@ -204,18 +204,27 @@ class RemoteBackupsSettingsViewModel : ViewModel() {
         BackupRepository.getBackupsType(MessageBackupTier.PAID) as MessageBackupsType.Paid
       }
 
-      if (hasActiveSignalSubscription && !hasActiveGooglePlayBillingSubscription) {
-        _state.update {
-          it.copy(
-            backupState = RemoteBackupsSettingsState.BackupState.SubscriptionMismatchMissingGooglePlay(
-              messageBackupsType = type,
-              renewalTime = activeSubscription!!.activeSubscription.endOfCurrentPeriod.seconds
+      when {
+        hasActiveSignalSubscription && !hasActiveGooglePlayBillingSubscription -> {
+          _state.update {
+            it.copy(
+              backupState = RemoteBackupsSettingsState.BackupState.SubscriptionMismatchMissingGooglePlay(
+                messageBackupsType = type,
+                renewalTime = activeSubscription!!.activeSubscription.endOfCurrentPeriod.seconds
+              )
             )
-          )
+          }
+
+          return
+        }
+        hasActiveSignalSubscription && hasActiveGooglePlayBillingSubscription -> {
+          Log.d(TAG, "Found erroneous mismatch. Clearing.")
+          SignalStore.backup.subscriptionStateMismatchDetected = false
+        }
+        else -> {
+          return
         }
       }
-
-      return
     }
 
     when (tier) {
