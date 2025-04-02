@@ -28,6 +28,55 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/country_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="36dp"
+                android:background="@drawable/country_picker_background"
+                android:minHeight="56dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/verify_subheader">
+
+                <TextView
+                    android:id="@+id/country_emoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:textAlignment="center"
+                    android:textSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="🇺🇸" />
+
+                <TextView
+                    android:id="@+id/country"
+                    style="@style/Signal.Text.BodyLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/RegistrationActivity_select_a_country"
+                    android:textColor="@color/signal_colorOnSurfaceVariant"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/country_emoji"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/symbol_dropdown_triangle_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/signal_colorOnSurfaceVariant" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/verify_subheader"
                 style="@style/Signal.Text.BodyLarge"
@@ -75,26 +124,33 @@
                 android:id="@+id/country_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="120dp"
                 android:background="@color/black"
                 android:clickable="false"
                 android:descendantFocusability="blocksDescendants"
                 android:enabled="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:padding="0dp"
+                android:layout_margin="0dp"
                 android:visibility="visible"
+                app:boxBackgroundMode="none"
                 app:errorEnabled="false"
                 app:hintEnabled="false">
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                <com.google.android.material.textfield.TextInputEditText
                     style="@style/Mp02.Signal.Text.BigCommonTextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_margin="0dp"
                     android:backgroundTint="@color/black"
                     android:clickable="false"
                     android:enabled="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
+                    android:includeFontPadding="false"
                     android:maxLength="4"
+                    android:minWidth="0dp"
                     android:padding="0dp"
                     android:singleLine="true"
                     android:textColor="@color/white_focus"
@@ -107,7 +163,6 @@
                 android:id="@+id/number"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/pigeon_bottom_margin"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
