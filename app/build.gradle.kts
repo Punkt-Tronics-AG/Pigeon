@@ -20,7 +20,7 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
-val pigeonVersionCode = 127535
+val pigeonVersionCode = 127536
 val canonicalVersionCode = 1530
 val canonicalVersionName = "Pigeon 2.0.0024 upon Signal 7.38.7"
 val currentHotfixVersion = 0
@@ -474,7 +474,7 @@ dependencies {
   coreLibraryDesugaring(libs.android.tools.desugar)
 
   // for Pigeon
-  implementation(files("libs/ringrtc-android-2.49.3.aar"))
+  implementation(files("libs/ringrtc-android-2.50.0.aar"))
 
 
   implementation(project(":libsignal-service"))
