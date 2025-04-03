@@ -16,6 +16,8 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.databinding.PigeonFragmentRegistrationCountryCodeBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
+import org.thoughtcrime.securesms.registration.ui.countrycode.Country
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
 import pigeon.extensions.isSignalVersion
@@ -59,7 +61,12 @@ class CountryCodeFragment : LoggingFragment() {
         }
         countryCodeLayout.setOnClickListener {
           //SIGNAL CODE
-//          findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(sharedViewModel.uiState.value))
+          if (isSignalVersion()) {
+            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(Country("", "", -1, "")))
+          } else {
+            val country = CountryUtils.getCountries().firstOrNull { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode } ?: CountryUtils.getCountries().first()
+            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(country))
+          }
         }
       }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
