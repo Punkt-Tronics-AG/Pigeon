@@ -100,6 +100,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
+    Log.i(TAG, "onViewCreated() called with: view = $view, savedInstanceState = $savedInstanceState")
     requireActivity().onBackPressedDispatcher.addCallback(
       viewLifecycleOwner,
       object : OnBackPressedCallback(true) {

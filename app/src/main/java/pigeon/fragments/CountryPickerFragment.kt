@@ -21,7 +21,7 @@ import pigeon.base.CountryListLoader
 
 class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<ArrayList<Map<String, String>>> {
   private var countryFilter: EditText? = null
-  private val model by activityViewModels<RegistrationViewModel>()
+  private val sharedViewModel by activityViewModels<RegistrationViewModel>()
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, bundle: Bundle?): View? {
     return inflater.inflate(R.layout.pigeon_fragment_registration_country_picker, container, false)
@@ -43,7 +43,7 @@ class CountryPickerFragment : ListFragment(), LoaderManager.LoaderCallbacks<Arra
     val countryCode = item["country_code"]!!.replace("+", "").toInt()
     val countryName = item["country_name"]
 
-    model.setNewCountry(countryCode)
+    sharedViewModel.setNewCountry(countryCode)
 
     NavHostFragment.findNavController(this).navigateUp()
   }

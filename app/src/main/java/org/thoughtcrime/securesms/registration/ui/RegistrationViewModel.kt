@@ -150,6 +150,7 @@ class RegistrationViewModel : ViewModel() {
 
   // PIGEON CODE
   fun setNewCountry(countryCode: Int) {
+    Log.v(TAG, "setNewCountry() code: $countryCode")
     store.update {
       it.copy(pigeonCountryCode = countryCode)
     }

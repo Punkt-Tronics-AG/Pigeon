@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.registration.ui.phonenumber
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -59,6 +60,7 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationState
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
 import org.thoughtcrime.securesms.registration.ui.toE164
 import org.thoughtcrime.securesms.registration.util.CountryPrefix
 import org.thoughtcrime.securesms.util.CommunicationActions
@@ -94,6 +96,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
 
   private var currentPhoneNumberFormatter: AsYouTypeFormatter? = null
 
+  @SuppressLint("SetTextI18n")
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
@@ -109,22 +112,26 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     spinnerView = binding.countryCode.editText as TextInputEditText
     countryPickerView = binding.countryPicker
 
-    // PIGEON CODE
-    binding.countryCode.isEnabled = false
-    fragmentViewModel.setCountry(sharedViewModel.uiState.value?.pigeonCountryCode ?: -1)
-
 
     countryPickerView.setOnClickListener {
       moveToCountryPickerScreen()
     }
 
-    parentFragmentManager.setFragmentResultListener(
-      CountryCodeFragment.REQUEST_KEY_COUNTRY,
-      this
-    ) { _, bundle ->
-      val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
-      fragmentViewModel.setCountry(country.countryCode, country)
+    if (isSignalVersion()) {
+      parentFragmentManager.setFragmentResultListener(
+        CountryCodeFragment.REQUEST_KEY_COUNTRY,
+        this
+      ) { _, bundle ->
+        val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
+        fragmentViewModel.setCountry(country.countryCode, country)
+      }
     }
+
+    // PIGEON CODE
+    binding.countryCode.isEnabled = false
+    val country = CountryUtils.getCountries().find { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode }
+    Log.i("PIGEON CODE", "Country: $country")
+    fragmentViewModel.setCountry(country?.countryCode ?: -1, country)
 
     spinnerAdapter = ArrayAdapter<CountryPrefix>(
       requireContext(),
@@ -207,12 +214,16 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     val existingNationalNumber = sharedViewModel.nationalNumber
     if (existingPhoneNumber != null) {
       fragmentViewModel.restoreState(existingPhoneNumber)
-      spinnerView.setText(existingPhoneNumber.countryCode.toString())
+      spinnerView.setText("+${existingPhoneNumber.countryCode.toString()}")
       phoneNumberInputLayout.setText(existingPhoneNumber.nationalNumber.toString())
-    } else if (spinnerView.text?.isEmpty() == true) {
-      spinnerView.setText(fragmentViewModel.getDefaultCountryCode(requireContext()).toString())
+    } else if (spinnerView.text?.isEmpty() == true && isSignalVersion()) {
+      spinnerView.setText("+${fragmentViewModel.getDefaultCountryCode(requireContext()).toString()}")
       phoneNumberInputLayout.setText(existingNationalNumber)
     } else {
+      if (isPigeonVersion()){
+        fragmentViewModel.setCountry(country?.countryCode ?: -1, country)
+        spinnerView.setText("+${sharedViewModel.uiState.value?.pigeonCountryCode.toString()}")
+      }
       phoneNumberInputLayout.setText(existingNationalNumber)
     }
 
@@ -225,7 +236,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       binding.countryEmoji.text = country.emoji
       binding.country.text = country.name
       if (spinnerView.text.toString() != country.countryCode.toString()) {
-        spinnerView.setText(country.countryCode.toString())
+        spinnerView.setText("+${country.countryCode.toString()}")
       }
     } else {
       binding.countryEmoji.visible = false
@@ -316,6 +327,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
 
   private fun presentLocalError(state: EnterPhoneNumberState) {
     if (isPigeonVersion()) {
+      Log.e(TAG, "Local error: ${state.error.name}")
       if (state.error != EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER) {
         Unit
       } else {
@@ -541,7 +553,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
           dialogInterface.dismiss()
         }
         setPositiveButton(R.string.yes) { dialogInterface, _ ->
-          spinnerView.setText(phoneNumber.countryCode.toString())
+          spinnerView.setText("+${phoneNumber.countryCode.toString()}")
           phoneNumberInputLayout.setText(phoneNumber.nationalNumber.toString())
           when (mode) {
             RegistrationRepository.E164VerificationMode.SMS_WITH_LISTENER,
@@ -565,6 +577,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun onRegistrationButtonClicked() {
+    Log.i("TAG", "onRegistrationButtonClicked")
     ViewUtil.hideKeyboard(requireContext(), phoneNumberInputLayout)
     sharedViewModel.setInProgress(true)
     val hasFcm = if (isSignalVersion()) validateFcmStatus(requireContext()) else false

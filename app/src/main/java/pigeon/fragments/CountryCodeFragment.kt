@@ -53,7 +53,6 @@ class CountryCodeFragment : LoggingFragment() {
       nextButton.setOnClickListener { v: View -> handleRegister(v) }
       if (!isSignalVersion()) {
         countryCodeLayout.focusOnRight()
-        sharedViewModel.phoneNumber?.countryCode?.let { sharedViewModel.setNewCountry(it) }
         if (sharedViewModel.phoneNumber?.countryCode == null) {
           countryCodeLayout.requestFocus()
         } else {
@@ -72,12 +71,15 @@ class CountryCodeFragment : LoggingFragment() {
       disposables.bindTo(viewLifecycleOwner.lifecycle)
     }
 
+  }
+
+  override fun onResume() {
+    super.onResume()
     sharedViewModel.uiState.observe(viewLifecycleOwner) {
       val countryCode = it.pigeonCountryCode?.toString()
       println("countryCode: $countryCode")
       binding?.countryCode?.editText?.setText(if (countryCode != null) "+$countryCode" else "")
     }
-
   }
 
   private fun handleRegister(view: View) {
