@@ -103,8 +103,7 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
     val bannerManager = remember {
       BannerManager(
         banners = listOf(
-          DeprecatedBuildBanner(),
-          UnauthorizedBanner(context)
+          DeprecatedBuildBanner(), UnauthorizedBanner(context)
         )
       )
     }
@@ -114,11 +113,7 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
     }
 
     AppSettingsContent(
-      self = self!!,
-      state = state!!,
-      bannerManager = bannerManager,
-      callbacks = this,
-      lazyColumnModifier = Modifier.nestedScroll(nestedScrollConnection)
+      self = self!!, state = state!!, bannerManager = bannerManager, callbacks = this, lazyColumnModifier = Modifier.nestedScroll(nestedScrollConnection)
     )
   }
 
@@ -142,21 +137,18 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
 
   override fun copyDonorBadgeSubscriberIdToClipboard() {
     copySubscriberIdToClipboard(
-      subscriberType = InAppPaymentSubscriberRecord.Type.DONATION,
-      toastSuccessStringRes = R.string.AppSettingsFragment__copied_donor_subscriber_id_to_clipboard
+      subscriberType = InAppPaymentSubscriberRecord.Type.DONATION, toastSuccessStringRes = R.string.AppSettingsFragment__copied_donor_subscriber_id_to_clipboard
     )
   }
 
   override fun copyRemoteBackupsSubscriberIdToClipboard() {
     copySubscriberIdToClipboard(
-      subscriberType = InAppPaymentSubscriberRecord.Type.BACKUP,
-      toastSuccessStringRes = R.string.AppSettingsFragment__copied_backups_subscriber_id_to_clipboard
+      subscriberType = InAppPaymentSubscriberRecord.Type.BACKUP, toastSuccessStringRes = R.string.AppSettingsFragment__copied_backups_subscriber_id_to_clipboard
     )
   }
 
   private fun copySubscriberIdToClipboard(
-    subscriberType: InAppPaymentSubscriberRecord.Type,
-    @StringRes toastSuccessStringRes: Int
+    subscriberType: InAppPaymentSubscriberRecord.Type, @StringRes toastSuccessStringRes: Int
   ) {
     lifecycleScope.launch {
       val subscriber = withContext(Dispatchers.IO) {
@@ -175,15 +167,10 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
 
 @Composable
 private fun AppSettingsContent(
-  self: BioRecipientState,
-  state: AppSettingsState,
-  bannerManager: BannerManager,
-  callbacks: Callbacks,
-  lazyColumnModifier: Modifier = Modifier
+  self: BioRecipientState, state: AppSettingsState, bannerManager: BannerManager, callbacks: Callbacks, lazyColumnModifier: Modifier = Modifier
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
   val focusRequester = remember { FocusRequester() }
-  val focusManager = LocalFocusManager.current
 
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
@@ -192,17 +179,18 @@ private fun AppSettingsContent(
     onNavigationClick = callbacks::onNavigationClick
   ) { contentPadding ->
     Column(
-      modifier = Modifier.padding(contentPadding).focusRequester(focusRequester)
+      modifier = Modifier
+        .padding(0.dp)
+        .focusRequester(focusRequester)
     ) {
       bannerManager.Banner()
 
       LazyColumn(
-        modifier = lazyColumnModifier
+        modifier = lazyColumnModifier.padding(0.dp)
       ) {
         item {
           BioRow(
-            self = self,
-            callbacks = callbacks
+            self = self, callbacks = callbacks
           )
         }
 
@@ -214,11 +202,9 @@ private fun AppSettingsContent(
                 Dividers.Default()
 
                 BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
-                  onClick = {
+                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription), onClick = {
                     callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
+                  })
 
                 Dividers.Default()
               }
@@ -229,12 +215,10 @@ private fun AppSettingsContent(
                 Dividers.Default()
 
                 BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
-                  onClick = {
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup), onClick = {
                     BackupRepository.markBackupFailedIndicatorClicked()
                     callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
+                  })
 
                 Dividers.Default()
               }
@@ -245,12 +229,10 @@ private fun AppSettingsContent(
                 Dividers.Default()
 
                 BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
-                  onClick = {
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription), onClick = {
                     BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
                     callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
+                  })
 
                 Dividers.Default()
               }
@@ -262,12 +244,9 @@ private fun AppSettingsContent(
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.AccountSettingsFragment__account),
-            icon = if (isSignalVersion()) painterResource(R.drawable.symbol_person_circle_24) else null,
-            onClick = {
+            text = stringResource(R.string.AccountSettingsFragment__account), icon = if (isSignalVersion()) painterResource(R.drawable.symbol_person_circle_24) else null, onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_accountSettingsFragment)
-            }
-          )
+            })
         }
 
 
@@ -275,12 +254,9 @@ private fun AppSettingsContent(
           // fixme
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__linked_devices),
-              icon = painterResource(R.drawable.symbol_devices_24),
-              onClick = {
+              text = stringResource(R.string.preferences__linked_devices), icon = painterResource(R.drawable.symbol_devices_24), onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
-              },
-              enabled = isRegisteredAndUpToDate
+              }, enabled = isRegisteredAndUpToDate
             )
           }
         }
@@ -289,40 +265,29 @@ private fun AppSettingsContent(
           val context = LocalContext.current
           val donateUrl = stringResource(R.string.donate_url)
 
-          Rows.TextRow(
-            visible = isSignalVersion(),
-            text = {
-              Text(
-                text = stringResource(R.string.preferences__donate_to_signal),
-                modifier = Modifier.weight(1f)
-              )
+          Rows.TextRow(visible = isSignalVersion(), text = {
+            Text(
+              text = stringResource(R.string.preferences__donate_to_signal), modifier = Modifier.weight(1f)
+            )
 
-              if (state.hasExpiredGiftBadge) {
-                Icon(
-                  painter = painterResource(R.drawable.symbol_info_fill_24),
-                  tint = colorResource(R.color.signal_accent_primary),
-                  contentDescription = null
-                )
-              }
-            },
-            icon = {
+            if (state.hasExpiredGiftBadge) {
               Icon(
-                painter = painterResource(R.drawable.symbol_heart_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
+                painter = painterResource(R.drawable.symbol_info_fill_24), tint = colorResource(R.color.signal_accent_primary), contentDescription = null
               )
-            },
-            onClick = {
-              if (state.allowUserToGoToDonationManagementScreen) {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_manageDonationsFragment)
-              } else {
-                CommunicationActions.openBrowserLink(context, donateUrl)
-              }
-            },
-            onLongClick = {
-              callbacks.copyDonorBadgeSubscriberIdToClipboard()
             }
-          )
+          }, icon = {
+            Icon(
+              painter = painterResource(R.drawable.symbol_heart_24), contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
+            )
+          }, onClick = {
+            if (state.allowUserToGoToDonationManagementScreen) {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_manageDonationsFragment)
+            } else {
+              CommunicationActions.openBrowserLink(context, donateUrl)
+            }
+          }, onLongClick = {
+            callbacks.copyDonorBadgeSubscriberIdToClipboard()
+          })
         }
 
         if (isSignalVersion()) {
@@ -332,97 +297,72 @@ private fun AppSettingsContent(
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__appearance),
-              icon = painterResource(R.drawable.symbol_appearance_24),
-              onClick = {
+              text = stringResource(R.string.preferences__appearance), icon = painterResource(R.drawable.symbol_appearance_24), onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_appearanceSettingsFragment)
-              }
-            )
+              })
           }
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences_chats__chats),
-            icon = painterResource(R.drawable.symbol_chat_24),
-            onClick = {
+            text = stringResource(R.string.preferences_chats__chats), icon = painterResource(R.drawable.symbol_chat_24), onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
-            },
-            enabled = isRegisteredAndUpToDate
+            }, enabled = isRegisteredAndUpToDate
           )
         }
 
         if (isSignalVersion()) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__stories),
-              icon = painterResource(R.drawable.symbol_stories_24),
-              onClick = {
+              text = stringResource(R.string.preferences__stories), icon = painterResource(R.drawable.symbol_stories_24), onClick = {
                 callbacks.navigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(R.string.preferences__stories))
-              },
-              enabled = isRegisteredAndUpToDate
+              }, enabled = isRegisteredAndUpToDate
             )
           }
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__notifications),
-            icon = painterResource(R.drawable.symbol_bell_24),
-            onClick = {
+            text = stringResource(R.string.preferences__notifications), icon = painterResource(R.drawable.symbol_bell_24), onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
-            },
-            enabled = isRegisteredAndUpToDate
+            }, enabled = isRegisteredAndUpToDate
           )
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__privacy),
-            icon = painterResource(R.drawable.symbol_lock_24),
-            onClick = {
+            text = stringResource(R.string.preferences__privacy), icon = painterResource(R.drawable.symbol_lock_24), onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
-            },
-            enabled = isRegisteredAndUpToDate
+            }, enabled = isRegisteredAndUpToDate
           )
         }
 
         if (state.showBackups) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences_chats__backups),
-              icon = painterResource(R.drawable.symbol_backup_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
-              },
-              onLongClick = {
-                callbacks.copyRemoteBackupsSubscriberIdToClipboard()
-              },
-              enabled = isRegisteredAndUpToDate
+              text = stringResource(R.string.preferences_chats__backups), icon = painterResource(R.drawable.symbol_backup_24), onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+            }, onLongClick = {
+              callbacks.copyRemoteBackupsSubscriberIdToClipboard()
+            }, enabled = isRegisteredAndUpToDate
             )
           }
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__data_and_storage),
-            icon = painterResource(R.drawable.symbol_data_24),
-            onClick = {
+            text = stringResource(R.string.preferences__data_and_storage), icon = painterResource(R.drawable.symbol_data_24), onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
-            }
-          )
+            })
         }
 
         if (isSignalVersion()) {
           if (state.showAppUpdates) {
             item {
               Rows.TextRow(
-                text = "App updates",
-                icon = painterResource(R.drawable.symbol_calendar_24),
-                onClick = {
+                text = "App updates", icon = painterResource(R.drawable.symbol_calendar_24), onClick = {
                   callbacks.navigate(R.id.action_appSettingsFragment_to_appUpdatesSettingsFragment)
-                }
-              )
+                })
             }
           }
 
@@ -432,40 +372,28 @@ private fun AppSettingsContent(
             }
 
             item {
-              Rows.TextRow(
-                text = {
-                  Text(
-                    text = stringResource(R.string.preferences__payments),
-                    modifier = Modifier.weight(1f)
-                  )
+              Rows.TextRow(text = {
+                Text(
+                  text = stringResource(R.string.preferences__payments), modifier = Modifier.weight(1f)
+                )
 
-                  if (state.unreadPaymentsCount > 0) {
-                    Text(
-                      text = state.unreadPaymentsCount.toString(),
-                      color = MaterialTheme.colorScheme.inverseOnSurface,
-                      style = MaterialTheme.typography.bodyMedium,
-                      textAlign = TextAlign.Center,
-                      modifier = Modifier
-                        .background(
-                          color = MaterialTheme.colorScheme.primary,
-                          shape = RoundedCornerShape(50)
-                        )
-                        .defaultMinSize(minWidth = 30.dp)
-                        .padding(4.dp)
-                    )
-                  }
-                },
-                icon = {
-                  Icon(
-                    painter = painterResource(R.drawable.symbol_payment_24),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                if (state.unreadPaymentsCount > 0) {
+                  Text(
+                    text = state.unreadPaymentsCount.toString(), color = MaterialTheme.colorScheme.inverseOnSurface, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier
+                      .background(
+                        color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(50)
+                      )
+                      .defaultMinSize(minWidth = 30.dp)
+                      .padding(4.dp)
                   )
-                },
-                onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
                 }
-              )
+              }, icon = {
+                Icon(
+                  painter = painterResource(R.drawable.symbol_payment_24), contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
+                )
+              }, onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+              })
             }
           }
 
@@ -475,22 +403,16 @@ private fun AppSettingsContent(
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__help),
-              icon = painterResource(R.drawable.symbol_help_24),
-              onClick = {
+              text = stringResource(R.string.preferences__help), icon = painterResource(R.drawable.symbol_help_24), onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
-              }
-            )
+              })
           }
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-              icon = painterResource(R.drawable.symbol_invite_24),
-              onClick = {
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends), icon = painterResource(R.drawable.symbol_invite_24), onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_inviteActivity)
-              }
-            )
+              })
           }
         }
 
@@ -503,11 +425,9 @@ private fun AppSettingsContent(
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences),
-              onClick = {
+              text = stringResource(R.string.preferences__internal_preferences), onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
-              }
-            )
+              })
           }
         }
 
@@ -518,31 +438,26 @@ private fun AppSettingsContent(
 
 @Composable
 private fun BackupsWarningRow(
-  text: String,
-  onClick: () -> Unit
+  text: String, onClick: () -> Unit
 ) {
   Rows.TextRow(
     text = {
-      Text(text = text)
-    },
-    icon = {
-      Box {
-        Icon(
-          painter = painterResource(R.drawable.symbol_backup_24),
-          tint = MaterialTheme.colorScheme.onSurface,
-          contentDescription = null
-        )
+    Text(text = text)
+  }, icon = {
+    Box {
+      Icon(
+        painter = painterResource(R.drawable.symbol_backup_24), tint = MaterialTheme.colorScheme.onSurface, contentDescription = null
+      )
 
-        Box(
-          modifier = Modifier
-            .absoluteOffset(3.dp, (-2).dp)
-            .background(color = Color(0xFFFFCC00), shape = CircleShape)
-            .size(12.dp)
-            .align(Alignment.TopEnd)
-        )
-      }
-    },
-    onClick = onClick
+      Box(
+        modifier = Modifier
+          .absoluteOffset(3.dp, (-2).dp)
+          .background(color = Color(0xFFFFCC00), shape = CircleShape)
+          .size(12.dp)
+          .align(Alignment.TopEnd)
+      )
+    }
+  }, onClick = onClick
   )
 }
 
@@ -554,20 +469,16 @@ private fun BioRow(
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
 
   Row(
-    verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier
+    verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(0.dp)
       .clickable(
         onClick = {
           callbacks.navigate(R.id.action_appSettingsFragment_to_manageProfileActivity)
-        }
-      )
-      .horizontalGutters()
-  ) {
+        })
+      .horizontalGutters(0.dp)) {
     Box {
       if (isSignalVersion()) {
         AvatarImage(
-          recipient = self.recipient,
-          modifier = Modifier
+          recipient = self.recipient, modifier = Modifier
             .padding(vertical = 24.dp)
             .size(80.dp)
         )
@@ -576,8 +487,7 @@ private fun BioRow(
 
       if (self.featuredBadge != null) {
         BadgeImageMedium(
-          badge = self.featuredBadge,
-          modifier = Modifier
+          badge = self.featuredBadge, modifier = Modifier
             .padding(bottom = 24.dp)
             .size(24.dp)
             .align(Alignment.BottomEnd)
@@ -592,9 +502,7 @@ private fun BioRow(
     ) {
       Emojifier(text = self.profileName.toString()) { annotatedString, inlineTextContentMap ->
         Text(
-          text = annotatedString,
-          inlineContent = inlineTextContentMap,
-          style = MaterialTheme.typography.titleLarge
+          text = annotatedString, inlineContent = inlineTextContentMap, style = MaterialTheme.typography.titleLarge
         )
       }
 
@@ -607,14 +515,12 @@ private fun BioRow(
       }
 
       Text(
-        text = prettyPhoneNumber,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        text = prettyPhoneNumber, color = MaterialTheme.colorScheme.onSurfaceVariant
       )
 
       if (hasUsername) {
         Text(
-          text = self.username,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          text = self.username, color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
 
@@ -623,29 +529,22 @@ private fun BioRow(
           text = self.combinedAboutAndEmoji
         ) { annotatedString, inlineTextContentMap ->
           Text(
-            text = annotatedString,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            inlineContent = inlineTextContentMap,
-            modifier = Modifier.padding(top = 8.dp)
+            text = annotatedString, color = MaterialTheme.colorScheme.onSurfaceVariant, inlineContent = inlineTextContentMap, modifier = Modifier.padding(top = 8.dp)
           )
         }
       }
     }
 
-    if (hasUsername) {
+    if (hasUsername && isSignalVersion()) {
       IconButtons.IconButton(
         onClick = {
           callbacks.navigate(R.id.action_appSettingsFragment_to_usernameLinkSettingsFragment)
-        },
-        size = 36.dp,
-        colors = IconButtons.iconButtonColors(
+        }, size = 36.dp, colors = IconButtons.iconButtonColors(
           containerColor = SignalTheme.colors.colorSurface4
         )
       ) {
         Icon(
-          painter = painterResource(R.drawable.symbol_qrcode_24),
-          contentDescription = null,
-          modifier = Modifier.size(20.dp)
+          painter = painterResource(R.drawable.symbol_qrcode_24), contentDescription = null, modifier = Modifier.size(20.dp)
         )
       }
     }
@@ -668,8 +567,7 @@ private fun AppSettingsContentPreview() {
           about = "About",
           isResolving = false
         )
-      ),
-      state = AppSettingsState(
+      ), state = AppSettingsState(
         unreadPaymentsCount = 5,
         hasExpiredGiftBadge = true,
         allowUserToGoToDonationManagementScreen = true,
@@ -680,11 +578,9 @@ private fun AppSettingsContentPreview() {
         showAppUpdates = true,
         showBackups = true,
         backupFailureState = BackupFailureState.SUBSCRIPTION_STATE_MISMATCH
-      ),
-      bannerManager = BannerManager(
-        banners = listOf(TestBanner())
-      ),
-      callbacks = EmptyCallbacks
+      ), bannerManager = BannerManager(
+        banners = if (isSignalVersion()) listOf(TestBanner()) else listOf()
+      ), callbacks = EmptyCallbacks
     )
   }
 }
@@ -705,8 +601,7 @@ private fun BioRowPreview() {
           about = "About",
           isResolving = false
         )
-      ),
-      callbacks = EmptyCallbacks
+      ), callbacks = EmptyCallbacks
     )
   }
 }
@@ -728,13 +623,7 @@ private class TestBanner : Banner<Unit>() {
   @Composable
   override fun DisplayBanner(model: Unit, contentPadding: PaddingValues) {
     DefaultBanner(
-      title = "Test Title",
-      body = "This is a test body",
-      importance = Importance.ERROR,
-      actions = listOf(
-        Action(android.R.string.ok) {}
-      ),
-      paddingValues = contentPadding
-    )
+      title = "Test Title", body = "This is a test body", importance = Importance.ERROR, actions = listOf(
+      Action(android.R.string.ok) {}), paddingValues = contentPadding)
   }
 }

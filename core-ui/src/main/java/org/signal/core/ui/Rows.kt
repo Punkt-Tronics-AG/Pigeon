@@ -41,6 +41,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.Rows.TextAndLabel
 import org.signal.core.ui.theme.SignalTheme
@@ -177,38 +180,29 @@ object Rows {
     enabled: Boolean = true
   ) {
     val focusRequester = remember { FocusRequester() }
-    var textSize by remember { mutableStateOf(14.dp) }
+    var textSize by remember { mutableStateOf(24.dp) }
     var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
 
+    Log.d("Pigeon", "TextRow: $textSize")
+
     TextRow(
+      modifier = Modifier.padding(0.dp),
       text = {
         TextAndLabel(
           text = text,
           label = label,
           textColor = textColor,
-//          textColor = foregroundTint,
-          enabled = enabled
+          modifier = modifier.padding(0.dp)
+            .focusRequester(focusRequester)
+            .focusable(enabled)
+            .focusOnLeft(enabled, true) { hasFocus ->
+              textSize = if (hasFocus) 36.dp else 24.dp
+              textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
+            },
+          enabled = enabled,
+          pigeonTextSize = textSize
         )
       },
-//      icon = if (icon != null ) {
-//        {
-//          Icon(
-//            painter = icon,
-//            contentDescription = null,
-//            tint = foregroundTint,
-//            modifier = iconModifier
-//          )
-//        }
-//      } else {
-//        null
-//      },
-      modifier = modifier
-        .focusRequester(focusRequester)
-        .focusable(enabled)
-        .focusOnLeft(enabled, true) { hasFocus ->
-          textSize = if (hasFocus) 36.dp else 24.dp
-          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
-        },
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -240,22 +234,10 @@ object Rows {
           text = text,
           label = label,
           textColor = textColor,
-//          textColor = foregroundTint,
-          enabled = enabled
+          enabled = enabled,
+          pigeonTextSize = textSize
         )
       },
-//      icon = if (icon != null) {
-//        {
-//          Icon(
-//            imageVector = icon,
-//            contentDescription = null,
-//            tint = foregroundTint,
-//            modifier = iconModifier
-//          )
-//        }
-//      } else {
-//        null
-//      },
       modifier = modifier
         .focusRequester(focusRequester)
         .focusable(enabled)
@@ -286,15 +268,11 @@ object Rows {
     if (!visible) return
 
     val focusRequester = remember { FocusRequester() }
-    var textSize by remember { mutableStateOf(14.dp) }
-    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
 
     Row(
       modifier = modifier
         .focusRequester(focusRequester)
-        .focusOnLeft(enabled, true) { hasFocus ->
-          textSize = if (hasFocus) 36.dp else 24.dp
-          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
+        .focusOnLeft(enabled, true, isMainRoot = true) {
         }
         .fillMaxWidth()
         .combinedClickable(
@@ -314,6 +292,7 @@ object Rows {
   fun Modifier.focusOnLeft(
     enabled: Boolean,
     isPigeonVersion: Boolean = true,
+    isMainRoot: Boolean = false,
     onFocusChanged: (Boolean) -> Unit
   ): Modifier = composed {
     var isFocused by remember { mutableStateOf(false) }
@@ -326,13 +305,14 @@ object Rows {
         onFocusChanged(isFocused)
       }
       .focusable(enabled)
-      .padding(start = if (isFocused) 5.dp else 30.dp)
+      .padding(start = if (!isMainRoot) 0.dp else if (isFocused) 5.dp else 30.dp)
   }
 
   @Composable
   fun defaultPadding(): PaddingValues {
     return PaddingValues(
-      horizontal = dimensionResource(id = R.dimen.gutter),
+      //SIGNAL CODE
+//      horizontal = dimensionResource(id = R.dimen.gutter),
       vertical = 16.dp
     )
   }
@@ -347,7 +327,8 @@ object Rows {
     label: String? = null,
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    textStyle: TextStyle = MaterialTheme.typography.bodyLarge
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    pigeonTextSize: Dp = 24.dp
   ) {
     Column(
       modifier = modifier
@@ -356,8 +337,8 @@ object Rows {
     ) {
       Text(
         text = text,
-        style = textStyle,
-        color = textColor
+        style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
+        color = textColor,
       )
 
       if (label != null) {
