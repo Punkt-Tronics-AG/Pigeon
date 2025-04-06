@@ -402,7 +402,7 @@ private fun SetKeepMessagesScreen(
         }
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_keep_messages_duration_warning),
             style = MaterialTheme.typography.bodyMedium,
@@ -484,7 +484,7 @@ private fun SetChatLengthLimitScreen(
       )
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_length_limit_warning),
             style = MaterialTheme.typography.bodyMedium,

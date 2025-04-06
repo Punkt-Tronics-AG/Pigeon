@@ -265,7 +265,7 @@ private fun AppSettingsContent(
           val context = LocalContext.current
           val donateUrl = stringResource(R.string.donate_url)
 
-          Rows.TextRow(visible = isSignalVersion(), text = {
+          Rows.TextRow(visible = isSignalVersion(), text = { _, _ ->
             Text(
               text = stringResource(R.string.preferences__donate_to_signal), modifier = Modifier.weight(1f)
             )
@@ -341,10 +341,10 @@ private fun AppSettingsContent(
           item {
             Rows.TextRow(
               text = stringResource(R.string.preferences_chats__backups), icon = painterResource(R.drawable.symbol_backup_24), onClick = {
-              callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
-            }, onLongClick = {
-              callbacks.copyRemoteBackupsSubscriberIdToClipboard()
-            }, enabled = isRegisteredAndUpToDate
+                callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+              }, onLongClick = {
+                callbacks.copyRemoteBackupsSubscriberIdToClipboard()
+              }, enabled = isRegisteredAndUpToDate
             )
           }
         }
@@ -372,7 +372,7 @@ private fun AppSettingsContent(
             }
 
             item {
-              Rows.TextRow(text = {
+              Rows.TextRow(text = { _, _ ->
                 Text(
                   text = stringResource(R.string.preferences__payments), modifier = Modifier.weight(1f)
                 )
@@ -441,23 +441,23 @@ private fun BackupsWarningRow(
   text: String, onClick: () -> Unit
 ) {
   Rows.TextRow(
-    text = {
-    Text(text = text)
-  }, icon = {
-    Box {
-      Icon(
-        painter = painterResource(R.drawable.symbol_backup_24), tint = MaterialTheme.colorScheme.onSurface, contentDescription = null
-      )
+    text = { _, _ ->
+      Text(text = text)
+    }, icon = {
+      Box {
+        Icon(
+          painter = painterResource(R.drawable.symbol_backup_24), tint = MaterialTheme.colorScheme.onSurface, contentDescription = null
+        )
 
-      Box(
-        modifier = Modifier
-          .absoluteOffset(3.dp, (-2).dp)
-          .background(color = Color(0xFFFFCC00), shape = CircleShape)
-          .size(12.dp)
-          .align(Alignment.TopEnd)
-      )
-    }
-  }, onClick = onClick
+        Box(
+          modifier = Modifier
+            .absoluteOffset(3.dp, (-2).dp)
+            .background(color = Color(0xFFFFCC00), shape = CircleShape)
+            .size(12.dp)
+            .align(Alignment.TopEnd)
+        )
+      }
+    }, onClick = onClick
   )
 }
 
@@ -469,12 +469,14 @@ private fun BioRow(
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
 
   Row(
-    verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(0.dp)
+    verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+      .padding(0.dp)
       .clickable(
         onClick = {
           callbacks.navigate(R.id.action_appSettingsFragment_to_manageProfileActivity)
         })
-      .horizontalGutters(0.dp)) {
+      .horizontalGutters(0.dp)
+  ) {
     Box {
       if (isSignalVersion()) {
         AvatarImage(
@@ -624,6 +626,7 @@ private class TestBanner : Banner<Unit>() {
   override fun DisplayBanner(model: Unit, contentPadding: PaddingValues) {
     DefaultBanner(
       title = "Test Title", body = "This is a test body", importance = Importance.ERROR, actions = listOf(
-      Action(android.R.string.ok) {}), paddingValues = contentPadding)
+        Action(android.R.string.ok) {}), paddingValues = contentPadding
+    )
   }
 }

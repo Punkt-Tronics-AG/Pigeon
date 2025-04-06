@@ -1,6 +1,5 @@
 package org.signal.core.ui
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -11,12 +10,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -30,23 +32,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.Rows.TextAndLabel
 import org.signal.core.ui.theme.SignalTheme
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isPigeonVersion
 
 object Rows {
 
@@ -179,26 +179,15 @@ object Rows {
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {
-    val focusRequester = remember { FocusRequester() }
-    var textSize by remember { mutableStateOf(24.dp) }
-    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
-
-    Log.d("Pigeon", "TextRow: $textSize")
-
     TextRow(
       modifier = Modifier.padding(0.dp),
-      text = {
+      text = { textSize, textColor ->
         TextAndLabel(
           text = text,
           label = label,
           textColor = textColor,
-          modifier = modifier.padding(0.dp)
-            .focusRequester(focusRequester)
-            .focusable(enabled)
-            .focusOnLeft(enabled, true) { hasFocus ->
-              textSize = if (hasFocus) 36.dp else 24.dp
-              textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
-            },
+          modifier = modifier
+            .padding(0.dp),
           enabled = enabled,
           pigeonTextSize = textSize
         )
@@ -224,27 +213,17 @@ object Rows {
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {
-    val focusRequester = remember { FocusRequester() }
-    var textSize by remember { mutableStateOf(14.dp) }
-    var textColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
 
     TextRow(
-      text = {
+      text = { textSize, textColor ->
         TextAndLabel(
           text = text,
           label = label,
           textColor = textColor,
           enabled = enabled,
-          pigeonTextSize = textSize
+          pigeonTextSize = textSize,
         )
       },
-      modifier = modifier
-        .focusRequester(focusRequester)
-        .focusable(enabled)
-        .focusOnLeft(enabled, true) { hasFocus ->
-          textSize = if (hasFocus) 36.dp else 24.dp
-          textColor = if (hasFocus) Color(0xFFFFFFFF) else Color(0x80FFFFFF)
-        },
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -257,7 +236,7 @@ object Rows {
   @OptIn(ExperimentalFoundationApi::class)
   @Composable
   fun TextRow(
-    text: @Composable RowScope.() -> Unit,
+    text: @Composable RowScope.(Dp, Color) -> Unit,
     modifier: Modifier = Modifier,
     icon: (@Composable RowScope.() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -267,45 +246,33 @@ object Rows {
   ) {
     if (!visible) return
 
-    val focusRequester = remember { FocusRequester() }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    var pigeonTextSize by remember { mutableStateOf(24.dp) }
+    var pigeonTextColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
 
     Row(
       modifier = modifier
-        .focusRequester(focusRequester)
-        .focusOnLeft(enabled, true, isMainRoot = true) {
-        }
         .fillMaxWidth()
         .combinedClickable(
+          interactionSource = interactionSource,
+          indication = null,
           enabled = enabled && (onClick != null || onLongClick != null),
           onClick = onClick ?: {},
           onLongClick = onLongClick ?: {}
-        ).padding(0.dp),
+        )
+        .focusable(enabled)
+        .focusOnLeft(enabled, interactionSource) { hasFocus, textSize, textColor ->
+          pigeonTextSize = textSize
+          pigeonTextColor = textColor
+          Log.d("Pigeon", "TextRow: $hasFocus")
+        }
+        .padding(0.dp),
 //        .padding(defaultPadding()),
       verticalAlignment = CenterVertically
     ) {
-      text()
+      text(pigeonTextSize, pigeonTextColor)
     }
-  }
-
-  // pigeon
-  @SuppressLint("LogNotSignal")
-  fun Modifier.focusOnLeft(
-    enabled: Boolean,
-    isPigeonVersion: Boolean = true,
-    isMainRoot: Boolean = false,
-    onFocusChanged: (Boolean) -> Unit
-  ): Modifier = composed {
-    var isFocused by remember { mutableStateOf(false) }
-
-    this
-      .alpha(if (isPigeonVersion && !enabled) 0.5f else 1.0f)
-      .onFocusChanged { focusState ->
-        Log.d("Pigeon", "focusOnLeft: ${focusState}")
-        isFocused = focusState.isFocused
-        onFocusChanged(isFocused)
-      }
-      .focusable(enabled)
-      .padding(start = if (!isMainRoot) 0.dp else if (isFocused) 5.dp else 30.dp)
   }
 
   @Composable
@@ -339,6 +306,12 @@ object Rows {
         text = text,
         style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
         color = textColor,
+        maxLines = if (isPigeonVersion()) 1 else Int.MAX_VALUE,
+        overflow = if (isPigeonVersion()) {
+          TextOverflow.Ellipsis
+        } else {
+          TextOverflow.Clip
+        },
       )
 
       if (label != null) {

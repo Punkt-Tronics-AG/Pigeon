@@ -601,7 +601,7 @@ private fun LazyListScope.appendBackupDetailsItems(
 
   if (backupState !is RemoteBackupsSettingsState.BackupState.ActiveFree) {
     item {
-      Rows.TextRow(text = {
+      Rows.TextRow(text = { _, _ ->
         Column {
           Text(
             text = stringResource(id = R.string.RemoteBackupsSettingsFragment__backup_size),
@@ -620,7 +620,7 @@ private fun LazyListScope.appendBackupDetailsItems(
 
   item {
     Rows.TextRow(
-      text = {
+      text = { _, _ ->
         Column {
           Text(
             text = stringResource(id = R.string.RemoteBackupsSettingsFragment__backup_frequency),

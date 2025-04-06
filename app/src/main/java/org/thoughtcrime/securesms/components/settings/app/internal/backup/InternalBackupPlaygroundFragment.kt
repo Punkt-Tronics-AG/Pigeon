@@ -383,7 +383,7 @@ fun Screen(
       Dividers.Default()
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = state.statusMessage ?: "Status messages will appear here as you perform operations",
             style = MaterialTheme.typography.bodyMedium,
@@ -468,7 +468,7 @@ fun Screen(
         fontWeight = FontWeight.Bold
       )
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = "The following operations are potentially destructive! Only use them if you know what you're doing.",
             style = MaterialTheme.typography.bodyMedium,

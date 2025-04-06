@@ -204,7 +204,7 @@ private fun NeverEnabledBackupsRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups)
@@ -232,7 +232,7 @@ private fun NeverEnabledBackupsRow(
 @Composable
 private fun WaitingForNetworkRow() {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Text(text = stringResource(R.string.RemoteBackupsSettingsFragment__waiting_for_network))
     },
     icon = {
@@ -273,7 +273,7 @@ private fun ActiveBackupsRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups)
