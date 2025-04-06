@@ -7,6 +7,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
+import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
+import androidx.compose.foundation.MarqueeSpacing
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
@@ -307,10 +311,10 @@ object Rows {
         style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
         color = textColor,
         maxLines = if (isPigeonVersion()) 1 else Int.MAX_VALUE,
-        overflow = if (isPigeonVersion()) {
-          TextOverflow.Ellipsis
+        modifier = if (isPigeonVersion()) {
+          Modifier.basicMarquee(animationMode = Immediately, spacing = MarqueeSpacing(30.dp))
         } else {
-          TextOverflow.Clip
+          Modifier
         },
       )
 

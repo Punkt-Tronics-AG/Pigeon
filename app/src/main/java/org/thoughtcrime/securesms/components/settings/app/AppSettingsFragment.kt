@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -33,7 +34,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -170,7 +170,6 @@ private fun AppSettingsContent(
   self: BioRecipientState, state: AppSettingsState, bannerManager: BannerManager, callbacks: Callbacks, lazyColumnModifier: Modifier = Modifier
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
-  val focusRequester = remember { FocusRequester() }
 
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
@@ -181,7 +180,6 @@ private fun AppSettingsContent(
     Column(
       modifier = Modifier
         .padding(0.dp)
-        .focusRequester(focusRequester)
     ) {
       bannerManager.Banner()
 
@@ -190,10 +188,9 @@ private fun AppSettingsContent(
       ) {
         item {
           BioRow(
-            self = self, callbacks = callbacks
+            self = self, callbacks = callbacks,
           )
         }
-
         if (isSignalVersion()) {
 
           when (state.backupFailureState) {
@@ -464,13 +461,15 @@ private fun BackupsWarningRow(
 @Composable
 private fun BioRow(
   self: BioRecipientState,
-  callbacks: Callbacks,
-) {
+  callbacks: Callbacks, ) {
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
+
+  val pigeonRequester = remember { FocusRequester() }
 
   Row(
     verticalAlignment = Alignment.CenterVertically, modifier = Modifier
       .padding(0.dp)
+      .focusRequester(pigeonRequester)
       .clickable(
         onClick = {
           callbacks.navigate(R.id.action_appSettingsFragment_to_manageProfileActivity)
@@ -551,6 +550,11 @@ private fun BioRow(
       }
     }
   }
+  if (isPigeonVersion()){
+    LaunchedEffect(Unit) {
+      pigeonRequester.requestFocus()
+    }
+  }
 }
 
 @SignalPreview
@@ -603,7 +607,7 @@ private fun BioRowPreview() {
           about = "About",
           isResolving = false
         )
-      ), callbacks = EmptyCallbacks
+      ), callbacks = EmptyCallbacks,
     )
   }
 }
