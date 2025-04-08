@@ -22,7 +22,7 @@ apply(from = "static-ips.gradle.kts")
 
 val pigeonVersionCode = 127536
 val canonicalVersionCode = 1530
-val canonicalVersionName = "Pigeon 2.0.0024 upon Signal 7.38.7"
+val canonicalVersionName = "Pigeon 2.0.0025 upon Signal 7.38.7"
 val currentHotfixVersion = 0
 val maxHotfixVersions = 100
 
