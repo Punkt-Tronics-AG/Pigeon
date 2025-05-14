@@ -258,31 +258,31 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner) {
     if (isSignalVersion()) {
       Material3OnScrollHelper(
-      activity = requireActivity(),
-      views = listOf(),
-      viewStubs = listOf(),
-      onSetToolbarColor = {
-        toolbarViewModel.setToolbarColor(it)
-      },
-      setStatusBarColor = {},
-      lifecycleOwner = lifecycleOwner
-    ).attach(recyclerView)
-  }
+        activity = requireActivity(),
+        views = listOf(),
+        viewStubs = listOf(),
+        onSetToolbarColor = {
+          toolbarViewModel.setToolbarColor(it)
+        },
+        setStatusBarColor = {},
+        lifecycleOwner = lifecycleOwner
+      ).attach(recyclerView)
     }
+  }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner, chatFolders: RecyclerView, setChatFolder: (Int) -> Unit) {
     if (isSignalVersion()) {
       Material3OnScrollHelper(
-      activity = requireActivity(),
-      views = listOf(chatFolders),
-      viewStubs = listOf(),
-      setStatusBarColor = {},
-      onSetToolbarColor = {
-        toolbarViewModel.setToolbarColor(it)
-      },
-      lifecycleOwner = lifecycleOwner,
-      setChatFolderColor = setChatFolder
-    ).attach(recyclerView)
+        activity = requireActivity(),
+        views = listOf(chatFolders),
+        viewStubs = listOf(),
+        setStatusBarColor = {},
+        onSetToolbarColor = {
+          toolbarViewModel.setToolbarColor(it)
+        },
+        lifecycleOwner = lifecycleOwner,
+        setChatFolderColor = setChatFolder
+      ).attach(recyclerView)
   }
     }
 }

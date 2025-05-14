@@ -354,17 +354,17 @@ object Rows {
     ) {
       if (text != null) {
         Text(
-        text = text,
-        style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
-        color = textColor,
-        maxLines = if (isPigeonVersion()) 1 else Int.MAX_VALUE,
-        modifier = if (isPigeonVersion()) {
-          Modifier.basicMarquee(animationMode = Immediately, spacing = MarqueeSpacing(30.dp))
-        } else {
-          Modifier
-        },
-      )
-        }
+          text = text,
+          style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
+          color = textColor,
+          maxLines = if (isPigeonVersion()) 1 else Int.MAX_VALUE,
+          modifier = if (isPigeonVersion()) {
+            Modifier.basicMarquee(animationMode = Immediately, spacing = MarqueeSpacing(30.dp))
+          } else {
+            Modifier
+          },
+        )
+      }
 
       if (label != null) {
         Text(
