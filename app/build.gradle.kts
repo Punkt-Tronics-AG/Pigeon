@@ -479,7 +479,7 @@ dependencies {
   coreLibraryDesugaring(libs.android.tools.desugar)
 
   // for Pigeon
-  implementation(files("libs/ringrtc-android-2.50.0.aar"))
+  implementation(files("libs/ringrtc-android-2.50.6.aar"))
 
 
   implementation(project(":libsignal-service"))
