@@ -186,7 +186,6 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
       ContactSelectionActivity activity = this.activity.get();
 
       if (activity != null && !activity.isFinishing()) {
-        activity.contactFilterView.clear();
         activity.contactsFragment.resetQueryFilter();
       }
     }

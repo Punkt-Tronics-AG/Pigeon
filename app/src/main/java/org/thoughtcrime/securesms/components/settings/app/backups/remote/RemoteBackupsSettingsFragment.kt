@@ -11,7 +11,8 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,8 +31,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,19 +63,20 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import org.signal.core.ui.Buttons
-import org.signal.core.ui.Dialogs
-import org.signal.core.ui.Dividers
-import org.signal.core.ui.Previews
-import org.signal.core.ui.Rows
-import org.signal.core.ui.Scaffolds
-import org.signal.core.ui.SignalPreview
-import org.signal.core.ui.Snackbars
-import org.signal.core.ui.Texts
-import org.signal.core.ui.horizontalGutters
-import org.signal.core.ui.theme.SignalTheme
+import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.Dialogs
+import org.signal.core.ui.compose.Dividers
+import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.Rows
+import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalPreview
+import org.signal.core.ui.compose.Snackbars
+import org.signal.core.ui.compose.Texts
+import org.signal.core.ui.compose.horizontalGutters
+import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.bytes
 import org.signal.core.util.gibiBytes
 import org.signal.core.util.logging.Log
@@ -97,7 +97,7 @@ import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity
 import org.thoughtcrime.securesms.components.settings.app.subscription.MessageBackupsCheckoutLauncher.createBackupsCheckoutLauncher
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.fonts.SignalSymbols
-import org.thoughtcrime.securesms.fonts.SignalSymbols.SignalSymbol
+import org.thoughtcrime.securesms.fonts.SignalSymbols.signalSymbolText
 import org.thoughtcrime.securesms.help.HelpFragment
 import org.thoughtcrime.securesms.keyvalue.protos.ArchiveUploadProgressState
 import org.thoughtcrime.securesms.payments.FiatMoneyUtil
@@ -108,7 +108,6 @@ import org.thoughtcrime.securesms.util.viewModel
 import java.math.BigDecimal
 import java.util.Currency
 import java.util.Locale
-import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
@@ -137,7 +136,7 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
   @Composable
   override fun FragmentContent() {
     val state by viewModel.state.collectAsState()
-    val backupProgress by ArchiveUploadProgress.progress.collectAsState(initial = null)
+    val backupProgress by ArchiveUploadProgress.progress.collectAsStateWithLifecycle(initialValue = null)
     val restoreState by viewModel.restoreState.collectAsState()
     val callbacks = remember { Callbacks() }
 
@@ -362,7 +361,7 @@ private fun RemoteBackupsSettingsContent(
   Scaffolds.Settings(
     title = stringResource(id = R.string.RemoteBackupsSettingsFragment__signal_backups),
     onNavigationClick = contentCallbacks::onNavigationClick,
-    navigationIconPainter = painterResource(id = R.drawable.symbol_arrow_left_24),
+    navigationIconPainter = painterResource(id = R.drawable.symbol_arrow_start_24),
     snackbarHost = {
       Snackbars.Host(snackbarHostState = snackbarHostState)
     }
@@ -378,36 +377,34 @@ private fun RemoteBackupsSettingsContent(
       }
 
       item {
-        AnimatedContent(backupState, label = "backup-state-block") { state ->
-          when (state) {
-            is RemoteBackupsSettingsState.BackupState.Loading -> {
-              LoadingCard()
-            }
+        when (backupState) {
+          is RemoteBackupsSettingsState.BackupState.Loading -> {
+            LoadingCard()
+          }
 
-            is RemoteBackupsSettingsState.BackupState.Error -> {
-              ErrorCard()
-            }
+          is RemoteBackupsSettingsState.BackupState.Error -> {
+            ErrorCard()
+          }
 
-            is RemoteBackupsSettingsState.BackupState.Pending -> {
-              PendingCard(state.price)
-            }
+          is RemoteBackupsSettingsState.BackupState.Pending -> {
+            PendingCard(backupState.price)
+          }
 
-            is RemoteBackupsSettingsState.BackupState.SubscriptionMismatchMissingGooglePlay -> {
-              SubscriptionMismatchMissingGooglePlayCard(
-                state = state,
-                onLearnMoreClick = contentCallbacks::onLearnMoreAboutLostSubscription,
-                onRenewClick = contentCallbacks::onRenewLostSubscription
-              )
-            }
+          is RemoteBackupsSettingsState.BackupState.SubscriptionMismatchMissingGooglePlay -> {
+            SubscriptionMismatchMissingGooglePlayCard(
+              state = backupState,
+              onLearnMoreClick = contentCallbacks::onLearnMoreAboutLostSubscription,
+              onRenewClick = contentCallbacks::onRenewLostSubscription
+            )
+          }
 
-            RemoteBackupsSettingsState.BackupState.None -> Unit
+          RemoteBackupsSettingsState.BackupState.None -> Unit
 
-            is RemoteBackupsSettingsState.BackupState.WithTypeAndRenewalTime -> {
-              BackupCard(
-                backupState = state,
-                onBackupTypeActionButtonClicked = contentCallbacks::onBackupTypeActionClick
-              )
-            }
+          is RemoteBackupsSettingsState.BackupState.WithTypeAndRenewalTime -> {
+            BackupCard(
+              backupState = backupState,
+              onBackupTypeActionButtonClicked = contentCallbacks::onBackupTypeActionClick
+            )
           }
         }
       }
@@ -688,14 +685,10 @@ private fun BackupCard(
         }
 
         Text(
-          text = buildAnnotatedString {
-            if (backupState.isActive()) {
-              SignalSymbol(SignalSymbols.Weight.REGULAR, SignalSymbols.Glyph.CHECKMARK)
-              append(" ")
-            }
-
-            append(title)
-          },
+          text = signalSymbolText(
+            text = title,
+            glyphStart = if (backupState.isActive()) SignalSymbols.Glyph.CHECK else null
+          ),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           style = MaterialTheme.typography.bodyMedium
         )
@@ -993,14 +986,26 @@ private fun InProgressBackupRow(
     Column(
       modifier = Modifier.weight(1f)
     ) {
-      val backupProgress = getBackupProgress(archiveUploadProgressState)
-      if (backupProgress.total == 0L) {
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-      } else {
-        LinearProgressIndicator(
-          modifier = Modifier.fillMaxWidth(),
-          progress = { backupProgress.progress }
-        )
+      when (archiveUploadProgressState.state) {
+        ArchiveUploadProgressState.State.None -> {
+          LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+        ArchiveUploadProgressState.State.Export -> {
+          val progressValue by animateFloatAsState(targetValue = archiveUploadProgressState.frameExportProgress(), animationSpec = tween(durationMillis = 250))
+          LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth(),
+            progress = { progressValue },
+            drawStopIndicator = {}
+          )
+        }
+        ArchiveUploadProgressState.State.UploadBackupFile, ArchiveUploadProgressState.State.UploadMedia -> {
+          val progressValue by animateFloatAsState(targetValue = archiveUploadProgressState.uploadProgress(), animationSpec = tween(durationMillis = 250))
+          LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth(),
+            progress = { progressValue },
+            drawStopIndicator = {}
+          )
+        }
       }
 
       Text(
@@ -1012,33 +1017,26 @@ private fun InProgressBackupRow(
   }
 }
 
-private fun getBackupProgress(state: ArchiveUploadProgressState): BackupProgress {
-  val approximateMessageCount = max(state.completedAttachments, state.totalAttachments)
-  return BackupProgress(state.completedAttachments, approximateMessageCount)
-}
-
 @Composable
 private fun getProgressStateMessage(archiveUploadProgressState: ArchiveUploadProgressState): String {
   return when (archiveUploadProgressState.state) {
     ArchiveUploadProgressState.State.None -> stringResource(R.string.RemoteBackupsSettingsFragment__processing_backup)
-    ArchiveUploadProgressState.State.BackingUpMessages -> getBackupPhaseMessage(archiveUploadProgressState)
-    ArchiveUploadProgressState.State.UploadingMessages -> getUploadingMessages(archiveUploadProgressState)
-    ArchiveUploadProgressState.State.UploadingAttachments -> getUploadingAttachmentsMessage(archiveUploadProgressState)
+    ArchiveUploadProgressState.State.Export -> getBackupExportPhaseProgressString(archiveUploadProgressState)
+    ArchiveUploadProgressState.State.UploadBackupFile, ArchiveUploadProgressState.State.UploadMedia -> getBackupUploadPhaseProgressString(archiveUploadProgressState)
   }
 }
 
 @Composable
-private fun getBackupPhaseMessage(state: ArchiveUploadProgressState): String {
+private fun getBackupExportPhaseProgressString(state: ArchiveUploadProgressState): String {
   return when (state.backupPhase) {
     ArchiveUploadProgressState.BackupPhase.BackupPhaseNone -> stringResource(R.string.RemoteBackupsSettingsFragment__processing_backup)
     ArchiveUploadProgressState.BackupPhase.Message -> {
-      val progress = getBackupProgress(state)
       pluralStringResource(
-        R.plurals.RemoteBackupsSettingsFragment__processing_d_of_d_d_messages,
-        progress.total.toInt(),
-        progress.completed,
-        progress.total,
-        (progress.progress * 100).toInt()
+        R.plurals.RemoteBackupsSettingsFragment__processing_messages_progress_text,
+        state.frameTotalCount.toInt(),
+        "%,d".format(state.frameExportCount),
+        "%,d".format(state.frameTotalCount),
+        (state.frameExportProgress() * 100).toInt()
       )
     }
 
@@ -1047,25 +1045,12 @@ private fun getBackupPhaseMessage(state: ArchiveUploadProgressState): String {
 }
 
 @Composable
-private fun getUploadingMessages(state: ArchiveUploadProgressState): String {
-  val formattedCompleted = state.completedAttachments.bytes.toUnitString()
-  val formattedTotal = state.totalAttachments.bytes.toUnitString()
-  val percent = if (state.totalAttachments == 0L) {
-    0
-  } else {
-    ((state.completedAttachments / state.totalAttachments.toFloat()) * 100).toInt()
-  }
+private fun getBackupUploadPhaseProgressString(state: ArchiveUploadProgressState): String {
+  val formattedTotalBytes = state.uploadBytesTotal.bytes.toUnitString()
+  val formattedUploadedBytes = state.uploadBytesUploaded.bytes.toUnitString()
+  val percent = (state.uploadProgress() * 100).toInt()
 
-  return stringResource(R.string.RemoteBackupsSettingsFragment__uploading_s_of_s_d, formattedCompleted, formattedTotal, percent)
-}
-
-@Composable
-private fun getUploadingAttachmentsMessage(state: ArchiveUploadProgressState): String {
-  return if (state.totalAttachments == 0L) {
-    stringResource(R.string.RemoteBackupsSettingsFragment__processing_backup)
-  } else {
-    stringResource(R.string.RemoteBackupsSettingsFragment__d_slash_d, state.completedAttachments, state.totalAttachments)
-  }
+  return stringResource(R.string.RemoteBackupsSettingsFragment__uploading_s_of_s_d, formattedUploadedBytes, formattedTotalBytes, percent)
 }
 
 @Composable
@@ -1192,8 +1177,8 @@ private fun CircularProgressDialog(
     )
   ) {
     Surface(
-      shape = AlertDialogDefaults.shape,
-      color = AlertDialogDefaults.containerColor
+      shape = Dialogs.Defaults.shape,
+      color = Dialogs.Defaults.containerColor
     ) {
       Box(
         contentAlignment = Alignment.Center,
@@ -1215,17 +1200,16 @@ private fun BackupFrequencyDialog(
   onSelected: (BackupFrequency) -> Unit,
   onDismiss: () -> Unit
 ) {
-  AlertDialog(
+  BasicAlertDialog(
     onDismissRequest = onDismiss
   ) {
-    Surface {
+    Surface(
+      color = Dialogs.Defaults.containerColor,
+      shape = Dialogs.Defaults.shape,
+      shadowElevation = Dialogs.Defaults.TonalElevation
+    ) {
       Column(
-        modifier = Modifier
-          .background(
-            color = AlertDialogDefaults.containerColor,
-            shape = AlertDialogDefaults.shape
-          )
-          .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
       ) {
         Text(
           text = stringResource(id = R.string.RemoteBackupsSettingsFragment__backup_frequency),
@@ -1475,70 +1459,82 @@ private fun InProgressRowPreview() {
       InProgressBackupRow(archiveUploadProgressState = ArchiveUploadProgressState())
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.BackupPhaseNone
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Account
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Call
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Sticker
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Recipient
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Thread
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Message,
-          completedAttachments = 1,
-          totalAttachments = 1
+          frameExportCount = 1,
+          frameTotalCount = 1
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Message,
-          completedAttachments = 1000,
-          totalAttachments = 100_000
+          frameExportCount = 1000,
+          frameTotalCount = 100_000
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.BackingUpMessages,
+          state = ArchiveUploadProgressState.State.Export,
           backupPhase = ArchiveUploadProgressState.BackupPhase.Message,
-          completedAttachments = 1_000_000,
-          totalAttachments = 100_000
+          frameExportCount = 1_000_000,
+          frameTotalCount = 100_000
         )
       )
       InProgressBackupRow(
         archiveUploadProgressState = ArchiveUploadProgressState(
-          state = ArchiveUploadProgressState.State.UploadingMessages,
+          state = ArchiveUploadProgressState.State.UploadBackupFile,
           backupPhase = ArchiveUploadProgressState.BackupPhase.BackupPhaseNone,
-          completedAttachments = 1.gibiBytes.inWholeBytes + 100.mebiBytes.inWholeBytes,
-          totalAttachments = 12.gibiBytes.inWholeBytes
+          backupFileUploadedBytes = 10.mebiBytes.inWholeBytes,
+          backupFileTotalBytes = 50.mebiBytes.inWholeBytes,
+          mediaUploadedBytes = 0,
+          mediaTotalBytes = 0
+        )
+      )
+      InProgressBackupRow(
+        archiveUploadProgressState = ArchiveUploadProgressState(
+          state = ArchiveUploadProgressState.State.UploadMedia,
+          backupPhase = ArchiveUploadProgressState.BackupPhase.BackupPhaseNone,
+          backupFileUploadedBytes = 10.mebiBytes.inWholeBytes,
+          backupFileTotalBytes = 50.mebiBytes.inWholeBytes,
+          mediaUploadedBytes = 100.mebiBytes.inWholeBytes,
+          mediaTotalBytes = 1.gibiBytes.inWholeBytes
         )
       )
     }
@@ -1614,3 +1610,28 @@ private data class BackupProgress(
 ) {
   val progress: Float = if (total > 0) completed / total.toFloat() else 0f
 }
+
+private fun ArchiveUploadProgressState.frameExportProgress(): Float {
+  return if (this.frameTotalCount == 0L) {
+    0f
+  } else {
+    this.frameExportCount / this.frameTotalCount.toFloat()
+  }
+}
+
+private fun ArchiveUploadProgressState.uploadProgress(): Float {
+  val current = this.backupFileUploadedBytes + this.mediaUploadedBytes
+  val total = this.backupFileTotalBytes + this.mediaTotalBytes
+
+  return if (total == 0L) {
+    0f
+  } else {
+    current / total.toFloat()
+  }
+}
+
+private val ArchiveUploadProgressState.uploadBytesTotal: Long
+  get() = this.backupFileTotalBytes + this.mediaTotalBytes
+
+private val ArchiveUploadProgressState.uploadBytesUploaded: Long
+  get() = this.backupFileUploadedBytes + this.mediaUploadedBytes

@@ -151,6 +151,7 @@
     <!-- BlockedUsersActivity -->
     <string name="BlockedUsersActivity__blocked_users">Блокирани корисници</string>
     <string name="BlockedUsersActivity__add_blocked_user">Додајте блокираног корисника</string>
+    <string name="BlockedUsersActivity__cannot_block_yourself">Не можете блокирати себе</string>
     <string name="BlockedUsersActivity__blocked_users_will">Блокирани корисници неће моћи да вас позову нити да вам шаљу поруке.</string>
     <string name="BlockedUsersActivity__no_blocked_users">Нема блокираних корисника</string>
     <string name="BlockedUsersActivity__block_user">Желите ли да блокирате корисника?</string>
@@ -579,13 +580,6 @@
     <plurals name="ConversationFragment_saving_n_attachments_to_sd_card">
         <item quantity="one">Прилог се чува на меморијском простору…</item>
         <item quantity="other">Прилози се чувају на меморијском простору (%1$d)…</item>
-    </plurals>
-    <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">Желите ли да сачувате на телефон?</string>
-    <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <plurals name="ConversationFragment__this_media_will_be_saved">
-        <item quantity="one">Овај медиј ће бити сачуван на меморијском простору вашег телефона. Друге апликације ће можда моћи да му приступе у зависности од дозвола на вашем телефону.</item>
-        <item quantity="other">Ови медији ће бити сачувани на меморијском простору вашег телефона. Друге апликације ће можда моћи да им приступе у зависности од дозвола на вашем телефону.</item>
     </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
     <string name="ConversationFragment_dont_show_again">Не приказуј поново</string>
@@ -1162,6 +1156,7 @@
 
     <!-- DocumentView -->
     <string name="DocumentView_unnamed_file">Фајл без назива</string>
+    <string name="DocumentView_document_file">Фајл документа</string>
 
     <!-- DozeReminder -->
     <string name="DozeReminder_optimize_for_missing_play_services">Оптимизујте за недостајуће Play сервисе</string>
@@ -1689,7 +1684,6 @@
     </plurals>
     <string name="MediaOverviewActivity_Media_delete_progress_title">Брисање</string>
     <string name="MediaOverviewActivity_Media_delete_progress_message">Брисање порука…</string>
-    <string name="MediaOverviewActivity_collecting_attachments">Прикупљање прилога…</string>
     <string name="MediaOverviewActivity_Sort_by">Поређај по</string>
     <string name="MediaOverviewActivity_Newest">Најновије</string>
     <string name="MediaOverviewActivity_Oldest">Најстарије</string>
@@ -1724,6 +1718,8 @@
     <string name="MediaOverviewActivity_sent_by_you">Ви сте послали</string>
     <string name="MediaOverviewActivity_sent_by_s_to_s">Пошиљалац: %1$s, прималац: %2$s</string>
     <string name="MediaOverviewActivity_sent_by_you_to_s">Ви сте послали кориснику %1$s</string>
+    <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
+    <string name="MediaOverviewActivity_this_media_is_not_sent_yet">Овај медиј још увек није послат.</string>
 
     <!-- Megaphones -->
     <string name="Megaphones_remind_me_later">Подсети ме касније</string>
@@ -1793,6 +1789,10 @@
     <string name="MessageRecord_missed_voice_call">Пропуштен гласовни позив</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_missed_video_call">Пропуштен видео позив</string>
+    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and not answered -->
+    <string name="MessageRecord_declined_voice_call">Одбијен гласовни позив</string>
+    <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
+    <string name="MessageRecord_declined_video_call">Одбијен видео позив</string>
     <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
     <string name="MessageRecord_missed_voice_call_notification_profile">Пропуштен је гласовни позив док је профил за обавештења био укључен</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
@@ -2138,6 +2138,27 @@
         <item quantity="one">Додатних група: %1$d</item>
         <item quantity="other">Додатних група: %1$d</item>
     </plurals>
+    <!-- Describes the names of members in a group. MessageRequestProfileView_group_members_* is nested in the first parentheses. MessageRequestProfileView_invited is nested in the second -->
+    <string name="MessageRequestProfileView_member_names_and_invited">%1$s (%2$s)</string>
+    <!-- Text for an empty group or when you are the only member -->
+    <string name="MessageRequestProfileView_group_members_zero">Још увек нема других чланова групе</string>
+    <!-- Text for a group with one member (not you). %1$s is their name -->
+    <string name="MessageRequestProfileView_group_members_one">%1$s</string>
+    <!-- Text for a 2 member group you are in. %1$s is the name of the other member -->
+    <string name="MessageRequestProfileView_group_members_one_and_you">%1$s и ви</string>
+    <!-- Text for a 2 member group you are not in. %1$s and %2$s are the members\' names -->
+    <string name="MessageRequestProfileView_group_members_two">%1$s и %2$s</string>
+    <!-- Text for a 3 member group you are in. %1$s and %2$s are the members\' names -->
+    <string name="MessageRequestProfileView_group_members_two_and_you">%1$s, %2$s и ви</string>
+    <!-- Text for a 3 member group you are not in. %1$s, %2$s, %3$s are the names of the other members. -->
+    <string name="MessageRequestProfileView_group_members_three">%1$s, %2$s и %3$s</string>
+    <!-- Text for a 3+ member group. %1$s, %2$s, %3$s are member names. %4$s is the string key MessageRequestProfileView_other_members-->
+    <string name="MessageRequestProfileView_group_members_other">%1$s, %2$s, %3$s и %4$s</string>
+    <!-- Nested in MessageRequestProfileView_group_members_other that shows how many members (besides three) are in the group -->
+    <plurals name="MessageRequestProfileView_other_members">
+        <item quantity="one">још %1$d члан</item>
+        <item quantity="other">још њих %1$d</item>
+    </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">Пријави…</string>
     <!-- Alert dialog title to accept a message request -->
@@ -2253,6 +2274,7 @@
 
     <!-- ReactionsBottomSheetDialogFragment -->
     <string name="ReactionsBottomSheetDialogFragment_all">Сви · %1$d</string>
+    <string name="ReactionsBottomSheetDialogFragment_tap_to_remove">Додирните да уклоните</string>
 
     <!-- ReactionsConversationView -->
     <string name="ReactionsConversationView_plus">+%1$d</string>
@@ -2485,6 +2507,8 @@
     <string name="CallOverflowPopupWindow__view">Више</string>
 
 
+    <!-- A notification to the user that their hand is raised but they are currently speaking -->
+    <string name="CallRaiseHandSnackbar__lower_your_hand">Желите ли да спустите руку?</string>
     <!-- A notification to the user that they successfully raised their hand. The placeholder string is CallParticipant__you, or CallParticipant__you_on_another_device -->
     <string name="CallRaiseHandSnackbar__expanded_second_person_raised_a_hand_single">%1$s си подигао/ла руку</string>
     <!-- A notification to the user that they and at least one more participants in the call successfully raised their hand. The placeholder is a number quantifying how many other hands are also raised, besides the user. -->
@@ -2555,6 +2579,12 @@
     <string name="AboutSheet__you">Ви</string>
     <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
     <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
+
+    <!-- Title of the screen showing which groups they have in common with another user. -->
+    <plurals name="GroupsInCommon__n_groups_in_common_title">
+        <item quantity="one">Заједничких група: %1$s</item>
+        <item quantity="other">Заједничких група: %1$s</item>
+    </plurals>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call">
@@ -2735,6 +2765,12 @@
     <string name="SignalPinReminders_well_remind_you_again_in_a_week">PIN је верификован. За недељу дана ћемо вас поново подсетити.</string>
     <string name="SignalPinReminders_well_remind_you_again_in_a_couple_weeks">PIN је верификован. За пар недеља ћемо вас поново подсетити.</string>
     <string name="SignalPinReminders_well_remind_you_again_in_a_month">PIN је верификован. За месец дана ћемо вас поново подсетити.</string>
+    <string name="SignalPinReminders__well_remind_you_again_later">Подсетићемо вас поново касније.</string>
+    <string name="SignalPinReminders__well_remind_you_again_tomorrow">Подсетићемо вас поново сутра.</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_few_days">Подсетићемо вас поново за пар дана.</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_week">Подсетићемо вас поново за недељу дана.</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_couple_weeks">Подсетићемо вас поново за пар недеља.</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_month">Подсетићемо вас поново за месец дана.</string>
 
     <!-- Slide -->
     <string name="Slide_image">Слика</string>
@@ -2750,15 +2786,35 @@
     <!-- StickerManagementActivity -->
     <string name="StickerManagementActivity_stickers">Налепнице</string>
 
+    <!-- Label for the sticker management screen tab which shows the stickers that are available to install. -->
+    <string name="StickerManagement_available_tab_label">Доступно</string>
+    <!-- Label for the sticker management screen tab which shows the stickers that are currently installed. -->
+    <string name="StickerManagement_installed_tab_label">Инсталирано</string>
+    <!-- Shown when there are no sticker packs available for installation -->
+    <string name="StickerManagement_available_tab_empty_text">Нису доступни пакети налепница</string>
+    <!-- Shown when there are no sticker packs currently installed -->
+    <string name="StickerManagement_installed_tab_empty_text">Нема инсталираних пакета налепница</string>
+    <!-- Message shown when the author of the sticker pack is unknown -->
+    <string name="StickerManagement_author_unknown">Непознато</string>
+    <!-- Sticker pack list section header for packs that are already installed. -->
+    <string name="StickerManagement_installed_stickers_header">Инсталиране налепнице</string>
+    <!-- Sticker pack list section header for packs that have been received from incoming messages. -->
+    <string name="StickerManagement_stickers_you_received_header">Налепнице које сте добили</string>
+    <!-- Sticker pack list section header for highlighted/"blessed" packs. -->
+    <string name="StickerManagement_signal_artist_series_header">Серијал „Signal уметник“</string>
+    <!-- Accessibility label for the button to download a sticker pack. The placeholder is the sticker pack name. -->
+    <string name="StickerManagement_accessibility_download_pack">Преузмите пакет налепница %1$s</string>
+    <!-- Accessibility label for the icon that is displayed after a sticker pack has been downloaded. The placeholder is the sticker pack name. -->
+    <string name="StickerManagement_accessibility_downloaded_checkmark">Ознака потврде преузимања</string>
+    <!-- Accessibility label for the sticker pack drag and drop handle used to reorder the list. -->
+    <string name="StickerManagement_accessibility_drag_handle">Ручка за повлачење и отпуштање</string>
+    <!-- Accessibility label for the button to download a sticker pack. -->
+    <string name="StickerManagement_accessibility_download">Преузми</string>
+
     <!-- StickerManagementAdapter -->
-    <string name="StickerManagementAdapter_installed_stickers">Инсталиране налепнице</string>
-    <string name="StickerManagementAdapter_stickers_you_received">Налепнице које сте добили</string>
-    <string name="StickerManagementAdapter_signal_artist_series">Серијал „Signal уметник“</string>
     <string name="StickerManagementAdapter_no_stickers_installed">Нема инсталираних налепница</string>
     <string name="StickerManagementAdapter_stickers_from_incoming_messages_will_appear_here">Налепнице из долазних порука ће бити приказане овде</string>
     <string name="StickerManagementAdapter_untitled">Без наслова</string>
-    <!-- Message shown when the author of the sticker pack is unknown -->
-    <string name="StickerManagementAdapter_unknown">Непознато</string>
 
     <!-- StickerPackPreviewActivity -->
     <string name="StickerPackPreviewActivity_untitled">Без наслова</string>
@@ -2785,6 +2841,8 @@
     <string name="SubmitDebugLogActivity_copy_this_url_and_add_it_to_your_issue">Копирајте овај URL и додајте га у ваш извештај о проблему или имејл за подршку:\n\n<b>%1$s</b></string>
     <string name="SubmitDebugLogActivity_share">Поделите</string>
     <string name="SubmitDebugLogActivity_this_log_will_be_posted_publicly_online_for_contributors">Овај извештај ће бити јавно објављен и видљив сарадницима. Можете га прегледати пре отпремања.</string>
+    <!-- Banner message shown while submitting debug log -->
+    <string name="SubmitDebugLogActivity_your_log_will_be_posted_online">Када кликнете на „Пошаљи“, ваш извештај ће бити постављен онлајн 30 дана на јединственој, необјављеној URL адреси. Можете га прво сачувати локално.</string>
 
     <!-- SupportEmailUtil -->
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_support_email" translatable="false">support@signal.org</string> -->
@@ -2855,6 +2913,8 @@
     <string name="ThreadRecord_s_belongs_to_s">%2$s је власник броја %1$s</string>
     <!-- Displayed in the conversation list when a person has been blocked -->
     <string name="ThreadRecord_blocked">Корисник је блокиран</string>
+    <!-- Displayed in the conversation list when a group has been blocked -->
+    <string name="ThreadRecord_blocked_group">Корисник је блокиран</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Надоградња Signal-a</string>
@@ -2970,8 +3030,6 @@
     <string name="MediaPreviewActivity_you">Ви</string>
     <string name="MediaPreviewActivity_unssuported_media_type">Неподржан тип медија</string>
     <string name="MediaPreviewActivity_draft">Нацрт</string>
-    <string name="MediaPreviewActivity_signal_needs_the_storage_permission_in_order_to_write_to_external_storage_but_it_has_been_permanently_denied">Signal-у је потребна дозвола за приступ меморијском простору да би могао да чува фајлове у спољном меморијском простору, али му је она трајно одбијена. Идите у мени за подешавања апликације, изаберите „Дозволе“ и укључите опцију „Меморијски простор“.</string>
-    <string name="MediaPreviewActivity_unable_to_write_to_external_storage_without_permission">Није могуће чувати у спољној меморији без дозвола</string>
     <string name="MediaPreviewActivity_media_delete_confirmation_title">Желите ли да избришете поруку?</string>
     <string name="MediaPreviewActivity_media_delete_confirmation_message">Овим ћете трајно избрисати ову поруку.</string>
     <string name="MediaPreviewActivity_s_to_s">%1$s за: %2$s</string>
@@ -3078,8 +3136,6 @@
     <!-- Notification channel name for notifications sent when a device has been linked -->
     <string name="NotificationChannel_new_linked_device">Нови повезани уређај</string>
 
-    <!-- ProfileEditNameFragment -->
-
     <!-- QuickResponseService -->
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Брзи одговор није доступан када је Signal закључан!</string>
     <string name="QuickResponseService_problem_sending_message">Десио се проблем са слањем поруке!</string>
@@ -3105,6 +3161,21 @@
         <item quantity="one">Догодила се грешка приликом чувања прилога на меморијском простору!</item>
         <item quantity="other">Догодила се грешка приликом чувања прилога на меморијском простору!</item>
     </plurals>
+
+    <!-- Dialog title asking to save media to your phone\'s storage -->
+    <string name="AttachmentSaver__save_to_phone">Желите ли да сачувате на телефон?</string>
+
+    <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
+    <plurals name="AttachmentSaver__this_media_will_be_saved">
+        <item quantity="one">Овај медиј ће бити сачуван на меморијском простору вашег телефона. Друге апликације ће можда моћи да му приступе у зависности од дозвола на вашем телефону.</item>
+        <item quantity="other">Ови медији ће бити сачувани на меморијском простору вашег телефона. Друге апликације ће можда моћи да им приступе у зависности од дозвола на вашем телефону.</item>
+    </plurals>
+
+    <!-- Message shown when the app requests permission to save media to the device storage, but that permission has been permanently denied by the user. -->
+    <string name="AttachmentSaver__signal_needs_the_storage_permission_in_order_to_write_to_external_storage_but_it_has_been_permanently_denied">Signal-у је потребна дозвола за приступ меморијском простору да би могао да чува фајлове у спољном меморијском простору, али му је она трајно одбијена. Идите у мени за подешавања апликације, изаберите „Дозволе“ и укључите опцију „Меморијски простор“.</string>
+
+    <!-- Message explaining that it is not possible to save media to the device storage after the user denied the system save to storage permission. -->
+    <string name="AttachmentSaver__unable_to_write_to_external_storage_without_permission">Није могуће чувати у спољној меморији без дозвола</string>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Претрага</string>
@@ -3362,6 +3433,11 @@
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">Пусти … Паузирај</string>
     <string name="audio_view__download_accessibility_description">Преузми</string>
+
+    <!-- document_view -->
+    <string name="document_view__download_accessibility_description">Преузми</string>
+    <string name="document_view__upload_accessibility_description">Отпреми</string>
+    <string name="document_view__cancel_accessibility_description">Откажи</string>
 
     <!-- QuoteView -->
     <string name="QuoteView_audio">Аудио</string>
@@ -3671,6 +3747,7 @@
     <string name="DebugLogsPromptDialogFragment__no_thanks">Не, хвала</string>
 
     <!-- ReactWithAnyEmojiBottomSheetDialogFragment -->
+    <string name="ReactWithAnyEmojiBottomSheetDialogFragment__recents">Недавно</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__this_message">Ова порука</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__recently_used">Недавно коришћено</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__smileys_and_people">Смајлији и људи</string>
@@ -3683,6 +3760,17 @@
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__flags">Заставе</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__emoticons">Емотикони</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__no_results_found">Нема резултата</string>
+
+    <!-- GifQuickSearchOption -->
+    <string name="GifQuickSearchOption__recents">Недавно</string>
+    <string name="GifQuickSearchOption__trending">Актуелно</string>
+    <string name="GifQuickSearchOption__celebrate">Славље</string>
+    <string name="GifQuickSearchOption__love">Свиђање</string>
+    <string name="GifQuickSearchOption__thumbs_up">Потврда</string>
+    <string name="GifQuickSearchOption__surprised">Изненађење</string>
+    <string name="GifQuickSearchOption__excited">Узбуђење</string>
+    <string name="GifQuickSearchOption__sad">Туга</string>
+    <string name="GifQuickSearchOption__angry">Љутња</string>
 
     <!-- arrays.xml -->
     <string name="arrays__use_default">Користи подразумевано</string>
@@ -4278,6 +4366,8 @@
     <string name="conversation_list_fragment__fab_content_description">Ново ћаскање</string>
     <string name="conversation_list_fragment__open_camera_description">Отвори камеру</string>
     <string name="conversation_list_fragment__no_chats_yet_get_started_by_messaging_a_friend">Још нема ћаскања.\nЗапочните слањем поруке пријатељу.</string>
+    <!-- Message shown when there are no archived chats to display -->
+    <string name="conversation_list_fragment__archived_chats_will_appear_here">Архивирана ћаскања ће се појавити овде.</string>
     <!-- Message shown when there are no chats in the chat folder to display -->
     <string name="conversation_list_fragment__no_chats_to_display">Нема ћаскања</string>
     <!-- Button text that will open up chat folder settings -->
@@ -4901,8 +4991,8 @@
     <string name="ReviewCardDialogFragment__no_other_groups_in_common">Немате других заједничких група.</string>
     <string name="ReviewCardDialogFragment__no_groups_in_common">Немате заједничких група.</string>
     <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
-        <item quantity="one">Заједничких група: %1$d</item>
-        <item quantity="other">Заједничких група: %1$d</item>
+        <item quantity="one">Још заједничких група: %1$d</item>
+        <item quantity="other">Још заједничких група: %1$d</item>
     </plurals>
     <plurals name="ReviewCardDialogFragment__d_groups_in_common">
         <item quantity="one">Заједничких група: %1$d</item>
@@ -5652,6 +5742,8 @@
     <string name="ConversationSettingsFragment__copied_phone_number_to_clipboard">Број телефона је копиран.</string>
     <string name="ConversationSettingsFragment__phone_number">Број телефона</string>
     <string name="ConversationSettingsFragment__get_badges">Добијте значке за профил тако што ћете донирати Signal-у. Додирните значку да сазнате више.</string>
+    <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
+    <string name="ConversationSettingsFragment__this_media_is_not_sent_yet">Овај медиј још увек није послат.</string>
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">Додај чланове</string>
@@ -6459,6 +6551,8 @@
     <string name="StoryViewerPageFragment__send_failed">Слање није успело. Додирните да поновите</string>
     <!-- Label for the reply button in story viewer, which will launch the group story replies bottom sheet. -->
     <string name="StoryViewerPageFragment__reply_to_group">Одговорите у групи</string>
+    <!-- Content description for the any reaction button in reply to story composer, which will launch the emojis bottom sheet. -->
+    <string name="StoryViewerPageFragment_any_reaction_content_description">Још реакција</string>
     <!-- Displayed when a story has no views -->
     <string name="StoryViewsFragment__no_views_yet">Још увек нема прегледа</string>
     <!-- Displayed when user has disabled receipts -->
@@ -8018,9 +8112,9 @@
     <!-- Linear progress dialog text shown when preparing a backup -->
     <string name="RemoteBackupsSettingsFragment__preparing_backup">Припрема резервне копије…</string>
     <!-- Linear progress dialog text shown when processing messages for backup. First placeholder is completed count, second is approximate total count, third is percent completed. -->
-    <plurals name="RemoteBackupsSettingsFragment__processing_d_of_d_d_messages">
-        <item quantity="one">Обрађивање порука – %1$d од %2$d (%3$d%%)</item>
-        <item quantity="other">Обрађивање порука – %1$d од %2$d (%3$d%%)</item>
+    <plurals name="RemoteBackupsSettingsFragment__processing_messages_progress_text">
+        <item quantity="one">Обрађују се поруке, %1$s од %2$s (%3$d%%)</item>
+        <item quantity="other">Обрађују се поруке, %1$s од %2$s (%3$d%%)</item>
     </plurals>
     <!-- Displayed in row when backup is available for download and users subscription has expired. First placeholder is data size e.g. 12MB, second is days before expiration -->
     <plurals name="RemoteBackupsSettingsFragment__you_have_s_of_backup_data">
@@ -8114,6 +8208,19 @@
     <string name="MessageBackupsKeyRecordScreen__continue">Настави</string>
     <!-- Sheet secondary action button label -->
     <string name="MessageBackupsKeyRecordScreen__see_key_again">Види кључ поново</string>
+
+    <!-- Confirm key title -->
+    <string name="MessageBackupsKeyVerifyScreen__confirm_your_backup_key">Потврдите кључ за резервне копије</string>
+    <!-- Confirm your key subtitle -->
+    <string name="MessageBackupsKeyVerifyScreen__enter_the_backup_key_that_you_just_recorded">Унесите кључ за резервне копије који сте управо забележили</string>
+    <!-- Confirm your key text entry hint text -->
+    <string name="MessageBackupsKeyVerifyScreen__backup_key">Кључ за резервне копије</string>
+    <!-- Confirm your key text entry error text -->
+    <string name="MessageBackupsKeyVerifyScreen__incorrect_backup_key">Нетачан кључ за резервне копије</string>
+    <!-- Confirm your key button text to return to record key screen. -->
+    <string name="MessageBackupsKeyVerifyScreen__see_key_again">Види кључ поново</string>
+    <!-- Confirm your key button text to move onto next screen in flow -->
+    <string name="MessageBackupsKeyVerifyScreen__next">Следеће</string>
 
     <!-- MessagesBackupsTypeSelectionScreen -->
     <!-- Screen headline -->
@@ -8240,6 +8347,25 @@
     <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Кључ за резервне копије који сте унели је исправан, али нема резервне копије. Ако и даље имате свој стари телефон, проверите да ли је креирање резервне копије омогућено, потом да ли је довршено, и покушајте поново.</string>
     <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
     <string name="EnterBackupKey_skip_restore">Прескочи враћање</string>
+    <!-- Dialog title text when encountering backup restore network error -->
+    <string name="EnterBackupKey_cant_restore_backup">Враћање резервне копије није успело</string>
+    <!-- Dialog body text when encountering backup restore network error -->
+    <string name="EnterBackupKey_your_backup_cant_be_restored_right_now">Резервна копија се тренутно не може вратити. Проверите да ли сте повезани на интернет и пробајте поново. </string>
+    <!-- Dialog button text to contact support on network error -->
+    <string name="EnterBackupKey_contact_support">Обратите се подршци</string>
+
+    <!-- Email subject when contacting support on a restore backup network issue -->
+    <string name="EnterBackupKey_network_failure_support_email">Грешка у мрежи приликом враћања резервне копије за Signal Android</string>
+  <!-- Removed by excludeNonTranslatables <string name="EnterBackupKey_network_failure_support_email_filter" translatable="false">Signal Android Backup restore network error</string> -->
+
+    <!-- Title of dialog asking to submit debuglogs -->
+    <string name="ContactSupportDialog_submit_debug_log">Желите ли да пошаљете извештај о грешкама?</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="ContactSupportDialog_your_debug_logs">Извештаји о грешкама нам помажу да лакше отклонимо проблем. Слање извештаја није обавезно.</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="ContactSupportDialog_submit_with_debug">Пошаљи са извештајем о грешкама</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="ContactSupportDialog_submit_without_debug">Пошаљи без извештаја о грешкама</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">Скенирајте овај код старим телефоном</string>
@@ -8298,6 +8424,17 @@
     <string name="NoBackupToRestore_step3">Активирајте резервне копије и сачекајте док се креирање резервне копије не заврши</string>
     <!-- No backup to Restore tonal cta to skip restore -->
     <string name="NoBackupToRestore_skip_restore">Прескочи враћање</string>
+
+    <!-- Accessibility label for close search button in MainToolbar -->
+    <string name="MainToolbar__close_search_content_description">Затвори претрагу</string>
+    <!-- Accessibility label for clear search query in MainToolbar -->
+    <string name="MainToolbar__clear_search_content_description">Поништи претрагу</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__more_options_content_description">Више опција</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__notification_profile_content_description">Профил за обавештења</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__proxy_content_description">Прокси сервер</string>
 
     <!-- EOF -->
 </resources>

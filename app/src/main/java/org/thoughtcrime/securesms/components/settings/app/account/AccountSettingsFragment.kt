@@ -127,6 +127,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
         clickPref(
           title = DSLSettingsText.from(R.string.preferences_chats__transfer_account),
           summary = DSLSettingsText.from(R.string.preferences_chats__transfer_account_to_a_new_android_device),
+          isEnabled = state.isDeprecatedOrUnregistered(),
           onClick = {
             Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_oldDeviceTransferActivity)
           }
@@ -236,7 +237,6 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
           pinEditText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
           changeKeyboard.setIconResource(PinKeyboardType.ALPHA_NUMERIC.iconResource)
         }
-
         PinKeyboardType.ALPHA_NUMERIC -> {
           pinEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
           changeKeyboard.setIconResource(PinKeyboardType.NUMERIC.iconResource)

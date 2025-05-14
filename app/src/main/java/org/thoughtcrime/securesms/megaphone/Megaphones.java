@@ -236,9 +236,10 @@ public final class Megaphones {
             @Override
             public void onReminderDismissed(boolean includedFailure) {
               Log.i(TAG, "[PinReminder] onReminderDismissed(" + includedFailure + ")");
-              if (includedFailure) {
-                SignalStore.pin().onEntrySkipWithWrongGuess();
-              }
+
+              SignalStore.pin().onEntrySkip(includedFailure);
+              controller.onMegaphoneSnooze(Event.PIN_REMINDER);
+              controller.onMegaphoneToastRequested(controller.getMegaphoneActivity().getString(SignalPinReminders.getSkipReminderString(SignalStore.pin().getCurrentInterval())));
             }
 
             @Override
@@ -302,7 +303,7 @@ public final class Megaphones {
   }
 
   private static @NonNull Megaphone buildNewLinkedDeviceMegaphone(@NonNull Context context) {
-    String createdAt = DateUtils.getOnlyTimeAtString(context, SignalStore.misc().getNewLinkedDeviceCreatedTime());
+    String createdAt = DateUtils.getDateTimeString(context, Locale.getDefault(), SignalStore.misc().getNewLinkedDeviceCreatedTime());
     return new Megaphone.Builder(Event.NEW_LINKED_DEVICE, Megaphone.Style.BASIC)
         .setTitle(R.string.NewLinkedDeviceNotification__you_linked_new_device)
         .setBody(context.getString(R.string.NewLinkedDeviceMegaphone__a_new_device_was_linked, createdAt))

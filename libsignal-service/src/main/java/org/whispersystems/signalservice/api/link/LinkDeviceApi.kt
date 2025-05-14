@@ -11,11 +11,13 @@ import org.signal.core.util.urlEncode
 import org.signal.libsignal.protocol.IdentityKeyPair
 import org.signal.libsignal.protocol.ecc.ECPublicKey
 import org.signal.libsignal.zkgroup.profiles.ProfileKey
+import org.whispersystems.signalservice.api.AccountEntropyPool
 import org.whispersystems.signalservice.api.NetworkResult
 import org.whispersystems.signalservice.api.backup.MediaRootBackupKey
 import org.whispersystems.signalservice.api.backup.MessageBackupKey
 import org.whispersystems.signalservice.api.kbs.MasterKey
 import org.whispersystems.signalservice.api.messages.multidevice.DeviceInfo
+import org.whispersystems.signalservice.api.provisioning.ProvisioningMessage
 import org.whispersystems.signalservice.api.push.ServiceId.ACI
 import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.websocket.SignalWebSocket
@@ -24,7 +26,6 @@ import org.whispersystems.signalservice.internal.delete
 import org.whispersystems.signalservice.internal.get
 import org.whispersystems.signalservice.internal.push.DeviceInfoList
 import org.whispersystems.signalservice.internal.push.ProvisionMessage
-import org.whispersystems.signalservice.internal.push.ProvisioningMessage
 import org.whispersystems.signalservice.internal.push.ProvisioningVersion
 import org.whispersystems.signalservice.internal.put
 import org.whispersystems.signalservice.internal.websocket.WebSocketRequestMessage
@@ -100,6 +101,7 @@ class LinkDeviceApi(
     aciIdentityKeyPair: IdentityKeyPair,
     pniIdentityKeyPair: IdentityKeyPair,
     profileKey: ProfileKey,
+    accountEntropyPool: AccountEntropyPool,
     masterKey: MasterKey,
     mediaRootBackupKey: MediaRootBackupKey,
     code: String,
@@ -117,6 +119,7 @@ class LinkDeviceApi(
       profileKey = profileKey.serialize().toByteString(),
       provisioningCode = code,
       provisioningVersion = ProvisioningVersion.CURRENT.value,
+      accountEntropyPool = accountEntropyPool.value,
       masterKey = masterKey.serialize().toByteString(),
       mediaRootBackupKey = mediaRootBackupKey.value.toByteString(),
       ephemeralBackupKey = ephemeralMessageBackupKey?.value?.toByteString()

@@ -11,10 +11,10 @@ import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.util.Material3OnScrollHelper
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
@@ -31,7 +31,7 @@ abstract class DSLSettingsFragment(
   @MenuRes private val menuId: Int = -1,
   @LayoutRes layoutId: Int = R.layout.dsl_settings_fragment,
   protected var layoutManagerProducer: (Context) -> RecyclerView.LayoutManager = { context -> LinearLayoutManager(context) }
-) : Fragment(layoutId) {
+) : LoggingFragment(layoutId) {
 
   protected var recyclerView: RecyclerView? = null
     private set
@@ -71,7 +71,6 @@ abstract class DSLSettingsFragment(
       getMaterial3OnScrollHelper(toolbar)?.let {
         it.attach(this)
       }
-
     }
 
     when (settingsAdapter) {
@@ -86,7 +85,11 @@ abstract class DSLSettingsFragment(
       return null
     }
 
-    return Material3OnScrollHelper(requireActivity(), toolbar, viewLifecycleOwner)
+    return Material3OnScrollHelper(
+      activity = requireActivity(),
+      views = listOf(toolbar),
+      lifecycleOwner = viewLifecycleOwner
+    )
   }
 
   open fun onToolbarNavigationClicked() {

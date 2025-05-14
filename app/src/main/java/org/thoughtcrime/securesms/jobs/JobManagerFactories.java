@@ -65,6 +65,7 @@ import org.thoughtcrime.securesms.migrations.DuplicateE164MigrationJob;
 import org.thoughtcrime.securesms.migrations.E164FormattingMigrationJob;
 import org.thoughtcrime.securesms.migrations.EmojiDownloadMigrationJob;
 import org.thoughtcrime.securesms.migrations.EmojiSearchIndexCheckMigrationJob;
+import org.thoughtcrime.securesms.migrations.FixChangeNumberErrorMigrationJob;
 import org.thoughtcrime.securesms.migrations.GooglePlayBillingPurchaseTokenMigrationJob;
 import org.thoughtcrime.securesms.migrations.IdentityTableCleanupMigrationJob;
 import org.thoughtcrime.securesms.migrations.LegacyMigrationJob;
@@ -95,6 +96,7 @@ import org.thoughtcrime.securesms.migrations.StoryViewedReceiptsStateMigrationJo
 import org.thoughtcrime.securesms.migrations.SubscriberIdMigrationJob;
 import org.thoughtcrime.securesms.migrations.Svr2MirrorMigrationJob;
 import org.thoughtcrime.securesms.migrations.SyncCallLinksMigrationJob;
+import org.thoughtcrime.securesms.migrations.SyncChatFoldersMigrationJob;
 import org.thoughtcrime.securesms.migrations.SyncDistributionListsMigrationJob;
 import org.thoughtcrime.securesms.migrations.SyncKeysMigrationJob;
 import org.thoughtcrime.securesms.migrations.TrimByLengthSettingsMigrationJob;
@@ -168,6 +170,10 @@ public final class JobManagerFactories {
       put(InAppPaymentRecurringContextJob.KEY,         new InAppPaymentRecurringContextJob.Factory());
       put(InAppPaymentOneTimeContextJob.KEY,           new InAppPaymentOneTimeContextJob.Factory());
       put(InAppPaymentRedemptionJob.KEY,               new InAppPaymentRedemptionJob.Factory());
+      put(InAppPaymentPayPalOneTimeSetupJob.KEY,       new InAppPaymentPayPalOneTimeSetupJob.Factory());
+      put(InAppPaymentPayPalRecurringSetupJob.KEY,     new InAppPaymentPayPalRecurringSetupJob.Factory());
+      put(InAppPaymentStripeOneTimeSetupJob.KEY,       new InAppPaymentStripeOneTimeSetupJob.Factory());
+      put(InAppPaymentStripeRecurringSetupJob.KEY,     new InAppPaymentStripeRecurringSetupJob.Factory());
       put(IndividualSendJob.KEY,                       new IndividualSendJob.Factory());
       put(LeaveGroupV2Job.KEY,                         new LeaveGroupV2Job.Factory());
       put(LeaveGroupV2WorkerJob.KEY,                   new LeaveGroupV2WorkerJob.Factory());
@@ -259,7 +265,6 @@ public final class JobManagerFactories {
       put(SubmitRateLimitPushChallengeJob.KEY,         new SubmitRateLimitPushChallengeJob.Factory());
       put(Svr2MirrorJob.KEY,                           new Svr2MirrorJob.Factory());
       put(Svr3MirrorJob.KEY,                           new Svr3MirrorJob.Factory());
-      put(SyncArchivedMediaJob.KEY,                    new SyncArchivedMediaJob.Factory());
       put(ThreadUpdateJob.KEY,                         new ThreadUpdateJob.Factory());
       put(TrimThreadJob.KEY,                           new TrimThreadJob.Factory());
       put(TypingSendJob.KEY,                           new TypingSendJob.Factory());
@@ -295,6 +300,7 @@ public final class JobManagerFactories {
       put(E164FormattingMigrationJob.KEY,                 new E164FormattingMigrationJob.Factory());
       put(EmojiDownloadMigrationJob.KEY,                  new EmojiDownloadMigrationJob.Factory());
       put(EmojiSearchIndexCheckMigrationJob.KEY,          new EmojiSearchIndexCheckMigrationJob.Factory());
+      put(FixChangeNumberErrorMigrationJob.KEY,           new FixChangeNumberErrorMigrationJob.Factory());
       put(GooglePlayBillingPurchaseTokenMigrationJob.KEY, new GooglePlayBillingPurchaseTokenMigrationJob.Factory());
       put(IdentityTableCleanupMigrationJob.KEY,           new IdentityTableCleanupMigrationJob.Factory());
       put(LegacyMigrationJob.KEY,                         new LegacyMigrationJob.Factory());
@@ -324,6 +330,7 @@ public final class JobManagerFactories {
       put(SubscriberIdMigrationJob.KEY,                   new SubscriberIdMigrationJob.Factory());
       put(Svr2MirrorMigrationJob.KEY,                     new Svr2MirrorMigrationJob.Factory());
       put(SyncCallLinksMigrationJob.KEY,                  new SyncCallLinksMigrationJob.Factory());
+      put(SyncChatFoldersMigrationJob.KEY,                new SyncChatFoldersMigrationJob.Factory());
       put(SyncDistributionListsMigrationJob.KEY,          new SyncDistributionListsMigrationJob.Factory());
       put(SyncKeysMigrationJob.KEY,                       new SyncKeysMigrationJob.Factory());
       put(TrimByLengthSettingsMigrationJob.KEY,           new TrimByLengthSettingsMigrationJob.Factory());

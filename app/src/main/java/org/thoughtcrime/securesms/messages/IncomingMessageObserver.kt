@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.net.ProxyInfo
 import android.os.IBinder
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
@@ -91,16 +92,29 @@ class IncomingMessageObserver(private val context: Application, private val auth
 
   private val lock: ReentrantLock = ReentrantLock()
   private val connectionNecessarySemaphore = Semaphore(0)
-  private val networkConnectionListener = NetworkConnectionListener(context) { isNetworkUnavailable ->
-    lock.withLock {
-      AppDependencies.libsignalNetwork.onNetworkChange()
-      if (isNetworkUnavailable()) {
-        Log.w(TAG, "Lost network connection. Resetting the drained state.")
-        decryptionDrained = false
+  private var previousProxyInfo: ProxyInfo? = null
+  private val networkConnectionListener = NetworkConnectionListener(
+    context,
+    { isNetworkUnavailable ->
+      lock.withLock {
+        AppDependencies.libsignalNetwork.onNetworkChange()
+        if (isNetworkUnavailable()) {
+          Log.w(TAG, "Lost network connection. Resetting the drained state.")
+          decryptionDrained = false
+        }
+        connectionNecessarySemaphore.release()
       }
-      connectionNecessarySemaphore.release()
+    },
+    { proxyInfo ->
+      if (proxyInfo != previousProxyInfo) {
+        val networkReset = AppDependencies.onSystemHttpProxyChange(proxyInfo?.host, proxyInfo?.port)
+        if (networkReset) {
+          Log.i(TAG, "System proxy configuration changed, network reset.")
+        }
+      }
+      previousProxyInfo = proxyInfo
     }
-  }
+  )
 
   private val messageContentProcessor = MessageContentProcessor(context)
 
@@ -167,6 +181,11 @@ class IncomingMessageObserver(private val context: Application, private val auth
     connectionNecessarySemaphore.release()
   }
 
+  fun notifyRestoreDecisionMade() {
+    Log.i(TAG, "Restore decision made, can restart network and process messages")
+    AppDependencies.resetNetwork()
+  }
+
   fun addDecryptionDrainedListener(listener: Runnable) {
     decryptionDrainedListeners.add(listener)
     if (decryptionDrained) {
@@ -209,17 +228,15 @@ class IncomingMessageObserver(private val context: Application, private val auth
     val hasProxy = SignalStore.proxy.isProxyEnabled
     val forceWebsocket = SignalStore.internal.isWebsocketModeForced
     val websocketAlreadyOpen = isConnectionAvailable()
-    val canProcessIncomingMessages = canProcessIncomingMessages()
 
     val lastInteractionString = if (appVisibleSnapshot) "N/A" else timeIdle.toString() + " ms (" + (if (timeIdle < maxBackgroundTime) "within limit" else "over limit") + ")"
     val conclusion = registered &&
       (appVisibleSnapshot || timeIdle < maxBackgroundTime || !fcmEnabled) &&
-      hasNetwork &&
-      canProcessIncomingMessages
+      hasNetwork
 
     val needsConnectionString = if (conclusion) "Needs Connection" else "Does Not Need Connection"
 
-    Log.d(TAG, "[$needsConnectionString] Network: $hasNetwork, Foreground: $appVisibleSnapshot, Time Since Last Interaction: $lastInteractionString, FCM: $fcmEnabled, WS Connected: $websocketAlreadyOpen, Registered: $registered, Proxy: $hasProxy, Force websocket: $forceWebsocket, Can process messages: $canProcessIncomingMessages")
+    Log.d(TAG, "[$needsConnectionString] Network: $hasNetwork, Foreground: $appVisibleSnapshot, Time Since Last Interaction: $lastInteractionString, FCM: $fcmEnabled, WS Connected: $websocketAlreadyOpen, Registered: $registered, Proxy: $hasProxy, Force websocket: $forceWebsocket")
     return conclusion
   }
 
@@ -227,14 +244,10 @@ class IncomingMessageObserver(private val context: Application, private val auth
     return authWebSocket.stateSnapshot == WebSocketConnectionState.CONNECTED
   }
 
-  private fun canProcessIncomingMessages(): Boolean {
-    return !(RemoteConfig.restoreAfterRegistration && SignalStore.registration.restoreDecisionState.isDecisionPending)
-  }
-
   private fun waitForConnectionNecessary() {
     try {
       connectionNecessarySemaphore.drainPermits()
-      while (!isConnectionNecessary() && !(isConnectionAvailable() && canProcessIncomingMessages())) {
+      while (!isConnectionNecessary() && !isConnectionAvailable()) {
         val numberDrained = connectionNecessarySemaphore.drainPermits()
         if (numberDrained == 0) {
           connectionNecessarySemaphore.acquire()
@@ -347,12 +360,15 @@ class IncomingMessageObserver(private val context: Application, private val auth
   private inner class MessageRetrievalThread : Thread("MessageRetrievalService"), Thread.UncaughtExceptionHandler {
 
     private var sleepTimer: SleepTimer
+    private val canProcessMessages: Boolean
 
     init {
       Log.i(TAG, "Initializing! (${this.hashCode()})")
       uncaughtExceptionHandler = this
 
       sleepTimer = if (!SignalStore.account.fcmEnabled || SignalStore.internal.isWebsocketModeForced) AlarmSleepTimer(context) else UptimeSleepTimer()
+
+      canProcessMessages = !(RemoteConfig.restoreAfterRegistration && SignalStore.registration.restoreDecisionState.isDecisionPending)
     }
 
     override fun run() {
@@ -385,7 +401,7 @@ class IncomingMessageObserver(private val context: Application, private val auth
         try {
           authWebSocket.connect()
           var isConnectionNecessary = false
-          while (!terminated && canProcessIncomingMessages() && (isConnectionNecessary().also { isConnectionNecessary = it } || isConnectionAvailable())) {
+          while (!terminated && (isConnectionNecessary().also { isConnectionNecessary = it } || isConnectionAvailable())) {
             if (isConnectionNecessary) {
               authWebSocket.registerKeepAliveToken(WEB_SOCKET_KEEP_ALIVE_TOKEN)
             } else {
@@ -393,50 +409,58 @@ class IncomingMessageObserver(private val context: Application, private val auth
             }
 
             try {
-              Log.d(TAG, "Reading message...")
+              if (canProcessMessages) {
+                Log.d(TAG, "Reading message...")
 
-              val hasMore = authWebSocket.readMessageBatch(websocketReadTimeout, 30) { batch ->
-                Log.i(TAG, "Retrieved ${batch.size} envelopes!")
-                val bufferedStore = BufferedProtocolStore.create()
+                val hasMore = authWebSocket.readMessageBatch(websocketReadTimeout, 30) { batch ->
+                  Log.i(TAG, "Retrieved ${batch.size} envelopes!")
+                  val bufferedStore = BufferedProtocolStore.create()
 
-                val startTime = System.currentTimeMillis()
-                GroupsV2ProcessingLock.acquireGroupProcessingLock().use {
-                  ReentrantSessionLock.INSTANCE.acquire().use {
-                    batch.forEach { response ->
-                      Log.d(TAG, "Beginning database transaction...")
-                      val followUpOperations = SignalDatabase.runInTransaction { db ->
-                        val followUps: List<FollowUpOperation>? = processEnvelope(bufferedStore, response.envelope, response.serverDeliveredTimestamp)
-                        bufferedStore.flushToDisk()
-                        followUps
+                  val startTime = System.currentTimeMillis()
+                  GroupsV2ProcessingLock.acquireGroupProcessingLock().use {
+                    ReentrantSessionLock.INSTANCE.acquire().use {
+                      batch.forEach { response ->
+                        Log.d(TAG, "Beginning database transaction...")
+                        val followUpOperations = SignalDatabase.runInTransaction { db ->
+                          val followUps: List<FollowUpOperation>? = processEnvelope(bufferedStore, response.envelope, response.serverDeliveredTimestamp)
+                          bufferedStore.flushToDisk()
+                          followUps
+                        }
+                        Log.d(TAG, "Ended database transaction.")
+
+                        if (followUpOperations != null) {
+                          Log.d(TAG, "Running ${followUpOperations.size} follow-up operations...")
+                          val jobs = followUpOperations.mapNotNull { it.run() }
+                          AppDependencies.jobManager.addAllChains(jobs)
+                        }
+
+                        authWebSocket.sendAck(response)
                       }
-                      Log.d(TAG, "Ended database transaction.")
-
-                      if (followUpOperations != null) {
-                        Log.d(TAG, "Running ${followUpOperations.size} follow-up operations...")
-                        val jobs = followUpOperations.mapNotNull { it.run() }
-                        AppDependencies.jobManager.addAllChains(jobs)
-                      }
-
-                      authWebSocket.sendAck(response)
                     }
                   }
+                  val duration = System.currentTimeMillis() - startTime
+                  val timePerMessage: Float = duration / batch.size.toFloat()
+                  Log.d(TAG, "Decrypted ${batch.size} envelopes in $duration ms (~${round(timePerMessage * 100) / 100} ms per message)")
                 }
-                val duration = System.currentTimeMillis() - startTime
-                val timePerMessage: Float = duration / batch.size.toFloat()
-                Log.d(TAG, "Decrypted ${batch.size} envelopes in $duration ms (~${round(timePerMessage * 100) / 100} ms per message)")
-              }
-              attempts = 0
-              SignalLocalMetrics.PushWebsocketFetch.onProcessedBatch()
+                attempts = 0
+                SignalLocalMetrics.PushWebsocketFetch.onProcessedBatch()
 
-              if (!hasMore && !decryptionDrained) {
-                Log.i(TAG, "Decryptions newly-drained.")
-                decryptionDrained = true
+                if (!hasMore && !decryptionDrained) {
+                  Log.i(TAG, "Decryptions newly-drained.")
+                  decryptionDrained = true
 
-                for (listener in decryptionDrainedListeners.toList()) {
-                  listener.run()
+                  for (listener in decryptionDrainedListeners.toList()) {
+                    listener.run()
+                  }
+                } else if (!hasMore) {
+                  Log.w(TAG, "Got tombstone, but we thought the network was already drained!")
                 }
-              } else if (!hasMore) {
-                Log.w(TAG, "Got tombstone, but we thought the network was already drained!")
+              } else {
+                Log.d(TAG, "Reading and dropping message...")
+                authWebSocket.readMessageBatch(websocketReadTimeout, 30) { batch ->
+                  Log.w(TAG, "Retrieved ${batch.size} envelopes but dropping until we can finish backup restore.")
+                }
+                attempts = 0
               }
             } catch (e: WebSocketUnavailableException) {
               Log.i(TAG, "Pipe unexpectedly unavailable, connecting")
@@ -455,6 +479,7 @@ class IncomingMessageObserver(private val context: Application, private val auth
           Log.w(TAG, e)
         } finally {
           webSocketDisposable.dispose()
+          decryptionDrained = false
         }
         Log.i(TAG, "Looping...")
       }

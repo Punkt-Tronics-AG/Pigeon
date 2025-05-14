@@ -65,6 +65,10 @@ class ConversationBannerView @JvmOverloads constructor(
     }
   }
 
+  fun clearBanner() {
+    hide(bannerStub)
+  }
+
   fun showUnverifiedBanner(identityRecords: IdentityRecordList) {
     if (isPigeonVersion()){
       return;

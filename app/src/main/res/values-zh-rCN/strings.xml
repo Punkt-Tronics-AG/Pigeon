@@ -151,6 +151,7 @@
     <!-- BlockedUsersActivity -->
     <string name="BlockedUsersActivity__blocked_users">已屏蔽的用户</string>
     <string name="BlockedUsersActivity__add_blocked_user">添加屏蔽用户</string>
+    <string name="BlockedUsersActivity__cannot_block_yourself">不能屏蔽自己</string>
     <string name="BlockedUsersActivity__blocked_users_will">被屏蔽的用户将无法向您发起通话或发送消息。</string>
     <string name="BlockedUsersActivity__no_blocked_users">无屏蔽用户</string>
     <string name="BlockedUsersActivity__block_user">要屏蔽用户吗？</string>
@@ -569,12 +570,6 @@
     </plurals>
     <plurals name="ConversationFragment_saving_n_attachments_to_sd_card">
         <item quantity="other">正在保存 %1$d 附件到存储…</item>
-    </plurals>
-    <!-- Dialog title asking to save media to your phone\'s storage -->
-    <string name="ConversationFragment__save_to_phone">要保存到手机吗？</string>
-    <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
-    <plurals name="ConversationFragment__this_media_will_be_saved">
-        <item quantity="other">此媒体将会保存到您手机的存储空间中。根据您的手机权限，其他应用可能可以访问该媒体。</item>
     </plurals>
     <!-- Checkbox shown in dialog to not show the dialog again in future cases -->
     <string name="ConversationFragment_dont_show_again">不再显示</string>
@@ -1139,6 +1134,7 @@
 
     <!-- DocumentView -->
     <string name="DocumentView_unnamed_file">未命名文件</string>
+    <string name="DocumentView_document_file">文档文件</string>
 
     <!-- DozeReminder -->
     <string name="DozeReminder_optimize_for_missing_play_services">缺失 Google Play 服务时优化</string>
@@ -1641,7 +1637,6 @@
     </plurals>
     <string name="MediaOverviewActivity_Media_delete_progress_title">正在删除</string>
     <string name="MediaOverviewActivity_Media_delete_progress_message">正在删除消息…</string>
-    <string name="MediaOverviewActivity_collecting_attachments">正在收集附件…</string>
     <string name="MediaOverviewActivity_Sort_by">排序</string>
     <string name="MediaOverviewActivity_Newest">最新</string>
     <string name="MediaOverviewActivity_Oldest">最旧</string>
@@ -1673,6 +1668,8 @@
     <string name="MediaOverviewActivity_sent_by_you">由您发送</string>
     <string name="MediaOverviewActivity_sent_by_s_to_s">由 %1$s 发送至 %2$s</string>
     <string name="MediaOverviewActivity_sent_by_you_to_s">由您发送至 %1$s</string>
+    <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
+    <string name="MediaOverviewActivity_this_media_is_not_sent_yet">此媒体尚未发送。</string>
 
     <!-- Megaphones -->
     <string name="Megaphones_remind_me_later">稍后提醒</string>
@@ -1742,6 +1739,10 @@
     <string name="MessageRecord_missed_voice_call">未接语音来电</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_missed_video_call">未接视频来电</string>
+    <!-- Update message shown when receiving an incoming 1:1 voice/audio call and not answered -->
+    <string name="MessageRecord_declined_voice_call">拒接的语音通话</string>
+    <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
+    <string name="MessageRecord_declined_video_call">拒接的视频通话</string>
     <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
     <string name="MessageRecord_missed_voice_call_notification_profile">语音通话由于开启通知配置而未接通</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
@@ -2073,6 +2074,26 @@
     <plurals name="MessageRequestProfileView_member_of_d_additional_groups">
         <item quantity="other">更多%1$d个群组</item>
     </plurals>
+    <!-- Describes the names of members in a group. MessageRequestProfileView_group_members_* is nested in the first parentheses. MessageRequestProfileView_invited is nested in the second -->
+    <string name="MessageRequestProfileView_member_names_and_invited">%1$s (%2$s)</string>
+    <!-- Text for an empty group or when you are the only member -->
+    <string name="MessageRequestProfileView_group_members_zero">暂无其他群组成员</string>
+    <!-- Text for a group with one member (not you). %1$s is their name -->
+    <string name="MessageRequestProfileView_group_members_one">%1$s</string>
+    <!-- Text for a 2 member group you are in. %1$s is the name of the other member -->
+    <string name="MessageRequestProfileView_group_members_one_and_you">%1$s和您</string>
+    <!-- Text for a 2 member group you are not in. %1$s and %2$s are the members\' names -->
+    <string name="MessageRequestProfileView_group_members_two">%1$s %2$s</string>
+    <!-- Text for a 3 member group you are in. %1$s and %2$s are the members\' names -->
+    <string name="MessageRequestProfileView_group_members_two_and_you">%1$s、%2$s和您</string>
+    <!-- Text for a 3 member group you are not in. %1$s, %2$s, %3$s are the names of the other members. -->
+    <string name="MessageRequestProfileView_group_members_three">%1$s、%2$s和%3$s</string>
+    <!-- Text for a 3+ member group. %1$s, %2$s, %3$s are member names. %4$s is the string key MessageRequestProfileView_other_members-->
+    <string name="MessageRequestProfileView_group_members_other">%1$s、%2$s、%3$s和%4$s</string>
+    <!-- Nested in MessageRequestProfileView_group_members_other that shows how many members (besides three) are in the group -->
+    <plurals name="MessageRequestProfileView_other_members">
+        <item quantity="other">%1$d 个其他人</item>
+    </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
     <string name="MessageRequestBottomView_report">举报…</string>
     <!-- Alert dialog title to accept a message request -->
@@ -2186,6 +2207,7 @@
 
     <!-- ReactionsBottomSheetDialogFragment -->
     <string name="ReactionsBottomSheetDialogFragment_all">全部 · %1$d</string>
+    <string name="ReactionsBottomSheetDialogFragment_tap_to_remove">点击移除</string>
 
     <!-- ReactionsConversationView -->
     <string name="ReactionsConversationView_plus">+%1$d</string>
@@ -2407,6 +2429,8 @@
     <string name="CallOverflowPopupWindow__view">查看</string>
 
 
+    <!-- A notification to the user that their hand is raised but they are currently speaking -->
+    <string name="CallRaiseHandSnackbar__lower_your_hand">要放下吗？</string>
     <!-- A notification to the user that they successfully raised their hand. The placeholder string is CallParticipant__you, or CallParticipant__you_on_another_device -->
     <string name="CallRaiseHandSnackbar__expanded_second_person_raised_a_hand_single">%1$s举手了</string>
     <!-- A notification to the user that they and at least one more participants in the call successfully raised their hand. The placeholder is a number quantifying how many other hands are also raised, besides the user. -->
@@ -2472,6 +2496,11 @@
     <string name="AboutSheet__you">您</string>
     <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
     <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
+
+    <!-- Title of the screen showing which groups they have in common with another user. -->
+    <plurals name="GroupsInCommon__n_groups_in_common_title">
+        <item quantity="other">%1$s 个共同群组</item>
+    </plurals>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call">
@@ -2647,6 +2676,12 @@
     <string name="SignalPinReminders_well_remind_you_again_in_a_week">PIN 码验证成功。我们将会在一周后再次提醒您。</string>
     <string name="SignalPinReminders_well_remind_you_again_in_a_couple_weeks">PIN 码验证成功。我们将会在几周后再次提醒您。</string>
     <string name="SignalPinReminders_well_remind_you_again_in_a_month">PIN 码验证成功。我们将会在一个月后再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_later">我们会在稍后再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_tomorrow">我们会在明天再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_few_days">我们会在几天后再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_week">我们会在一周后再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_couple_weeks">我们会在几周后再次提醒您。</string>
+    <string name="SignalPinReminders__well_remind_you_again_in_a_month">我们会在一个月后再次提醒您。</string>
 
     <!-- Slide -->
     <string name="Slide_image">图片</string>
@@ -2662,15 +2697,35 @@
     <!-- StickerManagementActivity -->
     <string name="StickerManagementActivity_stickers">表情</string>
 
+    <!-- Label for the sticker management screen tab which shows the stickers that are available to install. -->
+    <string name="StickerManagement_available_tab_label">可用</string>
+    <!-- Label for the sticker management screen tab which shows the stickers that are currently installed. -->
+    <string name="StickerManagement_installed_tab_label">已安装</string>
+    <!-- Shown when there are no sticker packs available for installation -->
+    <string name="StickerManagement_available_tab_empty_text">没有可用的贴纸包</string>
+    <!-- Shown when there are no sticker packs currently installed -->
+    <string name="StickerManagement_installed_tab_empty_text">未安装贴纸包</string>
+    <!-- Message shown when the author of the sticker pack is unknown -->
+    <string name="StickerManagement_author_unknown">未知</string>
+    <!-- Sticker pack list section header for packs that are already installed. -->
+    <string name="StickerManagement_installed_stickers_header">已安装表情</string>
+    <!-- Sticker pack list section header for packs that have been received from incoming messages. -->
+    <string name="StickerManagement_stickers_you_received_header">收到的表情</string>
+    <!-- Sticker pack list section header for highlighted/"blessed" packs. -->
+    <string name="StickerManagement_signal_artist_series_header">Signal 艺术家系列</string>
+    <!-- Accessibility label for the button to download a sticker pack. The placeholder is the sticker pack name. -->
+    <string name="StickerManagement_accessibility_download_pack">下载%1$s贴纸包</string>
+    <!-- Accessibility label for the icon that is displayed after a sticker pack has been downloaded. The placeholder is the sticker pack name. -->
+    <string name="StickerManagement_accessibility_downloaded_checkmark">表示已下载的勾号</string>
+    <!-- Accessibility label for the sticker pack drag and drop handle used to reorder the list. -->
+    <string name="StickerManagement_accessibility_drag_handle">拖放句柄</string>
+    <!-- Accessibility label for the button to download a sticker pack. -->
+    <string name="StickerManagement_accessibility_download">下载</string>
+
     <!-- StickerManagementAdapter -->
-    <string name="StickerManagementAdapter_installed_stickers">已安装表情</string>
-    <string name="StickerManagementAdapter_stickers_you_received">收到的表情</string>
-    <string name="StickerManagementAdapter_signal_artist_series">Signal 艺术家系列</string>
     <string name="StickerManagementAdapter_no_stickers_installed">未安装表情</string>
     <string name="StickerManagementAdapter_stickers_from_incoming_messages_will_appear_here">此处将显示传入消息中的表情</string>
     <string name="StickerManagementAdapter_untitled">未命名</string>
-    <!-- Message shown when the author of the sticker pack is unknown -->
-    <string name="StickerManagementAdapter_unknown">未知</string>
 
     <!-- StickerPackPreviewActivity -->
     <string name="StickerPackPreviewActivity_untitled">未命名</string>
@@ -2697,6 +2752,8 @@
     <string name="SubmitDebugLogActivity_copy_this_url_and_add_it_to_your_issue">复制此 URL 并将其添加到问题报告或支持电子邮件:\n\n<b>%1$s</b></string>
     <string name="SubmitDebugLogActivity_share">分享</string>
     <string name="SubmitDebugLogActivity_this_log_will_be_posted_publicly_online_for_contributors">此日志将会在线上公开发布，供赞助人查看。您可以先仔细检查再上传。</string>
+    <!-- Banner message shown while submitting debug log -->
+    <string name="SubmitDebugLogActivity_your_log_will_be_posted_online">当您点击提交后，您的日志将会在一个唯一的未发布 URL 中在线发布 30 天。您可以先将其保存在本地。</string>
 
     <!-- SupportEmailUtil -->
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_support_email" translatable="false">support@signal.org</string> -->
@@ -2767,6 +2824,8 @@
     <string name="ThreadRecord_s_belongs_to_s">%1$s 属于%2$s</string>
     <!-- Displayed in the conversation list when a person has been blocked -->
     <string name="ThreadRecord_blocked">已屏蔽</string>
+    <!-- Displayed in the conversation list when a group has been blocked -->
+    <string name="ThreadRecord_blocked_group">已屏蔽</string>
 
     <!-- ApkUpdateNotifications -->
     <string name="ApkUpdateNotifications_prompt_install_title">Signal 更新</string>
@@ -2881,8 +2940,6 @@
     <string name="MediaPreviewActivity_you">您</string>
     <string name="MediaPreviewActivity_unssuported_media_type">不支持的媒体类型</string>
     <string name="MediaPreviewActivity_draft">草稿</string>
-    <string name="MediaPreviewActivity_signal_needs_the_storage_permission_in_order_to_write_to_external_storage_but_it_has_been_permanently_denied">Signal 需“存储”权限，来保存文件至外部存储，但该权限已永久禁用。请访问应用设置菜单，选择“权限”并启用“存储”。</string>
-    <string name="MediaPreviewActivity_unable_to_write_to_external_storage_without_permission">没有权限，无法保存至外部存储</string>
     <string name="MediaPreviewActivity_media_delete_confirmation_title">删除消息？</string>
     <string name="MediaPreviewActivity_media_delete_confirmation_message">这将永久删除该消息。</string>
     <string name="MediaPreviewActivity_s_to_s">%1$s 至 %2$s</string>
@@ -2987,8 +3044,6 @@
     <!-- Notification channel name for notifications sent when a device has been linked -->
     <string name="NotificationChannel_new_linked_device">新链接设备</string>
 
-    <!-- ProfileEditNameFragment -->
-
     <!-- QuickResponseService -->
     <string name="QuickResponseService_quick_response_unavailable_when_Signal_is_locked">Signal 锁定时不可使用快速回复。</string>
     <string name="QuickResponseService_problem_sending_message">发送消息时出现问题！</string>
@@ -3011,6 +3066,20 @@
     <plurals name="SaveAttachment_error_while_saving_attachments_to_sd_card">
         <item quantity="other">保存附件到存储时出错！</item>
     </plurals>
+
+    <!-- Dialog title asking to save media to your phone\'s storage -->
+    <string name="AttachmentSaver__save_to_phone">要保存到手机吗？</string>
+
+    <!-- Dialog message explaining that media will be saved to your phone and can potentially be accessed by other phones. -->
+    <plurals name="AttachmentSaver__this_media_will_be_saved">
+        <item quantity="other">此媒体将会保存到您手机的存储空间中。根据您的手机权限，其他应用可能可以访问该媒体。</item>
+    </plurals>
+
+    <!-- Message shown when the app requests permission to save media to the device storage, but that permission has been permanently denied by the user. -->
+    <string name="AttachmentSaver__signal_needs_the_storage_permission_in_order_to_write_to_external_storage_but_it_has_been_permanently_denied">Signal 需“存储”权限，来保存文件至外部存储，但该权限已永久禁用。请访问应用设置菜单，选择“权限”并启用“存储”。</string>
+
+    <!-- Message explaining that it is not possible to save media to the device storage after the user denied the system save to storage permission. -->
+    <string name="AttachmentSaver__unable_to_write_to_external_storage_without_permission">没有权限，无法保存至外部存储</string>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">搜索</string>
@@ -3264,6 +3333,11 @@
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">播放 … 暂停</string>
     <string name="audio_view__download_accessibility_description">下载</string>
+
+    <!-- document_view -->
+    <string name="document_view__download_accessibility_description">下载</string>
+    <string name="document_view__upload_accessibility_description">上传</string>
+    <string name="document_view__cancel_accessibility_description">取消</string>
 
     <!-- QuoteView -->
     <string name="QuoteView_audio">音频</string>
@@ -3566,6 +3640,7 @@
     <string name="DebugLogsPromptDialogFragment__no_thanks">不，谢谢。</string>
 
     <!-- ReactWithAnyEmojiBottomSheetDialogFragment -->
+    <string name="ReactWithAnyEmojiBottomSheetDialogFragment__recents">最近通话</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__this_message">此消息</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__recently_used">最近使用</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__smileys_and_people">笑脸和情感</string>
@@ -3578,6 +3653,17 @@
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__flags">旗帜</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__emoticons">颜文字</string>
     <string name="ReactWithAnyEmojiBottomSheetDialogFragment__no_results_found">未找到结果</string>
+
+    <!-- GifQuickSearchOption -->
+    <string name="GifQuickSearchOption__recents">最近通话</string>
+    <string name="GifQuickSearchOption__trending">热门</string>
+    <string name="GifQuickSearchOption__celebrate">庆祝</string>
+    <string name="GifQuickSearchOption__love">爱</string>
+    <string name="GifQuickSearchOption__thumbs_up">竖大拇指</string>
+    <string name="GifQuickSearchOption__surprised">惊讶</string>
+    <string name="GifQuickSearchOption__excited">激动</string>
+    <string name="GifQuickSearchOption__sad">伤心</string>
+    <string name="GifQuickSearchOption__angry">生气</string>
 
     <!-- arrays.xml -->
     <string name="arrays__use_default">使用默认</string>
@@ -4169,6 +4255,8 @@
     <string name="conversation_list_fragment__fab_content_description">新聊天</string>
     <string name="conversation_list_fragment__open_camera_description">打开相机</string>
     <string name="conversation_list_fragment__no_chats_yet_get_started_by_messaging_a_friend">还没有聊天记录。\n开始使用，给朋友发个消息吧。</string>
+    <!-- Message shown when there are no archived chats to display -->
+    <string name="conversation_list_fragment__archived_chats_will_appear_here">存档的聊天将会在这里显示。</string>
     <!-- Message shown when there are no chats in the chat folder to display -->
     <string name="conversation_list_fragment__no_chats_to_display">没有可显示的聊天</string>
     <!-- Button text that will open up chat folder settings -->
@@ -4782,7 +4870,7 @@
     <string name="ReviewCardDialogFragment__no_other_groups_in_common">没有其它共同群组。</string>
     <string name="ReviewCardDialogFragment__no_groups_in_common">无共同群组。</string>
     <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
-        <item quantity="other">%1$d 个共同群组</item>
+        <item quantity="other">%1$d 个其他共同群组</item>
     </plurals>
     <plurals name="ReviewCardDialogFragment__d_groups_in_common">
         <item quantity="other">%1$d 个共同群组</item>
@@ -5520,6 +5608,8 @@
     <string name="ConversationSettingsFragment__copied_phone_number_to_clipboard">已复制手机号码至剪贴板。</string>
     <string name="ConversationSettingsFragment__phone_number">手机号码</string>
     <string name="ConversationSettingsFragment__get_badges">欢迎给 Signal 捐款，在个人资料中显示捐款徽章。点击徽章了解详情。</string>
+    <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
+    <string name="ConversationSettingsFragment__this_media_is_not_sent_yet">此媒体尚未发送。</string>
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">添加成员</string>
@@ -6317,6 +6407,8 @@
     <string name="StoryViewerPageFragment__send_failed">发送失败。点击重试</string>
     <!-- Label for the reply button in story viewer, which will launch the group story replies bottom sheet. -->
     <string name="StoryViewerPageFragment__reply_to_group">回复群组</string>
+    <!-- Content description for the any reaction button in reply to story composer, which will launch the emojis bottom sheet. -->
+    <string name="StoryViewerPageFragment_any_reaction_content_description">更多回应</string>
     <!-- Displayed when a story has no views -->
     <string name="StoryViewsFragment__no_views_yet">未有浏览</string>
     <!-- Displayed when user has disabled receipts -->
@@ -7848,8 +7940,8 @@
     <!-- Linear progress dialog text shown when preparing a backup -->
     <string name="RemoteBackupsSettingsFragment__preparing_backup">正在准备备份…</string>
     <!-- Linear progress dialog text shown when processing messages for backup. First placeholder is completed count, second is approximate total count, third is percent completed. -->
-    <plurals name="RemoteBackupsSettingsFragment__processing_d_of_d_d_messages">
-        <item quantity="other">正在处理 %1$d/%2$d 条消息（%3$d%%）</item>
+    <plurals name="RemoteBackupsSettingsFragment__processing_messages_progress_text">
+        <item quantity="other">正在处理 %1$s/%2$s 条消息（%3$d%%）</item>
     </plurals>
     <!-- Displayed in row when backup is available for download and users subscription has expired. First placeholder is data size e.g. 12MB, second is days before expiration -->
     <plurals name="RemoteBackupsSettingsFragment__you_have_s_of_backup_data">
@@ -7941,6 +8033,19 @@
     <string name="MessageBackupsKeyRecordScreen__continue">继续</string>
     <!-- Sheet secondary action button label -->
     <string name="MessageBackupsKeyRecordScreen__see_key_again">再次查看密钥</string>
+
+    <!-- Confirm key title -->
+    <string name="MessageBackupsKeyVerifyScreen__confirm_your_backup_key">确认您的备份密钥</string>
+    <!-- Confirm your key subtitle -->
+    <string name="MessageBackupsKeyVerifyScreen__enter_the_backup_key_that_you_just_recorded">请输入您刚刚记录的备份密钥</string>
+    <!-- Confirm your key text entry hint text -->
+    <string name="MessageBackupsKeyVerifyScreen__backup_key">备份密钥</string>
+    <!-- Confirm your key text entry error text -->
+    <string name="MessageBackupsKeyVerifyScreen__incorrect_backup_key">备份密钥不正确</string>
+    <!-- Confirm your key button text to return to record key screen. -->
+    <string name="MessageBackupsKeyVerifyScreen__see_key_again">再次查看密钥</string>
+    <!-- Confirm your key button text to move onto next screen in flow -->
+    <string name="MessageBackupsKeyVerifyScreen__next">下一步</string>
 
     <!-- MessagesBackupsTypeSelectionScreen -->
     <!-- Screen headline -->
@@ -8065,6 +8170,25 @@
     <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">您输入的备份密钥正确，但没有与之关联的备份。如果您的旧手机还在，请确保您已启用和完成备份，然后重试。</string>
     <!-- Dialog button shown during registration and trying to restore a remote backup to instead skip said backup process -->
     <string name="EnterBackupKey_skip_restore">跳过恢复</string>
+    <!-- Dialog title text when encountering backup restore network error -->
+    <string name="EnterBackupKey_cant_restore_backup">无法恢复备份</string>
+    <!-- Dialog body text when encountering backup restore network error -->
+    <string name="EnterBackupKey_your_backup_cant_be_restored_right_now">您的备份现在无法恢复。请检查您的互联网连接并重试。 </string>
+    <!-- Dialog button text to contact support on network error -->
+    <string name="EnterBackupKey_contact_support">联系支持人员</string>
+
+    <!-- Email subject when contacting support on a restore backup network issue -->
+    <string name="EnterBackupKey_network_failure_support_email">Signal Android 备份恢复出现网络错误</string>
+  <!-- Removed by excludeNonTranslatables <string name="EnterBackupKey_network_failure_support_email_filter" translatable="false">Signal Android Backup restore network error</string> -->
+
+    <!-- Title of dialog asking to submit debuglogs -->
+    <string name="ContactSupportDialog_submit_debug_log">要提交调试日志吗？</string>
+    <!-- Body of dialog explaining what debug logs are and that they are optional to submit -->
+    <string name="ContactSupportDialog_your_debug_logs">你可以选择上传调试日志，这些日志能帮助我们更快地解决问题。</string>
+    <!-- Button option to submit debug log when contacting support -->
+    <string name="ContactSupportDialog_submit_with_debug">提交并附上调试日志</string>
+    <!-- Button option to not submit debug log when contacting support -->
+    <string name="ContactSupportDialog_submit_without_debug">提交但不附调试日志</string>
 
     <!-- Title for restore via qr screen -->
     <string name="RestoreViaQr_title">用您的旧手机扫描此二维码</string>
@@ -8123,6 +8247,17 @@
     <string name="NoBackupToRestore_step3">启用备份然后等待备份完成</string>
     <!-- No backup to Restore tonal cta to skip restore -->
     <string name="NoBackupToRestore_skip_restore">跳过恢复</string>
+
+    <!-- Accessibility label for close search button in MainToolbar -->
+    <string name="MainToolbar__close_search_content_description">关闭搜索</string>
+    <!-- Accessibility label for clear search query in MainToolbar -->
+    <string name="MainToolbar__clear_search_content_description">清空搜索</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__more_options_content_description">更多选项</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__notification_profile_content_description">通知配置</string>
+    <!-- Accessibility label for more options button in MainToolbar -->
+    <string name="MainToolbar__proxy_content_description">代理</string>
 
     <!-- EOF -->
 </resources>

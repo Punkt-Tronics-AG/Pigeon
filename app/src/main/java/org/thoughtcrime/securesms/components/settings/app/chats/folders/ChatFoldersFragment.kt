@@ -43,16 +43,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import org.signal.core.ui.Buttons
-import org.signal.core.ui.Dialogs
-import org.signal.core.ui.Dividers
-import org.signal.core.ui.DropdownMenus
-import org.signal.core.ui.Previews
-import org.signal.core.ui.Scaffolds
-import org.signal.core.ui.SignalPreview
-import org.signal.core.ui.copied.androidx.compose.DraggableItem
-import org.signal.core.ui.copied.androidx.compose.dragContainer
-import org.signal.core.ui.copied.androidx.compose.rememberDragDropState
+import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.Dialogs
+import org.signal.core.ui.compose.Dividers
+import org.signal.core.ui.compose.DropdownMenus
+import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalPreview
+import org.signal.core.ui.compose.copied.androidx.compose.DragAndDropEvent
+import org.signal.core.ui.compose.copied.androidx.compose.DraggableItem
+import org.signal.core.ui.compose.copied.androidx.compose.dragContainer
+import org.signal.core.ui.compose.copied.androidx.compose.rememberDragDropState
 import org.signal.core.util.toInt
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
@@ -100,7 +101,13 @@ class ChatFoldersFragment : ComposeFragment() {
         onDeleteDismissed = {
           viewModel.showDeleteDialog(false)
         },
-        onPositionUpdated = { fromIndex, toIndex -> viewModel.updatePosition(fromIndex, toIndex) }
+        onDragAndDropEvent = { event ->
+          when (event) {
+            is DragAndDropEvent.OnItemMove -> viewModel.updateItemPosition(event.fromIndex, event.toIndex)
+            is DragAndDropEvent.OnItemDrop -> viewModel.saveItemPositions()
+            is DragAndDropEvent.OnDragCancel -> {}
+          }
+        }
       )
     }
   }
@@ -116,15 +123,12 @@ fun FoldersScreen(
   onDeleteClicked: (ChatFolderRecord) -> Unit = {},
   onDeleteConfirmed: () -> Unit = {},
   onDeleteDismissed: () -> Unit = {},
-  onPositionUpdated: (Int, Int) -> Unit = { _, _ -> }
+  onDragAndDropEvent: (DragAndDropEvent) -> Unit = {}
 ) {
   val screenWidth = LocalConfiguration.current.screenWidthDp.dp
   val isRtl = ViewUtil.isRtl(LocalContext.current)
   val listState = rememberLazyListState()
-  val dragDropState =
-    rememberDragDropState(listState, includeHeader = true, includeFooter = true) { fromIndex, toIndex ->
-      onPositionUpdated(fromIndex, toIndex)
-    }
+  val dragDropState = rememberDragDropState(listState, includeHeader = true, includeFooter = true, onEvent = onDragAndDropEvent)
 
   LaunchedEffect(Unit) {
     if (!SignalStore.uiHints.hasSeenChatFoldersEducationSheet) {
@@ -404,7 +408,6 @@ private fun ChatFolderPreview() {
       showIndividualChats = true,
       showGroupChats = true,
       showMutedChats = true,
-      isMuted = false,
       folderType = ChatFolderRecord.FolderType.CUSTOM
     ),
     ChatFolderRecord(
@@ -415,7 +418,6 @@ private fun ChatFolderPreview() {
       showIndividualChats = true,
       showGroupChats = false,
       showMutedChats = false,
-      isMuted = false,
       folderType = ChatFolderRecord.FolderType.CUSTOM
     )
   )

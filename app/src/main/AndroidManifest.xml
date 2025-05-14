@@ -106,6 +106,7 @@
                  android:supportsRtl="true"
                  android:resizeableActivity="true"
                  android:fullBackupOnly="false"
+                 android:enableOnBackInvokedCallback="false"
                  android:allowBackup="true"
                  android:backupAgent=".absbackup.SignalBackupAgent"
                  android:theme="@style/TextSecure.LightTheme"
@@ -613,30 +614,44 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https"
-                  android:host="signal.tube" />
-            <data android:scheme="sgnl"
-                  android:host="signal.tube" />
-        </intent-filter>
-
-        <intent-filter android:autoVerify="true">
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https"
-                android:host="signal.me" />
-            <data android:scheme="sgnl"
-                android:host="signal.me" />
-        </intent-filter>
-
-        <intent-filter android:autoVerify="true">
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data android:scheme="sgnl" />
             <data android:scheme="https" />
+            <data android:host="signal.tube" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sgnl" />
+            <data android:host="signal.tube" />
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+            <data android:host="signal.me" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sgnl" />
+            <data android:host="signal.me" />
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+            <data android:host="signal.link" />
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sgnl" />
             <data android:host="signal.link" />
         </intent-filter>
     </activity>
@@ -891,11 +906,9 @@
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
               android:exported="false"/>
 
-     <activity android:name=".DeviceActivity"
-               android:screenOrientation="landscape"
-               android:label="@string/AndroidManifest__linked_devices"
-               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-               android:exported="false"/>
+    <activity android:name=".stickers.StickerManagementActivityV2"
+              android:exported="false"
+              android:theme="@style/Signal.DayNight.NoActionBar" />
 
     <activity android:name=".logsubmit.SubmitDebugLogActivity"
               android:windowSoftInputMode="stateHidden"
@@ -1072,8 +1085,10 @@
               android:exported="false"/>
 
     <activity android:name=".MainActivity"
+              android:enableOnBackInvokedCallback="true"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout"
+              android:windowSoftInputMode="stateUnchanged"
               android:resizeableActivity="true"
               android:exported="false"/>
 
@@ -1150,6 +1165,10 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:exported="false"/>
+
+    <activity android:name=".groups.ui.incommon.GroupsInCommonActivity"
+              android:exported="false"
+              android:theme="@style/Signal.DayNight.NoActionBar" />
 
     <service
         android:enabled="true"

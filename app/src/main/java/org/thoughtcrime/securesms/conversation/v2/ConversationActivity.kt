@@ -7,14 +7,15 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.Window
 import androidx.activity.viewModels
+import androidx.lifecycle.enableSavedStateHandles
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
 import org.signal.core.util.logging.Log
 import org.signal.core.util.logging.Log.tag
 import org.thoughtcrime.securesms.PassphraseRequiredActivity
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentComponent
-import org.thoughtcrime.securesms.components.settings.app.subscription.StripeRepository
+import org.thoughtcrime.securesms.components.settings.app.subscription.GooglePayComponent
+import org.thoughtcrime.securesms.components.settings.app.subscription.GooglePayRepository
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.conversation.ConversationIntents
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Wrapper activity for ConversationFragment.
  */
-open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, InAppPaymentComponent {
+open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, GooglePayComponent {
 
   companion object {
     private val TAG = tag(ConversationActivity::class.java)
@@ -44,8 +45,8 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
 
   override val voiceNoteMediaController = VoiceNoteMediaController(this, true)
 
-  override val stripeRepository: StripeRepository by lazy { StripeRepository(this) }
-  override val googlePayResultPublisher: Subject<InAppPaymentComponent.GooglePayResult> = PublishSubject.create()
+  override val googlePayRepository: GooglePayRepository by lazy { GooglePayRepository(this) }
+  override val googlePayResultPublisher: Subject<GooglePayComponent.GooglePayResult> = PublishSubject.create()
 
   private val motionEventRelay: MotionEventRelay by viewModels()
   private val shareDataTimestampViewModel: ShareDataTimestampViewModel by viewModels()
@@ -55,16 +56,12 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
   }
 
   override fun onCreate(savedInstanceState: Bundle?, ready: Boolean) {
+    enableSavedStateHandles()
     supportPostponeEnterTransition()
     transitionDebouncer.publish { supportStartPostponedEnterTransition() }
     window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
 
-    if (savedInstanceState != null) {
-      shareDataTimestampViewModel.timestamp = savedInstanceState.getLong(STATE_WATERMARK, -1L)
-    } else if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) {
-      shareDataTimestampViewModel.timestamp = System.currentTimeMillis()
-    }
-
+    shareDataTimestampViewModel.setTimestampFromActivityCreation(savedInstanceState, intent)
     setContentView(R.layout.fragment_container)
 
     if (savedInstanceState == null) {
@@ -83,11 +80,6 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
   override fun onResume() {
     super.onResume()
     theme.onResume(this)
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putLong(STATE_WATERMARK, shareDataTimestampViewModel.timestamp)
   }
 
   override fun onStop() {
@@ -114,7 +106,7 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
   @Suppress("DEPRECATION")
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
-    googlePayResultPublisher.onNext(InAppPaymentComponent.GooglePayResult(requestCode, resultCode, data))
+    googlePayResultPublisher.onNext(GooglePayComponent.GooglePayResult(requestCode, resultCode, data))
   }
 
   override fun onConfigurationChanged(newConfiguration: Configuration) {
