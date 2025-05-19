@@ -38,6 +38,7 @@ import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -58,6 +59,12 @@ import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getSerializableCompat
 import org.signal.donations.StripeApi
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar.show
 import org.thoughtcrime.securesms.calls.log.CallLogFilter
 import org.thoughtcrime.securesms.calls.new.NewCallActivity
@@ -122,6 +129,7 @@ import org.thoughtcrime.securesms.window.AppScaffold
 import org.thoughtcrime.securesms.window.WindowSizeClass
 import pigeon.compose.PreLoader
 import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, MainNavigator.NavigatorProvider {
 
@@ -172,6 +180,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   private val motionEventRelay: MotionEventRelay by viewModels()
 
   private var onFirstRender = false
+  private val pigeonShowSplashScreen: MutableStateFlow<Boolean> = MutableStateFlow(true)
+
 
   private val mainBottomChromeCallback = BottomChromeCallback()
   private val megaphoneActionController = MainMegaphoneActionController()
@@ -216,6 +226,15 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
     shareDataTimestampViewModel.setTimestampFromActivityCreation(savedInstanceState, intent)
 
+    if (isPigeonVersion()) {
+      lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.CREATED) {
+         delay(10000)
+          pigeonShowSplashScreen.emit(false)
+        }
+      }
+    }
+
     setContent {
       val listHostState = rememberFragmentState()
       val detailLocation by mainNavigationViewModel.detailLocationRequests.collectAsStateWithLifecycle()
@@ -243,7 +262,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       val windowSizeClass = WindowSizeClass.rememberWindowSizeClass()
       val contentLayoutData = MainContentLayoutData.rememberContentLayoutData()
 
-      if (onFirstRender && isPigeonVersion()) {
+
+      val showSplashScreen = pigeonShowSplashScreen.collectAsState()
+      Log.d("MainActivity", "showSplashScreen: ${showSplashScreen.value}")
+      if (showSplashScreen.value) {
         PreLoader()
       } else {
         MainContainer {
@@ -272,25 +294,27 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           AppScaffold(
             navigator = scaffoldNavigator,
             bottomNavContent = {
-              if (isNavigationVisible) {
-                Column(
-                  modifier = Modifier
-                    .clip(contentLayoutData.navigationBarShape)
-                    .background(color = SignalTheme.colors.colorSurface2)
-                ) {
-                  MainNavigationBar(
-                    state = mainNavigationState,
-                    onDestinationSelected = mainNavigationCallback
-                  )
+              if (isSignalVersion()) {
+                if (isNavigationVisible) {
+                  Column(
+                    modifier = Modifier
+                      .clip(contentLayoutData.navigationBarShape)
+                      .background(color = SignalTheme.colors.colorSurface2)
+                  ) {
+                    MainNavigationBar(
+                      state = mainNavigationState,
+                      onDestinationSelected = mainNavigationCallback
+                    )
 
-                  if (!windowSizeClass.isSplitPane()) {
-                    NavigationBarSpacerCompat()
+                    if (!windowSizeClass.isSplitPane()) {
+                      NavigationBarSpacerCompat()
+                    }
                   }
                 }
               }
             },
             navRailContent = {
-              if (isNavigationVisible) {
+              if (isNavigationVisible && isSignalVersion()) {
                 MainNavigationRail(
                   state = mainNavigationState,
                   mainFloatingActionButtonsCallback = mainBottomChromeCallback,
@@ -312,28 +336,39 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   .background(listContainerColor)
                   .clip(contentLayoutData.shape)
               ) {
-                MainToolbar(
-                  state = mainToolbarState,
-                  callback = toolbarCallback
-                )
+                if (isSignalVersion()) {
+                  MainToolbar(
+                    state = mainToolbarState,
+                    callback = toolbarCallback
+                  )
+                }
 
-                Box(
-                  modifier = Modifier.weight(1f)
-                ) {
+//                Box(
+//                  modifier = Modifier.weight(1f)
+//                ) {
                   AndroidFragment(
                     clazz = MainActivityListHostFragment::class.java,
                     fragmentState = listHostState,
                     modifier = Modifier.fillMaxSize()
                   )
 
-                  MainBottomChrome(
-                    state = mainBottomChromeState,
-                    callback = mainBottomChromeCallback,
-                    megaphoneActionController = megaphoneActionController,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                  )
+                  if (isPigeonVersion()){
+                    AndroidFragment(
+                      clazz = ConversationFragment::class.java,
+                      fragmentState = listHostState,
+                      modifier = Modifier.fillMaxSize())
+                  }
+
+                  if (isSignalVersion()) {
+                    MainBottomChrome(
+                      state = mainBottomChromeState,
+                      callback = mainBottomChromeCallback,
+                      megaphoneActionController = megaphoneActionController,
+//                      modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                  }
                 }
-              }
+//              }
             },
             detailContent = {
               when (val destination = scaffoldNavigator.currentDestination?.contentKey) {
@@ -748,13 +783,5 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 //      fragment.showSearchBar()
 //      findViewById<View>(R.id.homePageFragment).visibility = View.GONE
 //    }
-  }
-
-  fun showMainContentExt() {
-//    val view: FrameLayout = findViewById(R.id.pre_loader)
-//    if (view != null) {
-//      view.setVisibility(View.GONE)
-//    }
-    onFirstRender = false
   }
 }

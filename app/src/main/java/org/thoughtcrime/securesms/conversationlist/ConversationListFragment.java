@@ -448,6 +448,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
         return 150;
       }
     };
+
   }
 
   private @NonNull DefaultItemAnimator getChatFolderItemAnimator() {
@@ -1865,12 +1866,6 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
         void onMultiSelectFinished();
     }
-
-  private void showMainContent() {
-    Log.w(TAG, "show main content");
-    MainActivity mainActivity = (MainActivity) getContext();
-    mainActivity.showMainContentExt();
-  }
 }
 
 
