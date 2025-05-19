@@ -120,6 +120,8 @@ import org.thoughtcrime.securesms.util.SplashScreenUtil
 import org.thoughtcrime.securesms.util.viewModel
 import org.thoughtcrime.securesms.window.AppScaffold
 import org.thoughtcrime.securesms.window.WindowSizeClass
+import pigeon.compose.PreLoader
+import pigeon.extensions.isPigeonVersion
 
 class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, MainNavigator.NavigatorProvider {
 
@@ -241,117 +243,122 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       val windowSizeClass = WindowSizeClass.rememberWindowSizeClass()
       val contentLayoutData = MainContentLayoutData.rememberContentLayoutData()
 
-      MainContainer {
-        val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Any>(
-          scaffoldDirective = calculatePaneScaffoldDirective(
-            currentWindowAdaptiveInfo()
-          ).copy(
-            maxHorizontalPartitions = if (windowSizeClass.isSplitPane()) 2 else 1,
-            horizontalPartitionSpacerSize = contentLayoutData.partitionWidth,
-            defaultPanePreferredWidth = contentLayoutData.rememberDefaultPanePreferredWidth(maxWidth)
+      if (onFirstRender && isPigeonVersion()) {
+        PreLoader()
+      } else {
+        MainContainer {
+          val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Any>(
+            scaffoldDirective = calculatePaneScaffoldDirective(
+              currentWindowAdaptiveInfo()
+            ).copy(
+              maxHorizontalPartitions = if (windowSizeClass.isSplitPane()) 2 else 1,
+              horizontalPartitionSpacerSize = contentLayoutData.partitionWidth,
+              defaultPanePreferredWidth = contentLayoutData.rememberDefaultPanePreferredWidth(maxWidth)
+            )
           )
-        )
 
-        LaunchedEffect(detailLocation) {
-          if (detailLocation is MainNavigationDetailLocation.Conversation) {
-            if (SignalStore.internal.largeScreenUi) {
-              scaffoldNavigator.navigateTo(ThreePaneScaffoldRole.Primary, detailLocation)
-            } else {
-              startActivity((detailLocation as MainNavigationDetailLocation.Conversation).intent)
+          LaunchedEffect(detailLocation) {
+            if (detailLocation is MainNavigationDetailLocation.Conversation) {
+              if (SignalStore.internal.largeScreenUi) {
+                scaffoldNavigator.navigateTo(ThreePaneScaffoldRole.Primary, detailLocation)
+              } else {
+                startActivity((detailLocation as MainNavigationDetailLocation.Conversation).intent)
+              }
             }
+
+            mainNavigationViewModel.goTo(MainNavigationDetailLocation.Empty)
           }
 
-          mainNavigationViewModel.goTo(MainNavigationDetailLocation.Empty)
-        }
+          AppScaffold(
+            navigator = scaffoldNavigator,
+            bottomNavContent = {
+              if (isNavigationVisible) {
+                Column(
+                  modifier = Modifier
+                    .clip(contentLayoutData.navigationBarShape)
+                    .background(color = SignalTheme.colors.colorSurface2)
+                ) {
+                  MainNavigationBar(
+                    state = mainNavigationState,
+                    onDestinationSelected = mainNavigationCallback
+                  )
 
-        AppScaffold(
-          navigator = scaffoldNavigator,
-          bottomNavContent = {
-            if (isNavigationVisible) {
-              Column(
-                modifier = Modifier
-                  .clip(contentLayoutData.navigationBarShape)
-                  .background(color = SignalTheme.colors.colorSurface2)
-              ) {
-                MainNavigationBar(
-                  state = mainNavigationState,
-                  onDestinationSelected = mainNavigationCallback
-                )
-
-                if (!windowSizeClass.isSplitPane()) {
-                  NavigationBarSpacerCompat()
+                  if (!windowSizeClass.isSplitPane()) {
+                    NavigationBarSpacerCompat()
+                  }
                 }
               }
-            }
-          },
-          navRailContent = {
-            if (isNavigationVisible) {
-              MainNavigationRail(
-                state = mainNavigationState,
-                mainFloatingActionButtonsCallback = mainBottomChromeCallback,
-                onDestinationSelected = mainNavigationCallback
-              )
-            }
-          },
-          listContent = {
-            val listContainerColor = if (windowSizeClass.isMedium()) {
-              SignalTheme.colors.colorSurface1
-            } else {
-              MaterialTheme.colorScheme.surface
-            }
+            },
+            navRailContent = {
+              if (isNavigationVisible) {
+                MainNavigationRail(
+                  state = mainNavigationState,
+                  mainFloatingActionButtonsCallback = mainBottomChromeCallback,
+                  onDestinationSelected = mainNavigationCallback
+                )
+              }
+            },
+            listContent = {
+              val listContainerColor = if (windowSizeClass.isMedium()) {
+                SignalTheme.colors.colorSurface1
+              } else {
+                MaterialTheme.colorScheme.surface
+              }
 
-            Column(
-              modifier = Modifier
-                .padding(start = contentLayoutData.listPaddingStart)
-                .fillMaxSize()
-                .background(listContainerColor)
-                .clip(contentLayoutData.shape)
-            ) {
-              MainToolbar(
-                state = mainToolbarState,
-                callback = toolbarCallback
-              )
-
-              Box(
-                modifier = Modifier.weight(1f)
+              Column(
+                modifier = Modifier
+                  .padding(start = contentLayoutData.listPaddingStart)
+                  .fillMaxSize()
+                  .background(listContainerColor)
+                  .clip(contentLayoutData.shape)
               ) {
-                AndroidFragment(
-                  clazz = MainActivityListHostFragment::class.java,
-                  fragmentState = listHostState,
-                  modifier = Modifier.fillMaxSize()
+                MainToolbar(
+                  state = mainToolbarState,
+                  callback = toolbarCallback
                 )
 
-                MainBottomChrome(
-                  state = mainBottomChromeState,
-                  callback = mainBottomChromeCallback,
-                  megaphoneActionController = megaphoneActionController,
-                  modifier = Modifier.align(Alignment.BottomCenter)
-                )
+                Box(
+                  modifier = Modifier.weight(1f)
+                ) {
+                  AndroidFragment(
+                    clazz = MainActivityListHostFragment::class.java,
+                    fragmentState = listHostState,
+                    modifier = Modifier.fillMaxSize()
+                  )
+
+                  MainBottomChrome(
+                    state = mainBottomChromeState,
+                    callback = mainBottomChromeCallback,
+                    megaphoneActionController = megaphoneActionController,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                  )
+                }
               }
-            }
-          },
-          detailContent = {
-            when (val destination = scaffoldNavigator.currentDestination?.contentKey) {
-              is MainNavigationDetailLocation.Conversation -> {
-                val fragmentState = key(destination) { rememberFragmentState() }
-                AndroidFragment(
-                  clazz = ConversationFragment::class.java,
-                  fragmentState = fragmentState,
-                  arguments = requireNotNull(destination.intent.extras) { "Handed null Conversation intent arguments." },
-                  modifier = Modifier
-                    .padding(end = contentLayoutData.detailPaddingEnd)
-                    .clip(contentLayoutData.shape)
-                    .background(color = MaterialTheme.colorScheme.surface)
-                    .fillMaxSize()
-                )
+            },
+            detailContent = {
+              when (val destination = scaffoldNavigator.currentDestination?.contentKey) {
+                is MainNavigationDetailLocation.Conversation -> {
+                  val fragmentState = key(destination) { rememberFragmentState() }
+                  AndroidFragment(
+                    clazz = ConversationFragment::class.java,
+                    fragmentState = fragmentState,
+                    arguments = requireNotNull(destination.intent.extras) { "Handed null Conversation intent arguments." },
+                    modifier = Modifier
+                      .padding(end = contentLayoutData.detailPaddingEnd)
+                      .clip(contentLayoutData.shape)
+                      .background(color = MaterialTheme.colorScheme.surface)
+                      .fillMaxSize()
+                  )
+                }
               }
-            }
-          },
-          paneExpansionDragHandle = if (contentLayoutData.hasDragHandle()) {
-            { }
-          } else null
-        )
+            },
+            paneExpansionDragHandle = if (contentLayoutData.hasDragHandle()) {
+              { }
+            } else null
+          )
+        }
       }
+
     }
 
     val content: View = findViewById(android.R.id.content)
@@ -389,7 +396,9 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       }
 
       val modifier = if (windowSizeClass.isSplitPane()) {
-        Modifier.systemBarsPadding().displayCutoutPadding()
+        Modifier
+          .systemBarsPadding()
+          .displayCutoutPadding()
       } else {
         Modifier
       }
@@ -731,5 +740,21 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         MainNavigationListLocation.STORIES -> mainNavigationViewModel.onStoriesSelected()
       }
     }
+  }
+
+  fun collapseHomePage() {
+//    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
+//    if (fragment != null) {
+//      fragment.showSearchBar()
+//      findViewById<View>(R.id.homePageFragment).visibility = View.GONE
+//    }
+  }
+
+  fun showMainContentExt() {
+//    val view: FrameLayout = findViewById(R.id.pre_loader)
+//    if (view != null) {
+//      view.setVisibility(View.GONE)
+//    }
+    onFirstRender = false
   }
 }

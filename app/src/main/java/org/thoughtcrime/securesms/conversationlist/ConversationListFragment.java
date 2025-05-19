@@ -78,6 +78,7 @@ import org.signal.core.util.concurrent.LifecycleDisposable;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.MuteDialog;
@@ -657,6 +658,15 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     if (viewModel.currentSelectedConversations().isEmpty()) {
       NavHostFragment.findNavController(this)
                      .navigate(ConversationListFragmentDirections.actionConversationListFragmentToConversationListArchiveFragment());
+    }
+  }
+
+  @Override public void onCallClick(@NonNull Conversation conversation) {
+    Recipient recipient = conversation.getThreadRecord().getRecipient();
+    if (recipient.isGroup()) {
+      CommunicationActions.startVideoCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
+    } else {
+      CommunicationActions.startVoiceCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
     }
   }
 

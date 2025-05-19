@@ -1436,7 +1436,7 @@ class ConversationFragment :
     inputPanel.setHideForMessageRequestState(inputDisabled)
 
     if (inputDisabled) {
-      binding.navBar.setBackgroundColor(disabledInputView.color)
+      binding.navBar?.setBackgroundColor(disabledInputView.color)
     } else {
       disabledInputView.clear()
     }
@@ -1646,7 +1646,7 @@ class ConversationFragment :
     )
 
     if (!inputPanel.isHidden) {
-      binding.navBar.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
+      binding.navBar?.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
     }
   }
 
