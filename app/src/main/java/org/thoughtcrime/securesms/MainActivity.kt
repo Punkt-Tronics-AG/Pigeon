@@ -22,7 +22,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -42,9 +41,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.compose.AndroidFragment
 import androidx.fragment.compose.rememberFragmentState
@@ -53,18 +52,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getSerializableCompat
-import org.signal.donations.StripeApi
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.signal.core.util.logging.Log
+import org.signal.donations.StripeApi
 import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar.show
 import org.thoughtcrime.securesms.calls.log.CallLogFilter
 import org.thoughtcrime.securesms.calls.new.NewCallActivity
@@ -130,6 +126,7 @@ import org.thoughtcrime.securesms.window.WindowSizeClass
 import pigeon.compose.PreLoader
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
+import pigeon.fragments.HomePageFragment
 
 class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, MainNavigator.NavigatorProvider {
 
@@ -229,7 +226,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     if (isPigeonVersion()) {
       lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.CREATED) {
-         delay(10000)
+          delay(5000)
           pigeonShowSplashScreen.emit(false)
         }
       }
@@ -346,28 +343,30 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 //                Box(
 //                  modifier = Modifier.weight(1f)
 //                ) {
+
+                if (isPigeonVersion()) {
                   AndroidFragment(
-                    clazz = MainActivityListHostFragment::class.java,
+                    clazz = HomePageFragment::class.java,
                     fragmentState = listHostState,
                     modifier = Modifier.fillMaxSize()
                   )
-
-                  if (isPigeonVersion()){
-                    AndroidFragment(
-                      clazz = ConversationFragment::class.java,
-                      fragmentState = listHostState,
-                      modifier = Modifier.fillMaxSize())
-                  }
-
-                  if (isSignalVersion()) {
-                    MainBottomChrome(
-                      state = mainBottomChromeState,
-                      callback = mainBottomChromeCallback,
-                      megaphoneActionController = megaphoneActionController,
-//                      modifier = Modifier.align(Alignment.BottomCenter)
-                    )
-                  }
                 }
+
+                AndroidFragment(
+                  clazz = MainActivityListHostFragment::class.java,
+                  fragmentState = listHostState,
+                  modifier = Modifier.fillMaxSize()
+                )
+
+                if (isSignalVersion()) {
+                  MainBottomChrome(
+                    state = mainBottomChromeState,
+                    callback = mainBottomChromeCallback,
+                    megaphoneActionController = megaphoneActionController,
+//                      modifier = Modifier.align(Alignment.BottomCenter)
+                  )
+                }
+              }
 //              }
             },
             detailContent = {
@@ -424,11 +423,16 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     val windowSizeClass = WindowSizeClass.rememberWindowSizeClass()
 
     SignalTheme(isDarkMode = DynamicTheme.isDarkTheme(this)) {
-      val backgroundColor = if (windowSizeClass.isCompact()) {
-        MaterialTheme.colorScheme.surface
+      val backgroundColor = if (isSignalVersion()){
+        if (windowSizeClass.isCompact()) {
+          MaterialTheme.colorScheme.surface
+        } else {
+          SignalTheme.colors.colorSurface1
+        }
       } else {
-        SignalTheme.colors.colorSurface1
+        Color.Black
       }
+
 
       val modifier = if (windowSizeClass.isSplitPane()) {
         Modifier

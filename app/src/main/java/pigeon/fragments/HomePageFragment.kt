@@ -41,11 +41,23 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
     mainActivity = context as MainActivity
   }
 
+  private fun View.findParentNestedScrollView(): NestedScrollView? {
+    var parent = this.parent
+    while (parent != null) {
+      if (parent is NestedScrollView) {
+        return parent
+      }
+      parent = parent.parent
+    }
+    return null
+  }
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    scroller = CentreFocusScroller(view.parent.parent.parent as NestedScrollView)
-
+    scroller = view.findParentNestedScrollView()?.let { nestedScrollView ->
+      CentreFocusScroller(nestedScrollView)
+    } ?: throw IllegalStateException("NestedScrollView not found")
     binding?.run {
 
       newMessageButton.setOnClickListener { handleNewMessage() }
@@ -100,6 +112,4 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
       MarkReadReceiver.process(messageIds)
     }
   }
-
-
 }

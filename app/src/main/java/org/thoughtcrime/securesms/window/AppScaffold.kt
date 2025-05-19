@@ -7,6 +7,7 @@ package org.thoughtcrime.securesms.window
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.window.core.ExperimentalWindowCoreApi
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -44,6 +46,7 @@ import org.thoughtcrime.securesms.main.MainNavigationBar
 import org.thoughtcrime.securesms.main.MainNavigationRail
 import org.thoughtcrime.securesms.main.MainNavigationState
 import org.thoughtcrime.securesms.util.RemoteConfig
+import pigeon.extensions.isSignalVersion
 
 enum class Navigation {
   RAIL,
@@ -241,7 +244,37 @@ private fun ListAndNavigation(
 
     Column {
       Box(modifier = Modifier.weight(1f)) {
-        listContent()
+        //ForPigeon
+        AndroidView(
+          factory = { context ->
+            androidx.core.widget.NestedScrollView(context).apply {
+              layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+              )
+
+              addView(
+                androidx.compose.ui.platform.ComposeView(context).apply {
+                  layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                  )
+
+                  setContent {
+                    Box(
+                      modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color.Red)
+                    ) {
+                      listContent()
+                    }
+                  }
+                }
+              )
+            }
+          },
+          modifier = Modifier.fillMaxSize()
+        )
       }
 
       if (windowSizeClass.navigation == Navigation.BAR) {
