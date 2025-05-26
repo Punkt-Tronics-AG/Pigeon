@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/Mp02.Signal.Background"
     android:orientation="vertical"
     tools:context="pigeon.fragments.HomePageFragment">
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="76dp"/>
+        android:layout_height="76dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
 
     <TextView
         android:id="@+id/new_message_button"
@@ -17,13 +20,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/pigeon_start_margin"
-        android:nextFocusDown="@id/new_group_button"
         android:nextFocusUp="@id/new_message_button"
-        android:text="@string/Pigeon_HomePage_new_message" >
-
-        <requestFocus/>
-
-    </TextView>
+        android:nextFocusDown="@id/new_group_button"
+        android:text="@string/Pigeon_HomePage_new_message" />
 
     <TextView
         android:id="@+id/new_group_button"
@@ -36,22 +35,25 @@
         android:text="@string/Pigeon_HomePage_new_group" />
 
     <TextView
-        android:nextFocusDown="@id/settings_button"
         android:id="@+id/mark_all_read_button"
         style="@style/Mp02.Signal.Text.CommonTextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:nextFocusUp="@id/new_group_button"
+        android:nextFocusDown="@id/settings_button"
         android:text="@string/Pigeon_HomePage_mark_all_read" />
 
     <TextView
         android:id="@+id/settings_button"
-        android:nextFocusDown="@id/search_button"
         style="@style/Mp02.Signal.Text.CommonTextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:nextFocusUp="@id/mark_all_read_button"
+        android:nextFocusDown="@id/search_button"
         android:text="@string/Pigeon_HomePage_settings" />
+
     <TextView
         android:id="@+id/search_button"
         style="@style/Mp02.Signal.Text.CommonTextButton"

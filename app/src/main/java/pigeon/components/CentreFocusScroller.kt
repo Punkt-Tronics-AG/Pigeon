@@ -1,5 +1,6 @@
 package pigeon.components
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
@@ -7,6 +8,7 @@ import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 
 class CentreFocusScroller(private val scrollView: NestedScrollView) {
+    @SuppressLint("SuspiciousIndentation")
     fun onFocusChange(v: View, focus: Boolean) {
 
         // change attributes of text based on focused or not

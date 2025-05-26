@@ -3,6 +3,7 @@ package pigeon.fragments
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,7 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
     } ?: throw IllegalStateException("NestedScrollView not found")
     binding?.run {
 
+
       newMessageButton.setOnClickListener { handleNewMessage() }
       newMessageButton.setOnFocusChangeListener { v, b ->
         scroller.onFocusChange(v, b)
@@ -89,6 +91,10 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
         scroller.onFocusChange(v, b)
       }
     }
+
+      binding?.newMessageButton?.post {
+        binding?.newMessageButton?.requestFocus()
+      }
   }
 
   private fun handleNewMessage() {
