@@ -49,7 +49,9 @@ import java.util.Objects;
 
 import pigeon.permissions.PigeonRationaleDialog;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 
 public class BackupsPreferenceFragment extends Fragment {
 
@@ -99,6 +101,13 @@ public class BackupsPreferenceFragment extends Fragment {
     formatter.setMaximumFractionDigits(1);
 
     EventBus.getDefault().register(this);
+
+    if (isPigeonVersion()){
+      focusOnLeft(create);
+      focusOnLeft(folder);
+      focusOnLeft(verify);
+      focusOnLeft(timer);
+    }
   }
 
   @Override

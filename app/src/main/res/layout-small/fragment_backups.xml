@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:viewBindingIgnore="true"
-    style="@style/Mp02.Signal.Background"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,10 +27,14 @@
             android:id="@+id/fragment_backup_create"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:minHeight="?attr/listPreferredItemHeightLarge"
             android:visibility="gone"
             tools:visibility="visible">
+
+            <requestFocus />
 
             <TextView
                 android:id="@+id/fragment_backup_create_title"
@@ -66,9 +70,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:visibility="gone"
                 android:indeterminateTint="@color/white"
                 android:progressTint="@color/white"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@id/fragment_backup_progress_summary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -96,6 +100,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/listPreferredItemHeightLarge"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:visibility="gone"
@@ -126,6 +133,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/listPreferredItemHeightLarge"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:visibility="gone"
@@ -156,6 +166,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/listPreferredItemHeightLarge"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:visibility="gone"
@@ -183,14 +196,16 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/fragment_backup_toggle"
             style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-            android:focusable="true"
-            android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
-            android:text="@string/BackupsPreferenceFragment__turn_on" />
+            android:clickable="true"
+            android:focusable="true"
+            android:nextFocusUp="@id/fragment_backup_toggle"
+            android:nextFocusDown="@id/fragment_backup_toggle"
+            android:text="@string/BackupsPreferenceFragment__turn_on"/>
 
         <View
             android:layout_width="match_parent"
@@ -205,10 +220,10 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:textColorLink="@color/white"
             android:text="@string/BackupsPreferenceFragment__to_restore_a_backup"
             android:textAppearance="@style/Signal.Text.Preview"
-            android:textColor="@color/signal_text_secondary" />
+            android:textColor="@color/signal_text_secondary"
+            android:textColorLink="@color/white" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
