@@ -3,6 +3,7 @@ package org.thoughtcrime.securesms.main
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -21,6 +22,7 @@ import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.calls.log.CallLogFragment
+import org.thoughtcrime.securesms.components.Material3SearchToolbar
 import org.thoughtcrime.securesms.conversationlist.ConversationListFragment
 import org.thoughtcrime.securesms.conversationlist.model.UnreadPaymentsLiveData
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -30,6 +32,7 @@ import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.Material3OnScrollHelper
 import org.thoughtcrime.securesms.util.TopToastPopup
 import org.thoughtcrime.securesms.util.Util
+import org.thoughtcrime.securesms.util.views.Stub
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import pigeon.extensions.isSignalVersion
 
@@ -47,8 +50,15 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   private val toolbarViewModel: MainToolbarViewModel by activityViewModels()
   private val mainNavigationViewModel: MainNavigationViewModel by activityViewModels()
 
+  private lateinit var _pigeonSearchToolbar: Stub<Material3SearchToolbar>
+  private lateinit var _pigeonSearchToolbarContainer: LinearLayout
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     disposables.bindTo(viewLifecycleOwner)
+
+    _pigeonSearchToolbar = Stub(view.findViewById(R.id.search_toolbar))
+    _pigeonSearchToolbarContainer = view.findViewById(R.id.search_toolbar_container)
+
 
     UnreadPaymentsLiveData().observe(viewLifecycleOwner) { unread ->
       toolbarViewModel.setHasUnreadPayments(unread.isPresent)
@@ -282,22 +292,19 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
         lifecycleOwner = lifecycleOwner,
         setChatFolderColor = setChatFolder
       ).attach(recyclerView)
-  }
     }
+  }
 
-//  fun showSearchBar() {
-//    if (::_searchToolbar.isInitialized) {
-//      _searchToolbar.get().requestFocus()
-//      _searchToolbarContainer.visibility = View.VISIBLE
-//    }
-//  }
-//
-//  fun hideSearchBar() {
-//    if (::_searchToolbar.isInitialized) {
-//      _searchToolbar.get().clearText()
-//      _searchToolbarContainer.visibility = View.GONE
-//    }
-//  }
+  fun showSearchBar() {
+     _pigeonSearchToolbar.get().requestFocus()
+      _pigeonSearchToolbarContainer.visibility = View.VISIBLE
+  }
+
+  fun hideSearchBar() {
+      _pigeonSearchToolbar.get().clearText()
+      _pigeonSearchToolbarContainer.visibility = View.GONE
+
+  }
 
   fun hideArchivedConversations() {
 //    conversationListTabsViewModel.isShowingArchived(false)

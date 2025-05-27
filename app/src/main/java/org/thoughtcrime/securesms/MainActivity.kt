@@ -134,6 +134,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     private const val KEY_STARTING_TAB = "STARTING_TAB"
     const val RESULT_CONFIG_CHANGED = Activity.RESULT_FIRST_USER + 901
 
+    private val _pigeonShowConversation = MutableStateFlow(false)
+
     @JvmStatic
     fun clearTop(context: Context): Intent {
       return Intent(context, MainActivity::class.java)
@@ -261,7 +263,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
 
       val showSplashScreen = pigeonShowSplashScreen.collectAsState()
-      Log.d("MainActivity", "showSplashScreen: ${showSplashScreen.value}")
+      val pigeonShowConversation = _pigeonShowConversation.collectAsState()
+      Log.d("MainActivity", "showConversation: ${pigeonShowConversation.value}")
       if (showSplashScreen.value) {
         PreLoader()
       } else {
@@ -350,13 +353,12 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     fragmentState = listHostState,
                     modifier = Modifier.fillMaxSize()
                   )
+                  AndroidFragment(
+                    clazz = MainActivityListHostFragment::class.java,
+                    fragmentState = listHostState,
+                    modifier = Modifier.fillMaxSize()
+                  )
                 }
-
-                AndroidFragment(
-                  clazz = MainActivityListHostFragment::class.java,
-                  fragmentState = listHostState,
-                  modifier = Modifier.fillMaxSize()
-                )
 
                 if (isSignalVersion()) {
                   MainBottomChrome(
@@ -425,7 +427,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     val windowSizeClass = WindowSizeClass.rememberWindowSizeClass()
 
     SignalTheme(isDarkMode = DynamicTheme.isDarkTheme(this)) {
-      val backgroundColor = if (isSignalVersion()){
+      val backgroundColor = if (isSignalVersion()) {
         if (windowSizeClass.isCompact()) {
           MaterialTheme.colorScheme.surface
         } else {
@@ -540,6 +542,19 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         )
       )
     }
+  }
+
+  @Deprecated("Deprecated in Java, Using for Pigeon version only")
+  override fun onBackPressed() {
+    if (isPigeonVersion() && !_pigeonShowConversation.value) {
+      this.finishAffinity()
+      return
+    }
+    if (isTaskRoot && _pigeonShowConversation.value) {
+      expandHomePage()
+    }
+    hideArchivedConversations()
+    super.onBackPressed()
   }
 
   override fun onFirstRender() {
@@ -783,11 +798,24 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     }
   }
 
+  private fun hideArchivedConversations() {
+    // Hide the archived conversations and show the home page fragment PIGEON-ONLY
+    expandHomePage()
+    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
+    fragment?.hideArchivedConversations()
+  }
+
+  private fun expandHomePage() {
+    // Hide the search bar and show the home page fragment PIGEON-ONLY
+    _pigeonShowConversation.tryEmit(false)
+    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
+    fragment?.hideSearchBar()
+  }
+
   fun collapseHomePage() {
-//    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
-//    if (fragment != null) {
-//      fragment.showSearchBar()
-//      findViewById<View>(R.id.homePageFragment).visibility = View.GONE
-//    }
+    // Hide the home page fragment and show the search bar PIGEON-ONLY
+    _pigeonShowConversation.tryEmit(true)
+    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
+    fragment?.showSearchBar()
   }
 }
