@@ -558,11 +558,11 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
   @Deprecated("Deprecated in Java, Using for Pigeon version only")
   override fun onBackPressed() {
-    if (isPigeonVersion() && !_pigeonShowConversation.value) {
+    if (isPigeonVersion() && _pigeonShowConversation.value) {
       this.finishAffinity()
       return
     }
-    if (isTaskRoot && _pigeonShowConversation.value) {
+    if (isTaskRoot && !_pigeonShowConversation.value) {
       expandHomePage()
       hideArchivedConversations()
       return

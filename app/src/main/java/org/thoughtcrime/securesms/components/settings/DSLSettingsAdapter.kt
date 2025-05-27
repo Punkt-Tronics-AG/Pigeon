@@ -305,10 +305,12 @@ class SwitchPreferenceViewHolder(itemView: View) : PreferenceViewHolder<SwitchPr
     } else {
       R.string.Pigeon_Settings_switch_off
     }
-    titleView.text = getContext().getString(
-      R.string.Pigeon_Settings_switch_all,
-      originalTitle, getContext().getString(switchStateRes)
-    )
+    titleView.post {
+      titleView.text = getContext().getString(
+        R.string.Pigeon_Settings_switch_all,
+        originalTitle, getContext().getString(switchStateRes)
+      )
+    }
   }
 }
 

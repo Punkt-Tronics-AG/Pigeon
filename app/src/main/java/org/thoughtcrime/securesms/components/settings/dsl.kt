@@ -11,6 +11,7 @@ import org.thoughtcrime.securesms.components.settings.models.Space
 import org.thoughtcrime.securesms.components.settings.models.Text
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModel
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModelList
+import pigeon.extensions.isSignalVersion
 
 @Discouraged("The DSL API can be completely replaced by compose. See ComposeFragment or ComposeBottomSheetFragment for an alternative to this API")
 fun configure(init: DSLConfiguration.() -> Unit): DSLConfiguration {
@@ -142,8 +143,10 @@ class DSLConfiguration {
   }
 
   fun dividerPref() {
-    val preference = DividerPreference()
-    children.add(preference)
+    if (isSignalVersion()) {
+      val preference = DividerPreference()
+      children.add(preference)
+    }
   }
 
   fun sectionHeaderPref(title: DSLSettingsText) {
