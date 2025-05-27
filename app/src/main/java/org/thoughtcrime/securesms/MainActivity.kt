@@ -135,6 +135,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     const val RESULT_CONFIG_CHANGED = Activity.RESULT_FIRST_USER + 901
 
     private val _pigeonShowConversation = MutableStateFlow(false)
+    private var _pigeonHomePageFragment: HomePageFragment? = null
+    private var _pigeonConversationFragment: MainActivityListHostFragment? = null
 
     @JvmStatic
     fun clearTop(context: Context): Intent {
@@ -351,12 +353,20 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   AndroidFragment(
                     clazz = HomePageFragment::class.java,
                     fragmentState = listHostState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                      onUpdate = {
+                      // Store the fragment instance for later use PIGEON-ONLY
+                      _pigeonHomePageFragment = it
+                    }
                   )
                   AndroidFragment(
                     clazz = MainActivityListHostFragment::class.java,
                     fragmentState = listHostState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onUpdate = {
+                      // Store the fragment instance for later use PIGEON-ONLY
+                      _pigeonConversationFragment = it
+                    }
                   )
                 }
 
@@ -420,6 +430,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     CachedInflater.from(this).clear()
 
     lifecycleDisposable += vitalsViewModel.vitalsState.subscribe(this::presentVitalsState)
+
+    collapseHomePage() // PIGEON-ONLY: Collapse the home page to show the conversation list
   }
 
   @Composable
@@ -552,9 +564,11 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     }
     if (isTaskRoot && _pigeonShowConversation.value) {
       expandHomePage()
+      hideArchivedConversations()
+      return
+    } else {
+      super.onBackPressed()
     }
-    hideArchivedConversations()
-    super.onBackPressed()
   }
 
   override fun onFirstRender() {
@@ -801,21 +815,20 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   private fun hideArchivedConversations() {
     // Hide the archived conversations and show the home page fragment PIGEON-ONLY
     expandHomePage()
-    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
-    fragment?.hideArchivedConversations()
+    _pigeonConversationFragment?.hideArchivedConversations()
   }
 
   private fun expandHomePage() {
     // Hide the search bar and show the home page fragment PIGEON-ONLY
     _pigeonShowConversation.tryEmit(false)
-    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
-    fragment?.hideSearchBar()
+    _pigeonConversationFragment?.hideSearchBar()
+    _pigeonHomePageFragment?.setupSearchButtonState(true)
   }
 
   fun collapseHomePage() {
     // Hide the home page fragment and show the search bar PIGEON-ONLY
     _pigeonShowConversation.tryEmit(true)
-    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as MainActivityListHostFragment?
-    fragment?.showSearchBar()
+    _pigeonConversationFragment?.showSearchBar()
+    _pigeonHomePageFragment?.setupSearchButtonState(false)
   }
 }

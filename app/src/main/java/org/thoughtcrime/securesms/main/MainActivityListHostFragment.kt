@@ -303,7 +303,6 @@ class MainActivityListHostFragment : Fragment(R.layout.main_activity_list_host_f
   fun hideSearchBar() {
       _pigeonSearchToolbar.get().clearText()
       _pigeonSearchToolbarContainer.visibility = View.GONE
-
   }
 
   fun hideArchivedConversations() {

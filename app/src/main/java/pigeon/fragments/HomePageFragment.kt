@@ -3,7 +3,6 @@ package pigeon.fragments
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -116,6 +115,17 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
       val messageIds = threads.setAllThreadsRead()
       messageNotifier.updateNotification(context)
       MarkReadReceiver.process(messageIds)
+    }
+  }
+
+  fun setupSearchButtonState(searchButtonVisibility: Boolean) {
+    binding?.searchButton?.let { searchButton ->
+      if (searchButtonVisibility) {
+        searchButton.visibility = View.VISIBLE
+        searchButton.requestFocus()
+      } else {
+        searchButton.visibility = View.GONE
+      }
     }
   }
 }
