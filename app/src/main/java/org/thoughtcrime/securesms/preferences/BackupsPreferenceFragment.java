@@ -324,6 +324,10 @@ public class BackupsPreferenceFragment extends Fragment {
     timer.setVisibility(View.VISIBLE);
     updateTimeLabel();
     setBackupFolderName();
+
+    if (isPigeonVersion()){
+      create.requestFocus();
+    }
   }
 
   private void setBackupsDisabled() {
@@ -333,5 +337,9 @@ public class BackupsPreferenceFragment extends Fragment {
     verify.setVisibility(View.GONE);
     timer.setVisibility(View.GONE);
     AppDependencies.getJobManager().cancelAllInQueue(LocalBackupJob.QUEUE);
+
+    if (isPigeonVersion()){
+      toggle.requestFocus();
+    }
   }
 }

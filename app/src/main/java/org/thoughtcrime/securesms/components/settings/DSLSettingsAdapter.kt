@@ -265,7 +265,7 @@ class SwitchPreferenceViewHolder(itemView: View) : PreferenceViewHolder<SwitchPr
   override fun bind(model: SwitchPreference) {
     super.bind(model)
     if (isPigeonVersion()) {
-      onChangeTextListener(model, model.isChecked)
+      switchWidget.setOnCheckedChangeListener(null)
       switchWidget.setOnCheckedChangeListener { _, isChecked ->
         onChangeTextListener(model, isChecked)
       }
@@ -279,6 +279,7 @@ class SwitchPreferenceViewHolder(itemView: View) : PreferenceViewHolder<SwitchPr
     switchWidget.isChecked = model.isChecked
 
     if (isPigeonVersion()) {
+      onChangeTextListener(model, model.isChecked)
       itemView.alpha = if (model.isEnabled) {
         1.0f
       } else {

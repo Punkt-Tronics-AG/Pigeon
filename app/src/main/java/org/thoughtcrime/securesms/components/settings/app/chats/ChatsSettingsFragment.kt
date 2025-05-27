@@ -21,12 +21,13 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
     viewModel.refresh()
   }
 
+
   @Suppress("ReplaceGetOrSet")
   override fun bindAdapter(adapter: MappingAdapter) {
     viewModel = ViewModelProvider(this).get(ChatsSettingsViewModel::class.java)
 
     viewModel.state.observe(viewLifecycleOwner) {
-      adapter.submitList(getConfiguration(it).toMappingModelList())
+        adapter.submitList(getConfiguration(it).toMappingModelList())
     }
   }
 
@@ -86,21 +87,21 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
 
       sectionHeaderPref(R.string.ChatsSettingsFragment__keyboard)
 
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences_advanced__use_system_emoji),
-        isChecked = state.useSystemEmoji,
-        onClick = {
-          viewModel.setUseSystemEmoji(!state.useSystemEmoji)
-        }
-      )
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.ChatsSettingsFragment__send_with_enter),
-        isChecked = state.enterKeySends,
-        onClick = {
-          viewModel.setEnterKeySends(!state.enterKeySends)
-        }
-      )
+//      switchPref(
+//        title = DSLSettingsText.from(R.string.preferences_advanced__use_system_emoji),
+//        isChecked = state.useSystemEmoji,
+//        onClick = {
+//          viewModel.setUseSystemEmoji(!state.useSystemEmoji)
+//        }
+//      )
+//
+//      switchPref(
+//        title = DSLSettingsText.from(R.string.ChatsSettingsFragment__send_with_enter),
+//        isChecked = state.enterKeySends,
+//        onClick = {
+//          viewModel.setEnterKeySends(!state.enterKeySends)
+//        }
+//      )
 
       if (!RemoteConfig.messageBackups) {
         dividerPref()
