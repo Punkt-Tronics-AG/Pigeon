@@ -162,7 +162,6 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
       if (backupFileUri == null) {
         Log.w(TAG, "No backups available at the moment.")
         Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
-        findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
         return
       }
       // End PIGEON
