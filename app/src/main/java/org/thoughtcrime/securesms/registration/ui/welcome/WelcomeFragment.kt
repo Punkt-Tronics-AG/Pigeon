@@ -8,10 +8,12 @@ package org.thoughtcrime.securesms.registration.ui.welcome
 
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -75,7 +77,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
     if (isPigeonVersion()) {
       binding.welcomeTermsButton.focusOnLeft()
       binding.welcomeTransferOrRestore.focusOnLeft()
-      binding.welcomeTransferOrRestore.visible = !sharedViewModel.isReregister
+      binding.welcomeTransferOrRestore.visible = true
       val disclaimerButton: TextView = view.findViewById(R.id.disclaimer_button)
       disclaimerButton.setOnClickListener { v: View? -> onDisclaimerClicked() }
 
@@ -149,6 +151,22 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
     if (Permissions.isRuntimePermissionsRequired() && !hasAllPermissions()) {
       findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(GrantPermissionsFragment.WelcomeAction.RESTORE_BACKUP))
     } else {
+
+      // PIGEON
+      var backupFileUri: Uri? = null
+      try {
+        backupFileUri = BackupUtil.getLatestBackup()?.uri
+      } catch (e: Exception) {
+        Log.e(TAG, "Error getting latest backup", e)
+      }
+      if (backupFileUri == null) {
+        Log.w(TAG, "No backups available at the moment.")
+        Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
+        findNavController().safeNavigate(WelcomeFragmentDirections.actionSkipRestore())
+        return
+      }
+      // End PIGEON
+
       sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
 
       val restoreIntent = RestoreActivity.getRestoreIntent(requireActivity())
