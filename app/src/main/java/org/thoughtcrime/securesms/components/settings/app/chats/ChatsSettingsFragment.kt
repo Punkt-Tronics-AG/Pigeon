@@ -10,6 +10,7 @@ import org.thoughtcrime.securesms.components.settings.configure
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__chats) {
@@ -27,7 +28,10 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
     viewModel = ViewModelProvider(this).get(ChatsSettingsViewModel::class.java)
 
     viewModel.state.observe(viewLifecycleOwner) {
-        adapter.submitList(getConfiguration(it).toMappingModelList())
+      if (isPigeonVersion()) {
+        adapter.submitList(emptyList())
+      }
+      adapter.submitList(getConfiguration(it).toMappingModelList())
     }
   }
 
