@@ -7,8 +7,10 @@ package org.thoughtcrime.securesms.registration.ui.grantpermissions
 
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -22,14 +24,18 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.registration.compose.GrantPermissionsScreen
 import org.thoughtcrime.securesms.registration.fragments.WelcomePermissions
 import org.thoughtcrime.securesms.registration.ui.RegistrationCheckpoint
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
+import org.thoughtcrime.securesms.registration.ui.welcome.WelcomeFragment
+import org.thoughtcrime.securesms.registration.ui.welcome.WelcomeFragment.Companion
 import org.thoughtcrime.securesms.restore.RestoreActivity
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 /**
@@ -116,6 +122,20 @@ class GrantPermissionsFragment : ComposeFragment() {
           findNavController().safeNavigate(GrantPermissionsFragmentDirections.actionEnterCountryCode())
         }
       WelcomeAction.RESTORE_BACKUP -> {
+        if (isPigeonVersion()){
+          // PIGEON
+          var backupFileUri: Uri? = null
+          try {
+            backupFileUri = BackupUtil.getLatestBackup()?.uri
+          } catch (e: Exception) {
+            Log.e(TAG, "Error getting latest backup", e)
+          }
+          if (backupFileUri == null) {
+            Log.w(TAG, "No backups available at the moment.")
+            return
+          }
+          // End PIGEON
+        }
         val restoreIntent = RestoreActivity.getRestoreIntent(requireActivity())
         launchRestoreActivity.launch(restoreIntent)
       }
