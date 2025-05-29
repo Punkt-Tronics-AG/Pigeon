@@ -132,6 +132,8 @@ class GrantPermissionsFragment : ComposeFragment() {
           }
           if (backupFileUri == null) {
             Log.w(TAG, "No backups available at the moment.")
+            Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
+            findNavController().navigateUp()
             return
           }
           // End PIGEON
