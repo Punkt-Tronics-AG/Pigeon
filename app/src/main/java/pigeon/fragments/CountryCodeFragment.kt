@@ -11,12 +11,14 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.concurrent.LifecycleDisposable
+import org.signal.core.util.getParcelableCompat
 import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.databinding.PigeonFragmentRegistrationCountryCodeBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment.Companion.REQUEST_COUNTRY
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
@@ -69,6 +71,12 @@ class CountryCodeFragment : LoggingFragment() {
         }
       }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
+    }
+
+    val initialCountry = arguments?.getParcelableCompat(REQUEST_COUNTRY, Country::class.java)
+    if (initialCountry != null) {
+      sharedViewModel.setNewCountry(countryCode = initialCountry.countryCode)
+      binding?.countryCode?.editText?.setText("+${initialCountry.countryCode}")
     }
 
   }
