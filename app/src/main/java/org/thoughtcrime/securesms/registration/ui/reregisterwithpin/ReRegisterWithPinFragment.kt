@@ -10,6 +10,7 @@ import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -31,6 +32,7 @@ import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration_pin_restore_entry_v2) {
@@ -110,9 +112,15 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
       ViewUtil.hideKeyboard(requireContext(), binding.pinRestorePinInput)
       binding.pinRestorePinInput.isEnabled = false
       binding.pinRestorePinContinue.setSpinning()
+      if (isPigeonVersion()){
+        binding.progressBar?.isVisible = true
+      }
     } else {
       binding.pinRestorePinInput.isEnabled = true
       binding.pinRestorePinContinue.cancelSpinning()
+      if (isPigeonVersion()) {
+        binding.progressBar?.isVisible = false
+      }
     }
   }
 

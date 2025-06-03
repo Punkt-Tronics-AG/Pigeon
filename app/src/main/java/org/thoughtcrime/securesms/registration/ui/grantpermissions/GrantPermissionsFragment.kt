@@ -57,7 +57,11 @@ class GrantPermissionsFragment : ComposeFragment() {
     when (val resultCode = result.resultCode) {
       Activity.RESULT_OK -> {
         sharedViewModel.onBackupSuccessfullyRestored()
-        NavHostFragment.findNavController(this).safeNavigate(GrantPermissionsFragmentDirections.actionEnterPhoneNumber())
+        if (isSignalVersion()) {
+          NavHostFragment.findNavController(this).safeNavigate(GrantPermissionsFragmentDirections.actionEnterPhoneNumber())
+        } else {
+          NavHostFragment.findNavController(this).safeNavigate(GrantPermissionsFragmentDirections.actionEnterCountryCode())
+        }
       }
 
       Activity.RESULT_CANCELED -> Log.w(TAG, "Backup restoration canceled.")

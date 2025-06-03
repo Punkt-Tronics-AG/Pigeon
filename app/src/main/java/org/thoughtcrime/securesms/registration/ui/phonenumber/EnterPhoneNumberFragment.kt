@@ -187,6 +187,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       .map { it.phoneNumberRegionCode }
       .distinctUntilChanged()
       .observe(viewLifecycleOwner) { regionCode ->
+        Log.d(TAG, "Region code changed: $regionCode")
         if (regionCode.isNotNullOrBlank()) {
           currentPhoneNumberFormatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
           reformatText(phoneNumberInputLayout.text)
