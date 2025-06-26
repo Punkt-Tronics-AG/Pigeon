@@ -209,57 +209,57 @@ private fun AppSettingsContent(
         }
         if (isSignalVersion()) {
 
-        when (state.backupFailureState) {
-          BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
-            item {
-              Dividers.Default()
+          when (state.backupFailureState) {
+            BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
-                onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
+                  onClick = {
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
-                onClick = {
-                  BackupRepository.markBackupFailedIndicatorClicked()
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
+                  onClick = {
+                    BackupRepository.markBackupFailedIndicatorClicked()
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.ALREADY_REDEEMED -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.ALREADY_REDEEMED -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
-                onClick = {
-                  BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
+                  onClick = {
+                    BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
+                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.NONE -> Unit
+            BackupFailureState.NONE -> Unit
+          }
         }
-          }
 
         item {
           Rows.TextRow(

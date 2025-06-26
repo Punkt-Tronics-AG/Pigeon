@@ -340,21 +340,21 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           bottomNavContent = {
             if (isSignalVersion()) {
               if (isNavigationVisible) {
-              Column(
-                modifier = Modifier
-                  .clip(contentLayoutData.navigationBarShape)
-                  .background(color = SignalTheme.colors.colorSurface2)
-              ) {
-                MainNavigationBar(
-                  state = mainNavigationState,
-                  onDestinationSelected = mainNavigationCallback
-                )
+                Column(
+                  modifier = Modifier
+                    .clip(contentLayoutData.navigationBarShape)
+                    .background(color = SignalTheme.colors.colorSurface2)
+                ) {
+                  MainNavigationBar(
+                    state = mainNavigationState,
+                    onDestinationSelected = mainNavigationCallback
+                  )
 
-                if (!windowSizeClass.isSplitPane()) {
-                  NavigationBarSpacerCompat()
+                  if (!windowSizeClass.isSplitPane()) {
+                    NavigationBarSpacerCompat()
+                  }
                 }
               }
-            }
             }
           },
           navRailContent = {
@@ -426,12 +426,12 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                 }
 
                 if (isSignalVersion()) {
-                MainBottomChrome(
-                  state = mainBottomChromeState,
-                  callback = mainBottomChromeCallback,
-                  megaphoneActionController = megaphoneActionController,
-                  modifier = Modifier.align(Alignment.BottomCenter)
-                )
+                  MainBottomChrome(
+                    state = mainBottomChromeState,
+                    callback = mainBottomChromeCallback,
+                    megaphoneActionController = megaphoneActionController,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                  )
               }
             }
           },
@@ -672,32 +672,32 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner) {
-    if (isSignalVersion()){
-    Material3OnScrollHelper(
-      activity = this,
-      views = listOf(),
-      viewStubs = listOf(),
-      onSetToolbarColor = {
-        toolbarViewModel.setToolbarColor(it)
-      },
-      setStatusBarColor = {},
-      lifecycleOwner = lifecycleOwner
-    ).attach(recyclerView)
+    if (isSignalVersion()) {
+      Material3OnScrollHelper(
+        activity = this,
+        views = listOf(),
+        viewStubs = listOf(),
+        onSetToolbarColor = {
+          toolbarViewModel.setToolbarColor(it)
+        },
+        setStatusBarColor = {},
+        lifecycleOwner = lifecycleOwner
+      ).attach(recyclerView)
       }
   }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner, chatFolders: RecyclerView, setChatFolder: (Int) -> Unit) {
-    if (isSignalVersion()){
-  Material3OnScrollHelper(
-      activity = this,
-      views = listOf(chatFolders),
-      viewStubs = listOf(),
-      setStatusBarColor = {},
-      onSetToolbarColor = {
-        toolbarViewModel.setToolbarColor(it)
-      },
-      lifecycleOwner = lifecycleOwner,
-      setChatFolderColor = setChatFolder
+    if (isSignalVersion()) {
+      Material3OnScrollHelper(
+        activity = this,
+        views = listOf(chatFolders),
+        viewStubs = listOf(),
+        setStatusBarColor = {},
+        onSetToolbarColor = {
+          toolbarViewModel.setToolbarColor(it)
+        },
+        lifecycleOwner = lifecycleOwner,
+        setChatFolderColor = setChatFolder
     ).attach(recyclerView)
       }
   }
