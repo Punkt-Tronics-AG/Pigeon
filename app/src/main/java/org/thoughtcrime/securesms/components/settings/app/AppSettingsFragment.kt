@@ -32,12 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
@@ -67,6 +69,7 @@ import org.thoughtcrime.securesms.banner.banners.UnauthorizedBanner
 import org.thoughtcrime.securesms.banner.ui.compose.Action
 import org.thoughtcrime.securesms.banner.ui.compose.DefaultBanner
 import org.thoughtcrime.securesms.banner.ui.compose.Importance
+import org.thoughtcrime.securesms.components.compose.TextWithBetaLabel
 import org.thoughtcrime.securesms.components.emoji.Emojifier
 import org.thoughtcrime.securesms.components.settings.app.subscription.BadgeImageMedium
 import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentsRepository
@@ -103,7 +106,8 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
     val bannerManager = remember {
       BannerManager(
         banners = listOf(
-          DeprecatedBuildBanner(), UnauthorizedBanner(context)
+          DeprecatedBuildBanner(),
+          UnauthorizedBanner(context)
         )
       )
     }
@@ -113,7 +117,11 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
     }
 
     AppSettingsContent(
-      self = self!!, state = state!!, bannerManager = bannerManager, callbacks = this, lazyColumnModifier = Modifier.nestedScroll(nestedScrollConnection)
+      self = self!!,
+      state = state!!,
+      bannerManager = bannerManager,
+      callbacks = this,
+      lazyColumnModifier = Modifier.nestedScroll(nestedScrollConnection)
     )
   }
 
@@ -137,18 +145,21 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
 
   override fun copyDonorBadgeSubscriberIdToClipboard() {
     copySubscriberIdToClipboard(
-      subscriberType = InAppPaymentSubscriberRecord.Type.DONATION, toastSuccessStringRes = R.string.AppSettingsFragment__copied_donor_subscriber_id_to_clipboard
+      subscriberType = InAppPaymentSubscriberRecord.Type.DONATION,
+      toastSuccessStringRes = R.string.AppSettingsFragment__copied_donor_subscriber_id_to_clipboard
     )
   }
 
   override fun copyRemoteBackupsSubscriberIdToClipboard() {
     copySubscriberIdToClipboard(
-      subscriberType = InAppPaymentSubscriberRecord.Type.BACKUP, toastSuccessStringRes = R.string.AppSettingsFragment__copied_backups_subscriber_id_to_clipboard
+      subscriberType = InAppPaymentSubscriberRecord.Type.BACKUP,
+      toastSuccessStringRes = R.string.AppSettingsFragment__copied_backups_subscriber_id_to_clipboard
     )
   }
 
   private fun copySubscriberIdToClipboard(
-    subscriberType: InAppPaymentSubscriberRecord.Type, @StringRes toastSuccessStringRes: Int
+    subscriberType: InAppPaymentSubscriberRecord.Type,
+    @StringRes toastSuccessStringRes: Int
   ) {
     lifecycleScope.launch {
       val subscriber = withContext(Dispatchers.IO) {
@@ -167,7 +178,11 @@ class AppSettingsFragment : ComposeFragment(), Callbacks {
 
 @Composable
 private fun AppSettingsContent(
-  self: BioRecipientState, state: AppSettingsState, bannerManager: BannerManager, callbacks: Callbacks, lazyColumnModifier: Modifier = Modifier
+  self: BioRecipientState,
+  state: AppSettingsState,
+  bannerManager: BannerManager,
+  callbacks: Callbacks,
+  lazyColumnModifier: Modifier = Modifier
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
 
@@ -188,56 +203,63 @@ private fun AppSettingsContent(
       ) {
         item {
           BioRow(
-            self = self, callbacks = callbacks,
+            self = self,
+            callbacks = callbacks
           )
         }
         if (isSignalVersion()) {
 
-          when (state.backupFailureState) {
-            BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
-              item {
-                Dividers.Default()
+        when (state.backupFailureState) {
+          BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
+            item {
+              Dividers.Default()
 
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription), onClick = {
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  })
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
 
-                Dividers.Default()
-              }
+              Dividers.Default()
             }
-
-            BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
-              item {
-                Dividers.Default()
-
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup), onClick = {
-                    BackupRepository.markBackupFailedIndicatorClicked()
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  })
-
-                Dividers.Default()
-              }
-            }
-
-            BackupFailureState.ALREADY_REDEEMED -> {
-              item {
-                Dividers.Default()
-
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription), onClick = {
-                    BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  })
-
-                Dividers.Default()
-              }
-            }
-
-            BackupFailureState.NONE -> Unit
           }
+
+          BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
+            item {
+              Dividers.Default()
+
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
+                onClick = {
+                  BackupRepository.markBackupFailedIndicatorClicked()
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
+
+              Dividers.Default()
+            }
+          }
+
+          BackupFailureState.ALREADY_REDEEMED -> {
+            item {
+              Dividers.Default()
+
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
+                onClick = {
+                  BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
+
+              Dividers.Default()
+            }
+          }
+
+          BackupFailureState.NONE -> Unit
         }
+          }
 
         item {
           Rows.TextRow(
@@ -337,20 +359,38 @@ private fun AppSettingsContent(
         if (state.showBackups) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences_chats__backups), icon = painterResource(R.drawable.symbol_backup_24), onClick = {
+              text = {
+                TextWithBetaLabel(
+                  text = stringResource(R.string.preferences_chats__backups),
+                  textStyle = MaterialTheme.typography.bodyLarge
+                )
+              },
+              icon = {
+                Icon(
+                  imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
+                  contentDescription = stringResource(R.string.preferences_chats__backups),
+                  tint = MaterialTheme.colorScheme.onSurface
+                )
+              },
+              onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
-              }, onLongClick = {
+              },
+              onLongClick = {
                 callbacks.copyRemoteBackupsSubscriberIdToClipboard()
-              }, enabled = isRegisteredAndUpToDate
+              },
+              enabled = isRegisteredAndUpToDate
             )
           }
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__data_and_storage), icon = painterResource(R.drawable.symbol_data_24), onClick = {
+            text = stringResource(R.string.preferences__data_and_storage),
+            icon = painterResource(R.drawable.symbol_data_24),
+            onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
-            })
+            }
+          )
         }
 
         if (isSignalVersion()) {
@@ -363,54 +403,71 @@ private fun AppSettingsContent(
             }
           }
 
-          if (state.showPayments) {
-            item {
-              Dividers.Default()
-            }
-
-            item {
-              Rows.TextRow(text = { _, _ ->
-                Text(
-                  text = stringResource(R.string.preferences__payments), modifier = Modifier.weight(1f)
-                )
-
-                if (state.unreadPaymentsCount > 0) {
-                  Text(
-                    text = state.unreadPaymentsCount.toString(), color = MaterialTheme.colorScheme.inverseOnSurface, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier
-                      .background(
-                        color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(50)
-                      )
-                      .defaultMinSize(minWidth = 30.dp)
-                      .padding(4.dp)
-                  )
-                }
-              }, icon = {
-                Icon(
-                  painter = painterResource(R.drawable.symbol_payment_24), contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
-                )
-              }, onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
-              })
-            }
-          }
-
+        if (state.showPayments) {
           item {
             Dividers.Default()
           }
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__help), icon = painterResource(R.drawable.symbol_help_24), onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
-              })
-          }
+              text = {
+                Text(
+                  text = stringResource(R.string.preferences__payments),
+                  modifier = Modifier.weight(1f)
+                )
 
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.AppSettingsFragment__invite_your_friends), icon = painterResource(R.drawable.symbol_invite_24), onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_inviteActivity)
-              })
+                if (state.unreadPaymentsCount > 0) {
+                  Text(
+                    text = state.unreadPaymentsCount.toString(),
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                      .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(50)
+                      )
+                      .defaultMinSize(minWidth = 30.dp)
+                      .padding(4.dp)
+                  )
+                }
+              },
+              icon = {
+                Icon(
+                  painter = painterResource(R.drawable.symbol_payment_24),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.onSurface
+                )
+              },
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+              }
+            )
           }
+        }
+
+        item {
+          Dividers.Default()
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__help),
+            icon = painterResource(R.drawable.symbol_help_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
+            }
+          )
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+            icon = painterResource(R.drawable.symbol_invite_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
+            }
+          )
         }
 
         if (state.showInternalPreferences || isPigeonVersion()) {
@@ -422,12 +479,13 @@ private fun AppSettingsContent(
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences), onClick = {
+              text = stringResource(R.string.preferences__internal_preferences),
+              onClick = {
                 callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
-              })
+              }
+            )
           }
         }
-
       }
     }
   }
@@ -435,15 +493,19 @@ private fun AppSettingsContent(
 
 @Composable
 private fun BackupsWarningRow(
-  text: String, onClick: () -> Unit
+  text: String,
+  onClick: () -> Unit
 ) {
   Rows.TextRow(
     text = { _, _ ->
       Text(text = text)
-    }, icon = {
+    },
+    icon = {
       Box {
         Icon(
-          painter = painterResource(R.drawable.symbol_backup_24), tint = MaterialTheme.colorScheme.onSurface, contentDescription = null
+          painter = painterResource(R.drawable.symbol_backup_24),
+          tint = MaterialTheme.colorScheme.onSurface,
+          contentDescription = null
         )
 
         Box(
@@ -454,14 +516,16 @@ private fun BackupsWarningRow(
             .align(Alignment.TopEnd)
         )
       }
-    }, onClick = onClick
+    },
+    onClick = onClick
   )
 }
 
 @Composable
 private fun BioRow(
   self: BioRecipientState,
-  callbacks: Callbacks, ) {
+  callbacks: Callbacks
+) {
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
 
   val pigeonRequester = remember { FocusRequester() }
@@ -503,7 +567,9 @@ private fun BioRow(
     ) {
       Emojifier(text = self.profileName.toString()) { annotatedString, inlineTextContentMap ->
         Text(
-          text = annotatedString, inlineContent = inlineTextContentMap, style = MaterialTheme.typography.titleLarge
+          text = annotatedString,
+          inlineContent = inlineTextContentMap,
+          style = MaterialTheme.typography.titleLarge
         )
       }
 
@@ -516,12 +582,14 @@ private fun BioRow(
       }
 
       Text(
-        text = prettyPhoneNumber, color = MaterialTheme.colorScheme.onSurfaceVariant
+        text = prettyPhoneNumber,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
       )
 
       if (hasUsername) {
         Text(
-          text = self.username, color = MaterialTheme.colorScheme.onSurfaceVariant
+          text = self.username,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
 
@@ -530,7 +598,10 @@ private fun BioRow(
           text = self.combinedAboutAndEmoji
         ) { annotatedString, inlineTextContentMap ->
           Text(
-            text = annotatedString, color = MaterialTheme.colorScheme.onSurfaceVariant, inlineContent = inlineTextContentMap, modifier = Modifier.padding(top = 8.dp)
+            text = annotatedString,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            inlineContent = inlineTextContentMap,
+            modifier = Modifier.padding(top = 8.dp)
           )
         }
       }
@@ -540,12 +611,16 @@ private fun BioRow(
       IconButtons.IconButton(
         onClick = {
           callbacks.navigate(R.id.action_appSettingsFragment_to_usernameLinkSettingsFragment)
-        }, size = 36.dp, colors = IconButtons.iconButtonColors(
+        },
+        size = 36.dp,
+        colors = IconButtons.iconButtonColors(
           containerColor = SignalTheme.colors.colorSurface4
         )
       ) {
         Icon(
-          painter = painterResource(R.drawable.symbol_qrcode_24), contentDescription = null, modifier = Modifier.size(20.dp)
+          painter = painterResource(R.drawable.symbol_qrcode_24),
+          contentDescription = null,
+          modifier = Modifier.size(20.dp)
         )
       }
     }
@@ -573,7 +648,8 @@ private fun AppSettingsContentPreview() {
           about = "About",
           isResolving = false
         )
-      ), state = AppSettingsState(
+      ),
+      state = AppSettingsState(
         unreadPaymentsCount = 5,
         hasExpiredGiftBadge = true,
         allowUserToGoToDonationManagementScreen = true,
@@ -607,7 +683,8 @@ private fun BioRowPreview() {
           about = "About",
           isResolving = false
         )
-      ), callbacks = EmptyCallbacks,
+      ),
+      callbacks = EmptyCallbacks
     )
   }
 }
@@ -629,8 +706,13 @@ private class TestBanner : Banner<Unit>() {
   @Composable
   override fun DisplayBanner(model: Unit, contentPadding: PaddingValues) {
     DefaultBanner(
-      title = "Test Title", body = "This is a test body", importance = Importance.ERROR, actions = listOf(
-        Action(android.R.string.ok) {}), paddingValues = contentPadding
+      title = "Test Title",
+      body = "This is a test body",
+      importance = Importance.ERROR,
+      actions = listOf(
+        Action(android.R.string.ok) {}
+      ),
+      paddingValues = contentPadding
     )
   }
 }

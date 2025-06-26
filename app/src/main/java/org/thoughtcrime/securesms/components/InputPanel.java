@@ -322,6 +322,10 @@ public class InputPanel extends ConstraintLayout
     }
   }
 
+  public boolean hasLinkPreview() {
+    return linkPreview.getVisibility() == View.VISIBLE;
+  }
+
   public void setLinkPreviewLoading() {
     this.linkPreview.setVisibility(View.VISIBLE);
     this.linkPreview.setLoading();
@@ -577,6 +581,11 @@ public class InputPanel extends ConstraintLayout
   }
 
   @Override
+  public void onRecorderAlreadyInUse() {
+    if (listener != null) listener.onRecorderAlreadyInUse();
+  }
+
+  @Override
   public void onRecordPressed() {
     if (listener != null) listener.onRecorderStarted();
     recordTime.display();
@@ -827,6 +836,7 @@ public class InputPanel extends ConstraintLayout
     void onRecorderFinished();
     void onRecorderCanceled(boolean byUser);
     void onRecorderPermissionRequired();
+    void onRecorderAlreadyInUse();
     void onEmojiToggle();
     void onLinkPreviewCanceled();
     void onStickerSuggestionSelected(@NonNull StickerRecord sticker);

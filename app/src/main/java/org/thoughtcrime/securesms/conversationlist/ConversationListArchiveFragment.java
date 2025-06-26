@@ -28,9 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
-import androidx.appcompat.view.ActionMode;
 import androidx.compose.material3.SnackbarDuration;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.signal.core.util.concurrent.LifecycleDisposable;
@@ -40,6 +38,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.database.SignalDatabase;
+import org.thoughtcrime.securesms.main.MainNavigationListLocation;
 import org.thoughtcrime.securesms.main.SnackbarState;
 import org.thoughtcrime.securesms.util.ConversationUtil;
 import org.thoughtcrime.securesms.util.views.Stub;
@@ -52,7 +51,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import kotlin.Unit;
 
 
-public class ConversationListArchiveFragment extends ConversationListFragment implements ActionMode.Callback
+public class ConversationListArchiveFragment extends ConversationListFragment
 {
   private View                        coordinator;
   private RecyclerView                list;
@@ -93,7 +92,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
     requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
       @Override
       public void handleOnBackPressed() {
-        NavHostFragment.findNavController(ConversationListArchiveFragment.this).popBackStack();
+        mainNavigationViewModel.goTo(MainNavigationListLocation.CHATS);
       }
     });
     mainActivity.collapseHomePage();

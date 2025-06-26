@@ -70,10 +70,10 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
 
       @Suppress("DEPRECATION")
       clickPref(
-        title = DSLSettingsText.from(if (state.hasOptedInWithAccess) R.string.preferences_app_protection__change_your_pin else R.string.preferences_app_protection__create_a_pin),
-        isEnabled = state.isDeprecatedOrUnregistered(),
+        title = DSLSettingsText.from(if (state.hasPin || state.hasRestoredAep) R.string.preferences_app_protection__change_your_pin else R.string.preferences_app_protection__create_a_pin),
+        isEnabled = state.isNotDeprecatedOrUnregistered(),
         onClick = {
-          if (state.hasOptedInWithAccess) {
+          if (state.hasPin) {
             startActivityForResult(CreateSvrPinActivity.getIntentForPinChangeFromSettings(requireContext()), CreateSvrPinActivity.REQUEST_NEW_PIN)
           } else {
             startActivityForResult(CreateSvrPinActivity.getIntentForPinCreate(requireContext()), CreateSvrPinActivity.REQUEST_NEW_PIN)
@@ -85,7 +85,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
         title = DSLSettingsText.from(R.string.preferences_app_protection__pin_reminders),
         summary = DSLSettingsText.from(R.string.AccountSettingsFragment__youll_be_asked_less_frequently),
         isChecked = state.hasPin && state.pinRemindersEnabled,
-        isEnabled = state.hasPin && state.isDeprecatedOrUnregistered(),
+        isEnabled = state.hasPin && state.isNotDeprecatedOrUnregistered(),
         onClick = {
           setPinRemindersEnabled(!state.pinRemindersEnabled)
         }
@@ -95,7 +95,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
         title = DSLSettingsText.from(R.string.preferences_app_protection__registration_lock),
         summary = DSLSettingsText.from(R.string.AccountSettingsFragment__require_your_signal_pin),
         isChecked = state.registrationLockEnabled,
-        isEnabled = (state.hasOptedInWithAccess) && state.isDeprecatedOrUnregistered(),
+        isEnabled = state.hasPin && state.isNotDeprecatedOrUnregistered(),
         onClick = {
           setRegistrationLockEnabled(!state.registrationLockEnabled)
         }
@@ -103,7 +103,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
 
       clickPref(
         title = DSLSettingsText.from(R.string.preferences__advanced_pin_settings),
-        isEnabled = state.isDeprecatedOrUnregistered(),
+        isEnabled = state.isNotDeprecatedOrUnregistered(),
         onClick = {
           Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_advancedPinSettingsActivity)
         }
@@ -116,7 +116,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
       if (SignalStore.account.isRegistered) {
         clickPref(
           title = DSLSettingsText.from(R.string.AccountSettingsFragment__change_phone_number),
-          isEnabled = state.isDeprecatedOrUnregistered(),
+          isEnabled = state.isNotDeprecatedOrUnregistered(),
           onClick = {
             Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_changePhoneNumberFragment)
           }
@@ -127,7 +127,7 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
         clickPref(
           title = DSLSettingsText.from(R.string.preferences_chats__transfer_account),
           summary = DSLSettingsText.from(R.string.preferences_chats__transfer_account_to_a_new_android_device),
-          isEnabled = state.isDeprecatedOrUnregistered(),
+          isEnabled = state.isNotDeprecatedOrUnregistered(),
           onClick = {
             Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_oldDeviceTransferActivity)
           }
@@ -137,14 +137,14 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
       if (isSignalVersion()) {
         clickPref(
           title = DSLSettingsText.from(R.string.AccountSettingsFragment__request_account_data),
-          isEnabled = state.isDeprecatedOrUnregistered(),
+          isEnabled = state.isNotDeprecatedOrUnregistered(),
           onClick = {
             Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_exportAccountFragment)
           }
         )
       }
 
-      if (!state.isDeprecatedOrUnregistered()) {
+      if (!state.isNotDeprecatedOrUnregistered()) {
         if (state.clientDeprecated) {
           clickPref(
             title = DSLSettingsText.from(R.string.preferences_account_update_signal),
@@ -179,8 +179,8 @@ class AccountSettingsFragment : DSLSettingsFragment(R.string.AccountSettingsFrag
       }
 
       clickPref(
-        title = DSLSettingsText.from(R.string.preferences__delete_account, ContextCompat.getColor(requireContext(), if (state.isDeprecatedOrUnregistered()) R.color.signal_alert_primary else R.color.signal_alert_primary_50)),
-        isEnabled = state.isDeprecatedOrUnregistered(),
+        title = DSLSettingsText.from(R.string.preferences__delete_account, ContextCompat.getColor(requireContext(), if (state.isNotDeprecatedOrUnregistered()) R.color.signal_alert_primary else R.color.signal_alert_primary_50)),
+        isEnabled = state.isNotDeprecatedOrUnregistered(),
         onClick = {
           Navigation.findNavController(requireView()).safeNavigate(R.id.action_accountSettingsFragment_to_deleteAccountFragment)
         }

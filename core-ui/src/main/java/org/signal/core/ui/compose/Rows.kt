@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -43,7 +44,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -202,7 +207,13 @@ object Rows {
           Switch(
             checked = state.checked,
             enabled = state.enabled,
-            onCheckedChange = state.onCheckChanged
+            onCheckedChange = state.onCheckChanged,
+            colors = SwitchDefaults.colors(
+              checkedTrackColor = MaterialTheme.colorScheme.primary,
+              uncheckedBorderColor = MaterialTheme.colorScheme.outline,
+              uncheckedIconColor = MaterialTheme.colorScheme.outline,
+              uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
           )
         }
       }
@@ -225,18 +236,46 @@ object Rows {
     enabled: Boolean = true
   ) {
     TextRow(
+      text = remember(text) { AnnotatedString(text) },
+      label = remember(label) { label?.let { AnnotatedString(label) } },
+      icon = icon,
       modifier = Modifier.padding(0.dp),
+      iconModifier = iconModifier,
+      foregroundTint = foregroundTint,
+      onClick = onClick,
+      onLongClick = onLongClick,
+      enabled = enabled
+    )
+  }
+
+  /**
+   * Text row that positions [text] and optional [label] in a [TextAndLabel] to the side of an optional [icon].
+   */
+  @Composable
+  fun TextRow(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+    label: AnnotatedString? = null,
+    icon: Painter? = null,
+    foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+    enabled: Boolean = true
+  ) {
+    TextRow(
       text = { textSize, textColor ->
         TextAndLabel(
           text = text,
           label = label,
           textColor = textColor,
+          enabled = enabled,
           modifier = modifier
             .padding(0.dp),
-          enabled = enabled,
           pigeonTextSize = textSize
         )
       },
+      modifier = Modifier.padding(0.dp),
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -258,7 +297,6 @@ object Rows {
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
   ) {
-
     TextRow(
       text = { textSize, textColor ->
         TextAndLabel(
@@ -269,6 +307,7 @@ object Rows {
           pigeonTextSize = textSize,
         )
       },
+      modifier = modifier,
       onClick = onClick,
       onLongClick = onLongClick,
       enabled = enabled
@@ -289,6 +328,7 @@ object Rows {
     enabled: Boolean = true,
     visible: Boolean = true
   ) {
+    val haptics = LocalHapticFeedback.current
     if (!visible) return
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -304,7 +344,12 @@ object Rows {
           indication = null,
           enabled = enabled && (onClick != null || onLongClick != null),
           onClick = onClick ?: {},
-          onLongClick = onLongClick ?: {}
+          onLongClick = {
+            if (onLongClick != null) {
+              haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+              onLongClick()
+            }
+          }
         )
         .focusable(enabled)
         .focusOnLeft(enabled, interactionSource) { hasFocus, textSize, textColor ->
@@ -341,6 +386,28 @@ object Rows {
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     pigeonTextSize: Dp = 24.dp
+  ) {
+    TextAndLabel(
+      text = remember(text) { text?.let { AnnotatedString(it) } },
+      label = remember(label) { label?.let { AnnotatedString(it) } },
+      modifier = modifier,
+      enabled = enabled,
+      textColor = textColor,
+      textStyle = textStyle
+    )
+  }
+
+  /**
+   * Row component to position text above an optional label.
+   */
+  @Composable
+  fun RowScope.TextAndLabel(
+    text: AnnotatedString? = null,
+    modifier: Modifier = Modifier,
+    label: AnnotatedString? = null,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge
   ) {
     Column(
       modifier = modifier

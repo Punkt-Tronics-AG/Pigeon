@@ -3,6 +3,7 @@ package org.thoughtcrime.securesms.components;
 import android.Manifest;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.media.AudioManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.audio.AudioRecordingHandler;
@@ -41,12 +43,16 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
   private @Nullable AudioRecordingHandler handler;
   private @NonNull  State                 state = State.NOT_RUNNING;
 
+  private final AudioManager audioManager;
+
   public MicrophoneRecorderView(Context context) {
     super(context);
+    this.audioManager = ContextCompat.getSystemService(context, AudioManager.class);
   }
 
   public MicrophoneRecorderView(Context context, AttributeSet attrs) {
     super(context, attrs);
+    this.audioManager = ContextCompat.getSystemService(context, AudioManager.class);
   }
 
   @Override
@@ -112,10 +118,16 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
 
   @Override
   public boolean onTouch(View v, final MotionEvent event) {
+    boolean isMicPossiblyInUse = false;
+    if (audioManager != null) {
+      isMicPossiblyInUse = audioManager.getMode() == AudioManager.MODE_IN_COMMUNICATION || audioManager.getMode() == AudioManager.MODE_IN_CALL;
+    }
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
         if (!Permissions.hasAll(getContext(), Manifest.permission.RECORD_AUDIO)) {
           if (handler != null) handler.onRecordPermissionRequired();
+        } else if (isMicPossiblyInUse) {
+          if (handler != null) handler.onRecorderAlreadyInUse();
         } else if (state == State.NOT_RUNNING) {
           state = State.RUNNING_HELD;
           floatingRecordButton.display(event.getX(), event.getY());
