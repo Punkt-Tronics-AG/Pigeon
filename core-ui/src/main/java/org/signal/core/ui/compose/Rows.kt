@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -361,6 +363,10 @@ object Rows {
 //        .padding(defaultPadding()),
       verticalAlignment = CenterVertically
     ) {
+//      if (icon != null) {
+//        icon()
+//        Spacer(modifier = Modifier.width(24.dp))
+//      }
       text(pigeonTextSize, pigeonTextColor)
     }
   }

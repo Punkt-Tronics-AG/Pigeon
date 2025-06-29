@@ -359,7 +359,7 @@ private fun AppSettingsContent(
         if (state.showBackups) {
           item {
             Rows.TextRow(
-              text = {
+              text = { _, _ ->
                 TextWithBetaLabel(
                   text = stringResource(R.string.preferences_chats__backups),
                   textStyle = MaterialTheme.typography.bodyLarge
@@ -378,7 +378,7 @@ private fun AppSettingsContent(
               onLongClick = {
                 callbacks.copyRemoteBackupsSubscriberIdToClipboard()
               },
-              enabled = isRegisteredAndUpToDate
+              enabled = isRegisteredAndUpToDate,
             )
           }
         }
@@ -403,87 +403,88 @@ private fun AppSettingsContent(
             }
           }
 
-        if (state.showPayments) {
+          if (state.showPayments) {
+            item {
+              Dividers.Default()
+            }
+
+            item {
+              Rows.TextRow(
+                text = { _, _ ->
+                  Text(
+                    text = stringResource(R.string.preferences__payments),
+                    modifier = Modifier.weight(1f)
+                  )
+
+                  if (state.unreadPaymentsCount > 0) {
+                    Text(
+                      text = state.unreadPaymentsCount.toString(),
+                      color = MaterialTheme.colorScheme.inverseOnSurface,
+                      style = MaterialTheme.typography.bodyMedium,
+                      textAlign = TextAlign.Center,
+                      modifier = Modifier
+                        .background(
+                          color = MaterialTheme.colorScheme.primary,
+                          shape = RoundedCornerShape(50)
+                        )
+                        .defaultMinSize(minWidth = 30.dp)
+                        .padding(4.dp)
+                    )
+                  }
+                },
+                icon = {
+                  Icon(
+                    painter = painterResource(R.drawable.symbol_payment_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                  )
+                },
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+                }
+              )
+            }
+          }
+
           item {
             Dividers.Default()
           }
 
           item {
             Rows.TextRow(
-              text = {
-                Text(
-                  text = stringResource(R.string.preferences__payments),
-                  modifier = Modifier.weight(1f)
-                )
-
-                if (state.unreadPaymentsCount > 0) {
-                  Text(
-                    text = state.unreadPaymentsCount.toString(),
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                      .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(50)
-                      )
-                      .defaultMinSize(minWidth = 30.dp)
-                      .padding(4.dp)
-                  )
-                }
-              },
-              icon = {
-                Icon(
-                  painter = painterResource(R.drawable.symbol_payment_24),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.onSurface
-                )
-              },
+              text = stringResource(R.string.preferences__help),
+              icon = painterResource(R.drawable.symbol_help_24),
               onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+                callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
               }
             )
-          }
-        }
-
-        item {
-          Dividers.Default()
-        }
-
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__help),
-            icon = painterResource(R.drawable.symbol_help_24),
-            onClick = {
-              callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
-            }
-          )
-        }
-
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-            icon = painterResource(R.drawable.symbol_invite_24),
-            onClick = {
-              callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
-            }
-          )
-        }
-
-        if (state.showInternalPreferences || isPigeonVersion()) {
-          if (isSignalVersion()) {
-            item {
-              Dividers.Default()
-            }
           }
 
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences),
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = painterResource(R.drawable.symbol_invite_24),
               onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
+                callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
               }
             )
+          }
+
+          if (state.showInternalPreferences || isPigeonVersion()) {
+            if (isSignalVersion()) {
+              item {
+                Dividers.Default()
+              }
+            }
+
+            item {
+              Rows.TextRow(
+                text = stringResource(R.string.preferences__internal_preferences),
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
+                }
+              )
+            }
           }
         }
       }
@@ -625,7 +626,7 @@ private fun BioRow(
       }
     }
   }
-  if (isPigeonVersion()){
+  if (isPigeonVersion()) {
     LaunchedEffect(Unit) {
       pigeonRequester.requestFocus()
     }
@@ -660,9 +661,11 @@ private fun AppSettingsContentPreview() {
         showAppUpdates = true,
         showBackups = true,
         backupFailureState = BackupFailureState.SUBSCRIPTION_STATE_MISMATCH
-      ), bannerManager = BannerManager(
-        banners = if (isSignalVersion()) listOf(TestBanner()) else listOf()
-      ), callbacks = EmptyCallbacks
+      ),
+      bannerManager = BannerManager(
+        banners = listOf(TestBanner())
+      ),
+      callbacks = EmptyCallbacks
     )
   }
 }

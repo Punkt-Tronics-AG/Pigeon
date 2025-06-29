@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -160,7 +161,6 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
     private val _pigeonShowConversation = MutableStateFlow(false)
     private var _pigeonHomePageFragment: HomePageFragment? = null
-    private var _pigeonConversationFragment: MainActivityListHostFragment? = null
 
     @JvmStatic
     fun clearTop(context: Context): Intent {
@@ -373,19 +373,19 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
               MaterialTheme.colorScheme.surface
             }
 
-              Column(
-                modifier = Modifier
-                  .padding(start = contentLayoutData.listPaddingStart)
-                  .fillMaxSize()
-                  .background(listContainerColor)
-                  .clip(contentLayoutData.shape)
-              ) {
-                if (isSignalVersion()) {
-                  MainToolbar(
-                    state = mainToolbarState,
-                    callback = toolbarCallback
-                  )
-                }
+            Column(
+              modifier = Modifier
+                .padding(start = contentLayoutData.listPaddingStart)
+                .fillMaxSize()
+                .background(listContainerColor)
+                .clip(contentLayoutData.shape)
+            ) {
+              if (isSignalVersion()) {
+                MainToolbar(
+                  state = mainToolbarState,
+                  callback = toolbarCallback
+                )
+              }
 
               Box(
                 modifier = Modifier.weight(1f)
@@ -399,6 +399,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                       modifier = Modifier.fillMaxSize()
                     )
                   }
+
                   MainNavigationListLocation.ARCHIVE -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -407,6 +408,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                       modifier = Modifier.fillMaxSize()
                     )
                   }
+
                   MainNavigationListLocation.CALLS -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -415,6 +417,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                       modifier = Modifier.fillMaxSize()
                     )
                   }
+
                   MainNavigationListLocation.STORIES -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -432,6 +435,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     megaphoneActionController = megaphoneActionController,
                     modifier = Modifier.align(Alignment.BottomCenter)
                   )
+                }
               }
             }
           },
@@ -1008,20 +1012,20 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   private fun hideArchivedConversations() {
     // Hide the archived conversations and show the home page fragment PIGEON-ONLY
     expandHomePage()
-    _pigeonConversationFragment?.hideArchivedConversations()
+//    _pigeonConversationFragment?.hideArchivedConversations()
   }
 
   private fun expandHomePage() {
     // Hide the search bar and show the home page fragment PIGEON-ONLY
     _pigeonShowConversation.tryEmit(false)
-    _pigeonConversationFragment?.hideSearchBar()
+//    _pigeonConversationFragment?.hideSearchBar()
     _pigeonHomePageFragment?.setupSearchButtonState(true)
   }
 
   fun collapseHomePage() {
     // Hide the home page fragment and show the search bar PIGEON-ONLY
     _pigeonShowConversation.tryEmit(true)
-    _pigeonConversationFragment?.showSearchBar()
+//    _pigeonConversationFragment?.showSearchBar()
     _pigeonHomePageFragment?.setupSearchButtonState(false)
   }
 }

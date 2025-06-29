@@ -269,7 +269,7 @@ private fun InactiveBackupsRow(
   onBackupsRowClick: () -> Unit = {}
 ) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Column {
         TextWithBetaLabel(text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups))
         Text(
