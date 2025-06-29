@@ -301,7 +301,7 @@ object Rows {
       text = { textSize, textColor ->
         TextAndLabel(
           text = text,
-          label = label,
+          label = text,
           textColor = textColor,
           enabled = enabled,
           pigeonTextSize = textSize,
@@ -393,7 +393,8 @@ object Rows {
       modifier = modifier,
       enabled = enabled,
       textColor = textColor,
-      textStyle = textStyle
+      textStyle = textStyle,
+      pigeonTextSize = pigeonTextSize
     )
   }
 
@@ -407,7 +408,8 @@ object Rows {
     label: AnnotatedString? = null,
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    textStyle: TextStyle = MaterialTheme.typography.bodyLarge
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    pigeonTextSize: Dp = 24.dp
   ) {
     Column(
       modifier = modifier
