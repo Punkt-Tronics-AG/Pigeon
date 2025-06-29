@@ -292,6 +292,9 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     }
 
     setContent {
+      // PIGEON-ONLY: Show the home page fragment if it is not already shown
+      val listHostState = rememberFragmentState()
+
       val snackbar by mainNavigationViewModel.snackbar.collectAsStateWithLifecycle()
       val mainToolbarState by toolbarViewModel.state.collectAsStateWithLifecycle()
       val megaphone by mainNavigationViewModel.megaphone.collectAsStateWithLifecycle()
@@ -387,16 +390,35 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                 )
               }
 
-              Box(
-                modifier = Modifier.weight(1f)
-              ) {
+//              Box(
+//                modifier = Modifier.weight(1f)
+//              ) {
+
+                if (isPigeonVersion()) {
+                  AndroidFragment(
+                    clazz = HomePageFragment::class.java,
+                    fragmentState = listHostState,
+                    modifier = Modifier.fillMaxSize(),
+                    onUpdate = {
+                      // Store the fragment instance for later use PIGEON-ONLY
+                      _pigeonHomePageFragment = it
+                    }
+                  )
+                }
+
                 when (val destination = mainNavigationState.selectedDestination) {
                   MainNavigationListLocation.CHATS -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
                       clazz = ConversationListFragment::class.java,
                       fragmentState = state,
-                      modifier = Modifier.fillMaxSize()
+                      modifier = Modifier.fillMaxSize(),
+                      onUpdate = {
+                        // PIGEON-ONLY: Show the conversation list when the home page is not shown
+                        if (isPigeonVersion()) {
+                          _pigeonShowConversation.value = true
+                        }
+                      }
                     )
                   }
 
@@ -405,7 +427,13 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     AndroidFragment(
                       clazz = ConversationListArchiveFragment::class.java,
                       fragmentState = state,
-                      modifier = Modifier.fillMaxSize()
+                      modifier = Modifier.fillMaxSize(),
+                      onUpdate = {
+                        // PIGEON-ONLY: Show the conversation list when the home page is not shown
+                        if (isPigeonVersion()) {
+                          _pigeonShowConversation.value = true
+                        }
+                      }
                     )
                   }
 
@@ -433,10 +461,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     state = mainBottomChromeState,
                     callback = mainBottomChromeCallback,
                     megaphoneActionController = megaphoneActionController,
-                    modifier = Modifier.align(Alignment.BottomCenter)
+//                    modifier = Modifier.align(Alignment.BottomCenter)
                   )
                 }
-              }
+//              }
             }
           },
           detailContent = {
