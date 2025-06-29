@@ -81,6 +81,7 @@ import org.thoughtcrime.securesms.conversationlist.model.ConversationFilter
 import org.thoughtcrime.securesms.dependencies.GooglePlayBillingDependencies.context
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.rememberRecipientField
+import pigeon.extensions.isSignalVersion
 
 interface MainToolbarCallback {
   fun onNewGroupClick()
@@ -243,7 +244,8 @@ private fun ActionModeToolbar(
 }
 
 @Composable
-private fun SearchToolbar(
+// FOR PIGEON FUNCTION NOT - PRIVATE
+fun SearchToolbar(
   state: MainToolbarState,
   callback: MainToolbarCallback,
   modifier: Modifier = Modifier
@@ -255,16 +257,18 @@ private fun SearchToolbar(
       value = state.searchQuery,
       onValueChange = callback::onSearchQueryUpdated,
       leadingIcon = {
-        IconButtons.IconButton(
-          onClick = callback::onCloseSearchClick
-        ) {
-          Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
-            contentDescription = stringResource(R.string.MainToolbar__close_search_content_description)
-          )
+        if (isSignalVersion()) {
+          IconButtons.IconButton(
+            onClick = callback::onCloseSearchClick
+          ) {
+            Icon(
+              imageVector = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
+              contentDescription = stringResource(R.string.MainToolbar__close_search_content_description)
+            )
+          }
         }
       },
-      trailingIcon = if (state.searchQuery.isNotEmpty()) {
+      trailingIcon = if (state.searchQuery.isNotEmpty() && isSignalVersion()) {
         {
           IconButtons.IconButton(
             onClick = {

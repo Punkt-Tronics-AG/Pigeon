@@ -66,6 +66,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.signal.core.ui.compose.TextFields
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getSerializableCompat
@@ -115,6 +116,7 @@ import org.thoughtcrime.securesms.main.MainToolbarState
 import org.thoughtcrime.securesms.main.MainToolbarViewModel
 import org.thoughtcrime.securesms.main.Material3OnScrollHelperBinder
 import org.thoughtcrime.securesms.main.NavigationBarSpacerCompat
+import org.thoughtcrime.securesms.main.SearchToolbar
 import org.thoughtcrime.securesms.main.SnackbarState
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionActivity
@@ -161,6 +163,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
     private val _pigeonShowConversation = MutableStateFlow(false)
     private var _pigeonHomePageFragment: HomePageFragment? = null
+    private val _pigeonShowSearch = MutableStateFlow(false)
 
     @JvmStatic
     fun clearTop(context: Context): Intent {
@@ -331,6 +334,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
       val showSplashScreen = pigeonShowSplashScreen.collectAsState()
       val pigeonShowConversation = _pigeonShowConversation.collectAsState()
+      val _pigeonShowSearch = _pigeonShowSearch.collectAsState()
       Log.d("MainActivity", "showConversation: ${pigeonShowConversation.value}")
       if (showSplashScreen.value) {
         PreLoader()
@@ -383,12 +387,6 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                 .background(listContainerColor)
                 .clip(contentLayoutData.shape)
             ) {
-              if (isSignalVersion()) {
-                MainToolbar(
-                  state = mainToolbarState,
-                  callback = toolbarCallback
-                )
-              }
 
 //              Box(
 //                modifier = Modifier.weight(1f)
@@ -406,6 +404,23 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   )
                 }
 
+              if (_pigeonShowSearch.value) {
+                if (isSignalVersion()) {
+                  MainToolbar(
+                    state = mainToolbarState,
+                    callback = toolbarCallback
+                  )
+                } else {
+                  // PIGEON-ONLY: Show the search toolbar
+//                  TextFields.TextField(
+//                    value = "",
+//                    onValueChange = { toolbarCallback.onSearchQueryUpdated(it) },
+//                  )
+
+                }
+              }
+
+              if (isPigeonVersion() && pigeonShowConversation.value) {
                 when (val destination = mainNavigationState.selectedDestination) {
                   MainNavigationListLocation.CHATS -> {
                     val state = key(destination) { rememberFragmentState() }
@@ -455,6 +470,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     )
                   }
                 }
+              }
 
                 if (isSignalVersion()) {
                   MainBottomChrome(
@@ -1040,20 +1056,20 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   private fun hideArchivedConversations() {
     // Hide the archived conversations and show the home page fragment PIGEON-ONLY
     expandHomePage()
-//    _pigeonConversationFragment?.hideArchivedConversations()
+    _pigeonShowConversation.tryEmit(false)
   }
 
   private fun expandHomePage() {
     // Hide the search bar and show the home page fragment PIGEON-ONLY
     _pigeonShowConversation.tryEmit(false)
-//    _pigeonConversationFragment?.hideSearchBar()
+    _pigeonShowSearch.tryEmit(false)
     _pigeonHomePageFragment?.setupSearchButtonState(true)
   }
 
   fun collapseHomePage() {
     // Hide the home page fragment and show the search bar PIGEON-ONLY
     _pigeonShowConversation.tryEmit(true)
-//    _pigeonConversationFragment?.showSearchBar()
+    _pigeonShowSearch.tryEmit(true)
     _pigeonHomePageFragment?.setupSearchButtonState(false)
   }
 }
