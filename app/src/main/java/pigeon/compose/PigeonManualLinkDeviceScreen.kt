@@ -1,29 +1,48 @@
 package pigeon.compose
 
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN
+import android.view.KeyEvent.KEYCODE_DPAD_UP
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import org.signal.core.ui.compose.Dialogs
+import org.signal.core.ui.compose.Rows.TextRow
 import org.signal.core.ui.compose.theme.SignalTheme
+import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.linkdevice.LinkDeviceRepository.LinkDeviceResult
+import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState
+import org.thoughtcrime.securesms.linkdevice.makeToast
+import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 @Composable
 fun PigeonManualLinkDeviceScreen(
@@ -33,85 +52,180 @@ fun PigeonManualLinkDeviceScreen(
   onPubKeyChange: (String) -> Unit,
   onLinkClicked: () -> Unit,
   isLinking: Boolean = false,
+  qrCodeState: LinkDeviceSettingsState.QrCodeState,
+  onQrCodeAccepted: () -> Unit,
+  onQrCodeDismissed: () -> Unit,
+  onQrCodeRetry: () -> Unit,
+  linkDeviceResult: LinkDeviceResult,
+  onLinkDeviceSuccess: () -> Unit,
+  onLinkDeviceFailure: () -> Unit,
+  navController: NavController?,
   modifier: Modifier = Modifier
 ) {
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .padding(horizontal = dimensionResource(R.dimen.pigeon_start_margin))
-  ) {
-    Text(
-      text = stringResource(R.string.Pigeon_uuid),
-      style = MaterialTheme.typography.bodyMedium,
-      color = Color.White,
-      modifier = Modifier.fillMaxWidth()
-    )
 
-    OutlinedTextField(
-      value = uuid,
-      onValueChange = onUuidChange,
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin)),
-      colors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color.Transparent,
-        unfocusedBorderColor = Color.Transparent,
-        focusedTextColor = colorResource(id = R.color.white_focus),
-        unfocusedTextColor = colorResource(id = R.color.white_focus)
-      ),
-      keyboardOptions = KeyboardOptions(
-        keyboardType = KeyboardType.Ascii,
-        autoCorrect = false
+  val lifecycleOwner = LocalLifecycleOwner.current
+  val context = LocalContext.current
+
+  when (qrCodeState) {
+    LinkDeviceSettingsState.QrCodeState.NONE -> {
+      Unit
+    }
+
+    LinkDeviceSettingsState.QrCodeState.VALID_WITH_SYNC -> {
+      navController?.safeNavigate(R.id.action_addLinkDeviceFragment_to_linkDeviceSyncBottomSheet)
+    }
+
+    LinkDeviceSettingsState.QrCodeState.VALID_WITHOUT_SYNC -> {
+      Dialogs.SimpleAlertDialog(
+        title = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
+        body = stringResource(id = R.string.AddLinkDeviceFragment__this_device_will_see_your_groups_contacts),
+        confirm = stringResource(id = R.string.device_list_fragment__link_new_device),
+        onConfirm = onQrCodeAccepted,
+        dismiss = stringResource(id = android.R.string.cancel),
+        onDismiss = onQrCodeDismissed
       )
-    )
+    }
 
-    Text(
-      text = stringResource(R.string.Pigeon_pubkey),
-      style = MaterialTheme.typography.bodyMedium,
-      color = Color.White,
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin))
-    )
-
-    OutlinedTextField(
-      value = pubKey,
-      onValueChange = onPubKeyChange,
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin)),
-      colors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color.Transparent,
-        unfocusedBorderColor = Color.Transparent,
-        focusedTextColor = colorResource(id = R.color.white_focus),
-        unfocusedTextColor = colorResource(id = R.color.white_focus)
-      ),
-      keyboardOptions = KeyboardOptions(
-        keyboardType = KeyboardType.Ascii,
-        autoCorrect = false
+    LinkDeviceSettingsState.QrCodeState.INVALID -> {
+      Dialogs.SimpleAlertDialog(
+        title = stringResource(id = R.string.AddLinkDeviceFragment__linking_device_failed),
+        body = stringResource(id = R.string.AddLinkDeviceFragment__this_qr_code_not_valid),
+        confirm = stringResource(id = R.string.AddLinkDeviceFragment__retry),
+        onConfirm = onQrCodeRetry,
+        dismiss = stringResource(id = android.R.string.cancel),
+        onDismiss = onQrCodeDismissed
       )
-    )
+    }
+  }
 
-    Button(
-      onClick = onLinkClicked,
-      contentPadding = PaddingValues(
-        0.dp
-      ),
-      colors = ButtonDefaults.buttonColors(
-        containerColor = Color.Transparent,
-        contentColor = Color.Transparent
-      ),
-      modifier = Modifier
-        .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin)),
-      enabled = !isLinking
+  LaunchedEffect(linkDeviceResult) {
+    when (linkDeviceResult) {
+      is LinkDeviceResult.Success -> onLinkDeviceSuccess()
+      is LinkDeviceResult.NoDevice -> makeToast(context, R.string.DeviceProvisioningActivity_content_progress_no_device, onLinkDeviceFailure)
+      is LinkDeviceResult.NetworkError -> makeToast(context, R.string.DeviceProvisioningActivity_content_progress_network_error, onLinkDeviceFailure)
+      is LinkDeviceResult.KeyError -> makeToast(context, R.string.DeviceProvisioningActivity_content_progress_key_error, onLinkDeviceFailure)
+      is LinkDeviceResult.LimitExceeded -> makeToast(context, R.string.DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already, onLinkDeviceFailure)
+      is LinkDeviceResult.BadCode -> makeToast(context, R.string.DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code, onLinkDeviceFailure)
+      is LinkDeviceResult.None -> Unit
+    }
+  }
+
+
+  val uuidRequester = remember { FocusRequester() }
+  val focusManager = LocalFocusManager.current
+  val pubKeyFocusRequester = remember { FocusRequester() }
+  val sendFocusRequester = remember { FocusRequester() }
+
+  SignalTheme {
+    Column(
+      modifier = modifier
+        .fillMaxWidth()
     ) {
-      if (isLinking) {
-        CircularProgressIndicator(
-          modifier = Modifier.size(24.dp),
-          color = MaterialTheme.colorScheme.onPrimary
+      Text(
+        text = stringResource(R.string.Pigeon_uuid),
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color.White,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(
+            top = 10.dp,
+            start = 25.dp,
+            end = 0.dp
+          )
+          .focusProperties { canFocus = false }
+      )
+
+      OutlinedTextField(
+        value = uuid,
+        onValueChange = onUuidChange,
+        modifier = Modifier
+          .fillMaxWidth()
+          .focusRequester(uuidRequester)
+          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
+          .onKeyEvent { keyEvent ->
+            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN
+            ) {
+              pubKeyFocusRequester.requestFocus()
+              true
+            } else {
+              false
+            }
+          },
+        colors = OutlinedTextFieldDefaults.colors(
+          focusedBorderColor = Color.Transparent,
+          unfocusedBorderColor = Color.Transparent,
+          focusedTextColor = colorResource(id = R.color.white_focus),
+          unfocusedTextColor = colorResource(id = R.color.white_focus)
+        ),
+        keyboardOptions = KeyboardOptions(
+          keyboardType = KeyboardType.Ascii,
+          autoCorrect = false
         )
-      } else {
-        org.signal.core.ui.compose.Rows.TextRow(text = stringResource(R.string.device_link_fragment__link_device))
+      )
+
+      Text(
+        text = stringResource(R.string.Pigeon_pubkey),
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color.White,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 25.dp, end = 0.dp)
+          .focusProperties { canFocus = false }
+      )
+
+      OutlinedTextField(
+        value = pubKey,
+        onValueChange = onPubKeyChange,
+        modifier = Modifier
+          .fillMaxWidth()
+          .focusRequester(pubKeyFocusRequester)
+          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
+          .onKeyEvent { keyEvent ->
+            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN) {
+              sendFocusRequester.requestFocus()
+              true
+            } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP) {
+              uuidRequester.requestFocus()
+              true
+            } else {
+              false
+            }
+          },
+        colors = OutlinedTextFieldDefaults.colors(
+          focusedBorderColor = Color.Transparent,
+          unfocusedBorderColor = Color.Transparent,
+          focusedTextColor = colorResource(id = R.color.white_focus),
+          unfocusedTextColor = colorResource(id = R.color.white_focus)
+        ),
+        keyboardOptions = KeyboardOptions(
+          keyboardType = KeyboardType.Ascii,
+          autoCorrect = false
+        )
+      )
+
+      TextRow(
+        onClick = onLinkClicked,
+        text = stringResource(R.string.device_link_fragment__link_device),
+        enabled = !isLinking,
+        modifier = Modifier
+          .focusProperties { canFocus = true }
+          .focusRequester(sendFocusRequester)
+          .onKeyEvent { keyEvent ->
+            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP) {
+              pubKeyFocusRequester.requestFocus()
+              true
+            } else {
+              false
+            }
+          },
+      )
+    }
+    if (isPigeonVersion()) {
+      LaunchedEffect(Unit) {
+        uuidRequester.requestFocus()
       }
     }
   }
@@ -128,6 +242,14 @@ fun PigeonManualLinkDeviceScreenPreview() {
       onPubKeyChange = {},
       onLinkClicked = {},
       isLinking = false,
+      qrCodeState = LinkDeviceSettingsState.QrCodeState.NONE,
+      onQrCodeAccepted = {},
+      onQrCodeDismissed = {},
+      onQrCodeRetry = {},
+      linkDeviceResult = LinkDeviceResult.None,
+      onLinkDeviceSuccess = {},
+      onLinkDeviceFailure = {},
+      navController = null,
       modifier = Modifier.padding(16.dp)
     )
   }

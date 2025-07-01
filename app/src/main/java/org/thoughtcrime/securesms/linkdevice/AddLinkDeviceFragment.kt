@@ -2,31 +2,18 @@ package org.thoughtcrime.securesms.linkdevice
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.widget.Toast
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -108,6 +95,7 @@ class AddLinkDeviceFragment : ComposeFragment() {
       val contentText = stringResource(id = R.string.DeviceProvisioningActivity_content_bullets)
 
       PigeonManualLinkDeviceScreen(
+        navController = navController,
         uuid = uuid,
         onUuidChange = { viewModel.onUuidChanged(it) },
         pubKey = pubKey,
@@ -120,15 +108,26 @@ class AddLinkDeviceFragment : ComposeFragment() {
             val uuid = uuid
             val pubKey = pubKey
             val qrLink = "linkdevice?uuid=$uuid&pub_key=$pubKey"
-            viewModel.onQrCodeScanned(qrLink)
+            viewModel.linkDeviceManually(qrLink)
           }
           dialog.show()
         },
-        isLinking = isLinking
+        isLinking = isLinking,
+        qrCodeState = state.qrCodeState,
+        onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
+        onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
+        onLinkDeviceSuccess = {
+          viewModel.onLinkDeviceResult(showSheet = true)
+        },
+        onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) },
+        linkDeviceResult = state.linkDeviceResult,
+        onQrCodeAccepted = {
+          navController.popBackStack()
+          viewModel.addDevice(shouldSync = false)
+        },
       )
     }
   }
-
 
 
   private fun askPermissions() {

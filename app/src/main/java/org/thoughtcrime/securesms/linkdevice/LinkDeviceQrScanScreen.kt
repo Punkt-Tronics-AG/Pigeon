@@ -119,7 +119,7 @@ fun LinkDeviceQrScanScreen(
   }
 }
 
-private fun makeToast(context: Context, messageId: Int, onLinkDeviceFailure: () -> Unit) {
+fun makeToast(context: Context, messageId: Int, onLinkDeviceFailure: () -> Unit) {
   Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   onLinkDeviceFailure()
 }

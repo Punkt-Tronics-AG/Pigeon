@@ -559,11 +559,10 @@ class LinkDeviceViewModel : ViewModel() {
     _pubKey.value = value
   }
 
-  fun linkDeviceManually() {
+  fun linkDeviceManually(url: String) {
     _isLinking.value = true
-    // Implementacja logiki łączenia urządzenia
-    // Po zakończeniu:
-    // _isLinking.value = false
+      onQrCodeScanned(url)
+    _isLinking.value = false
   }
 
   // End of Pigeon manual linking state
