@@ -20,6 +20,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
@@ -146,7 +148,7 @@ fun PigeonManualLinkDeviceScreen(
           .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
           .onKeyEvent { keyEvent ->
             Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
             ) {
               pubKeyFocusRequester.requestFocus()
               true
@@ -186,10 +188,10 @@ fun PigeonManualLinkDeviceScreen(
           .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
           .onKeyEvent { keyEvent ->
             Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN) {
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
               sendFocusRequester.requestFocus()
               true
-            } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP) {
+            } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
               uuidRequester.requestFocus()
               true
             } else {
@@ -218,18 +220,18 @@ fun PigeonManualLinkDeviceScreen(
           .focusRequester(sendFocusRequester)
           .onKeyEvent { keyEvent ->
             Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP) {
+            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
               pubKeyFocusRequester.requestFocus()
               true
             } else {
               false
             }
           },
-        text = { dp, _ ->
+        text = { dp, color ->
           Text(
             text = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.White,
+            color = color,
             fontSize = dp.value.sp,
           )
         },

@@ -189,7 +189,7 @@ object Dialogs {
             // PIGEON-UI: This modifier is needed to make the button focusable
             modifier = Modifier
               .focusable(true)
-              .focusRequester(pigeonFocusRequester)
+              .focusRequester(pigeonDismissFocusRequester)
               .onKeyEvent { event ->
                 // PIGEON-UI: Allow the user to dismiss the dialog with the back button
                 if (event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
