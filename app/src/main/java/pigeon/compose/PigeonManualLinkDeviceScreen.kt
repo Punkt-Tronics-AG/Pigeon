@@ -2,10 +2,12 @@ package pigeon.compose
 
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_UP
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -18,19 +20,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.signal.core.ui.compose.Dialogs
@@ -112,7 +113,6 @@ fun PigeonManualLinkDeviceScreen(
 
 
   val uuidRequester = remember { FocusRequester() }
-  val focusManager = LocalFocusManager.current
   val pubKeyFocusRequester = remember { FocusRequester() }
   val sendFocusRequester = remember { FocusRequester() }
 
@@ -127,6 +127,7 @@ fun PigeonManualLinkDeviceScreen(
         color = Color.White,
         modifier = Modifier
           .fillMaxWidth()
+          .focusable(false)
           .padding(
             top = 10.dp,
             start = 25.dp,
@@ -159,7 +160,7 @@ fun PigeonManualLinkDeviceScreen(
           unfocusedTextColor = colorResource(id = R.color.white_focus)
         ),
         keyboardOptions = KeyboardOptions(
-          keyboardType = KeyboardType.Ascii,
+          keyboardType = KeyboardType.Password,
           autoCorrect = false
         )
       )
@@ -170,6 +171,7 @@ fun PigeonManualLinkDeviceScreen(
         color = Color.White,
         modifier = Modifier
           .fillMaxWidth()
+          .focusable(false)
           .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 25.dp, end = 0.dp)
           .focusProperties { canFocus = false }
       )
@@ -200,17 +202,18 @@ fun PigeonManualLinkDeviceScreen(
           unfocusedTextColor = colorResource(id = R.color.white_focus)
         ),
         keyboardOptions = KeyboardOptions(
-          keyboardType = KeyboardType.Ascii,
-          autoCorrect = false
-        )
+          autoCorrectEnabled = false,
+          keyboardType = KeyboardType.Password,
+        ),
       )
 
       TextRow(
         onClick = onLinkClicked,
-        text = stringResource(R.string.device_link_fragment__link_device),
-        enabled = !isLinking,
+        enabled = true,
         modifier = Modifier
+          .padding(horizontal = 20.dp)
           .focusProperties { canFocus = true }
+          .focusable(true)
           .focusRequester(sendFocusRequester)
           .onKeyEvent { keyEvent ->
             Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
@@ -221,6 +224,14 @@ fun PigeonManualLinkDeviceScreen(
               false
             }
           },
+        text = { dp, _ ->
+          Text(
+            text = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White,
+            fontSize = TextUnit.Unspecified,
+          )
+        },
       )
     }
     if (isPigeonVersion()) {

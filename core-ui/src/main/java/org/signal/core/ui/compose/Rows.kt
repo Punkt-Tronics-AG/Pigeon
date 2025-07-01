@@ -241,7 +241,7 @@ object Rows {
       text = remember(text) { AnnotatedString(text) },
       label = remember(label) { label?.let { AnnotatedString(label) } },
       icon = icon,
-      modifier = Modifier.padding(0.dp),
+      modifier = modifier.padding(0.dp),
       iconModifier = iconModifier,
       foregroundTint = foregroundTint,
       onClick = onClick,
