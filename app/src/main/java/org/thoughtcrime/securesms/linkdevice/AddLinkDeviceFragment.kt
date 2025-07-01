@@ -2,18 +2,31 @@ package org.thoughtcrime.securesms.linkdevice
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -30,6 +43,9 @@ import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.util.VibrateUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.components.Mp02CustomDialog
+import pigeon.compose.PigeonManualLinkDeviceScreen
+import pigeon.extensions.isSignalVersion
 
 /**
  * Fragment that allows users to scan a QR code from their camera to link a device
@@ -58,30 +74,62 @@ class AddLinkDeviceFragment : ComposeFragment() {
       navController.popBackStack()
     }
 
-    MainScreen(
-      state = state,
-      navController = navController,
-      hasPermissions = cameraPermissionState.status.isGranted,
-      onRequestPermissions = { askPermissions() },
-      onShowFrontCamera = { viewModel.showFrontCamera() },
-      onQrCodeScanned = { data ->
-        if (VibrateUtil.isHapticFeedbackEnabled(requireContext())) {
-          VibrateUtil.vibrate(requireContext(), VIBRATE_DURATION_MS)
-        }
-        viewModel.onQrCodeScanned(data)
-      },
-      onQrCodeApproved = {
-        navController.popBackStack()
-        viewModel.addDevice(shouldSync = false)
-      },
-      onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
-      onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
-      onLinkDeviceSuccess = {
-        viewModel.onLinkDeviceResult(showSheet = true)
-      },
-      onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) }
-    )
+    if (isSignalVersion()) {
+      MainScreen(
+        state = state,
+        navController = navController,
+        hasPermissions = cameraPermissionState.status.isGranted,
+        onRequestPermissions = { askPermissions() },
+        onShowFrontCamera = { viewModel.showFrontCamera() },
+        onQrCodeScanned = { data ->
+          if (VibrateUtil.isHapticFeedbackEnabled(requireContext())) {
+            VibrateUtil.vibrate(requireContext(), VIBRATE_DURATION_MS)
+          }
+          viewModel.onQrCodeScanned(data)
+        },
+        onQrCodeApproved = {
+          navController.popBackStack()
+          viewModel.addDevice(shouldSync = false)
+        },
+        onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
+        onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
+        onLinkDeviceSuccess = {
+          viewModel.onLinkDeviceResult(showSheet = true)
+        },
+        onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) }
+      )
+    } else {
+      val uuid by viewModel.uuid.collectAsStateWithLifecycle()
+      val pubKey by viewModel.pubKey.collectAsStateWithLifecycle()
+      val isLinking by viewModel.isLinking.collectAsStateWithLifecycle()
+
+      val titleText = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device)
+      val introText = stringResource(id = R.string.DeviceProvisioningActivity_content_intro)
+      val contentText = stringResource(id = R.string.DeviceProvisioningActivity_content_bullets)
+
+      PigeonManualLinkDeviceScreen(
+        uuid = uuid,
+        onUuidChange = { viewModel.onUuidChanged(it) },
+        pubKey = pubKey,
+        onPubKeyChange = { viewModel.onPubKeyChanged(it) },
+        onLinkClicked = {
+          val dialog = Mp02CustomDialog(requireContext())
+          dialog.setMessage("$titleText\n$introText\n$contentText")
+          dialog.setNegativeListener(android.R.string.no, null)
+          dialog.setPositiveListener(android.R.string.yes) {
+            val uuid = uuid
+            val pubKey = pubKey
+            val qrLink = "linkdevice?uuid=$uuid&pub_key=$pubKey"
+            viewModel.onQrCodeScanned(qrLink)
+          }
+          dialog.show()
+        },
+        isLinking = isLinking
+      )
+    }
   }
+
+
 
   private fun askPermissions() {
     Permissions.with(this)
@@ -118,8 +166,10 @@ private fun MainScreen(
     navigationIconPainter = painterResource(id = R.drawable.ic_x),
     navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close),
     actions = {
-      IconButton(onClick = { onShowFrontCamera() }) {
-        Icon(painterResource(id = R.drawable.symbol_switch_24), contentDescription = null)
+      if (isSignalVersion()) {
+        IconButton(onClick = { onShowFrontCamera() }) {
+          Icon(painterResource(id = R.drawable.symbol_switch_24), contentDescription = null)
+        }
       }
     }
   ) { contentPadding: PaddingValues ->
@@ -140,6 +190,7 @@ private fun MainScreen(
     )
   }
 }
+
 
 @SignalPreview
 @Composable

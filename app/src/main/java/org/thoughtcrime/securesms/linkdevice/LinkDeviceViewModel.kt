@@ -540,4 +540,31 @@ class LinkDeviceViewModel : ViewModel() {
       }
     }
   }
+
+  // Pigeon manual linking state
+  private val _uuid = MutableStateFlow("")
+  val uuid = _uuid.asStateFlow()
+
+  private val _pubKey = MutableStateFlow("")
+  val pubKey = _pubKey.asStateFlow()
+
+  private val _isLinking = MutableStateFlow(false)
+  val isLinking = _isLinking.asStateFlow()
+
+  fun onUuidChanged(value: String) {
+    _uuid.value = value
+  }
+
+  fun onPubKeyChanged(value: String) {
+    _pubKey.value = value
+  }
+
+  fun linkDeviceManually() {
+    _isLinking.value = true
+    // Implementacja logiki łączenia urządzenia
+    // Po zakończeniu:
+    // _isLinking.value = false
+  }
+
+  // End of Pigeon manual linking state
 }
