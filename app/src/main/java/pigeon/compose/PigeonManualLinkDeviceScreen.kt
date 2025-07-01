@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Rows.TextRow
@@ -160,8 +161,8 @@ fun PigeonManualLinkDeviceScreen(
           unfocusedTextColor = colorResource(id = R.color.white_focus)
         ),
         keyboardOptions = KeyboardOptions(
+          autoCorrectEnabled = false,
           keyboardType = KeyboardType.Password,
-          autoCorrect = false
         )
       )
 
@@ -229,7 +230,7 @@ fun PigeonManualLinkDeviceScreen(
             text = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
             style = MaterialTheme.typography.bodyLarge,
             color = Color.White,
-            fontSize = TextUnit.Unspecified,
+            fontSize = dp.value.sp,
           )
         },
       )

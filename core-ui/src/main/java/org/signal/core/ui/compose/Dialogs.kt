@@ -7,6 +7,7 @@ package org.signal.core.ui.compose
 
 import android.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,9 +27,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
@@ -140,6 +145,7 @@ object Dialogs {
     dismissColor: Color = Color.Unspecified,
     properties: DialogProperties = DialogProperties()
   ) {
+    val pigeonFocusRequester = remember { FocusRequester() }
     BaseAlertDialog(
       onDismissRequest = onDismissRequest,
       title = if (title.isNotEmpty()) {
@@ -151,7 +157,10 @@ object Dialogs {
       },
       text = { Text(text = body) },
       confirmButton = {
-        TextButton(onClick = {
+        TextButton(
+          // PIGEON-UI: This modifier is needed to make the button focusable
+          modifier = Modifier.focusable(true).focusRequester(pigeonFocusRequester),
+          onClick = {
           onDismiss()
           onConfirm()
         }) {
@@ -161,6 +170,8 @@ object Dialogs {
       dismissButton = if (dismiss.isNotEmpty()) {
         {
           TextButton(
+            // PIGEON-UI: This modifier is needed to make the button focusable
+            modifier = Modifier.focusable(true),
             onClick =
             {
               onDismiss()
@@ -176,6 +187,11 @@ object Dialogs {
       modifier = modifier,
       properties = properties
     )
+
+    LaunchedEffect(Unit) {
+      // PIGEON-UI: Request focus on the confirm button so that it can be activated with the enter key
+      pigeonFocusRequester.requestFocus()
+    }
   }
 
   /**
