@@ -147,7 +147,7 @@ fun PigeonManualLinkDeviceScreen(
           .focusRequester(uuidRequester)
           .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
           .onKeyEvent { keyEvent ->
-            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            Log.d("UUID Label", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
             if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
             ) {
               pubKeyFocusRequester.requestFocus()
@@ -187,7 +187,7 @@ fun PigeonManualLinkDeviceScreen(
           .focusRequester(pubKeyFocusRequester)
           .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
           .onKeyEvent { keyEvent ->
-            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            Log.d("PubLabel", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
             if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
               sendFocusRequester.requestFocus()
               true
@@ -219,7 +219,7 @@ fun PigeonManualLinkDeviceScreen(
           .focusable(true)
           .focusRequester(sendFocusRequester)
           .onKeyEvent { keyEvent ->
-            Log.d("PigeonManualLinkDeviceScreen", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+            Log.d("LinkButton", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
             if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
               pubKeyFocusRequester.requestFocus()
               true

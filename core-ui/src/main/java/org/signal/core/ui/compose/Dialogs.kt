@@ -38,9 +38,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -169,7 +171,7 @@ object Dialogs {
             .focusRequester(pigeonFocusRequester)
             .onKeyEvent { event ->
               // PIGEON-UI: Allow the user to dismiss the dialog with the back button
-              if (event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+              if ((event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) && event.type == KeyEventType.KeyUp) {
                 pigeonDismissFocusRequester.requestFocus()
                 true
               } else {
@@ -192,7 +194,7 @@ object Dialogs {
               .focusRequester(pigeonDismissFocusRequester)
               .onKeyEvent { event ->
                 // PIGEON-UI: Allow the user to dismiss the dialog with the back button
-                if (event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if ((event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) && event.type == KeyEventType.KeyUp) {
                   pigeonFocusRequester.requestFocus()
                   true
                 } else {
