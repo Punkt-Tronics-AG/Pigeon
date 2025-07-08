@@ -6,7 +6,10 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -124,118 +127,120 @@ fun PigeonManualLinkDeviceScreen(
       modifier = modifier
         .fillMaxWidth()
     ) {
-      Text(
-        text = stringResource(R.string.Pigeon_uuid),
-        style = MaterialTheme.typography.bodyMedium,
-        color = Color.White,
-        modifier = Modifier
-          .fillMaxWidth()
-          .focusable(false)
-          .padding(
-            top = 10.dp,
-            start = 25.dp,
-            end = 0.dp
-          )
-          .focusProperties { canFocus = false }
-      )
-
-      OutlinedTextField(
-        value = uuid,
-        onValueChange = onUuidChange,
-        modifier = Modifier
-          .fillMaxWidth()
-          .focusRequester(uuidRequester)
-          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
-          .onKeyEvent { keyEvent ->
-            Log.d("UUID Label", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
-            ) {
-              pubKeyFocusRequester.requestFocus()
-              true
-            } else {
-              false
-            }
-          },
-        colors = OutlinedTextFieldDefaults.colors(
-          focusedBorderColor = Color.Transparent,
-          unfocusedBorderColor = Color.Transparent,
-          focusedTextColor = colorResource(id = R.color.white_focus),
-          unfocusedTextColor = colorResource(id = R.color.white_focus)
-        ),
-        keyboardOptions = KeyboardOptions(
-          autoCorrectEnabled = false,
-          keyboardType = KeyboardType.Password,
+      Column(Modifier.verticalScroll(rememberScrollState())) {
+        Text(
+          text = stringResource(R.string.Pigeon_uuid),
+          style = MaterialTheme.typography.bodyMedium,
+          color = Color.White,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusable(false)
+            .padding(
+              top = 10.dp,
+              start = 25.dp,
+              end = 0.dp
+            )
+            .focusProperties { canFocus = false }
         )
-      )
 
-      Text(
-        text = stringResource(R.string.Pigeon_pubkey),
-        style = MaterialTheme.typography.bodyMedium,
-        color = Color.White,
-        modifier = Modifier
-          .fillMaxWidth()
-          .focusable(false)
-          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 25.dp, end = 0.dp)
-          .focusProperties { canFocus = false }
-      )
-
-      OutlinedTextField(
-        value = pubKey,
-        onValueChange = onPubKeyChange,
-        modifier = Modifier
-          .fillMaxWidth()
-          .focusRequester(pubKeyFocusRequester)
-          .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
-          .onKeyEvent { keyEvent ->
-            Log.d("PubLabel", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
-              sendFocusRequester.requestFocus()
-              true
-            } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
-              uuidRequester.requestFocus()
-              true
-            } else {
-              false
-            }
-          },
-        colors = OutlinedTextFieldDefaults.colors(
-          focusedBorderColor = Color.Transparent,
-          unfocusedBorderColor = Color.Transparent,
-          focusedTextColor = colorResource(id = R.color.white_focus),
-          unfocusedTextColor = colorResource(id = R.color.white_focus)
-        ),
-        keyboardOptions = KeyboardOptions(
-          autoCorrectEnabled = false,
-          keyboardType = KeyboardType.Password,
-        ),
-      )
-
-      TextRow(
-        onClick = onLinkClicked,
-        enabled = true,
-        modifier = Modifier
-          .padding(horizontal = 20.dp)
-          .focusProperties { canFocus = true }
-          .focusable(true)
-          .focusRequester(sendFocusRequester)
-          .onKeyEvent { keyEvent ->
-            Log.d("LinkButton", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-            if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
-              pubKeyFocusRequester.requestFocus()
-              true
-            } else {
-              false
-            }
-          },
-        text = { dp, color ->
-          Text(
-            text = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
-            style = MaterialTheme.typography.bodyLarge,
-            color = color,
-            fontSize = dp.value.sp,
+        OutlinedTextField(
+          value = uuid,
+          onValueChange = onUuidChange,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(uuidRequester)
+            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
+            .onKeyEvent { keyEvent ->
+              Log.d("UUID Label", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+              if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
+              ) {
+                pubKeyFocusRequester.requestFocus()
+                true
+              } else {
+                false
+              }
+            },
+          colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            focusedTextColor = colorResource(id = R.color.white_focus),
+            unfocusedTextColor = colorResource(id = R.color.white_focus)
+          ),
+          keyboardOptions = KeyboardOptions(
+            autoCorrectEnabled = false,
+            keyboardType = KeyboardType.Password,
           )
-        },
-      )
+        )
+
+        Text(
+          text = stringResource(R.string.Pigeon_pubkey),
+          style = MaterialTheme.typography.bodyMedium,
+          color = Color.White,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusable(false)
+            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 25.dp, end = 0.dp)
+            .focusProperties { canFocus = false }
+        )
+
+        OutlinedTextField(
+          value = pubKey,
+          onValueChange = onPubKeyChange,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(pubKeyFocusRequester)
+            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
+            .onKeyEvent { keyEvent ->
+              Log.d("PubLabel", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+              if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
+                sendFocusRequester.requestFocus()
+                true
+              } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
+                uuidRequester.requestFocus()
+                true
+              } else {
+                false
+              }
+            },
+          colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            focusedTextColor = colorResource(id = R.color.white_focus),
+            unfocusedTextColor = colorResource(id = R.color.white_focus)
+          ),
+          keyboardOptions = KeyboardOptions(
+            autoCorrectEnabled = false,
+            keyboardType = KeyboardType.Password,
+          ),
+        )
+
+        TextRow(
+          onClick = onLinkClicked,
+          enabled = true,
+          modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .focusProperties { canFocus = true }
+            .focusable(true)
+            .focusRequester(sendFocusRequester)
+            .onKeyEvent { keyEvent ->
+              Log.d("LinkButton", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
+              if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
+                pubKeyFocusRequester.requestFocus()
+                true
+              } else {
+                false
+              }
+            },
+          text = { dp, color ->
+            Text(
+              text = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device),
+              style = MaterialTheme.typography.bodyLarge,
+              color = color,
+              fontSize = dp.value.sp,
+            )
+          },
+        )
+      }
     }
     if (isPigeonVersion()) {
       LaunchedEffect(Unit) {

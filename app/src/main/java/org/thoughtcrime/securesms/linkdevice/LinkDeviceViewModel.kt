@@ -179,6 +179,7 @@ class LinkDeviceViewModel : ViewModel() {
 
     val uri = Uri.parse(url)
     if (LinkDeviceRepository.isValidQr(uri)) {
+      Log.i(TAG, "Valid QR code scanned: $uri")
       _state.update {
         it.copy(
           qrCodeState = if (uri.supportsLinkAndSync()) QrCodeState.VALID_WITH_SYNC else QrCodeState.VALID_WITHOUT_SYNC,
@@ -187,6 +188,7 @@ class LinkDeviceViewModel : ViewModel() {
         )
       }
     } else {
+      Log.w(TAG, "Invalid QR code scanned: $uri")
       _state.update {
         it.copy(
           qrCodeState = QrCodeState.INVALID,

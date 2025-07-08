@@ -145,6 +145,8 @@ object LinkDeviceRepository {
       }
     }
 
+    Log.d(TAG, "Got verification code: ${verificationCodeResult.verificationCode}", )
+
     val ephemeralId: String = uri.getQueryParameter("uuid") ?: return LinkDeviceResult.BadCode
     val publicKey = try {
       val publicKeyEncoded: String = uri.getQueryParameter("pub_key") ?: return LinkDeviceResult.BadCode
@@ -168,6 +170,8 @@ object LinkDeviceRepository {
       ephemeralMessageBackupKey = ephemeralMessageBackupKey,
       mediaRootBackupKey = SignalStore.backup.mediaRootBackupKey
     )
+
+    Log.d(TAG, "Device link result: $deviceLinkResult")
 
     return when (deviceLinkResult) {
       is NetworkResult.Success -> {

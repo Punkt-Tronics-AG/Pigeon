@@ -122,7 +122,7 @@ class AddLinkDeviceFragment : ComposeFragment() {
         onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) },
         linkDeviceResult = state.linkDeviceResult,
         onQrCodeAccepted = {
-          navController.popBackStack()
+//          navController.popBackStack()
           viewModel.addDevice(shouldSync = false)
         },
       )
