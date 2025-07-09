@@ -149,7 +149,7 @@ fun PigeonManualLinkDeviceScreen(
           modifier = Modifier
             .fillMaxWidth()
             .focusRequester(uuidRequester)
-            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 10.dp)
+            .padding(start = 10.dp, end = 10.dp)
             .onKeyEvent { keyEvent ->
               Log.d("UUID Label", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
               if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
@@ -179,7 +179,7 @@ fun PigeonManualLinkDeviceScreen(
           modifier = Modifier
             .fillMaxWidth()
             .focusable(false)
-            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 25.dp, end = 0.dp)
+            .padding(start = 25.dp, end = 0.dp)
             .focusProperties { canFocus = false }
         )
 
@@ -189,7 +189,7 @@ fun PigeonManualLinkDeviceScreen(
           modifier = Modifier
             .fillMaxWidth()
             .focusRequester(pubKeyFocusRequester)
-            .padding(top = dimensionResource(R.dimen.pigeon_bottom_margin), start = 10.dp, end = 0.dp)
+            .padding(start = 10.dp, end = 0.dp)
             .onKeyEvent { keyEvent ->
               Log.d("PubLabel", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
               if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
