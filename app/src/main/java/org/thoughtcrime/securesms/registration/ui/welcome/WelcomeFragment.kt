@@ -55,7 +55,13 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome) 
     when (val resultCode = result.resultCode) {
       Activity.RESULT_OK -> {
         sharedViewModel.onBackupSuccessfullyRestored()
-        findNavController().safeNavigate(WelcomeFragmentDirections.actionGoToRegistration())
+        Log.i("PIGEON", "Backup restoration completed successfully."
+        )
+        if (isSignalVersion()) {
+          findNavController().safeNavigate(WelcomeFragmentDirections.actionGoToRegistration())
+        } else {
+          findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())
+        }
       }
 
       Activity.RESULT_CANCELED -> {

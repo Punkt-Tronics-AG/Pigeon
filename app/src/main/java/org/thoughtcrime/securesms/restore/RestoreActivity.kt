@@ -62,6 +62,7 @@ class RestoreActivity : BaseActivity() {
 
     val navTarget = NavTarget.deserialize(intent.getIntExtra(EXTRA_NAV_TARGET, NavTarget.LEGACY_LANDING.value))
 
+    Log.d("PIGEON", "Navigating to legacy landing screen: ${navTarget.name}")
     when (navTarget) {
       NavTarget.NEW_LANDING -> {
         if (sharedViewModel.hasMultipleRestoreMethods()) {
