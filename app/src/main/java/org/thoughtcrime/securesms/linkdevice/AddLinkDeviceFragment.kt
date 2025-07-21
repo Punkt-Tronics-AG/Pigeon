@@ -25,6 +25,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.ui.compose.SignalPreview
+import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.permissions.Permissions
@@ -109,6 +110,7 @@ class AddLinkDeviceFragment : ComposeFragment() {
               val uuid = uuid
               val pubKey = pubKey
               val qrLink = "sgnl://linkdevice?uuid=$uuid&pub_key=$pubKey"
+              Log.d("AddLinkDeviceFragment", "Linking device with QR link: $qrLink")
               viewModel.linkDeviceManually(qrLink)
             }
             dialog.show()
@@ -118,12 +120,12 @@ class AddLinkDeviceFragment : ComposeFragment() {
           onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
           onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
           onLinkDeviceSuccess = {
+            navController.popBackStack()
             viewModel.onLinkDeviceResult(showSheet = true)
           },
           onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) },
           linkDeviceResult = state.linkDeviceResult,
           onQrCodeAccepted = {
-            navController.popBackStack()
             viewModel.addDevice(shouldSync = false)
           },
         )

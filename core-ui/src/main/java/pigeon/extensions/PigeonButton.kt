@@ -38,7 +38,7 @@ object PigeonButtons {
    */
 
   @Composable
-  fun LargePrimary(
+  fun PigeonLargePrimary(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

@@ -9,6 +9,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -58,7 +59,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.DropdownMenus
@@ -75,6 +75,7 @@ import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.DateUtils
 import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.PigeonButtons.PigeonLargePrimary
 import pigeon.extensions.isSignalVersion
 import java.util.Locale
 
@@ -430,7 +431,7 @@ fun DeviceListScreen(
     Spacer(modifier = Modifier.size(20.dp))
 
 //    Buttons.LargeTonal(
-    Buttons.LargePrimary(
+    PigeonLargePrimary(
       onClick = onLinkNewDeviceClicked,
       modifier = Modifier
         .defaultMinSize(300.dp)
@@ -468,7 +469,7 @@ fun DeviceListScreen(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 96.dp)
+            .defaultMinSize(minHeight = if (isSignalVersion()) 96.dp else 32.dp)
             .wrapContentHeight(align = Alignment.CenterVertically)
         )
       } else {
@@ -510,7 +511,7 @@ fun DeviceListScreen(
         inlineContent = messageInline,
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }
@@ -525,6 +526,9 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
   Row(
     modifier = Modifier
       .fillMaxWidth()
+      // PIGION CODE
+      .focusable(true)
+      .clickable { menuController.show() }
   ) {
     Image(
       painter = painterResource(id = R.drawable.symbol_devices_24),
@@ -558,7 +562,8 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
         contentDescription = null,
         modifier = Modifier
           .padding(top = 16.dp, end = 16.dp)
-          .clickable { menuController.show() }
+        // SIGNAL CODE
+//            .clickable { menuController.show() }
       )
 
       DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
@@ -613,6 +618,7 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
         )
       }
     }
+
   }
 }
 
