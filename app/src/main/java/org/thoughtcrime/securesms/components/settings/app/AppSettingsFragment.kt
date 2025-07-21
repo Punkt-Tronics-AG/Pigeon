@@ -271,11 +271,7 @@ private fun AppSettingsContent(
         item {
           Rows.TextRow(
             text = stringResource(R.string.preferences__linked_devices), icon = painterResource(R.drawable.symbol_devices_24), onClick = {
-              if (isSignalVersion()) {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
-              } else {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_pigeonLinkDeviceFragment)
-              }
+              callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
             }, enabled = isRegisteredAndUpToDate
           )
         }

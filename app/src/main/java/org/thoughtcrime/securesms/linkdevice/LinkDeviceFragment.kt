@@ -75,6 +75,7 @@ import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.DateUtils
 import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isSignalVersion
 import java.util.Locale
 
 private const val PLACEHOLDER = "__ICON_PLACEHOLDER__"
@@ -135,10 +136,12 @@ class LinkDeviceFragment : ComposeFragment() {
           Log.i(TAG, "Releasing wake lock for linked device")
           linkDeviceWakeLock.release()
         }
+
         is DialogState.SyncingMessages, DialogState.Linking -> {
           Log.i(TAG, "Acquiring wake lock for linked device")
           linkDeviceWakeLock.acquire()
         }
+
         DialogState.Unlinking, is DialogState.DeviceUnlinked, DialogState.ContactSupport, DialogState.LoadingDebugLog -> Unit
       }
     }
@@ -148,29 +151,37 @@ class LinkDeviceFragment : ComposeFragment() {
         LinkDeviceSettingsState.OneTimeEvent.None -> {
           Unit
         }
+
         is LinkDeviceSettingsState.OneTimeEvent.ToastLinked -> {
           Toast.makeText(context, context.getString(R.string.LinkDeviceFragment__s_linked, event.name), Toast.LENGTH_LONG).show()
         }
+
         is LinkDeviceSettingsState.OneTimeEvent.ToastUnlinked -> {
           Toast.makeText(context, context.getString(R.string.LinkDeviceFragment__s_unlinked, event.name), Toast.LENGTH_LONG).show()
         }
+
         LinkDeviceSettingsState.OneTimeEvent.SnackbarLinkCancelled -> {
           Snackbar.make(requireView(), context.getString(R.string.LinkDeviceFragment__linking_cancelled), Snackbar.LENGTH_LONG).show()
         }
+
         LinkDeviceSettingsState.OneTimeEvent.ToastNetworkFailed -> {
           Toast.makeText(context, context.getString(R.string.DeviceListActivity_network_failed), Toast.LENGTH_LONG).show()
         }
+
         LinkDeviceSettingsState.OneTimeEvent.LaunchQrCodeScanner -> {
           navController.navigateToQrScannerIfAuthed(state.seenBioAuthEducationSheet)
         }
+
         LinkDeviceSettingsState.OneTimeEvent.ShowFinishedSheet -> {
           navController.safeNavigate(R.id.action_linkDeviceFragment_to_linkDeviceFinishedSheet)
         }
+
         LinkDeviceSettingsState.OneTimeEvent.HideFinishedSheet -> {
           if (navController.currentDestination?.id == R.id.linkDeviceFinishedSheet) {
             navController.popBackStack()
           }
         }
+
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeFailure -> Unit
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeSuccess -> Unit
         LinkDeviceSettingsState.OneTimeEvent.LaunchEmail -> {
@@ -299,12 +310,15 @@ fun DeviceListScreen(
       DialogState.None -> {
         Unit
       }
+
       DialogState.Linking -> {
         Dialogs.IndeterminateProgressDialog(stringResource(id = R.string.LinkDeviceFragment__linking_device))
       }
+
       DialogState.Unlinking -> {
         Dialogs.IndeterminateProgressDialog(stringResource(id = R.string.DeviceListActivity_unlinking_device))
       }
+
       is DialogState.SyncingMessages -> {
         Dialogs.IndeterminateProgressDialog(
           message = stringResource(id = R.string.LinkDeviceFragment__syncing_messages),
@@ -313,6 +327,7 @@ fun DeviceListScreen(
           onDismiss = onSyncCancelled
         )
       }
+
       is DialogState.SyncingFailed -> {
         if (state.dialogState.canRetry) {
           Dialogs.SimpleAlertDialog(
@@ -337,6 +352,7 @@ fun DeviceListScreen(
           )
         }
       }
+
       DialogState.SyncingTimedOut -> {
         Dialogs.SimpleAlertDialog(
           title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
@@ -348,6 +364,7 @@ fun DeviceListScreen(
           onDeny = onSyncFailureIgnored
         )
       }
+
       is DialogState.DeviceUnlinked -> {
         val createdAt = DateUtils.getDateTimeString(LocalContext.current, Locale.getDefault(), state.dialogState.deviceCreatedAt)
         Dialogs.SimpleMessageDialog(
@@ -357,7 +374,11 @@ fun DeviceListScreen(
           onDismiss = onDialogDismissed
         )
       }
-      DialogState.LoadingDebugLog -> { Dialogs.IndeterminateProgressDialog() }
+
+      DialogState.LoadingDebugLog -> {
+        Dialogs.IndeterminateProgressDialog()
+      }
+
       DialogState.ContactSupport -> {
         Dialogs.AdvancedAlertDialog(
           title = stringResource(R.string.LinkDeviceFragment__submit_debug_log),
@@ -387,26 +408,29 @@ fun DeviceListScreen(
   }
 
   Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.verticalScroll(rememberScrollState())) {
-    Icon(
-      painter = painterResource(R.drawable.ic_devices_intro),
-      contentDescription = stringResource(R.string.preferences__linked_devices),
-      tint = Color.Unspecified
-    )
-    Text(
-      text = stringResource(id = R.string.LinkDeviceFragment__use_signal_on_desktop_ipad),
-      textAlign = TextAlign.Center,
-      modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
-    )
-    ClickableText(
-      text = AnnotatedString(stringResource(id = R.string.LearnMoreTextView_learn_more)),
-      style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary)
-    ) {
-      onLearnMoreClicked()
-    }
+    if (isSignalVersion()) {
+      Icon(
+        painter = painterResource(R.drawable.ic_devices_intro),
+        contentDescription = stringResource(R.string.preferences__linked_devices),
+        tint = Color.Unspecified,
+      )
+      Text(
+        text = stringResource(id = R.string.LinkDeviceFragment__use_signal_on_desktop_ipad),
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
+      )
+      ClickableText(
+        text = AnnotatedString(stringResource(id = R.string.LearnMoreTextView_learn_more)),
+        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary)
+      ) {
+        onLearnMoreClicked()
+      }
 
+    }
     Spacer(modifier = Modifier.size(20.dp))
 
-    Buttons.LargeTonal(
+//    Buttons.LargeTonal(
+    Buttons.LargePrimary(
       onClick = onLinkNewDeviceClicked,
       modifier = Modifier
         .defaultMinSize(300.dp)
@@ -415,7 +439,11 @@ fun DeviceListScreen(
       Text(stringResource(id = R.string.LinkDeviceFragment__link_a_new_device))
     }
 
-    Dividers.Default()
+
+
+    if (isSignalVersion()) {
+      Dividers.Default()
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
       Text(
