@@ -8,8 +8,11 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,10 +26,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -39,6 +44,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -76,8 +83,10 @@ import org.thoughtcrime.securesms.util.DateUtils
 import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.PigeonButtons.PigeonLargePrimary
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import java.util.Locale
+import kotlin.comparisons.then
 
 private const val PLACEHOLDER = "__ICON_PLACEHOLDER__"
 
@@ -408,6 +417,8 @@ fun DeviceListScreen(
     )
   }
 
+  val pigeonRequester = remember { FocusRequester() }
+
   Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.verticalScroll(rememberScrollState())) {
     if (isSignalVersion()) {
       Icon(
@@ -435,6 +446,7 @@ fun DeviceListScreen(
       onClick = onLinkNewDeviceClicked,
       modifier = Modifier
         .defaultMinSize(300.dp)
+        .focusRequester(pigeonRequester)
         .padding(bottom = 8.dp)
     ) {
       Text(stringResource(id = R.string.LinkDeviceFragment__link_a_new_device))
@@ -515,6 +527,12 @@ fun DeviceListScreen(
       )
     }
   }
+
+  if (isPigeonVersion()) {
+    LaunchedEffect(Unit) {
+      pigeonRequester.requestFocus()
+    }
+  }
 }
 
 @Composable
@@ -523,103 +541,123 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
   val linkedDate = DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, Locale.getDefault(), device.createdMillis)
   val lastActive = DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, Locale.getDefault(), device.lastSeenMillis)
   val menuController = remember { DropdownMenus.MenuController() }
+
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+
+  Log.i("PIGEON", "DeviceRow: $titleString, isFocused: $isFocused")
+
   Row(
     modifier = Modifier
       .fillMaxWidth()
-      // PIGION CODE
-      .focusable(true)
-      .clickable { menuController.show() }
-  ) {
-    Image(
-      painter = painterResource(id = R.drawable.symbol_devices_24),
-      contentDescription = null,
-      colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-      contentScale = ContentScale.Inside,
-      modifier = Modifier
-        .padding(start = 24.dp, top = 28.dp, bottom = 28.dp)
-        .size(40.dp)
-        .background(
-          color = MaterialTheme.colorScheme.surfaceVariant,
-          shape = CircleShape
-        )
-        .align(Alignment.CenterVertically)
-    )
-
-    Column(
-      modifier = Modifier
-        .align(Alignment.CenterVertically)
-        .padding(start = 16.dp)
-        .weight(1f)
-    ) {
-      Text(text = titleString, style = MaterialTheme.typography.bodyLarge)
-      Text(stringResource(R.string.DeviceListItem_linked_s, linkedDate), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-      Text(stringResource(R.string.DeviceListItem_last_active_s, lastActive), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-
-    Box {
-      Icon(
-        painterResource(id = R.drawable.symbol_more_vertical),
-        contentDescription = null,
-        modifier = Modifier
-          .padding(top = 16.dp, end = 16.dp)
-        // SIGNAL CODE
-//            .clickable { menuController.show() }
+      // PIGEE CODE
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        indication = null,
+        interactionSource = interactionSource
+      ) { menuController.show() }
+      .background(
+        if (isFocused) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else Color.Transparent
       )
-
-      DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
-        DropdownMenus.Item(
-          contentPadding = PaddingValues(0.dp),
-          text = {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-              Icon(
-                painter = painterResource(id = R.drawable.symbol_link_slash_16),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-              )
-              Text(
-                text = stringResource(R.string.LinkDeviceFragment__unlink),
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.bodyLarge
-              )
-            }
-          },
-          onClick = {
-            setDeviceToRemove(device)
-            controller.hide()
-          }
+      .then(
+        if (isFocused) Modifier.border(
+          width = 1.dp,
+          color = MaterialTheme.colorScheme.primary,
+          shape = RoundedCornerShape(4.dp)
+        ) else Modifier
+      )
+  ) {
+        Image(
+          painter = painterResource(id = R.drawable.symbol_devices_24),
+          contentDescription = null,
+          colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+          contentScale = ContentScale.Inside,
+          modifier = Modifier
+            .padding(start = 24.dp, top = 28.dp, bottom = 28.dp)
+            .size(40.dp)
+            .background(
+              color = MaterialTheme.colorScheme.surfaceVariant,
+              shape = CircleShape
+            )
+            .align(Alignment.CenterVertically)
         )
 
-        DropdownMenus.Item(
-          contentPadding = PaddingValues(0.dp),
-          text = {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-              Icon(
-                painter = painterResource(id = R.drawable.symbol_edit_24),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-              )
-              Text(
-                text = stringResource(R.string.LinkDeviceFragment__edit_name),
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.bodyLarge
-              )
-            }
-          },
-          onClick = {
-            onEditDevice(device)
-            controller.hide()
+        Column(
+          modifier = Modifier
+            .align(Alignment.CenterVertically)
+            .padding(start = 16.dp)
+            .weight(1f)
+        ) {
+          Text(text = titleString, style = MaterialTheme.typography.bodyLarge)
+          Text(stringResource(R.string.DeviceListItem_linked_s, linkedDate), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(stringResource(R.string.DeviceListItem_last_active_s, lastActive), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+
+        Box {
+          Icon(
+            painterResource(id = R.drawable.symbol_more_vertical),
+            contentDescription = null,
+            modifier = Modifier
+              .padding(top = 16.dp, end = 16.dp)
+            // SIGNAL CODE
+//            .clickable { menuController.show() }
+          )
+
+          DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
+            DropdownMenus.Item(
+              contentPadding = PaddingValues(0.dp),
+              text = {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                  Icon(
+                    painter = painterResource(id = R.drawable.symbol_link_slash_16),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                  )
+                  Text(
+                    text = stringResource(R.string.LinkDeviceFragment__unlink),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                  )
+                }
+              },
+              onClick = {
+                setDeviceToRemove(device)
+                controller.hide()
+              }
+            )
+
+            DropdownMenus.Item(
+              contentPadding = PaddingValues(0.dp),
+              text = {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                  Icon(
+                    painter = painterResource(id = R.drawable.symbol_edit_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                  )
+                  Text(
+                    text = stringResource(R.string.LinkDeviceFragment__edit_name),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                  )
+                }
+              },
+              onClick = {
+                onEditDevice(device)
+                controller.hide()
+              }
+            )
           }
-        )
+        }
+
       }
-    }
-
-  }
 }
 
 @SignalPreview
