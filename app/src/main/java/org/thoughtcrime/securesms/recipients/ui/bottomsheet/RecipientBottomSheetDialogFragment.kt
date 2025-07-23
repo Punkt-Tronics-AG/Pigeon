@@ -4,14 +4,18 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
+import android.content.DialogInterface.OnShowListener
 import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +25,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
@@ -49,6 +55,7 @@ import org.thoughtcrime.securesms.util.ThemeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.WindowUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
 
 /**
  * A bottom sheet that shows some simple recipient details, as well as some actions (like calling,
@@ -106,6 +113,39 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     super.onCreate(savedInstanceState)
   }
+
+
+  // PIGEON: This is a workaround to ensure the bottom sheet takes up the full height of the screen.
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    val dialog = super.onCreateDialog(savedInstanceState)
+    dialog.setOnShowListener { dialogInterface: DialogInterface? ->
+      val bottomSheetDialog = dialogInterface as BottomSheetDialog
+      setupFullHeight(bottomSheetDialog)
+    }
+    return dialog
+  }
+
+  private fun setupFullHeight(bottomSheetDialog: BottomSheetDialog) {
+    val bottomSheet: FrameLayout? = checkNotNull(bottomSheetDialog.findViewById<FrameLayout?>(com.google.android.material.R.id.design_bottom_sheet))
+    val behavior = BottomSheetBehavior.from<FrameLayout?>(bottomSheet!!)
+    val layoutParams = bottomSheet.layoutParams
+
+    val windowHeight: Int = getWindowHeight()
+    if (layoutParams != null) {
+      layoutParams.height = windowHeight
+    }
+    bottomSheet.setLayoutParams(layoutParams)
+    behavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+  }
+
+  private fun getWindowHeight(): Int {
+    // Calculate window height for fullscreen use
+    val displayMetrics = DisplayMetrics()
+    (context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
+    return displayMetrics.heightPixels
+  }
+
+  // End of PIGEON workaround
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     return inflater.inflate(R.layout.recipient_bottom_sheet, container, false)
@@ -167,12 +207,14 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 delay(LOADING_DELAY)
                 progressBar.visible = AvatarDownloadStateCache.getDownloadState(recipient) == AvatarDownloadStateCache.DownloadState.IN_PROGRESS
               }
+
               AvatarDownloadStateCache.DownloadState.FINISHED -> {
                 AvatarDownloadStateCache.set(recipient, AvatarDownloadStateCache.DownloadState.NONE)
                 viewModel.refreshGroupId(groupId)
                 inProgress = false
                 progressBar.visible = false
               }
+
               AvatarDownloadStateCache.DownloadState.FAILED -> {
                 AvatarDownloadStateCache.set(recipient, AvatarDownloadStateCache.DownloadState.NONE)
                 avatar.displayGradientBlur(recipient)
@@ -235,25 +277,29 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
       if (!recipient.isSelf && recipient.isIndividual) {
         val isLtr = ViewUtil.isLtr(view)
-        val chevronGlyph = SignalSymbols.getSpannedString(
-          requireContext(),
-          SignalSymbols.Weight.BOLD,
-          if (isLtr) SignalSymbols.Glyph.CHEVRON_RIGHT else SignalSymbols.Glyph.CHEVRON_LEFT,
-          R.color.signal_colorOutline
-        )
+        if (isSignalVersion()) {
+          val chevronGlyph = SignalSymbols.getSpannedString(
+            requireContext(),
+            SignalSymbols.Weight.BOLD,
+            if (isLtr) SignalSymbols.Glyph.CHEVRON_RIGHT else SignalSymbols.Glyph.CHEVRON_LEFT,
+            R.color.signal_colorOutline
+          )
 
-        if (isLtr) {
-          nameBuilder.append(" ")
-          nameBuilder.append(SpanUtil.ofSize(chevronGlyph, 24))
-        } else {
-          nameBuilder.insert(0, " ")
-          nameBuilder.insert(0, SpanUtil.ofSize(chevronGlyph, 24))
+          if (isLtr) {
+            nameBuilder.append(" ")
+            nameBuilder.append(SpanUtil.ofSize(chevronGlyph, 24))
+          } else {
+            nameBuilder.insert(0, " ")
+            nameBuilder.insert(0, SpanUtil.ofSize(chevronGlyph, 24))
+          }
         }
 
         fullName.text = nameBuilder
         fullName.setOnClickListener {
-          dismiss()
-          AboutSheet.create(recipient).show(getParentFragmentManager(), null)
+          if (isSignalVersion()) {
+            dismiss()
+            AboutSheet.create(recipient).show(getParentFragmentManager(), null)
+          }
         }
 
         nickname.visible = true

@@ -85,17 +85,6 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
     initializeToolbar();
     initializeResources();
     initializeSearch();
-
-    refresh                  =  findViewById(R.id.refresh_action);
-
-    KotilinExtensionsKt.focusOnLeft(refresh);
-
-    refresh.setOnClickListener(v-> {
-      contactsFragment = (ContactSelectionListFragment) getSupportFragmentManager().findFragmentById(R.id.contact_selection_list_fragment);
-      if (contactsFragment != null) {
-        contactsFragment.handleSwipe();
-      }
-    });
   }
 
   @Override

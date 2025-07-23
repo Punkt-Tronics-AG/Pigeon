@@ -53,6 +53,7 @@ import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.ui.compose.TextFields
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.getParcelableCompat
+import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.PassphraseRequiredActivity
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.avatar.AvatarImage
@@ -349,10 +350,17 @@ private fun NicknameContent(
 
     LaunchedEffect(state.hasBecomeReady) {
       if (state.hasBecomeReady) {
-        if (focusNoteFirst) {
-          noteFocusRequester.requestFocus()
-        } else {
-          firstNameFocusRequester.requestFocus()
+
+        try {
+          if (focusNoteFirst) {
+            noteFocusRequester.requestFocus()
+          } else {
+            firstNameFocusRequester.requestFocus()
+          }
+        } catch (e: Exception) {
+          Log.e("NicknameActivity", "Failed to request focus", e)
+          // If the focus request fails, we can just ignore it.
+          // This can happen if the activity is finishing or if the view is not ready yet.
         }
       }
     }
