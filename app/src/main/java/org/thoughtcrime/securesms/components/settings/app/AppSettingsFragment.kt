@@ -267,13 +267,16 @@ private fun AppSettingsContent(
               callbacks.navigate(R.id.action_appSettingsFragment_to_accountSettingsFragment)
             })
         }
-
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__linked_devices), icon = painterResource(R.drawable.symbol_devices_24), onClick = {
-              callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
-            }, enabled = isRegisteredAndUpToDate
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__linked_devices), icon = painterResource(R.drawable.symbol_devices_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_linkDeviceFragment)
+              },
+              enabled = isRegisteredAndUpToDate,
+            )
+          }
         }
 
         item {
