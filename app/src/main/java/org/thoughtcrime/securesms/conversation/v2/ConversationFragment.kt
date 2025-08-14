@@ -95,6 +95,7 @@ import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.signal.core.util.ByteLimitInputFilter
 import org.signal.core.util.PendingIntentFlags
 import org.signal.core.util.Result
 import org.signal.core.util.ThreadUtil
@@ -107,6 +108,7 @@ import org.signal.core.util.logging.Log
 import org.signal.core.util.orNull
 import org.signal.core.util.setActionItemTint
 import org.signal.donations.InAppPaymentType
+import org.signal.ringrtc.CallLinkEpoch
 import org.signal.ringrtc.CallLinkRootKey
 import org.thoughtcrime.securesms.BlockUnblockDialog
 import org.thoughtcrime.securesms.GroupMembersDialog
@@ -324,6 +326,7 @@ import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.MessageConstraintsUtil
 import org.thoughtcrime.securesms.util.MessageConstraintsUtil.getEditMessageThresholdHours
 import org.thoughtcrime.securesms.util.MessageConstraintsUtil.isValidEditMessageSend
+import org.thoughtcrime.securesms.util.MessageUtil
 import org.thoughtcrime.securesms.util.PlayStoreUtil
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.SignalLocalMetrics
@@ -412,7 +415,7 @@ class ConversationFragment :
   }
 
   private val disposables = LifecycleDisposable()
-  private val binding by ViewBinderDelegate(V2ConversationFragmentBinding::bind) { _binding ->
+  private val binding by ViewBinderDelegate(bindingFactory = V2ConversationFragmentBinding::bind, onBindingWillBeDestroyed = { _binding ->
     _binding.conversationInputPanel.embeddedTextEditor.apply {
       setOnEditorActionListener(null)
       setCursorPositionChangedListener(null)
@@ -435,7 +438,7 @@ class ConversationFragment :
     _binding.conversationItemRecycler.adapter = null
 
     textDraftSaveDebouncer.clear()
-  }
+  })
 
   private val viewModel: ConversationViewModel by viewModel {
     ConversationViewModel(
@@ -1171,6 +1174,7 @@ class ConversationFragment :
       setStylingChangedListener(composeTextEventsListener)
       setOnClickListener(composeTextEventsListener)
       onFocusChangeListener = composeTextEventsListener
+      filters += ByteLimitInputFilter(MessageUtil.MAX_TOTAL_BODY_SIZE_BYTES)
     }
 
     sendButton.apply {
@@ -1659,7 +1663,7 @@ class ConversationFragment :
     )
 
     if (!inputPanel.isHidden) {
-      binding.navBar?.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
+      binding.navBar.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
     }
   }
 
@@ -1834,7 +1838,7 @@ class ConversationFragment :
       return
     }
 
-    if (editMessage.body == composeText.editableText.toString() &&
+    if (editMessage.body == composeText.editableText.toString().trim() &&
       editMessage.getQuote()?.displayText?.toString() == inputPanel.quote.map { it.text }.orNull() &&
       editMessage.messageRanges == composeText.styling &&
       editMessage.hasLinkPreview() == inputPanel.hasLinkPreview()
@@ -2186,6 +2190,7 @@ class ConversationFragment :
     disposables += send
       .doOnSubscribe {
         if (clearCompose) {
+          AppDependencies.typingStatusSender.onTypingStopped(args.threadId)
           composeTextEventsListener?.typingStatusEnabled = false
           composeText.setText("")
           composeTextEventsListener?.typingStatusEnabled = true
@@ -3399,8 +3404,6 @@ class ConversationFragment :
     }
 
     override fun onItemClick(item: MultiselectPart) {
-      Log.d(TAG, "onItemClick")
-
       if (actionMode != null) {
         adapter.toggleSelection(item)
         binding.conversationItemRecycler.invalidateItemDecorations()
@@ -3416,6 +3419,7 @@ class ConversationFragment :
 
     override fun onItemLongClick(itemView: View, item: MultiselectPart) {
       Log.d(TAG, "onItemLongClick")
+
       val messageRecord: MessageRecord = item.getMessageRecord()
 
       if (isPigeonVersion()){
@@ -3433,7 +3437,9 @@ class ConversationFragment :
         return
       }
 
-      if (actionMode != null) return
+      if (actionMode != null) { return }
+
+      if (item.getMessageRecord().isInMemoryMessageRecord) { return }
 
       val recipient = viewModel.recipientSnapshot ?: return
 
@@ -3574,8 +3580,8 @@ class ConversationFragment :
       GroupDescriptionDialog.show(childFragmentManager, groupName, description, shouldLinkifyWebLinks)
     }
 
-    override fun onJoinCallLink(callLinkRootKey: CallLinkRootKey) {
-      CommunicationActions.startVideoCall(this@ConversationFragment, callLinkRootKey) {
+    override fun onJoinCallLink(callLinkRootKey: CallLinkRootKey, callLinkEpoch: CallLinkEpoch?) {
+      CommunicationActions.startVideoCall(this@ConversationFragment, callLinkRootKey, callLinkEpoch) {
         YouAreAlreadyInACallSnackbar.show(requireView())
       }
     }

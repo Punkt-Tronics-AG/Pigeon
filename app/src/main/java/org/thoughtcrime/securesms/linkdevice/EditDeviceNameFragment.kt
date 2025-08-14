@@ -27,9 +27,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -72,11 +73,9 @@ class EditDeviceNameFragment : ComposeFragment() {
           Snackbar.make(requireView(), context.getString(R.string.EditDeviceNameFragment__device_name_updated), Snackbar.LENGTH_LONG).show()
           navController.popBackStack()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeFailure -> {
           Snackbar.make(requireView(), context.getString(R.string.EditDeviceNameFragment__unable_to_change), Snackbar.LENGTH_LONG).show()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.HideFinishedSheet,
         LinkDeviceSettingsState.OneTimeEvent.LaunchQrCodeScanner,
         LinkDeviceSettingsState.OneTimeEvent.None,
@@ -92,7 +91,7 @@ class EditDeviceNameFragment : ComposeFragment() {
     Scaffolds.Settings(
       title = stringResource(id = R.string.EditDeviceNameFragment__edit),
       onNavigationClick = { navController.popBackStack() },
-      navigationIconPainter = painterResource(id = R.drawable.symbol_arrow_start_24),
+      navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24),
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { contentPadding: PaddingValues ->
       EditNameScreen(
@@ -173,7 +172,7 @@ private fun DeviceListScreenLinkingPreview() {
   Previews.Preview {
     EditNameScreen(
       state = LinkDeviceSettingsState(
-        deviceToEdit = Device(1, "Laptop", 0, 0)
+        deviceToEdit = Device(1, "Laptop", 0, 0, 0)
       )
     )
   }

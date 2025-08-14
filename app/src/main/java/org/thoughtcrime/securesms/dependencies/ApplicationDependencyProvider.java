@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.PreferenceManager;
 
+import org.jetbrains.annotations.NotNull;
 import org.signal.billing.BillingFactory;
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.billing.BillingApi;
@@ -106,6 +107,7 @@ import org.whispersystems.signalservice.api.remoteconfig.RemoteConfigApi;
 import org.whispersystems.signalservice.api.services.DonationsService;
 import org.whispersystems.signalservice.api.services.ProfileService;
 import org.whispersystems.signalservice.api.storage.StorageServiceApi;
+import org.whispersystems.signalservice.api.svr.SvrBApi;
 import org.whispersystems.signalservice.api.username.UsernameApi;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
 import org.whispersystems.signalservice.api.util.SleepTimer;
@@ -173,7 +175,8 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
                                             Optional.of(new SecurityEventListener(context)),
                                             SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
                                             ByteUnit.KILOBYTES.toBytes(256),
-                                            RemoteConfig::useMessageSendRestFallback);
+                                            RemoteConfig::useMessageSendRestFallback,
+                                            RemoteConfig.usePqRatchet());
   }
 
   @Override
@@ -316,10 +319,27 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
     return new PendingRetryReceiptCache();
   }
 
+  private boolean shouldUseLibsignalForWebsocket(@NonNull SignalServiceConfiguration signalServiceConfiguration) {
+    if (RemoteConfig.libSignalWebSocketEnabled()) {
+      if (RemoteConfig.libSignalWebSocketEnabledForProxies()) {
+        return true;
+      } else {
+        // libsignalWebSocketEnabled = true but libsignalWebSocketEnabledForProxies = false
+        if (signalServiceConfiguration.getCensored() ||
+            signalServiceConfiguration.getSignalProxy().isPresent()) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
   @Override
   public @NonNull SignalWebSocket.AuthenticatedWebSocket provideAuthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
-    SleepTimer                   sleepTimer              = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
-    SignalWebSocketHealthMonitor healthMonitor           = new SignalWebSocketHealthMonitor(sleepTimer);
+    SleepTimer                   sleepTimer    = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
+    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer);
     int                          pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
     int                          pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
     //todo PIGEON BATTERY SAVER
@@ -331,7 +351,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
         throw new WebSocketUnavailableException("Invalid auth credentials");
       }
 
-      if (RemoteConfig.libSignalWebSocketEnabled()) {
+      if (shouldUseLibsignalForWebsocket(signalServiceConfigurationSupplier.get())) {
         Network network = libSignalNetworkSupplier.get();
         return new LibSignalChatConnection("libsignal-auth",
                                            network,
@@ -370,7 +390,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
       int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
       int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
       //todo PIGEON BATTERY SAVER
-      if (RemoteConfig.libSignalWebSocketEnabled()) {
+      if (shouldUseLibsignalForWebsocket(signalServiceConfigurationSupplier.get())) {
         Network network = libSignalNetworkSupplier.get();
         return new LibSignalChatConnection("libsignal-unauth",
                                            network,
@@ -572,13 +592,18 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   }
 
   @Override
-  public @NonNull RemoteConfigApi provideRemoteConfigApi(@NonNull SignalWebSocket.AuthenticatedWebSocket authWebSocket) {
-    return new RemoteConfigApi(authWebSocket);
+  public @NonNull RemoteConfigApi provideRemoteConfigApi(@NonNull SignalWebSocket.AuthenticatedWebSocket authWebSocket, @NonNull PushServiceSocket pushServiceSocket) {
+    return new RemoteConfigApi(authWebSocket, pushServiceSocket);
   }
 
   @Override
   public @NonNull DonationsApi provideDonationsApi(@NonNull SignalWebSocket.AuthenticatedWebSocket authWebSocket, @NonNull SignalWebSocket.UnauthenticatedWebSocket unauthWebSocket) {
     return new DonationsApi(authWebSocket, unauthWebSocket);
+  }
+
+  @Override
+  public @NonNull SvrBApi provideSvrBApi(@NotNull Network libSignalNetwork) {
+    return new SvrBApi(libSignalNetwork);
   }
 
   @VisibleForTesting

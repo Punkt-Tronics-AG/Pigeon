@@ -168,7 +168,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       }
     }
     binding.root.setOnLongClickListener {
-        conversationContext.clickListener.onItemLongClick(binding.root, getMultiselectPartForLatestTouch())
+      conversationContext.clickListener.onItemLongClick(binding.root, getMultiselectPartForLatestTouch())
 
       true
     }
@@ -420,7 +420,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       linkifyMessageBody(styledText)
     }
 
-    styledText = SearchUtil.getHighlightedSpan(Locale.getDefault(), STYLE_FACTORY, styledText, conversationContext.searchQuery, SearchUtil.STRICT)
+    styledText = SearchUtil.getHighlightedSpan(Locale.getDefault(), STYLE_FACTORY, styledText, conversationContext.searchQuery, SearchUtil.MATCH_ALL)
     Log.d(TAG, "PIGEON PRESENT BODY")
     if (record.hasExtraText()) {
       binding.body.setOverflowText(getLongMessageSpan())
@@ -433,7 +433,6 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
     } else {
       binding.body.maxLines = Integer.MAX_VALUE
     }
-
 
     val bodyText = StringUtil.trim(styledText)
 
@@ -729,7 +728,7 @@ open class V2ConversationItemTextOnlyViewHolder<Model : MappingModel<Model>>(
       binding.footerDate.text = conversationMessage.computedProperties.formattedDate.value
     } else {
       var dateLabel = conversationMessage.computedProperties.formattedDate.value
-      if (conversationContext.displayMode != ConversationItemDisplayMode.Detailed && record is MmsMessageRecord && record.isEditMessage()) {
+      if (conversationContext.displayMode != ConversationItemDisplayMode.Detailed && record is MmsMessageRecord && record.isEditMessage) {
         dateLabel = if (conversationMessage.computedProperties.formattedDate.isNow) {
           getContext().getString(R.string.ConversationItem_edited_now_timestamp_footer)
         } else if (conversationMessage.computedProperties.formattedDate.isRelative) {

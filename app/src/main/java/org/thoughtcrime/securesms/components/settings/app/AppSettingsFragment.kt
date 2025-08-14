@@ -189,7 +189,7 @@ private fun AppSettingsContent(
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
     navigationContentDescription = stringResource(R.string.CallScreenTopBar__go_back),
-    navigationIconPainter = painterResource(R.drawable.symbol_arrow_start_24),
+    navigationIcon = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
     onNavigationClick = callbacks::onNavigationClick
   ) { contentPadding ->
     Column(
@@ -209,57 +209,74 @@ private fun AppSettingsContent(
         }
         if (isSignalVersion()) {
 
-          when (state.backupFailureState) {
-            BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
-              item {
-                Dividers.Default()
+        when (state.backupFailureState) {
+          BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
+            item {
+              Dividers.Default()
 
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
-                  onClick = {
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
 
-                Dividers.Default()
-              }
+              Dividers.Default()
             }
-
-            BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
-              item {
-                Dividers.Default()
-
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
-                  onClick = {
-                    BackupRepository.markBackupFailedIndicatorClicked()
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
-
-                Dividers.Default()
-              }
-            }
-
-            BackupFailureState.ALREADY_REDEEMED -> {
-              item {
-                Dividers.Default()
-
-                BackupsWarningRow(
-                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
-                  onClick = {
-                    BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
-                  }
-                )
-
-                Dividers.Default()
-              }
-            }
-
-            BackupFailureState.NONE -> Unit
           }
+
+          BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
+            item {
+              Dividers.Default()
+
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
+                onClick = {
+                  BackupRepository.markBackupFailedIndicatorClicked()
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
+
+              Dividers.Default()
+            }
+          }
+
+          BackupFailureState.ALREADY_REDEEMED -> {
+            item {
+              Dividers.Default()
+
+              BackupsWarningRow(
+                text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
+                onClick = {
+                  BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
+
+              Dividers.Default()
+            }
+          }
+
+          BackupFailureState.OUT_OF_STORAGE_SPACE -> {
+            item {
+              Dividers.Default()
+
+              Rows.TextRow(
+                text = stringResource(R.string.AppSettingsFragment__backup_storage_limit_reached),
+                icon = ImageVector.vectorResource(R.drawable.symbol_error_circle_fill_24),
+                iconTint = MaterialTheme.colorScheme.error,
+                onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_remoteBackupsSettingsFragment)
+                }
+              )
+
+              Dividers.Default()
+            }
+          }
+
+          BackupFailureState.NONE -> Unit
         }
+          }
 
         item {
           Rows.TextRow(
@@ -313,19 +330,24 @@ private fun AppSettingsContent(
             Dividers.Default()
           }
 
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__appearance), icon = painterResource(R.drawable.symbol_appearance_24), onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_appearanceSettingsFragment)
-              })
-          }
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__appearance),
+            icon = painterResource(R.drawable.symbol_appearance_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_appearanceSettingsFragment)
+            }
+          )
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences_chats__chats), icon = painterResource(R.drawable.symbol_chat_24), onClick = {
+            text = stringResource(R.string.preferences_chats__chats),
+            icon = painterResource(R.drawable.symbol_chat_24),
+            onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
-            }, enabled = isRegisteredAndUpToDate
+            },
+            enabled = state.legacyLocalBackupsEnabled || isRegisteredAndUpToDate
           )
         }
 
@@ -341,17 +363,23 @@ private fun AppSettingsContent(
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__notifications), icon = painterResource(R.drawable.symbol_bell_24), onClick = {
+            text = stringResource(R.string.preferences__notifications),
+            icon = painterResource(R.drawable.symbol_bell_24),
+            onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
-            }, enabled = isRegisteredAndUpToDate
+            },
+            enabled = isRegisteredAndUpToDate
           )
         }
 
         item {
           Rows.TextRow(
-            text = stringResource(R.string.preferences__privacy), icon = painterResource(R.drawable.symbol_lock_24), onClick = {
+            text = stringResource(R.string.preferences__privacy),
+            icon = painterResource(R.drawable.symbol_lock_24),
+            onClick = {
               callbacks.navigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
-            }, enabled = isRegisteredAndUpToDate
+            },
+            enabled = isRegisteredAndUpToDate
           )
         }
 
@@ -377,7 +405,7 @@ private fun AppSettingsContent(
               onLongClick = {
                 callbacks.copyRemoteBackupsSubscriberIdToClipboard()
               },
-              enabled = isRegisteredAndUpToDate,
+              enabled = isRegisteredAndUpToDate
             )
           }
         }
@@ -402,10 +430,10 @@ private fun AppSettingsContent(
             }
           }
 
-          if (state.showPayments) {
-            item {
-              Dividers.Default()
-            }
+        if (state.showPayments) {
+          item {
+            Dividers.Default()
+          }
 
             item {
               Rows.TextRow(
@@ -415,59 +443,59 @@ private fun AppSettingsContent(
                     modifier = Modifier.weight(1f)
                   )
 
-                  if (state.unreadPaymentsCount > 0) {
-                    Text(
-                      text = state.unreadPaymentsCount.toString(),
-                      color = MaterialTheme.colorScheme.inverseOnSurface,
-                      style = MaterialTheme.typography.bodyMedium,
-                      textAlign = TextAlign.Center,
-                      modifier = Modifier
-                        .background(
-                          color = MaterialTheme.colorScheme.primary,
-                          shape = RoundedCornerShape(50)
-                        )
-                        .defaultMinSize(minWidth = 30.dp)
-                        .padding(4.dp)
-                    )
-                  }
-                },
-                icon = {
-                  Icon(
-                    painter = painterResource(R.drawable.symbol_payment_24),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                if (state.unreadPaymentsCount > 0) {
+                  Text(
+                    text = state.unreadPaymentsCount.toString(),
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                      .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(50)
+                      )
+                      .defaultMinSize(minWidth = 30.dp)
+                      .padding(4.dp)
                   )
-                },
-                onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
                 }
-              )
+              },
+              icon = {
+                Icon(
+                  painter = painterResource(R.drawable.symbol_payment_24),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.onSurface
+                )
+              },
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
+              }
+            )
+          }
+        }
+
+        item {
+          Dividers.Default()
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__help),
+            icon = painterResource(R.drawable.symbol_help_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
             }
-          }
+          )
+        }
 
-          item {
-            Dividers.Default()
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__help),
-              icon = painterResource(R.drawable.symbol_help_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
-              }
-            )
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-              icon = painterResource(R.drawable.symbol_invite_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
-              }
-            )
-          }
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+            icon = painterResource(R.drawable.symbol_invite_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
+            }
+          )
+        }
 
           if (state.showInternalPreferences || isPigeonVersion()) {
             if (isSignalVersion()) {
@@ -503,7 +531,7 @@ private fun BackupsWarningRow(
     icon = {
       Box {
         Icon(
-          painter = painterResource(R.drawable.symbol_backup_24),
+          imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
           tint = MaterialTheme.colorScheme.onSurface,
           contentDescription = null
         )
@@ -659,7 +687,8 @@ private fun AppSettingsContentPreview() {
         showPayments = true,
         showAppUpdates = true,
         showBackups = true,
-        backupFailureState = BackupFailureState.SUBSCRIPTION_STATE_MISMATCH
+        backupFailureState = BackupFailureState.OUT_OF_STORAGE_SPACE,
+        legacyLocalBackupsEnabled = false
       ),
       bannerManager = BannerManager(
         banners = listOf(TestBanner())

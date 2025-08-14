@@ -75,6 +75,7 @@ import org.signal.core.ui.compose.SignalPreview
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.BiometricDeviceAuthentication
 import org.thoughtcrime.securesms.BiometricDeviceLockContract
+import org.thoughtcrime.securesms.DevicePinAuthEducationSheet
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.DialogState
@@ -146,12 +147,10 @@ class LinkDeviceFragment : ComposeFragment() {
           Log.i(TAG, "Releasing wake lock for linked device")
           linkDeviceWakeLock.release()
         }
-
         is DialogState.SyncingMessages, DialogState.Linking -> {
           Log.i(TAG, "Acquiring wake lock for linked device")
           linkDeviceWakeLock.acquire()
         }
-
         DialogState.Unlinking, is DialogState.DeviceUnlinked, DialogState.ContactSupport, DialogState.LoadingDebugLog -> Unit
       }
     }
@@ -161,37 +160,29 @@ class LinkDeviceFragment : ComposeFragment() {
         LinkDeviceSettingsState.OneTimeEvent.None -> {
           Unit
         }
-
         is LinkDeviceSettingsState.OneTimeEvent.ToastLinked -> {
           Toast.makeText(context, context.getString(R.string.LinkDeviceFragment__s_linked, event.name), Toast.LENGTH_LONG).show()
         }
-
         is LinkDeviceSettingsState.OneTimeEvent.ToastUnlinked -> {
           Toast.makeText(context, context.getString(R.string.LinkDeviceFragment__s_unlinked, event.name), Toast.LENGTH_LONG).show()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.SnackbarLinkCancelled -> {
           Snackbar.make(requireView(), context.getString(R.string.LinkDeviceFragment__linking_cancelled), Snackbar.LENGTH_LONG).show()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.ToastNetworkFailed -> {
           Toast.makeText(context, context.getString(R.string.DeviceListActivity_network_failed), Toast.LENGTH_LONG).show()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.LaunchQrCodeScanner -> {
-          navController.navigateToQrScannerIfAuthed(state.seenBioAuthEducationSheet)
+          navController.navigateToQrScannerIfAuthed()
         }
-
         LinkDeviceSettingsState.OneTimeEvent.ShowFinishedSheet -> {
           navController.safeNavigate(R.id.action_linkDeviceFragment_to_linkDeviceFinishedSheet)
         }
-
         LinkDeviceSettingsState.OneTimeEvent.HideFinishedSheet -> {
           if (navController.currentDestination?.id == R.id.linkDeviceFinishedSheet) {
             navController.popBackStack()
           }
         }
-
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeFailure -> Unit
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeSuccess -> Unit
         LinkDeviceSettingsState.OneTimeEvent.LaunchEmail -> {
@@ -206,19 +197,10 @@ class LinkDeviceFragment : ComposeFragment() {
       }
     }
 
-    LaunchedEffect(state.seenBioAuthEducationSheet) {
-      if (state.seenBioAuthEducationSheet) {
-        if (!biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.LinkDeviceFragment__unlock_to_link)) }) {
-          navController.safeNavigate(R.id.action_linkDeviceFragment_to_addLinkDeviceFragment)
-        }
-        viewModel.markBioAuthEducationSheetSeen(false)
-      }
-    }
-
     Scaffolds.Settings(
       title = stringResource(id = R.string.preferences__linked_devices),
       onNavigationClick = { navController.popOrFinish() },
-      navigationIconPainter = painterResource(id = R.drawable.symbol_arrow_start_24),
+      navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24),
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { contentPadding: PaddingValues ->
       DeviceListScreen(
@@ -227,7 +209,7 @@ class LinkDeviceFragment : ComposeFragment() {
         onLearnMoreClicked = { navController.safeNavigate(R.id.action_linkDeviceFragment_to_linkDeviceLearnMoreBottomSheet) },
         onLinkNewDeviceClicked = {
           viewModel.stopExistingPolling()
-          navController.navigateToQrScannerIfAuthed(!state.needsBioAuthEducationSheet)
+          navController.navigateToQrScannerIfAuthed()
         },
         onDeviceSelectedForRemoval = { device -> viewModel.setDeviceToRemove(device) },
         onDeviceRemovalConfirmed = { device -> viewModel.removeDevice(device) },
@@ -257,14 +239,15 @@ class LinkDeviceFragment : ComposeFragment() {
     return SupportEmailUtil.generateSupportEmailBody(requireContext(), filter, prefix.toString(), null)
   }
 
-  private fun NavController.navigateToQrScannerIfAuthed(seenEducation: Boolean) {
-    if (seenEducation && biometricAuth.canAuthenticate(requireContext())) {
-      if (!biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.LinkDeviceFragment__unlock_to_link)) }) {
-        this.safeNavigate(R.id.action_linkDeviceFragment_to_addLinkDeviceFragment)
+  private fun NavController.navigateToQrScannerIfAuthed() {
+    if (biometricAuth.shouldShowEducationSheet(requireContext())) {
+      DevicePinAuthEducationSheet.show(getString(R.string.LinkDeviceFragment__before_linking), parentFragmentManager)
+      parentFragmentManager.setFragmentResultListener(DevicePinAuthEducationSheet.REQUEST_KEY, viewLifecycleOwner) { _, _ ->
+        if (!biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.LinkDeviceFragment__unlock_to_link)) }) {
+          this.safeNavigate(R.id.action_linkDeviceFragment_to_addLinkDeviceFragment)
+        }
       }
-    } else if (biometricAuth.canAuthenticate(requireContext())) {
-      this.safeNavigate(R.id.action_linkDeviceFragment_to_linkDeviceEducationSheet)
-    } else {
+    } else if (!biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.LinkDeviceFragment__unlock_to_link)) }) {
       this.safeNavigate(R.id.action_linkDeviceFragment_to_addLinkDeviceFragment)
     }
   }
@@ -320,15 +303,12 @@ fun DeviceListScreen(
       DialogState.None -> {
         Unit
       }
-
       DialogState.Linking -> {
         Dialogs.IndeterminateProgressDialog(stringResource(id = R.string.LinkDeviceFragment__linking_device))
       }
-
       DialogState.Unlinking -> {
         Dialogs.IndeterminateProgressDialog(stringResource(id = R.string.DeviceListActivity_unlinking_device))
       }
-
       is DialogState.SyncingMessages -> {
         Dialogs.IndeterminateProgressDialog(
           message = stringResource(id = R.string.LinkDeviceFragment__syncing_messages),
@@ -337,32 +317,41 @@ fun DeviceListScreen(
           onDismiss = onSyncCancelled
         )
       }
-
       is DialogState.SyncingFailed -> {
-        if (state.dialogState.canRetry) {
-          Dialogs.SimpleAlertDialog(
-            title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
-            body = stringResource(R.string.LinkDeviceFragment__sync_failure_body),
-            confirm = stringResource(R.string.LinkDeviceFragment__sync_failure_retry_button),
-            onConfirm = onSyncFailureRetryRequested,
-            dismiss = stringResource(R.string.LinkDeviceFragment__sync_failure_dismiss_button),
-            onDismissRequest = onSyncFailureIgnored,
-            onDeny = onSyncFailureIgnored
-          )
-        } else {
-          Dialogs.AdvancedAlertDialog(
-            title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
-            body = stringResource(R.string.LinkDeviceFragment__sync_failure_body_unretryable),
-            positive = stringResource(R.string.LinkDeviceFragment__contact_support),
-            onPositive = onSyncFailureContactSupport,
-            neutral = stringResource(R.string.LinkDeviceFragment__learn_more),
-            onNeutral = onSyncFailureLearnMore,
-            negative = stringResource(R.string.LinkDeviceFragment__continue),
-            onNegative = onSyncFailureIgnored
-          )
+        when (state.dialogState.syncFailType) {
+          LinkDeviceSettingsState.SyncFailType.NOT_RETRYABLE -> {
+            Dialogs.AdvancedAlertDialog(
+              title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
+              body = stringResource(R.string.LinkDeviceFragment__sync_failure_body_unretryable),
+              positive = stringResource(R.string.LinkDeviceFragment__contact_support),
+              onPositive = onSyncFailureContactSupport,
+              neutral = stringResource(R.string.LinkDeviceFragment__learn_more),
+              onNeutral = onSyncFailureLearnMore,
+              negative = stringResource(R.string.LinkDeviceFragment__continue),
+              onNegative = onSyncFailureIgnored
+            )
+          }
+          LinkDeviceSettingsState.SyncFailType.RETRYABLE -> {
+            Dialogs.SimpleAlertDialog(
+              title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
+              body = stringResource(R.string.LinkDeviceFragment__sync_failure_body),
+              confirm = stringResource(R.string.LinkDeviceFragment__sync_failure_retry_button),
+              onConfirm = onSyncFailureRetryRequested,
+              dismiss = stringResource(R.string.LinkDeviceFragment__sync_failure_dismiss_button),
+              onDismissRequest = onSyncFailureIgnored,
+              onDeny = onSyncFailureIgnored
+            )
+          }
+          LinkDeviceSettingsState.SyncFailType.NOT_ENOUGH_SPACE -> {
+            Dialogs.SimpleMessageDialog(
+              message = stringResource(R.string.LinkDeviceFragment__you_dont_have_enough),
+              dismiss = stringResource(id = R.string.LinkDeviceFragment__ok),
+              onDismiss = onSyncFailureRetryRequested,
+              title = stringResource(R.string.LinkDeviceFragment__not_enough_storage_space)
+            )
+          }
         }
       }
-
       DialogState.SyncingTimedOut -> {
         Dialogs.SimpleAlertDialog(
           title = stringResource(R.string.LinkDeviceFragment__sync_failure_title),
@@ -374,7 +363,6 @@ fun DeviceListScreen(
           onDeny = onSyncFailureIgnored
         )
       }
-
       is DialogState.DeviceUnlinked -> {
         val createdAt = DateUtils.getDateTimeString(LocalContext.current, Locale.getDefault(), state.dialogState.deviceCreatedAt)
         Dialogs.SimpleMessageDialog(
@@ -384,11 +372,7 @@ fun DeviceListScreen(
           onDismiss = onDialogDismissed
         )
       }
-
-      DialogState.LoadingDebugLog -> {
-        Dialogs.IndeterminateProgressDialog()
-      }
-
+      DialogState.LoadingDebugLog -> { Dialogs.IndeterminateProgressDialog() }
       DialogState.ContactSupport -> {
         Dialogs.AdvancedAlertDialog(
           title = stringResource(R.string.LinkDeviceFragment__submit_debug_log),
@@ -538,7 +522,7 @@ fun DeviceListScreen(
 @Composable
 fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice: (Device) -> Unit) {
   val titleString = if (device.name.isNullOrEmpty()) stringResource(R.string.DeviceListItem_unnamed_device) else device.name
-  val linkedDate = DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, Locale.getDefault(), device.createdMillis)
+  val linkedDate = device.createdMillis?.let { DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, Locale.getDefault(), device.createdMillis) }
   val lastActive = DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, Locale.getDefault(), device.lastSeenMillis)
   val menuController = remember { DropdownMenus.MenuController() }
 
@@ -568,31 +552,33 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
         ) else Modifier
       )
   ) {
-        Image(
-          painter = painterResource(id = R.drawable.symbol_devices_24),
-          contentDescription = null,
-          colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-          contentScale = ContentScale.Inside,
-          modifier = Modifier
-            .padding(start = 24.dp, top = 28.dp, bottom = 28.dp)
-            .size(40.dp)
-            .background(
-              color = MaterialTheme.colorScheme.surfaceVariant,
-              shape = CircleShape
-            )
-            .align(Alignment.CenterVertically)
+    Image(
+      painter = painterResource(id = R.drawable.symbol_devices_24),
+      contentDescription = null,
+      colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+      contentScale = ContentScale.Inside,
+      modifier = Modifier
+        .padding(start = 24.dp, top = 28.dp, bottom = 28.dp)
+        .size(40.dp)
+        .background(
+          color = MaterialTheme.colorScheme.surfaceVariant,
+          shape = CircleShape
         )
+        .align(Alignment.CenterVertically)
+    )
 
-        Column(
-          modifier = Modifier
-            .align(Alignment.CenterVertically)
-            .padding(start = 16.dp)
-            .weight(1f)
-        ) {
-          Text(text = titleString, style = MaterialTheme.typography.bodyLarge)
-          Text(stringResource(R.string.DeviceListItem_linked_s, linkedDate), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-          Text(stringResource(R.string.DeviceListItem_last_active_s, lastActive), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
+    Column(
+      modifier = Modifier
+        .align(Alignment.CenterVertically)
+        .padding(start = 16.dp)
+        .weight(1f)
+    ) {
+      Text(text = titleString, style = MaterialTheme.typography.bodyLarge)
+      if (linkedDate != null) {
+        Text(stringResource(R.string.DeviceListItem_linked_s, linkedDate), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+      Text(stringResource(R.string.DeviceListItem_last_active_s, lastActive), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 
         Box {
           Icon(
@@ -667,11 +653,10 @@ private fun DeviceListScreenPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         devices = listOf(
-          Device(1, "Sam's Macbook Pro", 1715793982000, 1716053182000),
-          Device(1, "Sam's iPad", 1715793182000, 1716053122000)
+          Device(1, "Sam's Macbook Pro", 1715793982000, 1716053182000, 0),
+          Device(1, "Sam's iPad", 1715793182000, 1716053122000, 0)
         ),
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -684,8 +669,7 @@ private fun DeviceListScreenLoadingPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         deviceListLoading = true,
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -698,8 +682,7 @@ private fun DeviceListScreenLinkingPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         dialogState = DialogState.Linking,
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -712,8 +695,7 @@ private fun DeviceListScreenUnlinkingPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         dialogState = DialogState.Unlinking,
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -725,9 +707,8 @@ private fun DeviceListScreenSyncingMessagesPreview() {
   Previews.Preview {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
-        dialogState = DialogState.SyncingMessages(1, 1),
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        dialogState = DialogState.SyncingMessages(1),
+        seenQrEducationSheet = true
       )
     )
   }
@@ -740,8 +721,7 @@ private fun DeviceListScreenSyncingFailedRetryPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         dialogState = DialogState.SyncingTimedOut,
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -753,9 +733,12 @@ private fun DeviceListScreenSyncingFailedPreview() {
   Previews.Preview {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
-        dialogState = DialogState.SyncingFailed(1, 1, false),
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        dialogState = DialogState.SyncingFailed(
+          deviceId = 1,
+          deviceRegistrationId = 1,
+          syncFailType = LinkDeviceSettingsState.SyncFailType.NOT_RETRYABLE
+        ),
+        seenQrEducationSheet = true
       )
     )
   }
@@ -768,8 +751,7 @@ private fun DeviceListScreenContactSupportPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         dialogState = DialogState.ContactSupport,
-        seenQrEducationSheet = true,
-        seenBioAuthEducationSheet = true
+        seenQrEducationSheet = true
       )
     )
   }
@@ -782,7 +764,23 @@ private fun DeviceListScreenDeviceUnlinkedPreview() {
     DeviceListScreen(
       state = LinkDeviceSettingsState(
         dialogState = DialogState.DeviceUnlinked(1736454440342),
-        seenBioAuthEducationSheet = true,
+        seenQrEducationSheet = true
+      )
+    )
+  }
+}
+
+@SignalPreview
+@Composable
+private fun DeviceListScreenNotEnoughStoragePreview() {
+  Previews.Preview {
+    DeviceListScreen(
+      state = LinkDeviceSettingsState(
+        dialogState = DialogState.SyncingFailed(
+          deviceId = 1,
+          deviceRegistrationId = 1,
+          syncFailType = LinkDeviceSettingsState.SyncFailType.NOT_ENOUGH_SPACE
+        ),
         seenQrEducationSheet = true
       )
     )

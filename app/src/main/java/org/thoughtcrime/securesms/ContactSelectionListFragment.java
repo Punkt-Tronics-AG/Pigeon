@@ -939,7 +939,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     return ContactSearchConfiguration.build(builder -> {
       builder.setQuery(contactSearchState.getQuery());
 
-      if (isSignalVersion() && newConversationCallback != null                               &&
+      if (isSignalVersion() && (newConversationCallback != null || findByCallback != null) &&
           !hasContactsPermissions(requireContext())                     &&
           !SignalStore.uiHints().getDismissedContactsPermissionBanner() &&
           !hasQuery) {

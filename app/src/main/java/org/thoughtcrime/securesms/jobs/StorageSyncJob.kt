@@ -32,6 +32,7 @@ import org.thoughtcrime.securesms.storage.StorageSyncModels
 import org.thoughtcrime.securesms.storage.StorageSyncValidations
 import org.thoughtcrime.securesms.storage.StoryDistributionListRecordProcessor
 import org.thoughtcrime.securesms.transport.RetryLaterException
+import org.thoughtcrime.securesms.util.RemoteConfig
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException
 import org.whispersystems.signalservice.api.messages.multidevice.RequestMessage
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
@@ -63,6 +64,7 @@ import org.whispersystems.signalservice.internal.storage.protos.ManifestRecord
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Does a full sync of our local storage state with the remote storage state. Will write any pending
@@ -149,10 +151,16 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
     fun forRemoteChange(): StorageSyncJob {
       return StorageSyncJob(localManifestOutOfDate = true)
     }
+
+    fun forAccountRestore(): StorageSyncJob {
+      return StorageSyncJob(localManifestOutOfDate = true, priority = Parameters.PRIORITY_HIGH)
+    }
   }
 
-  constructor(localManifestOutOfDate: Boolean) : this(
-    Parameters.Builder().addConstraint(NetworkConstraint.KEY)
+  private constructor(localManifestOutOfDate: Boolean, @Parameters.Priority priority: Int = Parameters.PRIORITY_DEFAULT) : this(
+    Parameters.Builder()
+      .addConstraint(NetworkConstraint.KEY)
+      .setGlobalPriority(priority)
       .setQueue(QUEUE_KEY)
       .setMaxInstancesForFactory(2)
       .setLifespan(TimeUnit.DAYS.toMillis(1))
@@ -169,7 +177,7 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
 
   @Throws(IOException::class, RetryLaterException::class, UntrustedIdentityException::class)
   override fun onRun() {
-    if (!(SignalStore.svr.hasPin() || SignalStore.account.restoredAccountEntropyPool) && !SignalStore.svr.hasOptedOut()) {
+    if (!(SignalStore.svr.hasPin() || SignalStore.account.restoredAccountEntropyPool || SignalStore.account.restoredAccountEntropyPoolFromPrimary) && !SignalStore.svr.hasOptedOut()) {
       Log.i(TAG, "Doesn't have access to storage service. Skipping.")
       return
     }
@@ -189,6 +197,11 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
       return
     }
 
+    if (SignalStore.account.isLinkedDevice && !SignalStore.account.restoredAccountEntropyPoolFromPrimary) {
+      Log.w(TAG, "Have not restored AEP from primary, skipping.")
+      return
+    }
+
     val (storageServiceKey, usingTempKey) = SignalStore.storageService.storageKeyForInitialDataRestore?.let {
       Log.i(TAG, "Using temporary storage key.")
       it to true
@@ -204,7 +217,7 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
         AppDependencies.jobManager.add(StorageRotateManifestJob())
       }
 
-      if (SignalStore.account.hasLinkedDevices && needsMultiDeviceSync) {
+      if (SignalStore.account.isMultiDevice && needsMultiDeviceSync) {
         AppDependencies.jobManager.add(MultiDeviceStorageSyncRequestJob())
       }
 
@@ -220,7 +233,6 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
           .enqueue()
       } else {
         Log.w(TAG, "Failed to decrypt remote storage! Requesting new keys from primary.", e)
-        SignalStore.storageService.clearStorageKeyFromPrimary()
         AppDependencies.signalServiceMessageSender.sendSyncMessage(SignalServiceSyncMessage.forRequest(RequestMessage.forType(SyncMessage.Request.Type.KEYS)))
       }
     }
@@ -360,7 +372,7 @@ class StorageSyncJob private constructor(parameters: Parameters, private var loc
       val removedDeletedFolders = SignalDatabase.chatFolders.removeStorageIdsFromOldDeletedFolders(System.currentTimeMillis())
       val removedDeletedProfiles = SignalDatabase.notificationProfiles.removeStorageIdsFromOldDeletedProfiles(System.currentTimeMillis())
       if (removedUnregistered > 0 || removedDeletedFolders > 0 || removedDeletedProfiles > 0) {
-        Log.i(TAG, "Removed $removedUnregistered unregistered, $removedDeletedFolders folders, $removedDeletedProfiles notification profiles from storage service that have been deleted for longer than 30 days.")
+        Log.i(TAG, "Removed $removedUnregistered unregistered, $removedDeletedFolders folders, $removedDeletedProfiles notification profiles from storage service that have been deleted for longer than ${RemoteConfig.messageQueueTime.milliseconds.inWholeDays} days.")
       }
 
       val localStorageIds = getAllLocalStorageIds(self)

@@ -173,6 +173,9 @@ object DataMessageProcessor {
     }
 
     messageId = messageId ?: insertResult?.messageId?.let { MessageId(it) }
+    if (messageId != null) {
+      log(envelope.timestamp!!, "Inserted as messageId $messageId")
+    }
 
     if (groupId != null) {
       val unknownGroup = when (groupProcessResult) {
@@ -253,7 +256,7 @@ object DataMessageProcessor {
       if (SignalDatabase.recipients.setProfileKey(senderRecipient.id, messageProfileKey)) {
         log(timestamp, "Profile key on message from " + senderRecipient.id + " didn't match our local store. It has been updated.")
         SignalDatabase.runPostSuccessfulTransaction {
-          RetrieveProfileJob.enqueue(senderRecipient.id)
+          RetrieveProfileJob.enqueue(senderRecipient.id, skipDebounce = true)
         }
       }
     } else {

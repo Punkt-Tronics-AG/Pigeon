@@ -11,6 +11,7 @@ import org.signal.core.util.gibiBytes
 import org.signal.core.util.kibiBytes
 import org.signal.core.util.logging.Log
 import org.signal.core.util.mebiBytes
+import org.signal.libsignal.protocol.UsePqRatchet
 import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.groups.SelectionLimits
@@ -30,10 +31,13 @@ import kotlin.concurrent.withLock
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KProperty
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 /**
  * A location for accessing remotely-configured values.
@@ -428,6 +432,24 @@ object RemoteConfig {
     )
   }
 
+  private fun remoteDuration(
+    key: String,
+    defaultValue: Duration,
+    hotSwappable: Boolean,
+    durationUnit: DurationUnit,
+    active: Boolean = true,
+    onChangeListener: OnFlagChange? = null
+  ): Config<Duration> {
+    return remoteValue(
+      key = key,
+      hotSwappable = hotSwappable,
+      sticky = false,
+      active = active,
+      onChangeListener = onChangeListener,
+      transformer = { it?.toString()?.toLongOrNull()?.toDuration(durationUnit) ?: defaultValue }
+    )
+  }
+
   private fun <T : String?> remoteString(
     key: String,
     defaultValue: T,
@@ -513,7 +535,7 @@ object RemoteConfig {
     key = "android.internalUser",
     hotSwappable = true
   ) { value ->
-    value.asBoolean(false) || Environment.IS_NIGHTLY || Environment.IS_STAGING
+    value.asBoolean(false) || Environment.IS_NIGHTLY || Environment.IS_STAGING || Environment.IS_INSTRUMENTATION
   }
 
   /** The raw client expiration JSON string.  */
@@ -1001,11 +1023,23 @@ object RemoteConfig {
     value.asLong(8.kibiBytes.inWholeBytes).bytes
   }
 
-  /** Whether unauthenticated chat web socket is backed by libsignal-net  */
+  /** Whether the chat web socket is backed by libsignal for direct connections  */
   @JvmStatic
   @get:JvmName("libSignalWebSocketEnabled")
   val libSignalWebSocketEnabled: Boolean by remoteValue(
-    key = "android.libsignalWebSocketEnabled.5",
+    key = "android.libsignalWebSocketEnabled.8",
+    hotSwappable = false
+  ) { value ->
+    value.asBoolean(false) || Environment.IS_NIGHTLY
+  }
+
+  /** Whether the chat web socket is backed by libsignal for all connections, including proxied connections.
+   *  Note, this does *not* gate HTTP proxies, which are treated as direct connections.
+   *  This only has an effect if libSignalWebSocketEnabled is also enabled. */
+  @JvmStatic
+  @get:JvmName("libSignalWebSocketEnabledForProxies")
+  val libSignalWebSocketEnabledForProxies: Boolean by remoteValue(
+    key = "android.libSignalWebSocketEnabledForProxies.8",
     hotSwappable = false
   ) { value ->
     value.asBoolean(false) || Environment.IS_NIGHTLY
@@ -1027,7 +1061,7 @@ object RemoteConfig {
     hotSwappable = false,
     active = false
   ) { value ->
-    BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED || value.asBoolean(false)
+    BuildConfig.MESSAGE_BACKUP_RESTORE_ENABLED || BuildConfig.LINK_DEVICE_UX_ENABLED || value.asBoolean(false)
   }
 
   @JvmStatic
@@ -1113,6 +1147,35 @@ object RemoteConfig {
     defaultValue = false,
     hotSwappable = true
   )
+
+  /**
+   * Also determines how long an unregistered/deleted record should remain in storage service
+   */
+  val messageQueueTime: Long by remoteValue(
+    key = "global.messageQueueTimeInSeconds",
+    hotSwappable = true
+  ) { value ->
+    val inSeconds = value.asLong(45.days.inWholeSeconds)
+    inSeconds.seconds.inWholeMilliseconds
+  }
+
+  @JvmStatic
+  val archiveReconciliationSyncInterval: Duration by remoteDuration(
+    key = "global.archive.attachmentReconciliationSyncIntervalDays",
+    defaultValue = 7.days,
+    hotSwappable = true,
+    durationUnit = DurationUnit.DAYS
+  )
+
+  /** Whether or not to use the new post-quantum ratcheting. */
+  @JvmStatic
+  @get:JvmName("usePqRatchet")
+  val usePqRatchet: UsePqRatchet by remoteValue(
+    key = "android.usePqRatchet",
+    hotSwappable = false
+  ) { value ->
+    if (value.asBoolean(false)) UsePqRatchet.YES else UsePqRatchet.NO
+  }
 
   // endregion
 }

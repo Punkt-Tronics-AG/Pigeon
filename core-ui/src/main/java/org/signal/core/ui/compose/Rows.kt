@@ -277,6 +277,18 @@ object Rows {
           pigeonTextSize = textSize
         )
       },
+      icon = if (icon != null && isSignalVersion()) {
+        {
+          Icon(
+            painter = icon,
+            contentDescription = null,
+            tint = foregroundTint,
+            modifier = iconModifier
+          )
+        }
+      } else {
+        null
+      },
       modifier = Modifier.padding(0.dp),
       onClick = onClick,
       onLongClick = onLongClick,
@@ -295,6 +307,7 @@ object Rows {
     iconModifier: Modifier = Modifier,
     label: String? = null,
     foregroundTint: Color = Color(0xFFFFFFFF),
+    iconTint: Color = foregroundTint,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true
@@ -303,11 +316,23 @@ object Rows {
       text = { textSize, textColor ->
         TextAndLabel(
           text = text,
-          label = text,
+          label = label,
           textColor = textColor,
           enabled = enabled,
           pigeonTextSize = textSize,
         )
+      },
+      icon = if (icon != null) {
+        {
+          Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = iconModifier
+          )
+        }
+      } else {
+        null
       },
       modifier = modifier,
       onClick = onClick,

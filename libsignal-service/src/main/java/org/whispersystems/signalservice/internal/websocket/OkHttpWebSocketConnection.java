@@ -346,7 +346,7 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
 
   @Override
   public synchronized void onClosed(WebSocket webSocket, int code, String reason) {
-    log("onClose()");
+    log("onClose(" + code + ")");
     webSocketState.onNext(WebSocketConnectionState.DISCONNECTED);
 
     cleanupAfterShutdown(code);
@@ -399,7 +399,7 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
 
   @Override
   public synchronized void onClosing(WebSocket webSocket, int code, String reason) {
-    log("onClosing()");
+    log("onClosing(" + code + ")");
     webSocketState.onNext(WebSocketConnectionState.DISCONNECTING);
     webSocket.close(1000, "OK");
   }
