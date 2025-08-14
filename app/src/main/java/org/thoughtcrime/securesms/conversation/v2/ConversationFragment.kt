@@ -3419,8 +3419,7 @@ class ConversationFragment :
 
     override fun onItemLongClick(itemView: View, item: MultiselectPart) {
       Log.d(TAG, "onItemLongClick")
-
-      val messageRecord: MessageRecord = item.getMessageRecord()
+          val messageRecord: MessageRecord = item.getMessageRecord()
 
       if (isPigeonVersion()){
         if (messageRecord.isSecure &&

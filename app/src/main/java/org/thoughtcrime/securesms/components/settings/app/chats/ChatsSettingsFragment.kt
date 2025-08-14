@@ -48,15 +48,15 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
 
       if (isSignalVersion()) {
         switchPref(
-        title = DSLSettingsText.from(R.string.preferences__pref_use_address_book_photos),
-        summary = DSLSettingsText.from(R.string.preferences__display_contact_photos_from_your_address_book_if_available),
-        isEnabled = state.isRegisteredAndUpToDate(),
-        isChecked = state.useAddressBook,
-        onClick = {
-          viewModel.setUseAddressBook(!state.useAddressBook)
-        }
-      )
-        }
+          title = DSLSettingsText.from(R.string.preferences__pref_use_address_book_photos),
+          summary = DSLSettingsText.from(R.string.preferences__display_contact_photos_from_your_address_book_if_available),
+          isEnabled = state.isRegisteredAndUpToDate(),
+          isChecked = state.useAddressBook,
+          onClick = {
+            viewModel.setUseAddressBook(!state.useAddressBook)
+          }
+        )
+      }
 
       switchPref(
         title = DSLSettingsText.from(R.string.preferences__pref_keep_muted_chats_archived),
