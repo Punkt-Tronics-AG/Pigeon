@@ -350,7 +350,7 @@ private fun NotFoundBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         TextWithBetaLabel(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -386,7 +386,7 @@ private fun PendingBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         TextWithBetaLabel(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -438,7 +438,7 @@ private fun LocalStoreBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         TextWithBetaLabel(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),

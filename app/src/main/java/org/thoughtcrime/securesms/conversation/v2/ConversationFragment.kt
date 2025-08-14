@@ -1663,7 +1663,7 @@ class ConversationFragment :
     )
 
     if (!inputPanel.isHidden) {
-      binding.navBar.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
+      binding.navBar?.setBackgroundColor(ContextCompat.getColor(requireContext(), navColor))
     }
   }
 

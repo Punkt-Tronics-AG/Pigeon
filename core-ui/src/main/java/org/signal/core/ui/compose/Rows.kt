@@ -60,6 +60,7 @@ import org.signal.core.ui.compose.Rows.TextAndLabel
 import org.signal.core.ui.compose.theme.SignalTheme
 import pigeon.extensions.focusOnLeft
 import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 object Rows {
 
