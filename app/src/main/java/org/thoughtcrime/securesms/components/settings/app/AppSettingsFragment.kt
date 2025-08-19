@@ -329,7 +329,9 @@ private fun AppSettingsContent(
           item {
             Dividers.Default()
           }
+        }
 
+        if (isSignalVersion()) {
           item {
             Rows.TextRow(
               text = stringResource(R.string.preferences__appearance),
@@ -339,179 +341,179 @@ private fun AppSettingsContent(
               }
             )
           }
+        }
 
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences_chats__chats),
+            icon = painterResource(R.drawable.symbol_chat_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
+            },
+            enabled = state.legacyLocalBackupsEnabled || isRegisteredAndUpToDate
+          )
+        }
+
+        if (isSignalVersion()) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences_chats__chats),
-              icon = painterResource(R.drawable.symbol_chat_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_chatsSettingsFragment)
-              },
-              enabled = state.legacyLocalBackupsEnabled || isRegisteredAndUpToDate
+              text = stringResource(R.string.preferences__stories), icon = painterResource(R.drawable.symbol_stories_24), onClick = {
+                callbacks.navigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(R.string.preferences__stories))
+              }, enabled = isRegisteredAndUpToDate
             )
           }
+        }
 
-          if (isSignalVersion()) {
-            item {
-              Rows.TextRow(
-                text = stringResource(R.string.preferences__stories), icon = painterResource(R.drawable.symbol_stories_24), onClick = {
-                  callbacks.navigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(R.string.preferences__stories))
-                }, enabled = isRegisteredAndUpToDate
-              )
-            }
-          }
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__notifications),
+            icon = painterResource(R.drawable.symbol_bell_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
 
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__privacy),
+            icon = painterResource(R.drawable.symbol_lock_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
+
+        if (state.showBackups) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__notifications),
-              icon = painterResource(R.drawable.symbol_bell_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
-              },
-              enabled = isRegisteredAndUpToDate
-            )
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__privacy),
-              icon = painterResource(R.drawable.symbol_lock_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
-              },
-              enabled = isRegisteredAndUpToDate
-            )
-          }
-
-          if (state.showBackups) {
-            item {
-              Rows.TextRow(
-                text = { _, _ ->
-                  TextWithBetaLabel(
-                    text = stringResource(R.string.preferences_chats__backups),
-                    textStyle = MaterialTheme.typography.bodyLarge
-                  )
-                },
-                icon = {
-                  Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
-                    contentDescription = stringResource(R.string.preferences_chats__backups),
-                    tint = MaterialTheme.colorScheme.onSurface
-                  )
-                },
-                onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
-                },
-                onLongClick = {
-                  callbacks.copyRemoteBackupsSubscriberIdToClipboard()
-                },
-                enabled = isRegisteredAndUpToDate
-              )
-            }
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__data_and_storage),
-              icon = painterResource(R.drawable.symbol_data_24),
-              onClick = {
-                callbacks.navigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
-              }
-            )
-          }
-
-          if (isSignalVersion()) {
-            if (state.showAppUpdates) {
-              item {
-                Rows.TextRow(
-                  text = "App updates", icon = painterResource(R.drawable.symbol_calendar_24), onClick = {
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_appUpdatesSettingsFragment)
-                  })
-              }
-            }
-
-            if (state.showPayments) {
-              item {
-                Dividers.Default()
-              }
-
-              item {
-                Rows.TextRow(
-                  text = { _, _ ->
-                    Text(
-                      text = stringResource(R.string.preferences__payments),
-                      modifier = Modifier.weight(1f)
-                    )
-
-                    if (state.unreadPaymentsCount > 0) {
-                      Text(
-                        text = state.unreadPaymentsCount.toString(),
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                          .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(50)
-                          )
-                          .defaultMinSize(minWidth = 30.dp)
-                          .padding(4.dp)
-                      )
-                    }
-                  },
-                  icon = {
-                    Icon(
-                      painter = painterResource(R.drawable.symbol_payment_24),
-                      contentDescription = null,
-                      tint = MaterialTheme.colorScheme.onSurface
-                    )
-                  },
-                  onClick = {
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
-                  }
+              text = { _, _ ->
+                TextWithBetaLabel(
+                  text = stringResource(R.string.preferences_chats__backups),
+                  textStyle = MaterialTheme.typography.bodyLarge
                 )
-              }
-            }
+              },
+              icon = {
+                Icon(
+                  imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
+                  contentDescription = stringResource(R.string.preferences_chats__backups),
+                  tint = MaterialTheme.colorScheme.onSurface
+                )
+              },
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+              },
+              onLongClick = {
+                callbacks.copyRemoteBackupsSubscriberIdToClipboard()
+              },
+              enabled = isRegisteredAndUpToDate
+            )
+          }
+        }
 
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__data_and_storage),
+            icon = painterResource(R.drawable.symbol_data_24),
+            onClick = {
+              callbacks.navigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
+            }
+          )
+        }
+
+        if (isSignalVersion()) {
+          if (state.showAppUpdates) {
+            item {
+              Rows.TextRow(
+                text = "App updates", icon = painterResource(R.drawable.symbol_calendar_24), onClick = {
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_appUpdatesSettingsFragment)
+                })
+            }
+          }
+
+          if (state.showPayments) {
             item {
               Dividers.Default()
             }
 
             item {
               Rows.TextRow(
-                text = stringResource(R.string.preferences__help),
-                icon = painterResource(R.drawable.symbol_help_24),
+                text = { _, _ ->
+                  Text(
+                    text = stringResource(R.string.preferences__payments),
+                    modifier = Modifier.weight(1f)
+                  )
+
+                  if (state.unreadPaymentsCount > 0) {
+                    Text(
+                      text = state.unreadPaymentsCount.toString(),
+                      color = MaterialTheme.colorScheme.inverseOnSurface,
+                      style = MaterialTheme.typography.bodyMedium,
+                      textAlign = TextAlign.Center,
+                      modifier = Modifier
+                        .background(
+                          color = MaterialTheme.colorScheme.primary,
+                          shape = RoundedCornerShape(50)
+                        )
+                        .defaultMinSize(minWidth = 30.dp)
+                        .padding(4.dp)
+                    )
+                  }
+                },
+                icon = {
+                  Icon(
+                    painter = painterResource(R.drawable.symbol_payment_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                  )
+                },
                 onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_paymentsActivity)
                 }
               )
+            }
+          }
+
+          item {
+            Dividers.Default()
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__help),
+              icon = painterResource(R.drawable.symbol_help_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_helpSettingsFragment)
+              }
+            )
+          }
+
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = painterResource(R.drawable.symbol_invite_24),
+              onClick = {
+                callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
+              }
+            )
+          }
+
+          if (state.showInternalPreferences || isPigeonVersion()) {
+            if (isSignalVersion()) {
+              item {
+                Dividers.Default()
+              }
             }
 
             item {
               Rows.TextRow(
-                text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-                icon = painterResource(R.drawable.symbol_invite_24),
+                text = stringResource(R.string.preferences__internal_preferences),
                 onClick = {
-                  callbacks.navigate(R.id.action_appSettingsFragment_to_inviteFragment)
+                  callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
                 }
               )
-            }
-
-            if (state.showInternalPreferences || isPigeonVersion()) {
-              if (isSignalVersion()) {
-                item {
-                  Dividers.Default()
-                }
-              }
-
-              item {
-                Rows.TextRow(
-                  text = stringResource(R.string.preferences__internal_preferences),
-                  onClick = {
-                    callbacks.navigate(R.id.action_appSettingsFragment_to_internalSettingsFragment)
-                  }
-                )
-              }
             }
           }
         }
