@@ -479,6 +479,7 @@ private fun AppSettingsContent(
           item {
             Dividers.Default()
           }
+        }
 
           item {
             Rows.TextRow(
@@ -489,7 +490,7 @@ private fun AppSettingsContent(
               }
             )
           }
-
+          if (isSignalVersion()){
           item {
             Rows.TextRow(
               text = stringResource(R.string.AppSettingsFragment__invite_your_friends),

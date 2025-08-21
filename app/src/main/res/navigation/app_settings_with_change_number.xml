@@ -562,7 +562,22 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+
+        <!-- Pigeon Code -->
+        <action
+            android:id="@+id/action_helpSettingsFragment_to_pigeonCodeFragment"
+            app:destination="@id/pigeonCodeFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
     </fragment>
+
+    <!-- Pigeon Code -->
+    <fragment
+        android:id="@+id/pigeonCodeFragment"
+        android:name="pigeon.fragments.TermsFragment"
+        android:label="pigeon_code_fragment"/>
 
     <fragment
         android:id="@+id/aboutFragment"
