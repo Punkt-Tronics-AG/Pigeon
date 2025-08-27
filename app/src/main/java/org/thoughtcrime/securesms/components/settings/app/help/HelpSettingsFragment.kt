@@ -79,18 +79,20 @@ class HelpSettingsFragment : ComposeFragment() {
           }
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(id = R.string.HelpSettingsFragment__contact_us),
-            modifier = Modifier
-              .focusRequester(pigeonFocusRequester)
-              .focusProperties {
-                canFocus = true
-              },
-            onClick = {
-              navController.safeNavigate(R.id.action_helpSettingsFragment_to_helpFragment)
-            }
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(id = R.string.HelpSettingsFragment__contact_us),
+              modifier = Modifier
+                .focusRequester(pigeonFocusRequester)
+                .focusProperties {
+                  canFocus = true
+                },
+              onClick = {
+                navController.safeNavigate(R.id.action_helpSettingsFragment_to_helpFragment)
+              }
+            )
+          }
         }
 
         if (isSignalVersion()) {
@@ -116,22 +118,26 @@ class HelpSettingsFragment : ComposeFragment() {
           }
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(id = R.string.HelpSettingsFragment__debug_log),
-            onClick = {
-              navController.safeNavigate(R.id.action_helpSettingsFragment_to_submitDebugLogActivity)
-            }
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(id = R.string.HelpSettingsFragment__debug_log),
+              onClick = {
+                navController.safeNavigate(R.id.action_helpSettingsFragment_to_submitDebugLogActivity)
+              }
+            )
+          }
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(id = R.string.HelpSettingsFragment__licenses),
-            onClick = {
-              navController.safeNavigate(R.id.action_helpSettingsFragment_to_licenseFragment)
-            }
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(id = R.string.HelpSettingsFragment__licenses),
+              onClick = {
+                navController.safeNavigate(R.id.action_helpSettingsFragment_to_licenseFragment)
+              }
+            )
+          }
         }
 
         if (isSignalVersion()) {
