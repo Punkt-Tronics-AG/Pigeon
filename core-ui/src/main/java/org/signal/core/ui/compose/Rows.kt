@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -525,10 +524,9 @@ object Rows {
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    inlineContent: Map<String, InlineTextContent> = mapOf()
-      pigeonTextSize : Dp = 24.dp
-  )
-  {
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    pigeonTextSize: Dp = 24.dp
+  ) {
     Column(
       modifier = modifier
         .alpha(if (enabled) 1f else 0.4f)
