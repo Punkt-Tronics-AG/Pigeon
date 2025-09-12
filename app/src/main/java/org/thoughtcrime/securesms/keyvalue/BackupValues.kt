@@ -16,6 +16,7 @@ import org.thoughtcrime.securesms.jobmanager.impl.NoRemoteArchiveGarbageCollecti
 import org.thoughtcrime.securesms.jobmanager.impl.RestoreAttachmentConstraintObserver
 import org.thoughtcrime.securesms.keyvalue.protos.ArchiveUploadProgressState
 import org.thoughtcrime.securesms.keyvalue.protos.BackupDownloadNotifierState
+import org.thoughtcrime.securesms.util.Environment
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.whispersystems.signalservice.api.archive.ArchiveServiceCredential
 import org.whispersystems.signalservice.api.archive.GetArchiveCdnCredentialsResponse
@@ -198,6 +199,15 @@ class BackupValues(store: KeyValueStore) : SignalStoreValues(store) {
     }
     set(value) {
       lock.withLock {
+        val currentValue: ByteArray? = getBlob(KEY_MEDIA_ROOT_BACKUP_KEY, null)
+        if (currentValue != null) {
+          val current = MediaRootBackupKey(currentValue)
+          if (current == value) {
+            Log.i(TAG, "MediaRootBackupKey the same, skipping.")
+            return
+          }
+        }
+
         Log.i(TAG, "Setting MediaRootBackupKey...", Throwable(), true)
         store.beginWrite().putBlob(KEY_MEDIA_ROOT_BACKUP_KEY, value.value).commit()
         mediaCredentials.clearAll()
@@ -228,7 +238,7 @@ class BackupValues(store: KeyValueStore) : SignalStoreValues(store) {
     }
     set(value) {
       // TODO [backup] Remove for launch
-      if (!RemoteConfig.internalUser && value != null) {
+      if (!RemoteConfig.internalUser && !Environment.IS_INSTRUMENTATION && value != null) {
         throw IllegalStateException("Setting backup tier is only allowed for internal users!")
       }
 

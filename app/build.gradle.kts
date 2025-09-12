@@ -21,9 +21,9 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
-val pigeonVersionCode = 127539
-val canonicalVersionCode = 1571
-val canonicalVersionName = "Pigeon 2.0.0028 upon Signal 7.52.2"
+val pigeonVersionCode = 127540
+val canonicalVersionCode = 1578
+val canonicalVersionName = "Pigeon 2.0.0029 upon Signal 7.54.1"
 val currentHotfixVersion = 0
 val maxHotfixVersions = 100
 
@@ -650,6 +650,9 @@ dependencies {
   testImplementation(testFixtures(project(":libsignal-service")))
   testImplementation(testLibs.espresso.core)
   testImplementation(testLibs.kotlinx.coroutines.test)
+  testImplementation(libs.androidx.compose.ui.test.junit4)
+
+  "perfImplementation"(libs.androidx.compose.ui.test.manifest)
 
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.compose.ui.test.junit4)

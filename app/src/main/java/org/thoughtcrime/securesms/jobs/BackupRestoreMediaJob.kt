@@ -8,6 +8,7 @@ package org.thoughtcrime.securesms.jobs
 import org.signal.core.util.logging.Log
 import org.signal.core.util.withinTransaction
 import org.thoughtcrime.securesms.attachments.AttachmentId
+import org.thoughtcrime.securesms.backup.v2.ArchiveRestoreProgress
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
@@ -109,6 +110,8 @@ class BackupRestoreMediaJob private constructor(parameters: Parameters) : BaseJo
         SignalDatabase.attachments.setRestoreTransferState(restoreThumbnailOnlyAttachmentsIds, AttachmentTable.TRANSFER_RESTORE_OFFLOADED)
       }
 
+      ArchiveRestoreProgress.onProcessStart()
+
       // Intentionally enqueues one at a time for safer attachment transfer state management
       restoreThumbnailJobs.forEach { jobManager.add(it) }
       restoreFullAttachmentJobs.forEach { jobManager.add(it) }
@@ -116,7 +119,9 @@ class BackupRestoreMediaJob private constructor(parameters: Parameters) : BaseJo
 
     SignalStore.backup.totalRestorableAttachmentSize = SignalDatabase.attachments.getRemainingRestorableAttachmentSize()
 
-    jobManager.add(CheckRestoreMediaLeftJob(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.INITIAL_RESTORE)))
+    RestoreAttachmentJob.Queues.INITIAL_RESTORE.forEach { queue ->
+      jobManager.add(CheckRestoreMediaLeftJob(queue))
+    }
   }
 
   private fun shouldRestoreFullSize(message: MmsMessageRecord, restoreTime: Long, optimizeStorage: Boolean): Boolean {

@@ -23,6 +23,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -49,7 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.compose.AndroidFragment
@@ -304,9 +305,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       val mainToolbarState by toolbarViewModel.state.collectAsStateWithLifecycle()
       val megaphone by mainNavigationViewModel.megaphone.collectAsStateWithLifecycle()
       val mainNavigationState by mainNavigationViewModel.mainNavigationState.collectAsStateWithLifecycle()
+      val mainNavigationDetailLocation by mainNavigationViewModel.detailLocation.collectAsStateWithLifecycle()
 
-      LaunchedEffect(mainNavigationState.selectedDestination) {
-        when (mainNavigationState.selectedDestination) {
+      LaunchedEffect(mainNavigationState.currentListLocation) {
+        when (mainNavigationState.currentListLocation) {
           MainNavigationListLocation.CHATS -> toolbarViewModel.presentToolbarForConversationListFragment()
           MainNavigationListLocation.ARCHIVE -> toolbarViewModel.presentToolbarForConversationListArchiveFragment()
           MainNavigationListLocation.CALLS -> toolbarViewModel.presentToolbarForCallLogFragment()
@@ -386,7 +388,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
               modifier = Modifier
                 .padding(start = contentLayoutData.listPaddingStart)
                 .fillMaxSize()
-                .background(listContainerColor)
+                .background(listContainerColor, contentLayoutData.shape)
                 .clip(contentLayoutData.shape)
             ) {
 
@@ -423,7 +425,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
               }
 
               if (isPigeonVersion() && pigeonShowConversation.value) {
-                when (val destination = mainNavigationState.selectedDestination) {
+                when (val destination = mainNavigationState.currentListLocation) {
                   MainNavigationListLocation.CHATS -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -453,7 +455,6 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                       }
                     )
                   }
-
                   MainNavigationListLocation.CALLS -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -462,7 +463,6 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                       modifier = Modifier.fillMaxSize()
                     )
                   }
-
                   MainNavigationListLocation.STORIES -> {
                     val state = key(destination) { rememberFragmentState() }
                     AndroidFragment(
@@ -472,7 +472,6 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     )
                   }
                 }
-              }
 
                 if (isSignalVersion()) {
                   MainBottomChrome(
@@ -486,7 +485,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
             }
           },
           detailContent = {
-            when (val destination = wrappedNavigator.currentDestination?.contentKey) {
+            when (val destination = mainNavigationDetailLocation) {
               is MainNavigationDetailLocation.Conversation -> {
                 val fragmentState = key(destination) { rememberFragmentState() }
                 AndroidFragment(
@@ -499,6 +498,22 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     .background(color = MaterialTheme.colorScheme.surface)
                     .fillMaxSize()
                 )
+              }
+
+              MainNavigationDetailLocation.Empty -> {
+                Box(
+                  modifier = Modifier
+                    .padding(end = contentLayoutData.detailPaddingEnd)
+                    .clip(contentLayoutData.shape)
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .fillMaxSize()
+                ) {
+                  Image(
+                    painter = painterResource(R.drawable.ic_signal_logo_large),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center)
+                  )
+                }
               }
             }
           },
@@ -588,11 +603,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         Color.Black
       }
 
-
       val modifier = if (windowSizeClass.isSplitPane()) {
-        Modifier
-          .systemBarsPadding()
-          .displayCutoutPadding()
+        Modifier.systemBarsPadding().displayCutoutPadding()
       } else {
         Modifier
       }
@@ -809,6 +821,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
   private fun handleConversationIntent(intent: Intent) {
     if (ConversationIntents.isConversationIntent(intent)) {
+      mainNavigationViewModel.goTo(MainNavigationListLocation.CHATS)
       mainNavigationViewModel.goTo(MainNavigationDetailLocation.Conversation(intent))
     }
   }

@@ -359,13 +359,9 @@ object BackupRepository {
   fun skipMediaRestore() {
     SignalStore.backup.userManuallySkippedMediaRestore = true
 
-    AppDependencies.jobManager.cancelAllInQueue(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.RESTORE_OFFLOADED))
-    AppDependencies.jobManager.cancelAllInQueue(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.INITIAL_RESTORE))
-    AppDependencies.jobManager.cancelAllInQueue(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.MANUAL))
+    RestoreAttachmentJob.Queues.ALL.forEach { AppDependencies.jobManager.cancelAllInQueue(it) }
 
-    AppDependencies.jobManager.add(CheckRestoreMediaLeftJob(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.RESTORE_OFFLOADED)))
-    AppDependencies.jobManager.add(CheckRestoreMediaLeftJob(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.INITIAL_RESTORE)))
-    AppDependencies.jobManager.add(CheckRestoreMediaLeftJob(RestoreAttachmentJob.constructQueueString(RestoreAttachmentJob.RestoreOperation.MANUAL)))
+    RestoreAttachmentJob.Queues.ALL.forEach { AppDependencies.jobManager.add(CheckRestoreMediaLeftJob(it)) }
   }
 
   fun markBackupFailure() {
@@ -1433,8 +1429,32 @@ object BackupRepository {
   }
 
   /**
+   * Grabs the backup tier we think the user is on without performing any kind of authentication clearing
+   * on a 403 error. Ensures we can check without rolling the user back during the BackupSubscriptionCheckJob.
+   */
+  fun getBackupTierWithoutDowngrade(): NetworkResult<MessageBackupTier> {
+    return if (SignalStore.backup.areBackupsEnabled) {
+      getArchiveServiceAccessPair()
+        .then { credential ->
+          val zkCredential = SignalNetwork.archive.getZkCredential(Recipient.self().requireAci(), credential.messageBackupAccess)
+          val tier = if (zkCredential.backupLevel == BackupLevel.PAID) {
+            MessageBackupTier.PAID
+          } else {
+            MessageBackupTier.FREE
+          }
+
+          NetworkResult.Success(tier)
+        }
+    } else {
+      NetworkResult.StatusCodeError(NonSuccessfulResponseCodeException(404))
+    }
+  }
+
+  /**
    * If backups are enabled, sync with the network. Otherwise, return a 404.
    * Used in instrumentation tests.
+   *
+   * Note that this will set the user's backup tier to FREE if they are not on PAID, so avoid this method if you don't intend that to be the case.
    */
   fun getBackupTier(): NetworkResult<MessageBackupTier> {
     return if (SignalStore.backup.areBackupsEnabled) {
@@ -1573,6 +1593,7 @@ object BackupRepository {
       !DatabaseAttachmentArchiveUtil.hadIntegrityCheckPerformed(attachment) -> false
       messageId == AttachmentTable.PREUPLOAD_MESSAGE_ID -> false
       SignalDatabase.messages.isStory(messageId) -> false
+      SignalDatabase.messages.isViewOnce(messageId) -> false
       SignalDatabase.messages.willMessageExpireBeforeCutoff(messageId) -> false
       else -> true
     }
@@ -1902,7 +1923,7 @@ object BackupRepository {
   private fun initBackupAndFetchAuth(): NetworkResult<ArchiveServiceAccessPair> {
     return if (!RemoteConfig.messageBackups) {
       NetworkResult.StatusCodeError(555, null, null, emptyMap(), NonSuccessfulResponseCodeException(555, "Backups disabled!"))
-    } else if (SignalStore.backup.backupsInitialized) {
+    } else if (SignalStore.backup.backupsInitialized || SignalStore.account.isLinkedDevice) {
       getArchiveServiceAccessPair()
         .runOnStatusCodeError(resetInitializedStateErrorAction)
         .runOnApplicationError(clearAuthCredentials)
@@ -2069,14 +2090,22 @@ object BackupRepository {
         result.data.forwardSecrecyToken
       }
       is SvrBApi.RestoreResult.NetworkError -> {
-        return RemoteRestoreResult.NetworkError.logW(TAG, "[remoteRestore] Network error during SVRB.", result.exception)
+        Log.w(TAG, "[remoteRestore] Network error during SVRB.", result.exception)
+        return RemoteRestoreResult.NetworkError
+      }
+      is SvrBApi.RestoreResult.RestoreFailedError,
+      SvrBApi.RestoreResult.InvalidDataError -> {
+        Log.w(TAG, "[remoteRestore] Permanent SVRB error! $result")
+        return RemoteRestoreResult.PermanentSvrBFailure
       }
       SvrBApi.RestoreResult.DataMissingError,
-      is SvrBApi.RestoreResult.RestoreFailedError,
-      is SvrBApi.RestoreResult.SvrError,
-      is SvrBApi.RestoreResult.UnknownError -> {
+      is SvrBApi.RestoreResult.SvrError -> {
         Log.w(TAG, "[remoteRestore] Failed to fetch SVRB data: $result")
         return RemoteRestoreResult.Failure
+      }
+      is SvrBApi.RestoreResult.UnknownError -> {
+        Log.e(TAG, "[remoteRestore] Unknown SVRB result! Crashing.", result.throwable)
+        throw result.throwable
       }
     }
 

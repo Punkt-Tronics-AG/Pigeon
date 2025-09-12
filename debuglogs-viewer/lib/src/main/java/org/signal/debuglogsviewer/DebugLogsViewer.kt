@@ -5,18 +5,18 @@
 
 package org.signal.debuglogsviewer
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.webkit.ValueCallback
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import kotlinx.coroutines.Runnable
+import org.json.JSONArray
 import org.json.JSONObject
+import org.signal.core.util.ThreadUtil
+import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
-
-var readOnly = true
 
 object DebugLogsViewer {
   @JvmStatic
@@ -29,13 +29,14 @@ object DebugLogsViewer {
     webview.isVerticalScrollBarEnabled = false
     webview.isHorizontalScrollBarEnabled = false
 
+    webview.setBackgroundColor(Color.TRANSPARENT)
+    webview.background = null
+
     webview.loadUrl("file:///android_asset/debuglogs-viewer.html")
 
     webview.webViewClient = object : WebViewClient() {
       override fun onPageFinished(view: WebView?, url: String?) {
-        // Set dark mode colors if in dark mode
-        val isDarkMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        if (isDarkMode) {
+        if (context.isDarkTheme) {
           webview.evaluateJavascript("document.body.classList.add('dark');", null)
         }
         onFinished.run()
@@ -44,10 +45,35 @@ object DebugLogsViewer {
   }
 
   @JvmStatic
-  fun presentLines(webview: WebView, lines: String) {
+  fun appendLines(webview: WebView, lines: String) {
     // Set the debug log lines
     val escaped = JSONObject.quote(lines)
-    webview.evaluateJavascript("editor.insert($escaped); logLines=$escaped;", null)
+    val latch = CountDownLatch(1)
+    ThreadUtil.runOnMain {
+      webview.evaluateJavascript("appendLines($escaped)") { latch.countDown() }
+    }
+    latch.await()
+  }
+
+  @JvmStatic
+  fun readLogs(webview: WebView): LogReader {
+    var position = 0
+    return LogReader { size ->
+      val latch = CountDownLatch(1)
+      var result: String? = null
+      ThreadUtil.runOnMain {
+        webview.evaluateJavascript("readLines($position, $size)") { value ->
+          // Annoying, string returns from javascript land are always encoded as JSON strings (wrapped in quotes, various strings escaped, etc)
+          val parsed = JSONArray("[$value]").getString(0)
+          result = parsed.takeUnless { it == "<<END OF INPUT>>" }
+          position += size
+          latch.countDown()
+        }
+      }
+
+      latch.await()
+      result
+    }
   }
 
   @JvmStatic
@@ -81,6 +107,12 @@ object DebugLogsViewer {
   }
 
   @JvmStatic
+  fun onFilterLevel(webview: WebView, selectedLevels: String) {
+    webview.evaluateJavascript("if (isFiltered) { onFilter(); }", null)
+    webview.evaluateJavascript("onFilterLevel($selectedLevels)", null)
+  }
+
+  @JvmStatic
   fun onSearchUp(webview: WebView) {
     webview.evaluateJavascript("onSearchUp();", null)
   }
@@ -105,25 +137,11 @@ object DebugLogsViewer {
     webview.evaluateJavascript("onSearchClose();", null)
   }
 
-  @JvmStatic
-  fun onEdit(webview: WebView) {
-    readOnly = !readOnly
-    webview.evaluateJavascript("editor.setReadOnly($readOnly);", null)
-  }
+  private val Context.isDarkTheme
+    get() = (this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
-  @JvmStatic
-  fun onCancelEdit(webview: WebView, lines: String) {
-    readOnly = !readOnly
-    webview.evaluateJavascript("editor.setReadOnly($readOnly);", null)
-    webview.evaluateJavascript("editor.setValue($lines, -1);", null)
-  }
-
-  @JvmStatic
-  fun onCopy(webview: WebView, context: Context, appName: String) {
-    webview.evaluateJavascript("editor.getValue();") { value ->
-      val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-      val clip = ClipData.newPlainText(appName, value)
-      clipboard.setPrimaryClip(clip)
-    }
+  fun interface LogReader {
+    /** Returns the next bit of log, containing at most [size] lines (but may be less), or null if there are no logs remaining. */
+    fun nextChunk(size: Int): String?
   }
 }

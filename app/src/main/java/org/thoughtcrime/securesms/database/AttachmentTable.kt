@@ -61,7 +61,6 @@ import org.signal.core.util.requireString
 import org.signal.core.util.select
 import org.signal.core.util.toInt
 import org.signal.core.util.update
-import org.signal.core.util.updateAll
 import org.signal.core.util.withinTransaction
 import org.thoughtcrime.securesms.attachments.ArchivedAttachment
 import org.thoughtcrime.securesms.attachments.Attachment
@@ -521,7 +520,7 @@ class AttachmentTable(
           file = File(it.requireNonNullString(DATA_FILE)),
           random = it.requireNonNullBlob(DATA_RANDOM),
           size = it.requireLong(DATA_SIZE),
-          remoteKey = it.requireBlob(REMOTE_KEY)!!,
+          remoteKey = Base64.decode(it.requireNonNullString(REMOTE_KEY)),
           plaintextHash = Base64.decode(it.requireNonNullString(DATA_HASH_END))
         )
       }
@@ -545,8 +544,8 @@ class AttachmentTable(
           attachmentId = AttachmentId(it.requireLong(ID)),
           mmsId = it.requireLong(MESSAGE_ID),
           size = it.requireLong(DATA_SIZE),
-          plaintextHash = it.requireBlob(DATA_HASH_END),
-          remoteKey = it.requireBlob(REMOTE_KEY)
+          plaintextHash = it.requireString(DATA_HASH_END)?.let { hash -> Base64.decode(hash) },
+          remoteKey = it.requireString(REMOTE_KEY)?.let { key -> Base64.decode(key) }
         )
       }
   }
@@ -569,8 +568,8 @@ class AttachmentTable(
           attachmentId = AttachmentId(it.requireLong(ID)),
           mmsId = it.requireLong(MESSAGE_ID),
           size = it.requireLong(DATA_SIZE),
-          plaintextHash = it.requireBlob(DATA_HASH_END),
-          remoteKey = it.requireBlob(REMOTE_KEY)
+          plaintextHash = it.requireString(DATA_HASH_END)?.let { hash -> Base64.decode(hash) },
+          remoteKey = it.requireString(REMOTE_KEY)?.let { key -> Base64.decode(key) }
         )
       }
   }
@@ -588,8 +587,8 @@ class AttachmentTable(
           attachmentId = AttachmentId(it.requireLong(ID)),
           mmsId = it.requireLong(MESSAGE_ID),
           size = it.requireLong(DATA_SIZE),
-          plaintextHash = it.requireBlob(DATA_HASH_END),
-          remoteKey = it.requireBlob(REMOTE_KEY)
+          plaintextHash = it.requireString(DATA_HASH_END)?.let { hash -> Base64.decode(hash) },
+          remoteKey = it.requireString(REMOTE_KEY)?.let { key -> Base64.decode(key) }
         )
       }
   }
@@ -606,8 +605,8 @@ class AttachmentTable(
           attachmentId = AttachmentId(it.requireLong(ID)),
           mmsId = it.requireLong(MESSAGE_ID),
           size = it.requireLong(DATA_SIZE),
-          plaintextHash = it.requireNonNullBlob(DATA_HASH_END),
-          remoteKey = it.requireNonNullBlob(REMOTE_KEY)
+          plaintextHash = it.requireString(DATA_HASH_END)?.let { hash -> Base64.decode(hash) },
+          remoteKey = it.requireString(REMOTE_KEY)?.let { key -> Base64.decode(key) }
         )
       }
   }
@@ -687,7 +686,7 @@ class AttachmentTable(
   /**
    * Similar to [getAttachmentsThatNeedArchiveUpload], but returns if the list would be non-null in a more efficient way.
    */
-  fun doAnyAttachmentsNeedArchiveUpload(currentTime: Long): Boolean {
+  fun doAnyAttachmentsNeedArchiveUpload(): Boolean {
     return readableDatabase
       .exists("$TABLE_NAME LEFT JOIN ${MessageTable.TABLE_NAME} ON $TABLE_NAME.$MESSAGE_ID = ${MessageTable.TABLE_NAME}.${MessageTable.ID}")
       .where(buildAttachmentsThatNeedUploadQuery())
@@ -833,6 +832,8 @@ class AttachmentTable(
 
   /**
    * Returns sum of the file sizes of attachments that are not fully uploaded to the archive CDN.
+   *
+   * Should be the same or subset of that returned by [getAttachmentsThatNeedArchiveUpload].
    */
   fun getPendingArchiveUploadBytes(): Long {
     return readableDatabase
@@ -847,12 +848,43 @@ class AttachmentTable(
               $DATA_HASH_END NOT NULL AND 
               $REMOTE_KEY NOT NULL AND
               $ARCHIVE_TRANSFER_STATE NOT IN (${ArchiveTransferState.FINISHED.value}, ${ArchiveTransferState.PERMANENT_FAILURE.value}) AND
+              $CONTENT_TYPE != '${MediaUtil.LONG_TEXT}' AND
               (${MessageTable.STORY_TYPE} = 0 OR ${MessageTable.STORY_TYPE} IS NULL) AND
-              (${MessageTable.EXPIRES_IN} = 0 OR ${MessageTable.EXPIRES_IN} > ${ChatItemArchiveExporter.EXPIRATION_CUTOFF.inWholeMilliseconds})
+              (${MessageTable.EXPIRES_IN} = 0 OR ${MessageTable.EXPIRES_IN} > ${ChatItemArchiveExporter.EXPIRATION_CUTOFF.inWholeMilliseconds}) AND
+              ${MessageTable.TABLE_NAME}.${MessageTable.VIEW_ONCE} = 0
           )
         """.trimIndent()
       )
       .readToSingleLong()
+  }
+
+  /**
+   * Returns sum of the file sizes of attachments that are not fully uploaded to the archive CDN.
+   */
+  fun debugGetPendingArchiveUploadAttachments(): List<DatabaseAttachment> {
+    return readableDatabase
+      .rawQuery(
+        """
+          SELECT *
+          FROM $TABLE_NAME as t
+          JOIN (
+            SELECT DISTINCT $DATA_HASH_END, $REMOTE_KEY, $DATA_SIZE
+            FROM $TABLE_NAME LEFT JOIN ${MessageTable.TABLE_NAME} ON $TABLE_NAME.$MESSAGE_ID = ${MessageTable.TABLE_NAME}.${MessageTable.ID}
+            WHERE
+              $DATA_FILE NOT NULL AND
+              $DATA_HASH_END NOT NULL AND
+              $REMOTE_KEY NOT NULL AND
+              $ARCHIVE_TRANSFER_STATE NOT IN (${ArchiveTransferState.FINISHED.value}, ${ArchiveTransferState.PERMANENT_FAILURE.value}) AND
+              $CONTENT_TYPE != '${MediaUtil.LONG_TEXT}' AND
+              (${MessageTable.STORY_TYPE} = 0 OR ${MessageTable.STORY_TYPE} IS NULL) AND
+              (${MessageTable.EXPIRES_IN} = 0 OR ${MessageTable.EXPIRES_IN} > ${ChatItemArchiveExporter.EXPIRATION_CUTOFF.inWholeMilliseconds})
+          ) as filtered
+          ON t.$DATA_HASH_END = filtered.$DATA_HASH_END
+        """.trimIndent()
+      )
+      .readToList {
+        it.readAttachment()
+      }
   }
 
   fun deleteAttachmentsForMessage(mmsId: Long): Boolean {
@@ -1978,12 +2010,32 @@ class AttachmentTable(
 
   fun clearAllArchiveData() {
     writableDatabase
-      .updateAll(TABLE_NAME)
+      .update(TABLE_NAME)
       .values(
         ARCHIVE_CDN to null,
-        ARCHIVE_TRANSFER_STATE to ArchiveTransferState.NONE.value
+        ARCHIVE_TRANSFER_STATE to ArchiveTransferState.NONE.value,
+        UPLOAD_TIMESTAMP to 0
       )
+      .where("$ARCHIVE_CDN NOT NULL")
       .run()
+  }
+
+  fun debugMakeValidForArchive(attachmentId: AttachmentId) {
+    writableDatabase
+      .execSQL(
+        """
+        UPDATE $TABLE_NAME
+        SET $DATA_HASH_END = $DATA_HASH_START
+        WHERE $ID = ${attachmentId.id}
+      """
+      )
+
+    writableDatabase
+      .update(TABLE_NAME)
+      .values(
+        REMOTE_KEY to Base64.encodeWithPadding(Util.getSecretBytes(64)),
+        REMOTE_DIGEST to Util.getSecretBytes(64)
+      )
   }
 
   /**
@@ -2544,7 +2596,8 @@ class AttachmentTable(
       $TRANSFER_STATE = $TRANSFER_PROGRESS_DONE AND 
       (${MessageTable.STORY_TYPE} = 0 OR ${MessageTable.STORY_TYPE} IS NULL) AND 
       (${MessageTable.TABLE_NAME}.${MessageTable.EXPIRES_IN} <= 0 OR ${MessageTable.TABLE_NAME}.${MessageTable.EXPIRES_IN} > ${ChatItemArchiveExporter.EXPIRATION_CUTOFF.inWholeMilliseconds}) AND
-      $CONTENT_TYPE != '${MediaUtil.LONG_TEXT}'
+      $CONTENT_TYPE != '${MediaUtil.LONG_TEXT}' AND
+      ${MessageTable.TABLE_NAME}.${MessageTable.VIEW_ONCE} = 0
     """
   }
   private fun getAttachment(cursor: Cursor): DatabaseAttachment {

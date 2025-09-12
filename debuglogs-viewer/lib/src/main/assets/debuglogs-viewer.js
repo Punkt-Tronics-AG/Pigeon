@@ -1,6 +1,40 @@
+let editor;
+let timeout;
+let session;
+
+let logLines = ""; // Original logLines
+let input = ""; // Search query input
+let selectedLevels = []; // Log levels that are selected in checkboxes
+let markers = []; // IDs of highlighted search markers
+let matchRanges = []; // Ranges of all search matches
+let matchCount = 0; // Total number of matches
+let isFiltered = false;
+let isCaseSensitive = false;
+
 // Create custom text mode to color different levels of debug log lines
 const TextMode = ace.require("ace/mode/text").Mode;
 const TextHighlightRules = ace.require("ace/mode/text_highlight_rules").TextHighlightRules;
+const Range = ace.require("ace/range").Range;
+
+function main() {
+  // Create Ace Editor using the custom mode
+  editor = ace.edit("container", {
+    mode: new CustomMode(),
+    theme: "ace/theme/textmate",
+    wrap: false, // Allow for horizontal scrolling
+    readOnly: true,
+    showGutter: false,
+    highlightActiveLine: false,
+    highlightSelectedWord: false, // Prevent Ace Editor from automatically highlighting all instances of a selected word (really laggy!)
+    showPrintMargin: false,
+  });
+
+  editor.session.on("changeScrollTop", showScrollBar);
+  editor.session.on("changeScrollLeft", showScrollBar);
+
+  // Generate highlight markers for all search matches
+  session = editor.getSession();
+}
 
 function CustomHighlightRules() {
   this.$rules = {
@@ -14,51 +48,21 @@ function CustomHighlightRules() {
     ],
   };
 }
-
 CustomHighlightRules.prototype = new TextHighlightRules();
 
 function CustomMode() {
   TextMode.call(this);
   this.HighlightRules = CustomHighlightRules;
 }
-
 CustomMode.prototype = Object.create(TextMode.prototype);
 CustomMode.prototype.constructor = CustomMode;
 
-// Create Ace Editor using the custom mode
-let editor = ace.edit("container", {
-  mode: new CustomMode(),
-  theme: "ace/theme/textmate",
-  wrap: false, // Allow for horizontal scrolling
-  readOnly: true,
-  showGutter: false,
-  highlightActiveLine: false,
-  highlightSelectedWord: false, // Prevent Ace Editor from automatically highlighting all instances of a selected word (really laggy!)
-  showPrintMargin: false,
-});
-
 // Show scrollbar that fades after a second since last scroll
-let timeout;
 function showScrollBar() {
   editor.container.classList.add("show-scrollbar");
   clearTimeout(timeout);
   timeout = setTimeout(() => editor.container.classList.remove("show-scrollbar"), 1000);
 }
-
-editor.session.on("changeScrollTop", showScrollBar);
-editor.session.on("changeScrollLeft", showScrollBar);
-
-// Generate highlight markers for all search matches
-const Range = ace.require("ace/range").Range;
-const session = editor.getSession();
-
-let logLines = ""; // Original logLines
-let input = ""; // Search query input
-let markers = []; // IDs of highlighted search markers
-let matchRanges = []; // Ranges of all search matches
-let matchCount = 0; // Total number of matches
-let isCaseSensitive = false;
-let isFiltered = false;
 
 // Clear all search markers and match info
 function clearMarkers() {
@@ -134,6 +138,7 @@ function onSearchDown() {
 }
 
 function onSearchClose() {
+  editor.setValue(logLines, -1);
   editor.getSelection().clearSelection();
   input = "";
   clearMarkers();
@@ -146,6 +151,13 @@ function onToggleCaseSensitive() {
 
 function onSearchInput(value) {
   input = value;
+  highlightAllMatches(input);
+  editor.find(input, {
+    backwards: false,
+    wrap: true,
+    skipCurrent: false,
+    caseSensitive: isCaseSensitive,
+  });
 }
 
 function onSearch() {
@@ -156,19 +168,77 @@ function onFilter() {
   isFiltered = true;
   editor.getSelection().clearSelection();
   clearMarkers();
+  applyFilter();
+}
+
+function onFilterClose() {
+  if (isFiltered) {
+    isFiltered = false;
+    if (selectedLevels.length === 0) {
+      editor.setValue(logLines, -1);
+    } else {
+      const filtered = logLines
+        .split("\n")
+        .filter((line) => {
+          return selectedLevels.some((level) => line.includes(level));
+        })
+        .join("\n");
+
+      editor.setValue(filtered, -1);
+    }
+    highlightAllMatches(input);
+  }
+}
+
+function onFilterLevel(sLevels) {
+  selectedLevels = sLevels;
+
+  if (isFiltered) {
+    applyFilter();
+  } else {
+    if (selectedLevels.length === 0) {
+      editor.setValue(logLines, -1);
+      editor.scrollToRow(0);
+    } else {
+      const filtered = logLines
+        .split("\n")
+        .filter((line) => {
+          return selectedLevels.some((level) => line.includes(level));
+        })
+        .join("\n");
+
+      editor.setValue(filtered, -1);
+    }
+    onSearch();
+  }
+}
+
+function applyFilter() {
   const filtered = logLines
     .split("\n")
     .filter((line) => {
       const newLine = isCaseSensitive ? line : line.toLowerCase();
-      return newLine.includes(isCaseSensitive ? input : input.toLowerCase());
+      const lineMatch = newLine.includes(isCaseSensitive ? input : input.toLowerCase());
+      const levelMatch = selectedLevels.length === 0 || selectedLevels.some((level) => line.includes(level));
+      return lineMatch && levelMatch;
     })
     .join("\n");
 
   editor.setValue(filtered, -1);
 }
 
-function onFilterClose() {
-  isFiltered = false;
-  editor.setValue(logLines, -1);
-  highlightAllMatches(input);
+function appendLines(lines) {
+  editor.session.insert({ row: editor.session.getLength(), column: 0}, lines);
+  logLines += lines;
 }
+
+function readLines(offset, limit) {
+  const lines = logLines.split("\n")
+  if (offset >= lines.length) {
+    return "<<END OF INPUT>>";
+  }
+
+  return lines.slice(offset, offset + limit).join("\n")
+}
+
+main();

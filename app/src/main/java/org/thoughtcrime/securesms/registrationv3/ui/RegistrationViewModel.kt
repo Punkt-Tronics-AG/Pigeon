@@ -909,8 +909,8 @@ class RegistrationViewModel : ViewModel() {
       Log.w(TAG, "Unable to start auth websocket", e)
     }
 
-    if (!remoteResult.storageCapable && !SignalStore.account.restoredAccountEntropyPool && SignalStore.registration.restoreDecisionState.isDecisionPending) {
-      Log.v(TAG, "Not storage capable or restored with AEP, and still pending restore decision, likely an account with no data to restore, skipping post register restore")
+    if (!remoteResult.reRegistration && SignalStore.registration.restoreDecisionState.isDecisionPending) {
+      Log.v(TAG, "Not re-registration, and still pending restore decision, likely an account with no data to restore, skipping post register restore")
       SignalStore.registration.restoreDecisionState = RestoreDecisionState.NewAccount
     }
 
@@ -1145,7 +1145,6 @@ class RegistrationViewModel : ViewModel() {
       }
 
       // TODO [linked-device] Reapply opt-out, backup restore sets pin, may want to have a different opt out mechanism for linked devices
-      SvrRepository.optOutOfPin()
     }
 
     for (type in SyncMessage.Request.Type.entries) {

@@ -132,6 +132,7 @@ class ChatItemArchiveImporter(
       MessageTable.MESSAGE_EXTRAS,
       MessageTable.ORIGINAL_MESSAGE_ID,
       MessageTable.LATEST_REVISION_ID,
+      MessageTable.REVISION_NUMBER,
       MessageTable.PARENT_STORY_ID,
       MessageTable.NOTIFIED
     )
@@ -193,14 +194,18 @@ class ChatItemArchiveImporter(
       val latestRevisionId = originalId + chatItem.revisions.size
       val sortedRevisions = chatItem.revisions.sortedBy { it.dateSent }.map { it.toMessageInsert(fromLocalRecipientId, chatLocalRecipientId, localThreadId) }
       for (revision in sortedRevisions) {
-        revision.contentValues.put(MessageTable.ORIGINAL_MESSAGE_ID, originalId)
+        val revisionNumber = messageId - originalId
+        if (revisionNumber > 0) {
+          revision.contentValues.put(MessageTable.ORIGINAL_MESSAGE_ID, originalId)
+        }
         revision.contentValues.put(MessageTable.LATEST_REVISION_ID, latestRevisionId)
-        revision.contentValues.put(MessageTable.REVISION_NUMBER, (messageId - originalId))
+        revision.contentValues.put(MessageTable.REVISION_NUMBER, revisionNumber)
         buffer.messages += revision
         messageId++
       }
 
       messageInsert.contentValues.put(MessageTable.ORIGINAL_MESSAGE_ID, originalId)
+      messageInsert.contentValues.put(MessageTable.REVISION_NUMBER, (messageId - originalId))
     }
     buffer.messages += messageInsert
     buffer.reactions += chatItem.toReactionContentValues(messageId)
@@ -525,7 +530,7 @@ class ChatItemArchiveImporter(
     contentValues.put(MessageTable.FROM_RECIPIENT_ID, fromRecipientId.serialize())
     contentValues.put(MessageTable.TO_RECIPIENT_ID, toRecipientId.serialize())
     contentValues.put(MessageTable.THREAD_ID, threadId)
-    contentValues.put(MessageTable.DATE_RECEIVED, this.incoming?.dateReceived ?: this.dateSent)
+    contentValues.put(MessageTable.DATE_RECEIVED, this.incoming?.dateReceived ?: this.outgoing?.dateReceived?.takeUnless { it == 0L } ?: this.dateSent)
     contentValues.put(MessageTable.RECEIPT_TIMESTAMP, this.outgoing?.sendStatus?.maxOfOrNull { it.timestamp } ?: 0)
     contentValues.putNull(MessageTable.LATEST_REVISION_ID)
     contentValues.putNull(MessageTable.ORIGINAL_MESSAGE_ID)

@@ -12,6 +12,7 @@ import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment
 import org.thoughtcrime.securesms.attachments.PointerAttachment
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
+import org.thoughtcrime.securesms.backup.v2.hadIntegrityCheckPerformed
 import org.thoughtcrime.securesms.backup.v2.requireThumbnailMediaName
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.AppDependencies
@@ -54,6 +55,12 @@ class ArchiveThumbnailUploadJob private constructor(
     private const val MAX_PIXEL_DIMENSION = 256
     private const val ADDITIONAL_QUALITY_DECREASE = 10f
 
+    /** A set of possible queues this job may use. The number of queues determines the parallelism. */
+    val QUEUES = setOf(
+      "ArchiveThumbnailUploadJob_1",
+      "ArchiveThumbnailUploadJob_2"
+    )
+
     fun enqueueIfNecessary(attachmentId: AttachmentId) {
       if (SignalStore.backup.backsUpMedia) {
         AppDependencies.jobManager.add(ArchiveThumbnailUploadJob(attachmentId))
@@ -67,10 +74,11 @@ class ArchiveThumbnailUploadJob private constructor(
 
   private constructor(attachmentId: AttachmentId) : this(
     Parameters.Builder()
-      .setQueue("ArchiveThumbnailUploadJob")
+      .setQueue(QUEUES.random())
       .addConstraint(NetworkConstraint.KEY)
       .setLifespan(1.days.inWholeMilliseconds)
       .setMaxAttempts(Parameters.UNLIMITED)
+      .setGlobalPriority(Parameters.PRIORITY_LOW)
       .build(),
     attachmentId
   )
@@ -90,18 +98,21 @@ class ArchiveThumbnailUploadJob private constructor(
       return Result.success()
     }
 
-    if (attachment.remoteDigest == null && attachment.dataHash == null) {
+    if (attachment.remoteDigest == null && attachment.dataHash == null && attachment.hadIntegrityCheckPerformed()) {
       Log.w(TAG, "$attachmentId has no integrity check! Cannot proceed.")
       return Result.success()
     }
 
-    // TODO [backups] Decide if we fail a job when associated attachment not already backed up
     // TODO [backups] Determine if we actually need to upload or are reusing a thumbnail from another attachment
 
     val thumbnailResult = generateThumbnailIfPossible(attachment)
     if (thumbnailResult == null) {
       Log.w(TAG, "Unable to generate a thumbnail result for $attachmentId")
       return Result.success()
+    }
+
+    if (isCanceled) {
+      return Result.failure()
     }
 
     val mediaRootBackupKey = SignalStore.backup.mediaRootBackupKey
@@ -115,6 +126,10 @@ class ArchiveThumbnailUploadJob private constructor(
           uploadForm = form
         )
       }
+
+    if (isCanceled) {
+      return Result.failure()
+    }
 
     val resumableUpload = when (specResult) {
       is NetworkResult.Success -> {
@@ -138,6 +153,10 @@ class ArchiveThumbnailUploadJob private constructor(
       }
     }
 
+    if (isCanceled) {
+      return Result.failure()
+    }
+
     val attachmentPointer = try {
       buildSignalServiceAttachmentStream(thumbnailResult, resumableUpload).use { stream ->
         val pointer = AppDependencies.signalServiceMessageSender.uploadAttachment(stream)
@@ -146,6 +165,10 @@ class ArchiveThumbnailUploadJob private constructor(
     } catch (e: IOException) {
       Log.w(TAG, "Failed to upload attachment", e)
       return Result.retry(defaultBackoff())
+    }
+
+    if (isCanceled) {
+      return Result.failure()
     }
 
     return when (val result = BackupRepository.copyThumbnailToArchive(attachmentPointer, attachment)) {
