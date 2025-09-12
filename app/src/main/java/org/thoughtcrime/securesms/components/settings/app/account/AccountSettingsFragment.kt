@@ -402,7 +402,7 @@ fun AccountSettingsScreen(
           var displayDialog by remember { mutableStateOf(false) }
 
           Rows.TextRow(
-            text = {
+            text = { _, _ ->
               Text(
                 text = stringResource(R.string.preferences_account_delete_all_data),
                 style = MaterialTheme.typography.bodyLarge,
@@ -432,7 +432,7 @@ fun AccountSettingsScreen(
         }
 
         Rows.TextRow(
-          text = {
+          text = { _, _ ->
             Text(
               text = stringResource(R.string.preferences__delete_account),
               color = colorResource(textColor)

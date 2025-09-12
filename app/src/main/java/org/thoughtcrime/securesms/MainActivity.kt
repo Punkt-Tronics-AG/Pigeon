@@ -50,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.fragment.app.DialogFragment
@@ -62,13 +63,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.signal.core.ui.compose.TextFields
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getSerializableCompat
@@ -119,7 +119,6 @@ import org.thoughtcrime.securesms.main.MainToolbarState
 import org.thoughtcrime.securesms.main.MainToolbarViewModel
 import org.thoughtcrime.securesms.main.Material3OnScrollHelperBinder
 import org.thoughtcrime.securesms.main.NavigationBarSpacerCompat
-import org.thoughtcrime.securesms.main.SearchToolbar
 import org.thoughtcrime.securesms.main.SnackbarState
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionActivity
@@ -346,51 +345,51 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         MainContainer {
           val wrappedNavigator = rememberNavigator(windowSizeClass, contentLayoutData, maxWidth)
 
-        AppScaffold(
-          navigator = wrappedNavigator,
-          bottomNavContent = {
-            if (isSignalVersion()) {
-              if (isNavigationVisible) {
-                Column(
-                  modifier = Modifier
-                    .clip(contentLayoutData.navigationBarShape)
-                    .background(color = SignalTheme.colors.colorSurface2)
-                ) {
-                  MainNavigationBar(
-                    state = mainNavigationState,
-                    onDestinationSelected = mainNavigationCallback
-                  )
+          AppScaffold(
+            navigator = wrappedNavigator,
+            bottomNavContent = {
+              if (isSignalVersion()) {
+                if (isNavigationVisible) {
+                  Column(
+                    modifier = Modifier
+                      .clip(contentLayoutData.navigationBarShape)
+                      .background(color = SignalTheme.colors.colorSurface2)
+                  ) {
+                    MainNavigationBar(
+                      state = mainNavigationState,
+                      onDestinationSelected = mainNavigationCallback
+                    )
 
-                  if (!windowSizeClass.isSplitPane()) {
-                    NavigationBarSpacerCompat()
+                    if (!windowSizeClass.isSplitPane()) {
+                      NavigationBarSpacerCompat()
+                    }
                   }
                 }
               }
-            }
-          },
-          navRailContent = {
-            if (isNavigationVisible && isSignalVersion()) {
-              MainNavigationRail(
-                state = mainNavigationState,
-                mainFloatingActionButtonsCallback = mainBottomChromeCallback,
-                onDestinationSelected = mainNavigationCallback
-              )
-            }
-          },
-          listContent = {
-            val listContainerColor = if (windowSizeClass.isMedium()) {
-              SignalTheme.colors.colorSurface1
-            } else {
-              MaterialTheme.colorScheme.surface
-            }
+            },
+            navRailContent = {
+              if (isNavigationVisible && isSignalVersion()) {
+                MainNavigationRail(
+                  state = mainNavigationState,
+                  mainFloatingActionButtonsCallback = mainBottomChromeCallback,
+                  onDestinationSelected = mainNavigationCallback
+                )
+              }
+            },
+            listContent = {
+              val listContainerColor = if (windowSizeClass.isMedium()) {
+                SignalTheme.colors.colorSurface1
+              } else {
+                MaterialTheme.colorScheme.surface
+              }
 
-            Column(
-              modifier = Modifier
-                .padding(start = contentLayoutData.listPaddingStart)
-                .fillMaxSize()
-                .background(listContainerColor, contentLayoutData.shape)
-                .clip(contentLayoutData.shape)
-            ) {
+              Column(
+                modifier = Modifier
+                  .padding(start = contentLayoutData.listPaddingStart)
+                  .fillMaxSize()
+                  .background(listContainerColor, contentLayoutData.shape)
+                  .clip(contentLayoutData.shape)
+              ) {
 
 //              Box(
 //                modifier = Modifier.weight(1f)
@@ -408,68 +407,71 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   )
                 }
 
-              if (_pigeonShowSearch.value) {
-                if (isSignalVersion()) {
-                  MainToolbar(
-                    state = mainToolbarState,
-                    callback = toolbarCallback
-                  )
-                } else {
-                  // PIGEON-ONLY: Show the search toolbar
+                if (_pigeonShowSearch.value) {
+                  if (isSignalVersion()) {
+                    MainToolbar(
+                      state = mainToolbarState,
+                      callback = toolbarCallback
+                    )
+                  } else {
+                    // PIGEON-ONLY: Show the search toolbar
 //                  TextFields.TextField(
 //                    value = "",
 //                    onValueChange = { toolbarCallback.onSearchQueryUpdated(it) },
 //                  )
 
+                  }
                 }
-              }
 
-              if (isPigeonVersion() && pigeonShowConversation.value) {
-                when (val destination = mainNavigationState.currentListLocation) {
-                  MainNavigationListLocation.CHATS -> {
-                    val state = key(destination) { rememberFragmentState() }
-                    AndroidFragment(
-                      clazz = ConversationListFragment::class.java,
-                      fragmentState = state,
-                      modifier = Modifier.fillMaxSize(),
-                      onUpdate = {
-                        // PIGEON-ONLY: Show the conversation list when the home page is not shown
-                        if (isPigeonVersion()) {
-                          _pigeonShowConversation.value = true
+                if (isPigeonVersion() && pigeonShowConversation.value) {
+                  when (val destination = mainNavigationState.currentListLocation) {
+                    MainNavigationListLocation.CHATS -> {
+                      val state = key(destination) { rememberFragmentState() }
+                      AndroidFragment(
+                        clazz = ConversationListFragment::class.java,
+                        fragmentState = state,
+                        modifier = Modifier.fillMaxSize(),
+                        onUpdate = {
+                          // PIGEON-ONLY: Show the conversation list when the home page is not shown
+                          if (isPigeonVersion()) {
+                            _pigeonShowConversation.value = true
+                          }
                         }
-                      }
-                    )
-                  }
+                      )
+                    }
 
-                  MainNavigationListLocation.ARCHIVE -> {
-                    val state = key(destination) { rememberFragmentState() }
-                    AndroidFragment(
-                      clazz = ConversationListArchiveFragment::class.java,
-                      fragmentState = state,
-                      modifier = Modifier.fillMaxSize(),
-                      onUpdate = {
-                        // PIGEON-ONLY: Show the conversation list when the home page is not shown
-                        if (isPigeonVersion()) {
-                          _pigeonShowConversation.value = true
+                    MainNavigationListLocation.ARCHIVE -> {
+                      val state = key(destination) { rememberFragmentState() }
+                      AndroidFragment(
+                        clazz = ConversationListArchiveFragment::class.java,
+                        fragmentState = state,
+                        modifier = Modifier.fillMaxSize(),
+                        onUpdate = {
+                          // PIGEON-ONLY: Show the conversation list when the home page is not shown
+                          if (isPigeonVersion()) {
+                            _pigeonShowConversation.value = true
+                          }
                         }
-                      }
-                    )
-                  }
-                  MainNavigationListLocation.CALLS -> {
-                    val state = key(destination) { rememberFragmentState() }
-                    AndroidFragment(
-                      clazz = CallLogFragment::class.java,
-                      fragmentState = state,
-                      modifier = Modifier.fillMaxSize()
-                    )
-                  }
-                  MainNavigationListLocation.STORIES -> {
-                    val state = key(destination) { rememberFragmentState() }
-                    AndroidFragment(
-                      clazz = StoriesLandingFragment::class.java,
-                      fragmentState = state,
-                      modifier = Modifier.fillMaxSize()
-                    )
+                      )
+                    }
+
+                    MainNavigationListLocation.CALLS -> {
+                      val state = key(destination) { rememberFragmentState() }
+                      AndroidFragment(
+                        clazz = CallLogFragment::class.java,
+                        fragmentState = state,
+                        modifier = Modifier.fillMaxSize()
+                      )
+                    }
+
+                    MainNavigationListLocation.STORIES -> {
+                      val state = key(destination) { rememberFragmentState() }
+                      AndroidFragment(
+                        clazz = StoriesLandingFragment::class.java,
+                        fragmentState = state,
+                        modifier = Modifier.fillMaxSize()
+                      )
+                    }
                   }
                 }
 
@@ -482,47 +484,47 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   )
                 }
 //              }
-            }
-          },
-          detailContent = {
-            when (val destination = mainNavigationDetailLocation) {
-              is MainNavigationDetailLocation.Conversation -> {
-                val fragmentState = key(destination) { rememberFragmentState() }
-                AndroidFragment(
-                  clazz = ConversationFragment::class.java,
-                  fragmentState = fragmentState,
-                  arguments = requireNotNull(destination.intent.extras) { "Handed null Conversation intent arguments." },
-                  modifier = Modifier
-                    .padding(end = contentLayoutData.detailPaddingEnd)
-                    .clip(contentLayoutData.shape)
-                    .background(color = MaterialTheme.colorScheme.surface)
-                    .fillMaxSize()
-                )
               }
-
-              MainNavigationDetailLocation.Empty -> {
-                Box(
-                  modifier = Modifier
-                    .padding(end = contentLayoutData.detailPaddingEnd)
-                    .clip(contentLayoutData.shape)
-                    .background(color = MaterialTheme.colorScheme.surface)
-                    .fillMaxSize()
-                ) {
-                  Image(
-                    painter = painterResource(R.drawable.ic_signal_logo_large),
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.Center)
+            },
+            detailContent = {
+              when (val destination = mainNavigationDetailLocation) {
+                is MainNavigationDetailLocation.Conversation -> {
+                  val fragmentState = key(destination) { rememberFragmentState() }
+                  AndroidFragment(
+                    clazz = ConversationFragment::class.java,
+                    fragmentState = fragmentState,
+                    arguments = requireNotNull(destination.intent.extras) { "Handed null Conversation intent arguments." },
+                    modifier = Modifier
+                      .padding(end = contentLayoutData.detailPaddingEnd)
+                      .clip(contentLayoutData.shape)
+                      .background(color = MaterialTheme.colorScheme.surface)
+                      .fillMaxSize()
                   )
                 }
+
+                MainNavigationDetailLocation.Empty -> {
+                  Box(
+                    modifier = Modifier
+                      .padding(end = contentLayoutData.detailPaddingEnd)
+                      .clip(contentLayoutData.shape)
+                      .background(color = MaterialTheme.colorScheme.surface)
+                      .fillMaxSize()
+                  ) {
+                    Image(
+                      painter = painterResource(R.drawable.ic_signal_logo_large),
+                      contentDescription = null,
+                      modifier = Modifier.align(Alignment.Center)
+                    )
+                  }
+                }
               }
-            }
-          },
-          paneExpansionDragHandle = if (contentLayoutData.hasDragHandle()) {
-            { }
-          } else null
-        )
+            },
+            paneExpansionDragHandle = if (contentLayoutData.hasDragHandle()) {
+              { }
+            } else null
+          )
+        }
       }
-    }
 
     }
 
@@ -582,6 +584,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           is MainNavigationDetailLocation.Conversation -> {
             startActivity(detailLocation.intent)
           }
+
           MainNavigationDetailLocation.Empty -> Unit
         }
       }
@@ -604,7 +607,9 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       }
 
       val modifier = if (windowSizeClass.isSplitPane()) {
-        Modifier.systemBarsPadding().displayCutoutPadding()
+        Modifier
+          .systemBarsPadding()
+          .displayCutoutPadding()
       } else {
         Modifier
       }
@@ -755,7 +760,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         setStatusBarColor = {},
         lifecycleOwner = lifecycleOwner
       ).attach(recyclerView)
-      }
+    }
   }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner, chatFolders: RecyclerView, setChatFolder: (Int) -> Unit) {
@@ -770,8 +775,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         },
         lifecycleOwner = lifecycleOwner,
         setChatFolderColor = setChatFolder
-    ).attach(recyclerView)
-      }
+      ).attach(recyclerView)
+    }
   }
 
   override fun updateProxyStatus(state: WebSocketConnectionState) {
