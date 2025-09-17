@@ -354,9 +354,9 @@ import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
+import org.thoughtcrime.securesms.window.WindowSizeClass.Companion.getWindowSizeClass
 import pigeon.extensions.isPigeonVersion
 import pigeon.permissions.PigeonRationaleDialog
-import org.thoughtcrime.securesms.window.WindowSizeClass.Companion.getWindowSizeClass
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -555,6 +555,8 @@ class ConversationFragment :
 
   private var primaryLayout: LinearLayoutCompat? = null
   private var extraLayout: LinearLayoutCompat? = null
+
+  private var sendText: TextView? = null
   private var send2: MaterialButton? = null
 
   private var myRecordTime: TextView? = null
@@ -681,14 +683,15 @@ class ConversationFragment :
     binding.conversationItemRecycler.addItemDecoration(ChatColorsDrawable.ChatColorsItemDecoration)
 
     pigeonGroupCall = view.findViewById(R.id.conversation_group_call)
-    pigeonCall      = view.findViewById(R.id.conversation_call)
-    pigeonSettings  = view.findViewById(R.id.conversation_settings)
-    secureSession   = view.findViewById(R.id.secure_session)
-    voice           = view.findViewById(R.id.voice)
-    primaryLayout   = view.findViewById(R.id.prime_buttons)
-    extraLayout     = view.findViewById(R.id.extra_buttons)
-    send2           = view.findViewById(R.id.send_text_2)
-    myRecordTime    = view.findViewById(R.id.record_time)
+    pigeonCall = view.findViewById(R.id.conversation_call)
+    pigeonSettings = view.findViewById(R.id.conversation_settings)
+    secureSession = view.findViewById(R.id.secure_session)
+    voice = view.findViewById(R.id.voice)
+    primaryLayout = view.findViewById(R.id.prime_buttons)
+    extraLayout = view.findViewById(R.id.extra_buttons)
+    sendText = view.findViewById(R.id.send_text)
+    send2 = view.findViewById(R.id.send_text_2)
+    myRecordTime = view.findViewById(R.id.record_time)
 
     pigeonGroupCall?.setOnClickListener { v -> optionsMenuCallback.handleVideo() }
     pigeonCall?.setOnClickListener { v -> optionsMenuCallback.handleDial() }
@@ -696,14 +699,14 @@ class ConversationFragment :
     voice?.setOnClickListener { v -> sendVoiceMessage() }
 
     send2?.setOnClickListener { v: View? ->
-      (view.findViewById(R.id.send_text) as TextView).performClick()
+      sendButton.performClick()
       primaryLayout?.visibility = View.VISIBLE
       extraLayout?.visibility = View.GONE
       extraScreenIsShowed = false
       composeText.requestFocus()
     }
 
-    (view.findViewById(R.id.send_text)as TextView).setOnKeyListener { v, keyCode, event ->
+    sendText?.setOnKeyListener { v, keyCode, event ->
       if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
         primaryLayout?.visibility = View.GONE
         extraLayout?.visibility = View.VISIBLE
@@ -715,6 +718,7 @@ class ConversationFragment :
     }
 
     send2?.setOnKeyListener { v: View?, keyCode: Int, event: KeyEvent ->
+      Log.w("PIGEON", "send2 keyevent: $keyCode | action: ${event.action} | extraScreenIsShowed: $extraScreenIsShowed")
       if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.action == KeyEvent.ACTION_UP) {
         if (!extraScreenIsShowed) {
           extraScreenIsShowed = true
@@ -730,32 +734,27 @@ class ConversationFragment :
       false
     }
 
-    (view.findViewById(R.id.send_text) as TextView).setOnClickListener {
-      binding.conversationInputPanel.sendButton.performClick();
-      composeText.requestFocus()
-    }
-
     inputPanel.clearQuote()
   }
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
     Log.w("PIGEON", "$requestCode | $resultCode")
-    if (selectedConversationMessage == null || requestCode != ConversationSubMenuActivity.Companion.HANDLE_SUBMENU){
+    if (selectedConversationMessage == null || requestCode != ConversationSubMenuActivity.Companion.HANDLE_SUBMENU) {
       return
     }
-    if (resultCode == ConversationSubMenuActivity.HANDLE_REPLY_MESSAGE){
+    if (resultCode == ConversationSubMenuActivity.HANDLE_REPLY_MESSAGE) {
       handleReplyToMessage(selectedConversationMessage!!)
-    } else if (resultCode == ConversationSubMenuActivity.Companion.HANDLE_FORWARD){
+    } else if (resultCode == ConversationSubMenuActivity.Companion.HANDLE_FORWARD) {
       handleForwardMessageParts(selectedConversationMessage!!.getMultiselectCollection().toSet())
-    } else if (resultCode == ConversationSubMenuActivity.HANDLE_TAKE_BACK_MESSAGE){
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_TAKE_BACK_MESSAGE) {
       handleDeleteMessagesAsPigeonApplication(selectedConversationMessage!!.getMultiselectCollection().toSet())
-    } else if (resultCode == ConversationSubMenuActivity.HANDLE_REACT){
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_REACT) {
       //todo
     }
   }
 
-  private fun handleDeleteMessagesAsPigeonApplication(multiselectParts: Set<MultiselectPart>){
+  private fun handleDeleteMessagesAsPigeonApplication(multiselectParts: Set<MultiselectPart>) {
     val messageRecords = com.annimon.stream.Stream.of(multiselectParts).map(MultiselectPart::getMessageRecord).collect(com.annimon.stream.Collectors.toSet<MessageRecord>())
     val deleteForEveryone = java.lang.Runnable {
       SignalExecutors.BOUNDED.execute {
@@ -767,7 +766,7 @@ class ConversationFragment :
     deleteForEveryone.run()
   }
 
-  private  fun handleResetSecureSession() {
+  private fun handleResetSecureSession() {
     val rationaleDialogMessage = getString(R.string.ConversationActivity_reset_secure_session_question) + getString(R.string.ConversationActivity_this_may_help_if_youre_having_encryption_problems)
     val dialog = PigeonRationaleDialog.createNonMsgDialog(
       requireContext(),
@@ -799,7 +798,8 @@ class ConversationFragment :
         }
       },
       null,
-      null)
+      null
+    )
     dialog.show()
   }
 
@@ -979,6 +979,7 @@ class ConversationFragment :
   }
 
   override fun onKeyEvent(keyEvent: KeyEvent?) {
+    Log.d(TAG, "Pigeon onKeyEvent: $keyEvent")
     if (keyEvent != null) {
       inputPanel.onKeyEvent(keyEvent)
     }
@@ -1767,6 +1768,7 @@ class ConversationFragment :
         composeText.setDraftText(data.text)
         inputPanel.clickOnComposeInput()
       }
+
       is ShareOrDraftData.SetLocation -> attachmentManager.setLocation(data.location, MediaConstraints.getPushMediaConstraints())
       is ShareOrDraftData.SetEditMessage -> {
         composeText.setDraftText(data.draftText)
@@ -2611,7 +2613,7 @@ class ConversationFragment :
 
     inputPanel.clickOnComposeInput()
     layoutManager.scrollToPositionWithOffset(0, 0)
-    if(isPigeonVersion()) {
+    if (isPigeonVersion()) {
       scrollListener?.onScrolled(binding.conversationItemRecycler, 0, 0)
       binding.conversationInputPanel.root.isVisible = true
     }
@@ -2908,9 +2910,9 @@ class ConversationFragment :
       val timestamp = MarkReadHelper.getLatestTimestamp(adapter, layoutManager)
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
 
-      if(isPigeonVersion()){
+      if (isPigeonVersion()) {
         val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        if (position== 0) {
+        if (position == 0) {
           binding.conversationInputPanel.root.isVisible = true
           return
         }
@@ -2925,9 +2927,9 @@ class ConversationFragment :
         scrollDateHeaderHelper.hide()
       }
 
-      if (isPigeonVersion()){
+      if (isPigeonVersion()) {
         val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        if (position== 0) {
+        if (position == 0) {
           binding.conversationInputPanel.root.isVisible = true
           return
         }
@@ -3419,15 +3421,16 @@ class ConversationFragment :
 
     override fun onItemLongClick(itemView: View, item: MultiselectPart) {
       Log.d(TAG, "onItemLongClick")
-          val messageRecord: MessageRecord = item.getMessageRecord()
+      val messageRecord: MessageRecord = item.getMessageRecord()
 
-      if (isPigeonVersion()){
+      if (isPigeonVersion()) {
         if (messageRecord.isSecure &&
           !messageRecord.isRemoteDelete &&
           !messageRecord.isUpdate &&
           viewModel.recipientSnapshot?.isBlocked == false &&
-          (viewModel.recipientSnapshot?.isGroup  == false|| viewModel.recipientSnapshot?.isActiveGroup == true) &&
-          adapter.selectedItems.isEmpty()){
+          (viewModel.recipientSnapshot?.isGroup == false || viewModel.recipientSnapshot?.isActiveGroup == true) &&
+          adapter.selectedItems.isEmpty()
+        ) {
           val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
           startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)
           selectedConversationMessage = item.conversationMessage
@@ -3436,9 +3439,13 @@ class ConversationFragment :
         return
       }
 
-      if (actionMode != null) { return }
+      if (actionMode != null) {
+        return
+      }
 
-      if (item.getMessageRecord().isInMemoryMessageRecord) { return }
+      if (item.getMessageRecord().isInMemoryMessageRecord) {
+        return
+      }
 
       val recipient = viewModel.recipientSnapshot ?: return
 
