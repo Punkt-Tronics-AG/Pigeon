@@ -4292,6 +4292,7 @@ class ConversationFragment :
     var typingStatusEnabled = true
 
     override fun onKey(v: View, keyCode: Int, event: KeyEvent): Boolean {
+      Log.d(TAG, "onKey: keyCode=$keyCode, event=$event")
       if (event.action == KeyEvent.ACTION_DOWN) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
           if (SignalStore.settings.isEnterKeySends || event.isCtrlPressed) {

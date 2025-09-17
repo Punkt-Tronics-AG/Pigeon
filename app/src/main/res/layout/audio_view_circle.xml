@@ -9,6 +9,10 @@
     android:layout_gravity="center"
     android:padding="2dp"
     android:gravity="center"
+    android:focusable="false"
+    android:clickable="false"
+    android:focusableInTouchMode="false"
+    android:descendantFocusability="blocksDescendants"
     tools:showIn="@layout/audio_view">
 
     <FrameLayout
