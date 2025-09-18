@@ -33,6 +33,7 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
   }
 
   override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager) {
+    Log.w("PIGEON", "dispatchConversationKeyEvent $event")
     when (event.keyCode) {
       KeyEvent.KEYCODE_CALL -> {
         val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }

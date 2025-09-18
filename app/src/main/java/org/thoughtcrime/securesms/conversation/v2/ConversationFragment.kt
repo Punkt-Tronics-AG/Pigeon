@@ -356,6 +356,7 @@ import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
 import org.thoughtcrime.securesms.window.WindowSizeClass.Companion.getWindowSizeClass
 import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import pigeon.permissions.PigeonRationaleDialog
 import java.time.Instant
 import java.time.LocalDateTime
@@ -1230,25 +1231,28 @@ class ConversationFragment :
     val conversationBannerListener = ConversationBannerListener()
     binding.conversationBanner.listener = conversationBannerListener
 
-    lifecycleScope.launch {
-      viewModel
-        .getBannerFlows(
-          context = requireContext(),
-          groupJoinClickListener = conversationBannerListener::reviewJoinRequestsAction,
-          onSuggestionAddMembers = {
-            conversationGroupViewModel.groupRecordSnapshot?.let { groupRecord ->
-              GroupsV1MigrationSuggestionsDialog.show(requireActivity(), groupRecord.id.requireV2(), groupRecord.gv1MigrationSuggestions)
-            }
-          },
-          onSuggestionNoThanks = conversationGroupViewModel::onSuggestedMembersBannerDismissed,
-          bubbleClickListener = conversationBannerListener::changeBubbleSettingAction
-        )
-        .distinctUntilChanged()
-        .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-        .flowOn(Dispatchers.Main)
-        .collect {
-          binding.conversationBanner.collectAndShowBanners(it)
-        }
+    // If is Active - In Pigeon don;t working navigation correctly
+    if (isSignalVersion()) {
+      lifecycleScope.launch {
+        viewModel
+          .getBannerFlows(
+            context = requireContext(),
+            groupJoinClickListener = conversationBannerListener::reviewJoinRequestsAction,
+            onSuggestionAddMembers = {
+              conversationGroupViewModel.groupRecordSnapshot?.let { groupRecord ->
+                GroupsV1MigrationSuggestionsDialog.show(requireActivity(), groupRecord.id.requireV2(), groupRecord.gv1MigrationSuggestions)
+              }
+            },
+            onSuggestionNoThanks = conversationGroupViewModel::onSuggestedMembersBannerDismissed,
+            bubbleClickListener = conversationBannerListener::changeBubbleSettingAction
+          )
+          .distinctUntilChanged()
+          .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+          .flowOn(Dispatchers.Main)
+          .collect {
+            binding.conversationBanner.collectAndShowBanners(it)
+          }
+      }
     }
 
     lifecycleScope.launch {
@@ -1407,7 +1411,7 @@ class ConversationFragment :
       typingIndicatorAdapter.setState(
         ConversationTypingIndicatorAdapter.State(
           typists = it.typists,
-          isGroupThread = recipient.isGroup,
+          isGroupThread = false,
           hasWallpaper = recipient.hasWallpaper,
           isReplacedByIncomingMessage = it.isReplacedByIncomingMessage
         )
