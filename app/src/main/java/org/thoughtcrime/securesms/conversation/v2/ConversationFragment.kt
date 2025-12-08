@@ -1233,6 +1233,7 @@ class ConversationFragment :
 
     // If is Active - In Pigeon don;t working navigation correctly
     if (isSignalVersion()) {
+      // FIXME: If dialog is opened - navigation in fragment is broken in Pigeon
       lifecycleScope.launch {
         viewModel
           .getBannerFlows(
