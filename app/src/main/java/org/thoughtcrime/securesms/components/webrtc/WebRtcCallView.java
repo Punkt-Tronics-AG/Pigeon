@@ -24,7 +24,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.compose.ui.platform.ComposeView;
@@ -54,6 +53,7 @@ import org.thoughtcrime.securesms.components.AvatarImageView;
 import org.thoughtcrime.securesms.components.InsetAwareConstraintLayout;
 import org.thoughtcrime.securesms.components.webrtc.v2.CallScreenControlsListener;
 import org.thoughtcrime.securesms.components.webrtc.v2.PendingParticipantsListener;
+import org.thoughtcrime.securesms.components.webrtc.v2.PendingParticipantsState;
 import org.thoughtcrime.securesms.contacts.avatars.ContactPhoto;
 import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.events.CallParticipant;
@@ -63,7 +63,6 @@ import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
-import org.thoughtcrime.securesms.components.webrtc.v2.PendingParticipantsState;
 import org.thoughtcrime.securesms.stories.viewer.reply.reaction.MultiReactionBurstLayout;
 import org.thoughtcrime.securesms.util.BlurTransformation;
 import org.thoughtcrime.securesms.util.ThrottledDebouncer;
@@ -71,7 +70,6 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.views.Stub;
 import org.thoughtcrime.securesms.webrtc.CallParticipantsViewState;
 import org.webrtc.RendererCommon;
-import org.whispersystems.signalservice.api.messages.calls.HangupMessage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -358,10 +356,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     hangup.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onEndCallPressed));
     decline.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onDenyCallPressed));
 
-      pigeonHangup.setOnClickListener(v -> hangup.performClick());
-      pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onDenyCallPressed));
+    pigeonHangup.setOnClickListener(v -> hangup.performClick());
+    pigeonDecline.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onDenyCallPressed));
 
-      answer.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onAcceptCallPressed));
+    answer.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onAcceptCallPressed));
     answerWithoutVideo.setOnClickListener(v -> runIfNonNull(controlsListener, CallScreenControlsListener::onAcceptCallWithVoiceOnlyPressed));
 
     pictureInPictureGestureHelper   = PictureInPictureGestureHelper.applyTo(smallLocalRenderFrame);
@@ -480,21 +478,46 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
       pictureInPictureGestureHelper.allowCollapsedState();
     }
   }
+  public boolean onKeyReceived(int keyCode, int event, boolean defaultValue) {
+    if (event != KeyEvent.ACTION_UP) {
+      return defaultValue;
+    }
 
-  public void onKeyReceived(int keyCode, int event) {
-    if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && pigeonAnswer.getVisibility() == VISIBLE) {
-      pigeonAnswer.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_CALL && event == KeyEvent.ACTION_UP && pigeonStartCall.getVisibility() == VISIBLE) {
-      pigeonStartCall.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonDecline.getVisibility() == VISIBLE) {
-      pigeonDecline.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_ENDCALL && event == KeyEvent.ACTION_UP && pigeonHangup.getVisibility() == VISIBLE) {
-      pigeonHangup.performClick();
-    } else if (keyCode == KeyEvent.KEYCODE_BACK && event == KeyEvent.ACTION_UP) {
-      controlsListener.pigeonDialogClosed();
-      headerToolbar.post(() -> headerToolbar.requestFocus());
+    switch (keyCode) {
+      case KeyEvent.KEYCODE_CALL:
+        if (pigeonAnswer.getVisibility() == VISIBLE) {
+          pigeonAnswer.performClick();
+        } else if (pigeonStartCall.getVisibility() == VISIBLE) {
+          pigeonStartCall.performClick();
+        }
+        return true;
+
+      case KeyEvent.KEYCODE_ENDCALL:
+        if (pigeonDecline.getVisibility() == VISIBLE) {
+          pigeonDecline.performClick();
+        } else if (pigeonHangup.getVisibility() == VISIBLE) {
+          pigeonHangup.performClick();
+        }
+        return true;
+
+      case KeyEvent.KEYCODE_BACK:
+        if (pigeonDecline.getVisibility() == VISIBLE) {
+          pigeonDecline.requestFocus();
+        } else if (pigeonHangup.getVisibility() == VISIBLE) {
+          pigeonHangup.requestFocus();
+        } else {
+        if (controlsListener != null) {
+          controlsListener.pigeonDialogClosed();
+        }
+        headerToolbar.post(() -> headerToolbar.requestFocus());
+        }
+        return true;
+
+      default:
+        return defaultValue;
     }
   }
+
 
   private void setAudioLabelName(WebRtcAudioOutput outputMode) {
     String label;
@@ -764,10 +787,10 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
         if (!localAvatar.equals(previousLocalAvatar)) {
           previousLocalAvatar = localAvatar;
           Glide.with(getContext().getApplicationContext())
-                  .load(localAvatar)
-                  .transform(new CenterCrop(), new BlurTransformation(getContext(), 0.25f, BlurTransformation.MAX_RADIUS))
-                  .diskCacheStrategy(DiskCacheStrategy.ALL)
-                  .into(largeLocalRenderNoVideoAvatar);
+               .load(localAvatar)
+               .transform(new CenterCrop(), new BlurTransformation(getContext(), 0.25f, BlurTransformation.MAX_RADIUS))
+               .diskCacheStrategy(DiskCacheStrategy.ALL)
+               .into(largeLocalRenderNoVideoAvatar);
         }
 
         smallLocalRenderFrame.setVisibility(View.GONE);
@@ -935,8 +958,8 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
     }
 
     if (webRtcControls.displayRaiseHand()) {
-        if (isSignalVersion())
-      visibleViewSet.add(raiseHandSnackbar);
+      if (isSignalVersion())
+        visibleViewSet.add(raiseHandSnackbar);
     }
 
     boolean forceUpdate = webRtcControls.adjustForFold() && !controls.adjustForFold();
@@ -1175,4 +1198,11 @@ public class WebRtcCallView extends InsetAwareConstraintLayout {
 
   public void onControlTopChanged() {
   }
+
+  // Pigeon code
+  @Override public boolean dispatchKeyEvent(KeyEvent event) {
+    Log.d("PIGEON", "event: " + event.getKeyCode() + " action: " + event.getAction());
+    return onKeyReceived(event.getKeyCode(), event.getAction(), super.dispatchKeyEvent(event));
+  }
+
 }

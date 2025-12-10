@@ -18,6 +18,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Rational
 import android.view.Surface
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -280,6 +281,19 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     ephemeralStateDisposable.dispose()
 
     if (!isInPipMode() || isFinishing) {
+      //Pigeon code
+      val state = viewModel.callParticipantsStateSnapshot
+
+      when {
+        state.callState == WebRtcViewModel.State.CALL_INCOMING -> {
+          handleDenyCall()
+        }
+
+        state.callState.inOngoingCall -> {
+          handleEndCall()
+        }
+      }
+      // End pigeon code
       EventBus.getDefault().unregister(this)
       requestNewSizesThrottle.clear()
     }
