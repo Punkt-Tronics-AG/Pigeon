@@ -66,12 +66,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.DropdownMenus
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
-import org.signal.core.ui.compose.SignalPreview
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.BiometricDeviceAuthentication
 import org.thoughtcrime.securesms.BiometricDeviceLockContract
@@ -507,7 +508,7 @@ fun DeviceListScreen(
         inlineContent = messageInline,
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
       )
     }
   }
@@ -590,63 +591,60 @@ fun DeviceRow(device: Device, setDeviceToRemove: (Device) -> Unit, onEditDevice:
 //            .clickable { menuController.show() }
           )
 
-          DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
-            DropdownMenus.Item(
-              contentPadding = PaddingValues(0.dp),
-              text = {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                  Icon(
-                    painter = painterResource(id = R.drawable.symbol_link_slash_16),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                  )
-                  Text(
-                    text = stringResource(R.string.LinkDeviceFragment__unlink),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                  )
-                }
-              },
-              onClick = {
-                setDeviceToRemove(device)
-                controller.hide()
-              }
-            )
-
-            DropdownMenus.Item(
-              contentPadding = PaddingValues(0.dp),
-              text = {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                  Icon(
-                    painter = painterResource(id = R.drawable.symbol_edit_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                  )
-                  Text(
-                    text = stringResource(R.string.LinkDeviceFragment__edit_name),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                  )
-                }
-              },
-              onClick = {
-                onEditDevice(device)
-                controller.hide()
-              }
-            )
+      DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
+        DropdownMenus.Item(
+          contentPadding = PaddingValues(0.dp),
+          text = {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+              Icon(
+                painter = painterResource(id = R.drawable.symbol_link_slash_16),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+              )
+              Text(
+                text = stringResource(R.string.LinkDeviceFragment__unlink),
+                modifier = Modifier.padding(horizontal = 16.dp)
+              )
+            }
+          },
+          onClick = {
+            setDeviceToRemove(device)
+            controller.hide()
           }
-        }
+        )
 
+        DropdownMenus.Item(
+          contentPadding = PaddingValues(0.dp),
+          text = {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+              Icon(
+                painter = painterResource(id = R.drawable.symbol_edit_24),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+              )
+              Text(
+                text = stringResource(R.string.LinkDeviceFragment__edit_name),
+                modifier = Modifier.padding(horizontal = 16.dp)
+              )
+            }
+          },
+          onClick = {
+            onEditDevice(device)
+            controller.hide()
+          }
+        )
       }
+    }
+  }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenPreview() {
   Previews.Preview {
@@ -662,7 +660,7 @@ private fun DeviceListScreenPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenLoadingPreview() {
   Previews.Preview {
@@ -675,7 +673,7 @@ private fun DeviceListScreenLoadingPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenLinkingPreview() {
   Previews.Preview {
@@ -688,7 +686,7 @@ private fun DeviceListScreenLinkingPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenUnlinkingPreview() {
   Previews.Preview {
@@ -701,7 +699,7 @@ private fun DeviceListScreenUnlinkingPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenSyncingMessagesPreview() {
   Previews.Preview {
@@ -714,7 +712,7 @@ private fun DeviceListScreenSyncingMessagesPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenSyncingFailedRetryPreview() {
   Previews.Preview {
@@ -727,7 +725,7 @@ private fun DeviceListScreenSyncingFailedRetryPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenSyncingFailedPreview() {
   Previews.Preview {
@@ -744,7 +742,7 @@ private fun DeviceListScreenSyncingFailedPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenContactSupportPreview() {
   Previews.Preview {
@@ -757,7 +755,7 @@ private fun DeviceListScreenContactSupportPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenDeviceUnlinkedPreview() {
   Previews.Preview {
@@ -770,7 +768,7 @@ private fun DeviceListScreenDeviceUnlinkedPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeviceListScreenNotEnoughStoragePreview() {
   Previews.Preview {

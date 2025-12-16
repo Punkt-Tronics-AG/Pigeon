@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.components.settings.app.account
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
-import android.text.InputType
 import android.util.DisplayMetrics
 import android.view.ViewGroup
 import android.widget.EditText
@@ -13,7 +12,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
-import androidx.autofill.HintConstants
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
@@ -31,22 +29,24 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.core.app.DialogCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
+import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Scaffolds
-import org.signal.core.ui.compose.SignalPreview
 import org.signal.core.ui.compose.Texts
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
+import org.thoughtcrime.securesms.compose.rememberStatusBarColorNestedScrollModifier
 import org.thoughtcrime.securesms.contactshare.SimpleTextWatcher
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -115,33 +115,19 @@ class AccountSettingsFragment : ComposeFragment() {
       val turnOffButton = DialogCompat.requireViewById(dialog, R.id.reminder_disable_turn_off)
       val changeKeyboard = DialogCompat.requireViewById(dialog, R.id.reminder_change_keyboard) as MaterialButton
 
-      changeKeyboard.setOnClickListener {
-        if (pinEditText.inputType and InputType.TYPE_CLASS_NUMBER == 0) {
-          pinEditText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
-          changeKeyboard.setIconResource(PinKeyboardType.ALPHA_NUMERIC.iconResource)
-        } else {
-          pinEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-          changeKeyboard.setIconResource(PinKeyboardType.NUMERIC.iconResource)
+      dialog.lifecycleScope.launch {
+        viewModel.state.collect { state ->
+          state.pinKeyboardType.applyTo(
+            pinEditText = pinEditText,
+            toggleTypeButton = changeKeyboard
+          )
         }
-        pinEditText.typeface = Typeface.DEFAULT
       }
+
+      changeKeyboard.setOnClickListener { viewModel.togglePinKeyboardType() }
 
       pinEditText.post {
         ViewUtil.focusAndShowKeyboard(pinEditText)
-      }
-
-      ViewCompat.setAutofillHints(pinEditText, HintConstants.AUTOFILL_HINT_PASSWORD)
-
-      when (SignalStore.pin.keyboardType) {
-        PinKeyboardType.NUMERIC -> {
-          pinEditText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
-          changeKeyboard.setIconResource(PinKeyboardType.ALPHA_NUMERIC.iconResource)
-        }
-
-        PinKeyboardType.ALPHA_NUMERIC -> {
-          pinEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-          changeKeyboard.setIconResource(PinKeyboardType.NUMERIC.iconResource)
-        }
       }
 
       pinEditText.addTextChangedListener(object : SimpleTextWatcher() {
@@ -279,7 +265,10 @@ fun AccountSettingsScreen(
     navigationIcon = ImageVector.vectorResource(R.drawable.ic_arrow_left_24)
   ) { contentPadding ->
     LazyColumn(
-      modifier = Modifier.padding(contentPadding).testTag(AccountSettingsTestTags.SCROLLER)
+      modifier = Modifier
+        .padding(contentPadding)
+        .then(rememberStatusBarColorNestedScrollModifier())
+        .testTag(AccountSettingsTestTags.SCROLLER)
     ) {
       item {
         Texts.SectionHeader(
@@ -463,13 +452,14 @@ private fun DeleteAllDataConfirmationDialog(
   )
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun AccountSettingsScreenPreview() {
   Previews.Preview {
     AccountSettingsScreen(
       state = AccountSettingsState(
         hasPin = true,
+        pinKeyboardType = PinKeyboardType.NUMERIC,
         hasRestoredAep = true,
         pinRemindersEnabled = true,
         registrationLockEnabled = true,
@@ -482,7 +472,7 @@ private fun AccountSettingsScreenPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun DeleteAllDataConfirmationDialogPreview() {
   Previews.Preview {

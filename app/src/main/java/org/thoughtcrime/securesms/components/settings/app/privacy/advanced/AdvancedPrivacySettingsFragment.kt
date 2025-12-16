@@ -34,14 +34,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
+import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Scaffolds
-import org.signal.core.ui.compose.SignalPreview
 import org.signal.core.ui.compose.Texts
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
+import org.thoughtcrime.securesms.compose.rememberStatusBarColorNestedScrollModifier
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.viewModel
 import pigeon.extensions.isSignalVersion
@@ -178,7 +179,9 @@ private fun AdvancedPrivacySettingsScreen(
     navigationIcon = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24)
   ) { paddingValues ->
     LazyColumn(
-      modifier = Modifier.padding(paddingValues)
+      modifier = Modifier
+        .padding(paddingValues)
+        .then(rememberStatusBarColorNestedScrollModifier())
     ) {
       item {
         Rows.ToggleRow(
@@ -286,7 +289,7 @@ private fun AdvancedPrivacySettingsScreen(
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun AdvancedPrivacySettingsScreenPreview() {
   Previews.Preview {

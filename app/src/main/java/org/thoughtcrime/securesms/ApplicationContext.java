@@ -30,6 +30,7 @@ import com.google.android.gms.security.ProviderInstaller;
 import org.conscrypt.ConscryptSignal;
 import org.greenrobot.eventbus.EventBus;
 import org.signal.aesgcmprovider.AesGcmProvider;
+import org.signal.core.util.DiskUtil;
 import org.signal.core.util.MemoryTracker;
 import org.signal.core.util.concurrent.AnrDetector;
 import org.signal.core.util.concurrent.SignalExecutors;
@@ -209,6 +210,7 @@ public class ApplicationContext extends Application implements AppForegroundObse
               .addNonBlocking(AppDependencies::getBillingApi)
               .addNonBlocking(this::ensureProfileUploaded)
               .addNonBlocking(() -> AppDependencies.getExpireStoriesManager().scheduleIfNecessary())
+              .addNonBlocking(BackupRepository::maybeFixAnyDanglingUploadProgress)
               .addPostRender(() -> AppDependencies.getDeletedCallEventManager().scheduleIfNecessary())
               .addPostRender(() -> RateLimitUtil.retryAllRateLimitedMessages(this))
               .addPostRender(this::initializeExpiringMessageManager)
@@ -321,10 +323,8 @@ public class ApplicationContext extends Application implements AppForegroundObse
   }
 
   public void checkFreeDiskSpace() {
-    if (RemoteConfig.messageBackups()) {
-      long availableBytes = BackupRepository.INSTANCE.getFreeStorageSpace().getBytes();
-      SignalStore.backup().setSpaceAvailableOnDiskBytes(availableBytes);
-    }
+    long availableBytes = DiskUtil.getAvailableSpace(getApplicationContext()).getBytes();
+    SignalStore.backup().setSpaceAvailableOnDiskBytes(availableBytes);
   }
 
   /**
@@ -514,7 +514,7 @@ public class ApplicationContext extends Application implements AppForegroundObse
   }
 
   private void ensureProfileUploaded() {
-    if (SignalStore.account().isRegistered() && !SignalStore.registration().hasUploadedProfile() && !Recipient.self().getProfileName().isEmpty()) {
+    if (SignalStore.account().isRegistered() && !SignalStore.registration().hasUploadedProfile() && !Recipient.self().getProfileName().isEmpty() && SignalStore.account().isPrimaryDevice()) {
       Log.w(TAG, "User has a profile, but has not uploaded one. Uploading now.");
       AppDependencies.getJobManager().add(new ProfileUploadJob());
     }

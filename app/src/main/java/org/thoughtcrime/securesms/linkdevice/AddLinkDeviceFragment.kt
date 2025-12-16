@@ -24,9 +24,9 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
-import org.signal.core.ui.compose.SignalPreview
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
@@ -137,7 +137,6 @@ class AddLinkDeviceFragment : ComposeFragment() {
     }
   }
 
-
   private fun askPermissions() {
     Permissions.with(this)
       .request(Manifest.permission.CAMERA)
@@ -198,8 +197,7 @@ private fun MainScreen(
   }
 }
 
-
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun LinkDeviceAddScreenPreview() {
   Previews.Preview {

@@ -19,7 +19,6 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -37,6 +36,7 @@ import org.thoughtcrime.securesms.avatar.view.AvatarView
 import org.thoughtcrime.securesms.badges.BadgeImageView
 import org.thoughtcrime.securesms.badges.view.ViewBadgeBottomSheetDialogFragment
 import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar
+import org.thoughtcrime.securesms.components.FixedRoundedCornerBottomSheetDialogFragment
 import org.thoughtcrime.securesms.components.settings.DSLSettingsIcon
 import org.thoughtcrime.securesms.components.settings.conversation.preferences.ButtonStripPreference
 import org.thoughtcrime.securesms.conversation.v2.data.AvatarDownloadStateCache
@@ -51,7 +51,6 @@ import org.thoughtcrime.securesms.recipients.ui.about.AboutSheet
 import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.ContextUtil
 import org.thoughtcrime.securesms.util.SpanUtil
-import org.thoughtcrime.securesms.util.ThemeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.WindowUtil
 import org.thoughtcrime.securesms.util.visible
@@ -61,7 +60,7 @@ import pigeon.extensions.isSignalVersion
  * A bottom sheet that shows some simple recipient details, as well as some actions (like calling,
  * adding to contacts, etc).
  */
-class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
+class RecipientBottomSheetDialogFragment : FixedRoundedCornerBottomSheetDialogFragment() {
 
   companion object {
     val TAG: String = Log.tag(RecipientBottomSheetDialogFragment::class.java)
@@ -94,6 +93,8 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
   }
 
+  override val peekHeightPercentage: Float = 1f
+
   private val viewModel: RecipientDialogViewModel by viewModels(factoryProducer = this::createFactory)
   private var callback: Callback? = null
 
@@ -104,16 +105,6 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     return RecipientDialogViewModel.Factory(requireContext(), recipientId, groupId)
   }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    setStyle(
-      DialogFragment.STYLE_NORMAL,
-      if (ThemeUtil.isDarkTheme(requireContext())) R.style.Theme_Signal_RoundedBottomSheet else R.style.Theme_Signal_RoundedBottomSheet_Light
-    )
-
-    super.onCreate(savedInstanceState)
-  }
-
 
   // PIGEON: This is a workaround to ensure the bottom sheet takes up the full height of the screen.
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -207,14 +198,12 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 delay(LOADING_DELAY)
                 progressBar.visible = AvatarDownloadStateCache.getDownloadState(recipient) == AvatarDownloadStateCache.DownloadState.IN_PROGRESS
               }
-
               AvatarDownloadStateCache.DownloadState.FINISHED -> {
                 AvatarDownloadStateCache.set(recipient, AvatarDownloadStateCache.DownloadState.NONE)
                 viewModel.refreshGroupId(groupId)
                 inProgress = false
                 progressBar.visible = false
               }
-
               AvatarDownloadStateCache.DownloadState.FAILED -> {
                 AvatarDownloadStateCache.set(recipient, AvatarDownloadStateCache.DownloadState.NONE)
                 avatar.displayGradientBlur(recipient)
@@ -352,6 +341,7 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
         background = DSLSettingsIcon.from(ContextUtil.requireDrawable(requireContext(), R.drawable.selectable_recipient_bottom_sheet_icon_button)),
         enabled = !viewModel.isDeprecatedOrUnregistered,
         onMessageClick = {
+          callback?.onMessageClicked()
           dismiss()
           viewModel.onMessageClicked(requireActivity())
         },
@@ -504,5 +494,6 @@ class RecipientBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
   interface Callback {
     fun onRecipientBottomSheetDismissed()
+    fun onMessageClicked()
   }
 }

@@ -64,6 +64,8 @@ import pigeon.extensions.isSignalVersion
 
 object Rows {
 
+  const val DISABLED_ALPHA = 0.4f
+
   /**
    * Link row that positions [text] and optional [label] in a [TextAndLabel] to the side of an [icon] on the right.
    */
@@ -161,23 +163,51 @@ object Rows {
     labels: Array<String>,
     values: Array<String>,
     selectedValue: String,
-    onSelected: (String) -> Unit
+    onSelected: (String) -> Unit,
+    enabled: Boolean = true
+  ) {
+    RadioListRow(
+      text = { selectedIndex ->
+        val selectedLabel = if (selectedIndex in labels.indices) {
+          labels[selectedIndex]
+        } else {
+          null
+        }
+
+        TextAndLabel(
+          text = text,
+          label = selectedLabel
+        )
+      },
+      dialogTitle = text,
+      labels = labels,
+      values = values,
+      selectedValue = selectedValue,
+      onSelected = onSelected,
+      enabled = enabled
+    )
+  }
+
+  @Composable
+  fun RadioListRow(
+    text: @Composable RowScope.(Int) -> Unit,
+    dialogTitle: String,
+    labels: Array<String>,
+    values: Array<String>,
+    selectedValue: String,
+    onSelected: (String) -> Unit,
+    enabled: Boolean = true
   ) {
     val selectedIndex = values.indexOf(selectedValue)
-    val selectedLabel = if (selectedIndex in labels.indices) {
-      labels[selectedIndex]
-    } else {
-      null
-    }
-
     var displayDialog by remember { mutableStateOf(false) }
 
     TextRow(
-      text = text,
-      label = selectedLabel,
+      text = { text(selectedIndex) },
+      enabled = enabled,
       onClick = {
         displayDialog = true
-      }
+      },
+      modifier = Modifier.alpha(if (enabled) 1f else DISABLED_ALPHA)
     )
 
     if (displayDialog) {
@@ -186,10 +216,44 @@ object Rows {
         labels = labels,
         values = values,
         selectedIndex = selectedIndex,
-        title = text,
+        title = dialogTitle,
         onSelected = {
           onSelected(values[it])
         }
+      )
+    }
+  }
+
+  @Composable
+  fun MultiSelectRow(
+    text: String,
+    labels: Array<String>,
+    values: Array<String>,
+    selection: Array<String>,
+    onSelectionChanged: (Array<String>) -> Unit
+  ) {
+    var displayDialog by remember { mutableStateOf(false) }
+
+    TextRow(
+      text = text,
+      label = selection.joinToString(", ") {
+        val index = values.indexOf(it)
+        if (index == -1) error("not found: $it in ${values.joinToString(", ")}")
+        labels[index]
+      },
+      onClick = {
+        displayDialog = true
+      }
+    )
+
+    if (displayDialog) {
+      Dialogs.MultiSelectListDialog(
+        onDismissRequest = { displayDialog = false },
+        labels = labels,
+        values = values,
+        selection = selection,
+        title = text,
+        onSelectionChanged = onSelectionChanged
       )
     }
   }
@@ -311,9 +375,9 @@ object Rows {
    */
   @Composable
   fun TextRow(
-    text: String,
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
+    text: String? = null,
     label: String? = null,
     icon: Painter? = null,
     foregroundTint: Color = Color(0xFFFFFFFF),
@@ -322,7 +386,7 @@ object Rows {
     enabled: Boolean = true
   ) {
     TextRow(
-      text = remember(text) { AnnotatedString(text) },
+      text = remember(text) { text?.let { AnnotatedString(text) } },
       label = remember(label) { label?.let { AnnotatedString(label) } },
       icon = icon,
       modifier = modifier.padding(0.dp),
@@ -339,9 +403,9 @@ object Rows {
    */
   @Composable
   fun TextRow(
-    text: AnnotatedString,
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
+    text: AnnotatedString? = null,
     label: AnnotatedString? = null,
     icon: Painter? = null,
     foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
@@ -385,10 +449,10 @@ object Rows {
    */
   @Composable
   fun TextRow(
-    text: String,
     icon: ImageVector?,
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
+    text: String? = null,
     label: String? = null,
     foregroundTint: Color = Color(0xFFFFFFFF),
     iconTint: Color = foregroundTint,
@@ -529,7 +593,7 @@ object Rows {
   ) {
     Column(
       modifier = modifier
-        .alpha(if (enabled) 1f else 0.4f)
+        .alpha(if (enabled) 1f else DISABLED_ALPHA)
         .weight(1f)
     ) {
       if (text != null) {
@@ -565,7 +629,7 @@ private data class ToggleState(
   val onCheckChanged: (Boolean) -> Unit
 )
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun RadioRowPreview() {
   Previews.Preview {
@@ -582,7 +646,7 @@ private fun RadioRowPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun ToggleRowPreview() {
   Previews.Preview {
@@ -599,7 +663,7 @@ private fun ToggleRowPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun ToggleLoadingRowPreview() {
   Previews.Preview {
@@ -617,7 +681,7 @@ private fun ToggleLoadingRowPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun TextRowPreview() {
   Previews.Preview {
@@ -629,7 +693,7 @@ private fun TextRowPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun TextAndLabelPreview() {
   Previews.Preview {
@@ -647,7 +711,7 @@ private fun TextAndLabelPreview() {
   }
 }
 
-@SignalPreview
+@DayNightPreviews
 @Composable
 private fun RadioListRowPreview() {
   var selectedValue by remember { mutableStateOf("b") }
@@ -660,6 +724,24 @@ private fun RadioListRowPreview() {
       selectedValue = selectedValue,
       onSelected = {
         selectedValue = it
+      }
+    )
+  }
+}
+
+@DayNightPreviews
+@Composable
+private fun MultiSelectRowPreview() {
+  var selectedValues by remember { mutableStateOf(arrayOf("b")) }
+
+  Previews.Preview {
+    Rows.MultiSelectRow(
+      text = "MultiSelect List",
+      labels = arrayOf("A", "B", "C"),
+      values = arrayOf("a", "b", "c"),
+      selection = selectedValues,
+      onSelectionChanged = {
+        selectedValues = it
       }
     )
   }
