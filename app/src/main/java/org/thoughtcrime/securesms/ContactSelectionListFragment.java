@@ -290,11 +290,11 @@ public final class ContactSelectionListFragment extends LoggingFragment {
 
     if (isSignalVersion()) {
       if (fragmentArgs.getRecyclerPadBottom() != -1) {
-      ViewUtil.setPaddingBottom(recyclerView, fragmentArgs.getRecyclerPadBottom());
-    }
-
-    recyclerView.setClipToPadding(fragmentArgs.getRecyclerChildClipping());
+        ViewUtil.setPaddingBottom(recyclerView, fragmentArgs.getRecyclerPadBottom());
       }
+
+      recyclerView.setClipToPadding(fragmentArgs.getRecyclerChildClipping());
+    }
 
     swipeRefresh.setNestedScrollingEnabled(fragmentArgs.isRefreshable());
     swipeRefresh.setEnabled(fragmentArgs.isRefreshable());

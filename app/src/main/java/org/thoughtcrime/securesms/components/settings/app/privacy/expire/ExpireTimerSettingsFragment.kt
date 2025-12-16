@@ -177,15 +177,15 @@ fun ExpireTimerSettingsScreen(
 
           if (isSignalVersion()) {
             Rows.RadioRow(
-            selected = hasCustomValue,
-            text = stringResource(R.string.ExpireTimerSettingsFragment__custom_time),
-            label = customSummary,
-            modifier = Modifier.clickable { callback.onCustomTimerClick() },
-            enabled = true
-          )
+              selected = hasCustomValue,
+              text = stringResource(R.string.ExpireTimerSettingsFragment__custom_time),
+              label = customSummary,
+              modifier = Modifier.clickable { callback.onCustomTimerClick() },
+              enabled = true
+            )
+          }
         }
       }
-        }
 
       CircularProgressWrapper(
         isLoading = state.saveState is ProcessState.Working,

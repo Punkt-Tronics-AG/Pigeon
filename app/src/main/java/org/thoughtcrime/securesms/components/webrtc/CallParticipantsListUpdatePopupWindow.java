@@ -66,10 +66,10 @@ public class CallParticipantsListUpdatePopupWindow extends PopupWindow implement
       pendingAdditions.addAll(update.getAdded());
       pendingAdditions.removeAll(update.getRemoved());
 
-    pendingRemovals.addAll(update.getRemoved());
-    pendingRemovals.removeAll(update.getAdded());
+      pendingRemovals.addAll(update.getRemoved());
+      pendingRemovals.removeAll(update.getAdded());
 
-    if (!isShowing()) {
+      if (!isShowing()) {
       showPending();
     }
   }
