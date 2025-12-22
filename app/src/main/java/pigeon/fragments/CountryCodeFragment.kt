@@ -97,7 +97,8 @@ class CountryCodeFragment : LoggingFragment() {
       showErrorDialog(getString(R.string.RegistrationActivity_you_must_specify_your_country_code))
       return
     }
-    findNavController(view).safeNavigate(CountryCodeFragmentDirections.actionCountryCodeFragmentToEnterPhoneNumberFragment())
+    // Fixme: Replace with proper navigation PIGEON
+//    findNavController(view).safeNavigate(CountryCodeFragmentDirections.actionCountryCodeFragmentToEnterPhoneNumberFragment())
   }
 
   private fun showErrorDialog(msg: String?) {
