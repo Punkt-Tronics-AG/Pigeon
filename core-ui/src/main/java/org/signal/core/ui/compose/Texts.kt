@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.getSpans
 import org.signal.core.ui.R
+import org.signal.core.ui.compose.theme.SignalTheme
 
 object Texts {
   /**

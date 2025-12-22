@@ -202,7 +202,7 @@ object Rows {
     var displayDialog by remember { mutableStateOf(false) }
 
     TextRow(
-      text = { text(selectedIndex) },
+      text = { textSize, textColor -> text(selectedIndex) },
       enabled = enabled,
       onClick = {
         displayDialog = true
