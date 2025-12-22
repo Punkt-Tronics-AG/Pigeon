@@ -6,11 +6,9 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -23,7 +21,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
@@ -32,11 +29,9 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -122,7 +117,7 @@ fun PigeonManualLinkDeviceScreen(
   val pubKeyFocusRequester = remember { FocusRequester() }
   val sendFocusRequester = remember { FocusRequester() }
 
-  SignalTheme {
+  SignalTheme(incognitoKeyboardEnabled = false) {
     Column(
       modifier = modifier
         .fillMaxWidth()
@@ -253,7 +248,7 @@ fun PigeonManualLinkDeviceScreen(
 @Preview
 @Composable
 fun PigeonManualLinkDeviceScreenPreview() {
-  SignalTheme {
+  SignalTheme(incognitoKeyboardEnabled = false) {
     PigeonManualLinkDeviceScreen(
       uuid = "12345678-1234-5678-1234-567812345678",
       onUuidChange = {},

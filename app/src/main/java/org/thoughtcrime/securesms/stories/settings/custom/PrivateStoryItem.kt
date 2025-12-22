@@ -131,7 +131,7 @@ object PrivateStoryItem {
   @Composable
   fun AddViewer(onClick: () -> Unit) {
     Rows.TextRow(
-      text = {
+      text = {  _, _ ->
         Text(text = stringResource(R.string.PrivateStorySettingsFragment__add_viewer))
       },
       icon = {

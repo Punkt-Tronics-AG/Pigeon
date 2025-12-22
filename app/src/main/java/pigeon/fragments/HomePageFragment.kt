@@ -10,8 +10,8 @@ import androidx.core.widget.NestedScrollView
 import org.signal.core.util.concurrent.SignalExecutors
 import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.MainNavigator.REQUEST_CONFIG_CHANGES
-import org.thoughtcrime.securesms.NewConversationActivity
 import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity.Companion.home
+import org.thoughtcrime.securesms.conversation.NewConversationActivity
 import org.thoughtcrime.securesms.database.SignalDatabase.Companion.threads
 import org.thoughtcrime.securesms.databinding.PigeonFragmentHomePageBinding
 import org.thoughtcrime.securesms.dependencies.AppDependencies.messageNotifier
@@ -105,7 +105,7 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
   }
 
   private fun goToGroupCreation() {
-    requireActivity().startActivity(CreateGroupActivity.newIntent(requireContext()));
+    requireActivity().startActivity(CreateGroupActivity.createIntent(requireContext()));
   }
 
   private fun handleMarkAllRead() {

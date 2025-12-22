@@ -174,7 +174,8 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
       if (isSignalVersion()) {
         navigateToNextScreenViaContinue()
       } else {
-        findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())
+        // Fixme: PIGEON - navigate to country code screen directly
+//        findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())
       }
     }
   }
@@ -188,7 +189,8 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     if (isSignalVersion()) {
       CommunicationActions.openBrowserLink(requireContext(), TERMS_AND_CONDITIONS_URL)
     } else {
-      findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToTermsFragment())
+      // Fixme: PIGEON - navigate to terms and conditions screen
+//      findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToTermsFragment())
     }
   }
 
@@ -245,12 +247,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
 
   //#PIGEON
   private fun onDisclaimerClicked() {
-    findNavController().safeNavigate(WelcomeFragmentDirections.actionReadDisclaimer())
-  }
-
-
-  companion object {
-    private val TAG = Log.tag(WelcomeFragment::class.java)
-    private const val TERMS_AND_CONDITIONS_URL = "https://signal.org/legal"
+    // Fixme: Navigate to disclaimer screen PIGEON
+//    findNavController().safeNavigate(WelcomeFragmentDirections.actionReadDisclaimer())
   }
 }

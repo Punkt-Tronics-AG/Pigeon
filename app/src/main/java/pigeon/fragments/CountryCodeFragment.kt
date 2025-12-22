@@ -19,6 +19,7 @@ import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegat
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment.Companion.REQUEST_COUNTRY
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragmentDirections
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
@@ -61,12 +62,13 @@ class CountryCodeFragment : LoggingFragment() {
           nextButton.requestFocus()
         }
         countryCodeLayout.setOnClickListener {
+          // Fixme: Replace with proper navigation PIGEON
           //SIGNAL CODE
           if (isSignalVersion()) {
-            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(Country("", "", -1, "")))
+//            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(Country("", "", -1, "")))
           } else {
             val country = CountryUtils.getCountries().firstOrNull { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode } ?: CountryUtils.getCountries().first()
-            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(country))
+//            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(country))
           }
         }
       }
