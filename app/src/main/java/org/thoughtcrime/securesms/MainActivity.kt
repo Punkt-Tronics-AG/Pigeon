@@ -691,11 +691,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   state = mainBottomChromeState,
                   callback = mainBottomChromeCallback,
                   megaphoneActionController = megaphoneActionController,
-                  modifier = Modifier.align(Alignment.BottomCenter)
+//                  modifier = Modifier.align(Alignment.BottomCenter)
                 )
               }
-            }
-          },
+            },
           primaryContent = {
             when (mainNavigationState.currentListLocation) {
               MainNavigationListLocation.CHATS, MainNavigationListLocation.ARCHIVE -> {

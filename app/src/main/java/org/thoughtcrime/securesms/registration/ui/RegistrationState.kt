@@ -55,8 +55,7 @@ data class RegistrationState(
   val networkError: Throwable? = null,
   val sessionCreationError: RegistrationSessionResult? = null,
   val sessionStateError: VerificationCodeRequestResult? = null,
-  val registerAccountError: RegisterAccountResult? = null,
-  val challengeInProgress: Boolean = false
+  val challengeInProgress: Boolean = false,
   val registerAccountError: RegisterAccountResult? = null,
 
   // Pigeon

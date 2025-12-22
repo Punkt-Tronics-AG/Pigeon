@@ -29,7 +29,6 @@ import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.compose.rememberStatusBarColorNestedScrollModifier
 import org.thoughtcrime.securesms.mms.SentMediaQuality
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
-import pigeon.extensions.isSignalVersion
 import org.thoughtcrime.securesms.webrtc.CallDataMode
 import kotlin.math.abs
 
@@ -191,7 +190,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { textSize, textColor ->
             Text(
               text = stringResource(R.string.DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data),
               style = MaterialTheme.typography.bodyMedium,
@@ -221,7 +220,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { textSize, textColor ->
             Text(
               text = stringResource(R.string.preference_data_and_storage__using_less_data_may_improve_calls_on_bad_networks),
               style = MaterialTheme.typography.bodyMedium,

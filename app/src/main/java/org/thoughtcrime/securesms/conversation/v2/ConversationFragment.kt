@@ -379,7 +379,6 @@ import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
 import org.thoughtcrime.securesms.window.getWindowSizeClass
 import org.thoughtcrime.securesms.window.isLargeScreenSupportEnabled
 import org.thoughtcrime.securesms.window.isSplitPane
-import org.thoughtcrime.securesms.window.WindowSizeClass.Companion.getWindowSizeClass
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import pigeon.permissions.PigeonRationaleDialog
@@ -3657,7 +3656,6 @@ class ConversationFragment :
         return
       }
 
-      val messageRecord = item.getMessageRecord()
       val recipient = viewModel.recipientSnapshot ?: return
 
       if (isUnopenedGift(itemView, messageRecord)) {

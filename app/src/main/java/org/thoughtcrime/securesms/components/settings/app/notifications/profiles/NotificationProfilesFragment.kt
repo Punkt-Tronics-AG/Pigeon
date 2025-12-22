@@ -118,7 +118,7 @@ fun NotificationProfilesScreen(
 
         item {
           Rows.TextRow(
-            text = {
+            text = { textSize, textColor ->
               Text(text = stringResource(R.string.NotificationProfilesFragment__new_profile))
             },
             icon = {

@@ -37,7 +37,7 @@
             android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/kbs_lock_pin_title" />
 
-        <EditText
+        <org.thoughtcrime.securesms.components.NoAutofillEditText
             android:id="@+id/kbs_lock_pin_input"
             style="@style/Mp02.Signal.Text.BigCommonTextButton"
             android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
             tools:text="@tools:sample/us_phones">
 
             <requestFocus />
-        </EditText>
+        </org.thoughtcrime.securesms.components.NoAutofillEditText>
 
         <TextView
             android:id="@+id/kbs_lock_pin_input_label"

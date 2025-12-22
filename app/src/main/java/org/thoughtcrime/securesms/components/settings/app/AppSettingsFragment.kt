@@ -221,7 +221,7 @@ private fun AppSettingsContent(
       bannerManager.Banner()
 
       LazyColumn(
-        modifier = rememberStatusBarColorNestedScrollModifier().padding(0)
+        modifier = rememberStatusBarColorNestedScrollModifier().padding(0.dp)
       ) {
         item {
           BioRow(
@@ -230,7 +230,6 @@ private fun AppSettingsContent(
           )
         }
         if (isSignalVersion()) {
-
           when (state.backupFailureState) {
             BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
               item {
@@ -561,15 +560,16 @@ private fun AppSettingsContent(
                   text = stringResource(R.string.preferences__internal_preferences),
                   onClick = {
                     callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
+                  }
+                )
               }
-            )
+            }
           }
         }
       }
     }
   }
 }
-    }
 
 @Composable
 private fun BackupsWarningRow(
@@ -629,7 +629,6 @@ private fun BioRow(
             .size(80.dp)
         )
       }
-
 
       if (self.featuredBadge != null) {
         BadgeImageMedium(
