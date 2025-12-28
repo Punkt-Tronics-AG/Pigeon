@@ -5,8 +5,8 @@
     style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.thoughtcrime.securesms.registration.ui.welcome.WelcomeFragment"
     android:orientation="vertical"
+    tools:context="org.thoughtcrime.securesms.registration.ui.welcome.WelcomeFragment"
     tools:viewBindingIgnore="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,32 +16,32 @@
         android:orientation="vertical"
         android:visibility="visible">
 
-    <TextView
-        android:id="@+id/tv_welcome_title"
-        style="@style/Mp02.Signal.Text.WelcomeTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:gravity="start"
-        android:focusable="true"
-        android:text="@string/RegistrationActivity_pigeon_enables_you_to_use_signal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:id="@+id/tv_welcome_title"
+            style="@style/Mp02.Signal.Text.WelcomeTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:focusable="true"
+            android:gravity="start"
+            android:text="@string/RegistrationActivity_pigeon_enables_you_to_use_signal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_welcome_continue"
-        style="@style/Mp02.Signal.Text.CommonTextButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginBottom="20dp"
-        android:focusable="false"
-        android:text="@string/RegistrationActivity_continue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/tv_welcome_continue"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="20dp"
+            android:focusable="false"
+            android:text="@string/RegistrationActivity_continue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -49,8 +49,8 @@
         android:id="@+id/extra_buttons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/disclaimer_button"
@@ -58,9 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:ellipsize="marquee"
             android:gravity="start"
-            android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="@string/Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message"
@@ -73,12 +73,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:ellipsize="end"
             android:gravity="start"
+            android:marqueeRepeatLimit="marquee_forever"
             android:nextFocusUp="@id/disclaimer_button"
             android:nextFocusDown="@id/welcome_transfer_or_restore"
-            android:layout_marginBottom="@dimen/pigeon_small_margin"
-            android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="@string/RegistrationActivity_pigeon_terms_and_privacy"
             app:layout_constraintBottom_toTopOf="@+id/welcome_transfer_or_restore"
@@ -89,29 +89,30 @@
             style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nextFocusUp="@id/welcome_terms_button"
-            android:nextFocusDown="@id/welcome_continue_button"
             android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:ellipsize="marquee"
             android:gravity="start"
-            android:layout_marginBottom="@dimen/pigeon_small_margin"
             android:marqueeRepeatLimit="marquee_forever"
+            android:nextFocusUp="@id/welcome_terms_button"
+            android:nextFocusDown="@id/welcome_continue_button"
             android:singleLine="true"
             android:text="@string/registration_activity__transfer_or_restore_account"
             app:layout_constraintBottom_toTopOf="@+id/welcome_continue_button"
             app:layout_constraintStart_toStartOf="@+id/welcome_continue_button" />
 
-        <org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/welcome_continue_button"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="@dimen/pigeon_big_margin"
             android:nextFocusUp="@id/welcome_transfer_or_restore"
             android:nextFocusDown="@id/welcome_continue_button"
-            android:layout_marginBottom="@dimen/pigeon_big_margin"
-            android:layout_marginStart="5dp"
-            app:circularProgressMaterialButton__label="@string/RegistrationActivity_continue"
+            android:text="@string/RegistrationActivity_continue"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

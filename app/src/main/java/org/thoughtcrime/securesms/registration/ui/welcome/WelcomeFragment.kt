@@ -174,8 +174,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
       if (isSignalVersion()) {
         navigateToNextScreenViaContinue()
       } else {
-        // Fixme: PIGEON - navigate to country code screen directly
-//        findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToCountryCodeFragment())
+        findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment())
       }
     }
   }
@@ -189,8 +188,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     if (isSignalVersion()) {
       CommunicationActions.openBrowserLink(requireContext(), TERMS_AND_CONDITIONS_URL)
     } else {
-      // Fixme: PIGEON - navigate to terms and conditions screen
-//      findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToTermsFragment())
+      findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToTermsFragment())
     }
   }
 
@@ -247,7 +245,6 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
 
   //#PIGEON
   private fun onDisclaimerClicked() {
-    // Fixme: Navigate to disclaimer screen PIGEON
-//    findNavController().safeNavigate(WelcomeFragmentDirections.actionReadDisclaimer())
+    findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToDisclaimerFragment())
   }
 }

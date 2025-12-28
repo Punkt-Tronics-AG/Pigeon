@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.concurrent.LifecycleDisposable
@@ -19,8 +18,8 @@ import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegat
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment.Companion.REQUEST_COUNTRY
-import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragmentDirections
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
+import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
 import pigeon.extensions.isSignalVersion
@@ -62,14 +61,8 @@ class CountryCodeFragment : LoggingFragment() {
           nextButton.requestFocus()
         }
         countryCodeLayout.setOnClickListener {
-          // Fixme: Replace with proper navigation PIGEON
-          //SIGNAL CODE
-          if (isSignalVersion()) {
-//            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(Country("", "", -1, "")))
-          } else {
-            val country = CountryUtils.getCountries().firstOrNull { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode } ?: CountryUtils.getCountries().first()
-//            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(country))
-          }
+          val country = CountryUtils.getCountries().firstOrNull { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode } ?: CountryUtils.getCountries().first()
+            findNavController().safeNavigate(CountryCodeFragmentDirections.actionPickCountry(country))
         }
       }
       disposables.bindTo(viewLifecycleOwner.lifecycle)
@@ -97,8 +90,7 @@ class CountryCodeFragment : LoggingFragment() {
       showErrorDialog(getString(R.string.RegistrationActivity_you_must_specify_your_country_code))
       return
     }
-    // Fixme: Replace with proper navigation PIGEON
-//    findNavController(view).safeNavigate(CountryCodeFragmentDirections.actionCountryCodeFragmentToEnterPhoneNumberFragment())
+    findNavController().safeNavigate(CountryCodeFragmentDirections.enterPhoneNumberFragment(EnterPhoneNumberMode.NORMAL))
   }
 
   private fun showErrorDialog(msg: String?) {
