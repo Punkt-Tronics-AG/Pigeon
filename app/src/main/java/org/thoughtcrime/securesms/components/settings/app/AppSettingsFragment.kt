@@ -431,11 +431,10 @@ private fun AppSettingsContent(
             item {
               Rows.TextRow(
                 text = { _, _ ->
-                  TextWithBetaLabel(
-                    text = stringResource(R.string.preferences_chats__backups),
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    enabled = isRegisteredAndUpToDate
-                  )
+//                  TextWithBetaLabel(
+                    stringResource(R.string.preferences_chats__backups)
+//                    textStyle = MaterialTheme.typography.bodyLarge,
+//                  )
                 },
                 icon = {
                   Icon(
@@ -480,7 +479,7 @@ private fun AppSettingsContent(
             }
           }
 
-          if (state.isPrimaryDevice && state.showPayments) {
+          if (state.isPrimaryDevice && state.showPayments && isSignalVersion()) {
             item {
               Dividers.Default()
             }
@@ -523,8 +522,10 @@ private fun AppSettingsContent(
             }
           }
 
-          item {
-            Dividers.Default()
+          if (isSignalVersion()) {
+            item {
+              Dividers.Default()
+            }
           }
 
           item {
@@ -548,7 +549,7 @@ private fun AppSettingsContent(
               )
             }
 
-            if (state.showInternalPreferences || isPigeonVersion()) {
+            if (state.showInternalPreferences) {
               if (isSignalVersion()) {
                 item {
                   Dividers.Default()

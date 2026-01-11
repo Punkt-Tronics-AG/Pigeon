@@ -35,7 +35,7 @@ class CountryCodeFragment : LoggingFragment() {
     return PigeonFragmentRegistrationCountryCodeBinding.inflate(inflater, container, false)
   }
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     _binding = createBinding(inflater, container)
     return binding!!.root
   }
@@ -52,7 +52,7 @@ class CountryCodeFragment : LoggingFragment() {
     binding?.run {
       setDebugLogSubmitMultiTapView(verifyHeader)
 
-      nextButton.setOnClickListener { v: View -> handleRegister(v) }
+      nextButton.setOnClickListener { _: View -> handleRegister() }
       if (!isSignalVersion()) {
         countryCodeLayout.focusOnRight()
         if (sharedViewModel.phoneNumber?.countryCode == null) {
@@ -85,8 +85,8 @@ class CountryCodeFragment : LoggingFragment() {
     }
   }
 
-  private fun handleRegister(view: View) {
-    if (TextUtils.isEmpty(binding?.countryCode!!.editText!!.text)) {
+  private fun handleRegister() {
+    if (TextUtils.isEmpty(binding?.countryCode?.editText?.text)) {
       showErrorDialog(getString(R.string.RegistrationActivity_you_must_specify_your_country_code))
       return
     }

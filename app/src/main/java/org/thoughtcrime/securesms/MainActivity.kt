@@ -562,7 +562,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           paneExpansionState = paneExpansionState,
           contentWindowInsets = WindowInsets(),
           bottomNavContent = {
-            if (isNavigationBarVisible) {
+            if (isNavigationBarVisible && isSignalVersion()) {
               Column(
                 modifier = Modifier
                   .clip(contentLayoutData.navigationBarShape)
@@ -687,12 +687,14 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   }
                 }
 
-                MainBottomChrome(
-                  state = mainBottomChromeState,
-                  callback = mainBottomChromeCallback,
-                  megaphoneActionController = megaphoneActionController,
+                if (isSignalVersion()) {
+                  MainBottomChrome(
+                    state = mainBottomChromeState,
+                    callback = mainBottomChromeCallback,
+                    megaphoneActionController = megaphoneActionController,
 //                  modifier = Modifier.align(Alignment.BottomCenter)
-                )
+                  )
+                }
               }
             },
           primaryContent = {
