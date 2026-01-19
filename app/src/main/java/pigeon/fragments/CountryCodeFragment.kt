@@ -22,9 +22,7 @@ import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegat
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment.Companion.REQUEST_COUNTRY
-import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragmentArgs
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
-import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberFragmentArgs
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight

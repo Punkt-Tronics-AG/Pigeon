@@ -205,6 +205,14 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
+        <action
+            android:id="@+id/pigeon_go_to_enterCodeFragment"
+            app:destination="@id/pigeonCodeFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
         <argument
             android:name="welcomeUserSelection"
             app:argType="org.thoughtcrime.securesms.registration.ui.welcome.WelcomeUserSelection" />

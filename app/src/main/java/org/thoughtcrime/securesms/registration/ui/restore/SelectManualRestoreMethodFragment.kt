@@ -51,9 +51,11 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
         }
       }
+
       Activity.RESULT_CANCELED -> {
         Log.w(TAG, "Backup restoration canceled.")
       }
+
       else -> Log.w(TAG, "Backup restoration activity ended with unknown result code: $resultCode")
     }
   }
@@ -66,7 +68,8 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
       restoreMethods = listOf(
 //        if (isSignalVersion())
 //        RestoreMethod.FROM_SIGNAL_BACKUPS,
-        RestoreMethod.FROM_LOCAL_BACKUP_V1),
+        RestoreMethod.FROM_LOCAL_BACKUP_V1
+      ),
       onRestoreMethodClicked = this::startRestoreMethod,
       onSkip = {
         showSkipRestoreWarning = true
@@ -85,7 +88,7 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
             } else {
               findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
             }
-                      },
+          },
           onDismiss = { showSkipRestoreWarning = false },
           confirmColor = MaterialTheme.colorScheme.error,
           properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
@@ -108,11 +111,14 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
         } else {
           findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
-        }      }
+        }
+      }
+
       RestoreMethod.FROM_LOCAL_BACKUP_V1 -> {
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = false)
         localBackupRestore.launch(RestoreActivity.getLocalRestoreIntent(requireContext()))
       }
+
       RestoreMethod.FROM_OLD_DEVICE -> error("Device transfer not supported in manual restore flow")
       RestoreMethod.FROM_LOCAL_BACKUP_V2 -> error("Not currently supported")
     }
