@@ -173,7 +173,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
       if (isSignalVersion()) {
         navigateToNextScreenViaContinue()
       } else {
-        findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment())
+        findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment(EnterPhoneNumberMode.NORMAL))
       }
     }
   }
