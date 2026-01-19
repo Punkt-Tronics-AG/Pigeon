@@ -17,6 +17,15 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+
+        <action
+            android:id="@+id/pigeon_action_appSettingsFragment_to_backupsPreferenceFragment"
+            app:destination="@id/backupsPreferenceFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+
         <action
             android:id="@+id/action_appSettingsFragment_to_usernameLinkSettingsFragment"
             app:destination="@id/username_link_settings"

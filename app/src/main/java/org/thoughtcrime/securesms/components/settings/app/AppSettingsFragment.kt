@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +47,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -70,7 +72,6 @@ import org.thoughtcrime.securesms.banner.banners.UnauthorizedBanner
 import org.thoughtcrime.securesms.banner.ui.compose.Action
 import org.thoughtcrime.securesms.banner.ui.compose.DefaultBanner
 import org.thoughtcrime.securesms.banner.ui.compose.Importance
-import org.thoughtcrime.securesms.components.compose.TextWithBetaLabel
 import org.thoughtcrime.securesms.components.emoji.Emojifier
 import org.thoughtcrime.securesms.components.settings.app.routes.AppSettingsRoute
 import org.thoughtcrime.securesms.components.settings.app.routes.AppSettingsRouter
@@ -207,6 +208,7 @@ private fun AppSettingsContent(
   callbacks: Callbacks
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
+  val view = LocalView.current
 
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
@@ -430,25 +432,29 @@ private fun AppSettingsContent(
           if (state.isPrimaryDevice) {
             item {
               Rows.TextRow(
-                text = { _, _ ->
+                text = stringResource(R.string.preferences_chats__backups),
 //                  TextWithBetaLabel(
-                    stringResource(R.string.preferences_chats__backups)
+
 //                    textStyle = MaterialTheme.typography.bodyLarge,
+//                  ),
+//                },
+//                icon = {
+//                  Icon(
+//                    imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
+//                    contentDescription = stringResource(R.string.preferences_chats__backups),
+//                    tint = MaterialTheme.colorScheme.onSurface
 //                  )
-                },
-                icon = {
-                  Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.symbol_backup_24),
-                    contentDescription = stringResource(R.string.preferences_chats__backups),
-                    tint = MaterialTheme.colorScheme.onSurface
-                  )
-                },
+//                },
                 onClick = {
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups)
+                  if (isSignalVersion()) {
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups)
+                  } else {
+                    findNavController(view).safeNavigate(R.id.pigeon_action_appSettingsFragment_to_backupsPreferenceFragment)
+                  }
                 },
-                onLongClick = {
-                  callbacks.copyRemoteBackupsSubscriberIdToClipboard()
-                },
+//                onLongClick = {
+//                  callbacks.copyRemoteBackupsSubscriberIdToClipboard()
+//                },
                 enabled = isRegisteredAndUpToDate
               )
             }
