@@ -39,6 +39,7 @@ import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.horizontalGutters
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogActivity
+import pigeon.extensions.isSignalVersion
 
 private const val TAP_TARGET = 8
 
@@ -93,7 +94,9 @@ fun RegistrationScreenTitleSubtitle(
     )
   }
 
-  Spacer(modifier = Modifier.height(40.dp))
+  if (isSignalVersion()) {
+    Spacer(modifier = Modifier.height(40.dp))
+  }
 }
 
 /**

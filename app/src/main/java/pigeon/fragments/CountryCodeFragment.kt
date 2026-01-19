@@ -8,21 +8,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getParcelableCompat
 import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.components.ViewBinderDelegate
+import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding
+import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding.bind
 import org.thoughtcrime.securesms.databinding.PigeonFragmentRegistrationCountryCodeBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment.Companion.REQUEST_COUNTRY
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragmentArgs
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
+import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberFragmentArgs
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.focusOnRight
 import pigeon.extensions.isSignalVersion
+import kotlin.getValue
 
 class CountryCodeFragment : LoggingFragment() {
   private val sharedViewModel by activityViewModels<RegistrationViewModel>()
@@ -30,6 +37,10 @@ class CountryCodeFragment : LoggingFragment() {
 
   private var _binding: PigeonFragmentRegistrationCountryCodeBinding? = null
   private val binding get() = _binding
+
+  private val args by navArgs<CountryCodeFragmentArgs>()
+
+  private val enterPhoneNumberMode: EnterPhoneNumberMode by lazy { args.enterPhoneNumberMode }
 
   private fun createBinding(inflater: LayoutInflater, container: ViewGroup?): PigeonFragmentRegistrationCountryCodeBinding {
     return PigeonFragmentRegistrationCountryCodeBinding.inflate(inflater, container, false)
@@ -90,7 +101,7 @@ class CountryCodeFragment : LoggingFragment() {
       showErrorDialog(getString(R.string.RegistrationActivity_you_must_specify_your_country_code))
       return
     }
-    findNavController().safeNavigate(CountryCodeFragmentDirections.enterPhoneNumberFragment(EnterPhoneNumberMode.NORMAL))
+    findNavController().safeNavigate(CountryCodeFragmentDirections.enterPhoneNumberFragment(enterPhoneNumberMode))
   }
 
   private fun showErrorDialog(msg: String?) {

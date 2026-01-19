@@ -746,7 +746,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun moveToCountryPickerScreen() {
-    findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionCountryPicker(fragmentViewModel.country))
+    findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionCountryPicker(fragmentViewModel.country, enterPhoneNumberMode))
   }
 
   private fun popBackStack() {

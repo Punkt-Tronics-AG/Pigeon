@@ -38,6 +38,7 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isSignalVersion
 
 /**
  * Enter backup key screen for manual Signal Backups restore flow.
@@ -127,7 +128,11 @@ class EnterBackupKeyFragment : ComposeFragment() {
             dismiss = stringResource(android.R.string.cancel),
             onConfirm = {
               sharedViewModel.skipRestore()
-              findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.RESTART_AFTER_COLLECTION))
+              if (isSignalVersion()) {
+                findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.RESTART_AFTER_COLLECTION))
+              } else {
+                findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.RESTART_AFTER_COLLECTION))
+              }
             },
             onDismiss = { showSkipRestoreWarning = false },
             confirmColor = MaterialTheme.colorScheme.error,

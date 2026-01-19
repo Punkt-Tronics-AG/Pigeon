@@ -216,6 +216,10 @@
             android:name="country"
             app:argType="org.thoughtcrime.securesms.registration.ui.countrycode.Country"
             app:nullable="true" />
+
+        <argument
+            android:name="enterPhoneNumberMode"
+            app:argType="org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode" />
     </fragment>
 
 
@@ -311,6 +315,16 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@id/welcomeFragment"/>
+
+        <action
+            android:id="@+id/pigeon_go_to_enterCodeFragment"
+            app:destination="@id/enterPhoneNumberFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/welcomeFragment"/>
+
 
     </fragment>
 

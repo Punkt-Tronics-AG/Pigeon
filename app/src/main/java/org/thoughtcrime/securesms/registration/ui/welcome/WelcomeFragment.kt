@@ -6,7 +6,6 @@
 package org.thoughtcrime.securesms.registration.ui.welcome
 
 
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -14,8 +13,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -34,10 +31,10 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationCheckpoint
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.permissions.GrantPermissionsFragment
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
+import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyFragmentDirections
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
-import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.util.visible
 import pigeon.extensions.focusOnLeft
 import pigeon.extensions.isPigeonVersion
@@ -132,6 +129,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
         when (val userSelection = bundle.getSerializableCompat(RestoreWelcomeBottomSheet.REQUEST_KEY, WelcomeUserSelection::class.java)) {
           WelcomeUserSelection.RESTORE_WITH_OLD_PHONE,
           WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> afterRestoreOrTransferClicked(userSelection)
+
           else -> Unit
         }
       }
@@ -142,6 +140,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
         when (val userSelection = bundle.getSerializableCompat(GrantPermissionsFragment.REQUEST_KEY, WelcomeUserSelection::class.java)) {
           WelcomeUserSelection.RESTORE_WITH_OLD_PHONE,
           WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> navigateToNextScreenViaRestore(userSelection)
+
           WelcomeUserSelection.CONTINUE -> navigateToNextScreenViaContinue()
           WelcomeUserSelection.LINK -> navigateToLinkDevice()
           null -> Unit
@@ -181,7 +180,11 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
 
   private fun navigateToNextScreenViaContinue() {
     sharedViewModel.maybePrefillE164(requireContext())
-    findNavController().safeNavigate(WelcomeFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+    if (isSignalVersion()) {
+      findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+    } else {
+      findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+    }
   }
 
   private fun onTermsClicked() {
@@ -193,7 +196,11 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
   }
 
   private fun onRestoreOrTransferClicked() {
-    RestoreWelcomeBottomSheet().show(childFragmentManager, null)
+    if (isSignalVersion()) {
+      RestoreWelcomeBottomSheet().show(childFragmentManager, null)
+    } else {
+      navigateToNextScreenViaRestore(WelcomeUserSelection.RESTORE_WITH_NO_PHONE)
+    }
   }
 
   private fun afterRestoreOrTransferClicked(userSelection: WelcomeUserSelection) {
@@ -208,29 +215,31 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     sharedViewModel.maybePrefillE164(requireContext())
     sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
 
-      // PIGEON
-      var backupFileUri: Uri? = null
-      try {
-        backupFileUri = BackupUtil.getLatestBackup()?.uri
-      } catch (e: Exception) {
-        Log.e(TAG, "Error getting latest backup", e)
-      }
-      if (backupFileUri == null) {
-        Log.w(TAG, "No backups available at the moment.")
-        Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
-        return
-      }
-      // End PIGEON
+    // PIGEON
+    var backupFileUri: Uri? = null
+    try {
+      backupFileUri = BackupUtil.getLatestBackup()?.uri
+    } catch (e: Exception) {
+      Log.e(TAG, "Error getting latest backup", e)
+    }
+    if (backupFileUri == null) {
+      Log.w(TAG, "No backups available at the moment.")
+      Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
+      return
+    }
+    // End PIGEON
 
-      sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
+    sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
 
     when (userSelection) {
       WelcomeUserSelection.LINK,
       WelcomeUserSelection.CONTINUE -> throw IllegalArgumentException()
+
       WelcomeUserSelection.RESTORE_WITH_OLD_PHONE -> {
         sharedViewModel.intendToRestore(hasOldDevice = true, fromRemote = true)
         findNavController().safeNavigate(WelcomeFragmentDirections.goToRestoreViaQr())
       }
+
       WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> {
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
         findNavController().safeNavigate(WelcomeFragmentDirections.goToSelectRestoreMethod(userSelection))

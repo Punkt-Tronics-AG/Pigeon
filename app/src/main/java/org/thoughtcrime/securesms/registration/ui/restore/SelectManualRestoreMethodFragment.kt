@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,8 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.restore.RestoreActivity
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * Provide options to select restore/transfer operation and flow during manual registration.
@@ -42,7 +45,11 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
     when (val resultCode = result.resultCode) {
       Activity.RESULT_OK -> {
         sharedViewModel.onBackupSuccessfullyRestored()
-        findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+        if (isSignalVersion()) {
+          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+        } else {
+          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+        }
       }
       Activity.RESULT_CANCELED -> {
         Log.w(TAG, "Backup restoration canceled.")
@@ -56,7 +63,10 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
     var showSkipRestoreWarning by remember { mutableStateOf(false) }
 
     SelectRestoreMethodScreen(
-      restoreMethods = listOf(RestoreMethod.FROM_SIGNAL_BACKUPS, RestoreMethod.FROM_LOCAL_BACKUP_V1),
+      restoreMethods = listOf(
+//        if (isSignalVersion())
+//        RestoreMethod.FROM_SIGNAL_BACKUPS,
+        RestoreMethod.FROM_LOCAL_BACKUP_V1),
       onRestoreMethodClicked = this::startRestoreMethod,
       onSkip = {
         showSkipRestoreWarning = true
@@ -70,12 +80,21 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           dismiss = stringResource(android.R.string.cancel),
           onConfirm = {
             sharedViewModel.skipRestore()
-            findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
-          },
+            if (isSignalVersion()) {
+              findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+            } else {
+              findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+            }
+                      },
           onDismiss = { showSkipRestoreWarning = false },
           confirmColor = MaterialTheme.colorScheme.error,
           properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         )
+      }
+    }
+    LaunchedEffect(Unit) {
+      if (isPigeonVersion()) {
+        startRestoreMethod(RestoreMethod.FROM_LOCAL_BACKUP_V1)
       }
     }
   }
@@ -85,8 +104,11 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
       RestoreMethod.FROM_SIGNAL_BACKUPS -> {
         sharedViewModel.clearPreviousRegistrationState()
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
-        findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
-      }
+        if (isSignalVersion()) {
+          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
+        } else {
+          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
+        }      }
       RestoreMethod.FROM_LOCAL_BACKUP_V1 -> {
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = false)
         localBackupRestore.launch(RestoreActivity.getLocalRestoreIntent(requireContext()))
