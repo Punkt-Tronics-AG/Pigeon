@@ -101,7 +101,6 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
 
   private var currentPhoneNumberFormatter: AsYouTypeFormatter? = null
 
-  @SuppressLint("SetTextI18n")
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
@@ -125,14 +124,12 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       moveToCountryPickerScreen()
     }
 
-    if (isSignalVersion()) {
-      parentFragmentManager.setFragmentResultListener(
-        CountryCodeFragment.REQUEST_KEY_COUNTRY,
-        this
-      ) { _, bundle ->
-        val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
-        fragmentViewModel.setCountry(country.countryCode, country)
-      }
+    parentFragmentManager.setFragmentResultListener(
+      CountryCodeFragment.REQUEST_KEY_COUNTRY,
+      this
+    ) { _, bundle ->
+      val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
+      fragmentViewModel.setCountry(country.countryCode, country)
     }
 
     // PIGEON CODE
@@ -259,7 +256,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       binding.countryEmoji.text = country.emoji
       binding.country.text = country.name
       if (spinnerView.text.toString() != country.countryCode.toString()) {
-        spinnerView.setText("+${country.countryCode.toString()}")
+        spinnerView.setText("+${country.countryCode}")
       }
     } else {
       binding.countryEmoji.visible = false
@@ -576,7 +573,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
           dialogInterface.dismiss()
         }
         setPositiveButton(R.string.yes) { dialogInterface, _ ->
-          spinnerView.setText("+${phoneNumber.countryCode.toString()}")
+          spinnerView.setText(phoneNumber.countryCode.toString())
           phoneNumberInputLayout.setText(phoneNumber.nationalNumber.toString())
           when (mode) {
             RegistrationRepository.E164VerificationMode.SMS_WITH_LISTENER,
