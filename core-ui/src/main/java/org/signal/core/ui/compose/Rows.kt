@@ -615,7 +615,7 @@ object Rows {
         Text(
           text = label,
           style = MaterialTheme.typography.bodyMedium,
-          color = SignalTheme.colors.colorNeutral
+          color = MaterialTheme.colorScheme.onSurface
         )
       }
     }
