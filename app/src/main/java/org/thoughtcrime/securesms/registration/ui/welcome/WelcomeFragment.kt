@@ -170,20 +170,16 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     if (!hasAllPermissions()) {
       findNavController().safeNavigate(WelcomeFragmentDirections.actionWelcomeFragmentToGrantPermissionsFragment(WelcomeUserSelection.CONTINUE))
     } else {
-      if (isSignalVersion()) {
-        navigateToNextScreenViaContinue()
-      } else {
-        findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment(EnterPhoneNumberMode.NORMAL))
-      }
+      navigateToNextScreenViaContinue()
     }
   }
 
   private fun navigateToNextScreenViaContinue() {
     sharedViewModel.maybePrefillE164(requireContext())
     if (isSignalVersion()) {
-      findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+      findNavController().safeNavigate(WelcomeFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
     } else {
-      findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+      findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment(EnterPhoneNumberMode.NORMAL))
     }
   }
 

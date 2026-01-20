@@ -104,6 +104,9 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   @SuppressLint("SetTextI18n")
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+
+    Log.d("PIGEON", "EnterPhoneNumberMode: $enterPhoneNumberMode")
+
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
     requireActivity().onBackPressedDispatcher.addCallback(
       viewLifecycleOwner,
