@@ -272,6 +272,7 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
 
       is RegisterAccountResult.IncorrectRecoveryPassword -> {
         registrationViewModel.setUserSkippedReRegisterFlow(true)
+        Log.d("PIGEON", "User's recovery password was incorrect, navigating to phone number entry.")
         findNavController().safeNavigate(ReRegisterWithPinFragmentDirections.actionReRegisterWithPinFragmentToEnterPhoneNumberFragment(EnterPhoneNumberMode.NORMAL))
       }
 

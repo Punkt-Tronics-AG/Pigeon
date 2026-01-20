@@ -46,9 +46,9 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
       Activity.RESULT_OK -> {
         sharedViewModel.onBackupSuccessfullyRestored()
         if (isSignalVersion()) {
-          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+          findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
         } else {
-          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+          findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
         }
       }
 
@@ -75,7 +75,7 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
         showSkipRestoreWarning = true
       }
     ) {
-      if (showSkipRestoreWarning) {
+      if (showSkipRestoreWarning ) {
         Dialogs.SimpleAlertDialog(
           title = stringResource(R.string.SelectRestoreMethodFragment__skip_restore_title),
           body = stringResource(R.string.SelectRestoreMethodFragment__skip_restore_warning),
@@ -84,20 +84,15 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           onConfirm = {
             sharedViewModel.skipRestore()
             if (isSignalVersion()) {
-              findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+              findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
             } else {
-              findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
+              findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
             }
           },
           onDismiss = { showSkipRestoreWarning = false },
           confirmColor = MaterialTheme.colorScheme.error,
           properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         )
-      }
-    }
-    LaunchedEffect(Unit) {
-      if (isPigeonVersion()) {
-        startRestoreMethod(RestoreMethod.FROM_LOCAL_BACKUP_V1)
       }
     }
   }
@@ -108,9 +103,9 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
         sharedViewModel.clearPreviousRegistrationState()
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
         if (isSignalVersion()) {
-          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
+          findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
         } else {
-          findNavController().safeNavigate(EnterBackupKeyFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
+          findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
         }
       }
 
