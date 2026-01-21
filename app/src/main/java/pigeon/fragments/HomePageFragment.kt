@@ -6,34 +6,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.Fragment
 import org.signal.core.util.concurrent.SignalExecutors
 import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.MainNavigator.REQUEST_CONFIG_CHANGES
 import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity.Companion.home
 import org.thoughtcrime.securesms.conversation.NewConversationActivity
 import org.thoughtcrime.securesms.database.SignalDatabase.Companion.threads
-import org.thoughtcrime.securesms.databinding.PigeonFragmentHomePageBinding
 import org.thoughtcrime.securesms.dependencies.AppDependencies.messageNotifier
 import org.thoughtcrime.securesms.groups.ui.creategroup.CreateGroupActivity
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver
 import org.thoughtcrime.securesms.permissions.Permissions
-import pigeon.base.PigeonBaseFragment
-import pigeon.components.CentreFocusScroller
+import pigeon.compose.HomePageScreen
 import pigeon.extensions.cancelNotifications
 
 
-class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
+class HomePageFragment : Fragment() {
 
   private lateinit var mainActivity: MainActivity
-  private lateinit var scroller: CentreFocusScroller
+  private val isSearchVisible = mutableStateOf(true)
 
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
     Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
   }
 
-  override fun createBinding(inflater: LayoutInflater, container: ViewGroup?): PigeonFragmentHomePageBinding {
-    return PigeonFragmentHomePageBinding.inflate(inflater, container, false)
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+      return ComposeView(requireContext()).apply {
+          setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      }
   }
 
   override fun onAttach(context: Context) {
@@ -55,45 +59,20 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    scroller = view.findParentNestedScrollView()?.let { nestedScrollView ->
-      CentreFocusScroller(nestedScrollView)
-    } ?: throw IllegalStateException("NestedScrollView not found")
-    binding?.run {
+    val nestedScrollView = view.findParentNestedScrollView()
+        ?: throw IllegalStateException("NestedScrollView not found")
 
-
-      newMessageButton.setOnClickListener { handleNewMessage() }
-      newMessageButton.setOnFocusChangeListener { v, b ->
-        scroller.onFocusChange(v, b)
-      }
-
-      markAllReadButton.setOnClickListener {
-        handleMarkAllRead()
-      }
-      markAllReadButton.setOnFocusChangeListener { v, b ->
-        scroller.onFocusChange(v, b)
-      }
-
-      settingsButton.setOnClickListener { handleAppSettings() }
-      settingsButton.setOnFocusChangeListener { v, b ->
-        scroller.onFocusChange(v, b)
-      }
-
-      newGroupButton.setOnClickListener { goToGroupCreation() }
-      newGroupButton.setOnFocusChangeListener { v, b ->
-        scroller.onFocusChange(v, b)
-      }
-
-      searchButton.setOnClickListener {
-        mainActivity.collapseHomePage()
-      }
-      searchButton.setOnFocusChangeListener { v, b ->
-        scroller.onFocusChange(v, b)
-      }
+    (view as ComposeView).setContent {
+        HomePageScreen(
+            nestedScrollView = nestedScrollView,
+            onNewMessage = { handleNewMessage() },
+            onNewGroup = { goToGroupCreation() },
+            onMarkAllRead = { handleMarkAllRead() },
+            onSettings = { handleAppSettings() },
+            onSearch = { mainActivity.collapseHomePage() },
+            isSearchVisible = isSearchVisible.value
+        )
     }
-
-      binding?.newMessageButton?.post {
-        binding?.newMessageButton?.requestFocus()
-      }
   }
 
   private fun handleNewMessage() {
@@ -105,7 +84,7 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
   }
 
   private fun goToGroupCreation() {
-    requireActivity().startActivity(CreateGroupActivity.createIntent(requireContext()));
+    requireActivity().startActivity(CreateGroupActivity.createIntent(requireContext()))
   }
 
   private fun handleMarkAllRead() {
@@ -119,13 +98,6 @@ class HomePageFragment : PigeonBaseFragment<PigeonFragmentHomePageBinding>() {
   }
 
   fun setupSearchButtonState(searchButtonVisibility: Boolean) {
-    binding?.searchButton?.let { searchButton ->
-      if (searchButtonVisibility) {
-        searchButton.visibility = View.VISIBLE
-        searchButton.requestFocus()
-      } else {
-        searchButton.visibility = View.GONE
-      }
-    }
+      isSearchVisible.value = searchButtonVisibility
   }
 }
