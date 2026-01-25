@@ -28,16 +28,18 @@ import pigeon.extensions.cancelNotifications
 class HomePageFragment : Fragment() {
 
   private lateinit var mainActivity: MainActivity
-  private val isSearchVisible = mutableStateOf(true)
+  private val isSearchVisible = mutableStateOf(false)
+  // todo PIGEON: Fix search button visibility state restoration on configuration changes
 
+  @Deprecated("Deprecated in Java")
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
     Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
   }
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-      return ComposeView(requireContext()).apply {
-          setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      }
+    return ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    }
   }
 
   override fun onAttach(context: Context) {
@@ -60,18 +62,17 @@ class HomePageFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val nestedScrollView = view.findParentNestedScrollView()
-        ?: throw IllegalStateException("NestedScrollView not found")
 
     (view as ComposeView).setContent {
-        HomePageScreen(
-            nestedScrollView = nestedScrollView,
-            onNewMessage = { handleNewMessage() },
-            onNewGroup = { goToGroupCreation() },
-            onMarkAllRead = { handleMarkAllRead() },
-            onSettings = { handleAppSettings() },
-            onSearch = { mainActivity.collapseHomePage() },
-            isSearchVisible = isSearchVisible.value
-        )
+      HomePageScreen(
+        nestedScrollView = nestedScrollView,
+        onNewMessage = { handleNewMessage() },
+        onNewGroup = { goToGroupCreation() },
+        onMarkAllRead = { handleMarkAllRead() },
+        onSettings = { handleAppSettings() },
+        onSearch = { mainActivity.collapseHomePage() },
+        isSearchVisible = isSearchVisible.value
+      )
     }
   }
 

@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
@@ -65,6 +66,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.widget.NestedScrollView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.compose.AndroidFragment
 import androidx.fragment.compose.rememberFragmentState
@@ -595,18 +600,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
               MaterialTheme.colorScheme.surface
             }
 
-              Column(
-                modifier = Modifier
-                  .padding(start = contentLayoutData.listPaddingStart)
-                  .fillMaxSize()
-                  .background(listContainerColor, contentLayoutData.shape)
-                  .clip(contentLayoutData.shape)
-              ) {
-
-//              Box(
-//                modifier = Modifier.weight(1f)
-//              ) {
-
+            val listContent: @Composable () -> Unit = {
                 if (isPigeonVersion()) {
                   AndroidFragment(
                     clazz = HomePageFragment::class.java,
@@ -694,6 +688,42 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                     megaphoneActionController = megaphoneActionController,
 //                  modifier = Modifier.align(Alignment.BottomCenter)
                   )
+                }
+              }
+
+              if (isPigeonVersion()) {
+                AndroidView(
+                  modifier = Modifier
+                    .padding(start = contentLayoutData.listPaddingStart)
+                    .fillMaxSize(),
+                  factory = { context ->
+                    NestedScrollView(context).apply {
+                      isFillViewport = true
+                      layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                      addView(ComposeView(context).apply {
+                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                        setContent {
+                          Column(
+                            modifier = Modifier
+                              .background(listContainerColor, contentLayoutData.shape)
+                              .clip(contentLayoutData.shape)
+                          ) {
+                            listContent()
+                          }
+                        }
+                      })
+                    }
+                  }
+                )
+              } else {
+                Column(
+                  modifier = Modifier
+                    .padding(start = contentLayoutData.listPaddingStart)
+                    .fillMaxSize()
+                    .background(listContainerColor, contentLayoutData.shape)
+                    .clip(contentLayoutData.shape)
+                ) {
+                  listContent()
                 }
               }
             },

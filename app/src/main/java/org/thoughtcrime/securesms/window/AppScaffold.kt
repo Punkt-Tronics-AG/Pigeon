@@ -7,9 +7,6 @@ package org.thoughtcrime.securesms.window
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import android.content.res.Configuration
-import android.content.res.Resources
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -45,8 +42,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.window.core.ExperimentalWindowCoreApi
 import androidx.window.core.layout.WindowHeightSizeClass
 import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.Previews
@@ -55,8 +50,6 @@ import org.thoughtcrime.securesms.main.MainNavigationBar
 import org.thoughtcrime.securesms.main.MainNavigationRail
 import org.thoughtcrime.securesms.main.MainNavigationState
 import kotlin.math.max
-import org.thoughtcrime.securesms.util.RemoteConfig
-import pigeon.extensions.isSignalVersion
 
 enum class NavigationType {
   RAIL,
@@ -266,40 +259,10 @@ private fun ListAndNavigation(
         navRailContent()
       }
 
-    Column {
-      Box(modifier = Modifier.weight(1f)) {
-        //ForPigeon
-        AndroidView(
-          factory = { context ->
-            androidx.core.widget.NestedScrollView(context).apply {
-              layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-              )
-
-              addView(
-                androidx.compose.ui.platform.ComposeView(context).apply {
-                  layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                  )
-
-                  setContent {
-                    Box(
-                      modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color.Red)
-                    ) {
-                      listContent()
-                    }
-                  }
-                }
-              )
-            }
-          },
-          modifier = Modifier.fillMaxSize()
-        )
-      }
+      Column() {
+        Box(modifier = Modifier.weight(1f)) {
+          listContent()
+        }
 
         if (navigationType == NavigationType.BAR) {
           bottomNavContent()

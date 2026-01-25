@@ -34,6 +34,7 @@ import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.IconButtons.IconButton
 import org.signal.core.ui.compose.Previews
 import org.thoughtcrime.securesms.R
+import pigeon.extensions.isSignalVersion
 
 /**
  * A search input field for finding recipients.
@@ -53,7 +54,7 @@ fun RecipientSearchBar(
   var keyboardOptions by remember {
     mutableStateOf(
       KeyboardOptions(
-        keyboardType = KeyboardType.Text,
+        keyboardType = if (isSignalVersion()) KeyboardType.Text else KeyboardType.Password,
         imeAction = ImeAction.Search
       )
     )
@@ -81,6 +82,7 @@ fun RecipientSearchBar(
           onSearch = { onSearch(query) }
         ),
         trailingIcon = {
+          if (isSignalVersion()){
           val modifier = Modifier.padding(end = 4.dp)
           if (query.isNotEmpty()) {
             ClearQueryButton(
@@ -94,6 +96,7 @@ fun RecipientSearchBar(
               modifier = modifier
             )
           }
+            }
         }
       )
     },
