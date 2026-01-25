@@ -125,7 +125,8 @@ fun AppScaffold(
   Scaffold(
     containerColor = Color.Transparent,
     contentWindowInsets = contentWindowInsets,
-    topBar = topBarContent,
+    // In Pigeon, we don't use a top bar in the AppScaffold
+//    topBar = topBarContent,
     snackbarHost = snackbarHost,
     modifier = modifier
   ) { paddingValues ->
@@ -246,7 +247,8 @@ private fun ListAndNavigation(
 
   Scaffold(
     containerColor = Color.Transparent,
-    topBar = topBarContent,
+    // In Pigeon, we don't use a top bar in the AppScaffold
+//    topBar = topBarContent,
     contentWindowInsets = contentWindowInsets,
     snackbarHost = snackbarHost,
     modifier = modifier

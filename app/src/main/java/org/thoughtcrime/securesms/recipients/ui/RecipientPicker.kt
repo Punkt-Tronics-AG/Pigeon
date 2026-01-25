@@ -133,6 +133,8 @@ fun RecipientPicker(
       clipListToPadding = clipListToPadding,
       callbacks = callbacks,
       modifier = Modifier
+        // For Pigeon, ensure the search results list can be focused after the refresh button
+        .focusRequester(focusRequester)
         .fillMaxSize()
         .padding(top = 8.dp)
     )
