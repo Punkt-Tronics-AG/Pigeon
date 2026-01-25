@@ -24,10 +24,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.fragment.compose.rememberFragmentState
@@ -55,6 +57,8 @@ import org.thoughtcrime.securesms.recipients.PhoneNumber
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.DisplayMode.Companion.flag
+import pigeon.compose.HomePageButton
+import pigeon.extensions.isPigeonVersion
 import java.util.Optional
 import java.util.function.Consumer
 
@@ -104,6 +108,18 @@ fun RecipientPicker(
         .fillMaxWidth()
         .padding(horizontal = 16.dp)
     )
+
+    if (isPigeonVersion()){
+      HomePageButton(
+        text = stringResource(R.string.new_conversation_activity__refresh),
+        nestedScrollView = null,
+        onClick = {callbacks.refresh?.onRefresh()},
+        modifier = Modifier
+          .focusRequester(focusRequester)
+          .focusProperties { up = focusRequester }
+      )
+
+    }
 
     RecipientSearchResultsList(
       displayModes = displayModes,

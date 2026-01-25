@@ -130,7 +130,6 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   private HeaderActionProvider            headerActionProvider;
   private TextView                        headerActionView;
   private ContactSearchMediator           contactSearchMediator;
-  private ProgressBar                     pigeonProgressBar;
 
   @Nullable private NewConversationCallback newConversationCallback;
   @Nullable private FindByCallback          findByCallback;
@@ -257,7 +256,6 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     chipRecycler     = view.findViewById(R.id.chipRecycler);
     constraintLayout = view.findViewById(R.id.container);
     headerActionView = view.findViewById(R.id.header_action);
-    pigeonProgressBar       = view.findViewById(R.id.pigeon_progress_bar);
 
     final LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
 
@@ -386,6 +384,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
                 if (onRefreshListener != null && !isRefreshing()) {
                   setRefreshing(true);
                   onRefreshListener.onRefresh();
+                  ProgressBar pigeonProgressBar = requireActivity().findViewById(R.id.pigeon_progress_bar);
                   pigeonProgressBar.setVisibility(View.VISIBLE);
                 }
               }
@@ -575,6 +574,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     this.resetPositionOnCommit = true;
     swipeRefresh.setRefreshing(false);
 
+    ProgressBar pigeonProgressBar = requireActivity().findViewById(R.id.pigeon_progress_bar);
     pigeonProgressBar.setVisibility(View.GONE);
   }
 
@@ -582,8 +582,11 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     return !TextUtils.isEmpty(cursorFilter);
   }
 
-  public void setRefreshing(boolean refreshing) {
+  public void setRefreshing(boolean refreshing)
+  {
     swipeRefresh.setRefreshing(refreshing);
+    ProgressBar pigeonProgressBar = requireActivity().findViewById(R.id.pigeon_progress_bar);
+  pigeonProgressBar.setVisibility(refreshing ? View.VISIBLE : View.GONE);
   }
 
   public boolean isRefreshing() {
@@ -894,14 +897,6 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   public void setOnRefreshListener(@Nullable SwipeRefreshLayout.OnRefreshListener onRefreshListener) {
     this.onRefreshListener = onRefreshListener;
     this.swipeRefresh.setOnRefreshListener(onRefreshListener);
-  }
-
-  public void handleSwipe() {
-    swipeRefresh.post(() -> {
-      pigeonProgressBar.setVisibility(View.VISIBLE);
-      swipeRefresh.setRefreshing(true);
-      ((ContactSelectionActivity) requireActivity()).onRefresh();
-    });
   }
 
   private void smoothScrollChipsToEnd() {

@@ -41,44 +41,6 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <LinearLayout
-            android:id="@+id/show_contacts_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/show_contacts_button"
-                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:padding="10dp"
-                android:text="@string/contact_selection_list_fragment__show_contacts"
-                android:textColor="@color/white" />
-
-            <TextView
-                android:id="@+id/show_contacts_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:gravity="center"
-                android:lineSpacingMultiplier="1.3"
-                android:text="@string/contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
-
-        </LinearLayout>
-
         <FrameLayout
             android:id="@+id/chipGroupScrollContainer"
             android:layout_width="match_parent"
