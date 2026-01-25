@@ -5,10 +5,12 @@
 
 package org.thoughtcrime.securesms.recipients.ui
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,6 +61,7 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.DisplayMode.Companion.flag
 import pigeon.compose.HomePageButton
 import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import java.util.Optional
 import java.util.function.Consumer
 
@@ -85,38 +88,64 @@ fun RecipientPicker(
   Column(
     modifier = modifier
   ) {
-    val focusRequester = remember { FocusRequester() }
+    val searchFocusRequester = remember { FocusRequester() }
+    val refreshFocusRequester = remember { FocusRequester() }
+    val listFocusRequester = remember { FocusRequester() }
     var shouldRequestFocus by rememberSaveable { mutableStateOf(focusAndShowKeyboard) }
 
-    LaunchedEffect(Unit) {
-      if (shouldRequestFocus) {
-        focusRequester.requestFocus()
+    if (isSignalVersion()) {
+      LaunchedEffect(Unit) {
+        if (shouldRequestFocus) {
+          searchFocusRequester.requestFocus()
+        }
       }
-    }
 
-    val isImeVisible = WindowInsets.isImeVisible
-    LaunchedEffect(isImeVisible) {
-      shouldRequestFocus = isImeVisible
+      val isImeVisible = WindowInsets.isImeVisible
+      LaunchedEffect(isImeVisible) {
+        shouldRequestFocus = isImeVisible
+      }
+
+    } else {
+      LaunchedEffect(Unit) {
+        searchFocusRequester.requestFocus()
+      }
     }
 
     RecipientSearchBar(
       query = searchQuery,
       onQueryChange = { filter -> callbacks.listActions.onSearchQueryChanged(query = filter) },
       onSearch = {},
+      onPigeonDownArrow = {
+        if (isPigeonVersion()) {
+          Log.d("RecipientPicker", "Down arrow pressed in search bar, moving focus to refresh button")
+          refreshFocusRequester.requestFocus()
+        }
+      },
       modifier = Modifier
-        .focusRequester(focusRequester)
+        .focusRequester(searchFocusRequester)
+        .focusProperties {
+          left = FocusRequester.Cancel
+          right = FocusRequester.Cancel
+          down = if (isPigeonVersion()) refreshFocusRequester else listFocusRequester
+        }
         .fillMaxWidth()
         .padding(horizontal = 16.dp)
     )
 
-    if (isPigeonVersion()){
+    if (isPigeonVersion()) {
+
+      Spacer(Modifier.padding(top = 8.dp))
+
       HomePageButton(
         text = stringResource(R.string.new_conversation_activity__refresh),
         nestedScrollView = null,
-        onClick = {callbacks.refresh?.onRefresh()},
+        onClick = { callbacks.refresh?.onRefresh() },
         modifier = Modifier
-          .focusRequester(focusRequester)
-          .focusProperties { up = focusRequester }
+          .focusRequester(refreshFocusRequester)
+          .focusProperties {
+            up = searchFocusRequester
+            down = listFocusRequester
+          }
       )
 
     }
@@ -133,8 +162,7 @@ fun RecipientPicker(
       clipListToPadding = clipListToPadding,
       callbacks = callbacks,
       modifier = Modifier
-        // For Pigeon, ensure the search results list can be focused after the refresh button
-        .focusRequester(focusRequester)
+        .focusRequester(listFocusRequester)
         .fillMaxSize()
         .padding(top = 8.dp)
     )

@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.conversation
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
@@ -48,9 +53,11 @@ fun RecipientSearchBar(
   query: String,
   onQueryChange: (String) -> Unit,
   onSearch: (String) -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  onPigeonDownArrow: (() -> Unit)? = null
 ) {
   val state = rememberSearchBarState()
+  val focusManager = LocalFocusManager.current
   var keyboardOptions by remember {
     mutableStateOf(
       KeyboardOptions(
@@ -81,26 +88,36 @@ fun RecipientSearchBar(
         keyboardActions = KeyboardActions(
           onSearch = { onSearch(query) }
         ),
-        trailingIcon = {
-          if (isSignalVersion()){
-          val modifier = Modifier.padding(end = 4.dp)
-          if (query.isNotEmpty()) {
-            ClearQueryButton(
-              onClearQuery = { onQueryChange("") },
-              modifier = modifier
-            )
-          } else {
-            KeyboardToggleButton(
-              keyboardType = keyboardOptions.keyboardType,
-              onKeyboardTypeChange = { keyboardOptions = keyboardOptions.copy(keyboardType = it) },
-              modifier = modifier
-            )
-          }
+        trailingIcon = if (isSignalVersion()) {
+          {
+            val modifier = Modifier.padding(end = 4.dp)
+            if (query.isNotEmpty()) {
+              ClearQueryButton(
+                onClearQuery = { onQueryChange("") },
+                modifier = modifier
+              )
+            } else {
+              KeyboardToggleButton(
+                keyboardType = keyboardOptions.keyboardType,
+                onKeyboardTypeChange = { keyboardOptions = keyboardOptions.copy(keyboardType = it) },
+                modifier = modifier
+              )
             }
-        }
+          }
+        } else null,
+        modifier = modifier
+          .onPreviewKeyEvent { keyEvent ->
+            Log.d("RecipientSearchBar", "onPreviewKeyEvent: $keyEvent")
+            if (keyEvent.key == Key.DirectionDown && onPigeonDownArrow != null) {
+              onPigeonDownArrow()
+              true
+            } else {
+              false
+            }
+          }
       )
     },
-    modifier = modifier
+    modifier = Modifier
   )
 }
 
