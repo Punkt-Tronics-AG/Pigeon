@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -108,17 +110,20 @@ fun RecipientSearchBar(
         } else null,
         modifier = modifier
           .onPreviewKeyEvent { keyEvent ->
-            Log.d("RecipientSearchBar", "onPreviewKeyEvent: $keyEvent")
-            if (keyEvent.key == Key.DirectionDown && onPigeonDownArrow != null) {
-              onPigeonDownArrow()
-              true
-            } else if (keyEvent.key == Key.DirectionUp && onPigeonUpArrow != null) {
-              onPigeonUpArrow()
-              true
+            if (keyEvent.type == KeyEventType.KeyDown) {
+              Log.d("RecipientSearchBar", "onPreviewKeyEvent KeyDown: $keyEvent")
+              when (keyEvent.key) {
+                Key.DirectionDown if onPigeonDownArrow != null -> {
+                  onPigeonDownArrow()
+                  return@onPreviewKeyEvent true
+                }
+                Key.DirectionUp if onPigeonUpArrow != null -> {
+                  onPigeonUpArrow()
+                  return@onPreviewKeyEvent true
+                }
+              }
             }
-            else {
-              false
-            }
+            false
           }
       )
     },
