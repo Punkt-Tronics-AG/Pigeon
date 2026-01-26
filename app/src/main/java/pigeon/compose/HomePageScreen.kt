@@ -113,7 +113,7 @@ fun HomePageButton(
   val density = LocalDensity.current
   var hasCentered by remember { mutableStateOf(false) }
 
-  val fontSize = if (isFocused) if (isBigSize) 40.sp else 24.sp else  24.sp
+  val fontSize = if (isFocused) if (isBigSize) 40.sp else 32.sp else  24.sp
   val color = if (isFocused) Color.White else Color.White.copy(alpha = 0.5f)
   val startPadding = if (isFocused) 5.dp else 30.dp
 

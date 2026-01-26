@@ -83,6 +83,7 @@ fun RecipientPicker(
   listBottomPadding: Dp? = null,
   clipListToPadding: Boolean = ContactSelectionArguments.Defaults.RECYCLER_CHILD_CLIPPING,
   callbacks: RecipientPickerCallbacks,
+  onPigeonUpArrow: (() -> Unit)? = null,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -115,6 +116,7 @@ fun RecipientPicker(
       query = searchQuery,
       onQueryChange = { filter -> callbacks.listActions.onSearchQueryChanged(query = filter) },
       onSearch = {},
+      onPigeonUpArrow = onPigeonUpArrow,
       onPigeonDownArrow = {
         if (isPigeonVersion()) {
           Log.d("RecipientPicker", "Down arrow pressed in search bar, moving focus to refresh button")
@@ -123,11 +125,6 @@ fun RecipientPicker(
       },
       modifier = Modifier
         .focusRequester(searchFocusRequester)
-        .focusProperties {
-          left = FocusRequester.Cancel
-          right = FocusRequester.Cancel
-          down = if (isPigeonVersion()) refreshFocusRequester else listFocusRequester
-        }
         .fillMaxWidth()
         .padding(horizontal = 16.dp)
     )

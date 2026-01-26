@@ -54,7 +54,8 @@ fun RecipientSearchBar(
   onQueryChange: (String) -> Unit,
   onSearch: (String) -> Unit,
   modifier: Modifier = Modifier,
-  onPigeonDownArrow: (() -> Unit)? = null
+  onPigeonDownArrow: (() -> Unit)? = null,
+  onPigeonUpArrow: (() -> Unit)? = null
 ) {
   val state = rememberSearchBarState()
   val focusManager = LocalFocusManager.current
@@ -111,7 +112,11 @@ fun RecipientSearchBar(
             if (keyEvent.key == Key.DirectionDown && onPigeonDownArrow != null) {
               onPigeonDownArrow()
               true
-            } else {
+            } else if (keyEvent.key == Key.DirectionUp && onPigeonUpArrow != null) {
+              onPigeonUpArrow()
+              true
+            }
+            else {
               false
             }
           }

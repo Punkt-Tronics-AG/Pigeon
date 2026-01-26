@@ -15,34 +15,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.signal.core.ui.compose.AllDevicePreviews
-import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Previews
 import org.thoughtcrime.securesms.PassphraseRequiredActivity
@@ -60,6 +51,8 @@ import org.thoughtcrime.securesms.recipients.ui.RecipientPickerScaffold
 import org.thoughtcrime.securesms.recipients.ui.RecipientSelection
 import org.thoughtcrime.securesms.recipients.ui.findby.FindByActivity
 import org.thoughtcrime.securesms.recipients.ui.findby.FindByMode
+import pigeon.compose.HomePageButton
+import pigeon.extensions.isPigeonVersion
 import java.text.NumberFormat
 
 /**
@@ -183,35 +176,37 @@ private fun CreateGroupScreenUi(
         Dialogs.IndeterminateProgressDialog()
       }
     },
-    floatingActionButton = {
-      AnimatedContent(
-        targetState = uiState.newSelections.isNotEmpty(),
-        transitionSpec = {
-          ContentTransform(
-            targetContentEnter = EnterTransition.None,
-            initialContentExit = ExitTransition.None
-          ) using SizeTransform(sizeAnimationSpec = { _, _ -> tween(300) })
-        }
-      ) { hasSelectedContacts ->
-        if (hasSelectedContacts) {
-          FilledTonalIconButton(
-            onClick = callbacks::onNextClicked,
-            content = {
-              Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_end_24),
-                contentDescription = stringResource(R.string.CreateGroupActivity__accessibility_next)
-              )
-            }
-          )
-        } else {
-          Buttons.MediumTonal(
-            onClick = callbacks::onNextClicked
-          ) {
-            Text(text = stringResource(R.string.CreateGroupActivity__skip))
-          }
-        }
-      }
-    }
+//    floatingActionButton = {
+//      if (isSignalVersion()) {
+//        AnimatedContent(
+//          targetState = uiState.newSelections.isNotEmpty(),
+//          transitionSpec = {
+//            ContentTransform(
+//              targetContentEnter = EnterTransition.None,
+//              initialContentExit = ExitTransition.None
+//            ) using SizeTransform(sizeAnimationSpec = { _, _ -> tween(300) })
+//          }
+//        ) { hasSelectedContacts ->
+//          if (hasSelectedContacts) {
+//            FilledTonalIconButton(
+//              onClick = callbacks::onNextClicked,
+//              content = {
+//                Icon(
+//                  imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_end_24),
+//                  contentDescription = stringResource(R.string.CreateGroupActivity__accessibility_next)
+//                )
+//              }
+//            )
+//          } else {
+//            Buttons.MediumTonal(
+//              onClick = callbacks::onNextClicked
+//            ) {
+//              Text(text = stringResource(R.string.CreateGroupActivity__skip))
+//            }
+//          }
+//        }
+//      }
+//    }
   )
 }
 
@@ -221,24 +216,58 @@ private fun CreateGroupRecipientPicker(
   callbacks: UiCallbacks,
   modifier: Modifier = Modifier
 ) {
-  RecipientPicker(
-    searchQuery = uiState.searchQuery,
-    displayModes = setOf(RecipientPicker.DisplayMode.PUSH),
-    selectionLimits = uiState.selectionLimits,
-    pendingRecipientSelections = uiState.pendingRecipientSelections,
-    isRefreshing = false,
-    listBottomPadding = 64.dp,
-    clipListToPadding = false,
-    callbacks = remember(callbacks) {
-      RecipientPickerCallbacks(
-        listActions = callbacks,
-        findByUsername = callbacks,
-        findByPhoneNumber = callbacks
-      )
-    },
-    modifier = modifier.fillMaxSize()
-  )
+  Column(modifier = modifier.fillMaxSize()) {
+    val pigeonFocusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+    if (isPigeonVersion()) {
+      if (uiState.newSelections.isNotEmpty()) {
+        HomePageButton(
+          text = stringResource(R.string.CreateGroupActivity__accessibility_next),
+          onClick = callbacks::onNextClicked,
+          isBigSize = false,
+          nestedScrollView = null,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(pigeonFocusRequester)
+        )
+      } else {
+        HomePageButton(
+          text = stringResource(R.string.CreateGroupActivity__skip),
+          onClick = callbacks::onNextClicked,
+          isBigSize = false,
+          nestedScrollView = null,
+          modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(
+              pigeonFocusRequester
+            )
+        )
+      }
+    }
+    RecipientPicker(
+      searchQuery = uiState.searchQuery,
+      displayModes = setOf(RecipientPicker.DisplayMode.PUSH),
+      selectionLimits = uiState.selectionLimits,
+      pendingRecipientSelections = uiState.pendingRecipientSelections,
+      isRefreshing = false,
+      listBottomPadding = 64.dp,
+      clipListToPadding = false,
+      onPigeonUpArrow = {
+        if (isPigeonVersion()) {
+          pigeonFocusRequester.requestFocus()
+        }
+      },
+      callbacks = remember(callbacks) {
+        RecipientPickerCallbacks(
+          listActions = callbacks,
+          findByUsername = callbacks,
+          findByPhoneNumber = callbacks
+        )
+      },
+    )
+
+  }
 }
+
 
 private interface UiCallbacks :
   RecipientPickerCallbacks.ListActions,

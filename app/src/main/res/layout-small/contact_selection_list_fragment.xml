@@ -5,8 +5,7 @@
     android:id="@+id/container"
     style="@style/Mp02.Signal.Background"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:nextFocusDown="@id/container">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/hideLayout"
