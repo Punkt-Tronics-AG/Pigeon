@@ -98,8 +98,10 @@
             android:nextFocusDown="@id/welcome_continue_button"
             android:singleLine="true"
             android:text="@string/registration_activity__transfer_or_restore_account"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/welcome_continue_button"
-            app:layout_constraintStart_toStartOf="@+id/welcome_continue_button" />
+            app:layout_constraintStart_toStartOf="@+id/welcome_continue_button"
+            tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/welcome_continue_button"

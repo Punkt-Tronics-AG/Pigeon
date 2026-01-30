@@ -7,12 +7,10 @@ package org.thoughtcrime.securesms.registration.ui.welcome
 
 
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -31,7 +29,6 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationCheckpoint
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.permissions.GrantPermissionsFragment
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
-import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyFragmentDirections
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
@@ -70,7 +67,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     if (isPigeonVersion()) {
       binding.welcomeTermsButton.focusOnLeft()
       binding.welcomeTransferOrRestore.focusOnLeft()
-      binding.welcomeTransferOrRestore.visible = true
+      binding.welcomeTransferOrRestore.visible = false
       val disclaimerButton: TextView = view.findViewById(R.id.disclaimer_button)
       disclaimerButton.setOnClickListener { v: View? -> onDisclaimerClicked() }
 
@@ -209,22 +206,6 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
 
   private fun navigateToNextScreenViaRestore(userSelection: WelcomeUserSelection) {
     sharedViewModel.maybePrefillE164(requireContext())
-    sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
-
-    // PIGEON
-    var backupFileUri: Uri? = null
-    try {
-      backupFileUri = BackupUtil.getLatestBackup()?.uri
-    } catch (e: Exception) {
-      Log.e(TAG, "Error getting latest backup", e)
-    }
-    if (backupFileUri == null) {
-      Log.w(TAG, "No backups available at the moment.")
-      Toast.makeText(requireContext(), R.string.registration_no_backups_available, Toast.LENGTH_LONG).show()
-      return
-    }
-    // End PIGEON
-
     sharedViewModel.setRegistrationCheckpoint(RegistrationCheckpoint.PERMISSIONS_GRANTED)
 
     when (userSelection) {
