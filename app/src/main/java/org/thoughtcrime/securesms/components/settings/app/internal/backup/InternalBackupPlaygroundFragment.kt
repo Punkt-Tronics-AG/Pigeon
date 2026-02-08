@@ -84,6 +84,7 @@ import org.thoughtcrime.securesms.jobs.BackupRestoreMediaJob
 import org.thoughtcrime.securesms.jobs.LocalBackupJob
 import org.thoughtcrime.securesms.keyvalue.BackupValues
 import org.thoughtcrime.securesms.keyvalue.SignalStore
+import org.thoughtcrime.securesms.registration.ui.restore.local.InternalNewLocalRestoreActivity
 import org.thoughtcrime.securesms.util.Util
 
 class InternalBackupPlaygroundFragment : ComposeFragment() {
@@ -192,15 +193,15 @@ class InternalBackupPlaygroundFragment : ComposeFragment() {
 
             savePlaintextCopyLauncher.launch(intent)
           },
-          onExportNewStyleLocalBackupClicked = { LocalBackupJob.enqueueArchive() },
+          onExportNewStyleLocalBackupClicked = { LocalBackupJob.enqueueArchive(false) },
           onWipeDataAndRestoreFromRemoteClicked = {
             MaterialAlertDialogBuilder(context)
               .setTitle("Are you sure?")
               .setMessage("This will delete all of your chats! Make sure you've finished a backup first, we don't check for you. Only do this on a test device!")
               .setPositiveButton("Wipe and restore") { _, _ ->
-                Toast.makeText(this@InternalBackupPlaygroundFragment.requireContext(), "Restoring backup...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Restoring backup...", Toast.LENGTH_SHORT).show()
                 viewModel.wipeAllDataAndRestoreFromRemote {
-                  startActivity(MainActivity.clearTop(this@InternalBackupPlaygroundFragment.requireActivity()))
+                  context.startActivity(MainActivity.clearTop(context))
                 }
               }
               .show()
@@ -229,7 +230,9 @@ class InternalBackupPlaygroundFragment : ComposeFragment() {
             MaterialAlertDialogBuilder(context)
               .setTitle("Are you sure?")
               .setMessage("After you choose a file to import, this will delete all of your chats, then restore them from the file! Only do this on a test device!")
-              .setPositiveButton("Wipe and restore") { _, _ -> viewModel.import(SignalStore.settings.signalBackupDirectory!!) }
+              .setPositiveButton("Wipe and restore") { _, _ ->
+                startActivity(InternalNewLocalRestoreActivity.getIntent(context, finish = false))
+              }
               .show()
           },
           onDeleteRemoteBackup = {

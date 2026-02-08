@@ -1,10 +1,17 @@
 @file:Suppress("UnstableApiUsage")
 
 import com.android.build.api.dsl.ManagedVirtualDevice
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.io.File
 import java.util.Properties
 
 plugins {
@@ -22,13 +29,26 @@ plugins {
 
 apply(from = "static-ips.gradle.kts")
 
-val pigeonVersionCode = 127543
-val canonicalVersionCode = 1625
-val canonicalVersionName = "Pigeon 2.0.0031 upon Signal 7.66.5"
+val pigeonVersionCode = 127544
+val canonicalVersionCode = 1641
+val canonicalVersionName = "Pigeon 2.0.0032 upon Signal 7.71.2"
 val currentHotfixVersion = 0
 val maxHotfixVersions = 100
 
-val keystores: Map<String, Properties?> = mapOf("debug" to loadKeystoreProperties("keystore.debug.properties"))
+// We don't want versions to ever end in 0 so that they don't conflict with nightly versions
+val possibleHotfixVersions = (0 until maxHotfixVersions).toList().filter { it % 10 != 0 }
+
+val debugKeystorePropertiesProvider = providers.of(PropertiesFileValueSource::class.java) {
+  parameters.file.set(rootProject.layout.projectDirectory.file("keystore.debug.properties"))
+}
+
+val languagesProvider = providers.of(LanguageListValueSource::class.java) {
+  parameters.resDir.set(layout.projectDirectory.dir("src/main/res"))
+}
+
+val languagesForBuildConfigProvider = languagesProvider.map { languages ->
+  languages.joinToString(separator = ", ") { language -> "\"$language\"" }
+}
 
 val selectableVariants = listOf(
   "nightlyBackupRelease",
@@ -54,14 +74,6 @@ val selectableVariants = listOf(
   "websiteProdRelease"
 )
 
-val signalBuildToolsVersion: String by rootProject.extra
-val signalCompileSdkVersion: String by rootProject.extra
-val signalTargetSdkVersion: Int by rootProject.extra
-val signalMinSdkVersion: Int by rootProject.extra
-val signalNdkVersion: String by rootProject.extra
-val signalJavaVersion: JavaVersion by rootProject.extra
-val signalKotlinJvmTarget: String by rootProject.extra
-
 wire {
   kotlin {
     javaInterop = true
@@ -72,22 +84,22 @@ wire {
   }
 
   protoPath {
-    srcDir("${project.rootDir}/libsignal-service/src/main/protowire")
+    srcDir("${project.rootDir}/lib/libsignal-service/src/main/protowire")
   }
   // Handled by libsignal
   prune("signalservice.DecryptionErrorMessage")
 }
 
 ktlint {
-  version.set("1.2.1")
+  version.set("1.5.0")
 }
 
 android {
   namespace = "org.thoughtcrime.securesms"
 
-  buildToolsVersion = signalBuildToolsVersion
-  compileSdkVersion = signalCompileSdkVersion
-  ndkVersion = signalNdkVersion
+  buildToolsVersion = libs.versions.buildTools.get()
+  compileSdkVersion = libs.versions.compileSdk.get()
+  ndkVersion = libs.versions.ndk.get()
 
   flavorDimensions += listOf("distribution", "environment")
   testBuildType = "instrumentation"
@@ -95,12 +107,12 @@ android {
   android.bundle.language.enableSplit = false
 
   kotlinOptions {
-    jvmTarget = signalKotlinJvmTarget
+    jvmTarget = libs.versions.kotlinJvmTarget.get()
     freeCompilerArgs = listOf("-Xjvm-default=all")
     suppressWarnings = true
   }
 
-  keystores["debug"]?.let { properties ->
+  debugKeystorePropertiesProvider.orNull?.let { properties ->
     signingConfigs.getByName("debug").apply {
       storeFile = file("${project.rootDir}/${properties.getProperty("storeFile")}")
       storePassword = properties.getProperty("storePassword")
@@ -140,8 +152,8 @@ android {
 
   compileOptions {
     isCoreLibraryDesugaringEnabled = true
-    sourceCompatibility = signalJavaVersion
-    targetCompatibility = signalJavaVersion
+    sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
+    targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
   }
 
   packaging {
@@ -179,12 +191,15 @@ android {
   }
 
   defaultConfig {
+    if (currentHotfixVersion >= maxHotfixVersions) {
+      throw AssertionError("Hotfix version offset is too large!")
+    }
+//    versionCode = (canonicalVersionCode * maxHotfixVersions) + possibleHotfixVersions[currentHotfixVersion]
     versionCode = pigeonVersionCode
-//    versionCode = (canonicalVersionCode * maxHotfixVersions) + currentHotfixVersion
     versionName = canonicalVersionName
 
-    minSdk = signalMinSdkVersion
-    targetSdk = signalTargetSdkVersion
+    minSdk = libs.versions.minSdk.get().toInt()
+    targetSdk = libs.versions.targetSdk.get().toInt()
 
     vectorDrawables.useSupportLibrary = true
     project.ext.set("archivesBaseName", "Signal")
@@ -223,7 +238,7 @@ android {
     buildConfigField("String", "ZKGROUP_SERVER_PUBLIC_PARAMS", "\"AMhf5ywVwITZMsff/eCyudZx9JDmkkkbV6PInzG4p8x3VqVJSFiMvnvlEKWuRob/1eaIetR31IYeAbm0NdOuHH8Qi+Rexi1wLlpzIo1gstHWBfZzy1+qHRV5A4TqPp15YzBPm0WSggW6PbSn+F4lf57VCnHF7p8SvzAA2ZZJPYJURt8X7bbg+H3i+PEjH9DXItNEqs2sNcug37xZQDLm7X36nOoGPs54XsEGzPdEV+itQNGUFEjY6X9Uv+Acuks7NpyGvCoKxGwgKgE5XyJ+nNKlyHHOLb6N1NuHyBrZrgtY/JYJHRooo5CEqYKBqdFnmbTVGEkCvJKxLnjwKWf+fEPoWeQFj5ObDjcKMZf2Jm2Ae69x+ikU5gBXsRmoF94GXTLfN0/vLt98KDPnxwAQL9j5V1jGOY8jQl6MLxEs56cwXN0dqCnImzVH3TZT1cJ8SW1BRX6qIVxEzjsSGx3yxF3suAilPMqGRp4ffyopjMD1JXiKR2RwLKzizUe5e8XyGOy9fplzhw3jVzTRyUZTRSZKkMLWcQ/gv0E4aONNqs4P+NameAZYOD12qRkxosQQP5uux6B2nRyZ7sAV54DgFyLiRcq1FvwKw2EPQdk4HDoePrO/RNUbyNddnM/mMgj4FW65xCoT1LmjrIjsv/Ggdlx46ueczhMgtBunx1/w8k8V+l8LVZ8gAT6wkU5J+DPQalQguMg12Jzug3q4TbdHiGCmD9EunCwOmsLuLJkz6EcSYXtrlDEnAM+hicw7iergYLLlMXpfTdGxJCWJmP4zqUFeTTmsmhsjGBt7NiEB/9pFFEB3pSbf4iiUukw63Eo8Aqnf4iwob6X1QviCWuc8t0LUlT9vALgh/f2DPVOOmR0RW6bgRvc7DSF20V/omg+YBw==\"")
     buildConfigField("String", "GENERIC_SERVER_PUBLIC_PARAMS", "\"AByD873dTilmOSG0TjKrvpeaKEsUmIO8Vx9BeMmftwUs9v7ikPwM8P3OHyT0+X3EUMZrSe9VUp26Wai51Q9I8mdk0hX/yo7CeFGJyzoOqn8e/i4Ygbn5HoAyXJx5eXfIbqpc0bIxzju4H/HOQeOpt6h742qii5u/cbwOhFZCsMIbElZTaeU+BWMBQiZHIGHT5IE0qCordQKZ5iPZom0HeFa8Yq0ShuEyAl0WINBiY6xE3H/9WnvzXBbMuuk//eRxXgzO8ieCeK8FwQNxbfXqZm6Ro1cMhCOF3u7xoX83QhpN\"")
     buildConfigField("String", "BACKUP_SERVER_PUBLIC_PARAMS", "\"AJwNSU55fsFCbgaxGRD11wO1juAs8Yr5GF8FPlGzzvdJJIKH5/4CC7ZJSOe3yL2vturVaRU2Cx0n751Vt8wkj1bozK3CBV1UokxV09GWf+hdVImLGjXGYLLhnI1J2TWEe7iWHyb553EEnRb5oxr9n3lUbNAJuRmFM7hrr0Al0F0wrDD4S8lo2mGaXe0MJCOM166F8oYRQqpFeEHfiLnxA1O8ZLh7vMdv4g9jI5phpRBTsJ5IjiJrWeP0zdIGHEssUeprDZ9OUJ14m0v61eYJMKsf59Bn+mAT2a7YfB+Don9O\"")
-    buildConfigField("String[]", "LANGUAGES", "new String[]{ ${languageList().map { "\"$it\"" }.joinToString(separator = ", ")} }")
+    buildConfigField("String[]", "LANGUAGES", "new String[]{ ${languagesForBuildConfigProvider.get()} }")
     buildConfigField("int", "CANONICAL_VERSION_CODE", "$canonicalVersionCode")
     buildConfigField("String", "DEFAULT_CURRENCIES", "\"EUR,AUD,GBP,CAD,CNY\"")
     buildConfigField("String", "GIPHY_API_KEY", "\"3o6ZsYH6U6Eri53TXy\"")
@@ -263,7 +278,7 @@ android {
 
   buildTypes {
     getByName("debug") {
-      if (keystores["debug"] != null) {
+      if (debugKeystorePropertiesProvider.orNull != null) {
         signingConfig = signingConfigs["debug"]
       }
       isDefault = true
@@ -370,16 +385,10 @@ android {
     }
 
     create("nightly") {
-      val apkUpdateManifestUrl = if (file("${project.rootDir}/nightly-url.txt").exists()) {
-        file("${project.rootDir}/nightly-url.txt").readText().trim()
-      } else {
-        "<unset>"
-      }
-
       dimension = "distribution"
-      versionNameSuffix = "-nightly-untagged-${getDateSuffix()}"
-      buildConfigField("boolean", "MANAGES_APP_UPDATES", "true")
-      buildConfigField("String", "APK_UPDATE_MANIFEST_URL", "\"${apkUpdateManifestUrl}\"")
+      versionNameSuffix = "-nightly-untagged-${getGitHash()}"
+      buildConfigField("boolean", "MANAGES_APP_UPDATES", "false")
+      buildConfigField("String", "APK_UPDATE_MANIFEST_URL", "null")
       buildConfigField("String", "BUILD_DISTRIBUTION_TYPE", "\"nightly\"")
       buildConfigField("boolean", "LINK_DEVICE_UX_ENABLED", "true")
     }
@@ -443,41 +452,39 @@ android {
     disable += "LintError"
   }
 
-  applicationVariants.all {
-    outputs
-      .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
-      .forEach { output ->
-        if (output.baseName.contains("nightly")) {
-          var tag = getCurrentGitTag()
-          if (!tag.isNullOrEmpty()) {
-            if (tag.startsWith("v")) {
-              tag = tag.substring(1)
-            }
-            output.versionNameOverride = tag
-            output.outputFileName = output.outputFileName.replace(".apk", "-${output.versionNameOverride}.apk")
-          } else {
-            output.outputFileName = output.outputFileName.replace(".apk", "-$versionName.apk")
-          }
-          output.versionCodeOverride = pigeonVersionCode
-        } else {
-          output.outputFileName = output.outputFileName.replace(".apk", "-$versionName.apk")
-
-          if (currentHotfixVersion >= maxHotfixVersions) {
-            throw AssertionError("Hotfix version is too large!")
-          }
-        }
-        output.versionCodeOverride = pigeonVersionCode
-      }
-  }
-
   androidComponents {
     beforeVariants { variant ->
       variant.enable = variant.name in selectableVariants
     }
-    onVariants { variant ->
+    onVariants(selector().all()) { variant: com.android.build.api.variant.ApplicationVariant ->
       // Include the test-only library on debug builds.
       if (variant.buildType != "instrumentation") {
         variant.packaging.jniLibs.excludes.add("**/libsignal_jni_testing.so")
+      }
+
+      // Starting with minSdk 23, Android leaves native libraries uncompressed, which is fine for the Play Store, but not for our self-distributed APKs.
+      // This reverts it to the legacy behavior, compressing the native libraries, and drastically reducing the APK file size.
+      if (variant.name.contains("website", ignoreCase = true)) {
+        variant.packaging.jniLibs.useLegacyPackaging.set(true)
+      }
+
+      // Version overrides
+      if (variant.name.contains("nightly", ignoreCase = true)) {
+        var tag = getNightlyTagForCurrentCommit()
+        if (!tag.isNullOrEmpty()) {
+          if (tag.startsWith("v")) {
+            tag = tag.substring(1)
+          }
+
+          // We add a multiple of maxHotfixVersions to nightlies to ensure we're always at least that many versions ahead
+          val nightlyBuffer = (5 * maxHotfixVersions)
+          val nightlyVersionCode = (canonicalVersionCode * maxHotfixVersions) + (getNightlyBuildNumber(tag) * 10) + nightlyBuffer
+
+          variant.outputs.forEach { output ->
+            output.versionName.set(tag)
+            output.versionCode.set(nightlyVersionCode)
+          }
+        }
       }
     }
   }
@@ -491,6 +498,14 @@ android {
       java.srcDir(path)
     }
   }
+
+  applicationVariants.configureEach {
+    outputs.configureEach {
+      if (this is com.android.build.gradle.internal.api.BaseVariantOutputImpl) {
+        outputFileName = outputFileName.replace(".apk", "-$versionName.apk")
+      }
+    }
+  }
 }
 
 dependencies {
@@ -501,21 +516,22 @@ dependencies {
   // for Pigeon
   implementation(files("libs/ringrtc-android-2.59.3.aar"))
 
-
-  implementation(project(":libsignal-service"))
-  implementation(project(":paging"))
-  implementation(project(":core-util"))
-  implementation(project(":glide-config"))
-  implementation(project(":video"))
-  implementation(project(":device-transfer"))
-  implementation(project(":image-editor"))
-  implementation(project(":donations"))
-  implementation(project(":debuglogs-viewer"))
-  implementation(project(":contacts"))
-  implementation(project(":qr"))
-  implementation(project(":sticky-header-grid"))
-  implementation(project(":photoview"))
-  implementation(project(":core-ui"))
+  implementation(project(":lib:libsignal-service"))
+  implementation(project(":lib:paging"))
+  implementation(project(":core:util"))
+  implementation(project(":lib:glide-config"))
+  implementation(project(":lib:video"))
+  implementation(project(":lib:device-transfer"))
+  implementation(project(":lib:image-editor"))
+  implementation(project(":lib:donations"))
+  implementation(project(":lib:debuglogs-viewer"))
+  implementation(project(":lib:contacts"))
+  implementation(project(":lib:qr"))
+  implementation(project(":lib:sticky-header-grid"))
+  implementation(project(":lib:photoview"))
+  implementation(project(":core:ui"))
+  implementation(project(":core:models"))
+  implementation(project(":core:models-jvm"))
 
   implementation(libs.androidx.fragment.ktx)
   implementation(libs.androidx.appcompat) {
@@ -539,6 +555,8 @@ dependencies {
   implementation(libs.androidx.navigation.fragment.ktx)
   implementation(libs.androidx.navigation.ui.ktx)
   implementation(libs.androidx.navigation.compose)
+  implementation(libs.androidx.navigation3.runtime)
+  implementation(libs.androidx.navigation3.ui)
   implementation(libs.androidx.lifecycle.viewmodel.ktx)
   implementation(libs.androidx.lifecycle.livedata.ktx)
   implementation(libs.androidx.lifecycle.process)
@@ -616,9 +634,9 @@ dependencies {
   implementation(libs.androidx.credentials.compat)
   implementation(libs.kotlinx.serialization.json)
 
-  implementation(project(":billing"))
+  implementation(project(":lib:billing"))
 
-  "spinnerImplementation"(project(":spinner"))
+  "spinnerImplementation"(project(":lib:spinner"))
 
   "canaryImplementation"(libs.square.leakcanary)
 
@@ -644,7 +662,7 @@ dependencies {
   }
   testImplementation(testLibs.conscrypt.openjdk.uber)
   testImplementation(testLibs.mockk)
-  testImplementation(testFixtures(project(":libsignal-service")))
+  testImplementation(testFixtures(project(":lib:libsignal-service")))
   testImplementation(testLibs.espresso.core)
   testImplementation(testLibs.kotlinx.coroutines.test)
   testImplementation(libs.androidx.compose.ui.test.junit4)
@@ -665,31 +683,29 @@ dependencies {
   androidTestUtil(testLibs.androidx.test.orchestrator)
 }
 
-fun assertIsGitRepo() {
-  if (!file("${project.rootDir}/.git").exists()) {
-    throw IllegalStateException("Must be a git repository to guarantee reproducible builds! (git hash is part of APK)")
+tasks.withType<Test>().configureEach {
+  testLogging {
+    events("failed")
+    exceptionFormat = TestExceptionFormat.FULL
+    showCauses = true
+    showExceptions = true
+    showStackTraces = true
   }
 }
 
 fun getLastCommitTimestamp(): String {
-  assertIsGitRepo()
-
   return providers.exec {
     commandLine("git", "log", "-1", "--pretty=format:%ct")
   }.standardOutput.asText.get() + "000"
 }
 
 fun getGitHash(): String {
-  assertIsGitRepo()
-
   return providers.exec {
     commandLine("git", "rev-parse", "HEAD")
   }.standardOutput.asText.get().trim().substring(0, 12)
 }
 
-fun getCurrentGitTag(): String? {
-  assertIsGitRepo()
-
+fun getNightlyTagForCurrentCommit(): String? {
   val output = providers.exec {
     commandLine("git", "tag", "--points-at", "HEAD")
   }.standardOutput.asText.get().trim()
@@ -702,63 +718,69 @@ fun getCurrentGitTag(): String? {
   }
 }
 
-tasks.withType<Test>().configureEach {
-  testLogging {
-    events("failed")
-    exceptionFormat = TestExceptionFormat.FULL
-    showCauses = true
-    showExceptions = true
-    showStackTraces = true
+fun getNightlyBuildNumber(tag: String?): Int {
+  if (tag == null) {
+    return 0
   }
-}
 
-gradle.taskGraph.whenReady {
-  if (gradle.startParameter.taskNames.any { it.contains("nightly", ignoreCase = true) }) {
-    if (!file("${project.rootDir}/nightly-url.txt").exists()) {
-      throw GradleException("Missing required file: nightly-url.txt")
-    }
-  }
-}
-
-fun loadKeystoreProperties(filename: String): Properties? {
-  val keystorePropertiesFile = file("${project.rootDir}/$filename")
-
-  return if (keystorePropertiesFile.exists()) {
-    val keystoreProperties = Properties()
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    keystoreProperties
-  } else {
-    null
-  }
-}
-
-fun getDateSuffix(): String {
-  return SimpleDateFormat("yyyy-MM-dd-HH:mm").format(Date())
+  val match = Regex("-(\\d{3})$").find(tag)
+  return match?.groupValues?.get(1)?.toIntOrNull() ?: 0
 }
 
 fun getMapsKey(): String {
-  val mapKey = file("${project.rootDir}/maps.key")
+  return providers
+    .gradleProperty("mapsKey")
+    .orElse(providers.environmentVariable("MAPS_KEY"))
+    .orElse("AIzaSyCSx9xea86GwDKGznCAULE9Y5a8b-TfN9U")
+    .get()
+}
 
-  return if (mapKey.exists()) {
-    mapKey.readLines()[0]
-  } else {
-    "AIzaSyCSx9xea86GwDKGznCAULE9Y5a8b-TfN9U"
+abstract class LanguageListValueSource : ValueSource<List<String>, LanguageListValueSource.Params> {
+  interface Params : ValueSourceParameters {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val resDir: DirectoryProperty
+  }
+
+  override fun obtain(): List<String> {
+    // In API 35, language codes for Hebrew and Indonesian now use the ISO 639-1 code ("he" and "id").
+    // However, the value resources still only support the outdated code ("iw" and "in") so we have
+    // to manually indicate that we support these languages.
+    val updatedLanguageCodes = listOf("he", "id")
+
+    val resRoot = parameters.resDir.asFile.get()
+
+    val languages = resRoot
+      .walkTopDown()
+      .filter { it.isFile && it.name == "strings.xml" }
+      .mapNotNull { stringFile -> stringFile.parentFile?.name }
+      .map { valuesFolderName -> valuesFolderName.removePrefix("values-") }
+      .filter { valuesFolderName -> valuesFolderName != "values" }
+      .map { languageCode -> languageCode.replace("-r", "_") }
+      .toList()
+      .distinct()
+      .sorted()
+
+    return languages + updatedLanguageCodes + "en"
   }
 }
 
-fun Project.languageList(): List<String> {
-  // In API 35, language codes for Hebrew and Indonesian now use the ISO 639-1 code ("he" and "id").
-  // However, the value resources still only support the outdated code ("iw" and "in") so we have
-  // to manually indicate that we support these languages.
-  val updatedLanguageCodes = listOf("he", "id")
+abstract class PropertiesFileValueSource : ValueSource<Properties?, PropertiesFileValueSource.Params> {
+  interface Params : ValueSourceParameters {
+    @get:InputFile
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val file: RegularFileProperty
+  }
 
-  return fileTree("src/main/res") { include("**/strings.xml") }
-    .map { stringFile -> stringFile.parentFile.name }
-    .map { valuesFolderName -> valuesFolderName.replace("values-", "") }
-    .filter { valuesFolderName -> valuesFolderName != "values" }
-    .map { languageCode -> languageCode.replace("-r", "_") }
-    .distinct()
-    .sorted() + updatedLanguageCodes + "en"
+  override fun obtain(): Properties? {
+    val f: File = parameters.file.asFile.get()
+    if (!f.exists()) return null
+
+    return Properties().apply {
+      f.inputStream().use { load(it) }
+    }
+  }
 }
 
 fun String.capitalize(): String {

@@ -377,6 +377,11 @@
     <string name="CommunicationActions_this_is_not_a_valid_call_link">رابط المكالمة هذا غير صالح. تأكَّد من سلامة وصحة الرابط بأكمله قبل مُحاولة الانضمام.</string>
     <!-- Displayed in a snackbar when the user is already in a call -->
     <string name="CommunicationActions__you_are_already_in_a_call">أنت بالأصل تجري مكالمة الآن.</string>
+    <!-- Title on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_title">هل ترغبُ بنقل الحساب إلى الجهاز الجديد؟</string>
+    <!-- Message on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_message">لنقل هذا الحساب إلى جهاز جديد، انقر على \"متابعة\" وامسح كود الـ QR مرّة أخرى باستخدام كاميرا سيجنال. تأكَّد من مسح كود الـ QR الصادر مباشرة من سيجنال فقط.</string>
+    <string name="CommunicationActions__dont_transfer">عدم نقل سِجل الرسائل</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -418,7 +423,7 @@
     <string name="ContactShareEditActivity_type_work">العمل</string>
     <string name="ContactShareEditActivity_type_missing">غير ذلك</string>
     <string name="ContactShareEditActivity_invalid_contact">جهة الاتصال التي تمَّ اختيارها غير صالحة.</string>
-    <!-- Content descrption for name edit button on contact share edit activity -->
+    <!-- Content description for name edit button on contact share edit activity -->
     <string name="ContactShareEditActivity__edit_name">تعديل الاسم</string>
     <!-- Content description for user avatar in edit activity -->
     <string name="ContactShareEditActivity__avatar">الصورة الرمزية</string>
@@ -715,6 +720,22 @@
     <string name="ConversationFragment_group_names">أسماء المجموعات</string>
     <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
     <string name="ConversationFragment_photo_failed">تعذَّر تنزيل الصورة. حاوِل مرّة أخرى.</string>
+    <!-- Dialog for how to long to keep a messaged pinned for -->
+    <string name="ConversationFragment__keep_pinned">الاحتفاظ بالتثبيت لمدة…</string>
+    <!-- Dialog option to keep message pin for 24 hours -->
+    <string name="ConversationFragment__24_hours">24 ساعة</string>
+    <!-- Dialog option to keep message pin for 7 days -->
+    <string name="ConversationFragment__7_days">7 أيام</string>
+    <!-- Dialog option to keep message pin for 30 days -->
+    <string name="ConversationFragment__30_days">30 يومًا</string>
+    <!-- Dialog option to keep message pin forever -->
+    <string name="ConversationFragment__forever">بشكل دائم</string>
+    <!-- Dialog title when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_title">هل تريد استبدال التثبيت الأقدم؟</string>
+    <!-- Dialog body when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_body">ستحل الرسالة المُثبَّتة مكان الرسالة الأقدم</string>
+    <!-- Dialog button when replacing the oldest pin -->
+    <string name="ConversationFragment__replace">استبدال</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">نصائح السلامة</string>
@@ -1027,6 +1048,15 @@
     <!-- DateUtils -->
     <string name="DateUtils_just_now">الآن</string>
     <string name="DateUtils_minutes_ago">%1$d دقيقة</string>
+    <!-- Content description when describing how many minutes ago something has happened -->
+    <plurals name="DateUtils_minutes_ago_content_description">
+        <item quantity="zero">%1$d دقيقة</item>
+        <item quantity="one">%1$d دقيقة</item>
+        <item quantity="two">%1$d دقيقتين</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقة</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
     <string name="DateUtils_today">اليوم</string>
     <string name="DateUtils_yesterday">الأمس</string>
     <!-- When scheduling a message, %1$s replaced with either today, tonight, or tomorrow. %2$s replaced with the time. e.g. Tonight at 9:00pm -->
@@ -1296,11 +1326,11 @@
     <string name="AddToGroupActivity_add_member">هل ترغبُ بإضافة عضو؟</string>
     <string name="AddToGroupActivity_add_s_to_s">هل ترغبُ بإضافة \"%1$s\" إلى \"%2$s\"؟</string>
     <string name="AddToGroupActivity_s_added_to_s">تمَّت إضافة %1$s إلى %2$s.</string>
-    <string name="AddToGroupActivity_add_to_group">أضِف إلى مجموعة</string>
     <string name="AddToGroupActivity_add_to_groups">أضِف إلى مجموعات</string>
     <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">لا يمكن إضافة هذا الشخص إلى المجموعات السابقة.</string>
     <string name="AddToGroupActivity_add">إضافة</string>
     <string name="AddToGroupActivity_add_to_a_group">إضافة إلى مجموعة</string>
+    <string name="AddToGroupActivity_search">بحث</string>
 
     <!-- ChooseNewAdminActivity -->
     <string name="ChooseNewAdminActivity_choose_new_admin">اختر مُشرِفًا جديدًا</string>
@@ -1497,7 +1527,7 @@
     <!-- Title of a bottom sheet that is shown when the user is having connectivity issues -->
     <string name="ConnectivityWarningBottomSheet_title">قد تكون غير قادر على استلام الرسائل.</string>
     <!-- Body of a bottom sheet that is shown when the user is having connectivity issues -->
-    <string name="ConnectivityWarningBottomSheet_body">إعادة تشغيل جهازك قد يُساعد على حل مشكلة عدم استلام الرسائل. إذا استمر المشكلة، يُرجى التواصل مع قسم الدعم في سيجنال.</string>
+    <string name="ConnectivityWarningBottomSheet_body">إعادة تشغيل جهازك قد تُساعد على حل مشكلة عدم استلام الرسائل. إذا استمرت المشكلة، تواصَل مع قسم الدعم في سيجنال.</string>
     <!-- Text for a button in a bottom sheet that is shown when the user is having connectivity issues. Clicking it will dismiss the bottom sheet. -->
     <string name="ConnectivityWarningBottomSheet_dismiss_button">تم</string>
 
@@ -1784,6 +1814,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">تعذَّر الانضمام إلى المجموعة.حاوِل مرّة أخرى لاحقًا.</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">حدث خطأ فى الشبكة.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">رابط هذه المجموعة غير مُفعَّل.</string>
+    <!-- Toast message shown when trying to join a group by link but the group is full -->
+    <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">حد المجموعة اكتمل. تعذَّر الانضمام إلى المجموعة.</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
     <string name="GroupJoinBottomSheetDialogFragment_cant_join_group">تعذَّر الانضمام للمجموعة.</string>
     <!-- Message shown when you try to get information for a group via link but an admin has removed you -->
@@ -2379,10 +2411,10 @@
     <string name="MessageRequestBottomView_block">حظر</string>
     <string name="MessageRequestBottomView_unblock">رفع الحظر</string>
     <!-- Text explaining a message request from someone you\'ve removed before -->
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_you_removed_them_before">هل ترغبُ بالسماح لـ %1$s بمراسلتك وهل ترغبُ بمشاركة اسمك وصورتك معه؟ حذفتَ هذا الشخص في الماضي.</string>
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">هل ترغبُ بالسماح لـ %1$s بمراسلتك وهل ترغب بمشاركة اسمك وصورتك معه؟ لن يعرف أنك قرأتَ رسالته إلى أن تسمح له بذلك.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_you_removed_them_before">هل ترغبُ بالسماح لجهة الاتصال %1$s بمراسلتك وهل ترغبُ بمشاركة اسمك وصورتك معها؟ حذفتَ هذا الشخص في الماضي.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">هل ترغبُ بالسماح لجهة الاتصال %1$s بمراسلتك وهل ترغب بمشاركة اسمك وصورتك معها؟ لن تعرف أنك قرأتَ رسالتها إلى أن تسمح لها بذلك.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock a Signal user -->
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">هل ترغبُ بالسماح لـ %1$s بمراسلتك وهل ترغب بمشاركة اسمك وصورتك معه؟ لن تستقبل أي رسائل حتى تزيل الحظر عنه.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">هل ترغبُ بالسماح لجهة الاتصال %1$s بمراسلتك وهل ترغب بمشاركة اسمك وصورتك معها؟ لن تستقبل أي رسائل حتى تزيل الحظر عنها.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock an SMS user -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them_SMS">هل تود السماح لـ %1$s بإرسال رسالة لك؟ لن تتلقى أي رسالة منه حتى تُلغي حظرك له.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock the Signal release notes channel -->
@@ -3021,6 +3053,16 @@
     <string name="CallParticipantView__cant_receive_audio_video_from_s">لا يمكن تلقِّي الصوت والفيديو من %1$s</string>
     <string name="CallParticipantView__cant_receive_audio_and_video_from_s">لا يمكن تلقِّي الصوت والفيديو من %1$s</string>
     <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">ربما يكون ذلك بسبب عدم تحقُّق الشخص من تغيير رقم الامان الخاص بك أو بسبب وجود مشكلة في جهازه أو بسبب قيامه بحظرك.</string>
+
+    <!-- SwitchCameraButton -->
+    <!-- Content description for the button that switches between front and back camera during a call -->
+    <string name="SwitchCameraButton__switch_camera_direction">تغيير اتجاه الكاميرا</string>
+
+    <!-- CallQualityDiagnosticsScreen -->
+    <!-- Title for the call quality diagnostics screen -->
+    <string name="CallQualityDiagnosticsScreen__diagnostic_information">معلومات التشخيص</string>
+    <!-- Content description for the close/back navigation button -->
+    <string name="CallQualityDiagnosticsScreen__close">إغلاق</string>
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">اسحب لعرض مشاركة الشاشة</string>
@@ -4223,6 +4265,15 @@
     <string name="verify_display_fragment__mark_as_verified">تحديد كتمَّ التحقُّق منه</string>
     <string name="verify_display_fragment__clear_verification">إزالة التحقُّق</string>
 
+    <!-- Title for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__title">يتحقّق سيجنال الآن تلقائيًا من التشفير من طرف لطرف</string>
+    <!-- Body for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__body">عند تحقُّقك من رقم الأمان، سيتأكَّد سيجنال تلقائيًا من أمان الاتصال عبر عملية تسمى شفافية المفاتيح. يُمكنك أيضًا التحقُّق من الاتصالات يدويًا عبر كود الـ QR أو رقم الأمان.</string>
+    <!-- Button to learn more about automatic verification -->
+    <string name="VerifyAutomaticallyEducationSheet__learn_more">اعرف المزيد</string>
+    <!-- Button to go to verification page -->
+    <string name="VerifyAutomaticallyEducationSheet__verify">التحقُّق</string>
+
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">امسح كود الـ QR المعروض على جهاز جهة اتصالك.</string>
 
@@ -4608,6 +4659,8 @@
     <string name="preferences_normal">عادي</string>
     <!-- Preference summary for compact navigation bar size -->
     <string name="preferences_compact">مُصغَّر</string>
+    <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
+    <string name="preferences_language_change_confirmation_message">سيُعاد تشغيل التطبيق لاعتماد إعداد اللغة الجديد.</string>
 
 
     <string name="configurable_single_select__customize_option">تخصيص الخيارات</string>
@@ -4916,6 +4969,10 @@
     <string name="conversation_selection__menu_payment_details">تفاصيل عملية الدفع</string>
     <!-- Button to end a poll -->
     <string name="conversation_selection__menu_end_poll">إنهاء الاستطلاع</string>
+    <!-- Button to pin a message -->
+    <string name="conversation_selection__menu_pin_message">تثبيت</string>
+    <!-- Button to unpin a message -->
+    <string name="conversation_selection__menu_unpin_message">إزالة التثبيت</string>
 
     <!-- conversation_expiring_on -->
 
@@ -5764,7 +5821,7 @@
     <string name="ChatWallpaperFragment__wallpaper_preview_description">معاينة الخلفية</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_chat_colors">هل لديك الرغبة في تجاهل جميع ألوان الدردشات؟</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_wallpapers">هل لديك الرغبة في تجاهل جميع الخلفيات؟</string>
-    <string name="ChatWallpaperFragment__reset_default_colors">إعادة تعيين الألوان الافتراضية</string>
+    <string name="ChatWallpaperFragment__reset_default_colors">إعادة تعيين اللون الافتراضي</string>
     <string name="ChatWallpaperFragment__reset_all_colors">إعادة تعيين كل الألوان</string>
     <string name="ChatWallpaperFragment__reset_default_wallpaper">إعادة تعيين الخلفية الافتراضية</string>
     <string name="ChatWallpaperFragment__reset_all_wallpapers">إعادة تعيين كل الخلفيات</string>
@@ -6097,7 +6154,7 @@
     <!-- Header for section showing suggested chat folders for users to have -->
     <string name="ChatFoldersFragment__suggested_folders">المجلدات المُقترَحة</string>
     <!-- Name of a chat folder that contains all chats that currently have unread messages -->
-    <string name="ChatFoldersFragment__unread">الرسائل غير المقروءة</string>
+    <string name="ChatFoldersFragment__unread">غير المقروءة</string>
     <!-- Description of the suggested unread chat folder -->
     <string name="ChatFoldersFragment__unread_messages">الرسائل غير المقروءة من جميع الدردشات</string>
     <!-- Name of a chat folder that contains all 1:1 (individual) chats -->
@@ -6767,7 +6824,8 @@
     <!-- Label for Donation Receipts button -->
     <string name="ManageDonationsFragment__donation_receipts">إيصالات التبرُّعات</string>
     <string name="ManageDonationsFragment__badges">الشارات</string>
-    <string name="ManageDonationsFragment__subscription_faq">الأسئلة الشائعة حول الاشتراك</string>
+    <!-- Label that externally links to Signal Donor FAQ page -->
+    <string name="ManageDonationsFragment__subscription_faq">الأسئلة الشائعة للمُتبرِّعين</string>
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">طرُق أخرى للتبرُّع</string>
     <!-- Preference label to launch badge gifting -->
@@ -8132,8 +8190,10 @@
     <string name="CallLogAdapter__outgoing">صادرة</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">فائتة</string>
-    <!-- Displayed for missed calls declined by notification profile -->
+    <!-- Displayed for one missed call declined by notification profile -->
     <string name="CallLogAdapter__missed_notification_profile">فائتة بينما كان ملف الإشعارات في وضع تشغيل</string>
+    <!-- Displayed for multiple missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile_multiple">فائتة بينما كان ملف الإشعارات في وضع تشغيل</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">انضم</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -9137,6 +9197,14 @@
     <!-- Button label to open storage management screen -->
     <string name="RemoteBackupsSettingsFragment__manage_storage">إدارة مساحة التخزين</string>
 
+    <!-- ReadyToTransferBottomSheet -->
+    <!-- Title for a bottom sheet letting people know that they can transfer their back to their new device  -->
+    <string name="RemoteBackupsSettingsFragment__ready_to_transfer">جاهز للنقل</string>
+    <!-- Body for bottom sheet telling the user to scan a QR code to continue transferring their backup to a new device -->
+    <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">استخدِم هذا الجهاز لِمسح كود الـ QR المعروض على الجهاز الذي تريد النقل إليه</string>
+    <!-- Button label to open QR scanner to scan a device and transfer a backup -->
+    <string name="RemoteBackupsSettingsFragment__scan_qr_code">امسح ضوئيًا كود الـ QR</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">نزّل نسختك الاحتياطية اليوم</string>
@@ -9502,6 +9570,19 @@
     <!-- Old device Transfer account bottom sheet dialog body -->
     <string name="TransferAccount_continue_on_your_other_device_details">تابِع نقل حسابك على جهازك الآخر.</string>
 
+    <!-- Prepare Device screen title for quick restore flow -->
+    <string name="PrepareDevice_title">جارٍ تجهيز جهازك</string>
+    <!-- Prepare Device screen body text explaining backup recommendation -->
+    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
+    <string name="PrepareDevice_last_backup">أُجريت آخِر نسخة احتياطية في %1$s عند الساعة %2$s.</string>
+    <!-- Prepare Device screen back up now button -->
+    <string name="PrepareDevice_back_up_now">إنشاء نسخة احتياطية الآن</string>
+    <!-- Prepare Device screen skip and continue button -->
+    <string name="PrepareDevice_skip_and_continue">التخطّي والمتابعة</string>
+    <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
+    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">الإنهاء على الجهاز الآخر</string>
     <!-- Restore Complete bottom sheet dialog message -->
@@ -9639,7 +9720,7 @@
     <!-- Dialog title when you go to end a poll -->
     <string name="Poll__end_poll_title">هل ترغبُ بإنهاء الاستطلاع؟</string>
     <!-- Dialog body when you go to end a poll -->
-    <string name="Poll__end_poll_body">لن يستطيع أعضاء المجموعة التصويت في هذا الاستطلاع بعد الآن.</string>
+    <string name="Poll__end_poll_body">لن يستطيع أعضاء هذه الدردشة التصويت في هذا الاستطلاع بعد الآن.</string>
     <!-- Body used in dialog when we are waiting for network -->
     <string name="Poll__waiting_for_network">جارٍ انتظار الشبكة…</string>
     <!-- Header when creating a new poll -->
@@ -9662,6 +9743,13 @@
     <string name="CreatePollFragment__add_option">أضِف خيارين على الأقل</string>
     <!-- Snackbar text to add a question before creating a poll -->
     <string name="CreatePollFragment__add_question">أضِف سؤالًا</string>
+
+    <!-- Bottom sheet title telling users to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__scan_qr_code">امسح ضوئيًا كود الـ QR</string>
+    <!-- Bottom sheet description telling users how to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__use_this_device_to_scan_qr_code">استخدِم هذا الجهاز لِمسح كود الـ QR المعروض على الجهاز الذي تريد النقل إليه</string>
+    <!-- Confirmation button to dismiss bottom sheet dialog -->
+    <string name="QuickRestoreInfoDialog__okay">حسنًا</string>
 
     <!-- CallQualityIssue -->
     <!-- Label for general audio issue category -->
@@ -9689,7 +9777,7 @@
 
     <!-- CallQualitySomethingElseScreen -->
     <!-- Title for the "Something else" call quality issue screen -->
-    <string name="CallQualitySomethingElseScreen__title">شيء آخر</string>
+    <string name="CallQualitySomethingElseScreen__title">صِف المشكلة</string>
     <!-- Label for text field where user describes their call quality issue -->
     <string name="CallQualitySomethingElseScreen__describe_your_issue">صِف مشكلتك</string>
     <!-- Privacy notice explaining that issue details will be kept private and used to improve Signal calls -->
@@ -9719,11 +9807,15 @@
     <!-- Title asking user to help improve Signal -->
     <string name="CallQualitySheet__help_us_improve">ساعدنا على التحسُّن</string>
     <!-- First part of description explaining diagnostics help improve call quality -->
-    <string name="CallQualitySheet__help_us_improve_description_prefix">تساعدنا مشاركتك لمعلومات التشخيص الخاصة بك على تحسين جودة المكالمات. يُمكنك </string>
+    <string name="CallQualitySheet__help_us_improve_description_prefix">بإرسال السِجل، فإنك توافق على مشاركة ملاحظاتك</string>
+    <!-- Clickable text to launch diagnostic fragment -->
+    <string name="CallQualitySheet__diagnostic_information_about_your_call">ومعلومات التشخيص الخاصة بمكالمتك</string>
+    <!-- End of description explaining diagnostics help improve call quality -->
+    <string name="CallQualitySheet__help_us_improve_description_suffix">يمكنك اختياريًا مشاركة سِجل تصحيح الأخطاء لمساعدتنا في تحسين جودة المكالمات.</string>
+    <!-- Text explaining the debug log -->
+    <string name="CallQualitySheet__information_shared_with_us">المعلومات التي تتم مشاركتها معنا تقتصر على بيانات تقنية منخفضة المستوى خاصة بالتطبيق، ولا تشمل محتوى مكالماتك.</string>
     <!-- Link text to view debug log -->
-    <string name="CallQualitySheet__view_your_debug_log">إلقاء نظرة على سِجل الأخطاء الخاص بك</string>
-    <!-- Last part of description about viewing debug log before submitting -->
-    <string name="CallQualitySheet__help_us_improve_description_suffix"> قبل الإرسال</string>
+    <string name="CallQualitySheet__view_debug_log">عرض سِجل الأخطاء</string>
     <!-- Toggle label for sharing debug log -->
     <string name="CallQualitySheet__share_debug_log">مشاركة سجل الأخطاء</string>
     <!-- Privacy notice explaining what debug logs contain and why they are helpful -->
@@ -9732,6 +9824,67 @@
     <string name="CallQualitySheet__submit">تقديم</string>
     <!-- Displayed as a snackbar after submitting feedback -->
     <string name="CallQualitySheet__thanks_for_your_feedback">شكرًا على ملاحظاتك!</string>
+    <!-- Content description for the thumbs down button indicating user had issues with the call -->
+    <string name="CallQualitySheet__had_issues_content_description">واجهتُ مشاكل مع المكالمة</string>
+    <!-- Content description for the thumbs up button indicating the call was great -->
+    <string name="CallQualitySheet__great_content_description">كانت المكالمة جيدة</string>
+    <!-- Dialog body shown when feedback submission fails due to network issues -->
+    <string name="CallQualitySheet__your_feedback_failed_to_send">تعذَّر إرسال ملاحظاتك.</string>
+    <!-- Dialog button to retry sending feedback after a failure -->
+    <string name="CallQualitySheet__try_again">حاوِل مُجدَّدًا</string>
+
+    <!-- Message body when someone pins a message where %1$s is the name of the person -->
+    <string name="PinnedMessage__s_pinned_a_message">قام %1$s بتثبيت رسالة</string>
+    <!-- Message body when you pin a message -->
+    <string name="PinnedMessage__you_pinned_a_message">قُمتَ بتثبيت رسالة</string>
+    <!-- Button body to go to the pinned message -->
+    <string name="PinnedMessage__go_to_message">انتقل إلى الرسالة</string>
+    <!-- Toast shown when a pinned message is not found -->
+    <string name="PinnedMessage__not_found">تعذَّر العثور على الرسالة</string>
+    <!-- Content description for the pin icon -->
+    <string name="PinnedMessage__pinned">المُثبَّتة</string>
+    <!-- Caption shown when the pinned message is a photo -->
+    <string name="PinnedMessage__photo">صورة</string>
+    <!-- Caption shown when the pinned message is a video -->
+    <string name="PinnedMessage__video">فيديو</string>
+    <!-- Caption shown when the pinned message is a sticker -->
+    <string name="PinnedMessage__sticker">مُلصَق</string>
+    <!-- Caption shown when the pinned message is a voice message  -->
+    <string name="PinnedMessage__voice">رسالة صوتية</string>
+    <!-- Caption shown when the pinned message is a gif -->
+    <string name="PinnedMessage__gif">صورة متحركة</string>
+    <!-- Caption shown when the pinned message is a view once media -->
+    <string name="PinnedMessage__view_once">ملف وسائط للعرض لمرّة واحدة</string>
+    <!-- Context menu option to unpin the message -->
+    <string name="PinnedMessage__unpin_message">إزالة التثبيت</string>
+    <!-- Context menu option to view all the message -->
+    <string name="PinnedMessage__view_all_messages">إظهار جميع الرسائل</string>
+    <!-- Text to unpin all messages -->
+    <string name="PinnedMessage__unpin_all_messages">إلغاء تثبيت جميع الرسائل</string>
+    <!-- Title of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_title">تثبيت الرسائل المؤقَّتة</string>
+    <!-- Body of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_body">سيُلغى تثبيت الرسائل المؤقَّتة عند انتهاء مؤقتها وإزالتها من الدردشة.</string>
+    <!-- Confirmation button for bottom sheet -->
+    <string name="PinnedMessage__got_it">تم</string>
+    <!-- Content description of disappearing timer icon -->
+    <string name="PinnedMessage__disappearing_message_content_description">الرسائل المؤقَّتة</string>
+    <!-- Title of bottom sheet -->
+    <string name="PinnedMessage__pinned_messages">المُثبَّتة</string>
+    <!-- Context menu option to unpin message -->
+    <string name="PinnedMessage__unpin">إزالة التثبيت</string>
+    <!-- Title of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_title">هل ترغبُ بإلغاء تثبيت جميع الرسائل؟</string>
+    <!-- Body of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_body">سيُلغى تثبيت الرسائل لجميع الأعضاء.</string>
+    <!-- Dialog title when failing to pin a message -->
+    <string name="PinnedMessage__couldnt_pin">تعذَّر تثبيت الرسالة</string>
+    <!-- Dialog title when failing to unpin a message -->
+    <string name="PinnedMessage__couldnt_unpin">تعذَّر تثبيت الرسالة</string>
+    <!-- Dialog title when failing to unpin all messages -->
+    <string name="PinnedMessage__couldnt_unpin_all">تعذَّر إلغاء تثبيت الرسائل</string>
+    <!-- Dialog body when failing to pin a message -->
+    <string name="PinnedMessage__check_connection">تحقّق من اتصالك بالشبكة ثم حاوِل مرّة أخرى.</string>
 
     <!-- EOF -->
 </resources>

@@ -583,14 +583,19 @@ open class ContactSearchAdapter(
       if (getRecipient(model).isGroup) {
         number.text = getRecipient(model).participantIds
           .take(10)
-          .map { id -> Recipient.resolved(id) }
-          .sortedWith(IsSelfComparator()).joinToString(", ") {
-            if (it.isSelf) {
-              context.getString(R.string.ConversationTitleView_you)
-            } else {
-              it.getShortDisplayName(context)
-            }
+          .map { id ->
+            val recipient = Recipient.resolved(id)
+            RecipientDisplayName(
+              recipient = recipient,
+              displayName = if (recipient.isSelf) {
+                context.getString(R.string.ConversationTitleView_you)
+              } else {
+                recipient.getShortDisplayName(context)
+              }
+            )
           }
+          .sortedWith(compareBy({ it.recipient.isUnregistered }, { it.recipient.isSelf }, { it.displayName }))
+          .joinToString(", ") { it.displayName }
       }
     }
 
@@ -768,21 +773,6 @@ open class ContactSearchAdapter(
     }
   }
 
-  private class IsSelfComparator : Comparator<Recipient> {
-    override fun compare(lhs: Recipient?, rhs: Recipient?): Int {
-      val isLeftSelf = lhs?.isSelf == true
-      val isRightSelf = rhs?.isSelf == true
-
-      return if (isLeftSelf == isRightSelf) {
-        0
-      } else if (isLeftSelf) {
-        1
-      } else {
-        -1
-      }
-    }
-  }
-
   interface StoryContextMenuCallbacks {
     fun onOpenStorySettings(story: ContactSearchData.Story)
     fun onRemoveGroupStory(story: ContactSearchData.Story, isSelected: Boolean)
@@ -820,6 +810,7 @@ open class ContactSearchAdapter(
     fun onUnknownRecipientClicked(view: View, unknownRecipient: ContactSearchData.UnknownRecipient, isSelected: Boolean) {
       throw NotImplementedError()
     }
+
     fun onChatTypeClicked(view: View, chatTypeRow: ContactSearchData.ChatTypeRow, isSelected: Boolean)
   }
 
@@ -841,3 +832,5 @@ open class ContactSearchAdapter(
     override fun onKnownRecipientLongClick(view: View, data: ContactSearchData.KnownRecipient): Boolean = false
   }
 }
+
+private data class RecipientDisplayName(val recipient: Recipient, val displayName: String)

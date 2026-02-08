@@ -362,6 +362,11 @@
     <string name="CommunicationActions_this_is_not_a_valid_call_link">这不是一个有效的通话链接，加入前请确保链接完整正确。</string>
     <!-- Displayed in a snackbar when the user is already in a call -->
     <string name="CommunicationActions__you_are_already_in_a_call">您已在通话中</string>
+    <!-- Title on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_title">要转移账户至新设备？</string>
+    <!-- Message on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_message">要将此账户转移到新设备，请点击“继续”，然后使用 Signal 相机再次扫描二维码。请确保只扫描由 Signal 直接生成的二维码。</string>
+    <string name="CommunicationActions__dont_transfer">不转移</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -403,7 +408,7 @@
     <string name="ContactShareEditActivity_type_work">工作</string>
     <string name="ContactShareEditActivity_type_missing">其他</string>
     <string name="ContactShareEditActivity_invalid_contact">所选联系人无效</string>
-    <!-- Content descrption for name edit button on contact share edit activity -->
+    <!-- Content description for name edit button on contact share edit activity -->
     <string name="ContactShareEditActivity__edit_name">编辑名称</string>
     <!-- Content description for user avatar in edit activity -->
     <string name="ContactShareEditActivity__avatar">头像</string>
@@ -665,6 +670,22 @@
     <string name="ConversationFragment_group_names">群组名称</string>
     <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
     <string name="ConversationFragment_photo_failed">照片下载失败。请重试。</string>
+    <!-- Dialog for how to long to keep a messaged pinned for -->
+    <string name="ConversationFragment__keep_pinned">置顶时长：</string>
+    <!-- Dialog option to keep message pin for 24 hours -->
+    <string name="ConversationFragment__24_hours">24 小时</string>
+    <!-- Dialog option to keep message pin for 7 days -->
+    <string name="ConversationFragment__7_days">7 天</string>
+    <!-- Dialog option to keep message pin for 30 days -->
+    <string name="ConversationFragment__30_days">30 天</string>
+    <!-- Dialog option to keep message pin forever -->
+    <string name="ConversationFragment__forever">永久</string>
+    <!-- Dialog title when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_title">替换最早的置顶消息？</string>
+    <!-- Dialog body when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_body">置顶消息将替换最早的置顶消息。</string>
+    <!-- Dialog button when replacing the oldest pin -->
+    <string name="ConversationFragment__replace">替换</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">安全提示</string>
@@ -927,6 +948,10 @@
     <!-- DateUtils -->
     <string name="DateUtils_just_now">刚刚</string>
     <string name="DateUtils_minutes_ago">%1$d 分钟</string>
+    <!-- Content description when describing how many minutes ago something has happened -->
+    <plurals name="DateUtils_minutes_ago_content_description">
+        <item quantity="other">%1$d 分钟</item>
+    </plurals>
     <string name="DateUtils_today">今天</string>
     <string name="DateUtils_yesterday">昨天</string>
     <!-- When scheduling a message, %1$s replaced with either today, tonight, or tomorrow. %2$s replaced with the time. e.g. Tonight at 9:00pm -->
@@ -1181,11 +1206,11 @@
     <string name="AddToGroupActivity_add_member">添加成员</string>
     <string name="AddToGroupActivity_add_s_to_s">添加“%1$s”到“%2$s”？</string>
     <string name="AddToGroupActivity_s_added_to_s">已添加“%1$s”到“%2$s”。</string>
-    <string name="AddToGroupActivity_add_to_group">添加至群组</string>
     <string name="AddToGroupActivity_add_to_groups">添加至群组</string>
     <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">此用户不能被添加到旧版群组中。</string>
     <string name="AddToGroupActivity_add">添加</string>
     <string name="AddToGroupActivity_add_to_a_group">添加至群组</string>
+    <string name="AddToGroupActivity_search">搜索</string>
 
     <!-- ChooseNewAdminActivity -->
     <string name="ChooseNewAdminActivity_choose_new_admin">选择新的管理员。</string>
@@ -1569,6 +1594,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">无法加入群组，请稍候再试</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">网络出错。</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">此群组链接未激活</string>
+    <!-- Toast message shown when trying to join a group by link but the group is full -->
+    <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">已达到群组上限，无法加入群组</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
     <string name="GroupJoinBottomSheetDialogFragment_cant_join_group">无法加入群组</string>
     <!-- Message shown when you try to get information for a group via link but an admin has removed you -->
@@ -2581,6 +2608,16 @@
     <string name="CallParticipantView__cant_receive_audio_video_from_s">无法从%1$s接收音频 &amp; 视频</string>
     <string name="CallParticipantView__cant_receive_audio_and_video_from_s">无法从%1$s接收音频与视频</string>
     <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">这可能是因为对方还未对您的安全码更新进行验证，或对方的设备有问题，或对方已将您屏蔽。</string>
+
+    <!-- SwitchCameraButton -->
+    <!-- Content description for the button that switches between front and back camera during a call -->
+    <string name="SwitchCameraButton__switch_camera_direction">切换前后摄像头</string>
+
+    <!-- CallQualityDiagnosticsScreen -->
+    <!-- Title for the call quality diagnostics screen -->
+    <string name="CallQualityDiagnosticsScreen__diagnostic_information">诊断信息</string>
+    <!-- Content description for the close/back navigation button -->
+    <string name="CallQualityDiagnosticsScreen__close">关闭</string>
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">轻扫查看屏幕共享</string>
@@ -3668,6 +3705,15 @@
     <string name="verify_display_fragment__mark_as_verified">标记为已验证</string>
     <string name="verify_display_fragment__clear_verification">清除验证</string>
 
+    <!-- Title for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__title">Signal 现可自动验证端对端加密</string>
+    <!-- Body for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__body">当您验证安全码时，Signal 可通过一个名为“密钥透明度”的流程自动确认连接是否安全。您仍然可以使用二维码或号码手动验证连接。</string>
+    <!-- Button to learn more about automatic verification -->
+    <string name="VerifyAutomaticallyEducationSheet__learn_more">了解详情</string>
+    <!-- Button to go to verification page -->
+    <string name="VerifyAutomaticallyEducationSheet__verify">验证</string>
+
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">在你联系人设备上扫描QR码</string>
 
@@ -4038,6 +4084,8 @@
     <string name="preferences_normal">正常</string>
     <!-- Preference summary for compact navigation bar size -->
     <string name="preferences_compact">紧凑</string>
+    <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
+    <string name="preferences_language_change_confirmation_message">应用将重启以应用新的语言设置。</string>
 
 
     <string name="configurable_single_select__customize_option">自定义选项</string>
@@ -4341,6 +4389,10 @@
     <string name="conversation_selection__menu_payment_details">付款详情</string>
     <!-- Button to end a poll -->
     <string name="conversation_selection__menu_end_poll">结束投票</string>
+    <!-- Button to pin a message -->
+    <string name="conversation_selection__menu_pin_message">置顶</string>
+    <!-- Button to unpin a message -->
+    <string name="conversation_selection__menu_unpin_message">取消置顶</string>
 
     <!-- conversation_expiring_on -->
 
@@ -6042,7 +6094,8 @@
     <!-- Label for Donation Receipts button -->
     <string name="ManageDonationsFragment__donation_receipts">捐款收据</string>
     <string name="ManageDonationsFragment__badges">徽章</string>
-    <string name="ManageDonationsFragment__subscription_faq">定期捐款常见问题解答</string>
+    <!-- Label that externally links to Signal Donor FAQ page -->
+    <string name="ManageDonationsFragment__subscription_faq">捐款人常见问题解答</string>
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">其他赞助方式</string>
     <!-- Preference label to launch badge gifting -->
@@ -7302,8 +7355,10 @@
     <string name="CallLogAdapter__outgoing">去电</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">未接</string>
-    <!-- Displayed for missed calls declined by notification profile -->
+    <!-- Displayed for one missed call declined by notification profile -->
     <string name="CallLogAdapter__missed_notification_profile">由于开启通知配置而未接通</string>
+    <!-- Displayed for multiple missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile_multiple">由于开启通知配置而未接通</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">加入</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -8232,6 +8287,14 @@
     <!-- Button label to open storage management screen -->
     <string name="RemoteBackupsSettingsFragment__manage_storage">管理存储</string>
 
+    <!-- ReadyToTransferBottomSheet -->
+    <!-- Title for a bottom sheet letting people know that they can transfer their back to their new device  -->
+    <string name="RemoteBackupsSettingsFragment__ready_to_transfer">准备转移</string>
+    <!-- Body for bottom sheet telling the user to scan a QR code to continue transferring their backup to a new device -->
+    <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">使用本设备扫描您目标转移设备上的二维码</string>
+    <!-- Button label to open QR scanner to scan a device and transfer a backup -->
+    <string name="RemoteBackupsSettingsFragment__scan_qr_code">扫描二维码</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">立即下载您的备份</string>
@@ -8376,7 +8439,7 @@
     <!-- Verify your key title -->
     <string name="VerifyBackupPinScreen__enter_your_backup_key">输入您的恢复密钥</string>
     <!-- Verify your key subtitle -->
-    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">请输入您启用备份时记录的 64 位代码。</string>
+    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">请输入您启用备份时记录的 64 位字符代码。</string>
     <!-- Button text when you forget your recovery key -->
     <string name="VerifyBackupPinScreen__forgot_key">忘记密钥？</string>
 
@@ -8587,6 +8650,19 @@
     <!-- Old device Transfer account bottom sheet dialog body -->
     <string name="TransferAccount_continue_on_your_other_device_details">在您的其他设备上继续转移您的账户。</string>
 
+    <!-- Prepare Device screen title for quick restore flow -->
+    <string name="PrepareDevice_title">将设备准备好</string>
+    <!-- Prepare Device screen body text explaining backup recommendation -->
+    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
+    <string name="PrepareDevice_last_backup">您上一次备份的时间是 %1$s %2$s。</string>
+    <!-- Prepare Device screen back up now button -->
+    <string name="PrepareDevice_back_up_now">现在备份</string>
+    <!-- Prepare Device screen skip and continue button -->
+    <string name="PrepareDevice_skip_and_continue">跳过并继续</string>
+    <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
+    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">在其他设备上完成恢复</string>
     <!-- Restore Complete bottom sheet dialog message -->
@@ -8709,7 +8785,7 @@
     <!-- Dialog title when you go to end a poll -->
     <string name="Poll__end_poll_title">要结束投票？</string>
     <!-- Dialog body when you go to end a poll -->
-    <string name="Poll__end_poll_body">群组成员将无法再参与此投票。</string>
+    <string name="Poll__end_poll_body">此聊天的成员将无法再参与此投票。</string>
     <!-- Body used in dialog when we are waiting for network -->
     <string name="Poll__waiting_for_network">正在等待网络连接…</string>
     <!-- Header when creating a new poll -->
@@ -8732,6 +8808,13 @@
     <string name="CreatePollFragment__add_option">添加至少 2 个选项</string>
     <!-- Snackbar text to add a question before creating a poll -->
     <string name="CreatePollFragment__add_question">添加 1 个问题</string>
+
+    <!-- Bottom sheet title telling users to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__scan_qr_code">扫描二维码</string>
+    <!-- Bottom sheet description telling users how to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__use_this_device_to_scan_qr_code">使用本设备扫描您目标转移设备上的二维码</string>
+    <!-- Confirmation button to dismiss bottom sheet dialog -->
+    <string name="QuickRestoreInfoDialog__okay">好的</string>
 
     <!-- CallQualityIssue -->
     <!-- Label for general audio issue category -->
@@ -8759,7 +8842,7 @@
 
     <!-- CallQualitySomethingElseScreen -->
     <!-- Title for the "Something else" call quality issue screen -->
-    <string name="CallQualitySomethingElseScreen__title">其他</string>
+    <string name="CallQualitySomethingElseScreen__title">描述问题</string>
     <!-- Label for text field where user describes their call quality issue -->
     <string name="CallQualitySomethingElseScreen__describe_your_issue">请描述您遇到的问题</string>
     <!-- Privacy notice explaining that issue details will be kept private and used to improve Signal calls -->
@@ -8789,11 +8872,15 @@
     <!-- Title asking user to help improve Signal -->
     <string name="CallQualitySheet__help_us_improve">帮助我们不断改进</string>
     <!-- First part of description explaining diagnostics help improve call quality -->
-    <string name="CallQualitySheet__help_us_improve_description_prefix">给我们发送诊断信息有助于我们改进通话质量。您可以 </string>
+    <string name="CallQualitySheet__help_us_improve_description_prefix">提交将共享您的反馈以及</string>
+    <!-- Clickable text to launch diagnostic fragment -->
+    <string name="CallQualitySheet__diagnostic_information_about_your_call">有关您通话的诊断信息</string>
+    <!-- End of description explaining diagnostics help improve call quality -->
+    <string name="CallQualitySheet__help_us_improve_description_suffix">您可以选择共享调试日志，帮助我们改进通话质量。</string>
+    <!-- Text explaining the debug log -->
+    <string name="CallQualitySheet__information_shared_with_us">与我们共享的信息包含应用程序的低等级信息，不包含您的通话内容。</string>
     <!-- Link text to view debug log -->
-    <string name="CallQualitySheet__view_your_debug_log">先查看您的调试日志</string>
-    <!-- Last part of description about viewing debug log before submitting -->
-    <string name="CallQualitySheet__help_us_improve_description_suffix"> 再提交。</string>
+    <string name="CallQualitySheet__view_debug_log">查看调试日志</string>
     <!-- Toggle label for sharing debug log -->
     <string name="CallQualitySheet__share_debug_log">分享调试日志</string>
     <!-- Privacy notice explaining what debug logs contain and why they are helpful -->
@@ -8802,6 +8889,67 @@
     <string name="CallQualitySheet__submit">提交</string>
     <!-- Displayed as a snackbar after submitting feedback -->
     <string name="CallQualitySheet__thanks_for_your_feedback">感谢您的反馈！</string>
+    <!-- Content description for the thumbs down button indicating user had issues with the call -->
+    <string name="CallQualitySheet__had_issues_content_description">通话出现问题</string>
+    <!-- Content description for the thumbs up button indicating the call was great -->
+    <string name="CallQualitySheet__great_content_description">通话体验很好</string>
+    <!-- Dialog body shown when feedback submission fails due to network issues -->
+    <string name="CallQualitySheet__your_feedback_failed_to_send">您的反馈发送失败。</string>
+    <!-- Dialog button to retry sending feedback after a failure -->
+    <string name="CallQualitySheet__try_again">重试</string>
+
+    <!-- Message body when someone pins a message where %1$s is the name of the person -->
+    <string name="PinnedMessage__s_pinned_a_message">%1$s 置顶了一条消息</string>
+    <!-- Message body when you pin a message -->
+    <string name="PinnedMessage__you_pinned_a_message">您置顶了一条消息</string>
+    <!-- Button body to go to the pinned message -->
+    <string name="PinnedMessage__go_to_message">前往消息</string>
+    <!-- Toast shown when a pinned message is not found -->
+    <string name="PinnedMessage__not_found">未找到消息</string>
+    <!-- Content description for the pin icon -->
+    <string name="PinnedMessage__pinned">已置顶</string>
+    <!-- Caption shown when the pinned message is a photo -->
+    <string name="PinnedMessage__photo">图片</string>
+    <!-- Caption shown when the pinned message is a video -->
+    <string name="PinnedMessage__video">视频</string>
+    <!-- Caption shown when the pinned message is a sticker -->
+    <string name="PinnedMessage__sticker">表情</string>
+    <!-- Caption shown when the pinned message is a voice message  -->
+    <string name="PinnedMessage__voice">语音消息</string>
+    <!-- Caption shown when the pinned message is a gif -->
+    <string name="PinnedMessage__gif">GIF</string>
+    <!-- Caption shown when the pinned message is a view once media -->
+    <string name="PinnedMessage__view_once">一次性媒体</string>
+    <!-- Context menu option to unpin the message -->
+    <string name="PinnedMessage__unpin_message">取消置顶</string>
+    <!-- Context menu option to view all the message -->
+    <string name="PinnedMessage__view_all_messages">查看所有消息</string>
+    <!-- Text to unpin all messages -->
+    <string name="PinnedMessage__unpin_all_messages">取消置顶所有消息</string>
+    <!-- Title of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_title">置顶限时消息</string>
+    <!-- Body of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_body">限时消息将在定时器结束时自动取消置顶并从聊天中删除。</string>
+    <!-- Confirmation button for bottom sheet -->
+    <string name="PinnedMessage__got_it">知道了</string>
+    <!-- Content description of disappearing timer icon -->
+    <string name="PinnedMessage__disappearing_message_content_description">限时消息</string>
+    <!-- Title of bottom sheet -->
+    <string name="PinnedMessage__pinned_messages">置顶的消息</string>
+    <!-- Context menu option to unpin message -->
+    <string name="PinnedMessage__unpin">取消置顶</string>
+    <!-- Title of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_title">取消置顶所有消息？</string>
+    <!-- Body of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_body">消息将对所有群成员取消置顶。</string>
+    <!-- Dialog title when failing to pin a message -->
+    <string name="PinnedMessage__couldnt_pin">无法置顶消息</string>
+    <!-- Dialog title when failing to unpin a message -->
+    <string name="PinnedMessage__couldnt_unpin">无法取消置顶消息</string>
+    <!-- Dialog title when failing to unpin all messages -->
+    <string name="PinnedMessage__couldnt_unpin_all">无法取消置顶消息</string>
+    <!-- Dialog body when failing to pin a message -->
+    <string name="PinnedMessage__check_connection">请检查您的网络连接并重试。</string>
 
     <!-- EOF -->
 </resources>

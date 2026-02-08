@@ -7,7 +7,11 @@ import androidx.annotation.WorkerThread
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.collections.immutable.toImmutableList
+import org.signal.core.models.ServiceId
+import org.signal.core.models.ServiceId.ACI
+import org.signal.core.models.ServiceId.PNI
 import org.signal.core.util.BidiUtil
+import org.signal.core.util.UuidUtil
 import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.logging.Log
 import org.signal.core.util.nullIfBlank
@@ -41,17 +45,14 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.notifications.NotificationChannels
 import org.thoughtcrime.securesms.phonenumbers.NumberUtil
 import org.thoughtcrime.securesms.profiles.ProfileName
+import org.thoughtcrime.securesms.recipients.Recipient.Companion.external
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
 import org.thoughtcrime.securesms.util.SignalE164Util
 import org.thoughtcrime.securesms.util.UsernameUtil.isValidUsernameForSearch
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
-import org.whispersystems.signalservice.api.push.ServiceId
-import org.whispersystems.signalservice.api.push.ServiceId.ACI
-import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
 import org.whispersystems.signalservice.api.util.OptionalUtil
-import org.whispersystems.signalservice.api.util.UuidUtil
 import java.util.LinkedList
 import java.util.Objects
 import java.util.Optional
@@ -144,7 +145,7 @@ class Recipient(
   val e164: Optional<String> = Optional.ofNullable(e164Value)
 
   /** Whether or not we should show this user's e164 in the interface. */
-  val shouldShowE164: Boolean = e164Value.isNotNullOrBlank() && (isSystemContact || phoneNumberSharing == PhoneNumberSharingState.ENABLED)
+  val shouldShowE164: Boolean = e164Value.isNotNullOrBlank() && (isSystemContact || phoneNumberSharing == PhoneNumberSharingState.ENABLED || (aciValue == null && usernameValue == null))
 
   /** The recipient's email, if present. Emails are only for legacy SMS contacts that were reached via email. */
   val email: Optional<String> = Optional.ofNullable(emailValue)
@@ -406,7 +407,7 @@ class Recipient(
   private val resolved: Recipient
     get() = if (isResolving) live().resolve() else this
 
-  /** Convenience method to get a non-null [serviceId] hen you know it is there. */
+  /** Convenience method to get a non-null [serviceId] when you know it is there. */
   fun requireServiceId(): ServiceId {
     return resolved.aciValue ?: resolved.pniValue ?: throw MissingServiceIdError(id)
   }
@@ -1071,9 +1072,10 @@ class Recipient(
         SignalDatabase.recipients.getOrInsertFromEmail(identifier)
       } else if (isValidUsernameForSearch(identifier)) {
         throw IllegalArgumentException("Creating a recipient based on username alone is not supported!")
+      } else if (SignalE164Util.isPotentialE164(identifier)) {
+        SignalDatabase.recipients.getOrInsertFromE164(identifier)
       } else {
-        val e164: String = SignalE164Util.formatAsE164(identifier) ?: return null
-        SignalDatabase.recipients.getOrInsertFromE164(e164)
+        return null
       }
 
       return resolved(id)

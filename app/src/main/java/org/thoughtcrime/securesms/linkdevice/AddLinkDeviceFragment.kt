@@ -65,29 +65,28 @@ class AddLinkDeviceFragment : ComposeFragment() {
     }
 
     if (isSignalVersion()) {
-      MainScreen(
-        state = state,
-        navController = navController,
-        hasPermissions = cameraPermissionState.status.isGranted,
-        onRequestPermissions = { askPermissions() },
-        onShowFrontCamera = { viewModel.showFrontCamera() },
-        onQrCodeScanned = { data ->
-          if (VibrateUtil.isHapticFeedbackEnabled(requireContext())) {
-            VibrateUtil.vibrate(requireContext(), VIBRATE_DURATION_MS)
-          }
-          viewModel.onQrCodeScanned(data)
-        },
-        onQrCodeApproved = {
-          navController.popBackStack()
-          viewModel.addDevice(shouldSync = false)
-        },
-        onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
-        onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
-        onLinkDeviceSuccess = {
-          viewModel.onLinkDeviceResult(showSheet = true)
-        },
-        onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) }
-      )
+    MainScreen(
+      state = state,
+      navController = navController,
+      hasPermissions = cameraPermissionState.status.isGranted,
+      onRequestPermissions = { askPermissions() },
+      onShowFrontCamera = { viewModel.showFrontCamera() },
+      onQrCodeScanned = { data ->
+        if (VibrateUtil.isHapticFeedbackEnabled(requireContext())) {
+          VibrateUtil.vibrate(requireContext(), VIBRATE_DURATION_MS)
+        }
+        viewModel.onQrCodeScanned(data)
+      },
+      onQrCodeApproved = {
+        navController.popBackStack()
+        viewModel.addDevice(shouldSync = false)
+      },
+      onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
+      onLinkDeviceSuccess = {
+        viewModel.onLinkDeviceResult(showSheet = true)
+      },
+      onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) }
+    )
     } else {
       val uuid by viewModel.uuid.collectAsStateWithLifecycle()
       val pubKey by viewModel.pubKey.collectAsStateWithLifecycle()
@@ -120,7 +119,6 @@ class AddLinkDeviceFragment : ComposeFragment() {
           isLinking = isLinking,
           qrCodeState = state.qrCodeState,
           onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
-          onQrCodeRetry = { viewModel.onQrCodeScanned(state.linkUri.toString()) },
           onLinkDeviceSuccess = {
             navController.popBackStack()
             viewModel.onLinkDeviceResult(showSheet = true)
@@ -162,7 +160,6 @@ private fun MainScreen(
   onQrCodeScanned: (String) -> Unit = {},
   onQrCodeApproved: () -> Unit = {},
   onQrCodeDismissed: () -> Unit = {},
-  onQrCodeRetry: () -> Unit = {},
   onLinkDeviceSuccess: () -> Unit = {},
   onLinkDeviceFailure: () -> Unit = {}
 ) {
@@ -187,7 +184,6 @@ private fun MainScreen(
       onQrCodeScanned = onQrCodeScanned,
       onQrCodeAccepted = onQrCodeApproved,
       onQrCodeDismissed = onQrCodeDismissed,
-      onQrCodeRetry = onQrCodeRetry,
       linkDeviceResult = state.linkDeviceResult,
       onLinkDeviceSuccess = onLinkDeviceSuccess,
       onLinkDeviceFailure = onLinkDeviceFailure,

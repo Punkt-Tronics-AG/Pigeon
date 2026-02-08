@@ -365,6 +365,11 @@
     <string name="CommunicationActions_this_is_not_a_valid_call_link">Non é unha ligazón de chamada válida. Asegúrate de que a ligazón está enteira e non ten ningún erro antes de unirte.</string>
     <!-- Displayed in a snackbar when the user is already in a call -->
     <string name="CommunicationActions__you_are_already_in_a_call">Estás xa nunha chamada</string>
+    <!-- Title on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_title">Transferir conta a un novo dispositivo?</string>
+    <!-- Message on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_message">Para transferir a conta a un novo dispositivo, preme en «Continuar» e escanea o código QR de novo coa cámara de Signal. Asegúrate de só escanear os códigos QR que proveñan directamente de Signal.</string>
+    <string name="CommunicationActions__dont_transfer">Non transferir</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -406,7 +411,7 @@
     <string name="ContactShareEditActivity_type_work">Traballo</string>
     <string name="ContactShareEditActivity_type_missing">Outra</string>
     <string name="ContactShareEditActivity_invalid_contact">O contacto seleccionado non foi válido</string>
-    <!-- Content descrption for name edit button on contact share edit activity -->
+    <!-- Content description for name edit button on contact share edit activity -->
     <string name="ContactShareEditActivity__edit_name">Editar nome</string>
     <!-- Content description for user avatar in edit activity -->
     <string name="ContactShareEditActivity__avatar">Avatar</string>
@@ -675,6 +680,22 @@
     <string name="ConversationFragment_group_names">Nomes de grupo</string>
     <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
     <string name="ConversationFragment_photo_failed">A foto non puido descargarse. Téntao de novo.</string>
+    <!-- Dialog for how to long to keep a messaged pinned for -->
+    <string name="ConversationFragment__keep_pinned">Manter fixada durante…</string>
+    <!-- Dialog option to keep message pin for 24 hours -->
+    <string name="ConversationFragment__24_hours">24 horas</string>
+    <!-- Dialog option to keep message pin for 7 days -->
+    <string name="ConversationFragment__7_days">7 días</string>
+    <!-- Dialog option to keep message pin for 30 days -->
+    <string name="ConversationFragment__30_days">30 días</string>
+    <!-- Dialog option to keep message pin forever -->
+    <string name="ConversationFragment__forever">Para sempre</string>
+    <!-- Dialog title when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_title">Substituír a mensaxe fixada antiga?</string>
+    <!-- Dialog body when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_body">A mensaxe fixada substituirá a máis antiga</string>
+    <!-- Dialog button when replacing the oldest pin -->
+    <string name="ConversationFragment__replace">Substituír</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Consellos de seguridade</string>
@@ -947,6 +968,11 @@
     <!-- DateUtils -->
     <string name="DateUtils_just_now">Agora</string>
     <string name="DateUtils_minutes_ago">%1$dm</string>
+    <!-- Content description when describing how many minutes ago something has happened -->
+    <plurals name="DateUtils_minutes_ago_content_description">
+        <item quantity="one">%1$d minuto</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
     <string name="DateUtils_today">Hoxe</string>
     <string name="DateUtils_yesterday">Onte</string>
     <!-- When scheduling a message, %1$s replaced with either today, tonight, or tomorrow. %2$s replaced with the time. e.g. Tonight at 9:00pm -->
@@ -1204,11 +1230,11 @@
     <string name="AddToGroupActivity_add_member">Engadir membro?</string>
     <string name="AddToGroupActivity_add_s_to_s">Engadir a «%1$s» a «%2$s»?</string>
     <string name="AddToGroupActivity_s_added_to_s">«%1$s» engadiuse a «%2$s».</string>
-    <string name="AddToGroupActivity_add_to_group">Engadir ao grupo</string>
     <string name="AddToGroupActivity_add_to_groups">Engadir aos grupos</string>
     <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">Esta persoa non se pode engadir aos grupos clásicos.</string>
     <string name="AddToGroupActivity_add">Engadir</string>
     <string name="AddToGroupActivity_add_to_a_group">Engadir ao grupo</string>
+    <string name="AddToGroupActivity_search">Buscar</string>
 
     <!-- ChooseNewAdminActivity -->
     <string name="ChooseNewAdminActivity_choose_new_admin">Escolle novo administrador</string>
@@ -1612,6 +1638,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Non te puideches unir ao grupo, inténtao máis tarde</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Houbo un erro na rede.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">A ligazón deste grupo non está activa</string>
+    <!-- Toast message shown when trying to join a group by link but the group is full -->
+    <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Alcanzouse o límite do grupo, non podes unirte ao grupo</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
     <string name="GroupJoinBottomSheetDialogFragment_cant_join_group">Non podes unirte ao grupo</string>
     <!-- Message shown when you try to get information for a group via link but an admin has removed you -->
@@ -2669,6 +2697,16 @@
     <string name="CallParticipantView__cant_receive_audio_video_from_s">Non se pode recibir o audio e vídeo de %1$s</string>
     <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Non se pode recibir o audio e vídeo de %1$s</string>
     <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">Pode ser que non verificasen o cambio do teu número de seguridade, que haxa un problema co seu dispositivo ou que te bloqueasen.</string>
+
+    <!-- SwitchCameraButton -->
+    <!-- Content description for the button that switches between front and back camera during a call -->
+    <string name="SwitchCameraButton__switch_camera_direction">Cambia a dirección da cámara</string>
+
+    <!-- CallQualityDiagnosticsScreen -->
+    <!-- Title for the call quality diagnostics screen -->
+    <string name="CallQualityDiagnosticsScreen__diagnostic_information">Información de diagnóstico</string>
+    <!-- Content description for the close/back navigation button -->
+    <string name="CallQualityDiagnosticsScreen__close">Pechar</string>
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Arrastra para ver a pantalla compartida</string>
@@ -3779,6 +3817,15 @@
     <string name="verify_display_fragment__mark_as_verified">Marcar como verificado</string>
     <string name="verify_display_fragment__clear_verification">Borrar verificación</string>
 
+    <!-- Title for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__title">Signal agora verifica automaticamente a encriptación de extremo a extremo</string>
+    <!-- Body for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__body">Cando verificas un número de seguranza, Signal confirmará de forma automática se a conexión é segura mediante un proceso denominado «transparencia de claves». Ademais, sempre podes verificar a conexión de forma manual cun código QR ou un número.</string>
+    <!-- Button to learn more about automatic verification -->
+    <string name="VerifyAutomaticallyEducationSheet__learn_more">Máis información</string>
+    <!-- Button to go to verification page -->
+    <string name="VerifyAutomaticallyEducationSheet__verify">Comprobar</string>
+
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Escanear o código QR no dispositivo do teu contacto.</string>
 
@@ -4152,6 +4199,8 @@
     <string name="preferences_normal">Normal</string>
     <!-- Preference summary for compact navigation bar size -->
     <string name="preferences_compact">Compacto</string>
+    <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
+    <string name="preferences_language_change_confirmation_message">A aplicación reiniciarase para aplicar a nova configuración de idioma.</string>
 
 
     <string name="configurable_single_select__customize_option">Personalizar opción</string>
@@ -4456,6 +4505,10 @@
     <string name="conversation_selection__menu_payment_details">Información do pagamento</string>
     <!-- Button to end a poll -->
     <string name="conversation_selection__menu_end_poll">Rematar enquisa</string>
+    <!-- Button to pin a message -->
+    <string name="conversation_selection__menu_pin_message">Fixar</string>
+    <!-- Button to unpin a message -->
+    <string name="conversation_selection__menu_unpin_message">Soltar</string>
 
     <!-- conversation_expiring_on -->
 
@@ -6187,7 +6240,8 @@
     <!-- Label for Donation Receipts button -->
     <string name="ManageDonationsFragment__donation_receipts">Comprobantes dos donativos</string>
     <string name="ManageDonationsFragment__badges">Insignias</string>
-    <string name="ManageDonationsFragment__subscription_faq">Preguntas frecuentes sobre a subscrición</string>
+    <!-- Label that externally links to Signal Donor FAQ page -->
+    <string name="ManageDonationsFragment__subscription_faq">Preguntas frecuentes sobre doantes</string>
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">Apoiar doutra maneira</string>
     <!-- Preference label to launch badge gifting -->
@@ -7468,8 +7522,10 @@
     <string name="CallLogAdapter__outgoing">Saínte</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Perdida</string>
-    <!-- Displayed for missed calls declined by notification profile -->
+    <!-- Displayed for one missed call declined by notification profile -->
     <string name="CallLogAdapter__missed_notification_profile">Perdida mentres o perfil de notificación estaba activado</string>
+    <!-- Displayed for multiple missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile_multiple">Perdida mentres o perfil de notificación estaba activado</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">Unirse</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -8413,6 +8469,14 @@
     <!-- Button label to open storage management screen -->
     <string name="RemoteBackupsSettingsFragment__manage_storage">Administrar almacenamento</string>
 
+    <!-- ReadyToTransferBottomSheet -->
+    <!-- Title for a bottom sheet letting people know that they can transfer their back to their new device  -->
+    <string name="RemoteBackupsSettingsFragment__ready_to_transfer">Ready to transfer</string>
+    <!-- Body for bottom sheet telling the user to scan a QR code to continue transferring their backup to a new device -->
+    <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">Emprega este dispositivo para escanear o código QR que se mostra no dispositivo ao que queiras facer a transferencia</string>
+    <!-- Button label to open QR scanner to scan a device and transfer a backup -->
+    <string name="RemoteBackupsSettingsFragment__scan_qr_code">Escanear código QR</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">Descarga a túa copia de seguranza xa</string>
@@ -8557,7 +8621,7 @@
     <!-- Verify your key title -->
     <string name="VerifyBackupPinScreen__enter_your_backup_key">Escribe a túa clave de recuperación</string>
     <!-- Verify your key subtitle -->
-    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">Introduce o código de 64 díxitos que anotaches cando activaches as copias de seguranza.</string>
+    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">Introduce o código de 64 caracteres que anotaches cando activaches as copias de seguranza.</string>
     <!-- Button text when you forget your recovery key -->
     <string name="VerifyBackupPinScreen__forgot_key">Esqueciches a clave?</string>
 
@@ -8770,6 +8834,19 @@
     <!-- Old device Transfer account bottom sheet dialog body -->
     <string name="TransferAccount_continue_on_your_other_device_details">Continúa a transferencia da túa conta no outro dispositivo.</string>
 
+    <!-- Prepare Device screen title for quick restore flow -->
+    <string name="PrepareDevice_title">Getting your device ready</string>
+    <!-- Prepare Device screen body text explaining backup recommendation -->
+    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
+    <string name="PrepareDevice_last_backup">A túa última copia de seguranza foi o %1$s ás %2$s.</string>
+    <!-- Prepare Device screen back up now button -->
+    <string name="PrepareDevice_back_up_now">Facer copia agora</string>
+    <!-- Prepare Device screen skip and continue button -->
+    <string name="PrepareDevice_skip_and_continue">Skip and continue</string>
+    <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
+    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">Remata o proceso no outro dispositivo</string>
     <!-- Restore Complete bottom sheet dialog message -->
@@ -8895,7 +8972,7 @@
     <!-- Dialog title when you go to end a poll -->
     <string name="Poll__end_poll_title">Rematar enquisa?</string>
     <!-- Dialog body when you go to end a poll -->
-    <string name="Poll__end_poll_body">Os membros do grupo xa non poderán votar na enquisa.</string>
+    <string name="Poll__end_poll_body">Os membros desta conversa xa non poderán votar na enquisa.</string>
     <!-- Body used in dialog when we are waiting for network -->
     <string name="Poll__waiting_for_network">Esperando por unha rede…</string>
     <!-- Header when creating a new poll -->
@@ -8918,6 +8995,13 @@
     <string name="CreatePollFragment__add_option">Engadir, polo menos, 2 opcións</string>
     <!-- Snackbar text to add a question before creating a poll -->
     <string name="CreatePollFragment__add_question">Engadir unha pregunta</string>
+
+    <!-- Bottom sheet title telling users to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__scan_qr_code">Escanear código QR</string>
+    <!-- Bottom sheet description telling users how to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__use_this_device_to_scan_qr_code">Emprega este dispositivo para escanear o código QR que se mostra no dispositivo ao que queiras facer a transferencia</string>
+    <!-- Confirmation button to dismiss bottom sheet dialog -->
+    <string name="QuickRestoreInfoDialog__okay">De acordo</string>
 
     <!-- CallQualityIssue -->
     <!-- Label for general audio issue category -->
@@ -8945,7 +9029,7 @@
 
     <!-- CallQualitySomethingElseScreen -->
     <!-- Title for the "Something else" call quality issue screen -->
-    <string name="CallQualitySomethingElseScreen__title">Outra cousa</string>
+    <string name="CallQualitySomethingElseScreen__title">Describe o problema</string>
     <!-- Label for text field where user describes their call quality issue -->
     <string name="CallQualitySomethingElseScreen__describe_your_issue">Describe o problema</string>
     <!-- Privacy notice explaining that issue details will be kept private and used to improve Signal calls -->
@@ -8975,11 +9059,15 @@
     <!-- Title asking user to help improve Signal -->
     <string name="CallQualitySheet__help_us_improve">Axúdanos a mellorar</string>
     <!-- First part of description explaining diagnostics help improve call quality -->
-    <string name="CallQualitySheet__help_us_improve_description_prefix">Ao enviar o diagnóstico axúdasnos a mellorar a calidade das chamadas. Podes </string>
+    <string name="CallQualitySheet__help_us_improve_description_prefix">O envío compartirá os teus comentarios</string>
+    <!-- Clickable text to launch diagnostic fragment -->
+    <string name="CallQualitySheet__diagnostic_information_about_your_call">e a información de diagnóstico da chamada.</string>
+    <!-- End of description explaining diagnostics help improve call quality -->
+    <string name="CallQualitySheet__help_us_improve_description_suffix">Tamén podes compartir de forma opcional un rexistro de depuración para axudarnos a mellorar a calidade da chamada.</string>
+    <!-- Text explaining the debug log -->
+    <string name="CallQualitySheet__information_shared_with_us">Os datos que recibimos son información básica da aplicación e non recollen o contido das chamadas.</string>
     <!-- Link text to view debug log -->
-    <string name="CallQualitySheet__view_your_debug_log">consultar o rexistro de depuración</string>
-    <!-- Last part of description about viewing debug log before submitting -->
-    <string name="CallQualitySheet__help_us_improve_description_suffix"> antes de envialo.</string>
+    <string name="CallQualitySheet__view_debug_log">Consultar o rexistro de depuración</string>
     <!-- Toggle label for sharing debug log -->
     <string name="CallQualitySheet__share_debug_log">Compartir rexistro de depuración</string>
     <!-- Privacy notice explaining what debug logs contain and why they are helpful -->
@@ -8988,6 +9076,67 @@
     <string name="CallQualitySheet__submit">Enviar</string>
     <!-- Displayed as a snackbar after submitting feedback -->
     <string name="CallQualitySheet__thanks_for_your_feedback">Grazas pola túa observación!</string>
+    <!-- Content description for the thumbs down button indicating user had issues with the call -->
+    <string name="CallQualitySheet__had_issues_content_description">Tiven problemas coa chamada</string>
+    <!-- Content description for the thumbs up button indicating the call was great -->
+    <string name="CallQualitySheet__great_content_description">A chamada non foi moi boa</string>
+    <!-- Dialog body shown when feedback submission fails due to network issues -->
+    <string name="CallQualitySheet__your_feedback_failed_to_send">Non se puido enviar o comentario.</string>
+    <!-- Dialog button to retry sending feedback after a failure -->
+    <string name="CallQualitySheet__try_again">Téntao de novo</string>
+
+    <!-- Message body when someone pins a message where %1$s is the name of the person -->
+    <string name="PinnedMessage__s_pinned_a_message">%1$s fixou unha mensaxe</string>
+    <!-- Message body when you pin a message -->
+    <string name="PinnedMessage__you_pinned_a_message">Fixaches unha mensaxe</string>
+    <!-- Button body to go to the pinned message -->
+    <string name="PinnedMessage__go_to_message">Ir á mensaxe</string>
+    <!-- Toast shown when a pinned message is not found -->
+    <string name="PinnedMessage__not_found">Non se atopou a mensaxe</string>
+    <!-- Content description for the pin icon -->
+    <string name="PinnedMessage__pinned">Fixada</string>
+    <!-- Caption shown when the pinned message is a photo -->
+    <string name="PinnedMessage__photo">Fotografía</string>
+    <!-- Caption shown when the pinned message is a video -->
+    <string name="PinnedMessage__video">Vídeo</string>
+    <!-- Caption shown when the pinned message is a sticker -->
+    <string name="PinnedMessage__sticker">Sticker</string>
+    <!-- Caption shown when the pinned message is a voice message  -->
+    <string name="PinnedMessage__voice">Mensaxe de voz</string>
+    <!-- Caption shown when the pinned message is a gif -->
+    <string name="PinnedMessage__gif">GIF</string>
+    <!-- Caption shown when the pinned message is a view once media -->
+    <string name="PinnedMessage__view_once">Multimedia dunha soa visualización</string>
+    <!-- Context menu option to unpin the message -->
+    <string name="PinnedMessage__unpin_message">Soltar</string>
+    <!-- Context menu option to view all the message -->
+    <string name="PinnedMessage__view_all_messages">Ver todas as mensaxes</string>
+    <!-- Text to unpin all messages -->
+    <string name="PinnedMessage__unpin_all_messages">Soltar todas as mensaxes</string>
+    <!-- Title of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_title">Fixar mensaxes temporais</string>
+    <!-- Body of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_body">As mensaxes temporais soltaranse cando remate o seu temporizador e a mensaxe borrarase da conversa.</string>
+    <!-- Confirmation button for bottom sheet -->
+    <string name="PinnedMessage__got_it">Entendo</string>
+    <!-- Content description of disappearing timer icon -->
+    <string name="PinnedMessage__disappearing_message_content_description">Mensaxe temporal</string>
+    <!-- Title of bottom sheet -->
+    <string name="PinnedMessage__pinned_messages">Mensaxes fixadas</string>
+    <!-- Context menu option to unpin message -->
+    <string name="PinnedMessage__unpin">Soltar</string>
+    <!-- Title of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_title">Soltar todas as mensaxes?</string>
+    <!-- Body of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_body">Soltaranse as mensaxes para todos os membros.</string>
+    <!-- Dialog title when failing to pin a message -->
+    <string name="PinnedMessage__couldnt_pin">Non se puido fixar a mensaxe</string>
+    <!-- Dialog title when failing to unpin a message -->
+    <string name="PinnedMessage__couldnt_unpin">Non se puido soltar a mensaxe</string>
+    <!-- Dialog title when failing to unpin all messages -->
+    <string name="PinnedMessage__couldnt_unpin_all">Non se puideron soltar as mensaxes</string>
+    <!-- Dialog body when failing to pin a message -->
+    <string name="PinnedMessage__check_connection">Comproba a túa conexión e inténtao de novo.</string>
 
     <!-- EOF -->
 </resources>

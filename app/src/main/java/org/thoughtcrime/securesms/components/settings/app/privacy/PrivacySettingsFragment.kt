@@ -169,6 +169,7 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
       customPref(
         ValueClickPreference(
           value = DSLSettingsText.from(ExpirationUtil.getExpirationAbbreviatedDisplayValue(requireContext(), state.universalExpireTimer)),
+          contentDescription = DSLSettingsText.from(ExpirationUtil.getExpirationDisplayValue(requireContext(), state.universalExpireTimer)),
           clickPreference = ClickPreference(
             title = DSLSettingsText.from(R.string.PrivacySettingsFragment__default_timer_for_new_changes),
             summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__set_a_default_disappearing_message_timer_for_all_new_chats_started_by_you),
@@ -372,6 +373,7 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
 
   private class ValueClickPreference(
     val value: DSLSettingsText,
+    val contentDescription: DSLSettingsText,
     val clickPreference: ClickPreference
   ) : PreferenceModel<ValueClickPreference>(
     title = clickPreference.title,
@@ -394,6 +396,7 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
       super.bind(model)
       clickPreferenceViewHolder.bind(model.clickPreference)
       valueText.text = model.value.resolve(context)
+      valueText.contentDescription = model.contentDescription.resolve(context)
     }
   }
 

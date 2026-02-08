@@ -13,6 +13,7 @@ import kotlinx.collections.immutable.toImmutableSet
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import org.signal.core.models.ServiceId
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
@@ -37,7 +38,6 @@ import org.thoughtcrime.securesms.util.AlarmSleepTimer
 import org.thoughtcrime.securesms.util.AppForegroundObserver
 import org.thoughtcrime.securesms.util.SignalLocalMetrics
 import org.thoughtcrime.securesms.util.asChain
-import org.whispersystems.signalservice.api.push.ServiceId
 import org.whispersystems.signalservice.api.util.SleepTimer
 import org.whispersystems.signalservice.api.util.UptimeSleepTimer
 import org.whispersystems.signalservice.api.websocket.SignalWebSocket

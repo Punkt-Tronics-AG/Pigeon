@@ -21,11 +21,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.phonenumber.EnterPhoneNumberMode
 import org.thoughtcrime.securesms.restore.RestoreActivity
+import org.thoughtcrime.securesms.util.Environment
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
@@ -51,11 +53,9 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.NORMAL))
         }
       }
-
       Activity.RESULT_CANCELED -> {
         Log.w(TAG, "Backup restoration canceled.")
       }
-
       else -> Log.w(TAG, "Backup restoration activity ended with unknown result code: $resultCode")
     }
   }
@@ -64,18 +64,26 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
   override fun FragmentContent() {
     var showSkipRestoreWarning by remember { mutableStateOf(false) }
 
+    val restoreMethods = remember {
+      if (isSignalVersion()){
+      if (Environment.IS_NIGHTLY || BuildConfig.DEBUG) {
+        listOf(RestoreMethod.FROM_SIGNAL_BACKUPS, RestoreMethod.FROM_LOCAL_BACKUP_V1, RestoreMethod.FROM_LOCAL_BACKUP_V2)
+      } else {
+        listOf(RestoreMethod.FROM_SIGNAL_BACKUPS, RestoreMethod.FROM_LOCAL_BACKUP_V1)
+      }
+      } else {
+        listOf(RestoreMethod.FROM_LOCAL_BACKUP_V1)
+      }
+    }
+
     SelectRestoreMethodScreen(
-      restoreMethods = listOf(
-//        if (isSignalVersion())
-//        RestoreMethod.FROM_SIGNAL_BACKUPS,
-        RestoreMethod.FROM_LOCAL_BACKUP_V1
-      ),
+      restoreMethods = restoreMethods,
       onRestoreMethodClicked = this::startRestoreMethod,
       onSkip = {
         showSkipRestoreWarning = true
       }
     ) {
-      if (showSkipRestoreWarning ) {
+      if (showSkipRestoreWarning) {
         Dialogs.SimpleAlertDialog(
           title = stringResource(R.string.SelectRestoreMethodFragment__skip_restore_title),
           body = stringResource(R.string.SelectRestoreMethodFragment__skip_restore_warning),
@@ -108,14 +116,16 @@ class SelectManualRestoreMethodFragment : ComposeFragment() {
           findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.pigeonGoToEnterCodeFragment(EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE))
         }
       }
-
       RestoreMethod.FROM_LOCAL_BACKUP_V1 -> {
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = false)
         localBackupRestore.launch(RestoreActivity.getLocalRestoreIntent(requireContext()))
       }
-
       RestoreMethod.FROM_OLD_DEVICE -> error("Device transfer not supported in manual restore flow")
-      RestoreMethod.FROM_LOCAL_BACKUP_V2 -> error("Not currently supported")
+      RestoreMethod.FROM_LOCAL_BACKUP_V2 -> {
+        sharedViewModel.clearPreviousRegistrationState()
+        sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = false, fromLocalV2 = true)
+        findNavController().safeNavigate(SelectManualRestoreMethodFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.COLLECT_FOR_LOCAL_V2_SIGNAL_BACKUPS_RESTORE))
+      }
     }
   }
 }

@@ -371,6 +371,11 @@
     <string name="CommunicationActions_this_is_not_a_valid_call_link">Poveznica na poziv nije važeća. Provjerite je li cijela poveznica ispravna prije pokušaja pridruživanja.</string>
     <!-- Displayed in a snackbar when the user is already in a call -->
     <string name="CommunicationActions__you_are_already_in_a_call">Već ste na pozivu</string>
+    <!-- Title on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_title">Prenijeti račun na novi uređaj?</string>
+    <!-- Message on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_message">Da biste prenijeli ovaj račun na novi uređaj, dodirnite „Nastavi“ i ponovno skenirajte QR kôd Signal kamerom. Skenirajte samo QR kodove koji dolaze izravno od Signala.</string>
+    <string name="CommunicationActions__dont_transfer">Preskoči prijenos</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -412,7 +417,7 @@
     <string name="ContactShareEditActivity_type_work">Posao</string>
     <string name="ContactShareEditActivity_type_missing">Ostalo</string>
     <string name="ContactShareEditActivity_invalid_contact">Odabrani kontakt je nevažeći</string>
-    <!-- Content descrption for name edit button on contact share edit activity -->
+    <!-- Content description for name edit button on contact share edit activity -->
     <string name="ContactShareEditActivity__edit_name">Uredite ime</string>
     <!-- Content description for user avatar in edit activity -->
     <string name="ContactShareEditActivity__avatar">Slika profila</string>
@@ -695,6 +700,22 @@
     <string name="ConversationFragment_group_names">Nazivi grupa</string>
     <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
     <string name="ConversationFragment_photo_failed">Preuzimanje fotografije nije uspjelo. Pokušajte ponovno.</string>
+    <!-- Dialog for how to long to keep a messaged pinned for -->
+    <string name="ConversationFragment__keep_pinned">Ostavi prikvačeno na…</string>
+    <!-- Dialog option to keep message pin for 24 hours -->
+    <string name="ConversationFragment__24_hours">24 sata</string>
+    <!-- Dialog option to keep message pin for 7 days -->
+    <string name="ConversationFragment__7_days">7 dana</string>
+    <!-- Dialog option to keep message pin for 30 days -->
+    <string name="ConversationFragment__30_days">30 dana</string>
+    <!-- Dialog option to keep message pin forever -->
+    <string name="ConversationFragment__forever">Zauvijek</string>
+    <!-- Dialog title when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_title">Želite li zamijeniti najstariju prikvačenu poruku?</string>
+    <!-- Dialog body when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_body">Prikvačena poruka zamijenit će najstariju</string>
+    <!-- Dialog button when replacing the oldest pin -->
+    <string name="ConversationFragment__replace">Zamijeni</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Savjeti za sigurnost</string>
@@ -987,6 +1008,13 @@
     <!-- DateUtils -->
     <string name="DateUtils_just_now">Sada</string>
     <string name="DateUtils_minutes_ago">%1$dm</string>
+    <!-- Content description when describing how many minutes ago something has happened -->
+    <plurals name="DateUtils_minutes_ago_content_description">
+        <item quantity="one">%1$d minuta</item>
+        <item quantity="few">%1$d minute</item>
+        <item quantity="many">%1$d minuta</item>
+        <item quantity="other">%1$d minuta</item>
+    </plurals>
     <string name="DateUtils_today">Danas</string>
     <string name="DateUtils_yesterday">Jučer</string>
     <!-- When scheduling a message, %1$s replaced with either today, tonight, or tomorrow. %2$s replaced with the time. e.g. Tonight at 9:00pm -->
@@ -1250,11 +1278,11 @@
     <string name="AddToGroupActivity_add_member">Dodaj člana?</string>
     <string name="AddToGroupActivity_add_s_to_s">Dodaj \"%1$s\" u \"%2$s\"?</string>
     <string name="AddToGroupActivity_s_added_to_s">\"%1$s\" je dodan/a u \"%2$s\".</string>
-    <string name="AddToGroupActivity_add_to_group">Dodaj u grupu</string>
     <string name="AddToGroupActivity_add_to_groups">Dodaj u grupe</string>
     <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">Ovu osobu nije moguće dodati u naslijeđene grupe.</string>
     <string name="AddToGroupActivity_add">Dodaj</string>
     <string name="AddToGroupActivity_add_to_a_group">Dodaj u grupu</string>
+    <string name="AddToGroupActivity_search">Pretraži</string>
 
     <!-- ChooseNewAdminActivity -->
     <string name="ChooseNewAdminActivity_choose_new_admin">Odaberite novog administratora</string>
@@ -1698,6 +1726,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Nije moguće pridružiti se grupi. Molimo pokušajte ponovo kasnije</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Došlo je do mrežne pogreške.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">Poveznica grupe nije aktivna</string>
+    <!-- Toast message shown when trying to join a group by link but the group is full -->
+    <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Nije moguće pridružiti se grupi jer je dosegnuto ograničenje broja članova</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
     <string name="GroupJoinBottomSheetDialogFragment_cant_join_group">Nije moguće pridružiti se grupi</string>
     <!-- Message shown when you try to get information for a group via link but an admin has removed you -->
@@ -2845,6 +2875,16 @@
     <string name="CallParticipantView__cant_receive_audio_video_from_s">Ne možete primiti audio i video od %1$s</string>
     <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Ne možete primiti audio i video od %1$s</string>
     <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">Mogući razlog tome jest to što korisnik nije potvrdio vaš ažurirani sigurnosni broj, ima problem s uređajem ili vas je blokirao.</string>
+
+    <!-- SwitchCameraButton -->
+    <!-- Content description for the button that switches between front and back camera during a call -->
+    <string name="SwitchCameraButton__switch_camera_direction">Promijeni smjer kamere</string>
+
+    <!-- CallQualityDiagnosticsScreen -->
+    <!-- Title for the call quality diagnostics screen -->
+    <string name="CallQualityDiagnosticsScreen__diagnostic_information">Dijagnostičke informacije</string>
+    <!-- Content description for the close/back navigation button -->
+    <string name="CallQualityDiagnosticsScreen__close">Zatvori</string>
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Prijeđite prstom za pregled dijeljenja zaslona</string>
@@ -4001,6 +4041,15 @@
     <string name="verify_display_fragment__mark_as_verified">Označi kao provjereno</string>
     <string name="verify_display_fragment__clear_verification">Poništi provjeru</string>
 
+    <!-- Title for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__title">Signal sada automatski provjerava sveobuhvatno šifriranje</string>
+    <!-- Body for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__body">Kada provjeravate sigurnosni broj, Signal će automatski potvrditi je li veza sigurna postupkom koji se naziva transparentnost ključeva (en. „key transparency“). Veze i dalje možete provjeriti ručno pomoću QR koda ili broja.</string>
+    <!-- Button to learn more about automatic verification -->
+    <string name="VerifyAutomaticallyEducationSheet__learn_more">Saznajte više</string>
+    <!-- Button to go to verification page -->
+    <string name="VerifyAutomaticallyEducationSheet__verify">Potvrdi</string>
+
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Skenirajte QR kôd na uređaju vašeg kontakta.</string>
 
@@ -4380,6 +4429,8 @@
     <string name="preferences_normal">Normalna</string>
     <!-- Preference summary for compact navigation bar size -->
     <string name="preferences_compact">Kompaktna</string>
+    <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
+    <string name="preferences_language_change_confirmation_message">Aplikacija će se ponovno pokrenuti kako bi se primijenile nove postavke jezika.</string>
 
 
     <string name="configurable_single_select__customize_option">Opcija prilagođavanja</string>
@@ -4686,6 +4737,10 @@
     <string name="conversation_selection__menu_payment_details">Pojedinosti o plaćanju</string>
     <!-- Button to end a poll -->
     <string name="conversation_selection__menu_end_poll">Završi anketu</string>
+    <!-- Button to pin a message -->
+    <string name="conversation_selection__menu_pin_message">Prikvači</string>
+    <!-- Button to unpin a message -->
+    <string name="conversation_selection__menu_unpin_message">Otkvači</string>
 
     <!-- conversation_expiring_on -->
 
@@ -5504,7 +5559,7 @@
     <string name="ChatWallpaperFragment__wallpaper_preview_description">Pregled pozadine</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_chat_colors">Želite li poništiti sve boje razgovora?</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_wallpapers">Želite li poništiti sve pozadine?</string>
-    <string name="ChatWallpaperFragment__reset_default_colors">Poništi zadane boje</string>
+    <string name="ChatWallpaperFragment__reset_default_colors">Poništi zadanu boju</string>
     <string name="ChatWallpaperFragment__reset_all_colors">Poništi sve boje</string>
     <string name="ChatWallpaperFragment__reset_default_wallpaper">Poništi zadanu pozadinu</string>
     <string name="ChatWallpaperFragment__reset_all_wallpapers">Poništi sve pozadine</string>
@@ -6477,7 +6532,8 @@
     <!-- Label for Donation Receipts button -->
     <string name="ManageDonationsFragment__donation_receipts">Potvrde o donacijama</string>
     <string name="ManageDonationsFragment__badges">Značke</string>
-    <string name="ManageDonationsFragment__subscription_faq">Najčešća pitanja o pretplati</string>
+    <!-- Label that externally links to Signal Donor FAQ page -->
+    <string name="ManageDonationsFragment__subscription_faq">Najčešća pitanja donatora</string>
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">Druge opcije doniranja</string>
     <!-- Preference label to launch badge gifting -->
@@ -7800,8 +7856,10 @@
     <string name="CallLogAdapter__outgoing">Odlazni</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Propušteni</string>
-    <!-- Displayed for missed calls declined by notification profile -->
+    <!-- Displayed for one missed call declined by notification profile -->
     <string name="CallLogAdapter__missed_notification_profile">Propušteno dok je profil obavijesti bio uključen</string>
+    <!-- Displayed for multiple missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile_multiple">Propušteno dok je profil obavijesti bio uključen</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">Pridruži se</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -8775,6 +8833,14 @@
     <!-- Button label to open storage management screen -->
     <string name="RemoteBackupsSettingsFragment__manage_storage">Upravljanje prostorom za pohranu</string>
 
+    <!-- ReadyToTransferBottomSheet -->
+    <!-- Title for a bottom sheet letting people know that they can transfer their back to their new device  -->
+    <string name="RemoteBackupsSettingsFragment__ready_to_transfer">Spremno za prijenos</string>
+    <!-- Body for bottom sheet telling the user to scan a QR code to continue transferring their backup to a new device -->
+    <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">Ovim uređajem skenirajte QR kôd prikazan na uređaju na koji želite prenijeti podatke</string>
+    <!-- Button label to open QR scanner to scan a device and transfer a backup -->
+    <string name="RemoteBackupsSettingsFragment__scan_qr_code">Skeniraj QR kôd</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">Preuzmite svoju sigurnosnu kopiju do kraja dana</string>
@@ -9136,6 +9202,19 @@
     <!-- Old device Transfer account bottom sheet dialog body -->
     <string name="TransferAccount_continue_on_your_other_device_details">Prijenos računa nastavit će se na drugom uređaju.</string>
 
+    <!-- Prepare Device screen title for quick restore flow -->
+    <string name="PrepareDevice_title">Priprema uređaja</string>
+    <!-- Prepare Device screen body text explaining backup recommendation -->
+    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
+    <string name="PrepareDevice_last_backup">Posljednje sigurnosno kopiranje obavljeno je %1$s u %2$s.</string>
+    <!-- Prepare Device screen back up now button -->
+    <string name="PrepareDevice_back_up_now">Sigurnosno kopiraj sada</string>
+    <!-- Prepare Device screen skip and continue button -->
+    <string name="PrepareDevice_skip_and_continue">Preskoči i nastavi</string>
+    <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
+    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">Dovršite na drugom uređaju</string>
     <!-- Restore Complete bottom sheet dialog message -->
@@ -9267,7 +9346,7 @@
     <!-- Dialog title when you go to end a poll -->
     <string name="Poll__end_poll_title">Zatvoriti anketu?</string>
     <!-- Dialog body when you go to end a poll -->
-    <string name="Poll__end_poll_body">Članovi grupe više neće moći glasati u ovoj anketi.</string>
+    <string name="Poll__end_poll_body">Članovi ovog razgovora više neće moći glasati u ovoj anketi.</string>
     <!-- Body used in dialog when we are waiting for network -->
     <string name="Poll__waiting_for_network">Čeka se mrežna veza…</string>
     <!-- Header when creating a new poll -->
@@ -9290,6 +9369,13 @@
     <string name="CreatePollFragment__add_option">Dodajte barem dva moguća odgovora</string>
     <!-- Snackbar text to add a question before creating a poll -->
     <string name="CreatePollFragment__add_question">Dodajte pitanje</string>
+
+    <!-- Bottom sheet title telling users to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__scan_qr_code">Skeniraj QR kôd</string>
+    <!-- Bottom sheet description telling users how to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__use_this_device_to_scan_qr_code">Ovim uređajem skenirajte QR kôd prikazan na uređaju na koji želite prenijeti podatke</string>
+    <!-- Confirmation button to dismiss bottom sheet dialog -->
+    <string name="QuickRestoreInfoDialog__okay">U redu</string>
 
     <!-- CallQualityIssue -->
     <!-- Label for general audio issue category -->
@@ -9317,7 +9403,7 @@
 
     <!-- CallQualitySomethingElseScreen -->
     <!-- Title for the "Something else" call quality issue screen -->
-    <string name="CallQualitySomethingElseScreen__title">Nešto drugo</string>
+    <string name="CallQualitySomethingElseScreen__title">Opišite problem</string>
     <!-- Label for text field where user describes their call quality issue -->
     <string name="CallQualitySomethingElseScreen__describe_your_issue">Opišite problem</string>
     <!-- Privacy notice explaining that issue details will be kept private and used to improve Signal calls -->
@@ -9347,11 +9433,15 @@
     <!-- Title asking user to help improve Signal -->
     <string name="CallQualitySheet__help_us_improve">Pomozite nam poboljšati Signal</string>
     <!-- First part of description explaining diagnostics help improve call quality -->
-    <string name="CallQualitySheet__help_us_improve_description_prefix">Slanjem dijagnostičkih podataka pomažete nam poboljšati kvalitetu poziva. Možete </string>
+    <string name="CallQualitySheet__help_us_improve_description_prefix">Podijelit ćete svoje povratne informacije zajedno s</string>
+    <!-- Clickable text to launch diagnostic fragment -->
+    <string name="CallQualitySheet__diagnostic_information_about_your_call">dijagnostičkim informacijama o vašem pozivu</string>
+    <!-- End of description explaining diagnostics help improve call quality -->
+    <string name="CallQualitySheet__help_us_improve_description_suffix">Po želji možete podijeliti zapisnik otklanjanja pogreške kako biste nam pomogli poboljšati kvalitetu poziva.</string>
+    <!-- Text explaining the debug log -->
+    <string name="CallQualitySheet__information_shared_with_us">Informacije koje se dijele s nama sadrže informacije niske razine o aplikacijama i ne uključuju sadržaj vaših poziva.</string>
     <!-- Link text to view debug log -->
-    <string name="CallQualitySheet__view_your_debug_log">pregledati zapisnik otklanjanja pogreške</string>
-    <!-- Last part of description about viewing debug log before submitting -->
-    <string name="CallQualitySheet__help_us_improve_description_suffix"> prije slanja</string>
+    <string name="CallQualitySheet__view_debug_log">Prikaži zapisnik otklanjanja pogreške</string>
     <!-- Toggle label for sharing debug log -->
     <string name="CallQualitySheet__share_debug_log">Podijeli zapisnik otklanjanja pogreške</string>
     <!-- Privacy notice explaining what debug logs contain and why they are helpful -->
@@ -9360,6 +9450,67 @@
     <string name="CallQualitySheet__submit">Pošalji</string>
     <!-- Displayed as a snackbar after submitting feedback -->
     <string name="CallQualitySheet__thanks_for_your_feedback">Hvala na povratnim informacijama!</string>
+    <!-- Content description for the thumbs down button indicating user had issues with the call -->
+    <string name="CallQualitySheet__had_issues_content_description">Bilo je problema s pozivom</string>
+    <!-- Content description for the thumbs up button indicating the call was great -->
+    <string name="CallQualitySheet__great_content_description">Poziv je bio odličan</string>
+    <!-- Dialog body shown when feedback submission fails due to network issues -->
+    <string name="CallQualitySheet__your_feedback_failed_to_send">Slanje vaših povratnih informacija nije uspjelo.</string>
+    <!-- Dialog button to retry sending feedback after a failure -->
+    <string name="CallQualitySheet__try_again">Pokušaj ponovno</string>
+
+    <!-- Message body when someone pins a message where %1$s is the name of the person -->
+    <string name="PinnedMessage__s_pinned_a_message">%1$s je prikvačio/la poruku</string>
+    <!-- Message body when you pin a message -->
+    <string name="PinnedMessage__you_pinned_a_message">Prikvačili ste poruku</string>
+    <!-- Button body to go to the pinned message -->
+    <string name="PinnedMessage__go_to_message">Idi na poruku</string>
+    <!-- Toast shown when a pinned message is not found -->
+    <string name="PinnedMessage__not_found">Poruka nije pronađena</string>
+    <!-- Content description for the pin icon -->
+    <string name="PinnedMessage__pinned">Prikvačeno</string>
+    <!-- Caption shown when the pinned message is a photo -->
+    <string name="PinnedMessage__photo">Fotografija</string>
+    <!-- Caption shown when the pinned message is a video -->
+    <string name="PinnedMessage__video">Video</string>
+    <!-- Caption shown when the pinned message is a sticker -->
+    <string name="PinnedMessage__sticker">Naljepnica</string>
+    <!-- Caption shown when the pinned message is a voice message  -->
+    <string name="PinnedMessage__voice">Glasovna poruka</string>
+    <!-- Caption shown when the pinned message is a gif -->
+    <string name="PinnedMessage__gif">GIF</string>
+    <!-- Caption shown when the pinned message is a view once media -->
+    <string name="PinnedMessage__view_once">Jednom vidljiv medijski zapis</string>
+    <!-- Context menu option to unpin the message -->
+    <string name="PinnedMessage__unpin_message">Otkvači</string>
+    <!-- Context menu option to view all the message -->
+    <string name="PinnedMessage__view_all_messages">Prikaži sve poruke</string>
+    <!-- Text to unpin all messages -->
+    <string name="PinnedMessage__unpin_all_messages">Otkvači sve poruke</string>
+    <!-- Title of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_title">Prikvačivanje poruka koje nestaju</string>
+    <!-- Body of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_body">Poruke koje nestaju bit će otkvačene kada im istekne vrijeme i nestanu iz razgovora.</string>
+    <!-- Confirmation button for bottom sheet -->
+    <string name="PinnedMessage__got_it">Shvaćam</string>
+    <!-- Content description of disappearing timer icon -->
+    <string name="PinnedMessage__disappearing_message_content_description">Poruka koja nestaje</string>
+    <!-- Title of bottom sheet -->
+    <string name="PinnedMessage__pinned_messages">Prikvačene poruke</string>
+    <!-- Context menu option to unpin message -->
+    <string name="PinnedMessage__unpin">Otkvači</string>
+    <!-- Title of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_title">Želite li otkvačiti sve poruke?</string>
+    <!-- Body of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_body">Poruke će biti otkvačene za sve članove.</string>
+    <!-- Dialog title when failing to pin a message -->
+    <string name="PinnedMessage__couldnt_pin">Nije moguće prikvačiti poruku</string>
+    <!-- Dialog title when failing to unpin a message -->
+    <string name="PinnedMessage__couldnt_unpin">Nije moguće otkvačiti poruku</string>
+    <!-- Dialog title when failing to unpin all messages -->
+    <string name="PinnedMessage__couldnt_unpin_all">Nije moguće otkvačiti poruke</string>
+    <!-- Dialog body when failing to pin a message -->
+    <string name="PinnedMessage__check_connection">Provjerite internetsku vezu i pokušajte ponovno.</string>
 
     <!-- EOF -->
 </resources>

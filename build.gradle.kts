@@ -46,24 +46,12 @@ tasks.withType<Wrapper> {
   distributionType = Wrapper.DistributionType.ALL
 }
 
-apply(from = "$rootDir/constants.gradle.kts")
-
 subprojects {
   if (JavaVersion.current().isJava8Compatible) {
     allprojects {
       tasks.withType<Javadoc> {
         (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
       }
-    }
-  }
-
-  val skipQa = setOf("Signal-Android", "libsignal-service", "lintchecks", "benchmark", "core-util-jvm", "logging")
-
-  if (project.name !in skipQa && !project.name.endsWith("-app")) {
-    tasks.register("qa") {
-      group = "Verification"
-      description = "Quality Assurance. Run before pushing"
-      dependsOn("clean", "testReleaseUnitTest", "lintRelease")
     }
   }
 
@@ -85,21 +73,47 @@ tasks.register("buildQa") {
 tasks.register("qa") {
   group = "Verification"
   description = "Quality Assurance. Run before pushing."
-  dependsOn(
-    "clean",
-    "checkStopship",
-    "buildQa",
-    ":Signal-Android:testPlayProdPerfUnitTest",
-    ":Signal-Android:lintPlayProdRelease",
-    "Signal-Android:ktlintCheck",
-    ":libsignal-service:test",
-    ":libsignal-service:ktlintCheck",
-    ":Signal-Android:assemblePlayProdRelease",
-    ":Signal-Android:compilePlayProdInstrumentationAndroidTestSources",
-    ":microbenchmark:compileReleaseAndroidTestSources",
-    ":core-util-jvm:test",
-    ":core-util-jvm:ktlintCheck"
-  )
+  dependsOn("clean")
+}
+
+// Wire up QA dependencies after all projects are evaluated
+gradle.projectsEvaluated {
+  val appTestTask = tasks.findByPath(":Signal-Android:testPlayProdPerfUnitTest")
+  val appLintTask = tasks.findByPath(":Signal-Android:lintPlayProdRelease")
+
+  tasks.named("qa") {
+    dependsOn("ktlintCheck")
+    dependsOn("buildQa")
+    dependsOn("checkStopship")
+
+    // Main app tasks
+    appTestTask?.let { dependsOn(it) }
+    appLintTask?.let { dependsOn(it) }
+
+    // Library module tasks
+    subprojects.filter { it.name != "Signal-Android" }.forEach { subproject ->
+      val testTask = subproject.tasks.findByName("testDebugUnitTest")
+        ?: subproject.tasks.findByName("test")
+      testTask?.let { dependsOn(it) }
+
+      subproject.tasks.findByName("lintDebug")?.let { dependsOn(it) }
+    }
+  }
+
+  // Ensure clean runs before everything else
+  rootProject.allprojects.forEach { project ->
+    project.tasks.matching { it.name != "clean" }.configureEach {
+      mustRunAfter("clean")
+    }
+  }
+
+  // If you let all of these things run in parallel, gradle will likely OOM.
+  // To avoid this, we put non-app tests and lints behind the much heavier app tests and lints.
+  subprojects.filter { it.name != "Signal-Android" }.forEach { subproject ->
+    subproject.tasks.findByName("testDebugUnitTest")?.mustRunAfter(appTestTask)
+    subproject.tasks.findByName("test")?.mustRunAfter(appTestTask)
+    subproject.tasks.findByName("lintDebug")?.mustRunAfter(appLintTask)
+  }
 }
 
 tasks.register("clean", Delete::class) {
@@ -126,7 +140,8 @@ tasks.register("checkStopship") {
 
     val excludedDirectories = listOf(
       "app/build",
-      "libsignal-service/build"
+      "libsignal-service/build",
+      ".idea"
     )
 
     val allowedExtensions = setOf("kt", "kts", "java", "xml")

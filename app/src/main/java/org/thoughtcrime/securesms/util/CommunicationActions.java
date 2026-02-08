@@ -47,13 +47,17 @@ import org.thoughtcrime.securesms.profiles.manage.UsernameRepository;
 import org.thoughtcrime.securesms.profiles.manage.UsernameRepository.UsernameLinkConversionResult;
 import org.thoughtcrime.securesms.proxy.ProxyBottomSheetFragment;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.service.webrtc.ActiveCallData;
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 import org.whispersystems.signalservice.api.push.UsernameLinkComponents;
 
+import io.reactivex.rxjava3.core.Single;
+
 import java.io.IOException;
+import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -350,6 +354,26 @@ public class CommunicationActions {
   }
 
   /**
+   * If the url is a quick restore link it will handle it.
+   * Otherwise returns false, indicating it was not a quick restore link.
+   */
+  public static boolean handlePotentialQuickRestoreUrl(@NonNull FragmentActivity activity, @NonNull String potentialQuickRestoreUrl, @NonNull Runnable onContinue) {
+    URI uri = URI.create(potentialQuickRestoreUrl);
+
+    if ("sgnl".equalsIgnoreCase(uri.getScheme()) && "rereg".equalsIgnoreCase(uri.getHost())) {
+      new MaterialAlertDialogBuilder(activity)
+          .setTitle(R.string.CommunicationActions__transfer_dialog_title)
+          .setMessage(R.string.CommunicationActions__transfer_dialog_message)
+          .setPositiveButton(R.string.DeviceProvisioningActivity_continue, (d, w) -> onContinue.run())
+          .setNegativeButton(R.string.CommunicationActions__dont_transfer, null)
+          .show();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Attempts to start a video call for the given call link via root key. This will insert a call link into
    * the user's database if one does not already exist.
    *
@@ -557,6 +581,26 @@ public class CommunicationActions {
     public @NonNull FragmentManager getFragmentManager() {
       return fragment.getParentFragmentManager();
     }
+  }
+
+  /**
+   * Returns a Single that emits true if this device is currently in an active call with the given recipient,
+   * false otherwise.
+   */
+  public static @NonNull Single<Boolean> isDeviceInCallWithRecipient(@NonNull RecipientId recipientId) {
+    return Single.create(emitter -> {
+      AppDependencies.getSignalCallManager().isCallActive(new ResultReceiver(new Handler(Looper.getMainLooper())) {
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+          if (resultCode == 1 && resultData != null) {
+            ActiveCallData activeCallData = ActiveCallData.fromBundle(resultData);
+            emitter.onSuccess(Objects.equals(activeCallData.getRecipientId(), recipientId));
+          } else {
+            emitter.onSuccess(false);
+          }
+        }
+      });
+    });
   }
 
   public interface OnUserAlreadyInAnotherCall {

@@ -9,6 +9,9 @@ import android.text.TextUtils
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.contentValuesOf
 import okio.ByteString.Companion.toByteString
+import org.signal.core.models.ServiceId
+import org.signal.core.models.ServiceId.ACI
+import org.signal.core.models.ServiceId.PNI
 import org.signal.core.util.Base64
 import org.signal.core.util.Bitmask
 import org.signal.core.util.CursorUtil
@@ -44,7 +47,7 @@ import org.signal.libsignal.protocol.InvalidKeyException
 import org.signal.libsignal.zkgroup.groups.GroupMasterKey
 import org.signal.libsignal.zkgroup.profiles.ExpiringProfileKeyCredential
 import org.signal.libsignal.zkgroup.profiles.ProfileKey
-import org.signal.storageservice.protos.groups.local.DecryptedGroup
+import org.signal.storageservice.storage.protos.groups.local.DecryptedGroup
 import org.thoughtcrime.securesms.badges.Badges.toDatabaseBadge
 import org.thoughtcrime.securesms.badges.models.Badge
 import org.thoughtcrime.securesms.color.MaterialColor
@@ -104,9 +107,6 @@ import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperFactory
 import org.thoughtcrime.securesms.wallpaper.WallpaperStorage
 import org.whispersystems.signalservice.api.profiles.SignalServiceProfile
-import org.whispersystems.signalservice.api.push.ServiceId
-import org.whispersystems.signalservice.api.push.ServiceId.ACI
-import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.storage.SignalAccountRecord
 import org.whispersystems.signalservice.api.storage.SignalContactRecord
 import org.whispersystems.signalservice.api.storage.SignalGroupV1Record
@@ -1220,7 +1220,7 @@ open class RecipientTable(context: Context, databaseHelper: SignalDatabase) : Da
     val out: MutableMap<RecipientId, StorageId> = HashMap()
 
     readableDatabase
-      .select(ID, STORAGE_SERVICE_ID, TYPE)
+      .select(ID, STORAGE_SERVICE_ID, TYPE, ACI_COLUMN, PNI_COLUMN)
       .from(TABLE_NAME)
       .where(
         """
@@ -1251,7 +1251,15 @@ open class RecipientTable(context: Context, databaseHelper: SignalDatabase) : Da
           val key = Base64.decodeOrThrow(encodedKey)
 
           when (recipientType) {
-            RecipientType.INDIVIDUAL -> out[id] = StorageId.forContact(key)
+            RecipientType.INDIVIDUAL -> {
+              val aci = ACI.parseOrNull(cursor.requireString(ACI_COLUMN))
+              val pni = PNI.parseOrNull(cursor.requireString(PNI_COLUMN))
+              if (aci == null && pni == null) {
+                Log.w(TAG, "All identifiers are null! Skipping. Before parsing, ACI: ${cursor.requireString(ACI_COLUMN) != null}, PNI: ${cursor.requireString(PNI_COLUMN) != null}")
+              } else {
+                out[id] = StorageId.forContact(key)
+              }
+            }
             RecipientType.GV1 -> out[id] = StorageId.forGroupV1(key)
             RecipientType.DISTRIBUTION_LIST -> out[id] = StorageId.forStoryDistributionList(key)
             RecipientType.CALL_LINK -> out[id] = StorageId.forCallLink(key)
@@ -1263,8 +1271,16 @@ open class RecipientTable(context: Context, databaseHelper: SignalDatabase) : Da
     for (id in groups.getAllGroupV2Ids()) {
       val recipient = Recipient.externalGroupExact(id)
       val recipientId = recipient.id
-      val existing: RecipientRecord = getRecordForSync(recipientId) ?: throw AssertionError()
-      val key = existing.storageId ?: throw AssertionError()
+      var existing: RecipientRecord = getRecordForSync(recipientId) ?: throw AssertionError("Failed to find recipient record!")
+      var key = existing.storageId
+
+      if (key == null) {
+        Log.w(TAG, "Needed to repair storageId for $recipientId (group $id)")
+        rotateStorageId(existing.id)
+        existing = getRecordForSync(recipientId) ?: throw AssertionError("Failed to find recipient record for second fetch!")
+        key = existing.storageId ?: throw AssertionError("StorageId not present immediately after setting it!")
+      }
+
       out[recipientId] = StorageId.forGroupV2(key)
     }
 
@@ -2388,6 +2404,16 @@ open class RecipientTable(context: Context, databaseHelper: SignalDatabase) : Da
       Log.i(TAG, "[WithSplit] Newly marked $id as unregistered.")
       markNeedsSync(id)
       AppDependencies.databaseObserver.notifyRecipientChanged(id)
+    }
+
+    if (record.e164 == null) {
+      Log.w(TAG, "[WithSplit] Missing e164! Not adding the PNI/E164 record.")
+      return
+    }
+
+    if (!SignalE164Util.isPotentialE164(record.e164)) {
+      Log.w(TAG, "[WithSplit] Invalid e164! Not adding the PNI/E164 record.")
+      return
     }
 
     val splitId = getAndPossiblyMerge(null, record.pni, record.e164)

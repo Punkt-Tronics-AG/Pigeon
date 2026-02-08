@@ -10,7 +10,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.squareup.wire.internal.toUnmodifiableList
+import org.signal.core.models.ServiceId
+import org.signal.core.models.ServiceId.ACI
+import org.signal.core.models.ServiceId.PNI
 import org.signal.core.util.PendingIntentFlags
+import org.signal.core.util.UuidUtil
 import org.signal.core.util.isAbsent
 import org.signal.core.util.logging.Log
 import org.signal.core.util.logging.logW
@@ -63,11 +67,7 @@ import org.whispersystems.signalservice.api.crypto.SignalGroupSessionBuilder
 import org.whispersystems.signalservice.api.crypto.SignalServiceCipher
 import org.whispersystems.signalservice.api.crypto.SignalServiceCipherResult
 import org.whispersystems.signalservice.api.messages.EnvelopeContentValidator
-import org.whispersystems.signalservice.api.push.ServiceId
-import org.whispersystems.signalservice.api.push.ServiceId.ACI
-import org.whispersystems.signalservice.api.push.ServiceId.PNI
 import org.whispersystems.signalservice.api.push.SignalServiceAddress
-import org.whispersystems.signalservice.api.util.UuidUtil
 import org.whispersystems.signalservice.internal.push.Content
 import org.whispersystems.signalservice.internal.push.Envelope
 import org.whispersystems.signalservice.internal.push.PniSignatureMessage
@@ -155,6 +155,15 @@ object MessageDecryptor {
       val startTimeNanos = System.nanoTime()
       val cipherResult: SignalServiceCipherResult? = cipher.decrypt(envelope, serverDeliveredTimestamp)
       val endTimeNanos = System.nanoTime()
+
+      val envelope = if (cipherResult?.metadata?.sourceServiceId != null) {
+        envelope.newBuilder()
+          .sourceServiceId(cipherResult.metadata.sourceServiceId.toString())
+          .sourceDevice(cipherResult.metadata.sourceDeviceId)
+          .build()
+      } else {
+        envelope
+      }
 
       if (cipherResult == null) {
         Log.w(TAG, "${logPrefix(envelope)} Decryption resulted in a null result!", true)

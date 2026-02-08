@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
-import androidx.compose.material3.SnackbarDuration;
+import org.signal.core.ui.compose.Snackbars;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.signal.core.util.concurrent.LifecycleDisposable;
@@ -37,9 +37,10 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.components.snackbars.SnackbarState;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.main.MainNavigationListLocation;
-import org.thoughtcrime.securesms.main.SnackbarState;
+import org.thoughtcrime.securesms.main.MainSnackbarHostKey;
 import org.thoughtcrime.securesms.util.ConversationUtil;
 import org.thoughtcrime.securesms.util.views.Stub;
 
@@ -149,7 +150,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(() -> {
-              mainNavigationViewModel.setSnackbar(new SnackbarState(
+              mainNavigationViewModel.getSnackbarRegistry().emit(new SnackbarState(
                   getResources().getQuantityString(R.plurals.ConversationListFragment_moved_conversations_to_inbox, 1, 1),
                   new SnackbarState.ActionState(
                       getString(R.string.ConversationListFragment_undo),
@@ -163,8 +164,9 @@ public class ConversationListArchiveFragment extends ConversationListFragment
                         return Unit.INSTANCE;
                       }
                   ),
-                  false,
-                  SnackbarDuration.Long
+                  Snackbars.Duration.LONG,
+                  MainSnackbarHostKey.MainChrome.INSTANCE,
+                  null
               ));
             })
     );

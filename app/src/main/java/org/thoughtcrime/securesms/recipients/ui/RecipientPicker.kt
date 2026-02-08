@@ -59,11 +59,14 @@ import org.thoughtcrime.securesms.recipients.PhoneNumber
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.DisplayMode.Companion.flag
+import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.KeyboardType
 import pigeon.compose.HomePageButton
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import java.util.Optional
 import java.util.function.Consumer
+
+private typealias AndroidKeyboardType = androidx.compose.ui.text.input.KeyboardType
 
 /**
  * Provides a recipient search and selection UI.
@@ -72,9 +75,12 @@ import java.util.function.Consumer
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipientPicker(
+  searchBarHint: String = stringResource(R.string.RecipientSearchBar__search_name_or_number),
   searchQuery: String,
+  enabledKeyboardTypes: List<KeyboardType> = listOf(KeyboardType.Text, KeyboardType.Phone),
   displayModes: Set<RecipientPicker.DisplayMode> = setOf(RecipientPicker.DisplayMode.ALL),
   selectionLimits: SelectionLimits? = ContactSelectionArguments.Defaults.SELECTION_LIMITS,
+  includeRecents: Boolean = ContactSelectionArguments.Defaults.INCLUDE_RECENTS,
   isRefreshing: Boolean,
   focusAndShowKeyboard: Boolean = LocalConfiguration.current.screenHeightDp.dp > 600.dp,
   preselectedRecipients: Set<RecipientId> = emptySet(),
@@ -113,9 +119,11 @@ fun RecipientPicker(
     }
 
     RecipientSearchBar(
+      hint = searchBarHint,
       query = searchQuery,
       onQueryChange = { filter -> callbacks.listActions.onSearchQueryChanged(query = filter) },
       onSearch = {},
+      enabledKeyboardTypes = enabledKeyboardTypes,
       onPigeonUpArrow = onPigeonUpArrow,
       onPigeonDownArrow = {
         if (isPigeonVersion()) {
@@ -151,6 +159,7 @@ fun RecipientPicker(
       displayModes = displayModes,
       selectionLimits = selectionLimits,
       searchQuery = searchQuery,
+      includeRecents = includeRecents,
       isRefreshing = isRefreshing,
       preselectedRecipients = preselectedRecipients,
       pendingRecipientSelections = pendingRecipientSelections,
@@ -171,6 +180,7 @@ fun RecipientPicker(
 private fun RecipientSearchResultsList(
   displayModes: Set<RecipientPicker.DisplayMode>,
   searchQuery: String,
+  includeRecents: Boolean,
   isRefreshing: Boolean,
   preselectedRecipients: Set<RecipientId>,
   pendingRecipientSelections: Set<RecipientId>,
@@ -188,6 +198,7 @@ private fun RecipientSearchResultsList(
     enableFindByUsername = callbacks.findByUsername != null,
     enableFindByPhoneNumber = callbacks.findByPhoneNumber != null,
     showCallButtons = callbacks.newCall != null,
+    includeRecents = includeRecents,
     currentSelection = preselectedRecipients,
     selectionLimits = selectionLimits,
     recyclerPadBottom = with(LocalDensity.current) { bottomPadding?.toPx()?.toInt() ?: ContactSelectionArguments.Defaults.RECYCLER_PADDING_BOTTOM },
@@ -244,8 +255,7 @@ private fun RecipientSearchResultsList(
         callbacks.listActions.onPendingRecipientSelectionsConsumed()
 
         callbacks.listActions.onSelectionChanged(
-          newSelections = fragment.selectedContacts,
-          totalMembersCount = fragment.totalMemberCount
+          newSelections = fragment.selectedContacts
         )
       }
     }
@@ -321,8 +331,7 @@ private fun ContactSelectionListFragment.setUpCallbacks(
 
     override fun onSelectionChanged() {
       callbacks.listActions.onSelectionChanged(
-        newSelections = fragment.selectedContacts,
-        totalMembersCount = fragment.totalMemberCount
+        newSelections = fragment.selectedContacts
       )
     }
   })
@@ -442,7 +451,7 @@ class RecipientPickerCallbacks(
     fun onSearchQueryChanged(query: String)
     suspend fun shouldAllowSelection(selection: RecipientSelection): Boolean
     fun onRecipientSelected(selection: RecipientSelection)
-    fun onSelectionChanged(newSelections: List<SelectedContact>, totalMembersCount: Int) = Unit
+    fun onSelectionChanged(newSelections: List<SelectedContact>) = Unit
     fun onPendingRecipientSelectionsConsumed() = Unit
     fun onContactsListReset() = Unit
 
@@ -507,5 +516,12 @@ object RecipientPicker {
       val Set<DisplayMode>.flag: Int
         get() = fold(initial = 0) { acc, displayMode -> acc or displayMode.flag }
     }
+  }
+
+  enum class KeyboardType(
+    val wrappedType: AndroidKeyboardType
+  ) {
+    Text(wrappedType = AndroidKeyboardType.Text),
+    Phone(wrappedType = AndroidKeyboardType.Phone)
   }
 }

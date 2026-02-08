@@ -371,6 +371,11 @@
     <string name="CommunicationActions_this_is_not_a_valid_call_link">Гэта несапраўдная спасылка на званок. Перш чым спрабаваць далучыцца, пераканайцеся, што спасылка не пашкоджаная і правільная.</string>
     <!-- Displayed in a snackbar when the user is already in a call -->
     <string name="CommunicationActions__you_are_already_in_a_call">Вы ўжо ў званку</string>
+    <!-- Title on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_title">Перанесці ўліковы запіс на новую прыладу?</string>
+    <!-- Message on dialog when quick restore qr code is scanned in system camera -->
+    <string name="CommunicationActions__transfer_dialog_message">Каб перанесці гэты ўліковы запіс на новую прыладу, націсніце «Працягнуць» і праскануйце нанова QR-код камерай Signal. Абавязкова правярайце, што вы скануеце менавіта QR-коды, якія вы атрымліваеце непасрэдна ад Signal.</string>
+    <string name="CommunicationActions__dont_transfer">Не пераносіць</string>
 
     <!-- ConfirmIdentityDialog -->
 
@@ -412,7 +417,7 @@
     <string name="ContactShareEditActivity_type_work">Працоўны</string>
     <string name="ContactShareEditActivity_type_missing">Іншае</string>
     <string name="ContactShareEditActivity_invalid_contact">Выбраны кантакт несапраўдны</string>
-    <!-- Content descrption for name edit button on contact share edit activity -->
+    <!-- Content description for name edit button on contact share edit activity -->
     <string name="ContactShareEditActivity__edit_name">Рэдагаваць імя</string>
     <!-- Content description for user avatar in edit activity -->
     <string name="ContactShareEditActivity__avatar">Аватар</string>
@@ -695,6 +700,22 @@
     <string name="ConversationFragment_group_names">Назвы груп</string>
     <!-- Snackbar toast message shown when a profile cannot be downloaded and to try again. -->
     <string name="ConversationFragment_photo_failed">Не атрымалася спампаваць фота. Паўтарыце спробу.</string>
+    <!-- Dialog for how to long to keep a messaged pinned for -->
+    <string name="ConversationFragment__keep_pinned">Пакінуць прымацаваным на працягу…</string>
+    <!-- Dialog option to keep message pin for 24 hours -->
+    <string name="ConversationFragment__24_hours">24 гадзіны</string>
+    <!-- Dialog option to keep message pin for 7 days -->
+    <string name="ConversationFragment__7_days">7 дзён</string>
+    <!-- Dialog option to keep message pin for 30 days -->
+    <string name="ConversationFragment__30_days">30 дзён</string>
+    <!-- Dialog option to keep message pin forever -->
+    <string name="ConversationFragment__forever">Назаўсёды</string>
+    <!-- Dialog title when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_title">Замяніць найстарэйшае прымацаванне?</string>
+    <!-- Dialog body when replacing the oldest pin -->
+    <string name="ConversationFragment__replace_body">Новае прымацаванае паведамленне заменіць найстарэйшае</string>
+    <!-- Dialog button when replacing the oldest pin -->
+    <string name="ConversationFragment__replace">Замяніць</string>
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Парады па бяспецы</string>
@@ -987,6 +1008,13 @@
     <!-- DateUtils -->
     <string name="DateUtils_just_now">Зараз</string>
     <string name="DateUtils_minutes_ago">%1$d хв</string>
+    <!-- Content description when describing how many minutes ago something has happened -->
+    <plurals name="DateUtils_minutes_ago_content_description">
+        <item quantity="one">%1$d хвіліна</item>
+        <item quantity="few">%1$d хвіліны</item>
+        <item quantity="many">%1$d хвілін</item>
+        <item quantity="other">%1$d хвілін</item>
+    </plurals>
     <string name="DateUtils_today">Сёння</string>
     <string name="DateUtils_yesterday">Учора</string>
     <!-- When scheduling a message, %1$s replaced with either today, tonight, or tomorrow. %2$s replaced with the time. e.g. Tonight at 9:00pm -->
@@ -1250,11 +1278,11 @@
     <string name="AddToGroupActivity_add_member">Дадаць удзельніка?</string>
     <string name="AddToGroupActivity_add_s_to_s">Дадаць «%1$s» у «%2$s»?</string>
     <string name="AddToGroupActivity_s_added_to_s">«%1$s» дададзен(-а) да «%2$s».</string>
-    <string name="AddToGroupActivity_add_to_group">Дадаць у групу</string>
     <string name="AddToGroupActivity_add_to_groups">Дадаць у групы</string>
     <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">Гэтую асобу нельга дадаць у старыя групы.</string>
     <string name="AddToGroupActivity_add">Дадаць</string>
     <string name="AddToGroupActivity_add_to_a_group">Дадаць у групу</string>
+    <string name="AddToGroupActivity_search">Пошук</string>
 
     <!-- ChooseNewAdminActivity -->
     <string name="ChooseNewAdminActivity_choose_new_admin">Выбраць новага адміністратара</string>
@@ -1698,6 +1726,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Немагчыма далучыцца да групы. Калі ласка, паўтарыце спробу пазней</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Адбылася памылка сеткі.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">Гэта спасылка на групу неактыўная</string>
+    <!-- Toast message shown when trying to join a group by link but the group is full -->
+    <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Ліміт групы дасягнуты: далучыцца да яе немагчыма</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
     <string name="GroupJoinBottomSheetDialogFragment_cant_join_group">Немагчыма далучыцца да групы</string>
     <!-- Message shown when you try to get information for a group via link but an admin has removed you -->
@@ -2845,6 +2875,16 @@
     <string name="CallParticipantView__cant_receive_audio_video_from_s">Немагчыма атрымаць аўдыё &amp; відэа ад %1$s</string>
     <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Немагчыма атрымаць аўдыё і відэа ад %1$s</string>
     <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">Мажліва, гэта адбываецца таму, што гэты ўдзельнік не пацвердзіў змену вашага кода бяспекі або ёсць праблема з яго прыладай, або ён вас заблакаваў.</string>
+
+    <!-- SwitchCameraButton -->
+    <!-- Content description for the button that switches between front and back camera during a call -->
+    <string name="SwitchCameraButton__switch_camera_direction">Змяніць напрамак камеры</string>
+
+    <!-- CallQualityDiagnosticsScreen -->
+    <!-- Title for the call quality diagnostics screen -->
+    <string name="CallQualityDiagnosticsScreen__diagnostic_information">Інфармацыя аб дыягностыцы</string>
+    <!-- Content description for the close/back navigation button -->
+    <string name="CallQualityDiagnosticsScreen__close">Закрыць</string>
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Правесці пальцам, каб прагледзець экран</string>
@@ -4001,6 +4041,15 @@
     <string name="verify_display_fragment__mark_as_verified">Пазначыць як праверанае</string>
     <string name="verify_display_fragment__clear_verification">Ачысціць праверку</string>
 
+    <!-- Title for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__title">Цяпер Signal аўтаматычна правярае скразное шыфраванне</string>
+    <!-- Body for auto verification education sheet -->
+    <string name="VerifyAutomaticallyEducationSheet__body">Калі вы правяраеце код бяспекі, Signal аўтаматычна пацвердзіць надзейнасць злучэння з дапамогай механізма празрыстасці ключоў. Але вы па-ранейшаму можаце праверыць злучэнне ўручную з дапамогай QR-кода або кода.</string>
+    <!-- Button to learn more about automatic verification -->
+    <string name="VerifyAutomaticallyEducationSheet__learn_more">Даведацца больш</string>
+    <!-- Button to go to verification page -->
+    <string name="VerifyAutomaticallyEducationSheet__verify">Праверыць</string>
+
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Сканаваць QR-код на прыладзе вашага кантакту.</string>
 
@@ -4380,6 +4429,8 @@
     <string name="preferences_normal">Звычайны</string>
     <!-- Preference summary for compact navigation bar size -->
     <string name="preferences_compact">Кампактны</string>
+    <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
+    <string name="preferences_language_change_confirmation_message">Каб пераключыцца на новую мову, неабходна перазапусціць праграму.</string>
 
 
     <string name="configurable_single_select__customize_option">Наладзіць опцыю</string>
@@ -4686,6 +4737,10 @@
     <string name="conversation_selection__menu_payment_details">Звесткі аб плацяжы</string>
     <!-- Button to end a poll -->
     <string name="conversation_selection__menu_end_poll">Завяршыць апытанне</string>
+    <!-- Button to pin a message -->
+    <string name="conversation_selection__menu_pin_message">Прымацаваць</string>
+    <!-- Button to unpin a message -->
+    <string name="conversation_selection__menu_unpin_message">Адмацаваць</string>
 
     <!-- conversation_expiring_on -->
 
@@ -5027,7 +5082,7 @@
     <!--    Countdown to when the user can request a new SMS code during registration.-->
     <string name="RegistrationActivity_resend_sms_available_in">Паўторна адправіць код (%1$02d:%2$02d)</string>
     <string name="RegistrationActivity_contact_signal_support">Звярнуцца да службы падтрымкі Signal</string>
-    <string name="RegistrationActivity_code_support_subject">Рэгістрацыя Signal - Код праверкі для Android</string>
+    <string name="RegistrationActivity_code_support_subject">Рэгістрацыя Signal - Праверачны код для Android</string>
     <string name="RegistrationActivity_incorrect_code">Няправільны код</string>
     <string name="BackupUtil_never">Ніколі</string>
     <!-- Subtext below last backup time when we do not know when the last backup was -->
@@ -5504,7 +5559,7 @@
     <string name="ChatWallpaperFragment__wallpaper_preview_description">Папярэдні прагляд шпалер</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_chat_colors">Жадаеце змяніць усе колеры чата?</string>
     <string name="ChatWallpaperFragment__would_you_like_to_override_all_wallpapers">Жадаеце змяніць усе шпалеры?</string>
-    <string name="ChatWallpaperFragment__reset_default_colors">Скінуць колеры па змоўчванні</string>
+    <string name="ChatWallpaperFragment__reset_default_colors">Скінуць колер па змоўчванні</string>
     <string name="ChatWallpaperFragment__reset_all_colors">Скінуць усе колеры</string>
     <string name="ChatWallpaperFragment__reset_default_wallpaper">Скінуць шпалеры па змоўчванні</string>
     <string name="ChatWallpaperFragment__reset_all_wallpapers">Скінуць усе шпалеры</string>
@@ -6128,7 +6183,7 @@
     <!-- Button label with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
     <string name="ConversationSettingsFragment__call">Пазваніць</string>
     <!-- Button label with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
-    <string name="ConversationSettingsFragment__mute">Апавяшч. адкл.</string>
+    <string name="ConversationSettingsFragment__mute">Ад. апав.</string>
     <!-- Button label with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
     <string name="ConversationSettingsFragment__muted">Апавяшч. адкл.</string>
     <!-- Button label with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
@@ -6477,7 +6532,8 @@
     <!-- Label for Donation Receipts button -->
     <string name="ManageDonationsFragment__donation_receipts">Квітанцыі аб ахвяраваннях</string>
     <string name="ManageDonationsFragment__badges">Значкі</string>
-    <string name="ManageDonationsFragment__subscription_faq">FAQ па падпісцы</string>
+    <!-- Label that externally links to Signal Donor FAQ page -->
+    <string name="ManageDonationsFragment__subscription_faq">FAQ аб спонсарах</string>
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">Іншыя спосабы для ахвяравання</string>
     <!-- Preference label to launch badge gifting -->
@@ -6992,7 +7048,7 @@
     <!-- Displayed when a story has no views -->
     <string name="StoryViewsFragment__no_views_yet">Пакуль няма праглядаў</string>
     <!-- Displayed when user has disabled receipts -->
-    <string name="StoryViewsFragment__enable_view_receipts_to_see_whos_viewed_your_story">Уключыце апавяшчэнні аб праглядах, каб ведаць, хто прагледзеў вашы гісторыі.</string>
+    <string name="StoryViewsFragment__enable_view_receipts_to_see_whos_viewed_your_story">Уключыце «Прагледзець даныя праглядаў», каб ведаць, хто прагледзеў вашы гісторыі.</string>
     <!-- Button label displayed when user has disabled receipts -->
     <string name="StoryViewsFragment__go_to_settings">Перайсці ў налады</string>
     <!-- Dialog action to remove viewer from a story -->
@@ -7472,7 +7528,7 @@
     <string name="StoriesPrivacySettingsFragment__stories">Гісторыі</string>
     <!-- Story views header -->
     <!-- Story view receipts toggle title -->
-    <string name="StoriesPrivacySettingsFragment__view_receipts">Апавяшчэнні аб праглядзе</string>
+    <string name="StoriesPrivacySettingsFragment__view_receipts">Прагледзець даныя праглядаў</string>
     <!-- Story view receipts toggle message -->
     <string name="StoriesPrivacySettingsFragment__see_and_share">Даведвайцеся і абагульвайце інфармацыю аб праглядах гісторый. Калі гэта функцыя адключана, вы не будзеце ведаць, што нехта прагледзеў вашу гісторыю.</string>
 
@@ -7800,8 +7856,10 @@
     <string name="CallLogAdapter__outgoing">Выходны</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Прапушчаныя</string>
-    <!-- Displayed for missed calls declined by notification profile -->
+    <!-- Displayed for one missed call declined by notification profile -->
     <string name="CallLogAdapter__missed_notification_profile">Прапушчаны, калі ўключаны профіль апавяшчэнняў</string>
+    <!-- Displayed for multiple missed calls declined by notification profile -->
+    <string name="CallLogAdapter__missed_notification_profile_multiple">Прапушчаны, калі ўключаны профіль апавяшчэнняў</string>
     <!-- Displayed on Group Call button if user is not in the call -->
     <string name="CallLogAdapter__join">Далучыцца</string>
     <!-- Displayed on Group Call button if user is in the call -->
@@ -8775,6 +8833,14 @@
     <!-- Button label to open storage management screen -->
     <string name="RemoteBackupsSettingsFragment__manage_storage">Кіраваць сховішчам</string>
 
+    <!-- ReadyToTransferBottomSheet -->
+    <!-- Title for a bottom sheet letting people know that they can transfer their back to their new device  -->
+    <string name="RemoteBackupsSettingsFragment__ready_to_transfer">Гатова для пераносу</string>
+    <!-- Body for bottom sheet telling the user to scan a QR code to continue transferring their backup to a new device -->
+    <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">Выкарыстоўвайце гэту прыладу, каб прасканаваць QR-код на прыладзе, на якую вы жадаеце зрабіць перанос</string>
+    <!-- Button label to open QR scanner to scan a device and transfer a backup -->
+    <string name="RemoteBackupsSettingsFragment__scan_qr_code">Сканаваць QR-код</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">Спампуйце сваю рэзервовую копію сёння</string>
@@ -8919,7 +8985,7 @@
     <!-- Verify your key title -->
     <string name="VerifyBackupPinScreen__enter_your_backup_key">Увядзіце свой ключ для аднаўлення</string>
     <!-- Verify your key subtitle -->
-    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">Увядзіце 64-значны код, што вы запісалі, калi ўключылі рэзервовае капіраванне.</string>
+    <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">Увядзіце 64-значны код, што вы запісалі, калі ўключылі рэзервовае капіраванне.</string>
     <!-- Button text when you forget your recovery key -->
     <string name="VerifyBackupPinScreen__forgot_key">Забылі свой ключ?</string>
 
@@ -9136,6 +9202,19 @@
     <!-- Old device Transfer account bottom sheet dialog body -->
     <string name="TransferAccount_continue_on_your_other_device_details">Працягвайце перанос свайго ўліковага запісу на іншай прыладзе.</string>
 
+    <!-- Prepare Device screen title for quick restore flow -->
+    <string name="PrepareDevice_title">Ідзе падрыхтоўка вашай прылады</string>
+    <!-- Prepare Device screen body text explaining backup recommendation -->
+    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
+    <string name="PrepareDevice_last_backup">Ваша апошняя рэзервовая копія была зроблена %1$s у %2$s.</string>
+    <!-- Prepare Device screen back up now button -->
+    <string name="PrepareDevice_back_up_now">Пачаць рэзервовае капіраванне</string>
+    <!-- Prepare Device screen skip and continue button -->
+    <string name="PrepareDevice_skip_and_continue">Прапусціць і працягнуць</string>
+    <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
+    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">Завяршыце на іншай прыладзе</string>
     <!-- Restore Complete bottom sheet dialog message -->
@@ -9267,7 +9346,7 @@
     <!-- Dialog title when you go to end a poll -->
     <string name="Poll__end_poll_title">Завяршыць апытанне?</string>
     <!-- Dialog body when you go to end a poll -->
-    <string name="Poll__end_poll_body">Удзельнікі групы больш не змогуць аддаваць галасы ў гэтым апытанні.</string>
+    <string name="Poll__end_poll_body">Удзельнікі гэтага чата больш не змогуць аддаваць галасы ў дадзеным апытанні.</string>
     <!-- Body used in dialog when we are waiting for network -->
     <string name="Poll__waiting_for_network">Чакаем сетку…</string>
     <!-- Header when creating a new poll -->
@@ -9290,6 +9369,13 @@
     <string name="CreatePollFragment__add_option">Дадаць не менш за 2 варыянты</string>
     <!-- Snackbar text to add a question before creating a poll -->
     <string name="CreatePollFragment__add_question">Дадаць пытанне</string>
+
+    <!-- Bottom sheet title telling users to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__scan_qr_code">Сканаваць QR-код</string>
+    <!-- Bottom sheet description telling users how to scan a qr code -->
+    <string name="QuickRestoreInfoDialog__use_this_device_to_scan_qr_code">Выкарыстоўвайце гэту прыладу, каб прасканаваць QR-код на прыладзе, на якую вы жадаеце зрабіць перанос</string>
+    <!-- Confirmation button to dismiss bottom sheet dialog -->
+    <string name="QuickRestoreInfoDialog__okay">Добра</string>
 
     <!-- CallQualityIssue -->
     <!-- Label for general audio issue category -->
@@ -9317,7 +9403,7 @@
 
     <!-- CallQualitySomethingElseScreen -->
     <!-- Title for the "Something else" call quality issue screen -->
-    <string name="CallQualitySomethingElseScreen__title">Нешта іншае</string>
+    <string name="CallQualitySomethingElseScreen__title">Апішыце праблему</string>
     <!-- Label for text field where user describes their call quality issue -->
     <string name="CallQualitySomethingElseScreen__describe_your_issue">Апішыце сваю праблему</string>
     <!-- Privacy notice explaining that issue details will be kept private and used to improve Signal calls -->
@@ -9347,11 +9433,15 @@
     <!-- Title asking user to help improve Signal -->
     <string name="CallQualitySheet__help_us_improve">Дапамажыце палепшыць наш сэрвіс</string>
     <!-- First part of description explaining diagnostics help improve call quality -->
-    <string name="CallQualitySheet__help_us_improve_description_prefix">Калi мы атрымліваем ад вас інфармацыю па дыягностыцы, нам лягчэй палепшыць якасць званкоў. Вы можаце </string>
+    <string name="CallQualitySheet__help_us_improve_description_prefix">Калі вы дасылаеце водгук, мы атрымліваем</string>
+    <!-- Clickable text to launch diagnostic fragment -->
+    <string name="CallQualitySheet__diagnostic_information_about_your_call">інфармацыю аб дыягностыцы адносна вашага званка</string>
+    <!-- End of description explaining diagnostics help improve call quality -->
+    <string name="CallQualitySheet__help_us_improve_description_suffix">Па жаданні вы можаце даслаць нам журнал адладкі, каб мы маглі палепшыць якасць званкоў.</string>
+    <!-- Text explaining the debug log -->
+    <string name="CallQualitySheet__information_shared_with_us">Інфармацыя, якую мы атрымліваем, датычыцца толькі інфармацыі нізкага ўзроўню адносна праграмы і не закранае змест вашых званкоў.</string>
     <!-- Link text to view debug log -->
-    <string name="CallQualitySheet__view_your_debug_log">прагледзець журнал адладкі</string>
-    <!-- Last part of description about viewing debug log before submitting -->
-    <string name="CallQualitySheet__help_us_improve_description_suffix"> перад адпраўкай інфармацыі.</string>
+    <string name="CallQualitySheet__view_debug_log">Прагледзець журнал адладкі</string>
     <!-- Toggle label for sharing debug log -->
     <string name="CallQualitySheet__share_debug_log">Адправіць журнал адладкі</string>
     <!-- Privacy notice explaining what debug logs contain and why they are helpful -->
@@ -9360,6 +9450,67 @@
     <string name="CallQualitySheet__submit">Адправіць</string>
     <!-- Displayed as a snackbar after submitting feedback -->
     <string name="CallQualitySheet__thanks_for_your_feedback">Дзякуй за ваш водгук!</string>
+    <!-- Content description for the thumbs down button indicating user had issues with the call -->
+    <string name="CallQualitySheet__had_issues_content_description">Меў праблемы са званком</string>
+    <!-- Content description for the thumbs up button indicating the call was great -->
+    <string name="CallQualitySheet__great_content_description">Званок адбыўся добра</string>
+    <!-- Dialog body shown when feedback submission fails due to network issues -->
+    <string name="CallQualitySheet__your_feedback_failed_to_send">Не атрымалася адправіць ваш водгук.</string>
+    <!-- Dialog button to retry sending feedback after a failure -->
+    <string name="CallQualitySheet__try_again">Паўтарыць спробу</string>
+
+    <!-- Message body when someone pins a message where %1$s is the name of the person -->
+    <string name="PinnedMessage__s_pinned_a_message">%1$s прымацаваў(-ла) паведамленне</string>
+    <!-- Message body when you pin a message -->
+    <string name="PinnedMessage__you_pinned_a_message">Вы прымацавалі паведамленне</string>
+    <!-- Button body to go to the pinned message -->
+    <string name="PinnedMessage__go_to_message">Перайсці ў «Паведамленне»</string>
+    <!-- Toast shown when a pinned message is not found -->
+    <string name="PinnedMessage__not_found">Паведамленне не знойдзена</string>
+    <!-- Content description for the pin icon -->
+    <string name="PinnedMessage__pinned">Прымацаваныя</string>
+    <!-- Caption shown when the pinned message is a photo -->
+    <string name="PinnedMessage__photo">Фота</string>
+    <!-- Caption shown when the pinned message is a video -->
+    <string name="PinnedMessage__video">Відэа</string>
+    <!-- Caption shown when the pinned message is a sticker -->
+    <string name="PinnedMessage__sticker">Стыкер</string>
+    <!-- Caption shown when the pinned message is a voice message  -->
+    <string name="PinnedMessage__voice">Галасавое паведамленне</string>
+    <!-- Caption shown when the pinned message is a gif -->
+    <string name="PinnedMessage__gif">GIF</string>
+    <!-- Caption shown when the pinned message is a view once media -->
+    <string name="PinnedMessage__view_once">Медыяфайл для аднаразовага прагляду</string>
+    <!-- Context menu option to unpin the message -->
+    <string name="PinnedMessage__unpin_message">Адмацаваць</string>
+    <!-- Context menu option to view all the message -->
+    <string name="PinnedMessage__view_all_messages">Прагледзець усе паведамленні</string>
+    <!-- Text to unpin all messages -->
+    <string name="PinnedMessage__unpin_all_messages">Адмацаваць усе паведамленні</string>
+    <!-- Title of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_title">Прымацаванне знікаючых паведамленняў</string>
+    <!-- Body of bottom sheet when pinning a disappearing message -->
+    <string name="PinnedMessage__disappearing_message_body">Знікаючыя паведамленні будуць адмацаваны, калі скончыцца таймер, і паведамленне будзе выдалена з чата.</string>
+    <!-- Confirmation button for bottom sheet -->
+    <string name="PinnedMessage__got_it">Зразумела</string>
+    <!-- Content description of disappearing timer icon -->
+    <string name="PinnedMessage__disappearing_message_content_description">Знікаючае паведамленне</string>
+    <!-- Title of bottom sheet -->
+    <string name="PinnedMessage__pinned_messages">Прымацаваныя паведамленні</string>
+    <!-- Context menu option to unpin message -->
+    <string name="PinnedMessage__unpin">Адмацаваць</string>
+    <!-- Title of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_title">Адмацаваць усе паведамленні?</string>
+    <!-- Body of dialog to unpin all messages -->
+    <string name="PinnedMessage__unpin_body">Паведамленні будуць адмацаваны для ўсіх удзельнікаў.</string>
+    <!-- Dialog title when failing to pin a message -->
+    <string name="PinnedMessage__couldnt_pin">Не атрымалася прымацаваць паведамленне</string>
+    <!-- Dialog title when failing to unpin a message -->
+    <string name="PinnedMessage__couldnt_unpin">Не атрымалася адмацаваць паведамленне</string>
+    <!-- Dialog title when failing to unpin all messages -->
+    <string name="PinnedMessage__couldnt_unpin_all">Не атрымалася адмацаваць паведамленні</string>
+    <!-- Dialog body when failing to pin a message -->
+    <string name="PinnedMessage__check_connection">Праверце падключэнне і паўтарыце спробу.</string>
 
     <!-- EOF -->
 </resources>

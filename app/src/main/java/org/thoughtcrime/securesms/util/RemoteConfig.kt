@@ -1115,26 +1115,11 @@ object RemoteConfig {
   )
 
   @JvmStatic
-  @get:JvmName("newCallUi")
-  val newCallUi: Boolean by remoteBoolean(
-    key = "android.newCallUi",
-    defaultValue = false,
-    hotSwappable = false
-  )
-
-  @JvmStatic
   @get:JvmName("useHevcEncoder")
   val useHevcEncoder: Boolean by remoteBoolean(
     key = "android.useHevcEncoder",
     defaultValue = false,
     hotSwappable = false
-  )
-
-  /** Whether to allow different WindowSizeClasses to be used to determine screen layout */
-  val largeScreenUi: Boolean by remoteBoolean(
-    key = "android.largeScreenUI.2",
-    hotSwappable = false,
-    defaultValue = false
   )
 
   @JvmStatic
@@ -1173,14 +1158,6 @@ object RemoteConfig {
     hotSwappable = true
   )
 
-  @JvmStatic
-  @get:JvmName("polls")
-  val polls: Boolean by remoteBoolean(
-    key = "android.polls.2",
-    defaultValue = false,
-    hotSwappable = true
-  )
-
   /** Whether or not to send over binary service ids (alongside string service ids). */
   @JvmStatic
   @get:JvmName("useBinaryId")
@@ -1191,19 +1168,75 @@ object RemoteConfig {
   )
 
   @JvmStatic
-  @get:JvmName("receivePolls")
-  val receivePolls: Boolean by remoteBoolean(
-    key = "android.receivePolls",
+  @get:JvmName("backupsBetaMegaphone")
+  val backupsBetaMegaphone: Boolean by remoteBoolean(
+    key = "android.backupsBetaMegaphone.2",
     defaultValue = false,
     hotSwappable = true
   )
 
   @JvmStatic
-  @get:JvmName("backupsBetaMegaphone")
-  val backupsBetaMegaphone: Boolean by remoteBoolean(
-    key = "android.backupsBetaMegaphone",
+  @get:JvmName("pinLimit")
+  val pinLimit: Int by remoteInt(
+    key = "global.pinnedMessageLimit",
+    defaultValue = 3,
+    hotSwappable = true
+  )
+
+  @JvmStatic
+  @get:JvmName("receivePinnedMessages")
+  val receivePinnedMessages: Boolean by remoteBoolean(
+    key = "android.receivePinnedMessages.2",
     defaultValue = false,
     hotSwappable = true
   )
+
+  @JvmStatic
+  @get:JvmName("sendPinnedMessages")
+  val sendPinnedMessages: Boolean by remoteBoolean(
+    key = "android.sendPinnedMessages.2",
+    defaultValue = false,
+    hotSwappable = true
+  )
+
+  @JvmStatic
+  @get:JvmName("callQualitySurvey")
+  val callQualitySurvey: Boolean by remoteBoolean(
+    key = "android.callQualitySurvey.4",
+    defaultValue = false,
+    hotSwappable = true
+  )
+
+  @JvmStatic
+  @get:JvmName("callQualitySurveyPPM")
+  val callQualitySurveyPPM: String by remoteString(
+    key = "android.callQualitySurveyPPM",
+    defaultValue = "*:10000",
+    hotSwappable = true
+  )
+
+  /**
+   * Whether or not to allow 1:1 polls and a higher character limit for questions
+   */
+  @JvmStatic
+  @get:JvmName("pollsV2")
+  val pollsV2: Boolean by remoteBoolean(
+    key = "android.pollsV2",
+    defaultValue = false,
+    hotSwappable = true
+  )
+
+  /**
+   * Whether or not to show any UI related to key transparency
+   */
+  @JvmStatic
+  @get:JvmName("keyTransparency")
+  val keyTransparency: Boolean by remoteBoolean(
+    key = "android.keyTransparency",
+    active = false,
+    defaultValue = false,
+    hotSwappable = true
+  )
+
   // endregion
 }

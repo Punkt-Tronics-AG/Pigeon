@@ -60,7 +60,7 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
   }
 
   override fun onCreate(savedInstanceState: Bundle?, ready: Boolean) {
-    if (!ActivityCompat.isLaunchedFromBubble(this) && isLargeScreenSupportEnabled()) {
+    if (!ActivityCompat.isLaunchedFromBubble(this)) {
       startActivity(
         MainActivity.clearTop(this).apply {
           action = ConversationIntents.ACTION
