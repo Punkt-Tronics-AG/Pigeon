@@ -57,6 +57,13 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<!--    PIGEON-->
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.WRITE_SMS" />
+<!--    END PIGEON-->
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -80,11 +87,12 @@
         android:enableOnBackInvokedCallback="false"
         android:fullBackupOnly="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/pigeon_app_name"
         android:largeHeap="true"
         android:resizeableActivity="true"
         android:supportsRtl="true"
-        android:theme="@style/TextSecure.LightTheme">
+        android:theme="@style/TextSecure.LightTheme"
+        tools:replace="android:label">
 
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
@@ -120,15 +128,32 @@
         <!-- ======================================= -->
         <!-- Activities                              -->
         <!-- ======================================= -->
+
+<!--        PIGEON-->
+        <activity
+            android:name="pigeon.activity.WebRtcCallVolumeActivity"
+            android:theme="@style/TextSecure.DarkTheme.WebRTCCall" />
+
+        <activity
+            android:name=".pigeon.activity.ConversationSubMenuActivity"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@style/TextSecure.LightRegistrationTheme"
+            android:windowSoftInputMode="stateVisible" />
+<!--        END PIGEON-->
+
         <activity
             android:name=".components.webrtc.v2.WebRtcCallActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout"
             android:excludeFromRecents="true"
             android:exported="false"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
+            android:screenOrientation="landscape"
+            android:showWhenLocked="true"
+            android:supportsPictureInPicture="false"
             android:taskAffinity=".calling"
             android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
+            android:turnScreenOn="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
@@ -196,7 +221,6 @@
 
                 <data android:mimeType="image/*" />
                 <data android:mimeType="video/*" />
-                <data android:mimeType="text/*" />
             </intent-filter>
 
             <meta-data
@@ -367,7 +391,7 @@
             android:exported="false"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
-            android:resizeableActivity="true"
+            android:resizeableActivity="false"
             android:windowSoftInputMode="stateUnchanged">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
