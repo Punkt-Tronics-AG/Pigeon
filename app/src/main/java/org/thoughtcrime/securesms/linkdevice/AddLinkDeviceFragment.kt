@@ -128,6 +128,7 @@ class AddLinkDeviceFragment : ComposeFragment() {
           onQrCodeAccepted = {
             viewModel.addDevice(shouldSync = false)
           },
+          onQrCodeRetry = { viewModel.addDevice(shouldSync = false) }
         )
       } else {
         askPermissions()
