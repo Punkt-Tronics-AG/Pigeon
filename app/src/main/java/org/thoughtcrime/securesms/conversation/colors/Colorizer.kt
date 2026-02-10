@@ -8,7 +8,6 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import pigeon.extensions.isSignalVersion
-import org.whispersystems.signalservice.api.push.ServiceId
 
 /**
  * Helper class for all things ChatColors.

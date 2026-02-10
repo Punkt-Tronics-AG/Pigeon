@@ -31,7 +31,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
@@ -61,11 +60,10 @@ fun RecipientSearchBar(
   onPigeonUpArrow: (() -> Unit)? = null
 ) {
   val state = rememberSearchBarState()
-  val focusManager = LocalFocusManager.current
   var keyboardType by remember(enabledKeyboardTypes) { mutableStateOf(enabledKeyboardTypes.first()) }
   val keyboardOptions = remember(keyboardType) {
     KeyboardOptions(
-      keyboardType = if (isSignalVersion()) KeyboardType.Text else keyboardType.wrappedType,
+      keyboardType = if (isSignalVersion()) androidx.compose.ui.text.input.KeyboardType.Text else keyboardType.wrappedType,
       imeAction = ImeAction.Search
     )
   }

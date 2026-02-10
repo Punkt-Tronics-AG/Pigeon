@@ -2866,7 +2866,7 @@ class ConversationFragment :
 
     val (slideDeck, body) = viewModel.getSlideDeckAndBodyForReply(requireContext(), conversationMessage)
     val author = conversationMessage.messageRecord.fromRecipient
-''
+
     if (isPigeonVersion()) {
     composeText.requestFocus()
     }

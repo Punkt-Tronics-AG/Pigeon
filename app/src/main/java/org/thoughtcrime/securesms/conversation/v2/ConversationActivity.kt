@@ -25,7 +25,6 @@ import org.thoughtcrime.securesms.jobs.ConversationShortcutUpdateJob
 import org.thoughtcrime.securesms.util.ConfigurationUtil
 import org.thoughtcrime.securesms.util.Debouncer
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
-import org.thoughtcrime.securesms.window.isLargeScreenSupportEnabled
 import pigeon.extensions.isSignalVersion
 import pigeon.navigation.KeyEventBehaviour
 import pigeon.navigation.PigeonKeyEventBehaviourImpl
