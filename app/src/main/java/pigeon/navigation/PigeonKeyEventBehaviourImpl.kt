@@ -23,7 +23,7 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
           Log.w(org.thoughtcrime.securesms.longmessage.TAG, "Dispatching key event to CaptchaFragment")
           fragment.onKeyDown(event.keyCode, event.action)
           return
-        }else
+        } else
           if (activity is RecaptchaProofActivity) {
             activity.onKeyDown(event.keyCode, event.action)
             return
@@ -33,7 +33,7 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
   }
 
   override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager) {
-    Log.w("PIGEON", "dispatchConversationKeyEvent $event")
+    Log.w("PIGEON", "dispatchConversationKeyEvent CALLED: keyCode=${event.keyCode}, action=${event.action}, event=$event")
     when (event.keyCode) {
       KeyEvent.KEYCODE_CALL -> {
         val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }

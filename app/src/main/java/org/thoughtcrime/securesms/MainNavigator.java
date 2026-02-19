@@ -16,6 +16,8 @@ import org.thoughtcrime.securesms.recipients.RecipientId;
 
 import io.reactivex.rxjava3.disposables.Disposable;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+
 public class MainNavigator {
 
   public static final int REQUEST_CONFIG_CHANGES = 901;
@@ -41,13 +43,21 @@ public class MainNavigator {
   }
 
   public void goToConversation(@NonNull RecipientId recipientId, long threadId, int distributionType, int startingPosition) {
-    Disposable disposable = ConversationIntents.createBuilder(activity, recipientId, threadId)
-                                               .map(builder -> builder.withDistributionType(distributionType)
-                                                                      .withStartingPosition(startingPosition)
-                                                                      .toConversationArgs())
-                                               .subscribe(args -> viewModel.goTo(new MainNavigationDetailLocation.Chats.Conversation(args)));
-
-    lifecycleDisposable.add(disposable);
+    if (isPigeonVersion()) {
+      Disposable disposable = ConversationIntents.createBuilder(activity, recipientId, threadId)
+                                                 .map(builder -> builder.withDistributionType(distributionType)
+                                                                        .withStartingPosition(startingPosition)
+                                                                        .build())
+                                                 .subscribe(intent -> activity.startActivity(intent));
+      lifecycleDisposable.add(disposable);
+    } else {
+      Disposable disposable = ConversationIntents.createBuilder(activity, recipientId, threadId)
+                                                 .map(builder -> builder.withDistributionType(distributionType)
+                                                                        .withStartingPosition(startingPosition)
+                                                                        .toConversationArgs())
+                                                 .subscribe(args -> viewModel.goTo(new MainNavigationDetailLocation.Chats.Conversation(args)));
+      lifecycleDisposable.add(disposable);
+    }
   }
 
   public void goToAppSettings() {
