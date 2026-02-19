@@ -87,6 +87,7 @@ import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager.ChosenAudioDeviceIdentifier
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage
 import pigeon.activity.WebRtcCallVolumeActivity
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import kotlin.time.Duration.Companion.seconds
 
@@ -1009,7 +1010,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     when (inCallStatus) {
       is InCallStatus.ElapsedTime -> {
         val formatter: EllapsedTimeFormatter = EllapsedTimeFormatter.fromDurationMillis(inCallStatus.elapsedTime) ?: return
-        callScreen.setStatus(getString(R.string.WebRtcCallActivity__signal_s, formatter.toString()))
+        callScreen.setStatus(getString(if (isPigeonVersion()) R.string.Pigeon_WebRtcCallActivity__signal_s else R.string.WebRtcCallActivity__signal_s, formatter.toString()))
       }
 
       is InCallStatus.PendingCallLinkUsers -> {
