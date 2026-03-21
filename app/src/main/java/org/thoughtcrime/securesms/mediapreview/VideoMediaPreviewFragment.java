@@ -169,6 +169,16 @@ public final class VideoMediaPreviewFragment extends MediaPreviewFragment {
     }
   }
 
+  public void pigeonTogglePlayPause() {
+    if (videoView != null) {
+      if (videoView.isPlaying()) {
+        videoView.pause();
+      } else {
+        videoView.play();
+      }
+    }
+  }
+
   @Override
   public void setBottomButtonControls(@NonNull MediaPreviewPlayerControlView playerControlView) {
     if (videoView != null) {

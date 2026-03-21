@@ -75,6 +75,7 @@ import org.thoughtcrime.securesms.util.SaveAttachmentUtil
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -117,6 +118,11 @@ class MediaPreviewV2Fragment :
     initializeViewPager()
     initializeAlbumRail()
     initializeFullScreenUi()
+    if (isPigeonVersion()) {
+      binding.toolbarLayout.isVisible = false
+      binding.mediaPreviewDetailsContainer.isVisible = false
+      binding.mediaPreviewPlaybackControls.pigeonHideUnnecessaryControls()
+    }
     anchorMarginsToBottomInsets(binding.mediaPreviewDetailsContainer)
     lifecycleDisposable +=
       viewModel
@@ -208,7 +214,9 @@ class MediaPreviewV2Fragment :
 
   private fun initializeFullScreenUi() {
     fullscreenHelper.configureToolbarLayout(binding.toolbarCutoutSpacer, binding.toolbar)
-    fullscreenHelper.showAndHideWithSystemUI(requireActivity().window, binding.toolbarLayout, binding.mediaPreviewDetailsContainer)
+    if (!isPigeonVersion()) {
+      fullscreenHelper.showAndHideWithSystemUI(requireActivity().window, binding.toolbarLayout, binding.mediaPreviewDetailsContainer)
+    }
   }
 
   private fun bindCurrentState(currentState: MediaPreviewV2State) {
@@ -270,7 +278,9 @@ class MediaPreviewV2Fragment :
     }
     bindAlbumRail(albumThumbnailMedia, currentItem)
 
-    crossfadeViewIn(binding.mediaPreviewDetailsContainer)
+    if (!isPigeonVersion()) {
+      crossfadeViewIn(binding.mediaPreviewDetailsContainer)
+    }
   }
 
   private fun bindTextViews(currentItem: MediaTable.MediaRecord, showThread: Boolean, messageBodies: Map<Long, SpannableString>) {
@@ -355,6 +365,9 @@ class MediaPreviewV2Fragment :
     }
     currentFragment?.setBottomButtonControls(binding.mediaPreviewPlaybackControls)
     currentFragment?.autoPlayIfNeeded()
+    if (isPigeonVersion()) {
+      binding.mediaPreviewPlaybackControls.pigeonHideUnnecessaryControls()
+    }
   }
 
   private fun tryBindMediaPreviewPlaybackControls(
@@ -438,6 +451,28 @@ class MediaPreviewV2Fragment :
 
   private fun getMediaPreviewFragmentFromChildFragmentManager(currentPosition: Int): MediaPreviewFragment? {
     return childFragmentManager.findFragmentByTag(pagerAdapter.getFragmentTag(currentPosition)) as? MediaPreviewFragment
+  }
+
+  fun pigeonToggleCurrentVideoPlayPause(): Boolean {
+    val currentFragment = getMediaPreviewFragmentFromChildFragmentManager(binding.mediaPager.currentItem)
+    if (currentFragment is VideoMediaPreviewFragment) {
+      currentFragment.pigeonTogglePlayPause()
+      pigeonShowControlsBriefly()
+      return true
+    }
+    return false
+  }
+
+  private val pigeonHideControlsRunnable = Runnable {
+    if (view != null) {
+      binding.mediaPreviewDetailsContainer.isVisible = false
+    }
+  }
+
+  private fun pigeonShowControlsBriefly() {
+    binding.mediaPreviewDetailsContainer.isVisible = true
+    view?.removeCallbacks(pigeonHideControlsRunnable)
+    view?.postDelayed(pigeonHideControlsRunnable, PIGEON_CONTROLS_TIMEOUT_MS)
   }
 
   private fun jumpViewPagerToMedia(media: Media) {
@@ -695,6 +730,7 @@ class MediaPreviewV2Fragment :
   companion object {
     private const val EXPANDED_CAPTION_HEIGHT_FALLBACK_DP = 400
     private const val EXPANDED_CAPTION_HEIGHT_PERCENT: Float = 0.7F
+    private const val PIGEON_CONTROLS_TIMEOUT_MS = 2000L
 
     private val TAG = Log.tag(MediaPreviewV2Fragment::class.java)
 

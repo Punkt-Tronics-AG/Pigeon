@@ -120,7 +120,16 @@ class MediaPreviewPlayerControlView @JvmOverloads constructor(
   fun setShareButtonListener(listener: OnClickListener?) = shareButton.setOnClickListener(listener)
 
   fun setForwardButtonListener(listener: OnClickListener?) = forwardButton.setOnClickListener(listener)
+
+  fun pigeonHideUnnecessaryControls() {
+    shareButton.visibility = GONE
+    forwardButton.visibility = GONE
+    recyclerView.visibility = GONE
+    setShowFastForwardButton(false)
+    setShowRewindButton(false)
+  }
 }
+
 
 class LottieAnimatedButton @JvmOverloads constructor(
   context: Context,

@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.mediapreview
 
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.widget.ImageView
@@ -21,6 +22,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.util.WindowUtil
+import pigeon.extensions.isPigeonVersion
 
 class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner {
 
@@ -138,6 +140,16 @@ class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaContr
         add(R.id.fragment_container_view, MediaPreviewV2Fragment::class.java, bundle, FRAGMENT_TAG)
       }
     }
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    if (isPigeonVersion() && event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER && event.action == KeyEvent.ACTION_UP) {
+      val previewFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? MediaPreviewV2Fragment
+      if (previewFragment?.pigeonToggleCurrentVideoPlayPause() == true) {
+        return true
+      }
+    }
+    return super.dispatchKeyEvent(event)
   }
 
   override fun onPause() {
