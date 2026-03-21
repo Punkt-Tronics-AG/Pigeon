@@ -42,6 +42,14 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
           return
         }
       }
+      KeyEvent.KEYCODE_DPAD_CENTER -> {
+        if (event.action == KeyEvent.ACTION_UP) {
+          val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }
+          if (conversationFragment != null && conversationFragment is ConversationFragment) {
+            conversationFragment.pigeonOpenFocusedItemPhotoIfPresent()
+          }
+        }
+      }
     }
   }
 }

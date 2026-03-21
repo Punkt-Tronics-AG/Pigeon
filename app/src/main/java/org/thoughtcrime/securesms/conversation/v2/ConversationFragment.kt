@@ -48,8 +48,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -122,6 +120,7 @@ import org.signal.core.util.setActionItemTint
 import org.signal.donations.InAppPaymentType
 import org.signal.ringrtc.CallLinkEpoch
 import org.signal.ringrtc.CallLinkRootKey
+import org.thoughtcrime.securesms.BindableConversationItem
 import org.thoughtcrime.securesms.BlockUnblockDialog
 import org.thoughtcrime.securesms.GroupMembersDialog
 import org.thoughtcrime.securesms.LoggingFragment
@@ -237,8 +236,8 @@ import org.thoughtcrime.securesms.conversation.v2.items.ChatColorsDrawable
 import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
 import org.thoughtcrime.securesms.conversation.v2.keyboard.AttachmentKeyboardFragment
 import org.thoughtcrime.securesms.crypto.SecurityEvent
-import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.DraftTable
+import org.thoughtcrime.securesms.database.MediaTable
 import org.thoughtcrime.securesms.database.model.IdentityRecord
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord
 import org.thoughtcrime.securesms.database.model.Mention
@@ -5195,8 +5194,40 @@ class ConversationFragment :
     handleEditMessage(conversationMessage)
   }
 
+  fun pigeonOpenFocusedItemPhotoIfPresent() {
+    if (!isPigeonVersion()) return
+
+    val recyclerView = binding.conversationItemRecycler
+    val focusedChild = recyclerView.focusedChild ?: return
+    val viewHolder = recyclerView.getChildViewHolder(focusedChild) ?: return
+
+    val messageRecord =
+      (viewHolder as? InteractiveConversationElement)?.conversationMessage?.messageRecord
+        ?: (viewHolder.itemView as? BindableConversationItem)?.conversationMessage?.messageRecord
+        ?: return
+
+    if (!messageRecord.isMms) return
+    val mmsRecord = messageRecord as MmsMessageRecord
+    val slide = mmsRecord.slideDeck.thumbnailSlide ?: return
+    val mediaUri = slide.displayUri ?: return
+
+    val args = MediaIntentFactory.MediaPreviewArgs(
+      threadId = messageRecord.threadId,
+      date = messageRecord.timestamp,
+      initialMediaUri = mediaUri,
+      initialMediaType = slide.contentType,
+      initialMediaSize = slide.asAttachment().size,
+      initialCaption = slide.caption.orNull(),
+      sorting = MediaTable.Sorting.Newest,
+      isVideoGif = slide.isVideoGif,
+      skipSharedElementTransition = true
+    )
+
+    container.hideAll(composeText)
+    requireActivity().startActivity(MediaIntentFactory.create(requireActivity(), args))
+  }
+
   fun onKeycodeCallPressed() {
-    composeText.clearFocus()
     Log.d(TAG, "input type: " + composeText.inputType)
     val rawText = composeText.textTrimmed.toString()
     if (rawText.isEmpty() && !attachmentManager.isAttachmentPresent) {
