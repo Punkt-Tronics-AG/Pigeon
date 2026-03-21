@@ -15,6 +15,7 @@ import android.content.res.Configuration
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.util.Rational
 import android.view.Surface
 import android.view.View
@@ -291,15 +292,18 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
 
     if (!isInPipMode() || isFinishing) {
       //Pigeon code
-      val state = viewModel.callParticipantsStateSnapshot
+      val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+      if (powerManager.isInteractive) {
+        val state = viewModel.callParticipantsStateSnapshot
 
-      when {
-        state.callState == WebRtcViewModel.State.CALL_INCOMING -> {
-          handleDenyCall()
-        }
+        when {
+          state.callState == WebRtcViewModel.State.CALL_INCOMING -> {
+            handleDenyCall()
+          }
 
-        state.callState.inOngoingCall -> {
-          handleEndCall()
+          state.callState.inOngoingCall -> {
+            handleEndCall()
+          }
         }
       }
       // End pigeon code
