@@ -179,6 +179,19 @@ public final class VideoMediaPreviewFragment extends MediaPreviewFragment {
     }
   }
 
+  public void pigeonSetVolumeLevel(int level) {
+    if (videoView != null) {
+      videoView.setVolume(level / 10f);
+    }
+  }
+
+  public int pigeonGetVolumeLevel() {
+    if (videoView != null) {
+      return Math.round(videoView.getVolume() * 10f);
+    }
+    return 10;
+  }
+
   @Override
   public void setBottomButtonControls(@NonNull MediaPreviewPlayerControlView playerControlView) {
     if (videoView != null) {

@@ -121,6 +121,7 @@ class MediaPreviewV2Fragment :
     if (isPigeonVersion()) {
       binding.toolbarLayout.isVisible = false
       binding.mediaPreviewDetailsContainer.isVisible = false
+      binding.mediaPreviewDetailsContainer.alpha = 1f
       binding.mediaPreviewPlaybackControls.pigeonHideUnnecessaryControls()
     }
     anchorMarginsToBottomInsets(binding.mediaPreviewDetailsContainer)
@@ -453,6 +454,8 @@ class MediaPreviewV2Fragment :
     return childFragmentManager.findFragmentByTag(pagerAdapter.getFragmentTag(currentPosition)) as? MediaPreviewFragment
   }
 
+  private var pigeonVolumeLevel: Int = 10
+
   fun pigeonToggleCurrentVideoPlayPause(): Boolean {
     val currentFragment = getMediaPreviewFragmentFromChildFragmentManager(binding.mediaPager.currentItem)
     if (currentFragment is VideoMediaPreviewFragment) {
@@ -465,14 +468,48 @@ class MediaPreviewV2Fragment :
 
   private val pigeonHideControlsRunnable = Runnable {
     if (view != null) {
-      binding.mediaPreviewDetailsContainer.isVisible = false
+      binding.mediaPreviewDetailsContainer.animate()
+        .alpha(0f)
+        .setDuration(300)
+        .withEndAction { binding.mediaPreviewDetailsContainer.isVisible = false }
+        .start()
     }
   }
 
   private fun pigeonShowControlsBriefly() {
+    binding.mediaPreviewDetailsContainer.animate().cancel()
+    binding.mediaPreviewDetailsContainer.alpha = 1f
     binding.mediaPreviewDetailsContainer.isVisible = true
     view?.removeCallbacks(pigeonHideControlsRunnable)
     view?.postDelayed(pigeonHideControlsRunnable, PIGEON_CONTROLS_TIMEOUT_MS)
+  }
+
+  fun pigeonAdjustVolume(increase: Boolean): Boolean {
+    val currentFragment = getMediaPreviewFragmentFromChildFragmentManager(binding.mediaPager.currentItem)
+    if (currentFragment is VideoMediaPreviewFragment) {
+      pigeonVolumeLevel = (pigeonVolumeLevel + if (increase) 1 else -1).coerceIn(0, 10)
+      currentFragment.pigeonSetVolumeLevel(pigeonVolumeLevel)
+      pigeonShowVolumeIndicator(pigeonVolumeLevel)
+      return true
+    }
+    return false
+  }
+
+  private val pigeonHideVolumeIndicatorRunnable = Runnable {
+    if (view != null) {
+      binding.pigeonVolumeIndicator.animate()
+        .alpha(0f)
+        .setDuration(300)
+        .start()
+    }
+  }
+
+  private fun pigeonShowVolumeIndicator(level: Int) {
+    binding.pigeonVolumeIndicator.text = level.toString()
+    binding.pigeonVolumeIndicator.animate().cancel()
+    binding.pigeonVolumeIndicator.alpha = 1f
+    view?.removeCallbacks(pigeonHideVolumeIndicatorRunnable)
+    view?.postDelayed(pigeonHideVolumeIndicatorRunnable, PIGEON_VOLUME_INDICATOR_TIMEOUT_MS)
   }
 
   private fun jumpViewPagerToMedia(media: Media) {
@@ -553,6 +590,9 @@ class MediaPreviewV2Fragment :
 
   override fun onPlaying() {
     debouncer.publish { fullscreenHelper.hideSystemUI() }
+    if (isPigeonVersion()) {
+      pigeonShowControlsBriefly()
+    }
   }
 
   override fun onStopped(tag: String?) {
@@ -731,6 +771,7 @@ class MediaPreviewV2Fragment :
     private const val EXPANDED_CAPTION_HEIGHT_FALLBACK_DP = 400
     private const val EXPANDED_CAPTION_HEIGHT_PERCENT: Float = 0.7F
     private const val PIGEON_CONTROLS_TIMEOUT_MS = 2000L
+    private const val PIGEON_VOLUME_INDICATOR_TIMEOUT_MS = 1500L
 
     private val TAG = Log.tag(MediaPreviewV2Fragment::class.java)
 

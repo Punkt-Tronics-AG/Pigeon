@@ -271,6 +271,20 @@ public class VideoPlayer extends FrameLayout {
     }
   }
 
+  public void setVolume(float volume) {
+    this.muted = (volume == 0f);
+    if (exoPlayer != null) {
+      exoPlayer.setVolume(volume);
+    }
+  }
+
+  public float getVolume() {
+    if (exoPlayer != null) {
+      return exoPlayer.getVolume();
+    }
+    return muted ? 0f : 1f;
+  }
+
   public boolean hasAudioTrack() {
     if (exoPlayer != null) {
       Tracks tracks = exoPlayer.getCurrentTracks();
