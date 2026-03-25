@@ -18,7 +18,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.util.Rational
 import android.view.Surface
-import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -124,6 +123,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
   private var previousEvent: WebRtcViewModel? = null
   private var ephemeralStateDisposable = Disposable.empty()
   private val callPermissionsDialogController = CallPermissionsDialogController()
+  private var isLaunchingSubActivity: Boolean = false
 
   override fun attachBaseContext(newBase: Context) {
     delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
@@ -225,6 +225,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
   override fun onResume() {
     Log.i(TAG, "onResume()")
     super.onResume()
+    isLaunchingSubActivity = false
 
     initializeScreenshotSecurity()
 
@@ -291,22 +292,18 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     ephemeralStateDisposable.dispose()
 
     if (!isInPipMode() || isFinishing) {
-      //Pigeon code
-      val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-      if (powerManager.isInteractive) {
-        val state = viewModel.callParticipantsStateSnapshot
-
-        when {
-          state.callState == WebRtcViewModel.State.CALL_INCOMING -> {
-            handleDenyCall()
-          }
-
-          state.callState.inOngoingCall -> {
-            handleEndCall()
+      // PIGEON code: end/deny call when user leaves the screen (e.g. swipes app away)
+      if (!isLaunchingSubActivity) {
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (powerManager.isInteractive) {
+          val state = viewModel.callParticipantsStateSnapshot
+          when {
+            state.callState == WebRtcViewModel.State.CALL_INCOMING -> handleDenyCall()
+            state.callState.inOngoingCall -> handleEndCall()
           }
         }
       }
-      // End pigeon code
+      // End PIGEON code
       EventBus.getDefault().unregister(this)
       requestNewSizesThrottle.clear()
     }
@@ -1236,7 +1233,9 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
 
   private inner class ControlsListener : CallScreenControlsListener {
     override fun onStartCall(isVideoCall: Boolean) {
-      if (isVideoCall) { window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
+      if (isVideoCall) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      }
       viewModel.startCall(isVideoCall)
     }
 
@@ -1361,6 +1360,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
 
   // PIGEON code
   private fun handleVolumePressed() {
+    isLaunchingSubActivity = true
     startActivity(Intent(this, WebRtcCallVolumeActivity::class.java))
   }
 
