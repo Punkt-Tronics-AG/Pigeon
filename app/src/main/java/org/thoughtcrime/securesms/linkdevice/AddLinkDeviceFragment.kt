@@ -55,13 +55,15 @@ class AddLinkDeviceFragment : ComposeFragment() {
     val navController: NavController by remember { mutableStateOf(findNavController()) }
     val cameraPermissionState: PermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
 
-    if (!state.seenQrEducationSheet) {
-      navController.safeNavigate(R.id.action_addLinkDeviceFragment_to_linkDeviceIntroBottomSheet)
-      viewModel.markQrEducationSheetSeen()
-    }
+    if (isSignalVersion()) {
+      if (!state.seenQrEducationSheet) {
+        navController.safeNavigate(R.id.action_addLinkDeviceFragment_to_linkDeviceIntroBottomSheet)
+        viewModel.markQrEducationSheetSeen()
+      }
 
-    if (state.qrCodeState != LinkDeviceSettingsState.QrCodeState.NONE && navController.currentDestination?.id == R.id.linkDeviceIntroBottomSheet) {
-      navController.popBackStack()
+      if (state.qrCodeState != LinkDeviceSettingsState.QrCodeState.NONE && navController.currentDestination?.id == R.id.linkDeviceIntroBottomSheet) {
+        navController.popBackStack()
+      }
     }
 
     if (isSignalVersion()) {
@@ -90,49 +92,46 @@ class AddLinkDeviceFragment : ComposeFragment() {
     } else {
       val uuid by viewModel.uuid.collectAsStateWithLifecycle()
       val pubKey by viewModel.pubKey.collectAsStateWithLifecycle()
+      val fullUrl by viewModel.fullUrl.collectAsStateWithLifecycle()
       val isLinking by viewModel.isLinking.collectAsStateWithLifecycle()
 
       val titleText = stringResource(id = R.string.DeviceProvisioningActivity_link_this_device)
       val introText = stringResource(id = R.string.DeviceProvisioningActivity_content_intro)
       val contentText = stringResource(id = R.string.DeviceProvisioningActivity_content_bullets)
 
-      if (cameraPermissionState.status.isGranted) {
-        PigeonManualLinkDeviceScreen(
-          navController = navController,
-          uuid = uuid,
-          onUuidChange = { viewModel.onUuidChanged(it) },
-          pubKey = pubKey,
-          onPubKeyChange = { viewModel.onPubKeyChanged(it) },
-          onLinkClicked = {
-            val dialog = Mp02CustomDialog(requireContext())
-            dialog.setMessage("$titleText\n$introText\n$contentText")
-            dialog.setNegativeListener(android.R.string.no, null)
-            dialog.setPositiveListener(android.R.string.yes) {
-              val uuid = uuid
-              val pubKey = pubKey
-              val qrLink = "sgnl://linkdevice?uuid=$uuid&pub_key=$pubKey"
-              Log.d("AddLinkDeviceFragment", "Linking device with QR link: $qrLink")
-              viewModel.linkDeviceManually(qrLink)
-            }
-            dialog.show()
-          },
-          isLinking = isLinking,
-          qrCodeState = state.qrCodeState,
-          onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
-          onLinkDeviceSuccess = {
-            navController.popBackStack()
-            viewModel.onLinkDeviceResult(showSheet = true)
-          },
-          onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) },
-          linkDeviceResult = state.linkDeviceResult,
-          onQrCodeAccepted = {
-            viewModel.addDevice(shouldSync = false)
-          },
-          onQrCodeRetry = { viewModel.addDevice(shouldSync = false) }
-        )
-      } else {
-        askPermissions()
-      }
+      PigeonManualLinkDeviceScreen(
+        navController = navController,
+        uuid = uuid,
+        pubKey = pubKey,
+        fullUrl = fullUrl,
+        onFullUrlChange = { viewModel.onFullUrlChanged(it) },
+        onLinkClicked = {
+          val dialog = Mp02CustomDialog(requireContext())
+          dialog.setMessage("$titleText\n$introText\n$contentText")
+          dialog.setNegativeListener(android.R.string.no, null)
+          dialog.setPositiveListener(android.R.string.yes) {
+            val uuid = uuid
+            val pubKey = pubKey
+            val qrLink = "sgnl://linkdevice?uuid=$uuid&pub_key=$pubKey"
+            Log.d("AddLinkDeviceFragment", "Linking device with QR link: $qrLink")
+            viewModel.linkDeviceManually(qrLink)
+          }
+          dialog.show()
+        },
+        isLinking = isLinking,
+        qrCodeState = state.qrCodeState,
+        onQrCodeDismissed = { viewModel.onQrCodeDismissed() },
+        onLinkDeviceSuccess = {
+          navController.popBackStack()
+          viewModel.onLinkDeviceResult(showSheet = true)
+        },
+        onLinkDeviceFailure = { viewModel.onLinkDeviceResult(showSheet = false) },
+        linkDeviceResult = state.linkDeviceResult,
+        onQrCodeAccepted = {
+          viewModel.addDevice(shouldSync = false)
+        },
+        onQrCodeRetry = { viewModel.addDevice(shouldSync = false) }
+      )
     }
   }
 

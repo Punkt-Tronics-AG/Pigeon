@@ -27,7 +27,6 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,7 +37,6 @@ import androidx.navigation.NavController
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Rows.TextRow
 import org.signal.core.ui.compose.theme.SignalTheme
-import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceRepository.LinkDeviceResult
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState
@@ -49,9 +47,9 @@ import pigeon.extensions.isPigeonVersion
 @Composable
 fun PigeonManualLinkDeviceScreen(
   uuid: String,
-  onUuidChange: (String) -> Unit,
   pubKey: String,
-  onPubKeyChange: (String) -> Unit,
+  fullUrl: String = "",
+  onFullUrlChange: (String) -> Unit = {},
   onLinkClicked: () -> Unit,
   isLinking: Boolean = false,
   qrCodeState: LinkDeviceSettingsState.QrCodeState,
@@ -65,7 +63,6 @@ fun PigeonManualLinkDeviceScreen(
   modifier: Modifier = Modifier
 ) {
 
-  val lifecycleOwner = LocalLifecycleOwner.current
   val context = LocalContext.current
 
   when (qrCodeState) {
@@ -113,8 +110,7 @@ fun PigeonManualLinkDeviceScreen(
   }
 
 
-  val uuidRequester = remember { FocusRequester() }
-  val pubKeyFocusRequester = remember { FocusRequester() }
+  val fullUrlFocusRequester = remember { FocusRequester() }
   val sendFocusRequester = remember { FocusRequester() }
 
   SignalTheme(incognitoKeyboardEnabled = false) {
@@ -124,79 +120,38 @@ fun PigeonManualLinkDeviceScreen(
     ) {
       Column(Modifier.verticalScroll(rememberScrollState())) {
         Text(
-          text = stringResource(R.string.Pigeon_uuid),
+          text = stringResource(R.string.Pigeon_link_full_url),
           style = MaterialTheme.typography.bodyMedium,
           color = Color.White,
           modifier = Modifier
             .fillMaxWidth()
             .focusable(false)
-            .padding(
-              top = 10.dp,
-              start = 25.dp,
-              end = 0.dp
-            )
+            .padding(top = 10.dp, start = 25.dp, end = 0.dp)
             .focusProperties { canFocus = false }
         )
 
         OutlinedTextField(
-          value = uuid,
-          onValueChange = onUuidChange,
+          value = fullUrl,
+          onValueChange = onFullUrlChange,
           modifier = Modifier
             .fillMaxWidth()
-            .focusRequester(uuidRequester)
+            .focusRequester(fullUrlFocusRequester)
             .padding(start = 10.dp, end = 10.dp)
             .onKeyEvent { keyEvent ->
-              Log.d("UUID Label", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
-              if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp
-              ) {
-                pubKeyFocusRequester.requestFocus()
-                true
-              } else {
-                false
-              }
-            },
-          colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            focusedTextColor = colorResource(id = R.color.white_focus),
-            unfocusedTextColor = colorResource(id = R.color.white_focus)
-          ),
-          keyboardOptions = KeyboardOptions(
-            autoCorrectEnabled = false,
-            keyboardType = KeyboardType.Password,
-          )
-        )
-
-        Text(
-          text = stringResource(R.string.Pigeon_pubkey),
-          style = MaterialTheme.typography.bodyMedium,
-          color = Color.White,
-          modifier = Modifier
-            .fillMaxWidth()
-            .focusable(false)
-            .padding(start = 25.dp, end = 0.dp)
-            .focusProperties { canFocus = false }
-        )
-
-        OutlinedTextField(
-          value = pubKey,
-          onValueChange = onPubKeyChange,
-          modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(pubKeyFocusRequester)
-            .padding(start = 10.dp, end = 0.dp)
-            .onKeyEvent { keyEvent ->
-              Log.d("PubLabel", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
               if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_DOWN && keyEvent.type == KeyEventType.KeyUp) {
                 sendFocusRequester.requestFocus()
                 true
-              } else if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
-                uuidRequester.requestFocus()
-                true
               } else {
                 false
               }
             },
+          placeholder = {
+            Text(
+              text = "sgnl://linkdevice?uuid=...&pub_key=...",
+              color = Color.Gray,
+              fontSize = 11.sp
+            )
+          },
           colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.Transparent,
             unfocusedBorderColor = Color.Transparent,
@@ -205,22 +160,45 @@ fun PigeonManualLinkDeviceScreen(
           ),
           keyboardOptions = KeyboardOptions(
             autoCorrectEnabled = false,
-            keyboardType = KeyboardType.Password,
-          ),
+            keyboardType = KeyboardType.Uri,
+          )
         )
+
+        if (uuid.isNotEmpty()) {
+          Text(
+            text = stringResource(R.string.Pigeon_uuid) + ": $uuid",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray,
+            modifier = Modifier
+              .fillMaxWidth()
+              .focusable(false)
+              .padding(top = 6.dp, start = 25.dp, end = 10.dp)
+          )
+        }
+
+        if (pubKey.isNotEmpty()) {
+          Text(
+            text = stringResource(R.string.Pigeon_pubkey) + ": $pubKey",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray,
+            modifier = Modifier
+              .fillMaxWidth()
+              .focusable(false)
+              .padding(top = 4.dp, start = 25.dp, end = 10.dp)
+          )
+        }
 
         TextRow(
           onClick = onLinkClicked,
-          enabled = true,
+          enabled = uuid.isNotEmpty() && pubKey.isNotEmpty(),
           modifier = Modifier
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = 20.dp, vertical = 8.dp)
             .focusProperties { canFocus = true }
             .focusable(true)
             .focusRequester(sendFocusRequester)
             .onKeyEvent { keyEvent ->
-              Log.d("LinkButton", "Key event: ${keyEvent.key}, type: ${keyEvent.type}")
               if (keyEvent.key.nativeKeyCode == KEYCODE_DPAD_UP && keyEvent.type == KeyEventType.KeyUp) {
-                pubKeyFocusRequester.requestFocus()
+                fullUrlFocusRequester.requestFocus()
                 true
               } else {
                 false
@@ -239,7 +217,7 @@ fun PigeonManualLinkDeviceScreen(
     }
     if (isPigeonVersion()) {
       LaunchedEffect(Unit) {
-        uuidRequester.requestFocus()
+        fullUrlFocusRequester.requestFocus()
       }
     }
   }
@@ -251,9 +229,7 @@ fun PigeonManualLinkDeviceScreenPreview() {
   SignalTheme(incognitoKeyboardEnabled = false) {
     PigeonManualLinkDeviceScreen(
       uuid = "12345678-1234-5678-1234-567812345678",
-      onUuidChange = {},
       pubKey = "pubkey1234567890abcdef",
-      onPubKeyChange = {},
       onLinkClicked = {},
       isLinking = false,
       qrCodeState = LinkDeviceSettingsState.QrCodeState.NONE,

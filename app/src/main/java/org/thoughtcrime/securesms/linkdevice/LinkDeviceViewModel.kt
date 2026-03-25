@@ -559,15 +559,27 @@ class LinkDeviceViewModel : ViewModel() {
   private val _pubKey = MutableStateFlow("")
   val pubKey = _pubKey.asStateFlow()
 
+  private val _fullUrl = MutableStateFlow("")
+  val fullUrl = _fullUrl.asStateFlow()
+
   private val _isLinking = MutableStateFlow(false)
   val isLinking = _isLinking.asStateFlow()
 
-  fun onUuidChanged(value: String) {
-    _uuid.value = value
-  }
 
-  fun onPubKeyChanged(value: String) {
-    _pubKey.value = value
+  fun onFullUrlChanged(value: String) {
+    _fullUrl.value = value
+    if (value.startsWith("sgnl://linkdevice?")) {
+      try {
+        val uri = Uri.parse(value)
+        val parsedUuid = uri.getQueryParameter("uuid")
+        val parsedPubKey = uri.getQueryParameter("pub_key")
+        if (!parsedUuid.isNullOrEmpty()) _uuid.value = parsedUuid
+        if (!parsedPubKey.isNullOrEmpty()) _pubKey.value = parsedPubKey
+        Log.d(TAG, "Parsed link device URL: uuid=$parsedUuid, pub_key present=${!parsedPubKey.isNullOrEmpty()}")
+      } catch (e: Exception) {
+        Log.w(TAG, "Failed to parse link device URL", e)
+      }
+    }
   }
 
   fun linkDeviceManually(url: String) {
