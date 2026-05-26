@@ -1,15 +1,16 @@
 package org.whispersystems.signalservice.api.groupsv2;
 
 import org.junit.Test;
+import org.signal.core.util.UuidUtil;
 import org.signal.storageservice.storage.protos.groups.AccessControl;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedApproveMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedBannedMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroupChange;
+import org.signal.storageservice.storage.protos.groups.local.DecryptedModifyMemberLabel;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedRequestingMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedString;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedTimer;
 import org.signal.storageservice.storage.protos.groups.local.EnabledState;
-import org.signal.core.util.UuidUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,24 +28,25 @@ import static org.whispersystems.signalservice.api.groupsv2.ProtoTestUtils.promo
 import static org.whispersystems.signalservice.api.groupsv2.ProtoTestUtils.randomProfileKey;
 import static org.whispersystems.signalservice.api.groupsv2.ProtobufTestUtils.getMaxDeclaredFieldNumber;
 
+@SuppressWarnings("NewClassNamingConvention")
 public final class DecryptedGroupUtil_empty_Test {
-
   /**
-   * Reflects over the generated protobuf class and ensures that no new fields have been added since we wrote this.
+   * Ensures that {@link GroupChangeField} enum covers all fields of {@link DecryptedGroupChange}.
    * <p>
-   * If we didn't, newly added fields would easily affect {@link DecryptedGroupUtil}'s ability to detect non-empty change states.
+   * If this test fails after a proto update, add the new field to {@link GroupChangeField}
+   * and update {{@link DecryptedGroupExtensions#getChangedFields(DecryptedGroupChange)}}.
    */
   @Test
-  public void ensure_DecryptedGroupUtil_knows_about_all_fields_of_DecryptedGroupChange() {
+  public void ensure_GroupChangeField_knows_about_all_fields_of_DecryptedGroupChange() {
     int maxFieldFound = getMaxDeclaredFieldNumber(DecryptedGroupChange.class);
 
-    assertEquals("DecryptedGroupUtil and its tests need updating to account for new fields on " + DecryptedGroupChange.class.getName(),
-                 24, maxFieldFound);
+    assertEquals("GroupChangeField and getChangedFields() need updating to account for new fields on " + DecryptedGroupChange.class.getName(),
+                 28, maxFieldFound);
   }
 
   @Test
   public void empty_change_set() {
-    assertTrue(DecryptedGroupUtil.changeIsEmpty(new DecryptedGroupChange.Builder().build()));
+    assertTrue(DecryptedGroupExtensions.getChangedFields(new DecryptedGroupChange.Builder().build()).isEmpty());
   }
 
   @Test
@@ -53,8 +55,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newMembers(List.of(member(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -63,8 +65,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .deleteMembers(List.of(UuidUtil.toByteString(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -73,8 +75,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .modifyMemberRoles(List.of(promoteAdmin(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -83,8 +85,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .modifiedProfileKeys(List.of(member(UUID.randomUUID(), randomProfileKey())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertTrue(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertTrue(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -93,8 +95,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newPendingMembers(List.of(pendingMember(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -103,8 +105,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .deletePendingMembers(List.of(pendingMemberRemoval(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -113,8 +115,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .promotePendingMembers(List.of(member(UUID.randomUUID())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -123,8 +125,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newTitle(new DecryptedString.Builder().value_("New title").build())
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -133,8 +135,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newAvatar(new DecryptedString.Builder().value_("New Avatar").build())
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -143,8 +145,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newTimer(new DecryptedTimer.Builder().duration(60).build())
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -153,8 +155,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newAttributeAccess(AccessControl.AccessRequired.ADMINISTRATOR)
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -163,8 +165,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newMemberAccess(AccessControl.AccessRequired.MEMBER)
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -173,8 +175,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newInviteLinkAccess(AccessControl.AccessRequired.ADMINISTRATOR)
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -183,8 +185,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newRequestingMembers(List.of(new DecryptedRequestingMember()))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -193,8 +195,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .deleteRequestingMembers(List.of(ByteString.of(new byte[16])))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -203,8 +205,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .promoteRequestingMembers(List.of(new DecryptedApproveMember()))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -213,8 +215,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newInviteLinkPassword(ByteString.of(new byte[16]))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -223,8 +225,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newDescription(new DecryptedString.Builder().value_("New description").build())
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -233,8 +235,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newIsAnnouncementGroup(EnabledState.ENABLED)
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -243,8 +245,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .newBannedMembers(List.of(new DecryptedBannedMember()))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertTrue(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -253,8 +255,8 @@ public final class DecryptedGroupUtil_empty_Test {
         .deleteBannedMembers(List.of(new DecryptedBannedMember()))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 
   @Test
@@ -263,7 +265,65 @@ public final class DecryptedGroupUtil_empty_Test {
         .promotePendingPniAciMembers(List.of(pendingPniAciMember(UUID.randomUUID(), UUID.randomUUID(), randomProfileKey())))
         .build();
 
-    assertFalse(DecryptedGroupUtil.changeIsEmpty(change));
-    assertFalse(DecryptedGroupUtil.changeIsEmptyExceptForProfileKeyChanges(change));
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
+  }
+
+  @Test
+  public void silent_with_modify_member_label_field_26() {
+    DecryptedModifyMemberLabel modifyLabelAction = new DecryptedModifyMemberLabel.Builder()
+        .aciBytes(UuidUtil.toByteString(UUID.randomUUID()))
+        .labelEmoji("🔥")
+        .labelString("Test")
+        .build();
+
+    DecryptedGroupChange change = new DecryptedGroupChange.Builder()
+        .modifyMemberLabels(List.of(modifyLabelAction))
+        .build();
+
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertTrue(DecryptedGroupExtensions.isSilent(change));
+  }
+
+  @Test
+  public void not_empty_with_modify_member_label_access_field_27() {
+    DecryptedGroupChange change = new DecryptedGroupChange.Builder()
+        .newMemberLabelAccess(AccessControl.AccessRequired.ADMINISTRATOR)
+        .build();
+
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
+  }
+
+  @Test
+  public void not_empty_with_terminate_group_field_28() {
+    DecryptedGroupChange change = new DecryptedGroupChange.Builder()
+        .terminateGroup(true)
+        .build();
+
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
+  }
+
+  @Test
+  public void silent_with_profile_keys_and_banned_members() {
+    DecryptedGroupChange change = new DecryptedGroupChange.Builder()
+        .modifiedProfileKeys(List.of(member(UUID.randomUUID(), randomProfileKey())))
+        .newBannedMembers(List.of(new DecryptedBannedMember()))
+        .build();
+
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertTrue(DecryptedGroupExtensions.isSilent(change));
+  }
+
+  @Test
+  public void not_silent_with_profile_keys_and_new_members() {
+    DecryptedGroupChange change = new DecryptedGroupChange.Builder()
+        .modifiedProfileKeys(List.of(member(UUID.randomUUID(), randomProfileKey())))
+        .newMembers(List.of(member(UUID.randomUUID())))
+        .build();
+
+    assertFalse(DecryptedGroupExtensions.getChangedFields(change).isEmpty());
+    assertFalse(DecryptedGroupExtensions.isSilent(change));
   }
 }

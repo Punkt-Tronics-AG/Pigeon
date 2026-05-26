@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,6 +72,7 @@ import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.DropdownMenus
 import org.signal.core.ui.compose.IconButtons
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.TextFields
 import org.signal.core.ui.compose.Tooltips
 import org.signal.core.ui.compose.circularReveal
@@ -80,6 +82,7 @@ import org.thoughtcrime.securesms.calls.log.CallLogFilter
 import org.thoughtcrime.securesms.components.compose.ActionModeTopBar
 import org.thoughtcrime.securesms.components.settings.app.subscription.BadgeImageSmall
 import org.thoughtcrime.securesms.conversationlist.model.ConversationFilter
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.rememberRecipientField
 import pigeon.extensions.isSignalVersion
@@ -99,10 +102,13 @@ interface MainToolbarCallback {
   fun onFilterMissedCallsClick()
   fun onClearCallFilterClick()
   fun onStoryPrivacyClick()
+  fun onStoryArchiveClick()
   fun onCloseSearchClick()
   fun onCloseArchiveClick()
   fun onCloseActionModeClick()
   fun onSearchQueryUpdated(query: String)
+  fun onSearchFilterClick()
+  fun onStarredMessagesClick()
   fun onNotificationProfileTooltipDismissed()
 
   object Empty : MainToolbarCallback {
@@ -120,10 +126,13 @@ interface MainToolbarCallback {
     override fun onFilterMissedCallsClick() = Unit
     override fun onClearCallFilterClick() = Unit
     override fun onStoryPrivacyClick() = Unit
+    override fun onStoryArchiveClick() = Unit
     override fun onCloseSearchClick() = Unit
     override fun onCloseArchiveClick() = Unit
     override fun onCloseActionModeClick() = Unit
     override fun onSearchQueryUpdated(query: String) = Unit
+    override fun onSearchFilterClick() = Unit
+    override fun onStarredMessagesClick() = Unit
     override fun onNotificationProfileTooltipDismissed() = Unit
   }
 }
@@ -161,6 +170,7 @@ data class MainToolbarState(
   val proxyState: ProxyState = ProxyState.NONE,
   @StringRes val searchHint: Int = R.string.SearchToolbar_search,
   val searchQuery: String = "",
+  val hasActiveSearchFilter: Boolean = false,
   val actionModeCount: Int = 0
 ) {
   enum class ProxyState(@DrawableRes val icon: Int) {
@@ -255,30 +265,52 @@ fun SearchToolbar(
       leadingIcon = {
         if (isSignalVersion()) {
           IconButtons.IconButton(
-            onClick = callback::onCloseSearchClick
-          ) {
-            Icon(
-              imageVector = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
-              contentDescription = stringResource(R.string.MainToolbar__close_search_content_description)
-            )
-          }
+          onClick = callback::onCloseSearchClick
+        ) {
+          Icon(
+            imageVector = SignalIcons.ArrowStart.imageVector,
+            contentDescription = stringResource(R.string.MainToolbar__close_search_content_description)
+          )
+            }
         }
       },
-      trailingIcon = if (state.searchQuery.isNotEmpty() && isSignalVersion()) {
-        {
-          IconButtons.IconButton(
-            onClick = {
-              callback.onSearchQueryUpdated("")
+      trailingIcon = {
+        if (isSignalVersion()) {
+          Row {
+          if (SignalStore.labs.betterSearch) {
+            Box(contentAlignment = Alignment.TopEnd) {
+              IconButtons.IconButton(
+                onClick = callback::onSearchFilterClick
+              ) {
+                Icon(
+                  imageVector = ImageVector.vectorResource(R.drawable.symbol_filter_24),
+                  contentDescription = stringResource(R.string.MainToolbar__search_filter_content_description)
+                )
+              }
+              if (state.hasActiveSearchFilter) {
+                Box(
+                  modifier = Modifier
+                    .padding(top = 8.dp, end = 8.dp)
+                    .size(8.dp)
+                    .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)
+                )
+              }
             }
-          ) {
-            Icon(
-              imageVector = ImageVector.vectorResource(R.drawable.ic_x_20),
-              contentDescription = stringResource(R.string.MainToolbar__clear_search_content_description)
-            )
+          }
+          if (state.searchQuery.isNotEmpty()) {
+            IconButtons.IconButton(
+              onClick = {
+                callback.onSearchQueryUpdated("")
+              }
+            ) {
+              Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_x_20),
+                contentDescription = stringResource(R.string.MainToolbar__clear_search_content_description)
+              )
+            }
           }
         }
-      } else {
-        null
+          }
       },
       contentPadding = PaddingValues(0.dp),
       colors = TextFieldDefaults.colors(
@@ -330,7 +362,7 @@ private fun ArchiveToolbar(
         callback.onCloseArchiveClick()
       }) {
         Icon(
-          imageVector = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
+          imageVector = SignalIcons.ArrowStart.imageVector,
           contentDescription = stringResource(R.string.CallScreenTopBar__go_back)
         )
       }
@@ -408,6 +440,17 @@ private fun PrimaryToolbar(
       NotificationProfileAction(state, callback)
       ProxyAction(state, callback)
 
+      if (state.destination == MainNavigationListLocation.STORIES && SignalStore.labs.storyArchive) {
+        IconButtons.IconButton(
+          onClick = callback::onStoryArchiveClick
+        ) {
+          Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.symbol_story_archive_24),
+            contentDescription = stringResource(R.string.StoryArchive__story_archive)
+          )
+        }
+      }
+
       IconButtons.IconButton(
         onClick = callback::onSearchClick,
         modifier = Modifier.onPlaced {
@@ -415,7 +458,7 @@ private fun PrimaryToolbar(
         }
       ) {
         Icon(
-          imageVector = ImageVector.vectorResource(R.drawable.symbol_search_24),
+          imageVector = SignalIcons.Search.imageVector,
           contentDescription = stringResource(R.string.conversation_list_search_description)
         )
       }
@@ -683,6 +726,20 @@ private fun ChatDropdownItems(state: MainToolbarState, callback: MainToolbarCall
       },
       onClick = {
         callback.onClearUnreadChatsFilterClick()
+        onOptionSelected()
+      }
+    )
+  }
+
+  if (SignalStore.labs.starredMessages) {
+    DropdownMenus.Item(
+      text = {
+        Text(
+          text = stringResource(R.string.text_secure_normal__starred_messages)
+        )
+      },
+      onClick = {
+        callback.onStarredMessagesClick()
         onOptionSelected()
       }
     )

@@ -59,6 +59,7 @@ dependencies {
   implementation(project(":core:util"))
   implementation(project(":core:models-jvm"))
   implementation(project(":lib:libsignal-service"))
+  implementation(project(":lib:qr"))
 
   // libsignal-protocol for PreKeyCollection types
   implementation(libs.libsignal.client)
@@ -69,6 +70,7 @@ dependencies {
   // AndroidX
   implementation(libs.androidx.activity.compose)
   implementation(libs.androidx.core.ktx)
+  implementation(libs.androidx.documentfile)
   implementation(libs.androidx.sqlite)
   implementation(libs.androidx.sqlite.framework)
 

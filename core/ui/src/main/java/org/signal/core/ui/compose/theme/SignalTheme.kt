@@ -1,7 +1,6 @@
 package org.signal.core.ui.compose.theme
 
 import android.content.res.Configuration
-import androidx.annotation.Discouraged
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import org.signal.core.ui.CoreUiDependencies
 import org.signal.core.ui.compose.ProvideIncognitoKeyboard
 
 private val typography = Typography().run {
@@ -86,6 +86,7 @@ private val lightColorScheme = lightColorScheme(
   secondary = Color(0xFF586071),
   secondaryContainer = Color(0xFFDCE5F9),
   surface = Color(0xFFFBFCFF),
+  surfaceContainerLow = Color(0xFFF2F5F9),
   surfaceVariant = Color(0xFFE7EBF3),
   background = Color(0xFFFBFCFF),
   error = Color(0xFFBA1B1B),
@@ -122,7 +123,9 @@ private val lightExtendedColors = ExtendedColors(
   colorTransparentInverse4 = Color(0xB8000000),
   colorTransparentInverse5 = Color(0xE0000000),
   colorNeutralInverse = Color(0xFF121212),
-  colorNeutralVariantInverse = Color(0xFF5C5C5C)
+  colorNeutralVariantInverse = Color(0xFF5C5C5C),
+  colorWarning = Color(0x1FB44828),
+  colorOnWarning = Color(0xFFB44828)
 )
 
 private val darkExtendedColors = ExtendedColors(
@@ -147,7 +150,9 @@ private val darkExtendedColors = ExtendedColors(
   colorTransparentInverse4 = Color(0xB8000000),
   colorTransparentInverse5 = Color(0xF5000000),
   colorNeutralInverse = Color(0xE0FFFFFF),
-  colorNeutralVariantInverse = Color(0xA3FFFFFF)
+  colorNeutralVariantInverse = Color(0xA3FFFFFF),
+  colorWarning = Color(0x1FEB977D),
+  colorOnWarning = Color(0xFFEB977D)
 )
 
 private val darkColorScheme = darkColorScheme(
@@ -156,6 +161,7 @@ private val darkColorScheme = darkColorScheme(
   secondary = Color(0xFFC1C6DD),
   secondaryContainer = Color(0xFF414659),
   surface = Color(0xFF1B1C1F),
+  surfaceContainerLow = Color(0xFF23242A),
   surfaceVariant = Color(0xFF303133),
   background = Color(0xFF1B1C1F),
   error = Color(0xFFFFB4A9),
@@ -186,11 +192,10 @@ private val darkSnackbarColors = SnackbarColors(
   dismissActionContentColor = darkColorScheme.onSurfaceVariant
 )
 
-@Discouraged("Use org.thoughtcrime.securesms.compose.SignalTheme instead.")
 @Composable
 fun SignalTheme(
   isDarkMode: Boolean = LocalConfiguration.current.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES,
-  incognitoKeyboardEnabled: Boolean = false,
+  incognitoKeyboardEnabled: Boolean = CoreUiDependencies.isIncognitoKeyboardEnabled,
   content: @Composable () -> Unit
 ) {
 
@@ -270,7 +275,6 @@ private fun TypographyPreview() {
   }
 }
 
-@Discouraged("Use org.thoughtcrime.securesms.compose.SignalTheme instead.")
 object SignalTheme {
   val colors: ExtendedColors
     @Composable

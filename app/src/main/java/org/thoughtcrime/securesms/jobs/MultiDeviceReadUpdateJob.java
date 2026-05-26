@@ -3,7 +3,8 @@ package org.thoughtcrime.securesms.jobs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.annimon.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.signal.core.util.ListUtil;
@@ -14,6 +15,7 @@ import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -25,7 +27,7 @@ import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
 import org.whispersystems.signalservice.api.messages.multidevice.ReadMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage;
 import org.signal.core.models.ServiceId;
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
+import org.signal.network.exceptions.PushNetworkException;
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException;
 
 import java.io.IOException;
@@ -47,6 +49,7 @@ public class MultiDeviceReadUpdateJob extends BaseJob {
   private MultiDeviceReadUpdateJob(List<SyncMessageId> messageIds) {
     this(new Job.Parameters.Builder()
                            .addConstraint(NetworkConstraint.KEY)
+                           .addConstraint(SealedSenderConstraint.KEY)
                            .setLifespan(TimeUnit.DAYS.toMillis(1))
                            .setMaxAttempts(Parameters.UNLIMITED)
                            .build(),
@@ -169,8 +172,7 @@ public class MultiDeviceReadUpdateJob extends BaseJob {
                                           throw new AssertionError(e);
                                         }
                                       })
-                                      .map(id -> new SyncMessageId(RecipientId.from(id.recipientId), id.timestamp))
-                                      .toList();
+                                      .map(id -> new SyncMessageId(RecipientId.from(id.recipientId), id.timestamp)).collect(Collectors.toList());
 
       return new MultiDeviceReadUpdateJob(parameters, ids);
     }

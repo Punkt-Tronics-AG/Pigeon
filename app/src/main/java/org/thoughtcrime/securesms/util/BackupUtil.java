@@ -11,16 +11,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.documentfile.provider.DocumentFile;
 
+import org.signal.core.util.Util;
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.util.ByteUtil;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.backup.BackupPassphrase;
-import org.thoughtcrime.securesms.database.NoExternalStorageException;
+import org.thoughtcrime.securesms.backup.v2.local.ArchiveFileSystem;
+import org.signal.core.util.NoExternalStorageException;
+import org.signal.core.ui.util.StorageUtil;
 import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.permissions.Permissions;
+import org.signal.core.ui.permissions.Permissions;
 
 import java.io.File;
 import java.security.SecureRandom;
@@ -69,12 +73,54 @@ public class BackupUtil {
     }
   }
 
+  public static boolean canUserAccessUnifiedBackupDirectory(@NonNull Context context) {
+    if (isUserSelectionRequired(context)) {
+      String backupDirectoryPath = SignalStore.backup().getNewLocalBackupsDirectory();
+      if (backupDirectoryPath == null) {
+        return false;
+      }
+
+      Uri backupDirectoryUri = Uri.parse(backupDirectoryPath);
+      if (backupDirectoryUri == null) {
+        return false;
+      }
+
+      DocumentFile backupDirectory = DocumentFile.fromTreeUri(context, backupDirectoryUri);
+      return backupDirectory != null && backupDirectory.exists() && backupDirectory.canRead() && backupDirectory.canWrite();
+    } else {
+      return Permissions.hasAll(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+  }
+
+  public static void deleteUnifiedBackups(@NonNull Context context, @Nullable String backupDirectoryPath) {
+    deleteUnifiedBackups(context, backupDirectoryPath, null);
+  }
+
+  public static void deleteUnifiedBackups(@NonNull Context context, @Nullable String backupDirectoryPath, @Nullable org.thoughtcrime.securesms.backup.v2.local.AllFilesProgressListener progressListener) {
+    if (backupDirectoryPath != null) {
+      Uri          backupDirectoryUri = Uri.parse(backupDirectoryPath);
+      DocumentFile backupDirectory    = DocumentFile.fromTreeUri(context, backupDirectoryUri);
+
+      if (backupDirectory == null || !backupDirectory.exists() || !backupDirectory.canRead() || !backupDirectory.canWrite()) {
+        Log.w(TAG, "Backup directory is inaccessible. Cannot delete backups.");
+        return;
+      }
+
+      for (DocumentFile file : backupDirectory.listFiles()) {
+        if (file.isDirectory() && Objects.equals(file.getName(), ArchiveFileSystem.MAIN_DIRECTORY_NAME)) {
+          ArchiveFileSystem.deleteAll(file, progressListener);
+        }
+      }
+    }
+  }
+
   public static @Nullable BackupInfo getLatestBackup() throws NoExternalStorageException {
     List<BackupInfo> backups = getAllBackupsNewestFirst();
 
     return backups.isEmpty() ? null : backups.get(0);
   }
 
+  @WorkerThread
   public static void deleteAllBackups() {
     Log.i(TAG, "Deleting all backups");
 

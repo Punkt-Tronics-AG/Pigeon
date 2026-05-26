@@ -8,7 +8,7 @@ import "CallQualitySurvey.proto";
 option java_package        = "org.thoughtcrime.securesms.jobs.protos";
 option java_multiple_files = true;
 
-import SignalService.proto;
+import "SignalService.proto";
 
 message CallSyncEventJobRecord {
 
@@ -116,6 +116,14 @@ message RestoreLocalAttachmentJobData {
   uint64 messageId = 2;
   string fileUri = 3;
   uint64 fileSize = 4;
+}
+
+message BackfillCollapsedMessageJobData {
+  int64 lastDateReceived = 1;
+}
+
+message LocalBackupRestoreMediaJobData {
+  string backupDirectoryUri = 1;
 }
 
 message BackfillDigestJobData {
@@ -263,4 +271,14 @@ message UnpinJobData {
 message CallQualitySurveySubmissionJobData {
   org.signal.storageservice.protos.calls.quality.SubmitCallQualitySurveyRequest request = 1;
   bool includeDebugLogs = 2;
+}
+
+message CheckKeyTransparencyJobData{
+  bool showFailure = 1;
+}
+
+message AdminDeleteJobData {
+  uint64 messageId = 1;
+  repeated uint64 recipientIds = 2;
+  uint32 initialRecipientCount = 3;
 }

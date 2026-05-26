@@ -13,7 +13,6 @@ import androidx.activity.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.ActivityNavigator
-import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.BaseActivity
 import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.R
@@ -30,8 +29,6 @@ import pigeon.navigation.PigeonKeyEventBehaviourImpl
  * Activity to hold the entire registration process.
  */
 class RegistrationActivity : BaseActivity() {
-
-  private val TAG = Log.tag(RegistrationActivity::class.java)
 
   private val dynamicTheme = DynamicNoActionBarTheme()
   val sharedViewModel: RegistrationViewModel by viewModels()

@@ -34,9 +34,9 @@ import org.thoughtcrime.securesms.components.settings.DSLSettingsFragment
 import org.thoughtcrime.securesms.components.settings.DSLSettingsText
 import org.thoughtcrime.securesms.components.settings.app.subscription.boost.Boost
 import org.thoughtcrime.securesms.components.settings.app.subscription.donate.gateway.GatewaySelectorBottomSheet
-import org.thoughtcrime.securesms.components.settings.app.subscription.models.CurrencySelection
-import org.thoughtcrime.securesms.components.settings.app.subscription.models.NetworkFailure
 import org.thoughtcrime.securesms.components.settings.app.subscription.thanks.ThanksForYourSupportBottomSheetDialogFragment
+import org.thoughtcrime.securesms.components.settings.app.subscription.ui.CurrencySelection
+import org.thoughtcrime.securesms.components.settings.app.subscription.ui.NetworkFailure
 import org.thoughtcrime.securesms.components.settings.configure
 import org.thoughtcrime.securesms.database.InAppPaymentTable
 import org.thoughtcrime.securesms.database.model.databaseprotos.InAppPaymentData
@@ -52,6 +52,7 @@ import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription
 import java.math.BigDecimal
 import java.util.Currency
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Unified donation fragment which allows users to choose between monthly or one-time donations.
@@ -97,10 +98,10 @@ class DonateToSignalFragment :
   private val binding by ViewBinderDelegate(DonateToSignalFragmentBinding::bind)
 
   private val supportTechSummary: CharSequence by lazy {
-    SpannableStringBuilder(SpanUtil.color(ContextCompat.getColor(requireContext(), R.color.signal_colorOnSurfaceVariant), requireContext().getString(R.string.DonateToSignalFragment__private_messaging)))
-      .append(" ")
+    SpannableStringBuilder(SpanUtil.color(ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorOnSurfaceVariant), requireContext().getString(R.string.DonateToSignalFragment__private_messaging)))
+      .append("\n")
       .append(
-        SpanUtil.readMore(requireContext(), ContextCompat.getColor(requireContext(), R.color.signal_colorPrimary)) {
+        SpanUtil.readMore(requireContext(), ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorPrimary)) {
           findNavController().safeNavigate(DonateToSignalFragmentDirections.actionDonateToSignalFragmentToSubscribeLearnMoreBottomSheetDialog())
         }
       )
@@ -112,8 +113,8 @@ class DonateToSignalFragment :
 
   override fun getMaterial3OnScrollHelper(toolbar: Toolbar?): Material3OnScrollHelper {
     return object : Material3OnScrollHelper(activity = requireActivity(), views = listOf(toolbar!!), lifecycleOwner = viewLifecycleOwner) {
-      override val activeColorSet: ColorSet = ColorSet(R.color.transparent, R.color.signal_colorBackground)
-      override val inactiveColorSet: ColorSet = ColorSet(R.color.transparent, R.color.signal_colorBackground)
+      override val activeColorSet: ColorSet = ColorSet(R.color.transparent, CoreUiR.color.signal_colorBackground)
+      override val inactiveColorSet: ColorSet = ColorSet(R.color.transparent, CoreUiR.color.signal_colorBackground)
     }
   }
 
@@ -309,7 +310,7 @@ class DonateToSignalFragment :
           text = DSLSettingsText.from(R.string.SubscribeFragment__cancel_subscription),
           isEnabled = state.areFieldsEnabled,
           onClick = {
-            if (state.monthlyDonationState.transactionState.isTransactionJobPending) {
+            if (state.monthlyDonationState.transactionState.isTransactionJobPending && !state.monthlyDonationState.transactionState.isKeepAlive) {
               showDonationPendingDialog(state)
             } else {
               MaterialAlertDialogBuilder(requireContext())
@@ -347,7 +348,7 @@ class DonateToSignalFragment :
       if (state.oneTimeDonationState.isOneTimeDonationLongRunning) {
         R.string.DonateToSignalFragment__bank_transfers_usually_take_1_business_day_to_process_onetime
       } else if (state.oneTimeDonationState.isNonVerifiedIdeal) {
-        R.string.DonateToSignalFragment__your_ideal_payment_is_still_processing
+        R.string.DonateToSignalFragment__your_ideal_wero_payment_is_still_processing
       } else {
         R.string.DonateToSignalFragment__your_payment_is_still_being_processed_onetime
       }
@@ -355,7 +356,7 @@ class DonateToSignalFragment :
       if (state.monthlyDonationState.activeSubscription?.paymentMethod == ActiveSubscription.PaymentMethod.SEPA_DEBIT) {
         R.string.DonateToSignalFragment__bank_transfers_usually_take_1_business_day_to_process_monthly
       } else if (state.monthlyDonationState.nonVerifiedMonthlyDonation != null) {
-        R.string.DonateToSignalFragment__your_ideal_payment_is_still_processing
+        R.string.DonateToSignalFragment__your_ideal_wero_payment_is_still_processing
       } else {
         R.string.DonateToSignalFragment__your_payment_is_still_being_processed_monthly
       }

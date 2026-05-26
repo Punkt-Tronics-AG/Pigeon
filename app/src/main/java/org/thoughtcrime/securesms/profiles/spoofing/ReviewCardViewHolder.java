@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.databinding.ReviewCardBinding;
 import org.thoughtcrime.securesms.util.SpanUtil;
-import org.whispersystems.signalservice.api.util.Preconditions;
+import org.signal.network.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,7 +158,7 @@ class ReviewCardViewHolder extends RecyclerView.ViewHolder {
   private void presentSignalConnection(@NonNull TextView line, @NonNull ImageView icon, @NonNull Context context, @NonNull ReviewCard reviewCard) {
     Preconditions.checkArgument(reviewCard.getReviewRecipient().isProfileSharing());
 
-    Drawable chevron = ContextCompat.getDrawable(context, R.drawable.symbol_chevron_right_24);
+    Drawable chevron = ContextCompat.getDrawable(context, org.signal.core.ui.R.drawable.symbol_chevron_right_24);
     Preconditions.checkNotNull(chevron);
     chevron.setTint(ContextCompat.getColor(context, R.color.core_grey_45));
 

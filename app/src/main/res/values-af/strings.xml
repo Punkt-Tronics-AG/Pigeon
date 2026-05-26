@@ -10,7 +10,7 @@
   <!-- Removed by excludeNonTranslatables <string name="install_url" translatable="false">https://signal.org/install</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_url" translatable="false">https://signal.org/donate</string> -->
   <!-- Removed by excludeNonTranslatables <string name="backup_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="backup_failed_support_url" translatable="false">https://support.signal.org/hc/articles/8768161836954</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="remote_backup_support_url" translatable="false">https://support.signal.org/hc/articles/9708267671322</string> -->
   <!-- Removed by excludeNonTranslatables <string name="transfer_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
   <!-- Removed by excludeNonTranslatables <string name="support_center_url" translatable="false">https://support.signal.org/</string> -->
   <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
@@ -22,6 +22,7 @@
   <!-- Removed by excludeNonTranslatables <string name="export_account_data_url" translatable="false">https://support.signal.org/hc/articles/5538911756954</string> -->
   <!-- Removed by excludeNonTranslatables <string name="pending_transfer_url" translatable="false">https://support.signal.org/hc/articles/360031949872#pending</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_faq_url" translatable="false">https://support.signal.org/hc/articles/360031949872#donate</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="inactive_primary_support" translatable="false">https://support.signal.org/hc/articles/9021007554074</string> -->
 
     <!-- First placeholder is productId, second placeholder is app package -->
     <string name="backup_subscription_management_url">https://play.google.com/store/account/subscriptions?sku=%1$s&amp;package=%2$s</string>
@@ -313,6 +314,20 @@
     <string name="CameraXFragment_to_capture_videos">Om video\'s met klank te neem:</string>
     <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
     <string name="CameraXFragment_to_scan_qr_codes">Om QR-kodes te skandeer:</string>
+    <!-- Error message shown when we try to take a photo, but fail -->
+    <string name="CameraXFragment_photo_capture_failed">Kon nie foto neem nie. Probeer asb. weer.</string>
+    <!-- Error message shown when we try to take a photo, but fail when trying to process it (convert it into something the user can see). -->
+    <string name="CameraXFragment_photo_processing_failed">Kon nie foto verwerk nie. Probeer asb. weer.</string>
+    <!-- Accessibility label for the switch camera button -->
+    <string name="CameraXFragment_switch_camera">Verander kamera</string>
+    <!-- Accessibility label for flash button when flash is off -->
+    <string name="CameraXFragment_flash_off">Flits af</string>
+    <!-- Accessibility label for flash button when flash is on -->
+    <string name="CameraXFragment_flash_on">Flits aan</string>
+    <!-- Accessibility label for flash button when flash is set to auto -->
+    <string name="CameraXFragment_flash_auto">Outoflits</string>
+    <!-- Accessibility label for the send button in media selection -->
+    <string name="CameraXFragment_send">Stuur</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">Onlangse kontakte</string>
@@ -419,7 +434,11 @@
     <!-- ConversationItem -->
     <string name="ConversationItem_error_not_sent_tap_for_details">Nie gestuur nie, tik hier vir besonderhede</string>
     <string name="ConversationItem_error_partially_not_delivered">Gedeeltelik gestuur, tik vir besonderhede</string>
+    <!-- Warning footer when an admin delete has not been sent to everyone -->
+    <string name="ConversationItem_error_partially_not_deleted">Gedeeltelik geskrap, tik hier vir besonderhede</string>
     <string name="ConversationItem_error_network_not_delivered">Kon nie stuur nie</string>
+    <!-- Warning footer when an admin delete has failed to send -->
+    <string name="ConversationItem_error_delete_failed">Skrapping het misluk, tik hier vir besonderhede</string>
     <string name="ConversationItem_group_action_left">%1$s het die groep verlaat.</string>
     <string name="ConversationItem_send_paused">Stuur onderbreek</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">Terugval na ongeënkripteerde SMS?</string>
@@ -434,8 +453,12 @@
     <!-- Footer shown at the end of long body messages to download more of it -->
     <string name="ConversationItem_download_more">  Laai Meer Af</string>
     <string name="ConversationItem_pending">  Hangend</string>
-    <string name="ConversationItem_this_message_was_deleted">Hierdie boodskap is geskrap.</string>
-    <string name="ConversationItem_you_deleted_this_message">Jy het hierdie boodskap geskrap.</string>
+    <string name="ConversationItem_this_message_was_deleted">Hierdie boodskap is geskrap</string>
+    <!-- Conversation message shown when someone deletes their own message. Placeholder is the name of the person. -->
+    <string name="ConversationItem_s_deleted_this_message">%1$s het hierdie boodskap geskrap</string>
+    <string name="ConversationItem_you_deleted_this_message">Jy het hierdie boodskap geskrap</string>
+    <!-- Conversation message when a message has been deleted by an admin. The placeholder is the admin\'s name. -->
+    <string name="ConversationItem_admin_s_deleted_this_message">Admin %1$s het hierdie boodskap geskrap</string>
     <!-- Dialog error message shown when user can\'t download a message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
     <string name="ConversationItem_cant_download_message_s_will_need_to_send_it_again">Kan nie boodskap aflaai nie. %1$s sal dit weer moet stuur.</string>
     <!-- Dialog error message shown when user can\'t download an image message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
@@ -466,7 +489,6 @@
     <!-- Toast shown when user is unable to find the recipient when sending a message -->
     <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">Ontvanger is nie \'n geldige SMS- of e-pos-adres nie</string>
     <string name="ConversationActivity_message_is_empty_exclamation">Boodskap is leeg!</string>
-    <string name="ConversationActivity_group_members">Groeplede</string>
     <!-- Warning dialog text shown to user if they try to send a message edit that is too old where %1$d is replaced with the amount of hours, e.g. 3 -->
     <plurals name="ConversationActivity_edit_message_too_old">
         <item quantity="one">Wysigings kan slegs aangebring word binne %1$d uur vanaf die tyd wat jy hierdie boodskap gestuur het.</item>
@@ -495,6 +517,8 @@
     <string name="ConversationActivity_attachment_exceeds_size_limits">Die aanhangsel oorskry die groottegrense vir die tipe boodskap wat jy stuur.</string>
     <string name="ConversationActivity_unable_to_record_audio">Kan nie klank opneem nie!</string>
     <string name="ConversationActivity_you_cant_send_messages_to_this_group">Jy kan nie boodskappe aan hierdie groep stuur nie, want jy is nie meer \'n lid nie.</string>
+  <!-- Removed by excludeNonTranslatables <string name="DisabledInputView__incognito_mode" translatable="false">Incognito mode (Labs)</string> -->
+    <string name="ConversationActivity_you_cant_send_messages_because_group_ended">Jy kan nie boodskappe stuur nie, want die groep is beëindig.</string>
     <string name="ConversationActivity_only_s_can_send_messages">Slegs %1$s kan boodskappe stuur.</string>
     <string name="ConversationActivity_admins">admins</string>
     <string name="ConversationActivity_message_an_admin">Stuur ’n boodskap aan admin</string>
@@ -602,6 +626,23 @@
     <string name="ConversationFragment_deleting_messages">Skrap tans boodskappe…</string>
     <string name="ConversationFragment_delete_for_me">Skrap vir my</string>
     <string name="ConversationFragment_delete_for_everyone">Skrap vir almal</string>
+    <!-- Title of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_title">
+        <item quantity="one">Skrap geselekteerde boodskap?</item>
+        <item quantity="other">Skrap geselekteerde boodskappe?</item>
+    </plurals>
+    <!-- Body of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_body">
+        <item quantity="one">Vir wie wil jy hierdie boodskap skrap?</item>
+        <item quantity="other">Vir wie wil jy hierdie boodskappe skrap?</item>
+    </plurals>
+    <!-- Confirmation button to delete the message -->
+    <string name="ConversationFragment_delete_for_everyone_title">Skrap vir almal?</string>
+    <!-- Body of dialog explaining what happens during deletion -->
+    <plurals name="ConversationFragment_delete_for_everyone_body">
+        <item quantity="one">Groeplede op die jongste weergawe van Signal sal sien jy het hierdie boodskap geskrap.</item>
+        <item quantity="other">Groeplede op die jongste weergawe van Signal sal sien jy het hierdie boodskappe geskrap.</item>
+    </plurals>
     <!-- Dialog button for deleting one or more note-to-self messages only on this device, leaving that same message intact on other devices. -->
     <string name="ConversationFragment_delete_on_this_device">Skrap van hierdie toestel af</string>
     <!-- Dialog button for deleting one or more note-to-self messages that will be sync\'d to other devices -->
@@ -617,7 +658,11 @@
     <string name="ConversationFragment_view_once_media_is_deleted_after_sending">Eenkeerkyk-media word uitgevee nadat dit gestuur is</string>
     <string name="ConversationFragment_you_already_viewed_this_message">Jy het reeds na hierdie boodskap gekyk</string>
     <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">Jy kan notas vir jouself in hierdie klets byvoeg. Indien daar enige toestelle aan jou rekening gekoppel is, sal nuwe notas gesinchroniseer word.</string>
-    <string name="ConversationFragment__d_group_members_have_the_same_name">%1$d groepslede het dieselfde naam.</string>
+    <!-- Text in banner to show how many people have the same name. -->
+    <plurals name="ConversationFragment__d_group_members_have_the_same_name">
+        <item quantity="one">%1$d groeplid het dieselfde naam.</item>
+        <item quantity="other">%1$d groeplede het dieselfde naam.</item>
+    </plurals>
     <string name="ConversationFragment__tap_to_review">Tik om te hersien</string>
     <!-- The body of a banner that can show up at the top of a chat, letting the user know that you have two contacts with the same name -->
     <string name="ConversationFragment__review_banner_body">Hierdie persoon het dieselfde naam as \'n ander kontak</string>
@@ -670,10 +715,19 @@
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Jy het \'n boodskapversoek van %1$s aanvaar. As dit \'n fout was, kan jy \'n aksie hier onder kies.</string>
     <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
     <string name="ConversationFragment_review_carefully">Gaan noukeurig na</string>
-    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
-    <string name="ConversationFragment_profile_names_not_verified">%1$s is nie geverifieer nie</string>
-    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
-    <string name="ConversationFragment_group_names_not_verified">%1$s is nie geverifieer nie</string>
+    <!-- Text shown in conversation header when in a message request state that the name is not verified -->
+    <string name="ConversationFragment_name_not_verified">Naam nie geverifieer nie</string>
+    <!-- Label for official chat pill shown in the Note to Self conversation header -->
+    <string name="ConversationFragment_official_chat">Amptelike klets</string>
+    <!-- Description shown in the Signal release notes conversation header -->
+    <string name="ConversationFragment_release_notes_description">Die enigste amptelike klets van Signal. Bly op datum met nuus en vrystellingnotas.</string>
+    <!-- Label shown in place of the input in the Signal release notes conversation -->
+    <string name="ConversationFragment_the_only_official_chat_from_signal">Die enigste amptelike klets van Signal</string>
+    <!-- Plural for group member count shown in conversation header. %1$d is the number of members -->
+    <plurals name="ConversationFragment_group_member_count">
+        <item quantity="one">%1$d lid</item>
+        <item quantity="other">%1$d lede</item>
+    </plurals>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
     <string name="ConversationFragment_profile_names">Profielname</string>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
@@ -699,39 +753,57 @@
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Veiligheidswenke</string>
-    <!-- Dialog subtitle when showign tips for a 1:1 conversation -->
-    <string name="SafetyTips_subtitle_individual">Wees versigtig wanneer jy boodskapversoeke aanvaar van mense wat jy nie ken nie. Let op vir:</string>
-    <!-- Dialog subtitle when showing tips for a group conversation -->
-    <string name="SafetyTips_subtitle_group">Gaan hierdie versoek noukeurig na. Geeneen van jou kontakte of mense met wie jy klets is in hierdie groep nie. Hier is \'n paar dinge om na op te let:</string>
-    <!-- Button text to move to the previous tip-->
+    <!-- Button text to view more safety tips -->
+    <string name="SafetyTips_view_more">Sien meer</string>
+    <!-- Content description for previous tip button -->
     <string name="SafetyTips_previous_tip">Vorige wenk</string>
-    <!-- Button text to move to the next tip -->
+    <!-- Content description for next tip button -->
     <string name="SafetyTips_next_tip">Volgende wenk</string>
-    <!-- Title of tip 0 -->
-    <string name="SafetyTips_tip0_title">Vals name en rekeninge</string>
-    <!-- Message of tip 0 -->
-    <string name="SafetyTips_tip0_message">Signal sal jou nooit vir jou registrasiekode of PIN kontak nie. Wees versigtig vir rekeninge wat ander naboots. Profielname word deur hul rekeninghouer gekies en word nie geverifieer nie.</string>
-    <!-- Title of tip 1 -->
-    <string name="SafetyTips_tip1_title">Kripto- of geldslenters</string>
-    <!-- Message of tip 1 -->
-    <string name="SafetyTips_tip1_message">As iemand wat jy nie ken nie aan jou boodskappe oor kriptogeld (soos Bitcoin) of \'n finansiële geleentheid stuur, wees versigtig—dit is waarskynlik slenterpos.</string>
-    <!-- Title of tip 2 -->
-    <string name="SafetyTips_tip2_title">Vae of irrelevante boodskappe</string>
-    <!-- Message of tip 2 -->
-    <string name="SafetyTips_tip2_message">Mense met slenters begin dikwels met \'n eenvoudige boodskap soos \"Haai\" om jou in te trek. As jy reageer, kan hulle verder met jou kommunikeer.</string>
-    <!-- Title of tip 3 -->
-    <string name="SafetyTips_tip3_title">Boodskappe met skakels</string>
-    <!-- Message of tip 3 -->
-    <string name="SafetyTips_tip3_message">Wees versigtig vir boodskappe van mense wat jy nie ken nie wat skakels na webwerwe het. Moet nooit skakels volg van mense wat jy nie vertrou nie.</string>
-    <!-- Title of tip 4 -->
-    <string name="SafetyTips_tip4_title">Vals besighede en instansies</string>
-    <!-- Message of tip 4 -->
-    <string name="SafetyTips_tip4_message">Wees versigtig vir besighede of regeringsinstansies wat jou kontak. Boodskappe waarby die Inkomstediens, koeriers en so meer betrokke is, kan slenterpos wees.</string>
+
+    <!-- Summary tip 0 title: Don\'t respond to chats from Signal -->
+    <string name="SafetyTips_summary_tip0_title">Moenie reageer op kletse van Signal af nie</string>
+    <!-- Summary tip 0 message -->
+    <string name="SafetyTips_summary_tip0_message">Signal sal nooit vir jou \'n boodskap vir jou registrasiekode, PIN of herwinsleutel stuur nie. Moet nooit reageer op \'n klets wat voorgee dat dit van Signal af is nie.</string>
+    <!-- Summary tip 1 title: Review names and photos -->
+    <string name="SafetyTips_summary_tip1_title">Gaan name en foto\'s na</string>
+    <!-- Summary tip 1 message -->
+    <string name="SafetyTips_summary_tip1_message">Kyk uit vir die \"Naam nie geverifieer nie\"-kennisgewing. Almal stel hul eie profielnaam in Signal op.</string>
+    <!-- Summary tip 2 title: Look out for scams -->
+    <string name="SafetyTips_summary_tip2_title">Wees bedag op slenters</string>
+    <!-- Summary tip 2 message -->
+    <string name="SafetyTips_summary_tip2_message">Vermy vae boodskappe wat probeer om jou te kry om te antwoord. Wees versigtig vir finansiële wenke en verdagte webskakels.</string>
+
+    <!-- Detail tip 0 title -->
+    <string name="SafetyTips_detail_tip0_title">Moenie reageer op kletse van Signal af nie</string>
+    <!-- Detail tip 0 message -->
+    <string name="SafetyTips_detail_tip0_message">Signal sal nooit vir jou \'n boodskap vir jou registrasiekode, PIN of herwinsleutel stuur nie. Moenie reageer op kletse wat voorgee dat dit van Signal of die Signal-steundiens af is nie. Skelms stel vals kletse op om te probeer om jou rekening oor te neem.</string>
+    <!-- Detail tip 1 title -->
+    <string name="SafetyTips_detail_tip1_title">Gaan name en foto\'s na</string>
+    <!-- Detail tip 1 message -->
+    <string name="SafetyTips_detail_tip1_message">Kyk uit vir die \"Naam nie geverifieer nie\"-kennisgewing. Almal stel hul eie profielnaam en -foto in Signal op. Indien jy onseker is oor van wie \'n nuwe versoek kom, is dit veiliger om dit te ignoreer.</string>
+    <!-- Detail tip 2 title -->
+    <string name="SafetyTips_detail_tip2_title">Vae of irrelevante boodskappe</string>
+    <!-- Detail tip 2 message -->
+    <string name="SafetyTips_detail_tip2_message">Mense met slenters begin dikwels met \'n eenvoudige boodskap soos \"Haai\" om jou in te trek. As jy reageer, kan hulle verder met jou kommunikeer.</string>
+    <!-- Detail tip 3 title -->
+    <string name="SafetyTips_detail_tip3_title">Boodskappe met webskakels</string>
+    <!-- Detail tip 3 message -->
+    <string name="SafetyTips_detail_tip3_message">Wees versigtig vir boodskappe van mense wat jy nie ken nie wat skakels na webwerwe het. Moet nooit skakels volg van mense wat jy nie vertrou nie.</string>
+    <!-- Detail tip 4 title -->
+    <string name="SafetyTips_detail_tip4_title">Kripto- of geldslenters</string>
+    <!-- Detail tip 4 message -->
+    <string name="SafetyTips_detail_tip4_message">As iemand wat jy nie ken nie aan jou boodskappe oor kriptogeld (soos Bitcoin) of \'n finansiële geleentheid stuur, wees versigtig—dit is waarskynlik slenterpos.</string>
+    <!-- Detail tip 5 title -->
+    <string name="SafetyTips_detail_tip5_title">Vals besighede</string>
+    <!-- Detail tip 5 message -->
+    <string name="SafetyTips_detail_tip5_message">Wees versigtig vir besighede of regeringsinstansies wat jou kontak. Boodskappe waarby die Inkomstediens, koeriers en so meer betrokke is, kan slenterpos wees.</string>
 
     <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
     <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s in Signal word deur hul rekeninghouer gekies.</string>
-    <!-- Bottom sheet text explaining that profile names are not verified. -->
-    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Profielname is nie geverifieer nie</string>
+    <!-- Bottom sheet text explaining that Signal can\'t verify names and photos -->
+    <string name="ProfileNameBottomSheet__signal_cant_verify">Signal kan nie name en foto\'s verifieer nie</string>
+    <!-- Bottom sheet text explaining that Signal will never contact you for registration code, PIN, or recovery key -->
+    <string name="ProfileNameBottomSheet__signal_will_never_contact">Signal sal jou nooit vir jou registrasiekode, PIN of herwinsleutel kontak nie</string>
     <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
     <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Wees versigtig vir rekeninge wat ander naboots</string>
     <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
@@ -940,7 +1012,7 @@
     <string name="BackupsPreferenceFragment__backup_time">Tyd vir rugsteun</string>
     <string name="BackupsPreferenceFragment__verify_backup_passphrase">Verifieer rugsteun-wagwoordfrase</string>
     <string name="BackupsPreferenceFragment__test_your_backup_passphrase">Toets jou wagwoordfrase en verifieer dat dit ooreenkom</string>
-    <string name="BackupsPreferenceFragment__turn_on">Skakel aan</string>
+    <string name="BackupsPreferenceFragment__turn_on">Skakel rugsteun aan</string>
     <string name="BackupsPreferenceFragment__turn_off">Skakel af</string>
     <string name="BackupsPreferenceFragment__to_restore_a_backup">"Om \'n rugsteun te herwin, installeer \'n nuwe kopie van Signal. Maak die toepassing oop, tik op \"Herwin vanaf rugsteun\" en spoor dan \'n rugsteunlêer op. %1$s"</string>
     <string name="BackupsPreferenceFragment__learn_more">Vind meer uit</string>
@@ -1638,6 +1710,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Kon nie by groep aansluit nie. Probeer asb. later weer.</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Netwerkfout teëgekom.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">Hierdie groepskakel is nie aktief nie.</string>
+    <!-- Toast message shown when trying to join a group via link but the group has been ended -->
+    <string name="GroupJoinBottomSheetDialogFragment_this_group_has_been_ended">Kon nie by hierdie groep aansluit nie.</string>
     <!-- Toast message shown when trying to join a group by link but the group is full -->
     <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Groepbeperking bereik, kan nie by groep aansluit nie</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
@@ -1738,6 +1812,8 @@
     <string name="MediaOverviewActivity_Files">Lêers</string>
     <string name="MediaOverviewActivity_Audio">Klank</string>
     <string name="MediaOverviewActivity_All">Alle</string>
+    <string name="MediaOverviewActivity_Links">Skakels</string>
+    <string name="MediaOverviewActivity_link">Skakel</string>
     <plurals name="MediaOverviewActivity_Media_delete_confirm_title">
         <item quantity="one">Verwyder gekose item?</item>
         <item quantity="other">Skrap gekose items?</item>
@@ -1748,6 +1824,8 @@
     </plurals>
     <string name="MediaOverviewActivity_Media_delete_progress_title">Skrap tans</string>
     <string name="MediaOverviewActivity_Media_delete_progress_message">Skrap tans boodskappe…</string>
+    <!-- Format string showing current vs. total items being deleted, e.g. "12 of 207" -->
+    <string name="MediaOverviewActivity_Media_delete_progress_count">%1$d of %2$d</string>
     <string name="MediaOverviewActivity_Sort_by">Sorteer volgens</string>
     <string name="MediaOverviewActivity_Newest">Nuutste</string>
     <string name="MediaOverviewActivity_Oldest">Oudste</string>
@@ -1784,6 +1862,7 @@
     <string name="MediaOverviewActivity_sent_by_you_to_s">Deur jou aan %1$s gestuur</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="MediaOverviewActivity_this_media_is_not_sent_yet">Hierdie media is nog nie gestuur nie.</string>
+    <string name="MediaOverviewActivity_jump_to_message">Gaan na boodskap</string>
 
     <!-- Megaphones -->
     <string name="Megaphones_remind_me_later">Herinner my later</string>
@@ -1806,6 +1885,16 @@
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">Antwoorde</string>
+
+    <!-- StarredMessagesFragment -->
+    <!-- Title for the starred messages screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesActivity__starred_messages" translatable="false">Starred messages</string> -->
+    <!-- Empty state text when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__no_starred_messages" translatable="false">No starred messages</string> -->
+    <!-- Empty state description when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__tap_and_hold_on_a_message_to_star_it" translatable="false">Tap and hold on a message to star it.</string> -->
+    <!-- Format for starred message source label, e.g. "Alice › Book Club" -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessages__s_chevron_s" translatable="false">%1$s \u203A %2$s</string> -->
 
     <!-- NotificationBarManager -->
     <string name="NotificationBarManager__establishing_signal_call">Bevestig Signal-oproep</string>
@@ -1841,6 +1930,12 @@
     <string name="MessageRecord_left_group">Jy het die groep verlaat.</string>
     <string name="MessageRecord_you_updated_group">Jy het die groep bygewerk.</string>
     <string name="MessageRecord_the_group_was_updated">Die groep is bygewerk.</string>
+    <!-- Update message shown a group is terminated, but the person that terminated it is unknown. -->
+    <string name="MessageRecord_the_group_was_terminated">Die groep is beëindig.</string>
+    <!-- Update message shown when a group is terminated, placeholder is the name of the person that terminated the group. -->
+    <string name="MessageRecord_s_terminated_the_group">%1$s het die groep beëindig</string>
+    <!-- Update message shown when a group is terminated by you -->
+    <string name="MessageRecord_you_terminated_the_group">Jy het die groep beëindig</string>
     <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">Uitgaande stemoproep</string>
     <!-- Update message shown when placing an outgoing 1:1 video call -->
@@ -1857,6 +1952,10 @@
     <string name="MessageRecord_declined_voice_call">Stemoproep geweier</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_declined_video_call">Video-oproep geweier</string>
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_voice_call">Onbeantwoorde stemoproep</string>
+    <!-- Update message shown when placing an outgoing 1:1 video call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_video_call">Onbeantwoorde video-oproep</string>
     <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
     <string name="MessageRecord_missed_voice_call_notification_profile">Gemiste stemoproep terwyl kennisgewingprofiel aan was</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
@@ -1984,6 +2083,13 @@
     <string name="MessageRecord_you_changed_who_can_edit_group_membership_to_s">Jy het verander wie groeplidmaatskap kan wysig na \"%1$s\".</string>
     <string name="MessageRecord_s_changed_who_can_edit_group_membership_to_s">%1$s het verander wie groeplidmaatskap kan wysig na \"%2$s\".</string>
     <string name="MessageRecord_who_can_edit_group_membership_has_been_changed_to_s">Persoon wat groeplidmaatskap kan wysig, is verander na \"%1$s\".</string>
+
+    <!-- Shown when the current user changes the member label permission. -->
+    <string name="MessageRecord_you_changed_who_can_add_member_labels_to_s">Jy het mense wat lidfunksie-etikette kan byvoeg, verander na \"%1$s\".</string>
+    <!-- Shown when another group member changes the member label permission. -->
+    <string name="MessageRecord_s_changed_who_can_add_member_labels_to_s">%1$s het mense wat lidfunksie-etikette kan byvoeg, verander na \"%2$s\".</string>
+    <!-- Shown when the member label permission is changed by an unknown admin. -->
+    <string name="MessageRecord_unknown_admin_changed_who_can_add_member_labels_to_s">\'n Admin het mense wat lidfunksie-etikette kan byvoeg, verander na \"%1$s\".</string>
 
     <!-- GV2 announcement group change -->
     <string name="MessageRecord_you_allow_all_members_to_send">Jy het die groepinstellings verander sodat alle lede boodskappe kan stuur.</string>
@@ -2143,8 +2249,10 @@
     <string name="MessageRecord__payment_tombstone">Betaling</string>
     <!-- Update message shown in chat after reporting it as spam -->
     <string name="MessageRecord_reported_as_spam">As slenterpos gerapporteer</string>
-    <!-- Update message shown in chat after accept a message request -->
-    <string name="MessageRecord_you_accepted_the_message_request">Jy het die boodskapversoek aanvaar</string>
+    <!-- Update message shown in chat after accept a message request, placeholder is the other person\'s display name -->
+    <string name="MessageRecord_you_accepted_s_message_request">Jy het %1$s se boodskapversoek aanvaar</string>
+    <!-- Update message shown in a group chat after accepting a group message request -->
+    <string name="MessageRecord_you_accepted_the_group_request">Jy het die groepversoek aanvaar</string>
     <!-- Update message shown in chat after you block a person -->
     <string name="MessageRecord_you_blocked_this_person">Jy het hierdie persoon geblokkeer</string>
     <!-- Update message shown in chat after you unblock a person -->
@@ -2168,7 +2276,7 @@
     <string name="MessageRequestBottomView_unblock">Ontsper</string>
     <!-- Text explaining a message request from someone you\'ve removed before -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_you_removed_them_before">Laat %1$s toe om vir jou \'n boodskap stuur en deel jou naam en foto met hulle? Jy het hierdie persoon in die verlede verwyder.</string>
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Laat %1$s toe om vir jou boodskappe stuur, en deel jou naam en foto met hulle? Tot jy aanvaar, sal hulle nie weet dat jy hulle boodskap gesien het nie.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Laat hierdie persoon toe om vir jou boodskappe te stuur, en deel jou naam en foto met hulle? Tot jy aanvaar, sal hulle nie weet dat jy hul boodskap gesien het nie.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock a Signal user -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Laat %1$s toe om vir jou boodskappe stuur, en deel jou naam en foto met hulle? Tot jy hulle ontsper, sal jy geen boodskappe ontvang nie.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock an SMS user -->
@@ -2230,11 +2338,15 @@
         <item quantity="other">%1$d ander</item>
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
-    <string name="MessageRequestBottomView_report">Rapporteer…</string>
+    <string name="MessageRequestBottomView_report">Rapporteer</string>
     <!-- Alert dialog title to accept a message request -->
     <string name="MessageRequestBottomView_accept_request">Aanvaar versoek?</string>
     <!-- Alert dialog body to review the message request carefully -->
     <string name="MessageRequestBottomView_review_requests_carefully">Gaan versoeke noukeurig na. Profielname word deur hul rekeningeienaar gekies en word nie geverifieer nie.</string>
+    <!-- Alert dialog body for accepting a message request. Contains bold substring placeholder -->
+    <string name="MessageRequestBottomView_accept_request_body">Aanvaar slegs versoeke van mense wat jy vertrou. %1$s aan jou \'n boodskap vir \'n registrasiekode, PIN of herwinsleutel stuur nie.</string>
+    <!-- Bold substring used in accept request body: "Signal will never" -->
+    <string name="MessageRequestBottomView_signal_will_never">Signal sal nooit</string>
     <!-- Alert dialog title to accept a message request to join a group -->
     <string name="MessageRequestBottomView_join_group">Sluit aan by groep?</string>
     <!-- Alert dialog body to review the message request for a group carefully -->
@@ -2564,6 +2676,8 @@
     <string name="WebRtcCallView__s_remotely_muted_s">%1$s het %2$s gedemp.</string>
     <!-- Alert message indicating that the local user joined a call on a second device and muted this one from the other one. -->
     <string name="WebRtcCallView__you_muted_yourself">Jy het jouself van \'n ander toestel af gedemp.</string>
+    <!-- Toast message shown when user is auto-muted because they are joining a large group call. -->
+    <string name="WebRtcCallView__youve_been_muted_large_group">Jou klank is gedemp omdat hierdie oproep baie deelnemers het.</string>
 
     <!-- Error message when the developer added a button in the wrong place. -->
     <string name="WebRtcAudioOutputToggleButton_fragment_activity_error">\'n Gebruikerskoppelvlak-fout het voorgekom. Rapporteer asseblief hierdie fout aan die ontwikkelaars.</string>
@@ -2588,6 +2702,10 @@
     <string name="CallOverflowPopupWindow__lower_hand">Laat sak</string>
     <!-- A negative button for a dialog confirming the user wants to lower their hand (withdraw a raised hand) -->
     <string name="CallOverflowPopupWindow__cancel">Kanselleer</string>
+    <!-- A clickable button to share your screen in a call -->
+    <string name="CallOverflowPopupWindow__share_screen">Deel skerm</string>
+    <!-- A clickable button to stop sharing your screen in a call -->
+    <string name="CallOverflowPopupWindow__stop_screen_share">Hou op om te deel</string>
     <!-- A button to take you to a list of participants with raised hands -->
     <string name="CallOverflowPopupWindow__view">Bekyk</string>
 
@@ -2664,6 +2782,8 @@
     <string name="AboutSheet__you">Jy</string>
     <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
     <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
+    <!-- Placeholder text in the group member label row when the user has no label set. -->
+    <string name="AboutSheet__add_group_member_label">Voeg \'n lidfunksie-etiket by</string>
 
     <!-- Title of the screen showing which groups they have in common with another user. -->
     <plurals name="GroupsInCommon__n_groups_in_common_title">
@@ -2710,6 +2830,8 @@
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Vee om skermdeling te bekyk</string>
+    <!-- Hint shown to teach the user they can swipe between the grid view and the active speaker view -->
+    <string name="CallToastPopupWindow__swipe_to_view_speaker">Vee om spreker te sien</string>
 
     <!-- ProxyBottomSheetFragment -->
     <string name="ProxyBottomSheetFragment_proxy_server">Tussengangerbediener</string>
@@ -2751,15 +2873,14 @@
     <string name="RegistrationActivity_i_understand">Ek verstaan</string>
     <string name="RegistrationActivity_play_services_error">Play Services Fout</string>
     <string name="RegistrationActivity_google_play_services_is_updating_or_unavailable">Google Play-dienste word bygewerk of is nie tydelik beskikbaar nie. Probeer asseblief weer.</string>
-    <string name="RegistrationActivity_terms_and_privacy">Bepalings &amp; Privaatheidsbeleid</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Signal benodig kontakte- en mediatoestemmings om jou te help om met vriende te verbind en boodskappe te stuur. Jou kontakte word opgelaai deur middel van Signal se privaatkontak-ontdekking, wat beteken dat hulle end-tot-end geënkripteer is en nooit vir die Signal-diens sigbaar is nie.</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_in_order_to_connect_with_friends">Signal benodig kontakte- en mediatoestemmings om jou te help om met vriende te verbind. Jou kontakte word opgelaai deur middel van Signal se privaatkontak-ontdekking, wat beteken dat hulle end-tot-end geënkripteer is en nooit vir die Signal-diens sigbaar is nie.</string>
     <string name="RegistrationActivity_rate_limited_to_service">Jy het te veel keer probeer om hierdie nommer te registreer. Probeer gerus later weer.</string>
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Jy het te veel keer probeer om hierdie nommer te registreer. Probeer asseblief weer oor %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Kan nie aan diens koppel nie. Kontroleer netwerkverbinding en probeer weer.</string>
-    <!-- Dialog error message shown when attempting to register and the SMS provider fails to send an SMS -->
-    <string name="RegistrationActivity_sms_provider_error">Signal kon nie \'n SMS-kode stuur nie weens probleme met die SMS-verskaffer. Probeer weer oor \'n paar uur.</string>
+    <!-- Dialog error message shown when we are unable to send an SMS to the user\'s number -->
+    <string name="RegistrationActivity_sms_provider_error">Ons kan nie \'n SMS na jou nommer toe stuur nie. Probeer weer oor \'n paar uur.</string>
     <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
     <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">Ons kon nie vir jou \'n verifiëringskode per SMS stuur nie. Probeer om eerder jou kode per stemoproep te ontvang.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
@@ -2784,8 +2905,6 @@
     <!-- Dialog button to cancel the pending action and return to the previous state. -->
     <string name="RegistrationActivity_cancel">Kanselleer</string>
     <string name="RegistrationActivity_next">Volgende</string>
-    <string name="RegistrationActivity_continue">Gaan voort</string>
-    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Neem privaatheid saam met jou.\nWees jouself in elke boodskap.</string>
     <!-- Title of registration screen when asking for the users phone number -->
     <string name="RegistrationActivity_phone_number">Telefoonnommer</string>
     <!-- Subtitle of registration screen when asking for the users phone number -->
@@ -3004,6 +3123,8 @@
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">Registrasieslot:</string>
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_challenge_received" translatable="false">Challenge Received:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_registered" translatable="false">Registered:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">Groep bygewerk</string>
@@ -3016,8 +3137,14 @@
     <string name="ThreadRecord_view_once_photo">Eenkeerkyk-foto</string>
     <string name="ThreadRecord_view_once_video">Eenkeerkyk-video</string>
     <string name="ThreadRecord_view_once_media">Eenkeerkyk-media</string>
-    <string name="ThreadRecord_this_message_was_deleted">Hierdie boodskap is geskrap.</string>
-    <string name="ThreadRecord_you_deleted_this_message">Jy het hierdie boodskap geskrap.</string>
+    <!-- Thread preview when someone has deleted their own message -->
+    <string name="ThreadRecord_this_message_was_deleted">Hierdie boodskap is geskrap</string>
+    <!-- Thread preview when someone has deleted their own message. Placeholder is the name of the person. -->
+    <string name="ThreadRecord_s_deleted_this_message">%1$s het hierdie boodskap geskrap</string>
+    <!-- Thread preview when you deleted a message -->
+    <string name="ThreadRecord_you_deleted_this_message">Jy het hierdie boodskap geskrap</string>
+    <!-- Thread preview when an admin has deleted a message -->
+    <string name="ThreadRecord_admin_deleted_this_message">Admin %1$s het hierdie boodskap geskrap</string>
     <!-- Displayed in the notification when the user sends a request to activate payments -->
     <string name="ThreadRecord_you_sent_request">Jy het \'n versoek gestuur om Betalings te aktiveer</string>
     <!-- Displayed in the notification when the recipient wants to activate payments -->
@@ -3166,7 +3293,22 @@
     <string name="MessageDisplayHelper_message_encrypted_for_non_existing_session">Boodskap geënkripteer vir sessie wat nie bestaan nie</string>
 
     <!-- MuteDialog -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
     <string name="MuteDialog_mute_notifications">Demp kennisgewings</string>
+    <!-- Dialog option that, when pressed, will open a time picker to let the user choose how long they\'d like to mute notifications for -->
+    <string name="MuteDialog__mute_until">Demp tot…</string>
+
+    <!-- MuteUntilTimePickerBottomSheet -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__dialog_title">Demp kennisgewings tot…</string>
+    <!-- Label for a data selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_date_title">Kies datum</string>
+    <!-- Label for a time selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_time_title">Kies tyd</string>
+    <!-- Label for a button that, when pressed, will confirm the user\'s choice on how long to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__mute_notifications">Demp kennisgewings</string>
+    <!-- Subtitle in a dialog that describes the timezone the user is picking times in. The first placeholder is a UTC offset, and the second placeholder is a user-friendly name for the timezone, e.g. "All times in (GMT-05:00) Eastern Standard Time" -->
+    <string name="MuteUntilTimePickerBottomSheet__timezone_disclaimer">Alle tye in (%1$s) %2$s</string>
 
     <!-- KeyCachingService -->
     <string name="KeyCachingService_signal_passphrase_cached">Raak om oop te maak</string>
@@ -3325,6 +3467,17 @@
 
     <!-- Message explaining that it is not possible to save media to the device storage after the user denied the system save to storage permission. -->
     <string name="AttachmentSaver__unable_to_write_to_external_storage_without_permission">Nie in staat om na eksterne berging te stoor sonder die nodige regte nie</string>
+
+    <!-- Dialog title shown when attempting to save media that has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_media">Kan nie media stoor nie</string>
+    <!-- Dialog message explaining that media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__media_offloaded_message">Hierdie media is van jou toestel afgelaai omdat \"Optimaliseer stoorruimte op toestel\" aangeskakel is. Jy kan items een vir een aflaai, of jy kan \"Optimaliseer stoorruimte op toestel\" afgeskakel om alle media op jou toestel af te laai.</string>
+    <!-- Dialog title shown when attempting to save multiple media items, some of which have been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_all_items">Kan nie alle items stoor nie</string>
+    <!-- Dialog message explaining that some selected media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__some_media_offloaded_message">Sommige media wat jy geselekteer het, is van jou toestel afgelaai omdat \"Optimaliseer stoorruimte op toestel\" aangeskakel is. Jy kan items een vir een stoor, of jy kan \"Optimaliseer stoorruimte op toestel\" afgeskakel om alle media op jou toestel af te laai.</string>
+    <!-- Button label in the offloaded media dialog that navigates to the storage settings screen. -->
+    <string name="AttachmentSaver__view_storage_settings">Bekyk stoorruimte-instellings</string>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Soek</string>
@@ -3532,6 +3685,14 @@
     <!-- Accessibility content description describing how a user can lock voice note recording. -->
     <string name="conversation_activity__quick_attachment_drawer_lock_record_description">Sluit opname van oudio-aanhegsel</string>
     <string name="conversation_activity__message_could_not_be_sent">Boodskap kon nie gestuur word nie. Kontroleer jou verbinding en probeer weer.</string>
+    <!-- Dialog body shown when tapping a failed message in a terminated group -->
+    <string name="conversation_activity__send_failed_group_ended">Jy kan nie meer boodskappe in hierdie groep stuur en ontvang nie, want hierdie groep is beëindig.</string>
+    <!-- Dialog body shown when tapping a group action button (e.g. invite friends) in a terminated group -->
+    <string name="conversation_activity__group_action_not_allowed_group_ended">Hierdie aksie is nie beskikbaar nie, want die groep is beëindig.</string>
+    <!-- Dialog body when a message failed to delete and retry is possible. -->
+    <string name="conversation_activity__message_failed_to_delete_retry">Kon nie boodskap skrap nie. Gaan jou verbinding na en probeer weer.</string>
+    <!-- Dialog body when a message failed to delete. -->
+    <string name="conversation_activity__message_failed_to_delete">Kon nie boodskap skrap nie.</string>
 
     <!-- conversation_input_panel -->
     <string name="conversation_input_panel__slide_to_cancel">Skuif om te kanselleer</string>
@@ -3578,9 +3739,29 @@
     <!-- Update item alerting the user they hid this person and that they can message them to unhide them -->
     <string name="ConversationUpdateItem_hidden_contact_message_to_add_back">Jy het hierdie persoon verwyder; deur aan hulle \'n boodskap te stuur sal jy hulle weer by jou lys voeg.</string>
     <!-- Update item button text shown for the accepted message request update message -->
-    <string name="ConversationUpdateItem_options">Opsies</string>
+    <string name="ConversationUpdateItem_block_report">Blokkeer of Rapporteer…</string>
     <!-- Update item button text shown for a profile name change. -->
     <string name="ConversationUpdateItem_update">Werk by</string>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__group_update">
+        <item quantity="one">%1$d groepopdatering</item>
+        <item quantity="other">%1$d groepopdaterings</item>
+    </plurals>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__chat_update">
+        <item quantity="one">%1$d kletsopdatering</item>
+        <item quantity="other">%1$d kletsopdaterings</item>
+    </plurals>
+    <!-- Update item button text to show how many disappearing message timer changes are. %2$s is what the timer was ultimately set to.-->
+    <plurals name="CollapsedEvent__disappearing_timer">
+        <item quantity="one">%1$d verandering in verdwynboodskap-tydhouer · %2$s</item>
+        <item quantity="other">%1$d veranderinge in verdwynboodskap-tydhouer · %2$s</item>
+    </plurals>
+    <!-- Update item button text to show how many call events are. -->
+    <plurals name="CollapsedEvent__call_event">
+        <item quantity="one">%1$d oproepgebeurtenis</item>
+        <item quantity="other">%1$d oproepgebeurtenisse</item>
+    </plurals>
 
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">Speel … pouseer</string>
@@ -3816,15 +3997,55 @@
     <string name="verify_display_fragment__loading">Laai tans…</string>
     <string name="verify_display_fragment__mark_as_verified">Merk as geverifieer</string>
     <string name="verify_display_fragment__clear_verification">Maak verifiëring skoon</string>
+    <!-- Header title for automatic key verification -->
+    <string name="verify_display_fragment__automatic">Outomatiese sleutelverifiëring</string>
+    <!-- Button text to verify automatically    -->
+    <string name="verify_display_fragment__verify_automatic">Verifieer outomaties</string>
+    <!-- Loading text when verifying -->
+    <string name="verify_display_fragment__verifying">Verifieer tans enkriptering…</string>
+    <!-- Success text shown when encryption is verified -->
+    <string name="verify_display_fragment__encryption_verified">Enkriptering geverifieer</string>
+    <!-- Text shown when verification fails -->
+    <string name="verify_display_fragment__encryption_unavailable">Outoverifiëring nie beskikbaar nie</string>
+    <!-- Caption text explaining more about automatic verification   -->
+    <string name="verify_display_fragment__auto_verify_not_available">Outoverifiëring is nie vir alle kletse beskikbaar nie.</string>
+  <!-- Removed by excludeNonTranslatables <string name="verify_display_fragment__link" translatable="false">https://support.signal.org/hc/articles/10223569377562</string> -->
+
+    <!-- Bottom sheet title when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_success">Enkriptering vir hierdie klets is geoutoverifieer</string>
+    <!-- Bottom sheet body when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_success">Vir kontakte waarmee jy deur \'n telefoonnommer verbind is, kan Signal outomaties bevestig of die verbinding veilig is deur \'n proses genaamd sleuteldeursigtigheid te gebruik. Vir bykomende sekuriteit, verifieer end-tot-end-enkriptering handmatig deur vergelyking van die nommers op die vorige skerm of deur die kode op hul toestel te skandeer.</string>
+    <!-- Bottom sheet title when encryption is no longer auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_no_longer_unavailable">Outoverifiëring is nie meer vir hierdie klets beskikbaar nie</string>
+    <!-- Bottom sheet body when encryption is no longer auto-verified. Placeholder is the name of the person. -->
+    <string name="EncryptionVerifiedSheet__body_no_longer_unavailable">Signal kan nie meer die enkriptering vir hierdie klets outomaties verifieer nie. Dit is waarskynlik omdat %1$s hul telefoonnommer verander het. Verifieer end-tot-end-enkriptering handmatig deur vergelyking van die nommers op die vorige skerm of deur die kode op hul toestel te skandeer.</string>
+    <!-- Bottom sheet title when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_unavailable">Outoverifiëring nie vir hierdie klets beskikbaar nie</string>
+    <!-- Bottom sheet body when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_unavailable">Signal kan slegs die enkripsie in kletse outomaties verifieer indien jy via \'n telefoonnommer met iemand verbind is. Indien die klets met \'n gemeenskaplike gebruikersnaam of groep begin is, verifieer end-tot-end-enkriptering deur vergelyking van die nommers op die vorige skerm of deur die kode op hul toestel te skandeer.</string>
 
     <!-- Title for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__title">Signal outoverifieer nou end-tot-end enkriptering</string>
+    <string name="VerifyAutomaticallyEducationSheet__title">Signal kan nou enkriptering outoverifieer</string>
     <!-- Body for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__body">Wanneer jy \'n veiligheidsnommer verifieer, sal Signal outomaties bevestig of die verbinding veilig is deur \'n proses genaamd sleuteldeursigtigheid te gebruik. Jy kan steeds verbindings handmatig verifieer deur \'n QR-kode of \'n nommer te gebruik.</string>
+    <string name="VerifyAutomaticallyEducationSheet__body">Vir kontakte waarmee jy deur \'n telefoonnommer verbind is, kan Signal outomaties bevestig of die verbinding veilig is deur \'n proses genaamd sleuteldeursigtigheid te gebruik. Vir bykomende sekuriteit kan jy steeds verbindings handmatig verifieer deur \'n QR-kode of \'n veiligheidsnommer te gebruik.</string>
     <!-- Button to learn more about automatic verification -->
     <string name="VerifyAutomaticallyEducationSheet__learn_more">Vind meer uit</string>
     <!-- Button to go to verification page -->
-    <string name="VerifyAutomaticallyEducationSheet__verify">Verifieer</string>
+    <string name="VerifyAutomaticallyEducationSheet__continue">Gaan voort</string>
+
+    <!-- Title for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__title">Outomatiese Sleutelverifiëring is tans nie vir jou toestel beskikbaar nie. Dien ontfout-log in?</string>
+    <!-- Body for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__body">Ontfoutlogs help ons om die probleem te diagnoseer en reg te stel, en bevat nie identifiserende inligting nie.</string>
+    <!-- Button to decline submitting logs -->
+    <string name="SelfVerificationFailureSheet__no_thanks">Nee dankie</string>
+    <!-- Button to submit logs -->
+    <string name="SelfVerificationFailureSheet__submit">Dien in</string>
+    <!-- Email subject line when submitting logs following a verification failure -->
+    <string name="SelfVerificationFailureSheet__email_subject">Outomatiese Sleutelverifiëring-mislukking</string>
+  <!-- Removed by excludeNonTranslatables <string name="SelfVerificationFailureSheet__email_filter" translatable="false">AutomaticKeyVerificationFailure</string> -->
+    <!-- Link to learn more about debug logs -->
+    <string name="SelfVerificationFailureSheet__learn_more">Vind meer uit</string>
 
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Skandeer die QR-kode op jou kontak se toestel.</string>
@@ -4201,6 +4422,10 @@
     <string name="preferences_compact">Kompak</string>
     <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
     <string name="preferences_language_change_confirmation_message">Die toepassing sal herlaai word om die nuwe taalinstelling toe te pas.</string>
+    <!-- Preference title for automatic key verification -->
+    <string name="preferences_automatic_key_verification">Outomatiese sleutelverifiëring</string>
+    <!-- Preference summary for automatic key verification -->
+    <string name="preferences_automatic_key_verification_body">Wanneer dit geaktiveer is, sal Signal probeer om die enkriptering van 1:1-kletsgesprekke outomaties te verifieer.</string>
 
 
     <string name="configurable_single_select__customize_option">Pasmaak-opsie</string>
@@ -4277,43 +4502,6 @@
     <!-- Alert dialog button to update now -->
     <string name="PaymentsHomeFragment__update_now">Werk nou by</string>
 
-    <!-- GrantPermissionsFragment -->
-    <!-- Displayed as a text-only action button at the bottom start of the screen -->
-    <string name="GrantPermissionsFragment__not_now">Nie nou nie</string>
-    <!-- Displayed as an action button at the bottom end of the screen -->
-    <string name="GrantPermissionsFragment__next">Volgende</string>
-    <!-- Displayed as a title at the top of the screen -->
-    <string name="GrantPermissionsFragment__allow_permissions">Laat toestemmings toe</string>
-    <!-- Displayed as a subtitle at the top of the screen -->
-    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Om jou te help om boodskappe te stuur aan mense wat jy ken, sal Signal hierdie toestemmings versoek. </string>
-    <!-- Notifications permission row title -->
-    <string name="GrantPermissionsFragment__notifications">Kennisgewings</string>
-    <!-- Notifications permission row description -->
-    <string name="GrantPermissionsFragment__get_notified_when">Ontvang kennisgewings wanneer nuwe boodskappe inkom.</string>
-    <!-- Contacts permission row title -->
-    <string name="GrantPermissionsFragment__contacts">Kontakte</string>
-    <!-- Contacts permission row description -->
-    <string name="GrantPermissionsFragment__find_people_you_know">Vind mense wat jy ken. Jou kontakte is geënkripteer en is nie vir die Signal-diens sigbaar nie.</string>
-    <!-- Phone calls permission row title -->
-    <string name="GrantPermissionsFragment__phone_calls">Telefoonoproepe</string>
-    <!-- Phone calls permission row description -->
-    <string name="GrantPermissionsFragment__make_registering_easier">Maak registrasie makliker en aktiveer bykomende oproepkenmerke.</string>
-    <!-- Storage permission row title -->
-    <string name="GrantPermissionsFragment__storage">Stoorruimte</string>
-    <!-- Storage permission row description -->
-    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Stuur foto\'s, video\'s en lêers van jou toestel af.</string>
-
-    <!-- PermissionDeniedBottomSheet -->
-    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
-    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. Tik op \"Instellings\" hier onder</string>
-    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s Laat die toestemming toe</string>
-    <!-- Sheet describing step 2 on how to give permissions by tapping permissions in their settings -->
-    <string name="PermissionDeniedBottomSheet__2_tap_permissions">2. Tik op \"Toestemmings\"</string>
-    <!-- Sheet describing step 3 on how to give permissions for photos and videos in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__3_allow_permission">3. %1$s Laat die \"Foto\'s en video\'s\"-toestemming toe</string>
-    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
-    <string name="PermissionDeniedBottomSheet__settings">Instellings</string>
 
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
@@ -4489,6 +4677,10 @@
     <string name="conversation_selection__menu_copy">Kopieer</string>
     <!-- Button to delete a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_delete">Skrap</string>
+    <!-- Button to star a message to save it for later; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_star" translatable="false">Star (Labs)</string> -->
+    <!-- Button to remove the star from a message; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_unstar" translatable="false">Unstar (Labs)</string> -->
     <!-- Button to forward a message to another person or group chat; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_forward">Stuur aan</string>
     <!-- Button to reply to a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
@@ -4557,6 +4749,7 @@
     <string name="conversation__menu_view_all_media">Alle media</string>
     <string name="conversation__menu_conversation_settings">Kletsinstellings</string>
     <string name="conversation__menu_add_shortcut">Voeg by op tuisskerm</string>
+  <!-- Removed by excludeNonTranslatables <string name="conversation__menu_export" translatable="false">Export (Labs)</string> -->
     <string name="conversation__menu_create_bubble">Skep borrel</string>
     <!-- Overflow menu option that allows formatting of text -->
     <string name="conversation__menu_format_text">Formateer teks</string>
@@ -4565,6 +4758,13 @@
 
     <!-- conversation_callable_insecure -->
     <string name="conversation_add_to_contacts__menu_add_to_contacts">Voeg by kontakte</string>
+
+    <!-- conversation export -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__exporting" translatable="false">Exporting chat…</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_complete" translatable="false">Chat exported successfully</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_failed" translatable="false">Export failed</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_cancelled" translatable="false">Export cancelled</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__preparing" translatable="false">Preparing export…</string> -->
 
     <!-- conversation scheduled messages bar -->
 
@@ -4577,7 +4777,6 @@
     </plurals>
 
     <!-- conversation_group_options -->
-    <string name="convesation_group_options__recipients_list">Onvangerslys</string>
     <string name="conversation_group_options__delivery">Aflewering</string>
     <!-- Label for a menu item that appears after pressing the three-dot icon in a  -->
     <string name="conversation_group_options__conversation">Klets</string>
@@ -4594,6 +4793,8 @@
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">Nuwe groep</string>
     <string name="text_secure_normal__menu_settings">Instellings</string>
+    <!-- Menu item in the main conversation list to view all starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="text_secure_normal__starred_messages" translatable="false">Starred messages (Labs)</string> -->
     <string name="text_secure_normal__menu_clear_passphrase">Sluit</string>
     <string name="text_secure_normal__mark_all_as_read">Merk alles as gelees</string>
     <string name="text_secure_normal__invite_friends">Nooi vriende uit</string>
@@ -4767,9 +4968,6 @@
     <!-- transport_selection_list_item -->
     <string name="ConversationListFragment_loading">Laai tans…</string>
     <string name="CallNotificationBuilder_connecting">Verbind…</string>
-    <string name="Permissions_permission_required">Toestemming benodig</string>
-    <string name="Permissions_continue">Gaan voort</string>
-    <string name="Permissions_not_now">Nie nou nie</string>
     <string name="SQLCipherMigrationHelper_migrating_signal_database">Besig om Signal-databasis te migreer</string>
     <string name="enter_backup_passphrase_dialog__backup_passphrase">Rugsteun-wagwoordfrase</string>
     <string name="backup_enable_dialog__backups_will_be_saved_to_external_storage_and_encrypted_with_the_passphrase_below_you_must_have_this_passphrase_in_order_to_restore_a_backup">Rugsteunkopiëe sal in eksterne stoorruimte gestoor word en met die wagwoordfrase hier onder geënkripteer word. Jy moet hierdie wagwoordfrase hê om \'n rugsteun te herwin.</string>
@@ -4778,8 +4976,6 @@
     <string name="backup_enable_dialog__i_have_written_down_this_passphrase">Ek het hierdie wagwoordfrase neergeskryf. Daarsonder sal ek nie \'n rugsteun kan herwin nie.</string>
     <string name="registration_activity__restore_backup">Laai rugsteun terug</string>
     <string name="registration_activity__transfer_or_restore_account">Dra rekening oor of herwin dit.</string>
-    <!-- Screen title for restoring or transfering account -->
-    <string name="registration_activity__restore_or_transfer">Herwin of dra oor</string>
     <string name="registration_activity__transfer_account">Dra rekening oor</string>
     <string name="registration_activity__skip">Slaan oor</string>
     <!-- Text label button to skip restoring -->
@@ -4806,6 +5002,8 @@
     <string name="BackupDialog_delete_backups">Skrap rugsteunkopieë?</string>
     <string name="BackupDialog_disable_and_delete_all_local_backups">Deaktiveer en skrap alle plaaslike rugsteunkopieë?</string>
     <string name="BackupDialog_delete_backups_statement">Skrap rugsteunkopieë</string>
+    <!-- Progress dialog message shown while local backup files are being deleted -->
+    <string name="BackupDialog_deleting_local_backup">Besig om plaaslike rugsteun te skrap…</string>
     <string name="BackupDialog_to_enable_backups_choose_a_folder">Kies \'n vouer om rugsteun te aktiveer. Rugsteunkopieë sal in hierdie ligging gestoor word.</string>
     <!-- Button shown in dialog to choose a folder for backups -->
     <string name="BackupDialog_choose_folder">Kies gids</string>
@@ -4892,13 +5090,6 @@
     <string name="RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later">Jy het te veel keer probeer. Probeer later weer.</string>
     <string name="RegistrationActivity_error_connecting_to_service">Kon nie aan die diens koppel nie</string>
     <string name="preferences_chats__backups">Rugsteunkopieë</string>
-
-    <!-- Button label to indicate that a feature is in beta mode -->
-    <string name="Beta__beta_title">Beta</string>
-    <!-- Content description for info icon -->
-    <string name="Beta__info">Inligting</string>
-    <!-- Text in header describing that the feature is a beta feature and prone to frequent changes -->
-    <string name="Beta__this_is_beta">Dit is \'n beta-kenmerk en sal mettertyd verbeter word.</string>
 
     <!-- Title text shown when Signal is locked and needs to be unlocked -->
     <string name="prompt_passphrase_activity__unlock_signal">Ontsluit Signal</string>
@@ -5113,6 +5304,8 @@
     <string name="RecipientBottomSheet_remove_from_group">Verwyder uit groep</string>
 
     <string name="RecipientBottomSheet_remove_s_as_group_admin">Verwyder %1$s as groepadmin?</string>
+    <!-- Message shown when removing an admin will also clear their member label. -->
+    <string name="RecipientBottomSheet_remove_s_as_group_admin_and_clear_member_label">Verwyder %1$s as groepadmin? Dit sal ook hul lidfunksie-etiket skoonmaak.</string>
     <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">"\"%1$s\" sal hierdie groep en sy lede kan wysig."</string>
 
     <string name="RecipientBottomSheet_remove_s_from_the_group">Verwyder %1$s uit die groep?</string>
@@ -5125,6 +5318,8 @@
     <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">Keur goed</string>
     <string name="GroupRecipientListItem_deny_description">Weier</string>
+    <!-- Placeholder shown in the group member list when the user has not yet set a member label. -->
+    <string name="GroupRecipientListItem__add_member_label">Voeg lidfunksie-etiket by</string>
 
 
     <!-- GroupsLearnMoreBottomSheetDialogFragment -->
@@ -5153,8 +5348,6 @@
     <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">%1$s na %2$s</string>
 
-    <!-- StorageUtil -->
-    <string name="StorageUtil__s_s">%1$s/%2$s</string>
     <string name="BlockedUsersActivity__s_has_been_blocked">“%1$s” is versper.</string>
     <string name="BlockedUsersActivity__failed_to_block_s">Kon nie “%1$s” versper nie</string>
     <string name="BlockedUsersActivity__s_has_been_unblocked">“%1$s” is ontsper.</string>
@@ -5600,6 +5793,41 @@
         <item quantity="other">%1$d vouers</item>
     </plurals>
 
+    <!-- Row title for the option to export chat history as a plaintext archive -->
+    <string name="ChatsSettingsFragment__export_chat_history">Voer kletsgeskiedenis uit</string>
+    <!-- Row description for the plaintext chat export option -->
+    <string name="ChatsSettingsFragment__export_chat_history_label">Voer \'n masjienleesbare JSON-kopie van al jou kletse uit. Verdwynende boodskappe sal nie uitgevoer word nie.</string>
+    <!-- Biometrics prompt title shown before allowing the user to export chat history -->
+    <string name="ChatsSettingsFragment__unlock_to_export_chat_history">Ontsluit om kletsgeskiedenis uit te voer</string>
+    <!-- Snackbar shown when biometric authentication fails before a chat export -->
+    <string name="ChatsSettingsFragment__authentication_failed">Bevestiging het misluk</string>
+
+    <!-- ChatExportDialogs -->
+    <!-- Progress dialog message shown while canceling an in-progress chat export -->
+    <string name="ChatExportDialogs__canceling_export">Besig om uitvoer te kanselleer…</string>
+    <!-- Title of the dialog asking the user to confirm they want to export chat history -->
+    <string name="ChatExportDialogs__export_chat_history_title">Voer kletsgeskiedenis uit?</string>
+    <!-- Bold warning prefix in the export confirmation dialog body -->
+    <string name="ChatExportDialogs__be_careful_warning">WEES VERSIGTIG!</string>
+    <!-- Body of the export confirmation dialog, displayed after the bold "BE CAREFUL!" prefix -->
+    <string name="ChatExportDialogs__export_confirm_body">Moenie hierdie lêer met enigiemand deel nie. Jou kletsgeskiedenis sal op jou toestel gestoor word, en ander toepassings kan toegang daartoe verkry, na gelang van jou toestel se toestemmings. Uitvoer met media sal \'n groter lêergrootte tot gevolg hê.</string>
+    <!-- Button in the export confirmation dialog to export messages and media -->
+    <string name="ChatExportDialogs__export_with_media">Voer uit met media</string>
+    <!-- Button in the export confirmation dialog to export messages only -->
+    <string name="ChatExportDialogs__export_without_media">Voer uit sonder media</string>
+    <!-- Title of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_title">Kies \'n vouer</string>
+    <!-- Body of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_body">Kies \'n vouer in jou toestel se stoorruimte waar jou kletsgeskiedenis gestoor sal word.</string>
+    <!-- Button that opens the system folder picker -->
+    <string name="ChatExportDialogs__choose_folder_button">Kies vouer</string>
+    <!-- Title of the dialog shown when a chat export finishes successfully -->
+    <string name="ChatExportDialogs__complete_title">Kletsuitvoer voltooi</string>
+    <!-- Bold warning prefix in the export complete dialog body -->
+    <string name="ChatExportDialogs__be_careful">WEES VERSIGTIG</string>
+    <!-- Body of the export complete dialog, displayed after the bold "BE CAREFUL" prefix -->
+    <string name="ChatExportDialogs__complete_body">waar jy jou klets-uitvoerlêer stoor, en moet dit met niemand deel nie. Ander toepassings op jou toestel kan toegang daartoe verkry, na gelang van jou foon se toestemmings.</string>
+
     <!-- ChatFoldersEducationSheet -->
     <!-- Text in a bottom sheet describing chat folders and what they can be created for -->
     <string name="ChatFoldersEducationSheet__create_folders_for_family">Skep vouers vir familie, vriende, werk en so meer</string>
@@ -5793,12 +6021,16 @@
     <string name="HelpSettingsFragment__terms_amp_privacy_policy">Bepalings &amp; Privaatheidsbeleid</string>
     <string name="HelpFragment__copyright_signal_messenger">Kopiereg Signal Messenger</string>
     <string name="HelpFragment__licenced_under_the_agplv3">Gelisensieer onder die GNU AGPLv3</string>
+    <!-- Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="HelpSettingsFragment__signal_is_a_501c3">Signal is \'n niewinsgewende organisasie</string>
 
     <!-- DataAndStorageSettingsFragment -->
     <string name="DataAndStorageSettingsFragment__media_quality">Mediakwaliteit</string>
     <!-- Category title for the quality of the media to be sent -->
     <string name="DataAndStorageSettingsFragment__sent_media_quality">Gestuurde mediakwaliteit</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">Stuur van hoëkwaliteitmedia sal meer data gebruik.</string>
+    <!-- Disclaimer shown under the media auto-download settings. Placeholder is a formatted size like "100 KB". -->
+    <string name="DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded">Stemboodskappe en plakkers (onder %1$s) word altyd outomaties afgelaai.</string>
     <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">Hoog</string>
     <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
@@ -5912,6 +6144,8 @@
     <string name="ConversationSettingsFragment__search">Soek</string>
     <string name="ConversationSettingsFragment__disappearing_messages">Verdwynboodskappe</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">Klanke &amp; kennisgewings</string>
+    <!-- Label for the starred messages option in conversation settings -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__starred_messages" translatable="false">Starred messages</string> -->
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
     <string name="ConversationSettingsFragment__contact_details">Telefoonkontakinligting</string>
     <string name="ConversationSettingsFragment__view_safety_number">Bekyk veiligheidsnommer</string>
@@ -5925,6 +6159,8 @@
     <string name="ConversationSettingsFragment__permissions">Toestemmings</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Versoeke &amp; uitnodigings</string>
     <string name="ConversationSettingsFragment__group_link">Groepskakel</string>
+    <!-- Label for button that opens the group member label permissions screen. -->
+    <string name="ConversationSettingsFragment__group_member_label">Lidfunksie-etiket</string>
     <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Voeg by as ’n kontak</string>
     <string name="ConversationSettingsFragment__unmute">Ontdemp</string>
@@ -5936,6 +6172,19 @@
     <string name="ConversationSettingsFragment__get_badges">Kry wapens vir jou profiel deur Signal te ondersteun. Tik op ’n wapen om meer uit te vind.</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="ConversationSettingsFragment__this_media_is_not_sent_yet">Hierdie media is nog nie gestuur nie.</string>
+    <!-- End group option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__end_group">Beëindig groep</string>
+    <!-- Banner shown at the top of group settings when the group has been ended -->
+    <string name="ConversationSettingsFragment__this_group_was_ended">Hierdie groep is beëindig.</string>
+    <!-- Archive chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__archive_chat">Argiveer klets</string>
+    <!-- Delete chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__delete_chat">Skrap klets</string>
+    <!-- Member section header for terminated groups. %1$d is the member count -->
+    <plurals name="ConversationSettingsFragment__d_former_members">
+        <item quantity="one">%1$d voormalige lid</item>
+        <item quantity="other">%1$d voormalige lede</item>
+    </plurals>
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">Voeg lede toe</string>
@@ -5946,15 +6195,42 @@
     <string name="PermissionsSettingsFragment__who_can_add_new_members">Wie kan nuwe lede toevoeg?</string>
     <string name="PermissionsSettingsFragment__who_can_edit_this_groups_info">Wie kan hierdie groep se inligting wysig?</string>
     <string name="PermissionsSettingsFragment__who_can_send_messages">Wie kan boodskappe stuur en oproepe begin?</string>
+    <!-- Label for the member labels permission button in the group permissions settings screen. -->
+    <string name="PermissionsSettingsFragment__add_member_labels">Voeg lidfunksie-etikette by</string>
+    <!-- Dialog title shown when choosing who has permission to add member labels in the group. -->
+    <string name="PermissionsSettingsFragment__who_can_add_member_labels">Wie kan lidfunksie-etikette byvoeg?</string>
+    <!-- Warning title shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_title">Lidfunksie-etikette sal uitgevee word</string>
+    <!-- Warning body shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_body">"Deur hierdie toestemming na Slegs admins te verander, sal lidfunksie-etikette wat deur nie-admins in hierdie groep gestel is, uitgevee word."</string>
+    <!-- Confirm button for changing member label permission after warning. -->
+    <string name="PermissionsSettingsFragment__change_permission">Verander toestemmings</string>
 
     <!-- SoundsAndNotificationsSettingsFragment -->
+    <!-- Label for the setting to mute notifications for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__mute_notifications">Demp kennisgewings</string>
+    <!-- Summary text shown when a conversation is not muted -->
     <string name="SoundsAndNotificationsSettingsFragment__not_muted">Nie gedemp nie</string>
+    <!-- Label for the mentions notification setting in conversation sounds and notifications -->
     <string name="SoundsAndNotificationsSettingsFragment__mentions">Meldings</string>
+    <!-- Dialog option to always send notifications for the selected category even when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__always_notify">Laat altyd weet</string>
-    <!-- Dialog option to not send notifications if mentioned when the conversation is muted -->
+    <!-- Dialog option to not send notifications for the selected category when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__do_not_notify">Moenie laat weet nie</string>
+    <!-- Label for the setting to configure custom notification sounds and vibration for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__custom_notifications">Pasgemaakte kennisgewings</string>
+    <!-- Section header for settings that control which notifications still come through when a conversation is muted -->
+    <string name="SoundsAndNotificationsSettingsFragment__when_muted">Wanneer gedemp</string>
+    <!-- Label for the calls notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls">Oproepe</string>
+    <!-- Explanatory text shown in the calls notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls_dialog_message">Lui en ontvang kennisgewings wanneer \'n oproep in gedempte kletse begin word.</string>
+    <!-- Explanatory text shown in the mentions notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__mentions_dialog_message">Ontvang kennisgewings wanneer jy in gedempte kletse genoem word.</string>
+    <!-- Label for the replies notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_to_you">Antwoord aan jou</string>
+    <!-- Explanatory text shown in the replies notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_dialog_message">Ontvang kennisgewings wanneer iemand op jou boodskappe in gedempte kletse antwoord.</string>
 
     <!-- StickerKeyboard -->
     <string name="StickerKeyboard__recently_used">Onlangs gebruik</string>
@@ -6180,7 +6456,7 @@
     <string name="SelectFeaturedBadgeFragment__failed_to_update_profile">Kon nie profiel bywerk nie</string>
 
     <!-- Displayed on primary button in the bottom sheet as a call-to-action to launch into the donation flow -->
-    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Skenk nou</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Skenk</string>
     <!-- Title of a page in the bottom sheet. Placeholder is a user\'s short-name -->
     <string name="ViewBadgeBottomSheetDialogFragment__s_supports_signal">%1$s ondersteun Signal</string>
     <!-- Description of a page in the bottom sheet of a monthly badge. Placeholder is a user\'s short-name -->
@@ -6208,13 +6484,15 @@
     <string name="Subscription__expires_s">Verstryk %1$s</string>
 
     <!-- Title of learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">Signal is anders.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">As \'n onafhanklike niewinsgewende organisasie is Signal verbind tot privaat boodskappe en oproepe. Geen advertensies, geen naspoorders, geen observasie nie. Maak vandag \'n skenking om Signal te ondersteun.</string>
     <!-- First small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">Private boodskappe. Geen advertensies, geen naspoorders, geen observasie nie.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">No ads, no trackers, no surveillance. Donate today to support Signal.</string>
     <!-- Second small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_supported_by">Signal word deur skenkings ondersteun, wat beteken dat jou privaatheid sentraal staan in alles wat ons doen. Signal is vir jou gebou; nie vir jou data nie, en nie vir wins nie.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__donate_and_get_badge">Kry \'n opsionele wapen op jou profiel wanneer jy skenk</string>
     <!-- Third small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__if_you_can">As jy kan, maak asseblief vandag \'n skenking om Signal pret, betroubaar en beskikbaar vir almal te hou.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__your_privacy_is_our_mission">Jou privaatheid is ons missie</string>
+    <!-- Fourth small text blurb on learn more sheet. Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_a_501c3">Signal is \'n niewinsgewende organisasie.</string>
 
     <string name="SubscribeThanksForYourSupportBottomSheetDialogFragment__thanks_for_your_support">Dankie vir jou ondersteuning!</string>
     <!-- Subtext underneath the dialog title on the thanks sheet -->
@@ -6249,9 +6527,9 @@
     <!-- Dialog title shown when a donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet -->
     <string name="ManageDonationsFragment__couldnt_confirm_donation">Kon nie skenking bevestig nie</string>
     <!-- Dialog message shown when a monthly donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed">Jou skenking van %1$s/maand kon nie bevestig word nie. Gaan na jou banktoepassing om jou iDEAL-betaling goed te keur.</string>
+    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed_ideal_wero">Jou skenking van %1$s/maand kon nie bevestig word nie. Gaan na jou banktoepassing om jou iDEAL | Wero-betaling goed te keur.</string>
     <!-- Dialog message shown when a one-time donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed">Jou eenmalige skenking van %1$s kon nie bevestig word nie. Gaan na jou banktoepassing om jou iDEAL-betaling goed te keur.</string>
+    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed_ideal_wero">Jou eenmalige skenking van %1$s kon nie bevestig word nie. Gaan na jou banktoepassing om jou iDEAL | Wero-betaling goed te keur.</string>
 
     <string name="Boost__enter_custom_amount">Voer Eie Bedrag in</string>
     <!-- Error label when the amount is smaller than what we can accept -->
@@ -6380,7 +6658,7 @@
     <!-- Displayed as a dialog message when the user\'s profile could not be fetched, likely due to lack of internet -->
     <string name="DonationsErrors__your_donation_could_not_be_sent">Jou geskenk kon nie gestuur word nie as gevolg van \'n netwerkfout. Kontroleer jou verbinding en probeer weer.</string>
     <!-- Displayed as a dialog message when the user encounters an error during an iDEAL donation -->
-    <string name="DonationsErrors__your_ideal_couldnt_be_processed">Jou iDEAL-skenking kon nie verwerk word nie. Probeer ’n ander betaalmetode of kontak jou bank vir meer inligting.</string>
+    <string name="DonationsErrors__your_ideal_wero_couldnt_be_processed">Jou iDEAL | Wero-skenking kon nie verwerk word nie. Probeer ’n ander betalingsmetode of kontak jou bank vir meer inligting.</string>
 
     <!-- Gift message view title -->
     <string name="GiftMessageView__donation_on_behalf_of_s">Skenking namens %1$s</string>
@@ -6608,12 +6886,6 @@
     <!-- Banner action when notification permission is disabled -->
     <string name="NotificationSettingsFragment__turn_on">Skakel aan</string>
 
-    <!-- Description shown for the Signal Release Notes channel -->
-    <string name="ReleaseNotes__signal_release_notes_and_news">Signal Vrystellingsnotas &amp; Nuus</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
-    <string name="ReleaseNotes__this_is_official_chat_period">Hierdie is die amptelike en enigste klets van Signal.</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
-    <string name="ReleaseNotes__keep_up_to_date_period">Bly op datum met nuus en vrystellingnotas.</string>
     <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
     <string name="ReleaseNotes__this_is_official_chat">Hierdie is die amptelike en enigste klets van Signal</string>
     <!-- Text description in Signal Release channel details explaining what the channel is for -->
@@ -6713,8 +6985,57 @@
     <string name="MyStories__delete_story">Skrap storie?</string>
     <!-- Message of dialog to confirm deletion of story -->
     <string name="MyStories__this_story_will_be_deleted">Hierdie storie sal geskrap word vir jou en almal wat dit ontvang het.</string>
+    <!-- Message of dialog to confirm deletion of story in a terminated group -->
+    <string name="MyStories__delete_story_terminated_group">Dit sal slegs vir jou geskrap word, want die groep is beëindig.</string>
     <!-- Toast shown when story media cannot be saved -->
     <string name="MyStories__unable_to_save">Kon nie stoor nie</string>
+
+    <!-- StoryArchive -->
+    <!-- Title for the story archive screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__story_archive" translatable="false">Story archive (Labs)</string> -->
+    <!-- Section header in story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__archive" translatable="false">Archive</string> -->
+    <!-- Label for switch to enable story archiving -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_in_archive" translatable="false">Keep stories in archive</string> -->
+    <!-- Description for the archive toggle -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__save_stories_after_they_expire" translatable="false">Save your sent stories after they leave the active feed.</string> -->
+    <!-- Label for archive duration preference -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_for" translatable="false">Keep stories for</string> -->
+    <!-- Archive duration option: forever -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__forever" translatable="false">Forever</string> -->
+    <!-- Archive duration option: 1 year -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__1_year" translatable="false">1 year</string> -->
+    <!-- Archive duration option: 6 months -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__6_months" translatable="false">6 months</string> -->
+    <!-- Archive duration option: 30 days -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__30_days" translatable="false">30 days</string> -->
+    <!-- Empty state title when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories" translatable="false">No archived stories</string> -->
+    <!-- Empty state message when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories_message" translatable="false">Turn on \"Save Stories to Archive\" in story settings to auto-archive your stories.</string> -->
+    <!-- Empty state button to navigate to story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__go_to_settings" translatable="false">Go to settings</string> -->
+    <!-- Label for sort order menu -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__sort_by" translatable="false">Sort by</string> -->
+    <!-- Sort order option: newest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__newest" translatable="false">Newest</string> -->
+    <!-- Sort order option: oldest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__oldest" translatable="false">Oldest</string> -->
+    <!-- Delete action in story archive multi-select bottom bar -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__delete" translatable="false">Delete</string> -->
+    <!-- Content description for selecting a story in multi-select mode -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__select_story" translatable="false">Select story</string> -->
+    <!-- Confirmation dialog body when deleting stories from archive -->
+    <plurals name="StoryArchive__delete_n_stories">
+        <item quantity="one">Skrap %1$d storie? Dit kan nie ongedaan gemaak word nie.</item>
+        <item quantity="other">Skrap %1$d stories? Dit kan nie ongedaan gemaak word nie.</item>
+    </plurals>
+    <!-- Title shown in toolbar when in multi-select mode in story archive, %d is count of selected items -->
+    <plurals name="StoryArchive__d_selected">
+        <item quantity="one">%1$d geselekteer</item>
+        <item quantity="other">%1$d geselekteer</item>
+    </plurals>
+
     <!-- Displayed at bottom of story viewer when current item has views -->
     <plurals name="StoryViewerFragment__d_views">
         <item quantity="one">%1$d kykslag</item>
@@ -7244,11 +7565,11 @@
 
     <!-- DonateToSignalFragment -->
     <!-- Title below avatar -->
-    <string name="DonateToSignalFragment__privacy_over_profit">Privaatheid bo wins</string>
+    <string name="DonateToSignalFragment__privacy_over_profit">Trots niewinsgewend</string>
     <!-- Continue button label -->
     <string name="DonateToSignalFragment__continue">Gaan voort</string>
     <!-- Description below title -->
-    <string name="DonateToSignalFragment__private_messaging">Private boodskappe, befonds deur jou. Geen advertensies, geen nasporing, geen kompromis nie. Maak nou \'n skenking om Signal te ondersteun.</string>
+    <string name="DonateToSignalFragment__private_messaging">Skenk om private boodskappe te ondersteun. Hou Signal onafhanklik en advertensievry.</string>
     <!-- Dialog title when a user tries to donate while they already have a pending donation. -->
     <string name="DonateToSignalFragment__you_have_a_donation_pending">Jy het \'n hangende skenking</string>
     <!-- Dialog body when a user tries to donate while they already have a pending monthly donation. -->
@@ -7260,7 +7581,7 @@
     <!-- Dialog body when a user tries to donate while they already have a pending one time donation. -->
     <string name="DonateToSignalFragment__your_payment_is_still_being_processed_onetime">Jou skenking word nog verwerk. Dit kan \'n paar minute neem, afhangende van jou verbinding. Wag asseblief totdat hierdie betaling voltooi is voordat jy nog \'n skenking maak.</string>
     <!-- Dialog body when a user opens the manage donations main screen and they have a pending iDEAL donation -->
-    <string name="DonateToSignalFragment__your_ideal_payment_is_still_processing">Jou iDEAL-skenking word nog verwerk. Gaan na jou banktoepassing om jou betaling goed te keur voordat jy nog \'n skenking maak.</string>
+    <string name="DonateToSignalFragment__your_ideal_wero_payment_is_still_processing">Jou iDEAL | Wero-skenking word nog verwerk. Gaan na jou banktoepassing om jou betaling goed te keur voordat jy nog \'n skenking maak.</string>
     <!-- Dialog title shown when a user tries to donate an amount higher than is allowed for a given payment method. -->
     <string name="DonateToSignal__donation_amount_too_high">Skenkingsbedrag te hoog</string>
     <!-- Dialog body shown when a user tries to donate an amount higher than is allowed for a given payment method, place holder is the maximum -->
@@ -7290,11 +7611,13 @@
     <!-- Sheet summary when giving donating for a friend -->
     <string name="GatewaySelectorBottomSheet__donate_for_a_friend">Skenk namens n vriend/in</string>
     <!-- Button label for paying with iDEAL -->
-    <string name="GatewaySelectorBottomSheet__ideal">iDEAL</string>
+    <string name="GatewaySelectorBottomSheet__ideal_wero">iDEAL | Wero</string>
 
     <!-- Dialog title for launching external intent -->
     <string name="ExternalNavigationHelper__leave_signal_to_confirm_payment">Verlaat Signal om skenking te bevestig?</string>
     <string name="ExternalNavigationHelper__once_this_payment_is_confirmed">Wanneer dit bevestig is, keer terug na Signal om verwerking van jou skenking te voltooi.</string>
+    <!-- Dialog message shown when leaving Signal to complete a donation in an external app. Placeholder is the resolved app name (e.g. a banking app). -->
+    <string name="ExternalNavigationHelper__once_payment_confirmed_in_app">Jy sal gestuur word na %1$s. Wanneer dit bevestig is, keer terug na Signal om verwerking van jou skenking te voltooi.</string>
 
     <!-- BankTransferMandateFragment -->
     <!-- Title of screen displaying the bank transfer mandate -->
@@ -7335,8 +7658,8 @@
     <string name="BankTransferDetailsFragment__iban_country_code_is_not_supported">IBAN-landkode word nie ondersteun nie</string>
     <!-- Error label for IBAN field when number is invalid -->
     <string name="BankTransferDetailsFragment__invalid_iban">Ongeldige IBAN</string>
-    <!-- Error label for name field when name is not at least two characters long -->
-    <string name="BankTransferDetailsFragment__minimum_2_characters">Minimum 2 karakters</string>
+    <!-- Error label for name field when name is not at least three characters long (Stripe API enforced minimum) -->
+    <string name="BankTransferDetailsFragment__minimum_3_characters">Minimum 3 karakters</string>
     <!-- Error label for email field when email is not valid -->
     <string name="BankTransferDetailsFragment__invalid_email_address">Ongeldige e-posadres</string>
 
@@ -7356,7 +7679,7 @@
     <!-- Default label for bank selection -->
     <string name="IdealTransferDetailsFragment__choose_your_bank">Kies jou bank</string>
     <!-- Dialog title shown when using iDEAL payment for setting up a monthly donation -->
-    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal">Bevestig jou skenking met iDEAL</string>
+    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal_wero">Bevestig jou skenking met iDEAL | Wero</string>
     <!-- Dialog warning shown when using iDEAL payment for setting up a monthly donation. Placeholder is donation amount.Z -->
     <string name="IdealTransferDetailsFragment__to_setup_your_recurring_donation">Om jou herhalende skenking op te stel, tik op \"gaan voort\" om \'n €0.01-debiet by jou bank te bevestig. Dit sal outomaties terugbetaal word en laat toe dat jou %1$s/maand-skenking van jou rekening gedebiteer word.</string>
     <!-- Dialog button shown when using iDEAL payment for setting up a monthly donation to continue with the donation -->
@@ -7520,6 +7843,8 @@
     <string name="CallLogAdapter__incoming">Inkomend</string>
     <!-- Displayed for outgoing calls -->
     <string name="CallLogAdapter__outgoing">Uitgaande</string>
+    <!-- Displayed for outgoing calls that were not accepted by the remote party -->
+    <string name="CallLogAdapter__unanswered">Onbeantwoord</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Gemis</string>
     <!-- Displayed for one missed call declined by notification profile -->
@@ -7604,6 +7929,8 @@
     <string name="CallLogFragment__get_started_by_calling_a_friend">Begin deur \'n vriend te bel.</string>
     <!-- Displayed as a message in a dialog when deleting multiple items -->
     <string name="CallLogFragment__call_links_youve_created">Oproepskakels wat jy geskep het, sal nie meer werk vir mense wat dit het nie.</string>
+    <!-- Dialog message shown when trying to start a group call but the user is no longer a member -->
+    <string name="CallLogFragment__cant_start_call_no_longer_a_member">Jy is nie meer \'n lid van hierdie groep nie.</string>
 
     <!-- New call activity -->
     <!-- Activity title in title bar -->
@@ -7661,6 +7988,14 @@
     <string name="CallLinkInfoSheet__remove">Verwyder</string>
     <!-- Dialog action to block participant from the call -->
     <string name="CallLinkInfoSheet__block_from_call">Blokkeer toegang tot oproep</string>
+
+    <!-- CallParticipantSheet -->
+    <!-- Action to mute a participant\'s audio in a group call -->
+    <string name="CallParticipantSheet__mute_audio">Demp oudio</string>
+    <!-- Action to remove a participant from a call -->
+    <string name="CallParticipantSheet__remove_from_call">Verwyder uit oproep</string>
+    <!-- Action to view contact details for a participant -->
+    <string name="CallParticipantSheet__contact_details">Kontakbesonderhede</string>
 
     <!-- CreateCallLinkBottomSheetDialogFragment -->
     <!-- Fragment title -->
@@ -7829,8 +8164,6 @@
 
     <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__title">Skakel Signal se Veilige Rugsteun aan</string>
-    <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups. Special string for the beta period. -->
-    <string name="TurnOnSignalBackups__title_beta">Probeer Signal se Veilige Rugsteun</string>
     <!-- Body of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__body">Moet nooit \'n boodskap verloor wanneer jy \'n nuwe foon kry of Signal herinstalleer nie.</string>
     <!-- Button of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups that will take the user to the flow to enable backups -->
@@ -7839,6 +8172,88 @@
     <string name="TurnOnSignalBackups__not_now">Nie nou nie</string>
     <!-- Text for a "toast" that pops up at the bottom of the user\'s screen after they respond "not now" to a prompt asking them to enable backups -->
     <string name="TurnOnSignalBackups__toast_not_now">Jy kan rugsteun in \"Instellings\" aktiveer</string>
+
+    <!-- Title of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__title">Moet nooit \'n boodskap verloor nie</string>
+    <!-- Body of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__body">Skakel Signal Veilige Rugsteun aan om jou boodskappe en media te bewaar.</string>
+    <!-- Primary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__turn_on">Skakel aan</string>
+    <!-- Secondary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__not_now">Nie nou nie</string>
+
+    <!-- Title of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__title">Rugsteun al jou media</string>
+    <!-- Body of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__body">Betaalde Signal Veilige Rugsteun-planne hou al jou media, tot 100 GB.</string>
+    <!-- Primary button of Megaphone C -->
+    <string name="BackupMediaUpsell__upgrade">Gradeer op</string>
+    <!-- Secondary button of Megaphone C -->
+    <string name="BackupMediaUpsell__not_now">Nie nou nie</string>
+
+    <!-- Title of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__title">Bespaar stoorruimte met betaalde rugsteun</string>
+    <!-- Body of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__body">Betaalde veilige rugsteunplanne kan stoorruimte bespaar deur media af te laai.</string>
+    <!-- Primary button of Megaphone D when user has free tier backups -->
+    <string name="BackupStorageUpsell__upgrade">Gradeer op</string>
+    <!-- Primary button of Megaphone D when user has no backups -->
+    <string name="BackupStorageUpsell__turn_on">Skakel aan</string>
+    <!-- Secondary button of Megaphone D -->
+    <string name="BackupStorageUpsell__not_now">Nie nou nie</string>
+
+    <!-- Title of the backup upsell bottom sheet promoting paid backup plans -->
+    <string name="BackupUpsellBottomSheet__title">Opgradeer om alle media te rugsteun</string>
+    <!-- Body of the backup upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__body">Betaalde Signal Veilige Rugsteun-planne stoor alle media wat jy stuur of ontvang, tot \'n maksimum van 100 GB. Moet nooit \'n foto of video verloor wanneer jy \'n nuwe foon kry of Signal herinstalleer nie.</string>
+    <!-- Label for the paid plan price shown in the feature card, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__price_per_month">%1$s/maand</string>
+    <!-- Subtitle for the paid plan feature card -->
+    <string name="BackupUpsellBottomSheet__text_and_all_media">Teks + al jou media</string>
+    <!-- Feature bullet: full text and media backup -->
+    <string name="BackupUpsellBottomSheet__full_text_media_backup">Volledige rugsteun van teks + media</string>
+    <!-- Feature bullet: 100GB storage -->
+    <string name="BackupUpsellBottomSheet__storage_100gb">100 GB stoorruimte</string>
+    <!-- Feature bullet: save on-device storage -->
+    <string name="BackupUpsellBottomSheet__save_on_device_storage">Bespaar stoorruimte op jou toestel</string>
+    <!-- Feature bullet: thanks for supporting Signal -->
+    <string name="BackupUpsellBottomSheet__thanks_for_supporting">Dankie vir jou ondersteuning van Signal</string>
+    <!-- Primary button for the upsell bottom sheet. The %s is replaced by the subscription price, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__subscribe_for">Teken in teen %1$s/maand</string>
+    <!-- Secondary/dismiss button for the upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__no_thanks">Nee dankie</string>
+
+    <!-- Title of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__title">Jy is gereed. Begin jou rugsteun nou.</string>
+    <!-- Body of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__body">Dit kan \'n rukkie neem. Jy kan Signal normaalweg gebruik terwyl rugsteun gedoen word.</string>
+    <!-- Label for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_storage">Optimaliseer Signal-stoorruimte</string>
+    <!-- Subtitle for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_subtitle">Ouer media sal afgelaai word, maar kan enige tyd weer van jou rugsteun afgelaai word.</string>
+    <!-- Primary button on the setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__back_up_now">Rugsteun nou</string>
+
+    <!-- Title of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__title">Gebruik nuwe rugsteun op jou toestel</string>
+    <!-- Body of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__body">Rugsteun op toestelle stoor nou vinniger en gebruik minder data.</string>
+    <!-- Button of a megaphone that will take the user to the upgrade flow -->
+    <string name="UseNewOnDeviceBackups__upgrade">Gradeer op</string>
+    <!-- Button of a megaphone that will snooze the reminder to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__not_now">Nie nou nie</string>
+
+    <!-- Title of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__title">Maak Signal op jou foon oop</string>
+    <!-- Body of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__body">Om jou rekening aktief te hou, maak Signal op jou primêre toestel oop.</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will navigate to a support page -->
+    <string name="InactivePrimary__learn_more">Vind meer uit</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will snooze the megaphone -->
+    <string name="InactivePrimary__got_it">Ek verstaan</string>
+
+    <!-- Text describing how to restore a backup displayed on the on-device backups screen -->
+    <string name="OnDeviceBackupsScreen__to_restore_a_backup">"Om \'n rugsteun te herwin, installeer \'n nuwe kopie van Signal. Maak die toepassing oop, tik op \"Herwin rugsteun\" en vind dan die rugsteunlêer."</string>
 
     <!-- Title of a megaphone shown to prompt the user to verify their recovery key -->
     <string name="VerifyBackupKey__title">Verifieer jou herwinsleutel</string>
@@ -8059,6 +8474,12 @@
     <!-- Backup redemption error sheet bullet point 2 -->
     <string name="BackupAlertBottomSheet__have_too_many_devices_using_the_same_subscription">Te veel toestelle wat dieselfde intekening gebruik.</string>
 
+    <!-- OnDeviceBackupsFragment -->
+    <!-- Snackbar message shown after successfully updating the on-device backups recovery key. -->
+    <string name="OnDeviceBackupsFragment__recovery_key_updated">Herwinsleutel opgedateer</string>
+    <!-- Toast message shown after selecting a folder to store on-device backups. Placeholder is the selected folder. -->
+    <string name="OnDeviceBackupsFragment__directory_selected">Gekose gids: %1$s</string>
+
     <!-- BackupStatus -->
     <!-- Status title when user does not have enough free space to download their media. Placeholder is required disk space. -->
     <string name="BackupStatus__free_up_s_of_space_to_download_your_media">Stel %1$s stoorruimte beskikbaar om jou media af te laai.</string>
@@ -8075,6 +8496,15 @@
     <!-- Status action label for resume restore from a paused state -->
     <string name="BackupStatus__resume">Hervat</string>
 
+    <!-- Status subtitle for banner when we are creating a backup file -->
+    <string name="BackupStatus__status_creating_backup">Skep tans rugsteunkopie…</string>
+    <!-- Status title for banner when user is actively uploading backup data -->
+    <string name="BackupStatus__uploading_backup">Laai tans rugsteun op</string>
+    <!-- Status title for banner when user is temporarily unable to upload a backup -->
+    <string name="BackupStatus__upload_paused">Rugsteun onderbreek</string>
+    <!-- Status title for banner when user has finished creating a backup -->
+    <string name="BackupStatus__upload_complete">Rugsteun voltooi</string>
+
     <!-- Status subtitle for banner when restoring media pauses for Wi-Fi -->
     <string name="BackupStatus__status_waiting_for_wifi">Wag tans vir WiFi…</string>
     <!-- Status subtitle for banner when restoring media pauses for internet in general -->
@@ -8083,6 +8513,10 @@
     <string name="BackupStatus__status_device_has_low_battery">Toestel se battery is laag</string>
     <!-- Status subtitle for banner when restoring media. Placeholders are size already restored and total size to restore. e.g., 4.5MB of 100MB -->
     <string name="BackupStatus__status_size_of_size">%1$s of %2$s</string>
+    <!-- Label for a context menu item that, when pressed, will hide a banner so it will no longer be shown. -->
+    <string name="BackupStatus__hide">Versteek</string>
+    <!-- Label for a context menu item that, when pressed, will cancel the ongoing backup. -->
+    <string name="BackupStatus__cancel_upload">Kanselleer rugsteun</string>
 
     <!-- BackupStatusRow -->
     <!-- Content description for x icon at the end of the linear progress indicator -->
@@ -8124,6 +8558,15 @@
     <string name="ResumeRestoreCellular_resume_using_cellular_title">Hervat die gebruik van mobiele data?</string>
     <!-- Dialog message to prompt resuming media restore over cellular -->
     <string name="ResumeRestoreCellular_resume_using_cellular_message">Die herstel van jou media met behulp van mobiele data kan datakoste tot gevolg hê. Jy kan aan \'n Wi-Fi-netwerk konnekteer om outomaties te hervat.</string>
+
+    <!-- Title of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_title">Kanselleer rugsteun?</string>
+    <!-- Body of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_body">Kansellering van jou rugsteun sal nie jou rugsteun skrap nie. Jy kan jou rugsteun te eniger tyd uit Rugsteuninstellings hervat.</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will confirm canceling the currently-running backup (future backups are unaffected). -->
+    <string name="CancelBackupDialog_cancel_action">Kanselleer rugsteun</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will continue the backup rather than cancel it. -->
+    <string name="CancelBackupDialog_continue_action">Gaan voort met rugsteun</string>
 
     <!-- BackupsTypeSettingsFragment -->
     <!-- Displayed as the user\'s payment method as a label in a preference row -->
@@ -8223,6 +8666,28 @@
     <string name="MediaNoLongerAvailableSheet__continue">Gaan voort</string>
     <!-- Secondary action button on bottom sheet -->
     <string name="MediaNoLongerAvailableSheet__not_now">Nie nou nie</string>
+
+    <!-- End group button label shown in confirmation dialogs -->
+    <string name="EndGroupDialog__end_group">Beëindig groep</string>
+    <!-- Title of first end group confirmation dialog. %1$s is the group name -->
+    <string name="EndGroupDialog__end_s">Beëindig \"%1$s\"?</string>
+    <!-- Body of first end group confirmation dialog -->
+    <string name="EndGroupDialog__members_will_no_longer_be_able_to_send">Lede sal nie meer in staat wees om boodskappe in die groep te stuur of oproepe te begin nie. Hulle sal in kennis gestel word dat jy die groep beëindig het, en sal steeds toegang tot die boodskapgeskiedenis hê.</string>
+    <!-- Body of second/final end group confirmation dialog -->
+    <string name="EndGroupDialog__this_will_end_the_group_permanently">Hierdie aksie sal die groep permanent beëindig. Is jy seker jy wil voortgaan?</string>
+    <!-- Progress message shown while ending a group -->
+    <string name="EndGroupDialog__ending_group">Besig om groep te beëindig…</string>
+    <!-- Message shown when ending a group fails -->
+    <string name="EndGroupDialog__ending_the_group_failed">Kon nie die groep beëindig nie. Gaan jou verbinding na en probeer weer.</string>
+    <!-- Retry button shown when ending a group fails -->
+    <string name="EndGroupDialog__try_again">Probeer weer</string>
+
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, with admin name. %1$s is the admin\'s display name -->
+    <string name="TerminatedGroupBottomSheet__s_ended_the_group">%1$s het die Groep beëindig</string>
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, without admin name -->
+    <string name="TerminatedGroupBottomSheet__the_group_has_been_ended">Die groep is beëindig.</string>
+    <!-- Body of bottom sheet shown when opening a terminated group -->
+    <string name="TerminatedGroupBottomSheet__you_can_no_longer_send_and_receive">Jy kan nie meer boodskappe of oproepe in hierdie groep stuur en ontvang nie.</string>
 
     <!-- Educational bottom sheet dialog title shown to notify about delete syncs causing deletes to happen across all devices -->
     <string name="DeleteSyncEducation_title">Skrapping is nou oor al jou toestelle gesinchroniseer</string>
@@ -8477,6 +8942,49 @@
     <!-- Button label to open QR scanner to scan a device and transfer a backup -->
     <string name="RemoteBackupsSettingsFragment__scan_qr_code">Skandeer QR-kode</string>
 
+    <!-- BackupCreationProgressRow -->
+    <!-- Progress text shown while the backup database is being processed -->
+    <string name="BackupCreationProgressRow__processing_backup">Verwerk tans rugsteun…</string>
+    <!-- Progress text shown while the backup is being prepared (e.g. exporting accounts, recipients, etc.) -->
+    <string name="BackupCreationProgressRow__preparing_backup">Berei tans rugsteun voor…</string>
+    <!-- Progress text shown while the backup is being finalized (e.g. cleaning up old files) -->
+    <string name="BackupCreationProgressRow__finalizing">Finaliseer tans…</string>
+    <!-- Progress text shown while messages are being processed, with no count available yet -->
+    <string name="BackupCreationProgressRow__processing_messages">Besig om boodskappe te verwerk…</string>
+    <!-- Progress text shown while messages are being processed. %1$s is the formatted current count (e.g. "1,000"), %2$s is the formatted total count (e.g. "100,000"), %3$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__processing_messages_s_of_s_d">Besig om boodskappe te verwerk: %1$s van %2$s (%3$d%%)</string>
+    <!-- Progress text shown while media is being uploaded to the server. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__uploading_media_d">Besig om media op te laai: %1$d%%</string>
+    <!-- Progress text shown while media is being exported to local storage. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__exporting_media_d">Besig om media uit te voer: %1$d%%</string>
+
+    <!-- LocalArchiveJob -->
+    <!-- Notification title shown while media attachments are being exported during a local backup -->
+    <string name="LocalArchiveJob__exporting_media">Besig om media uit te voer…</string>
+
+    <!-- OnDeviceBackupsImprovementsScreen -->
+    <!-- Title displayed at the top of the screen explaining on-device backup improvements -->
+    <string name="OnDeviceBackupsImprovementsScreen__improvements_to_on_device_backups">Verbeterings aan rugsteun op toestelle</string>
+    <!-- Subtitle describing that the backup will be upgraded to a new format with a new recovery key -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_on_device_backup_will_be_upgraded">Die rugsteun op jou toestel sal na \'n nuwe formaat opgegradeer word wat \'n nuwe herstelsleutel gebruik</string>
+    <!-- Feature description explaining backups are faster and use less data -->
+    <string name="OnDeviceBackupsImprovementsScreen__backups_now_save_faster">Rugsteun stoor nou vinniger en gebruik minder data</string>
+    <!-- Feature description explaining backups will be saved as a folder with many files -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_backup_will_be_saved_as_a_folder">Jou rugsteun sal as \'n vouer met baie lêers gestoor word</string>
+    <!-- Feature description explaining backups remain end-to-end encrypted -->
+    <string name="OnDeviceBackupsImprovementsScreen__all_backups_remain_end_to_end_encrypted">Alle rugsteun bly steeds end-tot-end geënkripteer</string>
+    <!-- Button text to continue to the next step -->
+    <string name="OnDeviceBackupsImprovementsScreen__continue">Gaan voort</string>
+
+    <!-- OnDeviceBackupsSettingsScreen -->
+    <!-- Card text prompting user to update to a new recovery key for faster backups -->
+    <string name="OnDeviceBackupsSettingsScreen__update_to_a_new_recovery_key">Opdateer na \'n nuwe herstelsleutel vir vinniger rugsteun</string>
+    <!-- Button text to update to a new recovery key -->
+    <string name="OnDeviceBackupsSettingsScreen__update">Werk by</string>
+
+    <!-- UnifiedOnDeviceBackupsSettingsScreen -->
+    <string name="UnifiedOnDeviceBackupsSettingsScreen__view_recovery_key">Bekyk herwinsleutel</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">Laai vandag nog jou rugsteun af</string>
@@ -8530,12 +9038,34 @@
     <!-- MessageBackupsKeyEducationScreen -->
     <!-- Screen headline -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key">Herwinsleutel</string>
+    <!-- Screen headline shown when upgrading on-device backups to a new recovery key. -->
+    <string name="MessageBackupsKeyEducationScreen__your_new_recovery_key">Jou nuwe herstelsleutel</string>
+    <!-- Screen headline shown when the user already has an on-device recovery key set. -->
+    <string name="MessageBackupsKeyEducationScreen__your_recovery_key">Jou herwinsleutel</string>
     <!-- Screen body part 1 -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key_is_a">Jou herwinsleutel is \'n 64-karakter-kode wat jy nodig het om jou rugsteun te herstel.</string>
     <!-- Screen body part 2 -->
     <string name="MessageBackupsKeyEducationScreen__store_your_recovery">Bêre jou herwinsleutel êrens veilig soos \'n veilige wagwoordbestuurstelsel, en moet dit nie met enigiemand deel nie.</string>
     <!-- Screen body part 3 -->
     <string name="MessageBackupsKeyEducationScreen__if_you_lose_it">As jy dit verloor, sal jy nie jou boodskappe kan herwin nie.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description">Jou herwinsleutel is \'n 64-karakter-kode waarmee jy alle rugsteuntipes kan herstel.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description_bold">Hierdie sleutel sal die sleutel vir rugsteun op jou toestel vervang.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description">Jou herwinsleutel is \'n 64-karakter-kode wat jou toelaat om jou rugsteun te herstel wanneer jy Signal herinstalleer.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description_bold">Dit is dieselfde as die herwinsleutel op jou toestel.</string>
+    <!-- Screen body shown when enabling on-device backups while Signal Secure Backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_with_remote_enabled_description_bold">Dis dieselfde as jou herstelsleutel vir Signal se Veilige Rugsteun.</string>
+    <!-- Label shown above a list of actions that the recovery key can be used for. -->
+    <string name="MessageBackupsKeyEducationScreen__use_this_key_to">Gebruik hierdie sleutel om:</string>
+    <!-- Row label indicating that the recovery key can be used to restore an on-device backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_on_device_backup">Herwin die rugsteun op jou toestel</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_a_signal_secure_backup">Herwin \'n Signal Veilige Rugsteun</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_your_signal_secure_backup">Jou Signal Veilige Rugsteun te herwin</string>
     <!-- Action button label -->
     <string name="MessageBackupsKeyEducationScreen__view_recovery_key">Bekyk herwinsleutel</string>
 
@@ -8544,6 +9074,8 @@
     <string name="MessageBackupsKeyRecordScreen__record_your_backup_key">Maak \'n aantekening van jou herwinsleutel</string>
     <!-- Screen subhead -->
     <string name="MessageBackupsKeyRecordScreen__this_key_is_required_to_recover">Hierdie sleutel is nodig om jou rekening en data te herstel. Bewaar hierdie sleutel iewers waar dit veilig is. As jy dit verloor, sal jy nie jou rekening kan herstel nie.</string>
+    <!-- Screen subhead shown when the recovery key is shared between Signal Secure Backups and on-device backups. -->
+    <string name="MessageBackupsKeyRecordScreen__this_key_is_the_same_as_your_on_device_recovery_key">Hierdie sleutel is dieselfde as die herwinsleutel op jou toestel. Dit is nodig om jou rekening en data te herwin.</string>
     <!-- Copy to clipboard button label -->
     <string name="MessageBackupsKeyRecordScreen__copy_to_clipboard">Kopieer na knipbord</string>
     <!-- Label for the button to save a recovery key to the device password manager. -->
@@ -8707,11 +9239,13 @@
     <!-- Screen subtitle for selecting which restore method to use during registration -->
     <string name="SelectRestoreMethodFragment__get_your_signal_account">Kry jou Signal-rekening en boodskapgeskiedenis op hierdie toestel.</string>
     <!-- Option title for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__from_signal_backups">Van Signal se Veilige Rugsteun</string>
+    <string name="SelectRestoreMethodFragment__restore_signal_backup">Herwin Signal-rugsteun</string>
     <!-- Option subtitle for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__your_free_or_paid_signal_backup_plan">Jou gratis of betaalde Signal-rugsteunplan</string>
-    <!-- Option title for restoring via a local backup folder -->
-    <string name="SelectRestoreMethodFragment__from_a_backup_folder">Vanaf \'n rugsteunvouer</string>
+    <string name="SelectRestoreMethodFragment__restore_your_text_messages_and_media_from">Herwin jou teksboodskappe en media vanaf jou Signal-rugsteunplan.</string>
+    <!-- Option title for restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_on_device_backup">Herwin rugsteun op toestel</string>
+    <!-- Option subtitle fdor restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_your_messages_from">Herwin jou boodskappe van \'n rugsteun wat jy op jou toestel gestoor het.</string>
     <!-- Option title for restoring via a local backup file -->
     <string name="SelectRestoreMethodFragment__from_a_backup_file">Vanaf \'n rugsteunlêer</string>
     <!-- Option subtitle for restoring via a local backup -->
@@ -8785,6 +9319,132 @@
     <!-- Email subject when contacting support on a permanent backup import failure -->
     <string name="EnterBackupKey_permanent_failure_support_email">Permanente mislukking vir herstel van Signal Android-rugsteun</string>
   <!-- Removed by excludeNonTranslatables <string name="EnterBackupKey_permanent_failure_support_email_filter" translatable="false">Android SignalBackups Import Permanent Failure</string> -->
+
+    <!-- EnterLocalBackupKeyScreen: Screen title for entering recovery key for local backup restore -->
+    <string name="EnterLocalBackupKeyScreen__enter_your_recovery_key">Voer jou herwinsleutel in</string>
+    <!-- EnterLocalBackupKeyScreen: Screen subtitle explaining what the recovery key is -->
+    <string name="EnterLocalBackupKeyScreen__your_recovery_key_is_a_64_character_code">Jou herwinsleutel is \'n 64-syfer-kode wat nodig is om jou rekening en data te herwin.</string>
+    <!-- EnterLocalBackupKeyScreen: Button text when user does not have a recovery key -->
+    <string name="EnterLocalBackupKeyScreen__no_recovery_key">Geen herwinsleutel nie?</string>
+    <!-- EnterLocalBackupKeyScreen: Button to proceed to next step -->
+    <string name="EnterLocalBackupKeyScreen__next">Volgende</string>
+
+    <!-- RestoreLocalBackupDialog: Error message when the selected archive fails to load -->
+    <string name="RestoreLocalBackupDialog__failed_to_load_archive">Kon nie argief laai nie. Kies asseblief \'n ander gids.</string>
+    <!-- RestoreLocalBackupDialog: Dismiss button for dialog -->
+    <string name="RestoreLocalBackupDialog__ok">Goed</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore">Slaan herstel oor?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user about the consequences of skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore_body">As jy nou herwinning oorslaan, sal jy nie later herwinning kan doen nie. As jy rugsteun weer aktiveer nadat jy herwinning oorgeslaan het, sal jou huidige rugsteun deur jou nuwe boodskapgeskiedenis vervang word.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the skip restore dialog -->
+    <string name="RestoreLocalBackupDialog__skip_restore_confirm">Slaan herstel oor</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm restoring a backup from a different account -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account">Herwin in \'n nuwe rekening?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user that the backup was created with a different account and they will lose group memberships -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account_body">Die rugsteun wat jy besig is om te herwin, is geskep met gebruik van \'n ander Signal-rekening. Jy kan hierdie rugsteun in \'n nuwe rekening herwin, maar jy sal nie meer \'n lid wees van enige van die groepe wat herwin is nie.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the restore to new account dialog -->
+    <string name="RestoreLocalBackupDialog__restore">Herstel</string>
+
+    <!-- RestoreLocalBackupActivity: Toast message when backup restore fails -->
+    <string name="RestoreLocalBackupActivity__backup_restore_failed">Rugsteunherwinning het misluk</string>
+    <!-- RestoreLocalBackupActivity: Screen title shown during restore -->
+    <string name="RestoreLocalBackupActivity__restoring_backup">Herstel tans rugsteun</string>
+    <!-- RestoreLocalBackupActivity: Screen subtitle explaining restore duration -->
+    <string name="RestoreLocalBackupActivity__depending_on_the_size">Na gelang van die grootte van jou rugsteun kan dit \'n paar minute neem.</string>
+    <!-- RestoreLocalBackupActivity: Status text while restoring messages -->
+    <string name="RestoreLocalBackupActivity__restoring_messages">Laai tans boodskappe terug…</string>
+    <!-- RestoreLocalBackupActivity: Status text while finalizing restore -->
+    <string name="RestoreLocalBackupActivity__finalizing">Finaliseer tans…</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore is complete -->
+    <string name="RestoreLocalBackupActivity__restore_complete">Herstel vanaf rugsteun voltooi</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore fails -->
+    <string name="RestoreLocalBackupActivity__restore_failed">Herwinning het misluk</string>
+    <!-- RestoreLocalBackupActivity: Progress text showing bytes read of total with percentage, e.g. "1.2 MB of 5.0 MB (24%)" -->
+    <string name="RestoreLocalBackupActivity__s_of_s_d_percent">%1$s van %2$s (%3$d%%)</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__cant_restore_backup">Kan nie rugsteun herwin nie</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__error_occurred_while_restoring">\'n Fout het voorgekom tydens die herstel van jou rugsteun. Jou rugsteun is onherwinbaar. Kontak asb. steundiens vir hulp.</string>
+
+    <!-- RestoreLocalBackupActivity: Label for the button that opens the contact support form -->
+    <string name="RestoreLocalBackupActivity__contact_support">Kontak Steundiens</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when the restored backup belongs to a different account -->
+    <string name="RestoreLocalBackupActivity__turn_on_on_device_backups">Skakel rugsteun op toestel aan?</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when the restored backup belongs to a different account, prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__to_continue_using_on_device_backups">Om voort te gaan om rugsteun op toestel te gebruik, moet jy dit vir hierdie rekening aktiveer en jou nuwe herwinsleutel aanteken. Jy kan dit te eniger tyd doen in Instellings &gt; Rugsteun.</string>
+
+    <!-- RestoreLocalBackupActivity: Confirm button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__turn_on_now">Skakel nou aan</string>
+
+    <!-- RestoreLocalBackupActivity: Dismiss button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__not_now">Nie nou nie</string>
+
+    <!-- RestoreLocalBackupActivity: Body text for the dialog shown after a successful restore, prompting the user to choose a backup folder -->
+    <string name="RestoreLocalBackupActivity__choose_a_folder_for_backups">Om voort te gaan om rugsteun op toestel te gebruik, kies \'n vouer op jou toestel waar nuwe rugsteun gestoor sal word.</string>
+
+    <!-- RestoreLocalBackupActivity: Positive button label for the dialog shown after a successful restore; keeps the current backup folder -->
+    <string name="RestoreLocalBackupActivity__use_current_folder">Gebruik huidige vouer</string>
+
+    <!-- RestoreLocalBackupActivity: Neutral button label for the dialog shown after a successful restore; opens folder picker to select a different backup location -->
+    <string name="RestoreLocalBackupActivity__choose_new_folder">Kies nuwe vouer</string>
+
+    <!-- RestoreLocalBackupActivity: Negative button label for the dialog shown after a successful restore; disables on-device backups -->
+    <string name="RestoreLocalBackupActivity__disable_backups">Deaktiveer rugsteun</string>
+
+    <!-- SelectInstructionsSheet: Title for the select backup folder instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_folder">Kies jou rugsteunvouer</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the select this folder button -->
+    <string name="SelectInstructionsSheet__tap_select_this_folder">Tik \"Kies hierdie vouer\"</string>
+    <!-- SelectInstructionsSheet: Instruction not to select individual files -->
+    <string name="SelectInstructionsSheet__do_not_select_individual_files">Moenie individuele lêers kies selekteer nie</string>
+    <!-- SelectInstructionsSheet: Title for the select backup file instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_file">Kies jou rugsteunlêer</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the backup file saved to device -->
+    <string name="SelectInstructionsSheet__tap_on_the_backup_file">Tik op die rugsteunlêer wat jy op jou toestel gestoor het</string>
+    <!-- SelectInstructionsSheet: Subtitle explaining how to access backup after tapping continue -->
+    <string name="SelectInstructionsSheet__after_tapping_continue">Nadat jy op \"Gaan voort\" getik het, kan jy soos volg toegang tot jou rugsteun kry:</string>
+    <!-- SelectInstructionsSheet: Instruction to select the top-level backup folder -->
+    <string name="SelectInstructionsSheet__select_the_top_level_folder">Kies die topvlakvouer waarin jou rugsteun gestoor is</string>
+    <!-- SelectInstructionsSheet: Continue button text -->
+    <string name="SelectInstructionsSheet__continue_button">Gaan voort</string>
+
+    <!-- SelectLocalBackupScreen: Screen title for restoring on-device backup -->
+    <string name="SelectLocalBackupScreen__restore_on_device_backup">Herwin rugsteun op toestel</string>
+    <!-- SelectLocalBackupScreen: Screen subtitle explaining the restore process -->
+    <string name="SelectLocalBackupScreen__restore_your_messages_from_the_backup_folder">Herwin jou boodskappe van \'n rugsteunvouer wat jy op jou toestel gestoor het. As jy dit nie nou herwin nie, sal jy dit nie later kan herwin nie.</string>
+    <!-- SelectLocalBackupScreen: Button to initiate backup restoration -->
+    <string name="SelectLocalBackupScreen__restore_backup">Laai rugsteun terug</string>
+    <!-- SelectLocalBackupScreen: Button to choose an earlier backup when current is latest -->
+    <string name="SelectLocalBackupScreen__choose_an_earlier_backup">Kies \'n vroeëre rugsteun</string>
+    <!-- SelectLocalBackupScreen: Button to choose a different backup -->
+    <string name="SelectLocalBackupScreen__choose_a_different_backup">Kies \'n ander rugsteun</string>
+    <!-- SelectLocalBackupScreen: Label for latest backup card -->
+    <string name="SelectLocalBackupScreen__your_latest_backup">Jou jongste rugsteun:</string>
+    <!-- SelectLocalBackupScreen: Label for non-latest backup card -->
+    <string name="SelectLocalBackupScreen__your_backup">Jou rugsteun:</string>
+
+    <!-- SelectLocalBackupSheet: Title for backup selection bottom sheet -->
+    <string name="SelectLocalBackupSheet__choose_a_backup_to_restore">Kies \'n rugsteun om te herwin</string>
+    <!-- SelectLocalBackupSheet: Subtitle warning about choosing an older backup -->
+    <string name="SelectLocalBackupSheet__choosing_an_older_backup">As jy \'n \'n ouer rugsteun kies, kan dit verlore boodskappe of media tot gevolg hê.</string>
+    <!-- SelectLocalBackupSheet: Continue button text -->
+    <string name="SelectLocalBackupSheet__continue_button">Gaan voort</string>
+
+    <!-- SelectLocalBackupTypeScreen: Screen title for selecting backup type -->
+    <string name="SelectLocalBackupTypeScreen__restore_on_device_backup">Herwin rugsteun op toestel</string>
+    <!-- SelectLocalBackupTypeScreen: Screen subtitle explaining restore options -->
+    <string name="SelectLocalBackupTypeScreen__restore_your_messages_from_the_backup">Herwin jou boodskappe van \'n rugsteun wat jy op jou toestel gestoor het. As jy dit nie nou herwin nie, sal jy dit nie later kan herwin nie.</string>
+    <!-- SelectLocalBackupTypeScreen: Button for users who saved backup as single file -->
+    <string name="SelectLocalBackupTypeScreen__i_saved_my_backup_as_a_single_file">Ek het my rugsteun as \'n enkele lêer gestoor</string>
+    <!-- SelectLocalBackupTypeScreen: Card title for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__choose_backup_folder">Kies \'n rugsteunvouer</string>
+    <!-- SelectLocalBackupTypeScreen: Card description for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__select_the_folder_on_your_device">Kies die vouer op jou toestel waar jou rugsteun gestoor is</string>
 
     <!-- Email subject when contacting support on a create backup failure -->
     <string name="BackupAlertBottomSheet_network_failure_support_email">Netwerkfout tydens uitvoer van Signal Android-rugsteun</string>
@@ -8891,6 +9551,27 @@
     <string name="MainToolbar__notification_profile_content_description">Kennisgewingsprofiel</string>
     <!-- Accessibility label for more options button in MainToolbar -->
     <string name="MainToolbar__proxy_content_description">Tussenganger</string>
+    <!-- Accessibility label for search filter button in MainToolbar -->
+  <!-- Removed by excludeNonTranslatables <string name="MainToolbar__search_filter_content_description" translatable="false">Search filter</string> -->
+
+    <!-- SearchFilterBottomSheet: Title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__filter_search" translatable="false">Filter search</string> -->
+    <!-- SearchFilterBottomSheet: Start date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__start_date" translatable="false">Start date</string> -->
+    <!-- SearchFilterBottomSheet: End date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__end_date" translatable="false">End date</string> -->
+    <!-- SearchFilterBottomSheet: Author label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__author" translatable="false">Author</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset date -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__not_set" translatable="false">Not set</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset author -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__anyone" translatable="false">Anyone</string> -->
+    <!-- SearchFilterBottomSheet: Apply button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__apply" translatable="false">Apply</string> -->
+    <!-- SearchFilterBottomSheet: Clear button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__clear" translatable="false">Clear</string> -->
+    <!-- SearchFilterBottomSheet: Select date dialog title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__select_date" translatable="false">Select date</string> -->
 
     <!-- Accessibility label for a button displayed in the toolbar to return to the previous screen. -->
     <string name="DefaultTopAppBar__navigate_up_content_description">Navigeer op</string>
@@ -9137,6 +9818,57 @@
     <string name="PinnedMessage__couldnt_unpin_all">Kon nie merkspeld by boodskappe verwyder nie</string>
     <!-- Dialog body when failing to pin a message -->
     <string name="PinnedMessage__check_connection">Gaan jou verbinding na en probeer weer.</string>
+
+    <!-- Group member label screen title. -->
+    <string name="GroupMemberLabel__title">Lidfunksie-etiket</string>
+    <!-- Group member label text field placeholder. -->
+    <string name="GroupMemberLabel__label_text_placeholder">Voeg jou lidfunksie-etiket by</string>
+    <!-- Group member label preview section header. -->
+    <string name="GroupMemberLabel__preview_section_header">Voorskou</string>
+    <!-- Sample message shown in the group member label message preview. -->
+    <string name="GroupMemberLabel__preview_sample_message">Hallo!</string>
+    <!-- Group member label save button label. -->
+    <string name="GroupMemberLabel__save">Stoor</string>
+    <!-- Description explaining the group member labels feature. -->
+    <string name="GroupMemberLabel__description">Voeg \'n lidfunksie-etiket by om jouself of jou rol in hierdie groep te beskryf. Etikette is slegs binne hierdie groep sigbaar.</string>
+    <!-- Error message shown when the group member label fails to save due to a network error. -->
+    <string name="GroupMemberLabel__error_cant_save_no_network">Kon nie lidfunksie-etiket stoor nie. Gaan jou netwerk na en probeer weer.</string>
+    <!-- Error message shown when trying to edit a member label without adequate permission. -->
+    <string name="GroupMemberLabel__error_no_edit_permission">Slegs admins kan lidfunksie-etikette in hierdie groep byvoeg.</string>
+    <!-- Accessibility label for the button to open the group member label emoji picker. -->
+    <string name="GroupMemberLabel__accessibility_select_emoji">Kies emoji</string>
+    <!-- Accessibility label for the group member label close screen button. -->
+    <string name="GroupMemberLabel__accessibility_close_screen">Maak skerm toe</string>
+    <!-- Accessibility label for the group member label text field clear button. -->
+    <string name="GroupMemberLabel__accessibility_clear_label">Maak etiket skoon</string>
+    <!-- Section header for the list of group members who have labels set. -->
+    <string name="GroupMemberLabel__group_members_with_labels">Groeplede met lidfunksie-etikette</string>
+
+    <!-- Title for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__title">Lidfunksie-etikette</string>
+    <!-- Body for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__body">Gebruik \'n lidfunksie-etiket om jouself of jou rol in hierdie groep te beskryf. Lidfunksie-etikette is slegs binne hierdie groep sigbaar.</string>
+    <!-- Button to set a new member label. -->
+    <string name="MemberLabelsEducation__set_label">Stel \'n lidfunksie-etiket op</string>
+    <!-- Button to edit an existing member label. -->
+    <string name="MemberLabelsEducation__edit_label">Wysig jou etiket</string>
+
+    <!-- Title for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__title">Vertoon van Lidfunksie-etiket</string>
+    <!-- Body for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__body">In hierdie groep sal jou Lidfunksie-etiket langs jou foto vertoon word in plaas van jou \"Meer oor my\".</string>
+
+    <!-- Label for internal-only section showing groups with same members -->
+  <!-- Removed by excludeNonTranslatables <string name="AddGroupDetailsFragment__groups_with_same_members" translatable="false">Groups with same members (Labs)</string> -->
+
+    <!-- Title of the sheet shown when a local backup restore could not be completed -->
+    <string name="CouldNotCompleteBackupRestoreSheet__title">Kan nie rugsteun herwin nie</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining the likely cause -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_error">\'n Fout het voorgekom en jou rugsteun kan nie herwin word nie. Dit kan wees omdat die rugsteunvouer op jou toestel verskuif is terwyl herwinning van jou rugsteun aan die gang was.</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining how to try again -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_retry">Om weer te probeer, deïnstalleer en herinstalleer Signal op hierdie toestel en kies \"Herwin of dra oor\".</string>
 
     <!-- EOF -->
 </resources>

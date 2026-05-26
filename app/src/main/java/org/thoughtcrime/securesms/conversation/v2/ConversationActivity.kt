@@ -9,8 +9,10 @@ import android.view.Window
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.lifecycleScope
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
+import kotlinx.coroutines.launch
 import org.signal.core.util.logging.Log
 import org.signal.core.util.logging.Log.tag
 import org.thoughtcrime.securesms.MainActivity
@@ -18,10 +20,14 @@ import org.thoughtcrime.securesms.PassphraseRequiredActivity
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.app.subscription.GooglePayComponent
 import org.thoughtcrime.securesms.components.settings.app.subscription.GooglePayRepository
+import org.thoughtcrime.securesms.components.settings.conversation.ConversationSettingsNavHostFragment
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.conversation.ConversationIntents
 import org.thoughtcrime.securesms.jobs.ConversationShortcutUpdateJob
+import org.thoughtcrime.securesms.main.MainNavigationChatDetailRouter
+import org.thoughtcrime.securesms.main.MainNavigationDetailLocation
+import org.thoughtcrime.securesms.messagedetails.MessageDetailsFragment
 import org.thoughtcrime.securesms.util.ConfigurationUtil
 import org.thoughtcrime.securesms.util.Debouncer
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
@@ -34,12 +40,11 @@ import java.util.concurrent.TimeUnit
 /**
  * Wrapper activity for ConversationFragment.
  */
-open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, GooglePayComponent {
+open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, GooglePayComponent, MainNavigationChatDetailRouter {
 
   companion object {
     private val TAG = tag(ConversationActivity::class.java)
-
-    private const val STATE_WATERMARK = "share_data_watermark"
+    private const val MESSAGE_DETAILS_FRAGMENT_TAG = "MessageDetailsFragment"
   }
 
   private val theme = DynamicNoActionBarTheme()
@@ -150,6 +155,32 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
       .replace(R.id.fragment_container, fragment)
       .disallowAddToBackStack()
       .commitNowAllowingStateLoss()
+  }
+
+  override fun exitDetailLocation() {
+    if (!supportFragmentManager.popBackStackImmediate()) {
+      finish()
+    }
+  }
+
+  override fun goToChatDetail(location: MainNavigationDetailLocation.Chats) {
+    when (location) {
+      is MainNavigationDetailLocation.Chats.ConversationSettings -> {
+        lifecycleScope.launch {
+          val args = ConversationSettingsNavHostFragment.createArgs(location.recipientId)
+          supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, ConversationSettingsNavHostFragment::class.java, args)
+            .addToBackStack(null)
+            .commit()
+        }
+      }
+
+      is MainNavigationDetailLocation.Chats.MessageDetails -> {
+        MessageDetailsFragment.create(location.messageId, location.recipientId)
+          .show(supportFragmentManager, MESSAGE_DETAILS_FRAGMENT_TAG)
+      }
+    }
   }
 
   override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {

@@ -33,12 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.integerArrayResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,7 +51,9 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navArgument
+import org.signal.core.ui.BottomSheetUtil
 import org.signal.core.ui.compose.Animations
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
@@ -62,19 +61,18 @@ import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Rows.TextAndLabel
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Texts
+import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.bytes
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.billing.upgrade.UpgradeToEnableOptimizedStorageSheet
 import org.thoughtcrime.securesms.billing.upgrade.UpgradeToPaidTierBottomSheet
-import org.thoughtcrime.securesms.compose.ComposeFragment
-import org.thoughtcrime.securesms.compose.SignalTheme
 import org.thoughtcrime.securesms.database.MediaTable
 import org.thoughtcrime.securesms.keyvalue.KeepMessagesDuration
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity
 import org.thoughtcrime.securesms.preferences.widgets.StorageGraphView
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.viewModel
 import pigeon.extensions.isSignalVersion
 import java.text.NumberFormat
@@ -277,7 +275,7 @@ private fun ManageStorageSettingsScreen(
   Scaffolds.Settings(
     title = stringResource(id = R.string.preferences__storage),
     onNavigationClick = onNavigationClick,
-    navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24)
+    navigationIcon = SignalIcons.ArrowStart.imageVector
   ) { contentPadding ->
     Column(
       modifier = Modifier
@@ -386,7 +384,7 @@ private fun SetKeepMessagesScreen(
   Scaffolds.Settings(
     title = stringResource(id = R.string.preferences__keep_messages),
     onNavigationClick = onNavigationClick,
-    navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24)
+    navigationIcon = SignalIcons.ArrowStart.imageVector
   ) { contentPadding ->
     Column(
       modifier = Modifier
@@ -426,7 +424,7 @@ private fun SetChatLengthLimitScreen(
   Scaffolds.Settings(
     title = stringResource(id = R.string.preferences__conversation_length_limit),
     onNavigationClick = onNavigationClick,
-    navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24)
+    navigationIcon = SignalIcons.ArrowStart.imageVector
   ) { contentPadding ->
     Column(
       modifier = Modifier
@@ -473,7 +471,7 @@ private fun SetChatLengthLimitScreen(
             )
 
             Icon(
-              painter = painterResource(id = R.drawable.symbol_settings_android_24),
+              painter = SignalIcons.Settings.painter,
               contentDescription = null,
               modifier = Modifier
                 .clickable { onCustomSelected(currentLimit) }

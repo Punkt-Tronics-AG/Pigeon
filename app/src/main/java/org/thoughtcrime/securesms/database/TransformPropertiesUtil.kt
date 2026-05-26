@@ -5,10 +5,11 @@
 
 package org.thoughtcrime.securesms.database
 
+import kotlinx.serialization.json.Json
 import org.signal.core.models.media.TransformProperties
 import org.signal.core.util.logging.Log
+import org.signal.network.util.JsonUtil
 import org.thoughtcrime.securesms.mms.SentMediaQuality
-import org.whispersystems.signalservice.internal.util.JsonUtil
 import java.io.IOException
 import java.util.Optional
 
@@ -18,7 +19,7 @@ private val TAG = Log.tag(TransformProperties::class.java)
  * Serializes the TransformProperties to a JSON string using Jackson.
  */
 fun TransformProperties.serialize(): String {
-  return JsonUtil.toJson(this)
+  return Json.encodeToString(this)
 }
 
 /**

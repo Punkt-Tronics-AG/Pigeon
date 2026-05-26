@@ -90,6 +90,10 @@ object SlowNotificationHeuristics {
   @WorkerThread
   @JvmStatic
   fun isHavingDelayedNotifications(): Boolean {
+    if (SignalStore.account.isLinkedDevice) {
+      // Linked devices are expected to be off for long stretches, so the heuristic produces spurious warnings
+      return false
+    }
     if (!SignalStore.settings.isMessageNotificationsEnabled ||
       !NotificationChannels.getInstance().areNotificationsEnabled()
     ) {

@@ -22,10 +22,10 @@ import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import org.signal.core.util.dp
+import org.signal.glide.decryptableuri.DecryptableUri
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.v2.items.V2ConversationItemUtils.isThumbnailAtBottomOfBubble
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
-import org.thoughtcrime.securesms.mms.DecryptableUri
 import org.thoughtcrime.securesms.mms.Slide
 
 /**
@@ -158,9 +158,16 @@ class V2ConversationItemThumbnail @JvmOverloads constructor(
     }
 
     if (thumbnailUri != null) {
+      val transformProperties = thumbnailAttachment.transformProperties
+      val videoTrimStartTimeUs = if (transformProperties != null && !transformProperties.skipTransform) {
+        transformProperties.videoTrimStartTimeUs
+      } else {
+        0L
+      }
+
       conversationContext
         .requestManager
-        .load(DecryptableUri(thumbnailUri))
+        .load(DecryptableUri(thumbnailUri, videoTrimStartTimeUs))
         .centerInside()
         .dontAnimate()
         .override(thumbnailSize.width, thumbnailSize.height)

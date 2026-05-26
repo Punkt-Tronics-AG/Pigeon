@@ -9,6 +9,7 @@ import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationM
 import org.thoughtcrime.securesms.conversation.v2.data.ConversationElementKey
 import org.thoughtcrime.securesms.conversation.v2.data.IncomingTextOnly
 import org.thoughtcrime.securesms.conversation.v2.data.OutgoingTextOnly
+import org.thoughtcrime.securesms.database.CollapsedState
 import org.thoughtcrime.securesms.database.MessageTypes
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
 import org.thoughtcrime.securesms.database.model.StoryType
@@ -105,7 +106,6 @@ class ConversationElementGenerator {
       false,
       emptyList(),
       false,
-      false,
       now,
       true,
       now,
@@ -122,7 +122,11 @@ class ConversationElementGenerator {
       0,
       false,
       0,
-      null
+      null,
+      CollapsedState.NONE,
+      0,
+      null,
+      false
     )
 
     val conversationMessage = ConversationMessageFactory.createWithUnresolvedData(

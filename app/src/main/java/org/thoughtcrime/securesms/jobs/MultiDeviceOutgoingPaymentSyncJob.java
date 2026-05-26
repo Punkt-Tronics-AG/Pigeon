@@ -10,6 +10,7 @@ import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.payments.proto.PaymentMetaData;
@@ -18,7 +19,7 @@ import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.whispersystems.signalservice.api.messages.multidevice.OutgoingPaymentMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage;
 import org.signal.core.models.ServiceId;
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
+import org.signal.network.exceptions.PushNetworkException;
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException;
 
 import java.util.Optional;
@@ -44,6 +45,7 @@ public final class MultiDeviceOutgoingPaymentSyncJob extends BaseJob {
     this(new Parameters.Builder()
                        .setQueue("MultiDeviceOutgoingPaymentSyncJob")
                        .addConstraint(NetworkConstraint.KEY)
+                       .addConstraint(SealedSenderConstraint.KEY)
                        .setLifespan(TimeUnit.DAYS.toMillis(1))
                        .build(),
          sentPaymentId);

@@ -34,17 +34,19 @@ import androidx.compose.ui.unit.dp
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.DropdownMenus
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.nullIfBlank
+import org.signal.glide.compose.GlideImage
+import org.signal.glide.decryptableuri.DecryptableUri
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.compose.RoundCheckbox
 import org.thoughtcrime.securesms.components.transfercontrols.TransferProgressIndicator
 import org.thoughtcrime.securesms.components.transfercontrols.TransferProgressState
-import org.thoughtcrime.securesms.compose.GlideImage
-import org.thoughtcrime.securesms.mms.DecryptableUri
 import org.thoughtcrime.securesms.stickers.StickerPreviewDataFactory
 import org.thoughtcrime.securesms.stickers.manage.AvailableStickerPack.DownloadStatus
 import org.thoughtcrime.securesms.util.DeviceProperties
+import org.signal.core.ui.R as CoreUiR
 
 @Composable
 fun StickerPackSectionHeader(
@@ -89,7 +91,7 @@ fun AvailableStickerPackRow(
     )
 
     val readyIcon = ImageVector.vectorResource(R.drawable.symbol_arrow_circle_down_24)
-    val downloadedIcon = ImageVector.vectorResource(R.drawable.symbol_check_24)
+    val downloadedIcon = ImageVector.vectorResource(CoreUiR.drawable.symbol_check_24)
 
     val startButtonContentDesc = stringResource(R.string.StickerManagement_accessibility_download)
     val startButtonOnClickLabel = stringResource(R.string.StickerManagement_accessibility_download_pack, pack.record.title)
@@ -131,7 +133,7 @@ fun AvailableStickerPackRow(
       )
 
       MenuItem(
-        icon = ImageVector.vectorResource(R.drawable.symbol_forward_24),
+        icon = SignalIcons.Forward.imageVector,
         text = stringResource(R.string.StickerManagement_menu_forward_pack),
         onClick = {
           onForwardClick(pack)
@@ -199,7 +201,7 @@ fun InstalledStickerPackRow(
       modifier = modifier.background(SignalTheme.colors.colorSurface2)
     ) {
       MenuItem(
-        icon = ImageVector.vectorResource(R.drawable.symbol_forward_24),
+        icon = SignalIcons.Forward.imageVector,
         text = stringResource(R.string.StickerManagement_menu_forward_pack),
         onClick = {
           onForwardClick(pack)
@@ -208,7 +210,7 @@ fun InstalledStickerPackRow(
       )
 
       MenuItem(
-        icon = ImageVector.vectorResource(R.drawable.symbol_check_circle_24),
+        icon = SignalIcons.CheckCircle.imageVector,
         text = stringResource(R.string.StickerManagement_menu_select_pack),
         onClick = {
           onSelectionToggle(pack)
@@ -217,7 +219,7 @@ fun InstalledStickerPackRow(
       )
 
       MenuItem(
-        icon = ImageVector.vectorResource(R.drawable.symbol_trash_24),
+        icon = SignalIcons.Trash.imageVector,
         text = stringResource(R.string.StickerManagement_menu_remove_pack),
         onClick = {
           onRemoveClick(pack)
@@ -402,7 +404,7 @@ private fun MenuItem(
 @Composable
 private fun MenuItemPreview() = Previews.Preview {
   MenuItem(
-    icon = ImageVector.vectorResource(R.drawable.symbol_forward_24),
+    icon = SignalIcons.Forward.imageVector,
     text = "Forward",
     onClick = { }
   )

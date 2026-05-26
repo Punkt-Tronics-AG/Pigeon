@@ -15,15 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.FragmentActivity
@@ -37,7 +35,10 @@ import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Snackbars
+import org.signal.core.ui.rememberIsSplitPane
+import org.signal.core.util.Util
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.ringrtc.CallLinkState.Restrictions
 import org.thoughtcrime.securesms.R
@@ -45,8 +46,8 @@ import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar.YouAreAlrea
 import org.thoughtcrime.securesms.calls.links.CallLinks
 import org.thoughtcrime.securesms.calls.links.SignalCallRow
 import org.thoughtcrime.securesms.database.CallLinkTable
+import org.thoughtcrime.securesms.main.MainNavigationCallDetailRouter
 import org.thoughtcrime.securesms.main.MainNavigationDetailLocation
-import org.thoughtcrime.securesms.main.MainNavigationRouter
 import org.thoughtcrime.securesms.main.MainNavigationViewModel
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkCredentials
@@ -54,8 +55,6 @@ import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
 import org.thoughtcrime.securesms.service.webrtc.links.SignalCallLinkState
 import org.thoughtcrime.securesms.sharing.v2.ShareActivity
 import org.thoughtcrime.securesms.util.CommunicationActions
-import org.thoughtcrime.securesms.util.Util
-import org.thoughtcrime.securesms.window.isSplitPane
 import java.time.Instant
 
 @Composable
@@ -64,7 +63,7 @@ fun CallLinkDetailsScreen(
   viewModel: CallLinkDetailsViewModel = viewModel {
     CallLinkDetailsViewModel(roomId)
   },
-  router: MainNavigationRouter = viewModel<MainNavigationViewModel>(viewModelStoreOwner = LocalActivity.current as ComponentActivity) {
+  router: MainNavigationCallDetailRouter = viewModel<MainNavigationViewModel>(viewModelStoreOwner = LocalActivity.current as ComponentActivity) {
     error("Should already be created.")
   }
 ) {
@@ -84,14 +83,14 @@ fun CallLinkDetailsScreen(
     state = state,
     showAlreadyInACall = showAlreadyInACall,
     callback = callback,
-    showNavigationIcon = !currentWindowAdaptiveInfo().windowSizeClass.isSplitPane()
+    showNavigationIcon = !LocalResources.current.rememberIsSplitPane()
   )
 }
 
 class DefaultCallLinkDetailsCallback(
   private val activity: FragmentActivity,
   private val viewModel: CallLinkDetailsViewModel,
-  private val router: MainNavigationRouter
+  private val router: MainNavigationCallDetailRouter
 ) : CallLinkDetailsCallback {
 
   private val lifecycleDisposable = LifecycleDisposable()
@@ -114,13 +113,13 @@ class DefaultCallLinkDetailsCallback(
   }
 
   override fun onEditNameClicked() {
-    router.goTo(MainNavigationDetailLocation.Calls.CallLinks.EditCallLinkName(callLinkRoomId = viewModel.recipientSnapshot!!.requireCallLinkRoomId()))
+    router.goToCallDetail(MainNavigationDetailLocation.Calls.CallLinks.EditCallLinkName(callLinkRoomId = viewModel.recipientSnapshot!!.requireCallLinkRoomId()))
   }
 
   override fun onShareClicked() {
     val mimeType = Intent.normalizeMimeType("text/plain")
     val shareIntent = ShareCompat.IntentBuilder(activity)
-      .setText(CallLinks.url(viewModel.rootKeySnapshot, viewModel.epochSnapshot))
+      .setText(CallLinks.url(viewModel.rootKeySnapshot))
       .setType(mimeType)
       .createChooserIntent()
 
@@ -132,7 +131,7 @@ class DefaultCallLinkDetailsCallback(
   }
 
   override fun onCopyClicked() {
-    Util.copyToClipboard(activity, CallLinks.url(viewModel.rootKeySnapshot, viewModel.epochSnapshot))
+    Util.copyToClipboard(activity, CallLinks.url(viewModel.rootKeySnapshot))
     Toast.makeText(activity, R.string.CreateCallLinkBottomSheetDialogFragment__copied_to_clipboard, Toast.LENGTH_LONG).show()
   }
 
@@ -140,7 +139,7 @@ class DefaultCallLinkDetailsCallback(
     activity.startActivity(
       ShareActivity.sendSimpleText(
         activity,
-        activity.getString(R.string.CreateCallLink__use_this_link_to_join_a_signal_call, CallLinks.url(viewModel.rootKeySnapshot, viewModel.epochSnapshot))
+        activity.getString(R.string.CreateCallLink__use_this_link_to_join_a_signal_call, CallLinks.url(viewModel.rootKeySnapshot))
       )
     )
   }
@@ -153,7 +152,7 @@ class DefaultCallLinkDetailsCallback(
     viewModel.setDisplayRevocationDialog(false)
     activity.lifecycleScope.launch {
       if (viewModel.delete()) {
-        router.goTo(MainNavigationDetailLocation.Empty)
+        router.exitDetailLocation()
       }
     }
   }
@@ -199,7 +198,7 @@ fun CallLinkDetailsScreen(
     },
     onNavigationClick = callback::onNavigationClicked,
     navigationIcon = if (showNavigationIcon) {
-      ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24)
+      SignalIcons.ArrowStart.imageVector
     } else {
       null
     }
@@ -253,7 +252,7 @@ fun CallLinkDetailsScreen(
       item {
         Rows.TextRow(
           text = stringResource(id = R.string.CreateCallLinkBottomSheetDialogFragment__share_link_via_signal),
-          icon = ImageVector.vectorResource(id = R.drawable.symbol_forward_24),
+          icon = SignalIcons.Forward.imageVector,
           onClick = callback::onShareLinkViaSignalClicked
         )
       }
@@ -261,7 +260,7 @@ fun CallLinkDetailsScreen(
       item {
         Rows.TextRow(
           text = stringResource(id = R.string.CreateCallLinkBottomSheetDialogFragment__copy_link),
-          icon = ImageVector.vectorResource(id = R.drawable.symbol_copy_android_24),
+          icon = SignalIcons.Copy.imageVector,
           onClick = callback::onCopyClicked
         )
       }
@@ -269,7 +268,7 @@ fun CallLinkDetailsScreen(
       item {
         Rows.TextRow(
           text = stringResource(id = R.string.CallLinkDetailsFragment__share_link),
-          icon = ImageVector.vectorResource(id = R.drawable.symbol_link_24),
+          icon = SignalIcons.Link.imageVector,
           onClick = callback::onShareClicked
         )
       }
@@ -277,7 +276,7 @@ fun CallLinkDetailsScreen(
       item {
         Rows.TextRow(
           text = stringResource(id = R.string.CallLinkDetailsFragment__delete_call_link),
-          icon = ImageVector.vectorResource(id = R.drawable.symbol_trash_24),
+          icon = SignalIcons.Trash.imageVector,
           foregroundTint = MaterialTheme.colorScheme.error,
           onClick = callback::onDeleteClicked
         )
@@ -325,7 +324,6 @@ private fun CallLinkDetailsScreenPreview() {
   val callLink = remember {
     val credentials = CallLinkCredentials(
       byteArrayOf(1, 2, 3, 4),
-      byteArrayOf(0, 1, 2, 3),
       byteArrayOf(3, 4, 5, 6)
     )
     CallLinkTable.CallLink(

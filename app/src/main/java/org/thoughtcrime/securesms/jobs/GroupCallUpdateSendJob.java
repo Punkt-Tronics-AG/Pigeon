@@ -4,12 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import com.annimon.stream.Stream;
 
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.dependencies.AppDependencies;
-import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
+import org.thoughtcrime.securesms.jobmanager.JsonJobData;
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint;
 import org.thoughtcrime.securesms.messages.GroupSendUtil;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -59,10 +60,9 @@ public class GroupCallUpdateSendJob extends BaseJob {
       throw new AssertionError("We have a recipient, but it's not a V2 Group");
     }
 
-    List<RecipientId> recipientIds = Stream.of(RecipientUtil.getEligibleForSending(Recipient.resolvedList(conversationRecipient.getParticipantIds())))
-                                           .filterNot(Recipient::isSelf)
-                                           .map(Recipient::getId)
-                                           .toList();
+    List<RecipientId> recipientIds = RecipientUtil.getEligibleForSending(Recipient.resolvedList(conversationRecipient.getParticipantIds())).stream()
+                                                  .filter(recipient -> !recipient.isSelf())
+                                                  .map(Recipient::getId).collect(Collectors.toList());
 
     return new GroupCallUpdateSendJob(recipientId,
                                       eraId,
@@ -71,6 +71,7 @@ public class GroupCallUpdateSendJob extends BaseJob {
                                       0L,
                                       new Parameters.Builder()
                                                     .setQueue(conversationRecipient.getId().toQueueKey())
+                                                    .addConstraint(SealedSenderConstraint.KEY)
                                                     .setLifespan(TimeUnit.MINUTES.toMillis(5))
                                                     .setMaxAttempts(3)
                                                     .build());
@@ -119,7 +120,12 @@ public class GroupCallUpdateSendJob extends BaseJob {
       throw new AssertionError("We have a recipient, but it's not a V2 Group");
     }
 
-    List<Recipient> destinations = Stream.of(recipients).map(Recipient::resolved).toList();
+    if (!SignalDatabase.groups().isActive(conversationRecipient.requireGroupId())) {
+      Log.w(TAG, "Not sending group call update to terminated or inactive group.");
+      return;
+    }
+
+    List<Recipient> destinations = recipients.stream().map(Recipient::resolved).collect(Collectors.toList());
     List<Recipient> completions  = deliver(conversationRecipient, destinations);
 
     for (Recipient completion : completions) {
@@ -143,6 +149,11 @@ public class GroupCallUpdateSendJob extends BaseJob {
     if (e instanceof ServerRejectedException) return false;
     return e instanceof IOException ||
            e instanceof RetryLaterException;
+  }
+
+  @Override
+  public long getNextRunAttemptBackoff(int pastAttemptCount, @NonNull Exception exception) {
+    return SendJobUtil.getBackoffMillisFromException(this, TAG, pastAttemptCount, exception, () -> super.getNextRunAttemptBackoff(pastAttemptCount, exception));
   }
 
   @Override

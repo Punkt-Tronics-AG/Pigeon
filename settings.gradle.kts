@@ -69,11 +69,14 @@ include(":core:util")
 include(":core:util-jvm")
 include(":core:models")
 include(":core:models-jvm")
+include(":core:network")
 include(":core:ui")
+include(":core:serialization")
 
 // Lib modules
 include(":lib:libsignal-service")
-include(":lib:glide-config")
+include(":lib:network")
+include(":lib:glide")
 include(":lib:photoview")
 include(":lib:sticky-header-grid")
 include(":lib:billing")
@@ -86,9 +89,14 @@ include(":lib:spinner")
 include(":lib:video")
 include(":lib:image-editor")
 include(":lib:debuglogs-viewer")
+include(":lib:blurhash")
+include(":lib:apng")
+include(":lib:archive")
 
 // Feature modules
 include(":feature:registration")
+include(":feature:camera")
+include(":feature:media-send")
 
 // Demo apps
 include(":demo:paging")
@@ -101,12 +109,14 @@ include(":demo:video")
 include(":demo:image-editor")
 include(":demo:debuglogs-viewer")
 include(":demo:registration")
+include(":demo:camera")
+include(":demo:apng")
 
 // Testing/Lint modules
 include(":lintchecks")
 include(":benchmark")
+include(":baseline-profile")
 include(":microbenchmark")
-
 // App project name
 project(":app").name = "Signal-Android"
 

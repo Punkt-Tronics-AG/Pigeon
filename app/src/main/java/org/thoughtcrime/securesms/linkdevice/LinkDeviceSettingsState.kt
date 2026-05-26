@@ -13,7 +13,6 @@ data class LinkDeviceSettingsState(
   val dialogState: DialogState = DialogState.None,
   val deviceListLoading: Boolean = false,
   val oneTimeEvent: OneTimeEvent = OneTimeEvent.None,
-  val showFrontCamera: Boolean? = null,
   val qrCodeState: QrCodeState = QrCodeState.NONE,
   val linkUri: Uri? = null,
   val linkDeviceResult: LinkDeviceResult = LinkDeviceResult.None,
@@ -21,7 +20,8 @@ data class LinkDeviceSettingsState(
   val bottomSheetVisible: Boolean = false,
   val deviceToEdit: Device? = null,
   val shouldCancelArchiveUpload: Boolean = false,
-  val debugLogUrl: String? = null
+  val debugLogUrl: String? = null,
+  val isInternalUser: Boolean = false
 ) {
   sealed interface DialogState {
     data object None : DialogState

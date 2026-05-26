@@ -10,7 +10,7 @@
   <!-- Removed by excludeNonTranslatables <string name="install_url" translatable="false">https://signal.org/install</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_url" translatable="false">https://signal.org/donate</string> -->
   <!-- Removed by excludeNonTranslatables <string name="backup_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="backup_failed_support_url" translatable="false">https://support.signal.org/hc/articles/8768161836954</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="remote_backup_support_url" translatable="false">https://support.signal.org/hc/articles/9708267671322</string> -->
   <!-- Removed by excludeNonTranslatables <string name="transfer_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
   <!-- Removed by excludeNonTranslatables <string name="support_center_url" translatable="false">https://support.signal.org/</string> -->
   <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
@@ -22,6 +22,7 @@
   <!-- Removed by excludeNonTranslatables <string name="export_account_data_url" translatable="false">https://support.signal.org/hc/articles/5538911756954</string> -->
   <!-- Removed by excludeNonTranslatables <string name="pending_transfer_url" translatable="false">https://support.signal.org/hc/articles/360031949872#pending</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_faq_url" translatable="false">https://support.signal.org/hc/articles/360031949872#donate</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="inactive_primary_support" translatable="false">https://support.signal.org/hc/articles/9021007554074</string> -->
 
     <!-- First placeholder is productId, second placeholder is app package -->
     <string name="backup_subscription_management_url">https://play.google.com/store/account/subscriptions?sku=%1$s&amp;package=%2$s</string>
@@ -198,11 +199,11 @@
     <!-- Error displayed under the card expiry text field when the expiry year is invalid -->
     <string name="CreditCardFragment__invalid_year">Несапраўдны год</string>
     <!-- Button label to confirm credit card input and proceed with one-time payment -->
-    <string name="CreditCardFragment__donate_s">Зрабіць ахвяраванне %1$s</string>
+    <string name="CreditCardFragment__donate_s">Ахвяраваць %1$s</string>
     <!-- Button label to confirm credit card input and proceed with subscription payment -->
-    <string name="CreditCardFragment__donate_s_month">Зрабіць ахвяраванне %1$s/месяц</string>
+    <string name="CreditCardFragment__donate_s_month">Ахвяраваць %1$s/месяц</string>
     <!-- Button label to confirm credit card input and proceed with backups payment. Placeholder is formatted price. -->
-    <string name="CreditCardFragment__pay_s_month">Зрабіць ахвяраванне %1$s/месяц</string>
+    <string name="CreditCardFragment__pay_s_month">Ахвяраваць %1$s/месяц</string>
 
     <!-- OneTimeDonationPreference -->
     <!-- Preference title with placeholder for amount. -->
@@ -317,6 +318,20 @@
     <string name="CameraXFragment_to_capture_videos">Для стварэння відэа з гукам:</string>
     <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
     <string name="CameraXFragment_to_scan_qr_codes">Каб сканаваць QR-коды:</string>
+    <!-- Error message shown when we try to take a photo, but fail -->
+    <string name="CameraXFragment_photo_capture_failed">Не атрымалася зрабіць фота. Паўтарыце спробу.</string>
+    <!-- Error message shown when we try to take a photo, but fail when trying to process it (convert it into something the user can see). -->
+    <string name="CameraXFragment_photo_processing_failed">Не атрымалася апрацаваць фота. Паўтарыце спробу.</string>
+    <!-- Accessibility label for the switch camera button -->
+    <string name="CameraXFragment_switch_camera">Пераключыць камеру</string>
+    <!-- Accessibility label for flash button when flash is off -->
+    <string name="CameraXFragment_flash_off">Успышка адключана</string>
+    <!-- Accessibility label for flash button when flash is on -->
+    <string name="CameraXFragment_flash_on">Успышка ўключана</string>
+    <!-- Accessibility label for flash button when flash is set to auto -->
+    <string name="CameraXFragment_flash_auto">Аўтаматычная ўспышка</string>
+    <!-- Accessibility label for the send button in media selection -->
+    <string name="CameraXFragment_send">Адправіць</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">Нядаўнія кантакты</string>
@@ -425,7 +440,11 @@
     <!-- ConversationItem -->
     <string name="ConversationItem_error_not_sent_tap_for_details">Не адпраўлена, націсніце, каб даведацца больш</string>
     <string name="ConversationItem_error_partially_not_delivered">Часткова адпраўлена, націсніце, каб даведацца больш</string>
+    <!-- Warning footer when an admin delete has not been sent to everyone -->
+    <string name="ConversationItem_error_partially_not_deleted">Часткова выдалена, націсніце, каб даведацца больш</string>
     <string name="ConversationItem_error_network_not_delivered">Не атрымалася адправіць</string>
+    <!-- Warning footer when an admin delete has failed to send -->
+    <string name="ConversationItem_error_delete_failed">Не атрымалася выдалiць, націсніце, каб даведацца больш</string>
     <string name="ConversationItem_group_action_left">%1$s пакінуў(-ла) групу.</string>
     <string name="ConversationItem_send_paused">Адпраўка прыпынена</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">Адправіць як незашыфраванае SMS?</string>
@@ -440,8 +459,12 @@
     <!-- Footer shown at the end of long body messages to download more of it -->
     <string name="ConversationItem_download_more">  Спампаваць больш</string>
     <string name="ConversationItem_pending">  У чаканні разгляду</string>
-    <string name="ConversationItem_this_message_was_deleted">Гэтае паведамленне было выдалена.</string>
-    <string name="ConversationItem_you_deleted_this_message">Вы выдалілі гэтае паведамленне.</string>
+    <string name="ConversationItem_this_message_was_deleted">Гэтае паведамленне было выдалена</string>
+    <!-- Conversation message shown when someone deletes their own message. Placeholder is the name of the person. -->
+    <string name="ConversationItem_s_deleted_this_message">%1$s выдаліў(-ла) гэтае паведамленне</string>
+    <string name="ConversationItem_you_deleted_this_message">Вы выдалілі гэтае паведамленне</string>
+    <!-- Conversation message when a message has been deleted by an admin. The placeholder is the admin\'s name. -->
+    <string name="ConversationItem_admin_s_deleted_this_message">Адміністратар %1$s выдаліў гэтае паведамленне</string>
     <!-- Dialog error message shown when user can\'t download a message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
     <string name="ConversationItem_cant_download_message_s_will_need_to_send_it_again">Немагчыма спампаваць паведамленне. Карыстальніку %1$s будзе неабходна адправіць яго зноў.</string>
     <!-- Dialog error message shown when user can\'t download an image message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
@@ -472,7 +495,6 @@
     <!-- Toast shown when user is unable to find the recipient when sending a message -->
     <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">Адрас атрымальніка не з\'яўляецца ні нумарам тэлефона, ні адрасам электроннай пошты!</string>
     <string name="ConversationActivity_message_is_empty_exclamation">Пустое паведамленне!</string>
-    <string name="ConversationActivity_group_members">Удзельнікі групы</string>
     <!-- Warning dialog text shown to user if they try to send a message edit that is too old where %1$d is replaced with the amount of hours, e.g. 3 -->
     <plurals name="ConversationActivity_edit_message_too_old">
         <item quantity="one">Змяненні могуць быць унесены толькі на працягу %1$d гадзіны з моманту адпраўкі гэтага паведамлення.</item>
@@ -505,6 +527,8 @@
     <string name="ConversationActivity_attachment_exceeds_size_limits">Далучэнне перавышае ліміт памеру для тыпу паведамлення, што вы адпраўляеце.</string>
     <string name="ConversationActivity_unable_to_record_audio">Немагчыма запісаць аўдыё!</string>
     <string name="ConversationActivity_you_cant_send_messages_to_this_group">Вы не можаце адпраўляць паведамленні ў гэтую групу, таму што вы больш не з\'яўляецеся яе ўдзельнікам.</string>
+  <!-- Removed by excludeNonTranslatables <string name="DisabledInputView__incognito_mode" translatable="false">Incognito mode (Labs)</string> -->
+    <string name="ConversationActivity_you_cant_send_messages_because_group_ended">Вы не можаце адпраўляць паведамленні, таму што гэта група спынена.</string>
     <string name="ConversationActivity_only_s_can_send_messages">Толькі %1$s можа адпраўляць паведамленні.</string>
     <string name="ConversationActivity_admins">адміністратары</string>
     <string name="ConversationActivity_message_an_admin">Напісаць паведамленне адміністратару</string>
@@ -622,6 +646,29 @@
     <string name="ConversationFragment_deleting_messages">Выдаленне паведамленняў…</string>
     <string name="ConversationFragment_delete_for_me">Выдаліць для сябе</string>
     <string name="ConversationFragment_delete_for_everyone">Выдаліць для ўсіх</string>
+    <!-- Title of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_title">
+        <item quantity="one">Выдаліць выбранае паведамленне?</item>
+        <item quantity="few">Выдаліць выбраныя паведамленні?</item>
+        <item quantity="many">Выдаліць выбраных паведамленняў?</item>
+        <item quantity="other">Выдаліць выбраных паведамленняў?</item>
+    </plurals>
+    <!-- Body of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_body">
+        <item quantity="one">Для каго вы жадаеце выдаліць гэта паведамленне?</item>
+        <item quantity="few">Для каго вы жадаеце выдаліць гэтыя паведамленні?</item>
+        <item quantity="many">Для каго вы жадаеце выдаліць гэтыя паведамленняў?</item>
+        <item quantity="other">Для каго вы жадаеце выдаліць гэтыя паведамленняў?</item>
+    </plurals>
+    <!-- Confirmation button to delete the message -->
+    <string name="ConversationFragment_delete_for_everyone_title">Выдаліць для ўсіх?</string>
+    <!-- Body of dialog explaining what happens during deletion -->
+    <plurals name="ConversationFragment_delete_for_everyone_body">
+        <item quantity="one">Ў апошніх версіях Signal удзельнікі групы могуць бачыць, што вы выдалілі гэтае паведамленне.</item>
+        <item quantity="few">Ў апошніх версіях Signal удзельнікі групы могуць бачыць, што вы выдалілі гэтыя паведамленні.</item>
+        <item quantity="many">Ў апошніх версіях Signal удзельнікі групы могуць бачыць, што вы выдалілі гэтыя паведамленняў.</item>
+        <item quantity="other">Ў апошніх версіях Signal удзельнікі групы могуць бачыць, што вы выдалілі гэтыя паведамленняў.</item>
+    </plurals>
     <!-- Dialog button for deleting one or more note-to-self messages only on this device, leaving that same message intact on other devices. -->
     <string name="ConversationFragment_delete_on_this_device">Выдаліць на гэтай прыладзе</string>
     <!-- Dialog button for deleting one or more note-to-self messages that will be sync\'d to other devices -->
@@ -637,7 +684,13 @@
     <string name="ConversationFragment_view_once_media_is_deleted_after_sending">Медыяфайл для аднаразовага прагляду будзе выдалены пасля адпраўкі</string>
     <string name="ConversationFragment_you_already_viewed_this_message">Вы ўжо прагледзелі гэта паведамленне</string>
     <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">Вы можаце дадаваць нататкі для сябе ў гэтым чаце. Калі ваш уліковы запіс мае звязаныя прылады, новыя нататкі будуць сінхранізаваны.</string>
-    <string name="ConversationFragment__d_group_members_have_the_same_name">%1$d удзельнікаў групы маюць аднолькавыя імёны.</string>
+    <!-- Text in banner to show how many people have the same name. -->
+    <plurals name="ConversationFragment__d_group_members_have_the_same_name">
+        <item quantity="one">%1$d удзельнік групы мае аднолькавае імя.</item>
+        <item quantity="few">%1$d удзельнікі групы маюць аднолькавыя імёны.</item>
+        <item quantity="many">%1$d удзельнікаў групы маюць аднолькавыя імёны.</item>
+        <item quantity="other">%1$d удзельнікаў групы маюць аднолькавыя імёны.</item>
+    </plurals>
     <string name="ConversationFragment__tap_to_review">Націсніце, каб прагледзець</string>
     <!-- The body of a banner that can show up at the top of a chat, letting the user know that you have two contacts with the same name -->
     <string name="ConversationFragment__review_banner_body">Гэтая асоба мае такое ж імя, як і іншы кантакт</string>
@@ -690,10 +743,21 @@
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Вы прынялі запыт на перапіску ад %1$s. Калі гэта адбылося памылкова, вы можаце выбраць дзеянне ніжэй.</string>
     <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
     <string name="ConversationFragment_review_carefully">Разглядайце ўважліва</string>
-    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
-    <string name="ConversationFragment_profile_names_not_verified">%1$s не пацверджаны</string>
-    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
-    <string name="ConversationFragment_group_names_not_verified">%1$s не пацверджаны</string>
+    <!-- Text shown in conversation header when in a message request state that the name is not verified -->
+    <string name="ConversationFragment_name_not_verified">Імя не праверана</string>
+    <!-- Label for official chat pill shown in the Note to Self conversation header -->
+    <string name="ConversationFragment_official_chat">Афіцыйны чат</string>
+    <!-- Description shown in the Signal release notes conversation header -->
+    <string name="ConversationFragment_release_notes_description">Гэта адзіны афіцыйны чат Signal. Будзьце ў курсе навін і абнаўленняў.</string>
+    <!-- Label shown in place of the input in the Signal release notes conversation -->
+    <string name="ConversationFragment_the_only_official_chat_from_signal">Гэта адзіны афіцыйны чат Signal</string>
+    <!-- Plural for group member count shown in conversation header. %1$d is the number of members -->
+    <plurals name="ConversationFragment_group_member_count">
+        <item quantity="one">%1$d удзельнік</item>
+        <item quantity="few">%1$d удзельнікі</item>
+        <item quantity="many">%1$d удзельнікаў</item>
+        <item quantity="other">%1$d удзельнікаў</item>
+    </plurals>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
     <string name="ConversationFragment_profile_names">Імёны профіляў</string>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
@@ -719,39 +783,57 @@
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Парады па бяспецы</string>
-    <!-- Dialog subtitle when showign tips for a 1:1 conversation -->
-    <string name="SafetyTips_subtitle_individual">Будзьце пільнымі, калі прымаеце запыты на перапіску ад незнаёмых людзей. Сцеражыцеся наступнага:</string>
-    <!-- Dialog subtitle when showing tips for a group conversation -->
-    <string name="SafetyTips_subtitle_group">Уважліва разглядзіце гэты запыт. Ні адзін з вашых кантактаў або людзей, з якімі вы размаўляеце ў чаце, не знаходзіцца ў гэтай групе. Вось некалькі момантаў, на якія варта звярнуць увагу:</string>
-    <!-- Button text to move to the previous tip-->
+    <!-- Button text to view more safety tips -->
+    <string name="SafetyTips_view_more">Прагледзець больш</string>
+    <!-- Content description for previous tip button -->
     <string name="SafetyTips_previous_tip">Папярэдняя парада</string>
-    <!-- Button text to move to the next tip -->
+    <!-- Content description for next tip button -->
     <string name="SafetyTips_next_tip">Наступная парада</string>
-    <!-- Title of tip 0 -->
-    <string name="SafetyTips_tip0_title">Фэйкавыя імёны і ўліковыя запісы</string>
-    <!-- Message of tip 0 -->
-    <string name="SafetyTips_tip0_message">Signal ніколі не запытвае ў вас код рэгістрацыі або PIN-код. Будзьце пiльнымi: за некаторымі запытамі могуць хавацца іншыя людзі. Імёны профіляў выбіраюць уладальнікі сваіх уліковых запісаў, i яны не пацверджаны.</string>
-    <!-- Title of tip 1 -->
-    <string name="SafetyTips_tip1_title">Махлярства з крыптавалютай або грашыма</string>
-    <!-- Message of tip 1 -->
-    <string name="SafetyTips_tip1_message">Калі нехта незнаёмы адпраўляе вам паведамленні пра крыптавалюту (напрыклад, біткойн) або фінансавыя магчымасці, будзьце пільнымі — хутчэй за ўсё, гэта спам.</string>
-    <!-- Title of tip 2 -->
-    <string name="SafetyTips_tip2_title">Падазроныя або недарэчныя паведамленні</string>
-    <!-- Message of tip 2 -->
-    <string name="SafetyTips_tip2_message">Спамеры часта пачынаюць з простага паведамлення накшталт «Прывітанне», каб прыцягнуць вашу ўвагу. Калі вы адкажаце, яны могуць завабіць вас яшчэ больш.</string>
-    <!-- Title of tip 3 -->
-    <string name="SafetyTips_tip3_title">Паведамленні са спасылкамі</string>
-    <!-- Message of tip 3 -->
-    <string name="SafetyTips_tip3_message">Будзьце пільнымі, калі атрымліваеце ад незнаёмых людзей паведамленні са спасылкамі на вэб-сайты. Ніколі не адкрывайце спасылкі ад людзей, да якіх няма даверу.</string>
-    <!-- Title of tip 4 -->
-    <string name="SafetyTips_tip4_title">Фэйкавыя прадпрыемствы і ўстановы</string>
-    <!-- Message of tip 4 -->
-    <string name="SafetyTips_tip4_message">Будзьце пільнымі, калі з вамі звязваюцца прадпрыемствы або дзяржаўныя ўстановы. Паведамленні, якія тычацца падатковых органаў, кур\'ераў і іншага, могуць быць спамам.</string>
+
+    <!-- Summary tip 0 title: Don\'t respond to chats from Signal -->
+    <string name="SafetyTips_summary_tip0_title">Не адказвайце на чаты з Signal</string>
+    <!-- Summary tip 0 message -->
+    <string name="SafetyTips_summary_tip0_message">Signal ніколі не дасылае вам паведамленняў, каб запытаць ваш код рэгістрацыі, PIN-код або код для аднаўлення. Не адказвайце на чат, што выдае сябе за Signal.</string>
+    <!-- Summary tip 1 title: Review names and photos -->
+    <string name="SafetyTips_summary_tip1_title">Уважліва разглядайце імёны і фота</string>
+    <!-- Summary tip 1 message -->
+    <string name="SafetyTips_summary_tip1_message">Звярніце ўвагу на паведамленне «Імя не праверана». У Signal кожны мае сваё ўласнае імя профілю.</string>
+    <!-- Summary tip 2 title: Look out for scams -->
+    <string name="SafetyTips_summary_tip2_title">Сцеражыцеся махлярства</string>
+    <!-- Summary tip 2 message -->
+    <string name="SafetyTips_summary_tip2_message">Пазбягайце падазроных паведамленняў, праз якія вас могуць вымусіць даць адказ. Сцеражыцеся фінансавых парад і падазроных спасылак на вэб-сайты.</string>
+
+    <!-- Detail tip 0 title -->
+    <string name="SafetyTips_detail_tip0_title">Не адказвайце на чаты з Signal</string>
+    <!-- Detail tip 0 message -->
+    <string name="SafetyTips_detail_tip0_message">Signal ніколі не дасылае вам паведамленняў, каб запытаць ваш код рэгістрацыі, PIN-код або код для аднаўлення. Не адказвайце на чаты, што выдаюць сябе за Signal або службу падтрымкі Signal. Зламыснікі ствараюць падманныя чаты, каб узламаць ваш уліковы запіс.</string>
+    <!-- Detail tip 1 title -->
+    <string name="SafetyTips_detail_tip1_title">Уважліва разглядайце імёны і фота</string>
+    <!-- Detail tip 1 message -->
+    <string name="SafetyTips_detail_tip1_message">Звярніце ўвагу на паведамленне «Імя не праверана». У Signal кожны мае свае ўласнае імя профілю і фота. Калі вы не ўпэўненыя, ад каго прыйшоў новы запыт, для вашай бяспекі лепш яго ігнараваць.</string>
+    <!-- Detail tip 2 title -->
+    <string name="SafetyTips_detail_tip2_title">Падазроныя або недарэчныя паведамленні</string>
+    <!-- Detail tip 2 message -->
+    <string name="SafetyTips_detail_tip2_message">Спамеры часта пачынаюць з простага паведамлення накшталт «Прывітанне», каб прыцягнуць вашу ўвагу. Калі вы адкажаце, яны могуць завабіць вас яшчэ больш.</string>
+    <!-- Detail tip 3 title -->
+    <string name="SafetyTips_detail_tip3_title">Паведамленні са спасылкамі на вэб-сайт</string>
+    <!-- Detail tip 3 message -->
+    <string name="SafetyTips_detail_tip3_message">Будзьце пільнымі, калі атрымліваеце ад незнаёмых людзей паведамленні са спасылкамі на вэб-сайты. Ніколі не адкрывайце спасылкі ад людзей, да якіх няма даверу.</string>
+    <!-- Detail tip 4 title -->
+    <string name="SafetyTips_detail_tip4_title">Махлярства з крыптавалютай або грашыма</string>
+    <!-- Detail tip 4 message -->
+    <string name="SafetyTips_detail_tip4_message">Калі нехта незнаёмы адпраўляе вам паведамленні пра крыптавалюту (напрыклад, біткойн) або фінансавыя магчымасці, будзьце пiльнымi — хутчэй за ўсё, гэта спам.</string>
+    <!-- Detail tip 5 title -->
+    <string name="SafetyTips_detail_tip5_title">Падманныя кампаніі</string>
+    <!-- Detail tip 5 message -->
+    <string name="SafetyTips_detail_tip5_message">Будзьце пільнымі, калі з вамі звязваюцца прадпрыемствы або дзяржаўныя ўстановы. Паведамленні, якія тычацца падатковых органаў, кур\'ераў і іншага, могуць быць спамам.</string>
 
     <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
     <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s на Signal выбіраюць уладальнікі сваіх уліковых запісаў.</string>
-    <!-- Bottom sheet text explaining that profile names are not verified. -->
-    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Імёны профіляў не пацверджаны</string>
+    <!-- Bottom sheet text explaining that Signal can\'t verify names and photos -->
+    <string name="ProfileNameBottomSheet__signal_cant_verify">Signal не можа праверыць імёны і фота</string>
+    <!-- Bottom sheet text explaining that Signal will never contact you for registration code, PIN, or recovery key -->
+    <string name="ProfileNameBottomSheet__signal_will_never_contact">Signal ніколі не звязваецца з вамі, каб запытаць ваш код рэгістрацыі, PIN-код або код для аднаўлення</string>
     <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
     <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Будзьце пiльнымi: некаторыя ўліковыя запісы могуць выдаваць сябе за іншых людзей</string>
     <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
@@ -980,7 +1062,7 @@
     <string name="BackupsPreferenceFragment__backup_time">Час для рэзервовага капіравання</string>
     <string name="BackupsPreferenceFragment__verify_backup_passphrase">Праверце парольную фразу для рэзервовай копіі</string>
     <string name="BackupsPreferenceFragment__test_your_backup_passphrase">Пратэсціруйце парольную фразу для рэзервовай копіі, каб праверыць яе на адпаведнасць</string>
-    <string name="BackupsPreferenceFragment__turn_on">Уключыць</string>
+    <string name="BackupsPreferenceFragment__turn_on">Уключыць функцыю «Рэзервовае капіраванне»</string>
     <string name="BackupsPreferenceFragment__turn_off">Адключыць</string>
     <string name="BackupsPreferenceFragment__to_restore_a_backup">"Каб аднавіць рэзервовую копію, усталюйце новую копію Signal. Адкрыйце праграму і націсніце «Аднавіць рэзервовую копію», потым выберыце файл рэзервовай копіі. %1$s"</string>
     <string name="BackupsPreferenceFragment__learn_more">Даведацца больш</string>
@@ -1726,6 +1808,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Немагчыма далучыцца да групы. Калі ласка, паўтарыце спробу пазней</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Адбылася памылка сеткі.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">Гэта спасылка на групу неактыўная</string>
+    <!-- Toast message shown when trying to join a group via link but the group has been ended -->
+    <string name="GroupJoinBottomSheetDialogFragment_this_group_has_been_ended">Немагчыма далучыцца да гэтай групы.</string>
     <!-- Toast message shown when trying to join a group by link but the group is full -->
     <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Ліміт групы дасягнуты: далучыцца да яе немагчыма</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
@@ -1830,6 +1914,8 @@
     <string name="MediaOverviewActivity_Files">Файлы</string>
     <string name="MediaOverviewActivity_Audio">Аўдыё</string>
     <string name="MediaOverviewActivity_All">Усе</string>
+    <string name="MediaOverviewActivity_Links">Спасылкі</string>
+    <string name="MediaOverviewActivity_link">Спасылка</string>
     <plurals name="MediaOverviewActivity_Media_delete_confirm_title">
         <item quantity="one">Выдаліць выбраны элемент?</item>
         <item quantity="few">Выдаліць выбраных элемента?</item>
@@ -1844,6 +1930,8 @@
     </plurals>
     <string name="MediaOverviewActivity_Media_delete_progress_title">Выдаленне</string>
     <string name="MediaOverviewActivity_Media_delete_progress_message">Выдаленне паведамленняў…</string>
+    <!-- Format string showing current vs. total items being deleted, e.g. "12 of 207" -->
+    <string name="MediaOverviewActivity_Media_delete_progress_count">%1$d з %2$d</string>
     <string name="MediaOverviewActivity_Sort_by">Сартаваць па</string>
     <string name="MediaOverviewActivity_Newest">Спачатку новыя</string>
     <string name="MediaOverviewActivity_Oldest">Спачатку старыя</string>
@@ -1886,6 +1974,7 @@
     <string name="MediaOverviewActivity_sent_by_you_to_s">Адпраўлена вамі да %1$s</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="MediaOverviewActivity_this_media_is_not_sent_yet">Гэты медыяфайл яшчэ не адпраўлены.</string>
+    <string name="MediaOverviewActivity_jump_to_message">Перайсці да паведамлення</string>
 
     <!-- Megaphones -->
     <string name="Megaphones_remind_me_later">Нагадаць мне пазней</string>
@@ -1908,6 +1997,16 @@
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">Адказы</string>
+
+    <!-- StarredMessagesFragment -->
+    <!-- Title for the starred messages screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesActivity__starred_messages" translatable="false">Starred messages</string> -->
+    <!-- Empty state text when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__no_starred_messages" translatable="false">No starred messages</string> -->
+    <!-- Empty state description when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__tap_and_hold_on_a_message_to_star_it" translatable="false">Tap and hold on a message to star it.</string> -->
+    <!-- Format for starred message source label, e.g. "Alice › Book Club" -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessages__s_chevron_s" translatable="false">%1$s \u203A %2$s</string> -->
 
     <!-- NotificationBarManager -->
     <string name="NotificationBarManager__establishing_signal_call">Пачынаецца званок праз Signal</string>
@@ -1943,6 +2042,12 @@
     <string name="MessageRecord_left_group">Вы пакінулі групу.</string>
     <string name="MessageRecord_you_updated_group">Вы абнавілі групу.</string>
     <string name="MessageRecord_the_group_was_updated">Група абноўленая.</string>
+    <!-- Update message shown a group is terminated, but the person that terminated it is unknown. -->
+    <string name="MessageRecord_the_group_was_terminated">Група была спынена.</string>
+    <!-- Update message shown when a group is terminated, placeholder is the name of the person that terminated the group. -->
+    <string name="MessageRecord_s_terminated_the_group">%1$s спыніў(-ла) гэту групу</string>
+    <!-- Update message shown when a group is terminated by you -->
+    <string name="MessageRecord_you_terminated_the_group">Вы спынілі гэту групу</string>
     <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">Выходны галасавы званок</string>
     <!-- Update message shown when placing an outgoing 1:1 video call -->
@@ -1959,6 +2064,10 @@
     <string name="MessageRecord_declined_voice_call">Галасавы выклік адхілены</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_declined_video_call">Відэавыклік адхілены</string>
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_voice_call">Неадказаны галасавы званок</string>
+    <!-- Update message shown when placing an outgoing 1:1 video call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_video_call">Неадказаны відэазванок</string>
     <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
     <string name="MessageRecord_missed_voice_call_notification_profile">Прапушчаны галасавы званок, калі ўключаны профіль апавяшчэнняў</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
@@ -2100,6 +2209,13 @@
     <string name="MessageRecord_you_changed_who_can_edit_group_membership_to_s">Вы змянілі рэдактара інфармацыі аб членстве ў групе на «%1$s».</string>
     <string name="MessageRecord_s_changed_who_can_edit_group_membership_to_s">%1$s змяніў(-ла) рэдактара інфармацыі аб членстве ў групе на «%2$s».</string>
     <string name="MessageRecord_who_can_edit_group_membership_has_been_changed_to_s">Рэдактар інфармацыі аб членстве ў групе зменены на «%1$s».</string>
+
+    <!-- Shown when the current user changes the member label permission. -->
+    <string name="MessageRecord_you_changed_who_can_add_member_labels_to_s">Вы змянілі асобу, якая можа дадаваць меткі ўдзельнікаў, на «%1$s».</string>
+    <!-- Shown when another group member changes the member label permission. -->
+    <string name="MessageRecord_s_changed_who_can_add_member_labels_to_s">%1$s змяніў(-ла) асобу, якая можа дадаваць меткі ўдзельнікаў, на «%2$s».</string>
+    <!-- Shown when the member label permission is changed by an unknown admin. -->
+    <string name="MessageRecord_unknown_admin_changed_who_can_add_member_labels_to_s">Адмiнiстратар змяніў асобу, якая можа дадаваць меткі ўдзельнікаў, на «%1$s».</string>
 
     <!-- GV2 announcement group change -->
     <string name="MessageRecord_you_allow_all_members_to_send">Вы змянілі налады групы, каб дазволіць усім удзельнікам адпраўляць паведамленні.</string>
@@ -2265,8 +2381,10 @@
     <string name="MessageRecord__payment_tombstone">Плацеж</string>
     <!-- Update message shown in chat after reporting it as spam -->
     <string name="MessageRecord_reported_as_spam">Пазначана як спам</string>
-    <!-- Update message shown in chat after accept a message request -->
-    <string name="MessageRecord_you_accepted_the_message_request">Вы прынялі запыт на перапіску</string>
+    <!-- Update message shown in chat after accept a message request, placeholder is the other person\'s display name -->
+    <string name="MessageRecord_you_accepted_s_message_request">Вы прынялі запыт на перапіску ад %1$s</string>
+    <!-- Update message shown in a group chat after accepting a group message request -->
+    <string name="MessageRecord_you_accepted_the_group_request">Вы прынялі запыт групы</string>
     <!-- Update message shown in chat after you block a person -->
     <string name="MessageRecord_you_blocked_this_person">Вы заблакіравалі гэту асобу</string>
     <!-- Update message shown in chat after you unblock a person -->
@@ -2290,7 +2408,7 @@
     <string name="MessageRequestBottomView_unblock">Разблакаваць</string>
     <!-- Text explaining a message request from someone you\'ve removed before -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_you_removed_them_before">Дазволіць %1$s адправіць вам паведамленне і раскрыць вашы імя і фота гэтай асобе? У мінулым вы выдалялі гэтую асобу.</string>
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Дазволіць %1$s адправіць вам паведамленне і раскрыць вашы імя і фота гэтай асобе? Яна не даведаецца, што вы бачылі яе паведамленне, пакуль вы не прымеце запыт.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Дазволіць гэтай асобе адправіць вам паведамленне і раскрыць ёй вашы імя і фота? Яны не даведаюцца, што вы бачылі іх паведамленне, пакуль вы не прымеце запыт.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock a Signal user -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Дазволіць %1$s адправіць вам паведамленне і раскрыць вашы імя і фота гэтай асобе? Вы не атрымаеце ніякіх паведамленняў, пакуль не разблакуеце яе.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock an SMS user -->
@@ -2362,11 +2480,15 @@
         <item quantity="other">%1$d іншых</item>
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
-    <string name="MessageRequestBottomView_report">Паведаміць…</string>
+    <string name="MessageRequestBottomView_report">Паскардзіцца</string>
     <!-- Alert dialog title to accept a message request -->
     <string name="MessageRequestBottomView_accept_request">Прыняць запыт?</string>
     <!-- Alert dialog body to review the message request carefully -->
-    <string name="MessageRequestBottomView_review_requests_carefully">Уважліва разглядайце запыты. Імёны профіляў выбіраюць уладальнікі сваіх уліковых запісаў, i яны не пацверджаны.</string>
+    <string name="MessageRequestBottomView_review_requests_carefully">Уважліва разглядайце запыты. Імёны профіляў выбіраюць уладальнікі сваіх уліковых запісаў, i яны не правераны.</string>
+    <!-- Alert dialog body for accepting a message request. Contains bold substring placeholder -->
+    <string name="MessageRequestBottomView_accept_request_body">Прымайце запыты толькі ад тых, да каго маеце давер. %1$s дасылае вам паведамленняў, каб запытаць ваш код рэгістрацыі, PIN-код або код для аднаўлення.</string>
+    <!-- Bold substring used in accept request body: "Signal will never" -->
+    <string name="MessageRequestBottomView_signal_will_never">Signal ніколі не</string>
     <!-- Alert dialog title to accept a message request to join a group -->
     <string name="MessageRequestBottomView_join_group">Далучыцца да групы?</string>
     <!-- Alert dialog body to review the message request for a group carefully -->
@@ -2702,7 +2824,7 @@
     <!-- Toggle content description for toggling camera direction  -->
     <string name="WebRtcCallView__toggle_camera_direction">Змяніць напрамак камеры</string>
     <!-- Toggle content description for toggling audio output  -->
-    <string name="WebRtcCallView__toggle_speaker">Уключыць/адключыць вонкавы дынамік</string>
+    <string name="WebRtcCallView__toggle_speaker">Уключыць/адключыць дынамік</string>
     <!-- Toggle content description for toggling camera state  -->
     <string name="WebRtcCallView__toggle_camera">Уключыць/адключыць камеру</string>
     <!-- Toggle content description for toggling mute state  -->
@@ -2722,6 +2844,8 @@
     <string name="WebRtcCallView__s_remotely_muted_s">%1$s адключыў (-ла) апавяшчэнні ад %2$s.</string>
     <!-- Alert message indicating that the local user joined a call on a second device and muted this one from the other one. -->
     <string name="WebRtcCallView__you_muted_yourself">Вы адключылі апавяшчэннi ад самага сябе з іншай прылады.</string>
+    <!-- Toast message shown when user is auto-muted because they are joining a large group call. -->
+    <string name="WebRtcCallView__youve_been_muted_large_group">У вас адключаны апавяшчэннi, бо ў гэтым званку шмат удзельнікаў.</string>
 
     <!-- Error message when the developer added a button in the wrong place. -->
     <string name="WebRtcAudioOutputToggleButton_fragment_activity_error">Памылка карыстальніцкага інтэрфейсу. Паведаміце аб гэтай памылцы распрацоўнікам.</string>
@@ -2732,7 +2856,7 @@
     <!-- A text description of the headset icon, used for accessibility. -->
     <string name="WebRtcAudioOutputBottomSheet__headset_icon_content_description">Значок, які адзначае правадную гарнітуру.</string>
     <!-- A text description of the speaker icon, used for accessibility. -->
-    <string name="WebRtcAudioOutputBottomSheet__speaker_icon_content_description">Значок, які адзначае вонкавы дынамік.</string>
+    <string name="WebRtcAudioOutputBottomSheet__speaker_icon_content_description">Значок, які адзначае дынамік.</string>
     <!-- A text description of the earpiece icon, used for accessibility. -->
     <string name="WebRtcAudioOutputBottomSheet__earpiece_icon_content_description">Значок, які адзначае дынамік прылады.</string>
 
@@ -2746,6 +2870,10 @@
     <string name="CallOverflowPopupWindow__lower_hand">Апусціць</string>
     <!-- A negative button for a dialog confirming the user wants to lower their hand (withdraw a raised hand) -->
     <string name="CallOverflowPopupWindow__cancel">Скасаваць</string>
+    <!-- A clickable button to share your screen in a call -->
+    <string name="CallOverflowPopupWindow__share_screen">Падзяліцца экранам</string>
+    <!-- A clickable button to stop sharing your screen in a call -->
+    <string name="CallOverflowPopupWindow__stop_screen_share">Больш не дзяліцца</string>
     <!-- A button to take you to a list of participants with raised hands -->
     <string name="CallOverflowPopupWindow__view">Прагледзець</string>
 
@@ -2832,6 +2960,8 @@
     <string name="AboutSheet__you">Вы</string>
     <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
     <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
+    <!-- Placeholder text in the group member label row when the user has no label set. -->
+    <string name="AboutSheet__add_group_member_label">Дадаць метку ўдзельніка</string>
 
     <!-- Title of the screen showing which groups they have in common with another user. -->
     <plurals name="GroupsInCommon__n_groups_in_common_title">
@@ -2888,6 +3018,8 @@
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Правесці пальцам, каб прагледзець экран</string>
+    <!-- Hint shown to teach the user they can swipe between the grid view and the active speaker view -->
+    <string name="CallToastPopupWindow__swipe_to_view_speaker">Правесці пальцам, каб убачыць прамоўцу</string>
 
     <!-- ProxyBottomSheetFragment -->
     <string name="ProxyBottomSheetFragment_proxy_server">Проксі-сервер</string>
@@ -2929,15 +3061,14 @@
     <string name="RegistrationActivity_i_understand">Я прымаю</string>
     <string name="RegistrationActivity_play_services_error">Памылка Сэрвісаў Google Play</string>
     <string name="RegistrationActivity_google_play_services_is_updating_or_unavailable">Сэрвісы Google Play абнаўляюцца або часова недаступныя. Калі ласка, паўтарыце спробу.</string>
-    <string name="RegistrationActivity_terms_and_privacy">Умовы &amp; Палітыка канфідэнцыйнасці</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Signal патрабуе дазволу на кантакты і медыяфайлы, каб вы маглі быць на сувязі з сябрамі і адпраўляць ім паведамленні. Вашы кантакты запампоўваюцца з дапамогай тэхналогіі канфідэнцыйнага выяўлення кантактаў Signal, якая выкарыстоўвае скразное шыфраванне, таму вашы кантакты ніколі не бачныя сэрвісу Signal.</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_in_order_to_connect_with_friends">Signal патрабуе дазволу на кантакты, каб вы маглі быць на сувязі з сябрамі. Вашы кантакты запампоўваюцца з дапамогай тэхналогіі канфідэнцыйнага выяўлення кантактаў Signal, якая выкарыстоўвае скразное шыфраванне, таму вашы кантакты ніколі не бачныя сэрвісу Signal.</string>
     <string name="RegistrationActivity_rate_limited_to_service">Вы зрабілі занадта шмат спроб зарэгістраваць гэты нумар. Калі ласка, паўтарыце спробу пазней.</string>
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Вы зрабілі занадта шмат спроб зарэгістраваць гэты нумар. Калі ласка, паўтарыце спробу праз %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Не атрымалася падключыцца да сэрвісу. Калі ласка, праверце падключэнне да сеткі і паўтарыце спробу.</string>
-    <!-- Dialog error message shown when attempting to register and the SMS provider fails to send an SMS -->
-    <string name="RegistrationActivity_sms_provider_error">Signal не можа адправіць SMS-код з-за праблем, што датычацца пастаўшчыка SMS. Паўтарыце спробу праз некалькі гадзін.</string>
+    <!-- Dialog error message shown when we are unable to send an SMS to the user\'s number -->
+    <string name="RegistrationActivity_sms_provider_error">Не атрымалася адправіць SMS-код на ваш нумар. Паўтарыце спробу праз некалькі гадзін.</string>
     <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
     <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">Мы не змаглі адправіць вам праверачны код праз SMS. Паспрабуйце тады атрымаць код праз галасавы званок.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
@@ -2964,8 +3095,6 @@
     <!-- Dialog button to cancel the pending action and return to the previous state. -->
     <string name="RegistrationActivity_cancel">Скасаваць</string>
     <string name="RegistrationActivity_next">Далей</string>
-    <string name="RegistrationActivity_continue">Працягнуць</string>
-    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Канфідэнцыйнасць заўсёды з вамі.\nАдчувайце сябе свабодна ў кожным паведамленні.</string>
     <!-- Title of registration screen when asking for the users phone number -->
     <string name="RegistrationActivity_phone_number">Нумар тэлефона</string>
     <!-- Subtitle of registration screen when asking for the users phone number -->
@@ -3192,6 +3321,8 @@
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">Блакіроўка рэгістрацыі:</string>
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_challenge_received" translatable="false">Challenge Received:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_registered" translatable="false">Registered:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">Група абноўленая</string>
@@ -3204,8 +3335,14 @@
     <string name="ThreadRecord_view_once_photo">Фота для аднаразовага прагляду</string>
     <string name="ThreadRecord_view_once_video">Відэа для аднаразовага прагляду</string>
     <string name="ThreadRecord_view_once_media">Медыяфайл для аднаразовага прагляду</string>
-    <string name="ThreadRecord_this_message_was_deleted">Гэтае паведамленне было выдалена.</string>
-    <string name="ThreadRecord_you_deleted_this_message">Вы выдалілі гэтае паведамленне.</string>
+    <!-- Thread preview when someone has deleted their own message -->
+    <string name="ThreadRecord_this_message_was_deleted">Гэтае паведамленне было выдалена</string>
+    <!-- Thread preview when someone has deleted their own message. Placeholder is the name of the person. -->
+    <string name="ThreadRecord_s_deleted_this_message">%1$s выдаліў(-ла) гэтае паведамленне</string>
+    <!-- Thread preview when you deleted a message -->
+    <string name="ThreadRecord_you_deleted_this_message">Вы выдалілі гэтае паведамленне</string>
+    <!-- Thread preview when an admin has deleted a message -->
+    <string name="ThreadRecord_admin_deleted_this_message">Адміністратар %1$s выдаліў гэтае паведамленне</string>
     <!-- Displayed in the notification when the user sends a request to activate payments -->
     <string name="ThreadRecord_you_sent_request">Вы адправілі запыт на актывацыю «Плацяжоў»</string>
     <!-- Displayed in the notification when the recipient wants to activate payments -->
@@ -3233,9 +3370,9 @@
     <string name="ThreadRecord_video">Відэа</string>
     <string name="ThreadRecord_chat_session_refreshed">Сеанс чата абноўлены</string>
     <!-- Displayed in the notification when the user is sent a gift -->
-    <string name="ThreadRecord__s_donated_for_you">Карыстальнік %1$s зрабіў(-ла) ахвяраванне вам</string>
+    <string name="ThreadRecord__s_donated_for_you">Карыстальнік %1$s ахвяраваў(-ла) вам</string>
     <!-- Displayed in the notification when the user sends a gift -->
-    <string name="ThreadRecord__you_donated_for_s">Вы зрабілі ахвяраванне для %1$s</string>
+    <string name="ThreadRecord__you_donated_for_s">Вы ахвяравалі для %1$s</string>
     <!-- Displayed in the notification when the user has opened a received gift -->
     <string name="ThreadRecord__you_redeemed_a_badge">Вы прынялі значок</string>
     <!-- Displayed in the conversation list when someone reacted to your story -->
@@ -3356,7 +3493,22 @@
     <string name="MessageDisplayHelper_message_encrypted_for_non_existing_session">Паведамленне зашыфравана для неіснуючага сеансу</string>
 
     <!-- MuteDialog -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
     <string name="MuteDialog_mute_notifications">Адключыць апавяшчэнні</string>
+    <!-- Dialog option that, when pressed, will open a time picker to let the user choose how long they\'d like to mute notifications for -->
+    <string name="MuteDialog__mute_until">Адключыць апавяшчэннi да…</string>
+
+    <!-- MuteUntilTimePickerBottomSheet -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__dialog_title">Адключыць апавяшчэннi да…</string>
+    <!-- Label for a data selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_date_title">Выберыце дату</string>
+    <!-- Label for a time selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_time_title">Выберыце час</string>
+    <!-- Label for a button that, when pressed, will confirm the user\'s choice on how long to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__mute_notifications">Адключыць апавяшчэнні</string>
+    <!-- Subtitle in a dialog that describes the timezone the user is picking times in. The first placeholder is a UTC offset, and the second placeholder is a user-friendly name for the timezone, e.g. "All times in (GMT-05:00) Eastern Standard Time" -->
+    <string name="MuteUntilTimePickerBottomSheet__timezone_disclaimer">Час заўсёды ў (%1$s) %2$s</string>
 
     <!-- KeyCachingService -->
     <string name="KeyCachingService_signal_passphrase_cached">Дакрануцца, каб адкрыць.</string>
@@ -3528,6 +3680,17 @@
     <!-- Message explaining that it is not possible to save media to the device storage after the user denied the system save to storage permission. -->
     <string name="AttachmentSaver__unable_to_write_to_external_storage_without_permission">Не атрымалася захаваць на знешнім сховішчы без дазволаў</string>
 
+    <!-- Dialog title shown when attempting to save media that has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_media">Немагчыма захаваць медыяфайлы</string>
+    <!-- Dialog message explaining that media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__media_offloaded_message">Гэты медыяфайл быў выгружаны з вашай прылады, бо ўключана опцыя «Аптымізаваць сховішча на прыладзе». Вы можаце запампаваць элементы па чарзе або адключыць опцыю «Аптымізаваць сховішча на прыладзе», каб загрузіць усе медыяфайлы на прыладу.</string>
+    <!-- Dialog title shown when attempting to save multiple media items, some of which have been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_all_items">Немагчыма захаваць усе элементы</string>
+    <!-- Dialog message explaining that some selected media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__some_media_offloaded_message">Некаторыя выбраныя вамі медыяфайлы былі выгружаны з вашай прылады, бо ўключана опцыя «Аптымізаваць сховішча на прыладзе». Вы можаце захаваць элементы па чарзе або адключыць опцыю «Аптымізаваць сховішча на прыладзе», каб загрузіць усе медыяфайлы на прыладу.</string>
+    <!-- Button label in the offloaded media dialog that navigates to the storage settings screen. -->
+    <string name="AttachmentSaver__view_storage_settings">Прагледзець налады сховішча</string>
+
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Пошук</string>
     <!-- Hint when searching filtered chat content -->
@@ -3633,7 +3796,7 @@
     <!-- Audio output option referring to the earpiece built into the phone -->
     <string name="WebRtcAudioOutputToggle__phone_earpiece">Дынамік тэлефона</string>
     <!-- Audio output option referring to the louder speaker built into the phone -->
-    <string name="WebRtcAudioOutputToggle__speaker">Вонкавы дынамік</string>
+    <string name="WebRtcAudioOutputToggle__speaker">Дынамік</string>
     <!-- Audio output option referring to an external audio device connected via wireless Bluetooth -->
     <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth</string>
     <!-- Audio output option referring to a pair of headphones that do not contain a microphone connected via a 3.5mm headphone jack -->
@@ -3742,6 +3905,14 @@
     <!-- Accessibility content description describing how a user can lock voice note recording. -->
     <string name="conversation_activity__quick_attachment_drawer_lock_record_description">Заблакаваць запіс аўдыядалучэння</string>
     <string name="conversation_activity__message_could_not_be_sent">Не атрымалася адправіць паведамленне. Праверце падключэнне і паўтарыце спробу.</string>
+    <!-- Dialog body shown when tapping a failed message in a terminated group -->
+    <string name="conversation_activity__send_failed_group_ended">Вы больш не зможаце адпраўляць і атрымліваць паведамленні ў гэтай групе, таму што група была спынена.</string>
+    <!-- Dialog body shown when tapping a group action button (e.g. invite friends) in a terminated group -->
+    <string name="conversation_activity__group_action_not_allowed_group_ended">Гэта дзеянне недаступнае, бо гэта група спынена.</string>
+    <!-- Dialog body when a message failed to delete and retry is possible. -->
+    <string name="conversation_activity__message_failed_to_delete_retry">Не атрымалася выдалiць паведамленне. Праверце падключэнне і паўтарыце спробу.</string>
+    <!-- Dialog body when a message failed to delete. -->
+    <string name="conversation_activity__message_failed_to_delete">Не атрымалася выдалiць паведамленне.</string>
 
     <!-- conversation_input_panel -->
     <string name="conversation_input_panel__slide_to_cancel">Прагартаць, каб скасаваць</string>
@@ -3780,7 +3951,7 @@
     <string name="ConversationUpdateItem_view">Прагледзець</string>
     <string name="ConversationUpdateItem_the_disappearing_message_time_will_be_set_to_s_when_you_message_them">Час знікнення паведамлення будзе ўстаноўлены на %1$s, калі вы адпраўляеце паведамленне.</string>
     <!-- Update item button text to show to boost a feature -->
-    <string name="ConversationUpdateItem_donate">Зрабіць ахвяраванне</string>
+    <string name="ConversationUpdateItem_donate">Ахвяраваць</string>
     <!-- Update item button text to send payment -->
     <string name="ConversationUpdateItem_send_payment">Адправіць плацеж</string>
     <!-- Update item button text to activate payments -->
@@ -3788,9 +3959,37 @@
     <!-- Update item alerting the user they hid this person and that they can message them to unhide them -->
     <string name="ConversationUpdateItem_hidden_contact_message_to_add_back">Вы выдалілі гэтую асобу, дашліце ёй зноў паведамленне, каб дадаць у ваш спіс.</string>
     <!-- Update item button text shown for the accepted message request update message -->
-    <string name="ConversationUpdateItem_options">Варыянты</string>
+    <string name="ConversationUpdateItem_block_report">Заблакаваць або паскардзіцца…</string>
     <!-- Update item button text shown for a profile name change. -->
     <string name="ConversationUpdateItem_update">Абнавіць</string>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__group_update">
+        <item quantity="one">%1$d абнаўленне ў групе</item>
+        <item quantity="few">%1$d абнаўленнi ў групе</item>
+        <item quantity="many">%1$d абнаўленняў у групе</item>
+        <item quantity="other">%1$d абнаўленняў у групе</item>
+    </plurals>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__chat_update">
+        <item quantity="one">%1$d абнаўленне ў чаце</item>
+        <item quantity="few">%1$d абнаўленнi ў чаце</item>
+        <item quantity="many">%1$d абнаўленняў у чаце</item>
+        <item quantity="other">%1$d абнаўленняў у чаце</item>
+    </plurals>
+    <!-- Update item button text to show how many disappearing message timer changes are. %2$s is what the timer was ultimately set to.-->
+    <plurals name="CollapsedEvent__disappearing_timer">
+        <item quantity="one">%1$d змена таймера знікнення паведамленняў · %2$s</item>
+        <item quantity="few">%1$d змены таймера знікнення паведамленняў · %2$s</item>
+        <item quantity="many">%1$d зменаў таймера знікнення паведамленняў · %2$s</item>
+        <item quantity="other">%1$d зменаў таймера знікнення паведамленняў · %2$s</item>
+    </plurals>
+    <!-- Update item button text to show how many call events are. -->
+    <plurals name="CollapsedEvent__call_event">
+        <item quantity="one">%1$d падзея званка</item>
+        <item quantity="few">%1$d падзеi званка</item>
+        <item quantity="many">%1$d падзей званка</item>
+        <item quantity="other">%1$d падзей званка</item>
+    </plurals>
 
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">Прайграць… Паўза</string>
@@ -4040,15 +4239,55 @@
     <string name="verify_display_fragment__loading">Загрузка…</string>
     <string name="verify_display_fragment__mark_as_verified">Пазначыць як праверанае</string>
     <string name="verify_display_fragment__clear_verification">Ачысціць праверку</string>
+    <!-- Header title for automatic key verification -->
+    <string name="verify_display_fragment__automatic">Аўтаматычная праверка кода</string>
+    <!-- Button text to verify automatically    -->
+    <string name="verify_display_fragment__verify_automatic">Праверыць аўтаматычна</string>
+    <!-- Loading text when verifying -->
+    <string name="verify_display_fragment__verifying">Праверка шыфравання…</string>
+    <!-- Success text shown when encryption is verified -->
+    <string name="verify_display_fragment__encryption_verified">Шыфраванне праверана</string>
+    <!-- Text shown when verification fails -->
+    <string name="verify_display_fragment__encryption_unavailable">Аўтаматычная праверка недаступная</string>
+    <!-- Caption text explaining more about automatic verification   -->
+    <string name="verify_display_fragment__auto_verify_not_available">Аўтаматычная праверка недаступная для ўсіх чатаў.</string>
+  <!-- Removed by excludeNonTranslatables <string name="verify_display_fragment__link" translatable="false">https://support.signal.org/hc/articles/10223569377562</string> -->
+
+    <!-- Bottom sheet title when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_success">Шыфраванне для гэтага чата было праверана аўтаматычна</string>
+    <!-- Bottom sheet body when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_success">Адносна кантактаў, з якімі вы звязаны па нумары тэлефона, Signal можа аўтаматычна пацвердзіць надзейнасць злучэння з дапамогай механізма празрыстасці ключоў. Для большай надзейнасці праверце ўручную скразное шыфраванне: для гэтага трэба параўнаць лічбы на папярэднім экране або прасканаваць код на прыладзе суразмоўцы.</string>
+    <!-- Bottom sheet title when encryption is no longer auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_no_longer_unavailable">Аўтаматычная праверка больш не даступная для гэтага чата</string>
+    <!-- Bottom sheet body when encryption is no longer auto-verified. Placeholder is the name of the person. -->
+    <string name="EncryptionVerifiedSheet__body_no_longer_unavailable">Signal больш не можа аўтаматычна правяраць шыфраванне для гэтага чата. Гэта адбываецца таму, што %1$s змяніў(-ла) свой нумар тэлефона. Каб праверыць скразное шыфраванне ўручную, трэба параўнаць лічбы на папярэднім экране або прасканаваць код на прыладзе суразмоўцы.</string>
+    <!-- Bottom sheet title when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_unavailable">Аўтаматычная праверка недаступная для гэтага чата</string>
+    <!-- Bottom sheet body when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_unavailable">Signal можа аўтаматычна правяраць шыфраванне толькі ў тых чатах, дзе вы падключаны да кагосьці праз нумар тэлефона. Калі чат пачынаецца з агульным імем карыстальніка або агульнай групай, праверце ўручную скразное шыфраванне: для гэтага трэба параўнаць лічбы на папярэднім экране або прасканаваць код на прыладзе суразмоўцы.</string>
 
     <!-- Title for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__title">Цяпер Signal аўтаматычна правярае скразное шыфраванне</string>
+    <string name="VerifyAutomaticallyEducationSheet__title">Цяпер Signal можа аўтаматычна правяраць шыфраванне</string>
     <!-- Body for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__body">Калі вы правяраеце код бяспекі, Signal аўтаматычна пацвердзіць надзейнасць злучэння з дапамогай механізма празрыстасці ключоў. Але вы па-ранейшаму можаце праверыць злучэнне ўручную з дапамогай QR-кода або кода.</string>
+    <string name="VerifyAutomaticallyEducationSheet__body">Адносна кантактаў, з якімі вы звязаны па нумары тэлефона, Signal можа аўтаматычна пацвердзіць надзейнасць злучэння з дапамогай механізма празрыстасці ключоў. Для большай надзейнасці вы па-ранейшаму можаце праверыць злучэнне ўручную з дапамогай QR-кода або кода бяспекі.</string>
     <!-- Button to learn more about automatic verification -->
     <string name="VerifyAutomaticallyEducationSheet__learn_more">Даведацца больш</string>
     <!-- Button to go to verification page -->
-    <string name="VerifyAutomaticallyEducationSheet__verify">Праверыць</string>
+    <string name="VerifyAutomaticallyEducationSheet__continue">Працягнуць</string>
+
+    <!-- Title for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__title">Аўтаматычная праверка шыфравання ключоў зараз недаступная для вашай прылады. Адправіць журнал адладкі?</string>
+    <!-- Body for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__body">Журналы адладкі дапамагаюць нам дыягнаставаць і выправіць праблему і не змяшчаюць ідэнтыфікацыйнай інфармацыі.</string>
+    <!-- Button to decline submitting logs -->
+    <string name="SelfVerificationFailureSheet__no_thanks">Не, дзякуй</string>
+    <!-- Button to submit logs -->
+    <string name="SelfVerificationFailureSheet__submit">Адправіць</string>
+    <!-- Email subject line when submitting logs following a verification failure -->
+    <string name="SelfVerificationFailureSheet__email_subject">Памылка падчас аўтаматычнай праверкі шыфравання ключоў</string>
+  <!-- Removed by excludeNonTranslatables <string name="SelfVerificationFailureSheet__email_filter" translatable="false">AutomaticKeyVerificationFailure</string> -->
+    <!-- Link to learn more about debug logs -->
+    <string name="SelfVerificationFailureSheet__learn_more">Даведацца больш</string>
 
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Сканаваць QR-код на прыладзе вашага кантакту.</string>
@@ -4253,7 +4492,7 @@
     <string name="preferences__slow">Павольна</string>
     <string name="preferences__help">Дапамога</string>
     <string name="preferences__advanced">Пашыраныя</string>
-    <string name="preferences__donate_to_signal">Зрабіць ахвяраванне для Signal</string>
+    <string name="preferences__donate_to_signal">Ахвяраваць для Signal</string>
     <!-- Preference label for making one-time donations to Signal -->
     <string name="preferences__privacy">Канфідэнцыйнасць</string>
     <!-- Preference label for stories -->
@@ -4431,6 +4670,10 @@
     <string name="preferences_compact">Кампактны</string>
     <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
     <string name="preferences_language_change_confirmation_message">Каб пераключыцца на новую мову, неабходна перазапусціць праграму.</string>
+    <!-- Preference title for automatic key verification -->
+    <string name="preferences_automatic_key_verification">Аўтаматычная праверка кода</string>
+    <!-- Preference summary for automatic key verification -->
+    <string name="preferences_automatic_key_verification_body">Калі гэта функцыя ўключана, Signal будзе спрабаваць аўтаматычна правяраць шыфраванне прыватных чатаў.</string>
 
 
     <string name="configurable_single_select__customize_option">Наладзіць опцыю</string>
@@ -4507,43 +4750,6 @@
     <!-- Alert dialog button to update now -->
     <string name="PaymentsHomeFragment__update_now">Абнавіць зараз</string>
 
-    <!-- GrantPermissionsFragment -->
-    <!-- Displayed as a text-only action button at the bottom start of the screen -->
-    <string name="GrantPermissionsFragment__not_now">Не зараз</string>
-    <!-- Displayed as an action button at the bottom end of the screen -->
-    <string name="GrantPermissionsFragment__next">Далей</string>
-    <!-- Displayed as a title at the top of the screen -->
-    <string name="GrantPermissionsFragment__allow_permissions">Уключыць дазволы</string>
-    <!-- Displayed as a subtitle at the top of the screen -->
-    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Каб вы маглі адпраўляць паведамленні тым, каго ведаеце, Signal будзе запытваць гэтыя дазволы. </string>
-    <!-- Notifications permission row title -->
-    <string name="GrantPermissionsFragment__notifications">Апавяшчэнні</string>
-    <!-- Notifications permission row description -->
-    <string name="GrantPermissionsFragment__get_notified_when">Атрымлівайце апавяшчэнні аб новых паведамленнях.</string>
-    <!-- Contacts permission row title -->
-    <string name="GrantPermissionsFragment__contacts">Кантакты</string>
-    <!-- Contacts permission row description -->
-    <string name="GrantPermissionsFragment__find_people_you_know">Знаходзьце людзей, якіх вы ведаеце. Вашы кантакты зашыфраваны і не бачныя сэрвісу Signal.</string>
-    <!-- Phone calls permission row title -->
-    <string name="GrantPermissionsFragment__phone_calls">Тэлефонныя званкі</string>
-    <!-- Phone calls permission row description -->
-    <string name="GrantPermissionsFragment__make_registering_easier">Спрасціце працэс рэгістрацыі і ўключыце дадатковыя функцыі званкоў.</string>
-    <!-- Storage permission row title -->
-    <string name="GrantPermissionsFragment__storage">Сховішча</string>
-    <!-- Storage permission row description -->
-    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Адпраўляйце фота, відэа і файлы са сваёй прылады.</string>
-
-    <!-- PermissionDeniedBottomSheet -->
-    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
-    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. Націсніце «Налады», што ніжэй</string>
-    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s Уключыце дазвол</string>
-    <!-- Sheet describing step 2 on how to give permissions by tapping permissions in their settings -->
-    <string name="PermissionDeniedBottomSheet__2_tap_permissions">2. Націснуць «Дазволы»</string>
-    <!-- Sheet describing step 3 on how to give permissions for photos and videos in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__3_allow_permission">3. %1$s Уключыць дазвол «Фота і відэа»</string>
-    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
-    <string name="PermissionDeniedBottomSheet__settings">Налады</string>
 
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
@@ -4721,6 +4927,10 @@
     <string name="conversation_selection__menu_copy">Капіраваць</string>
     <!-- Button to delete a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_delete">Выдаліць</string>
+    <!-- Button to star a message to save it for later; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_star" translatable="false">Star (Labs)</string> -->
+    <!-- Button to remove the star from a message; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_unstar" translatable="false">Unstar (Labs)</string> -->
     <!-- Button to forward a message to another person or group chat; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_forward">Пераслаць</string>
     <!-- Button to reply to a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
@@ -4789,6 +4999,7 @@
     <string name="conversation__menu_view_all_media">Усе медыяфайлы</string>
     <string name="conversation__menu_conversation_settings">Налады чата</string>
     <string name="conversation__menu_add_shortcut">Дадаць на галоўны экран</string>
+  <!-- Removed by excludeNonTranslatables <string name="conversation__menu_export" translatable="false">Export (Labs)</string> -->
     <string name="conversation__menu_create_bubble">Стварыць бурбалку</string>
     <!-- Overflow menu option that allows formatting of text -->
     <string name="conversation__menu_format_text">Фармаціраваць тэкст</string>
@@ -4797,6 +5008,13 @@
 
     <!-- conversation_callable_insecure -->
     <string name="conversation_add_to_contacts__menu_add_to_contacts">Дадаць у кантакты</string>
+
+    <!-- conversation export -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__exporting" translatable="false">Exporting chat…</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_complete" translatable="false">Chat exported successfully</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_failed" translatable="false">Export failed</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_cancelled" translatable="false">Export cancelled</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__preparing" translatable="false">Preparing export…</string> -->
 
     <!-- conversation scheduled messages bar -->
 
@@ -4811,7 +5029,6 @@
     </plurals>
 
     <!-- conversation_group_options -->
-    <string name="convesation_group_options__recipients_list">Спіс атрымальнікаў</string>
     <string name="conversation_group_options__delivery">Дастаўка</string>
     <!-- Label for a menu item that appears after pressing the three-dot icon in a  -->
     <string name="conversation_group_options__conversation">Чат</string>
@@ -4828,6 +5045,8 @@
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">Новая група</string>
     <string name="text_secure_normal__menu_settings">Налады</string>
+    <!-- Menu item in the main conversation list to view all starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="text_secure_normal__starred_messages" translatable="false">Starred messages (Labs)</string> -->
     <string name="text_secure_normal__menu_clear_passphrase">Заблакаваць</string>
     <string name="text_secure_normal__mark_all_as_read">Пазначыць усе як прачытаныя</string>
     <string name="text_secure_normal__invite_friends">Запрасіць сяброў</string>
@@ -5015,9 +5234,6 @@
     <!-- transport_selection_list_item -->
     <string name="ConversationListFragment_loading">Загрузка…</string>
     <string name="CallNotificationBuilder_connecting">Падключэнне…</string>
-    <string name="Permissions_permission_required">Патрэбен дазвол</string>
-    <string name="Permissions_continue">Працягнуць</string>
-    <string name="Permissions_not_now">Не зараз</string>
     <string name="SQLCipherMigrationHelper_migrating_signal_database">Перанос базы даных Signal</string>
     <string name="enter_backup_passphrase_dialog__backup_passphrase">Парольная фраза для рэзервовай копіі</string>
     <string name="backup_enable_dialog__backups_will_be_saved_to_external_storage_and_encrypted_with_the_passphrase_below_you_must_have_this_passphrase_in_order_to_restore_a_backup">Рэзервовыя копіі будуць захаваны ў знешнім сховішчы і зашыфраваны з дапамогай парольнай фразы, што ніжэй. Вам неабходна мець гэтую парольную фразу, каб аднавіць рэзервовую копію.</string>
@@ -5026,8 +5242,6 @@
     <string name="backup_enable_dialog__i_have_written_down_this_passphrase">Я запісаў(-ла) гэтую парольную фразу. Без яе я не змагу аднавіць рэзервовую копію.</string>
     <string name="registration_activity__restore_backup">Аднавіць рэзервовую копію</string>
     <string name="registration_activity__transfer_or_restore_account">Перанесці або аднавіць уліковы запіс</string>
-    <!-- Screen title for restoring or transfering account -->
-    <string name="registration_activity__restore_or_transfer">Аднавіць або перанесці</string>
     <string name="registration_activity__transfer_account">Перанесці ўліковы запіс</string>
     <string name="registration_activity__skip">Прапусціць</string>
     <!-- Text label button to skip restoring -->
@@ -5054,6 +5268,8 @@
     <string name="BackupDialog_delete_backups">Выдаліць рэзервовыя копіі?</string>
     <string name="BackupDialog_disable_and_delete_all_local_backups">Адключыць і выдаліць усе лакальныя рэзервовыя копіі?</string>
     <string name="BackupDialog_delete_backups_statement">Выдаліць рэзервовыя копіі</string>
+    <!-- Progress dialog message shown while local backup files are being deleted -->
+    <string name="BackupDialog_deleting_local_backup">Выдаленне лакальнай рэзервовай копіі…</string>
     <string name="BackupDialog_to_enable_backups_choose_a_folder">Выберыце папку, каб уключыць рэзервовае капіраванне. Рэзервовыя копіі будуць захаваны ў гэтым месцы.</string>
     <!-- Button shown in dialog to choose a folder for backups -->
     <string name="BackupDialog_choose_folder">Выбраць папку</string>
@@ -5140,13 +5356,6 @@
     <string name="RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later">Вы зрабілі занадта шмат спроб. Калі ласка, паўтарыце спробу пазней.</string>
     <string name="RegistrationActivity_error_connecting_to_service">Памылка падключэння да сэрвісу</string>
     <string name="preferences_chats__backups">Рэзервовыя копіі</string>
-
-    <!-- Button label to indicate that a feature is in beta mode -->
-    <string name="Beta__beta_title">Бэта-версія</string>
-    <!-- Content description for info icon -->
-    <string name="Beta__info">Інфармацыя</string>
-    <!-- Text in header describing that the feature is a beta feature and prone to frequent changes -->
-    <string name="Beta__this_is_beta">Гэта бэта-функцыя, каторая з часам будзе паляпшацца.</string>
 
     <!-- Title text shown when Signal is locked and needs to be unlocked -->
     <string name="prompt_passphrase_activity__unlock_signal">Разблакіраваць Signal</string>
@@ -5361,6 +5570,8 @@
     <string name="RecipientBottomSheet_remove_from_group">Выдаліць з групы</string>
 
     <string name="RecipientBottomSheet_remove_s_as_group_admin">Выдаліць %1$s як адміністратара групы?</string>
+    <!-- Message shown when removing an admin will also clear their member label. -->
+    <string name="RecipientBottomSheet_remove_s_as_group_admin_and_clear_member_label">Выдаліць %1$s як адміністратара групы? Праз гэта таксама будзе ачышчана іх метка ўдзельніка.</string>
     <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">"%1$s зможа рэдагаваць гэту групу і яе ўдзельнікаў."</string>
 
     <string name="RecipientBottomSheet_remove_s_from_the_group">Выдаліць %1$s з групы?</string>
@@ -5373,12 +5584,14 @@
     <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">Ухваліць</string>
     <string name="GroupRecipientListItem_deny_description">Адмовіць</string>
+    <!-- Placeholder shown in the group member list when the user has not yet set a member label. -->
+    <string name="GroupRecipientListItem__add_member_label">Дадаць метку ўдзельніка</string>
 
 
     <!-- GroupsLearnMoreBottomSheetDialogFragment -->
     <string name="GroupsLearnMore_legacy_vs_new_groups">Параўнанне Старых і Новых груп</string>
     <string name="GroupsLearnMore_what_are_legacy_groups">Што такое Старыя групы?</string>
-    <string name="GroupsLearnMore_paragraph_1">Старыя групы – гэта групы, якія несумяшчальныя з функцыямі Новых груп, такімі як адміністратары і больш падрабязныя апісання змяненняў у групе.</string>
+    <string name="GroupsLearnMore_paragraph_1">Старыя групы – гэта групы, якія несумяшчальныя з функцыямі Новых груп, такімі як адміністратары і больш падрабязныя апісання абнаўленняў у групе.</string>
     <string name="GroupsLearnMore_can_i_upgrade_a_legacy_group">Я магу абнавіць Старую групу?</string>
     <string name="GroupsLearnMore_paragraph_2">Старыя групы пакуль немагчыма абнавіць да Новых груп, але вы можаце стварыць Новую групу з тымі ж удзельнікамі, калі яны маюць апошнюю версію Signal.</string>
     <string name="GroupsLearnMore_paragraph_3">У будучыні Signal зможа даць магчымасць абнавіць Старыя групы.</string>
@@ -5401,8 +5614,6 @@
     <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">Ад %1$s да %2$s</string>
 
-    <!-- StorageUtil -->
-    <string name="StorageUtil__s_s">%1$s/%2$s</string>
     <string name="BlockedUsersActivity__s_has_been_blocked">«%1$s» быў(-ла) заблакаваны(-а).</string>
     <string name="BlockedUsersActivity__failed_to_block_s">Не атрымалася заблакаваць «%1$s»</string>
     <string name="BlockedUsersActivity__s_has_been_unblocked">«%1$s» быў(-ла) разблакаваны(-а).</string>
@@ -5866,6 +6077,41 @@
         <item quantity="other">%1$d папак</item>
     </plurals>
 
+    <!-- Row title for the option to export chat history as a plaintext archive -->
+    <string name="ChatsSettingsFragment__export_chat_history">Экспартаваць гісторыю чата</string>
+    <!-- Row description for the plaintext chat export option -->
+    <string name="ChatsSettingsFragment__export_chat_history_label">Экспартуйце копію ўсіх вашых чатаў у фармаце JSON, які счытвае электронныя прылады. Знікаючыя паведамлення не будуць экспартаваны.</string>
+    <!-- Biometrics prompt title shown before allowing the user to export chat history -->
+    <string name="ChatsSettingsFragment__unlock_to_export_chat_history">Разблакіруйце, каб экспартаваць гісторыю чата</string>
+    <!-- Snackbar shown when biometric authentication fails before a chat export -->
+    <string name="ChatsSettingsFragment__authentication_failed">Памылка аўтэнтыфікацыі</string>
+
+    <!-- ChatExportDialogs -->
+    <!-- Progress dialog message shown while canceling an in-progress chat export -->
+    <string name="ChatExportDialogs__canceling_export">Скасаванне экспарту…</string>
+    <!-- Title of the dialog asking the user to confirm they want to export chat history -->
+    <string name="ChatExportDialogs__export_chat_history_title">Экспартаваць гісторыю чата?</string>
+    <!-- Bold warning prefix in the export confirmation dialog body -->
+    <string name="ChatExportDialogs__be_careful_warning">БУДЗЬЦЕ ПIЛЬНЫМI!</string>
+    <!-- Body of the export confirmation dialog, displayed after the bold "BE CAREFUL!" prefix -->
+    <string name="ChatExportDialogs__export_confirm_body">Нікому НЕ перадавайце гэты файл. Ваша гісторыя чата будзе захавана на вашай прыладзе. Іншыя праграмы могуць мець доступ да яе ў залежнасці ад наладжаных вамі дазволаў. Калi экспартаваць разам з медыяфайламi, памер файла можа павялічыцца.</string>
+    <!-- Button in the export confirmation dialog to export messages and media -->
+    <string name="ChatExportDialogs__export_with_media">Экспартаваць з медыяфайламi</string>
+    <!-- Button in the export confirmation dialog to export messages only -->
+    <string name="ChatExportDialogs__export_without_media">Экспартаваць без медыяфайлаў</string>
+    <!-- Title of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_title">Выбраць папку</string>
+    <!-- Body of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_body">Выберыце папку ў сховiшчы прылады, дзе будзе захоўвацца ваша гісторыя чата.</string>
+    <!-- Button that opens the system folder picker -->
+    <string name="ChatExportDialogs__choose_folder_button">Выбраць папку</string>
+    <!-- Title of the dialog shown when a chat export finishes successfully -->
+    <string name="ChatExportDialogs__complete_title">Экспарт чата адбыўся</string>
+    <!-- Bold warning prefix in the export complete dialog body -->
+    <string name="ChatExportDialogs__be_careful">БУДЗЬЦЕ ПIЛЬНЫМI,</string>
+    <!-- Body of the export complete dialog, displayed after the bold "BE CAREFUL" prefix -->
+    <string name="ChatExportDialogs__complete_body">дзе вы захоўваеце файл экспарту вашага чата і нікому не перадавайце яго. Іншыя праграмы на вашай прыладзе могуць мець доступ да яго ў залежнасці ад наладжаных вамі дазволаў.</string>
+
     <!-- ChatFoldersEducationSheet -->
     <!-- Text in a bottom sheet describing chat folders and what they can be created for -->
     <string name="ChatFoldersEducationSheet__create_folders_for_family">Стварайце папкі для сям\'і, сяброў, працы і іншых тэм</string>
@@ -6067,12 +6313,16 @@
     <string name="HelpSettingsFragment__terms_amp_privacy_policy">Умовы &amp; Палітыка канфідэнцыйнасці</string>
     <string name="HelpFragment__copyright_signal_messenger">Аўтарскія правы Signal Messenger</string>
     <string name="HelpFragment__licenced_under_the_agplv3">Пад ліцэнзіяй GNU AGPLv3</string>
+    <!-- Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="HelpSettingsFragment__signal_is_a_501c3">Signal — некамерцыйная арганізацыя</string>
 
     <!-- DataAndStorageSettingsFragment -->
     <string name="DataAndStorageSettingsFragment__media_quality">Якасць медыяфайла</string>
     <!-- Category title for the quality of the media to be sent -->
     <string name="DataAndStorageSettingsFragment__sent_media_quality">Якасць адпраўленага медыяфайла</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">Для адпраўкі медыяфайла высокай якасці спатрэбіцца больш трафіка.</string>
+    <!-- Disclaimer shown under the media auto-download settings. Placeholder is a formatted size like "100 KB". -->
+    <string name="DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded">Галасавыя паведамленні і стыкеры (да %1$s) заўсёды cпампоўваюцца аўтаматычна.</string>
     <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">Высокая</string>
     <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
@@ -6115,11 +6365,11 @@
     <!-- ChatColorGradientTool -->
 
     <!-- Title text for prompt to donate. Shown in a popup at the bottom of the chat list. -->
-    <string name="Donate2022Q2Megaphone_donate_to_signal">Зрабіць ахвяраванне для Signal</string>
+    <string name="Donate2022Q2Megaphone_donate_to_signal">Ахвяраваць для Signal</string>
     <!-- Body text for prompt to donate. Shown in a popup at the bottom of the chat list. -->
     <string name="Donate2022Q2Megaphone_signal_is_powered_by_people_like_you">Signal існуе дзякуючы такім людзям, як вы. Рабіце ахвяраванне штомесяц і атрымлівайце значок.</string>
     <!-- Button label that brings a user to the donate screen. Shown in a popup at the bottom of the chat list. -->
-    <string name="Donate2022Q2Megaphone_donate">Зрабіць ахвяраванне</string>
+    <string name="Donate2022Q2Megaphone_donate">Ахвяраваць</string>
     <!-- Button label that dismissed a prompt to donate. Shown in a popup at the bottom of the chat list. -->
     <string name="Donate2022Q2Megaphone_not_now">Не зараз</string>
 
@@ -6142,7 +6392,7 @@
     <!-- Displayed in the Become a Sustainer megaphone -->
     <string name="BecomeASustainerMegaphone__signal_is_powered_by">Signal існуе дзякуючы такім людзям, як вы. Рабіце ахвяравання і атрымлівайце значок.</string>
     <string name="BecomeASustainerMegaphone__not_now">Не зараз</string>
-    <string name="BecomeASustainerMegaphone__donate">Зрабіць ахвяраванне</string>
+    <string name="BecomeASustainerMegaphone__donate">Ахвяраваць</string>
 
     <!-- KeyboardPagerFragment -->
     <string name="KeyboardPagerFragment_emoji">Эмодзі</string>
@@ -6190,6 +6440,8 @@
     <string name="ConversationSettingsFragment__search">Пошук</string>
     <string name="ConversationSettingsFragment__disappearing_messages">Знікаючыя паведамленні</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">Гукі &amp; апавяшчэнні</string>
+    <!-- Label for the starred messages option in conversation settings -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__starred_messages" translatable="false">Starred messages</string> -->
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
     <string name="ConversationSettingsFragment__contact_details">Інфармацыя аб тэлефонным кантакце</string>
     <string name="ConversationSettingsFragment__view_safety_number">Прагледзець код бяспекі</string>
@@ -6203,6 +6455,8 @@
     <string name="ConversationSettingsFragment__permissions">Дазволы</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Запыты &amp; запрашэнні</string>
     <string name="ConversationSettingsFragment__group_link">Спасылка на групу</string>
+    <!-- Label for button that opens the group member label permissions screen. -->
+    <string name="ConversationSettingsFragment__group_member_label">Метка ўдзельніка</string>
     <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Дадаць як кантакт</string>
     <string name="ConversationSettingsFragment__unmute">Апавяшч. укл.</string>
@@ -6214,6 +6468,21 @@
     <string name="ConversationSettingsFragment__get_badges">Падтрымлівайце Signal і атрымлівайце значкі для свайго профілю. Націсніце на значок, каб даведацца больш.</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="ConversationSettingsFragment__this_media_is_not_sent_yet">Гэты медыяфайл яшчэ не адпраўлены.</string>
+    <!-- End group option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__end_group">Спыніць групу</string>
+    <!-- Banner shown at the top of group settings when the group has been ended -->
+    <string name="ConversationSettingsFragment__this_group_was_ended">Гэта група была спынена.</string>
+    <!-- Archive chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__archive_chat">Архіваваць чат</string>
+    <!-- Delete chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__delete_chat">Выдаліць чат</string>
+    <!-- Member section header for terminated groups. %1$d is the member count -->
+    <plurals name="ConversationSettingsFragment__d_former_members">
+        <item quantity="one">%1$d былы ўдзельнік</item>
+        <item quantity="few">%1$d былых удзельніка</item>
+        <item quantity="many">%1$d былых удзельнікаў</item>
+        <item quantity="other">%1$d былых удзельнікаў</item>
+    </plurals>
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">Дадаць удзельнікаў</string>
@@ -6224,15 +6493,42 @@
     <string name="PermissionsSettingsFragment__who_can_add_new_members">Хто можа дадаваць новых удзельнікаў?</string>
     <string name="PermissionsSettingsFragment__who_can_edit_this_groups_info">Хто можа рэдагаваць інфармацыю аб гэтай групе?</string>
     <string name="PermissionsSettingsFragment__who_can_send_messages">Хто можа адпраўляць паведамленні і рабіць званкі?</string>
+    <!-- Label for the member labels permission button in the group permissions settings screen. -->
+    <string name="PermissionsSettingsFragment__add_member_labels">Дадаць меткі ўдзельнікаў</string>
+    <!-- Dialog title shown when choosing who has permission to add member labels in the group. -->
+    <string name="PermissionsSettingsFragment__who_can_add_member_labels">Хто можа дадаваць меткі ўдзельнікаў?</string>
+    <!-- Warning title shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_title">Меткі ўдзельнікаў будуць ачышчаны</string>
+    <!-- Warning body shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_body">"Калі вы зменіце гэты дазвол на «Толькі адміністратары», меткі ўдзельнікаў, што былі ўсталяваны не адміністратарамі ў гэтай групе, будуць ачышчаны."</string>
+    <!-- Confirm button for changing member label permission after warning. -->
+    <string name="PermissionsSettingsFragment__change_permission">Змяніць дазвол</string>
 
     <!-- SoundsAndNotificationsSettingsFragment -->
+    <!-- Label for the setting to mute notifications for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__mute_notifications">Адключыць апавяшчэнні</string>
+    <!-- Summary text shown when a conversation is not muted -->
     <string name="SoundsAndNotificationsSettingsFragment__not_muted">Апавяшчэнні ўключаны</string>
+    <!-- Label for the mentions notification setting in conversation sounds and notifications -->
     <string name="SoundsAndNotificationsSettingsFragment__mentions">Згадванні</string>
+    <!-- Dialog option to always send notifications for the selected category even when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__always_notify">Заўсёды апавяшчаць</string>
-    <!-- Dialog option to not send notifications if mentioned when the conversation is muted -->
+    <!-- Dialog option to not send notifications for the selected category when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__do_not_notify">Не апавяшчаць</string>
+    <!-- Label for the setting to configure custom notification sounds and vibration for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__custom_notifications">Карыстальніцкія апавяшчэнні</string>
+    <!-- Section header for settings that control which notifications still come through when a conversation is muted -->
+    <string name="SoundsAndNotificationsSettingsFragment__when_muted">Калі апавяшчэнні адключаны</string>
+    <!-- Label for the calls notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls">Званкі</string>
+    <!-- Explanatory text shown in the calls notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls_dialog_message">Званіце і атрымлівайце апавяшчэнні, калі пачынаецца званок у чатах з адключанымі апавяшчэннямі.</string>
+    <!-- Explanatory text shown in the mentions notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__mentions_dialog_message">Атрымлівайце апавяшчэнні, калі вас згадваюць у чатах з адключанымі апавяшчэннямі.</string>
+    <!-- Label for the replies notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_to_you">Адказы вам</string>
+    <!-- Explanatory text shown in the replies notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_dialog_message">Атрымлівайце апавяшчэнні, калі хтосьці адказвае на вашы паведамленні ў чатах з адключанымі апавяшчэннямі.</string>
 
     <!-- StickerKeyboard -->
     <string name="StickerKeyboard__recently_used">Нядаўна выкарыстаныя</string>
@@ -6472,7 +6768,7 @@
     <string name="SelectFeaturedBadgeFragment__failed_to_update_profile">Не атрымалася абнавіць профіль</string>
 
     <!-- Displayed on primary button in the bottom sheet as a call-to-action to launch into the donation flow -->
-    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Зрабіць ахвяраванне</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Ахвяраваць</string>
     <!-- Title of a page in the bottom sheet. Placeholder is a user\'s short-name -->
     <string name="ViewBadgeBottomSheetDialogFragment__s_supports_signal">%1$s падтрымлівае Signal</string>
     <!-- Description of a page in the bottom sheet of a monthly badge. Placeholder is a user\'s short-name -->
@@ -6500,13 +6796,15 @@
     <string name="Subscription__expires_s">Сканчаецца: %1$s</string>
 
     <!-- Title of learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">Signal не такі, як іншыя.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">Як незалежная некамерцыйная арганізацыя, Signal захоўвае канфідэнцыйнасць паведамленняў і званкоў. Без рэкламы, без трэкераў, без сачэння. Зрабіце ахвяраванне сёння, каб падтрымаць Signal.</string>
     <!-- First small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">Канфідэнцыйны абмен паведамленнямі. Без рэкламы, без трэкераў, без сачэння.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">No ads, no trackers, no surveillance. Donate today to support Signal.</string>
     <!-- Second small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_supported_by">Signal існуе за кошт ахвяраванняў, то бок ваша канфідэнцыйнасць для нас стаіць на першым месцы. Signal створаны для вас, а не для атрымання вашых даных i прыбытку.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__donate_and_get_badge">Вы атрымаеце дадатковы значок у сваім профілі, калі зробіце ахвяраванне</string>
     <!-- Third small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__if_you_can">Калі гэта магчыма, зрабіце ахвяраванне сёння, каб Signal заставаўся заўсёды вясёлым, надзейным і даступным для ўсіх.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__your_privacy_is_our_mission">Ваша канфідэнцыйнасць — наша місія</string>
+    <!-- Fourth small text blurb on learn more sheet. Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_a_501c3">Signal — некамерцыйная арганізацыя</string>
 
     <string name="SubscribeThanksForYourSupportBottomSheetDialogFragment__thanks_for_your_support">Дзякуй за вашу падтрымку!</string>
     <!-- Subtext underneath the dialog title on the thanks sheet -->
@@ -6522,7 +6820,7 @@
     <string name="BecomeASustainerFragment__signal_is_a_non_profit">Signal - гэта некамерцыйная арганізацыя без рэкламадаўцаў і інвестараў, якую падтрымліваюць толькі такія людзі, як вы.</string>
 
     <!-- Button label for creating a donation -->
-    <string name="ManageDonationsFragment__donate_to_signal">Зрабіць ахвяраванне для Signal</string>
+    <string name="ManageDonationsFragment__donate_to_signal">Ахвяраваць для Signal</string>
     <!-- Heading for more area of manage subscriptions page -->
     <string name="ManageDonationsFragment__more">Дадаткова</string>
     <!-- Heading for receipts area of manage subscriptions page -->
@@ -6537,13 +6835,13 @@
     <!-- Preference heading for other ways to donate -->
     <string name="ManageDonationsFragment__other_ways_to_give">Іншыя спосабы для ахвяравання</string>
     <!-- Preference label to launch badge gifting -->
-    <string name="ManageDonationsFragment__donate_for_a_friend">Зрабіць ахвяраванне для сябра</string>
+    <string name="ManageDonationsFragment__donate_for_a_friend">Ахвяраваць для сябра</string>
     <!-- Dialog title shown when a donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet -->
     <string name="ManageDonationsFragment__couldnt_confirm_donation">Не атрымалася пацвердзіць ахвяраванне</string>
     <!-- Dialog message shown when a monthly donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed">Не атрымалася пацвердзіць ваша ахвяраванне ў памеры %1$s/месяц. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж праз iDEAL.</string>
+    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed_ideal_wero">Не атрымалася пацвердзіць ваша ахвяраванне ў памеры %1$s/месяц. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж праз iDEAL | Wero.</string>
     <!-- Dialog message shown when a one-time donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed">Не атрымалася пацвердзіць ваша разавае ахвяраванне ў памеры %1$s. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж праз iDEAL.</string>
+    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed_ideal_wero">Не атрымалася пацвердзіць ваша аднаразовае ахвяраванне ў памеры %1$s. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж праз iDEAL | Wero.</string>
 
     <string name="Boost__enter_custom_amount">Увесці персаналізаваную суму</string>
     <!-- Error label when the amount is smaller than what we can accept -->
@@ -6672,7 +6970,7 @@
     <!-- Displayed as a dialog message when the user\'s profile could not be fetched, likely due to lack of internet -->
     <string name="DonationsErrors__your_donation_could_not_be_sent">Не атрымалася адправіць ваша ахвяраванне з-за памылкі сеткі. Праверце падключэнне і паўтарыце спробу.</string>
     <!-- Displayed as a dialog message when the user encounters an error during an iDEAL donation -->
-    <string name="DonationsErrors__your_ideal_couldnt_be_processed">Ваша ахвяраванне праз iDEAL не адбылося. Паспрабуйце іншы спосаб аплаты або звярніцеся да свайго банка для атрымання дадатковай інфармацыі.</string>
+    <string name="DonationsErrors__your_ideal_wero_couldnt_be_processed">Ваша ахвяраванне праз iDEAL | Wero не адбылося. Паспрабуйце іншы спосаб аплаты або звярніцеся да свайго банка для атрымання дадатковай інфармацыі.</string>
 
     <!-- Gift message view title -->
     <string name="GiftMessageView__donation_on_behalf_of_s">Ахвяраванне ад імя %1$s</string>
@@ -6900,12 +7198,6 @@
     <!-- Banner action when notification permission is disabled -->
     <string name="NotificationSettingsFragment__turn_on">Уключыць</string>
 
-    <!-- Description shown for the Signal Release Notes channel -->
-    <string name="ReleaseNotes__signal_release_notes_and_news">Нататкі пра абнаўлення &amp; навіны Signal</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
-    <string name="ReleaseNotes__this_is_official_chat_period">Гэта афіцыйны чат Signal.</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
-    <string name="ReleaseNotes__keep_up_to_date_period">Будзьце ў курсе навін і абнаўленняў.</string>
     <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
     <string name="ReleaseNotes__this_is_official_chat">Гэта афіцыйны чат Signal</string>
     <!-- Text description in Signal Release channel details explaining what the channel is for -->
@@ -7007,8 +7299,61 @@
     <string name="MyStories__delete_story">Выдаліць гісторыю?</string>
     <!-- Message of dialog to confirm deletion of story -->
     <string name="MyStories__this_story_will_be_deleted">Гэта гісторыя будзе выдалена для вас і ўсіх, хто яе атрымаў.</string>
+    <!-- Message of dialog to confirm deletion of story in a terminated group -->
+    <string name="MyStories__delete_story_terminated_group">Яна будзе выдалена толькі для вас, таму што група была спынена.</string>
     <!-- Toast shown when story media cannot be saved -->
     <string name="MyStories__unable_to_save">Не атрымалася захаваць</string>
+
+    <!-- StoryArchive -->
+    <!-- Title for the story archive screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__story_archive" translatable="false">Story archive (Labs)</string> -->
+    <!-- Section header in story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__archive" translatable="false">Archive</string> -->
+    <!-- Label for switch to enable story archiving -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_in_archive" translatable="false">Keep stories in archive</string> -->
+    <!-- Description for the archive toggle -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__save_stories_after_they_expire" translatable="false">Save your sent stories after they leave the active feed.</string> -->
+    <!-- Label for archive duration preference -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_for" translatable="false">Keep stories for</string> -->
+    <!-- Archive duration option: forever -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__forever" translatable="false">Forever</string> -->
+    <!-- Archive duration option: 1 year -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__1_year" translatable="false">1 year</string> -->
+    <!-- Archive duration option: 6 months -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__6_months" translatable="false">6 months</string> -->
+    <!-- Archive duration option: 30 days -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__30_days" translatable="false">30 days</string> -->
+    <!-- Empty state title when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories" translatable="false">No archived stories</string> -->
+    <!-- Empty state message when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories_message" translatable="false">Turn on \"Save Stories to Archive\" in story settings to auto-archive your stories.</string> -->
+    <!-- Empty state button to navigate to story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__go_to_settings" translatable="false">Go to settings</string> -->
+    <!-- Label for sort order menu -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__sort_by" translatable="false">Sort by</string> -->
+    <!-- Sort order option: newest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__newest" translatable="false">Newest</string> -->
+    <!-- Sort order option: oldest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__oldest" translatable="false">Oldest</string> -->
+    <!-- Delete action in story archive multi-select bottom bar -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__delete" translatable="false">Delete</string> -->
+    <!-- Content description for selecting a story in multi-select mode -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__select_story" translatable="false">Select story</string> -->
+    <!-- Confirmation dialog body when deleting stories from archive -->
+    <plurals name="StoryArchive__delete_n_stories">
+        <item quantity="one">Выдалiць %1$d гісторыю? Гэта нельга адмяніць.</item>
+        <item quantity="few">Выдалiць %1$d гісторыі? Гэта нельга адмяніць.</item>
+        <item quantity="many">Выдалiць %1$d гісторый? Гэта нельга адмяніць.</item>
+        <item quantity="other">Выдалiць %1$d гісторый? Гэта нельга адмяніць.</item>
+    </plurals>
+    <!-- Title shown in toolbar when in multi-select mode in story archive, %d is count of selected items -->
+    <plurals name="StoryArchive__d_selected">
+        <item quantity="one">%1$d выбраны</item>
+        <item quantity="few">%1$d выбраныя</item>
+        <item quantity="many">%1$d выбраных</item>
+        <item quantity="other">%1$d выбраных</item>
+    </plurals>
+
     <!-- Displayed at bottom of story viewer when current item has views -->
     <plurals name="StoryViewerFragment__d_views">
         <item quantity="one">%1$d прагляд</item>
@@ -7048,7 +7393,7 @@
     <!-- Displayed when a story has no views -->
     <string name="StoryViewsFragment__no_views_yet">Пакуль няма праглядаў</string>
     <!-- Displayed when user has disabled receipts -->
-    <string name="StoryViewsFragment__enable_view_receipts_to_see_whos_viewed_your_story">Уключыце «Прагледзець даныя праглядаў», каб ведаць, хто прагледзеў вашы гісторыі.</string>
+    <string name="StoryViewsFragment__enable_view_receipts_to_see_whos_viewed_your_story">Уключыце «Інфармацыя пра прагляды», каб ведаць, хто прагледзеў вашы гісторыі.</string>
     <!-- Button label displayed when user has disabled receipts -->
     <string name="StoryViewsFragment__go_to_settings">Перайсці ў налады</string>
     <!-- Dialog action to remove viewer from a story -->
@@ -7295,7 +7640,7 @@
         <item quantity="other">%1$s · працягваецца %2$d дзён</item>
     </plurals>
     <!-- Headline text on start fragment for gifting a badge -->
-    <string name="GiftFlowStartFragment__donate_for_a_friend">Зрабіць ахвяраванне для сябра</string>
+    <string name="GiftFlowStartFragment__donate_for_a_friend">Ахвяраваць для сябра</string>
     <!-- Description text on start fragment for gifting a badge -->
     <plurals name="GiftFlowStartFragment__support_signal_by">
         <item quantity="one">Зрабіце ахвяраванне ад імя сябра або члена сям\'і, карыстальнікаў Signal, каб падтрымаць Signal. Яны атрымаюць значок, які будзе паказаны ў іх профілі на %1$d дзень</item>
@@ -7528,7 +7873,7 @@
     <string name="StoriesPrivacySettingsFragment__stories">Гісторыі</string>
     <!-- Story views header -->
     <!-- Story view receipts toggle title -->
-    <string name="StoriesPrivacySettingsFragment__view_receipts">Прагледзець даныя праглядаў</string>
+    <string name="StoriesPrivacySettingsFragment__view_receipts">Інфармацыя пра прагляды</string>
     <!-- Story view receipts toggle message -->
     <string name="StoriesPrivacySettingsFragment__see_and_share">Даведвайцеся і абагульвайце інфармацыю аб праглядах гісторый. Калі гэта функцыя адключана, вы не будзеце ведаць, што нехта прагледзеў вашу гісторыю.</string>
 
@@ -7574,11 +7919,11 @@
 
     <!-- DonateToSignalFragment -->
     <!-- Title below avatar -->
-    <string name="DonateToSignalFragment__privacy_over_profit">Канфідэнцыйнасць вышэй за прыбытак</string>
+    <string name="DonateToSignalFragment__privacy_over_profit">З гонарам кажам: мы некамерцыйная арганізацыя</string>
     <!-- Continue button label -->
     <string name="DonateToSignalFragment__continue">Працягнуць</string>
     <!-- Description below title -->
-    <string name="DonateToSignalFragment__private_messaging">Канфідэнцыйны абмен паведамленнямі, які існуе дзякуючы вашай падтрымцы. Без рэкламы, без трэкераў, без кампрамісаў. Зрабіце ахвяраванне зараз, каб падтрымаць Signal.</string>
+    <string name="DonateToSignalFragment__private_messaging">Рабіце ахвяравання, каб падтрымаць канфідэнцыйнасць паведамленняў. Дапамагайце, каб Signal заставаўся незалежным і без рэкламы.</string>
     <!-- Dialog title when a user tries to donate while they already have a pending donation. -->
     <string name="DonateToSignalFragment__you_have_a_donation_pending">Ваша ахвяраванне чакае разгляду</string>
     <!-- Dialog body when a user tries to donate while they already have a pending monthly donation. -->
@@ -7590,7 +7935,7 @@
     <!-- Dialog body when a user tries to donate while they already have a pending one time donation. -->
     <string name="DonateToSignalFragment__your_payment_is_still_being_processed_onetime">Ваша ахвяраванне яшчэ апрацоўваецца. Гэта можа заняць некалькі хвілін у залежнасці ад вашага падключэння. Перш чым зрабіць наступнае ахвяраванне, дачакайцеся, пакуль гэты плацеж не завершыцца.</string>
     <!-- Dialog body when a user opens the manage donations main screen and they have a pending iDEAL donation -->
-    <string name="DonateToSignalFragment__your_ideal_payment_is_still_processing">Ваша ахвяраванне праз iDEAL яшчэ апрацоўваецца. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж, перш чым рабіць чарговае ахвяраванне.</string>
+    <string name="DonateToSignalFragment__your_ideal_wero_payment_is_still_processing">Ваша ахвяраванне праз iDEAL | Wero яшчэ апрацоўваецца. Праверце сваю банкаўскую праграму, каб пацвердзіць свой плацеж, перш чым рабіць чарговае ахвяраванне.</string>
     <!-- Dialog title shown when a user tries to donate an amount higher than is allowed for a given payment method. -->
     <string name="DonateToSignal__donation_amount_too_high">Сума ахвяравання занадта вялікая</string>
     <!-- Dialog body shown when a user tries to donate an amount higher than is allowed for a given payment method, place holder is the maximum -->
@@ -7603,11 +7948,11 @@
 
     <!-- GatewaySelectorBottomSheet -->
     <!-- Sheet title when subscribing -->
-    <string name="GatewaySelectorBottomSheet__donate_s_month_to_signal">Зрабіць ахвяраванне для Signal %1$s/месяц</string>
+    <string name="GatewaySelectorBottomSheet__donate_s_month_to_signal">Ахвяраваць для Signal %1$s/месяц</string>
     <!-- Sheet summary when subscribing -->
     <string name="GatewaySelectorBottomSheet__get_a_s_badge">Атрымайце значок %1$s</string>
     <!-- Sheet title when giving a one-time donation -->
-    <string name="GatewaySelectorBottomSheet__donate_s_to_signal">Зрабіць ахвяраванне %1$s для Signal</string>
+    <string name="GatewaySelectorBottomSheet__donate_s_to_signal">Ахвяраваць %1$s для Signal</string>
     <!-- Sheet summary when giving a one-time donation -->
     <plurals name="GatewaySelectorBottomSheet__get_a_s_badge_for_d_days">
         <item quantity="one">Атрымайце значок %1$s на %2$d дзень</item>
@@ -7620,13 +7965,15 @@
     <!-- Button label for paying with a credit card -->
     <string name="GatewaySelectorBottomSheet__credit_or_debit_card">Крэдытная або дэбетавая картка</string>
     <!-- Sheet summary when giving donating for a friend -->
-    <string name="GatewaySelectorBottomSheet__donate_for_a_friend">Зрабіць ахвяраванне для сябра</string>
+    <string name="GatewaySelectorBottomSheet__donate_for_a_friend">Ахвяраваць для сябра</string>
     <!-- Button label for paying with iDEAL -->
-    <string name="GatewaySelectorBottomSheet__ideal">iDEAL</string>
+    <string name="GatewaySelectorBottomSheet__ideal_wero">iDEAL | Wero</string>
 
     <!-- Dialog title for launching external intent -->
     <string name="ExternalNavigationHelper__leave_signal_to_confirm_payment">Пакінуць Signal, каб пацвердзіць ахвяраванне?</string>
     <string name="ExternalNavigationHelper__once_this_payment_is_confirmed">Пасля пацвярджэння вярніцеся ў Signal, каб скончыць апрацоўку вашага ахвяравання.</string>
+    <!-- Dialog message shown when leaving Signal to complete a donation in an external app. Placeholder is the resolved app name (e.g. a banking app). -->
+    <string name="ExternalNavigationHelper__once_payment_confirmed_in_app">Вы будзеце накіраваны да %1$s. Пасля пацвярджэння вярніцеся ў Signal, каб скончыць апрацоўку вашага ахвяравання.</string>
 
     <!-- BankTransferMandateFragment -->
     <!-- Title of screen displaying the bank transfer mandate -->
@@ -7656,9 +8003,9 @@
     <!-- Text label for button to show user how to find their IBAN -->
     <string name="BankTransferDetailsFragment__find_account_info">Знайсці інфармацыю аб рахунку</string>
     <!-- Donate button label for monthly subscription -->
-    <string name="BankTransferDetailsFragment__donate_s_month">Зрабіць ахвяраванне %1$s/месяц</string>
+    <string name="BankTransferDetailsFragment__donate_s_month">Ахвяраваць %1$s/месяц</string>
     <!-- Donate button label for one-time -->
-    <string name="BankTransferDetailsFragment__donate_s">Зрабіць ахвяраванне %1$s</string>
+    <string name="BankTransferDetailsFragment__donate_s">Ахвяраваць %1$s</string>
     <!-- Error label for IBAN field when number is too short -->
     <string name="BankTransferDetailsFragment__iban_is_too_short">IBAN занадта кароткі</string>
     <!-- Error label for IBAN field when number is too long -->
@@ -7667,8 +8014,8 @@
     <string name="BankTransferDetailsFragment__iban_country_code_is_not_supported">Код краіны IBAN не падтрымліваецца</string>
     <!-- Error label for IBAN field when number is invalid -->
     <string name="BankTransferDetailsFragment__invalid_iban">Несапраўдны IBAN</string>
-    <!-- Error label for name field when name is not at least two characters long -->
-    <string name="BankTransferDetailsFragment__minimum_2_characters">Мінімум 2 сімвалы</string>
+    <!-- Error label for name field when name is not at least three characters long (Stripe API enforced minimum) -->
+    <string name="BankTransferDetailsFragment__minimum_3_characters">Мінімум 3 сімвалы</string>
     <!-- Error label for email field when email is not valid -->
     <string name="BankTransferDetailsFragment__invalid_email_address">Несапраўдны адрас электроннай пошты</string>
 
@@ -7688,7 +8035,7 @@
     <!-- Default label for bank selection -->
     <string name="IdealTransferDetailsFragment__choose_your_bank">Выберыце свой банк</string>
     <!-- Dialog title shown when using iDEAL payment for setting up a monthly donation -->
-    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal">Пацвердзіце сваё ахвяраванне праз iDEAL</string>
+    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal_wero">Пацвердзіце сваё ахвяраванне праз iDEAL | Wero</string>
     <!-- Dialog warning shown when using iDEAL payment for setting up a monthly donation. Placeholder is donation amount.Z -->
     <string name="IdealTransferDetailsFragment__to_setup_your_recurring_donation">Каб наладзіць рэгулярнае ахвяраванне, націсніце «Працягнуць» для пацвярджэння спісання сродкаў у памеры €0,01 у вашым банку. Гэтая сума будзе аўтаматычна вернута, і гэта дазволіць спісваць з вашага рахунку ахвяраванне ў памеры %1$s/месяц.</string>
     <!-- Dialog button shown when using iDEAL payment for setting up a monthly donation to continue with the donation -->
@@ -7787,7 +8134,7 @@
     <string name="Registration_country_code_entry_hint">+0</string>
 
     <!-- PaypalCompleteOrderBottomSheet -->
-    <string name="PaypalCompleteOrderBottomSheet__donate">Зрабіць ахвяраванне</string>
+    <string name="PaypalCompleteOrderBottomSheet__donate">Ахвяраваць</string>
     <string name="PaypalCompleteOrderBottomSheet__payment">Плацеж</string>
 
     <!-- ChatFilter -->
@@ -7854,6 +8201,8 @@
     <string name="CallLogAdapter__incoming">Уваходны</string>
     <!-- Displayed for outgoing calls -->
     <string name="CallLogAdapter__outgoing">Выходны</string>
+    <!-- Displayed for outgoing calls that were not accepted by the remote party -->
+    <string name="CallLogAdapter__unanswered">Неадказаны</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Прапушчаныя</string>
     <!-- Displayed for one missed call declined by notification profile -->
@@ -7944,6 +8293,8 @@
     <string name="CallLogFragment__get_started_by_calling_a_friend">Пачніце са званка сябру.</string>
     <!-- Displayed as a message in a dialog when deleting multiple items -->
     <string name="CallLogFragment__call_links_youve_created">Створаныя вамі спасылкі на званкі больш не будуць дзейнічаць для тых, хто мае іх.</string>
+    <!-- Dialog message shown when trying to start a group call but the user is no longer a member -->
+    <string name="CallLogFragment__cant_start_call_no_longer_a_member">Вы больш не ўдзельнік гэтай групы.</string>
 
     <!-- New call activity -->
     <!-- Activity title in title bar -->
@@ -7961,9 +8312,9 @@
     <!-- Displayed when the user turns off their mic -->
     <string name="CallStateUpdatePopupWindow__mic_off">Мікрафон адключаны</string>
     <!-- Displayed when the user turns on their speakerphone -->
-    <string name="CallStateUpdatePopupWindow__speaker_on">Вонкавы дынамік уключаны</string>
+    <string name="CallStateUpdatePopupWindow__speaker_on">Дынамік уключаны</string>
     <!-- Displayed when the user turns off their speakerphone -->
-    <string name="CallStateUpdatePopupWindow__speaker_off">Вонкавы дынамік адключаны</string>
+    <string name="CallStateUpdatePopupWindow__speaker_off">Дынамік адключаны</string>
 
     <!-- Accessibility label describing the capture button on the camera screen -->
     <string name="CameraControls_capture_button_accessibility_label">Кнопка «Здымак»</string>
@@ -8001,6 +8352,14 @@
     <string name="CallLinkInfoSheet__remove">Выдаліць</string>
     <!-- Dialog action to block participant from the call -->
     <string name="CallLinkInfoSheet__block_from_call">Заблакаваць ад званка</string>
+
+    <!-- CallParticipantSheet -->
+    <!-- Action to mute a participant\'s audio in a group call -->
+    <string name="CallParticipantSheet__mute_audio">Адключыць аўдыё</string>
+    <!-- Action to remove a participant from a call -->
+    <string name="CallParticipantSheet__remove_from_call">Выдаліць са званка</string>
+    <!-- Action to view contact details for a participant -->
+    <string name="CallParticipantSheet__contact_details">Звесткі аб кантакту</string>
 
     <!-- CreateCallLinkBottomSheetDialogFragment -->
     <!-- Fragment title -->
@@ -8173,8 +8532,6 @@
 
     <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__title">Уключыць функцыю «Бяспечнае рэзервовае капіраванне Signal»</string>
-    <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups. Special string for the beta period. -->
-    <string name="TurnOnSignalBackups__title_beta">Паспрабуйце бяспечнае рэзервовае капіраванне Signal</string>
     <!-- Body of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__body">Не губляйце аніводнага паведамлення, калі вы набываеце новы тэлефон або нанова ўсталёўваеце Signal.</string>
     <!-- Button of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups that will take the user to the flow to enable backups -->
@@ -8184,8 +8541,90 @@
     <!-- Text for a "toast" that pops up at the bottom of the user\'s screen after they respond "not now" to a prompt asking them to enable backups -->
     <string name="TurnOnSignalBackups__toast_not_now">Вы можаце ўключыць рэзервовае капіраванне ў «Наладах»</string>
 
+    <!-- Title of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__title">Ніколі не губляйце паведамленні</string>
+    <!-- Body of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__body">Уключыце бяспечнае рэзервовае капіраванне Signal, каб захаваць свае паведамленні і медыяфайлы.</string>
+    <!-- Primary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__turn_on">Уключыць</string>
+    <!-- Secondary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__not_now">Не зараз</string>
+
+    <!-- Title of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__title">Зрабіце рэзервовую копію ўсіх медыяфайлаў</string>
+    <!-- Body of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__body">Платныя планы бяспечнага рэзервовага капіравання Signal захоўваюць усе вашы медыяфайлы памерам да 100 ГБ.</string>
+    <!-- Primary button of Megaphone C -->
+    <string name="BackupMediaUpsell__upgrade">Абнавіць</string>
+    <!-- Secondary button of Megaphone C -->
+    <string name="BackupMediaUpsell__not_now">Не зараз</string>
+
+    <!-- Title of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__title">Эканомце месца на сховішчы з дапамогай платнага рэзервовага капіравання</string>
+    <!-- Body of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__body">Платныя планы бяспечнага рэзервовага капіравання эканомяць месца на сховішчы шляхам выгрузкі медыяфайлаў.</string>
+    <!-- Primary button of Megaphone D when user has free tier backups -->
+    <string name="BackupStorageUpsell__upgrade">Абнавіць</string>
+    <!-- Primary button of Megaphone D when user has no backups -->
+    <string name="BackupStorageUpsell__turn_on">Уключыць</string>
+    <!-- Secondary button of Megaphone D -->
+    <string name="BackupStorageUpsell__not_now">Не зараз</string>
+
+    <!-- Title of the backup upsell bottom sheet promoting paid backup plans -->
+    <string name="BackupUpsellBottomSheet__title">Абнавіце, каб зрабіць рэзервовае капіраванне ўсіх медыяфайлаў</string>
+    <!-- Body of the backup upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__body">Платныя планы бяспечнага рэзервовага капіравання Signal захоўваюць усе медыяфайлы, якія вы адпраўляеце і атрымліваеце, максімум да 100 ГБ. Не губляйце аніводных фота ці відэа, калі вы набываеце новы тэлефон або нанова ўсталёўваеце Signal.</string>
+    <!-- Label for the paid plan price shown in the feature card, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__price_per_month">%1$s/месяц</string>
+    <!-- Subtitle for the paid plan feature card -->
+    <string name="BackupUpsellBottomSheet__text_and_all_media">SMS + усе вашы медыяфайлы</string>
+    <!-- Feature bullet: full text and media backup -->
+    <string name="BackupUpsellBottomSheet__full_text_media_backup">Поўнае рэзервовае капіраванне тэкставага паведамлення + медыяфайлаў</string>
+    <!-- Feature bullet: 100GB storage -->
+    <string name="BackupUpsellBottomSheet__storage_100gb">Сховішча: 100 ГБ</string>
+    <!-- Feature bullet: save on-device storage -->
+    <string name="BackupUpsellBottomSheet__save_on_device_storage">Эканомія месца на сховішчы на прыладзе</string>
+    <!-- Feature bullet: thanks for supporting Signal -->
+    <string name="BackupUpsellBottomSheet__thanks_for_supporting">Дзякуй за падтрымку Signal</string>
+    <!-- Primary button for the upsell bottom sheet. The %s is replaced by the subscription price, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__subscribe_for">Падпісацца за %1$s/месяц</string>
+    <!-- Secondary/dismiss button for the upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__no_thanks">Не, дзякуй</string>
+
+    <!-- Title of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__title">Усё гатова. Пачынайце рэзервовае капіраванне.</string>
+    <!-- Body of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__body">Гэта можа заняць пэўны час. Падчас рэзервовага капіравання вы можаце карыстацца Signal як звычайна.</string>
+    <!-- Label for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_storage">Зрабіць аптымізацыю сховішча Signal</string>
+    <!-- Subtitle for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_subtitle">Старэйшыя медыяфайлы будуць выгружаны, але іх можна ў любы час спампаваць з рэзервовай копіі.</string>
+    <!-- Primary button on the setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__back_up_now">Пачаць рэзервовае капіраванне</string>
+
+    <!-- Title of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__title">Выкарыстоўвайце новае рэзервовае капіраванне на прыладзе</string>
+    <!-- Body of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__body">Цяпер рэзервовае капіраванне на прыладзе захоўвае файлы хутчэй і выкарыстоўвае менш трафіку.</string>
+    <!-- Button of a megaphone that will take the user to the upgrade flow -->
+    <string name="UseNewOnDeviceBackups__upgrade">Абнавіць</string>
+    <!-- Button of a megaphone that will snooze the reminder to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__not_now">Не зараз</string>
+
+    <!-- Title of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__title">Адкрыць Signal на сваім тэлефоне</string>
+    <!-- Body of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__body">Каб ваш уліковы запіс заставаўся актыўным, адкрыйце Signal на сваёй асноўнай прыладзе.</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will navigate to a support page -->
+    <string name="InactivePrimary__learn_more">Даведацца больш</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will snooze the megaphone -->
+    <string name="InactivePrimary__got_it">Зразумела</string>
+
+    <!-- Text describing how to restore a backup displayed on the on-device backups screen -->
+    <string name="OnDeviceBackupsScreen__to_restore_a_backup">"Каб аднавіць рэзервовую копію, усталюйце новую копію Signal. Адкрыйце праграму і націсніце «Аднавіць рэзервовую копію», потым выберыце файл рэзервовай копіі."</string>
+
     <!-- Title of a megaphone shown to prompt the user to verify their recovery key -->
-    <string name="VerifyBackupKey__title">Праверце свой ключ для аднаўлення</string>
+    <string name="VerifyBackupKey__title">Праверце свой код для аднаўлення</string>
     <!-- Body of a megaphone shown to prompt the user to verify their recovery key -->
     <string name="VerifyBackupKey__body">Час ад часу мы будзем прасіць вас праверыць свой ключ, каб быць упэўненымі, што вы яго ведаеце</string>
     <!-- Button of a megaphone that will take users to the verify recovery key screen -->
@@ -8193,7 +8632,7 @@
     <!-- Button of a megaphone that will snooze the reminder to verify their recovery key -->
     <string name="VerifyBackupKey__not_now">Не зараз</string>
     <!-- Snackbar text shown when the recovery key entered is correct. -->
-    <string name="VerifyBackupKey__backup_key_correct">Ключ для аднаўлення правільны. Захоўвайце свой ключ у бяспецы.</string>
+    <string name="VerifyBackupKey__backup_key_correct">Код для аднаўлення правільны. Захоўвайце свой код у бяспецы.</string>
     <!-- Snackbar text shown when the user chooses to snooze the recovery key reminder. -->
     <string name="VerifyBackupKey__we_will_ask_again">Мы запытаем у вас яшчэ раз праз тыдзень.</string>
 
@@ -8409,6 +8848,12 @@
     <!-- Backup redemption error sheet bullet point 2 -->
     <string name="BackupAlertBottomSheet__have_too_many_devices_using_the_same_subscription">Маеце занадта шмат прылад, што выкарыстоўваюць адну і тую ж падпіску.</string>
 
+    <!-- OnDeviceBackupsFragment -->
+    <!-- Snackbar message shown after successfully updating the on-device backups recovery key. -->
+    <string name="OnDeviceBackupsFragment__recovery_key_updated">Код для аднаўлення абноўлены</string>
+    <!-- Toast message shown after selecting a folder to store on-device backups. Placeholder is the selected folder. -->
+    <string name="OnDeviceBackupsFragment__directory_selected">Выбраны каталог: %1$s</string>
+
     <!-- BackupStatus -->
     <!-- Status title when user does not have enough free space to download their media. Placeholder is required disk space. -->
     <string name="BackupStatus__free_up_s_of_space_to_download_your_media">Вызваліце са сховішча %1$s, каб аднавіць медыяфайлы.</string>
@@ -8425,6 +8870,15 @@
     <!-- Status action label for resume restore from a paused state -->
     <string name="BackupStatus__resume">Працягнуць</string>
 
+    <!-- Status subtitle for banner when we are creating a backup file -->
+    <string name="BackupStatus__status_creating_backup">Стварэнне рэзервовай копіі…</string>
+    <!-- Status title for banner when user is actively uploading backup data -->
+    <string name="BackupStatus__uploading_backup">Запампоўка рэзервовай копіі</string>
+    <!-- Status title for banner when user is temporarily unable to upload a backup -->
+    <string name="BackupStatus__upload_paused">Рэзервовае капіраванне прыпынена</string>
+    <!-- Status title for banner when user has finished creating a backup -->
+    <string name="BackupStatus__upload_complete">Рэзервовае капіраванне завершана</string>
+
     <!-- Status subtitle for banner when restoring media pauses for Wi-Fi -->
     <string name="BackupStatus__status_waiting_for_wifi">Чакаем Wi-Fi…</string>
     <!-- Status subtitle for banner when restoring media pauses for internet in general -->
@@ -8433,6 +8887,10 @@
     <string name="BackupStatus__status_device_has_low_battery">Акумулятар разраджаны на прыладзе</string>
     <!-- Status subtitle for banner when restoring media. Placeholders are size already restored and total size to restore. e.g., 4.5MB of 100MB -->
     <string name="BackupStatus__status_size_of_size">%1$s з %2$s</string>
+    <!-- Label for a context menu item that, when pressed, will hide a banner so it will no longer be shown. -->
+    <string name="BackupStatus__hide">Схаваць</string>
+    <!-- Label for a context menu item that, when pressed, will cancel the ongoing backup. -->
+    <string name="BackupStatus__cancel_upload">Скасаваць рэзервовае капіраванне</string>
 
     <!-- BackupStatusRow -->
     <!-- Content description for x icon at the end of the linear progress indicator -->
@@ -8471,9 +8929,18 @@
     <string name="BackupStatusRow__learn_more">Даведацца больш</string>
 
     <!-- Dialog title to prompt resuming media restore over cellular -->
-    <string name="ResumeRestoreCellular_resume_using_cellular_title">Працягнуць выкарыстанне мабільнага інтэрнэта?</string>
+    <string name="ResumeRestoreCellular_resume_using_cellular_title">Працягнуць выкарыстанне мабільнага інтэрнэту?</string>
     <!-- Dialog message to prompt resuming media restore over cellular -->
-    <string name="ResumeRestoreCellular_resume_using_cellular_message">Аднаўленне медыяфайлаў з выкарыстаннем мабільнага інтэрнэта можа прывесці да спагнання платы за перадачу дадзеных. Вы можаце падключыцца да Wi-Fi, каб аўтаматычна працягнуць аднаўленне.</string>
+    <string name="ResumeRestoreCellular_resume_using_cellular_message">Аднаўленне медыяфайлаў з выкарыстаннем мабільнага інтэрнэту можа прывесці да спагнання платы за перадачу даных. Вы можаце падключыцца да Wi-Fi, каб аўтаматычна працягнуць аднаўленне.</string>
+
+    <!-- Title of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_title">Скасаваць рэзервовае капіраванне?</string>
+    <!-- Body of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_body">Калi вы скасуеце рэзервовае капіраванне, рэзервовая копія не будзе выдалена. Вы можаце аднавіць рэзервовае капіраванне ў любы момант у наладах рэзервовага капіравання.</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will confirm canceling the currently-running backup (future backups are unaffected). -->
+    <string name="CancelBackupDialog_cancel_action">Скасаваць рэзервовае капіраванне</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will continue the backup rather than cancel it. -->
+    <string name="CancelBackupDialog_continue_action">Працягнуць рэзервовае капіраванне</string>
 
     <!-- BackupsTypeSettingsFragment -->
     <!-- Displayed as the user\'s payment method as a label in a preference row -->
@@ -8539,7 +9006,7 @@
     <!-- Setting section title header for storage optimization -->
     <string name="ManageStorageSettingsFragment__on_device_storage">Сховішча на прыладзе</string>
     <!-- Setting row title for storage optimization -->
-    <string name="ManageStorageSettingsFragment__optimize_on_device_storage">Зрабіце аптымізацыю сховішча на прыладзе</string>
+    <string name="ManageStorageSettingsFragment__optimize_on_device_storage">Аптымізаваць сховішча на прыладзе</string>
     <!-- Setting row explanation for storage optimization -->
     <string name="ManageStorageSettingsFragment__unused_media_will_be_offloaded">Нявыкарыстаныя медыяфайлы будуць выгружаны, але іх можна ў любы час спампаваць з рэзервовай копіі.</string>
     <!-- Dialog message for paid tier pending dialog -->
@@ -8575,6 +9042,28 @@
     <string name="MediaNoLongerAvailableSheet__continue">Працягнуць</string>
     <!-- Secondary action button on bottom sheet -->
     <string name="MediaNoLongerAvailableSheet__not_now">Не зараз</string>
+
+    <!-- End group button label shown in confirmation dialogs -->
+    <string name="EndGroupDialog__end_group">Спыніць групу</string>
+    <!-- Title of first end group confirmation dialog. %1$s is the group name -->
+    <string name="EndGroupDialog__end_s">Спыніць «%1$s»?</string>
+    <!-- Body of first end group confirmation dialog -->
+    <string name="EndGroupDialog__members_will_no_longer_be_able_to_send">Удзельнікі больш не змогуць адпраўляць паведамленні і рабіць званкі ў гэтай групе. Яны атрымаюць апавяшчэнне аб тым, што вы спынілі групу, але будуць мець доступ да гісторыі паведамленняў.</string>
+    <!-- Body of second/final end group confirmation dialog -->
+    <string name="EndGroupDialog__this_will_end_the_group_permanently">Гэта назаўсёды спыніць гэту групу. Вы ўпэўнены, што жадаеце працягнуць?</string>
+    <!-- Progress message shown while ending a group -->
+    <string name="EndGroupDialog__ending_group">Спыняем групу…</string>
+    <!-- Message shown when ending a group fails -->
+    <string name="EndGroupDialog__ending_the_group_failed">Не атрымалася спыніць гэту групу. Праверце падключэнне і паўтарыце спробу.</string>
+    <!-- Retry button shown when ending a group fails -->
+    <string name="EndGroupDialog__try_again">Паўтарыць спробу</string>
+
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, with admin name. %1$s is the admin\'s display name -->
+    <string name="TerminatedGroupBottomSheet__s_ended_the_group">%1$s спыніў(-ла) групу</string>
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, without admin name -->
+    <string name="TerminatedGroupBottomSheet__the_group_has_been_ended">Гэта група была спынена.</string>
+    <!-- Body of bottom sheet shown when opening a terminated group -->
+    <string name="TerminatedGroupBottomSheet__you_can_no_longer_send_and_receive">Вы больш не зможаце пісаць і тэлефанаваць у гэтай групе.</string>
 
     <!-- Educational bottom sheet dialog title shown to notify about delete syncs causing deletes to happen across all devices -->
     <string name="DeleteSyncEducation_title">Цяпер вы маеце сінхранізаванае выдаленне на ўсіх вашых прыладах</string>
@@ -8645,9 +9134,9 @@
     <!-- Toggle row label for allowing backups to occur while on cellular connection -->
     <string name="RemoteBackupsSettingsFragment__back_up_using_cellular">Рэзервовае капіраванне з мабільным інтэрнэтам</string>
     <!-- Row label for viewing recovery key -->
-    <string name="RemoteBackupsSettingsFragment__view_backup_key">Прагледзець ключ для аднаўлення</string>
+    <string name="RemoteBackupsSettingsFragment__view_backup_key">Прагледзець код для аднаўлення</string>
     <!-- Prompt title for unlocking device to view recovery key -->
-    <string name="RemoteBackupsSettingsFragment__unlock_to_view_backup_key">Разблакіруйце, каб прагледзець ключ для аднаўлення</string>
+    <string name="RemoteBackupsSettingsFragment__unlock_to_view_backup_key">Разблакіруйце, каб прагледзець код для аднаўлення</string>
     <!-- Title of bottom sheet explaining that authentication is required to view your key -->
     <string name="RemoteBackupsSettingsFragment__to_view_your_key">Каб прагледзець свой ключ, трэба пацвердзіць сваю асобу</string>
     <!-- Row label for cancelling and deleting backup -->
@@ -8672,7 +9161,7 @@
     <!-- Snackbar text displayed when backup will be created overnight -->
     <string name="RemoteBackupsSettingsFragment__backup_will_be_created_overnight">Рэзервовая копія будзе створана на працягу ночы.</string>
     <!-- Snackbar text displayed when user rotates AEP -->
-    <string name="RemoteBackupsSettingsFragment__new_backup_key_created">Новы ключ для аднаўлення створаны</string>
+    <string name="RemoteBackupsSettingsFragment__new_backup_key_created">Новы код для аднаўлення створаны</string>
     <!-- Text displayed in card when subscription is inactive -->
     <string name="RemoteBackupsSettingsFragment__subscription_inactive">Падпіска неактыўная</string>
     <!-- Text displayed in card when free tier is inactive -->
@@ -8782,7 +9271,7 @@
     <!-- Displayed in row when backup is available for download and users subscription has expired. First placeholder is data size e.g. 12MB, second is days before expiration -->
     <string name="RemoteBackupsSettingsFragment__you_have_s_of_backup_data">Вы можаце спампаваць %1$s рэзервовых даных, якіх няма на гэтай прыладзе. Немагчыма выгрузіць медыяфайлы, калi няма платнай падпіскі.</string>
     <!-- Display in a row when backup is available for download but the user has canceled the restore. Place holder is data size e.g. 12MB -->
-    <string name="RemoteBackupsSettingsFragment__you_have_s_of_backup_data_not_on_device">Вы можаце спампаваць %1$s дадзеных вашай рэзервовай копіі, якіх няма на гэтай прыладзе. </string>
+    <string name="RemoteBackupsSettingsFragment__you_have_s_of_backup_data_not_on_device">Вы можаце спампаваць %1$s даных вашай рэзервовай копіі, якіх няма на гэтай прыладзе. </string>
     <!-- Displayed in row when backup is available for download to let user start download -->
     <string name="RemoteBackupsSettingsFragment__download">Спампаваць</string>
     <!-- Dialog title for skipping download of backed up media -->
@@ -8795,7 +9284,7 @@
         <item quantity="other">Калі вы прапусціце спампаванне, медыяфайлы і далучэнні, што засталіся ў вашай рэзервовай копіі, будуць выдалены праз %1$d дзён.</item>
     </plurals>
     <!-- Dialog body for skipping download of backed up media during deletion -->
-    <string name="RemoteBackupsSettingsFragment__if_you_skip_downloading_the_remaining">Калі вы прапусціце пампаванне, медыяфайлы і далучэнні, што засталіся ў вашай рэзервовай копіі, будуць выдалены назаўсёды. Гэтыя дадзеныя ўжо не атрымаецца аднавіць.</string>
+    <string name="RemoteBackupsSettingsFragment__if_you_skip_downloading_the_remaining">Калі вы прапусціце пампаванне, медыяфайлы і далучэнні, што засталіся ў вашай рэзервовай копіі, будуць выдалены назаўсёды. Гэтыя даныя ўжо не атрымаецца аднавіць.</string>
     <!-- Dialog title for skipping download of in progress initial restore of backed up media -->
     <string name="RemoteBackupsSettingsFragment__skip_restore_question">Прапусціць аднаўленне?</string>
     <!-- Dialog message for skipping download of in progress initial restore of backed up media -->
@@ -8815,15 +9304,15 @@
     <!-- Button label to see more details about redemption error -->
     <string name="RemoteBackupsSettingsFragment__details">Звесткі</string>
     <!-- Text displayed when there was an error deleting backup -->
-    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_but_there_was_an_error">Рэзервовыя копіі былі адключаны, але падчас выдалення вашых дадзеных сэрвісам бяспечнага захоўвання Signal адбылася памылка.</string>
+    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_but_there_was_an_error">Рэзервовыя копіі былі адключаны, але падчас выдалення вашых даных сэрвісам бяспечнага захоўвання Signal адбылася памылка.</string>
     <!-- Text displayed as the title in a card when backup fails to delete -->
     <string name="RemoteBackupsSettingsFragment__failed_to_delete_backup">Не атрымалася выдаліць рэзервовую копію</string>
     <!-- Text displayed as the body in a card when backup fails to delete -->
     <string name="RemoteBackupsSettingsFragment__an_error_occurred_please_contact_support">Адбылася памылка. Калі ласка, звярніцеся да службы падтрымкі.</string>
     <!-- Text displayed while we are processing a backup delete but are or need to download optimized media -->
-    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_your_data_will_be">Рэзервовыя копіі былі адключаны, і вашы дадзеныя будуць запампаваны на прыладу, а потым выдалены сэрвісам бяспечнага захоўвання Signal.</string>
+    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_your_data_will_be">Рэзервовыя копіі былі адключаны, і вашы даныя будуць запампаваны на прыладу, а потым выдалены сэрвісам бяспечнага захоўвання Signal.</string>
     <!-- Text displayed while we are processing a backup delete -->
-    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_and_your_data">Рэзервовыя копіі былі адключаны, і вашы дадзеныя будуць выдалены сэрвісам бяспечнага захоўвання Signal.</string>
+    <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_and_your_data">Рэзервовыя копіі былі адключаны, і вашы даныя будуць выдалены сэрвісам бяспечнага захоўвання Signal.</string>
     <!-- Text displayed after we have deleted a user\'s backup -->
     <string name="RemoteBackupsSettingsFragment__backups_have_been_turned_off_and_your_data_has_been_deleted">Рэзервовыя копіі былі адключаны, і вашы даныя былі выдалены сэрвісам бяспечнага захоўвання Signal.</string>
     <!-- Text displayed while downloading backup during deletion. First placeholder is amount downloaded, second is amount remaining, last is percentage. -->
@@ -8840,6 +9329,49 @@
     <string name="RemoteBackupsSettingsFragment__use_this_device_to_scan_qr">Выкарыстоўвайце гэту прыладу, каб прасканаваць QR-код на прыладзе, на якую вы жадаеце зрабіць перанос</string>
     <!-- Button label to open QR scanner to scan a device and transfer a backup -->
     <string name="RemoteBackupsSettingsFragment__scan_qr_code">Сканаваць QR-код</string>
+
+    <!-- BackupCreationProgressRow -->
+    <!-- Progress text shown while the backup database is being processed -->
+    <string name="BackupCreationProgressRow__processing_backup">Апрацоўка рэзервовай копіі…</string>
+    <!-- Progress text shown while the backup is being prepared (e.g. exporting accounts, recipients, etc.) -->
+    <string name="BackupCreationProgressRow__preparing_backup">Падрыхтоўка да рэзервовага капіравання…</string>
+    <!-- Progress text shown while the backup is being finalized (e.g. cleaning up old files) -->
+    <string name="BackupCreationProgressRow__finalizing">Завяршэнне…</string>
+    <!-- Progress text shown while messages are being processed, with no count available yet -->
+    <string name="BackupCreationProgressRow__processing_messages">Апрацоўка паведамленняў…</string>
+    <!-- Progress text shown while messages are being processed. %1$s is the formatted current count (e.g. "1,000"), %2$s is the formatted total count (e.g. "100,000"), %3$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__processing_messages_s_of_s_d">Апрацоўка паведамленняў: %1$s з %2$s (%3$d%%)</string>
+    <!-- Progress text shown while media is being uploaded to the server. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__uploading_media_d">Запампоўка медыяфайлаў: %1$d%%</string>
+    <!-- Progress text shown while media is being exported to local storage. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__exporting_media_d">Экспарт медыяфайлаў: %1$d%%</string>
+
+    <!-- LocalArchiveJob -->
+    <!-- Notification title shown while media attachments are being exported during a local backup -->
+    <string name="LocalArchiveJob__exporting_media">Экспарт медыяфайлаў…</string>
+
+    <!-- OnDeviceBackupsImprovementsScreen -->
+    <!-- Title displayed at the top of the screen explaining on-device backup improvements -->
+    <string name="OnDeviceBackupsImprovementsScreen__improvements_to_on_device_backups">Паляпшэнне рэзервовага капіравання на прыладзе</string>
+    <!-- Subtitle describing that the backup will be upgraded to a new format with a new recovery key -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_on_device_backup_will_be_upgraded">Рэзервовае капіраванне на прыладзе будзе абноўлена да новага фармату з выкарыстаннем новага кода для аднаўлення</string>
+    <!-- Feature description explaining backups are faster and use less data -->
+    <string name="OnDeviceBackupsImprovementsScreen__backups_now_save_faster">Цяпер рэзервовае капіраванне захоўвае файлы хутчэй і выкарыстоўвае менш трафіку</string>
+    <!-- Feature description explaining backups will be saved as a folder with many files -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_backup_will_be_saved_as_a_folder">Ваша рэзервовая копія будзе захавана ў выглядзе папкі з мноствам файлаў</string>
+    <!-- Feature description explaining backups remain end-to-end encrypted -->
+    <string name="OnDeviceBackupsImprovementsScreen__all_backups_remain_end_to_end_encrypted">Усе рэзервовыя копіі застаюцца абароненымі скразным шыфраваннем</string>
+    <!-- Button text to continue to the next step -->
+    <string name="OnDeviceBackupsImprovementsScreen__continue">Працягнуць</string>
+
+    <!-- OnDeviceBackupsSettingsScreen -->
+    <!-- Card text prompting user to update to a new recovery key for faster backups -->
+    <string name="OnDeviceBackupsSettingsScreen__update_to_a_new_recovery_key">Абнавіце да новага кода для аднаўлення, каб больш хутка захоўваць рэзервовыя копіі</string>
+    <!-- Button text to update to a new recovery key -->
+    <string name="OnDeviceBackupsSettingsScreen__update">Абнавіць</string>
+
+    <!-- UnifiedOnDeviceBackupsSettingsScreen -->
+    <string name="UnifiedOnDeviceBackupsSettingsScreen__view_recovery_key">Прагледзець код для аднаўлення</string>
 
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
@@ -8879,7 +9411,7 @@
 
     <!-- MessageBackupsEducationScreen -->
     <!-- Screen subtitle underneath large headline title -->
-    <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Стварайце рэзервовыя копіі для вашых паведамленняў і медыяфайлаў з дапамогай скразнога шыфраванага сэрвісу захоўвання даных Signal. Не губляйце аніводнага паведамлення, калі вы набываеце новы тэлефон або нанова ўсталёўваеце Signal.</string>
+    <string name="MessageBackupsEducationScreen__backup_your_messages_and_media">Стварайце рэзервовыя копіі для вашых паведамленняў і медыяфайлаў з дапамогай бяспечнага скразнога шыфраванага сэрвісу захоўвання даных Signal. Не губляйце аніводнага паведамлення, калі вы набываеце новы тэлефон або нанова ўсталёўваеце Signal.</string>
     <!-- Backups feature label for e2e encryption -->
     <string name="MessageBackupsEducationScreen__end_to_end_encrypted">Абаронена скразным шыфраваннем</string>
     <!-- Backups feature label for informing the user that this feature is completely optional -->
@@ -8894,20 +9426,44 @@
     <!-- MessageBackupsKeyEducationScreen -->
     <!-- Screen headline -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key">Код для аднаўлення</string>
+    <!-- Screen headline shown when upgrading on-device backups to a new recovery key. -->
+    <string name="MessageBackupsKeyEducationScreen__your_new_recovery_key">Ваш новы код для аднаўлення</string>
+    <!-- Screen headline shown when the user already has an on-device recovery key set. -->
+    <string name="MessageBackupsKeyEducationScreen__your_recovery_key">Ваш код для аднаўлення</string>
     <!-- Screen body part 1 -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key_is_a">Ваш код для аднаўлення – гэта 64-значны код, які дазваляе аднавіць рэзервовую копію.</string>
     <!-- Screen body part 2 -->
     <string name="MessageBackupsKeyEducationScreen__store_your_recovery">Захоўвайце код для аднаўлення ў бяспечным месцы, накшталт, у бяспечным менеджары пароляў, і нікому не паказвайце яго.</string>
     <!-- Screen body part 3 -->
     <string name="MessageBackupsKeyEducationScreen__if_you_lose_it">Калі вы забудзеце яго, вы больш не зможаце аднавіць свае паведамленні.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description">Ваш код для аднаўлення – гэта 64-значны код, які дазваляе аднавіць усе тыпы рэзервовых копій.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description_bold">Гэты код заменіць ключ для рэзервовага капіравання на прыладзе.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description">Ваш код для аднаўлення – гэта 64-значны код, які дазваляе аднавіць рэзервовыя копіі, калі вы нанова ўсталёўваеце Signal.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description_bold">Гэта тое ж самае, што і ваш код для аднаўлення на прыладзе.</string>
+    <!-- Screen body shown when enabling on-device backups while Signal Secure Backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_with_remote_enabled_description_bold">Гэта тое ж самае, што і ваш код для аднаўлення бяспечнага рэзервовага капіравання.</string>
+    <!-- Label shown above a list of actions that the recovery key can be used for. -->
+    <string name="MessageBackupsKeyEducationScreen__use_this_key_to">Выкарыстоўвайце гэты ключ, каб:</string>
+    <!-- Row label indicating that the recovery key can be used to restore an on-device backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_on_device_backup">Аднавіць рэзервовую копію на прыладзе</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_a_signal_secure_backup">Аднавіць функцыю «Бяспечнае рэзервовае капіраванне Signal»</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_your_signal_secure_backup">Аднавіць функцыю «Бяспечнае рэзервовае капіраванне Signal»</string>
     <!-- Action button label -->
     <string name="MessageBackupsKeyEducationScreen__view_recovery_key">Прагледзець код для аднаўлення</string>
 
     <!-- MessageBackupsKeyRecordScreen -->
     <!-- Screen headline -->
-    <string name="MessageBackupsKeyRecordScreen__record_your_backup_key">Запішыце свой ключ для аднаўлення</string>
+    <string name="MessageBackupsKeyRecordScreen__record_your_backup_key">Запішыце свой код для аднаўлення</string>
     <!-- Screen subhead -->
     <string name="MessageBackupsKeyRecordScreen__this_key_is_required_to_recover">Гэты ключ патрэбны, каб аднавіць ваш уліковы запіс і вашы даныя. Захоўвайце гэты ключ у бяспечным месцы. Калі вы забудзеце яго, вы больш не зможаце аднавіць свой уліковы запіс.</string>
+    <!-- Screen subhead shown when the recovery key is shared between Signal Secure Backups and on-device backups. -->
+    <string name="MessageBackupsKeyRecordScreen__this_key_is_the_same_as_your_on_device_recovery_key">Гэты код той жа самы, што і ваш код для аднаўлення на прыладзе. Гэта неабходна, каб аднавіць ваш уліковы запіс і вашы даныя.</string>
     <!-- Copy to clipboard button label -->
     <string name="MessageBackupsKeyRecordScreen__copy_to_clipboard">Скапіраваць у буфер абмену</string>
     <!-- Label for the button to save a recovery key to the device password manager. -->
@@ -8915,7 +9471,7 @@
     <!-- Dialog title confirming that the user wants to save a recovery key to the device password manager. -->
     <string name="MessageBackupsKeyRecordScreen__confirm_save_to_password_manager_title">Захаваць у менеджары пароляў?</string>
     <!-- Dialog message confirming that the user wants to save a recovery key to the device password manager. -->
-    <string name="MessageBackupsKeyRecordScreen__confirm_save_to_password_manager_body">Захоўвайце ключ для аднаўлення толькі ў надзейным менеджары пароляў. Signal не раіць вам адносна таго, які менеджар пароляў падыходзіць менавіта вам.</string>
+    <string name="MessageBackupsKeyRecordScreen__confirm_save_to_password_manager_body">Захоўвайце код для аднаўлення толькі ў надзейным менеджары пароляў. Signal не раіць вам адносна таго, які менеджар пароляў падыходзіць менавіта вам.</string>
     <!-- ID used when saving the recovery key to the device password manager. -->
     <string name="MessageBackupsKeyRecordScreen__backup_key_password_manager_id">Бяспечнае рэзервовае капіраванне Signal</string>
     <!-- Message shown after the recovery key is successfully saved to the device password manager. -->
@@ -8945,11 +9501,11 @@
     <!-- Dialog title for confirming you need to disable optimized storage and download media to rotate AEP key -->
     <string name="MessageBackupsKeyRecordScreen__download_media">Спампаваць медыяфайлы</string>
     <!-- Dialog body for confirming you need to disable optimized storage and download media to rotate AEP key -->
-    <string name="MessageBackupsKeyRecordScreen__to_create_a_new_backup_key">Каб стварыць новы ключ для аднаўлення, трэба адключыць функцыю «Аптымізаваць сховішча» і пачакаць, пакуль медыяфайлы не будуць спампаваны. Пасля спампоўкі вы зможаце стварыць новы ключ.</string>
+    <string name="MessageBackupsKeyRecordScreen__to_create_a_new_backup_key">Каб стварыць новы код для аднаўлення, трэба адключыць функцыю «Аптымізаваць сховішча» і пачакаць, пакуль медыяфайлы не будуць спампаваны. Пасля спампоўкі вы зможаце стварыць новы код.</string>
     <!-- Action label to turn off optimized storage and download media -->
     <string name="MessageBackupsKeyRecordScreen__turn_off_and_download">Адключыць і спампаваць</string>
     <!-- Bottom Sheet title for creating a new AEP key -->
-    <string name="MessageBackupsKeyRecordScreen__create_a_new_backup_key">Стварыце новы ключ для аднаўлення</string>
+    <string name="MessageBackupsKeyRecordScreen__create_a_new_backup_key">Стварыце новы код для аднаўлення</string>
     <!-- Bottom Sheet body for creating a new AEP key -->
     <string name="MessageBackupsKeyRecordScreen__creating_a_new_key_is_only_necessary">Ствараць новы ключ неабходна толькі тады, калі нехта ведае ваш ключ. Вам патрэбна будзе зноў запампаваць сваю рэзервовую копію, у тым ліку медыяфайлы. Калі вы ўключылі функцыю «Аптымізаваць сховішча», вам патрэбна будзе спачатку спампаваць выгружаныя медыяфайлы.</string>
     <!-- Dialog title shown when user attempts to exit backup setup before completion -->
@@ -8963,27 +9519,27 @@
     <!-- Dialog title when exiting before confirming new key -->
     <string name="BackupKeyDisplayFragment__cancel_key_creation_question">Скасаваць стварэнне ключа?</string>
     <!-- Dialog body when exiting before confirming new key -->
-    <string name="BackupKeyDisplayFragment__your_new_backup_key">Ваш новы ключ для аднаўлення будзе створаны толькі тады, калі вы яго пацвердзіце.</string>
+    <string name="BackupKeyDisplayFragment__your_new_backup_key">Ваш новы код для аднаўлення будзе створаны толькі тады, калі вы яго пацвердзіце.</string>
     <!-- Dialog button to continue confirming new recovery key-->
     <string name="BackupKeyDisplayFragment__confirm_key">Пацвердзіць ключ</string>
     <!-- Dialog button to cancel new key creation -->
     <string name="BackupKeyDisplayFragment__cancel_key_creation">Скасаваць стварэнне ключа</string>
 
     <!-- Confirm key title -->
-    <string name="MessageBackupsKeyVerifyScreen__confirm_your_backup_key">Пацвердзіце свой ключ для аднаўлення</string>
+    <string name="MessageBackupsKeyVerifyScreen__confirm_your_backup_key">Пацвердзіце свой код для аднаўлення</string>
     <!-- Confirm your key subtitle -->
-    <string name="MessageBackupsKeyVerifyScreen__enter_the_backup_key_that_you_just_recorded">Увядзіце ключ для аднаўлення, што вы зараз запісалі</string>
+    <string name="MessageBackupsKeyVerifyScreen__enter_the_backup_key_that_you_just_recorded">Увядзіце код для аднаўлення, што вы зараз запісалі</string>
     <!-- Confirm your key text entry hint text -->
-    <string name="MessageBackupsKeyVerifyScreen__backup_key">Ключ для аднаўлення</string>
+    <string name="MessageBackupsKeyVerifyScreen__backup_key">Код для аднаўлення</string>
     <!-- Confirm your key text entry error text -->
-    <string name="MessageBackupsKeyVerifyScreen__incorrect_backup_key">Няправільны ключ для аднаўлення</string>
+    <string name="MessageBackupsKeyVerifyScreen__incorrect_backup_key">Няправільны код для аднаўлення</string>
     <!-- Confirm your key button text to return to record key screen. -->
     <string name="MessageBackupsKeyVerifyScreen__see_key_again">Прагледзець ключ яшчэ раз</string>
     <!-- Confirm your key button text to move onto next screen in flow -->
     <string name="MessageBackupsKeyVerifyScreen__next">Далей</string>
 
     <!-- Verify your key title -->
-    <string name="VerifyBackupPinScreen__enter_your_backup_key">Увядзіце свой ключ для аднаўлення</string>
+    <string name="VerifyBackupPinScreen__enter_your_backup_key">Увядзіце свой код для аднаўлення</string>
     <!-- Verify your key subtitle -->
     <string name="VerifyBackupPinScreen__enter_the_backup_key_that_you_recorded">Увядзіце 64-значны код, што вы запісалі, калі ўключылі рэзервовае капіраванне.</string>
     <!-- Button text when you forget your recovery key -->
@@ -9075,11 +9631,13 @@
     <!-- Screen subtitle for selecting which restore method to use during registration -->
     <string name="SelectRestoreMethodFragment__get_your_signal_account">Атрымайце свой уліковы запіс і гісторыю паведамленняў на гэтай прыладзе.</string>
     <!-- Option title for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__from_signal_backups">З бяспечнага рэзервовага капіравання Signal</string>
+    <string name="SelectRestoreMethodFragment__restore_signal_backup">Аднавіць рэзервовую копію Signal</string>
     <!-- Option subtitle for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__your_free_or_paid_signal_backup_plan">Ваш бясплатны або платны тарыфны план Signal Backup</string>
-    <!-- Option title for restoring via a local backup folder -->
-    <string name="SelectRestoreMethodFragment__from_a_backup_folder">З папкі рэзервовай копіі</string>
+    <string name="SelectRestoreMethodFragment__restore_your_text_messages_and_media_from">Аднавіце тэкставыя паведамленні і медыяфайлы са свайго плана рэзервовага капіравання Signal.</string>
+    <!-- Option title for restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_on_device_backup">Аднавіце рэзервовую копію на прыладзе</string>
+    <!-- Option subtitle fdor restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_your_messages_from">Аднавіце паведамленні з рэзервовай копіі, што вы захавалі на сваёй прыладзе.</string>
     <!-- Option title for restoring via a local backup file -->
     <string name="SelectRestoreMethodFragment__from_a_backup_file">З файла рэзервовай копіі</string>
     <!-- Option subtitle for restoring via a local backup -->
@@ -9101,39 +9659,39 @@
     <string name="RestoreLocalBackup_subtitle">Аднавіце паведамленні з рэзервовай копіі, што вы захавалі на сваёй прыладзе. Калі вы не зробіце гэта зараз, пазней аднавіць іх ужо не атрымаецца.</string>
 
     <!-- Screen title for manual entry of recovery key material for restoring via signal secure backups -->
-    <string name="EnterBackupKey_title">Увядзіце свой ключ для аднаўлення</string>
+    <string name="EnterBackupKey_title">Увядзіце свой код для аднаўлення</string>
     <!-- Screen subtitle for manual entry of recovery key material for restoring via signal secure backups -->
-    <string name="EnterBackupKey_subtitle">Ваш ключ для аднаўлення – гэта 64-значны код, які неабходны для аднаўлення вашага ўліковага запісу і даных.</string>
+    <string name="EnterBackupKey_subtitle">Ваш код для аднаўлення – гэта 64-значны код, які неабходны для аднаўлення вашага ўліковага запісу і даных.</string>
     <!-- Button to skip entering recovery key and resuming normal registration flow -->
-    <string name="EnterBackupKey_no_backup_key">Няма ключа для аднаўлення?</string>
+    <string name="EnterBackupKey_no_backup_key">Няма кода для аднаўлення?</string>
     <!-- Recovery key text field hint -->
-    <string name="EnterBackupKey_backup_key">Ключ для аднаўлення</string>
+    <string name="EnterBackupKey_backup_key">Код для аднаўлення</string>
     <!-- Recovery key not known bottom sheet info paragraph 1 -->
-    <string name="EnterBackupKey_no_key_paragraph_1">Без 64-значнага кода аднаўлення немагчыма аднавіць рэзервовыя копіі. Калі вы згубіце свой ключ для аднаўлення, Signal не зможа аднавіць вашу рэзервовую копію.</string>
+    <string name="EnterBackupKey_no_key_paragraph_1">Без 64-значнага кода аднаўлення немагчыма аднавіць рэзервовыя копіі. Калі вы згубіце свой код для аднаўлення, Signal не зможа аднавіць вашу рэзервовую копію.</string>
     <!-- Recovery key not known bottom sheet info paragraph 2 -->
-    <string name="EnterBackupKey_no_key_paragraph_2">На вашай старой прыладзе вы можаце прагледзець свой ключ для аднаўлення ў меню Налады &gt; Рэзервовыя копіі. Потым націсніце «Прагледзець ключ для аднаўлення».</string>
+    <string name="EnterBackupKey_no_key_paragraph_2">На вашай старой прыладзе вы можаце прагледзець свой код для аднаўлення ў меню Налады &gt; Рэзервовыя копіі. Потым націсніце «Прагледзець код для аднаўлення».</string>
     <!-- Recovery key not known bottom sheet button to learn more about it -->
     <string name="EnterBackupKey_learn_more">Даведацца больш</string>
     <!-- Recovery key not known bottom sheet button to skip recovery key entry and resume normal reregistration -->
     <string name="EnterBackupKey_skip_and_dont_restore">Прапусціць і не аднаўляць</string>
     <!-- Dialog title shown when entered AEP doesn\'t work to register with provided e164 -->
-    <string name="EnterBackupKey_incorrect_backup_key_title">Няправільны ключ для аднаўлення</string>
+    <string name="EnterBackupKey_incorrect_backup_key_title">Няправільны код для аднаўлення</string>
     <!-- Dialog message shown when entered AEP doesn\'t work to register with provided e164 -->
-    <string name="EnterBackupKey_incorrect_backup_key_message">Праверце падчас рэгістрацыі, што вы ўжываеце той жа нумар тэлефона і 64-значны ключ для аднаўлення, які вы захавалі, калі ўключалі бяспечнае рэзервовае капіраванне Signal. Без гэтага ключа немагчыма аднавіць рэзервовыя копіі.</string>
+    <string name="EnterBackupKey_incorrect_backup_key_message">Праверце падчас рэгістрацыі, што вы ўжываеце той жа нумар тэлефона і 64-значны код для аднаўлення, які вы захавалі, калі ўключалі бяспечнае рэзервовае капіраванне Signal. Без гэтага кода немагчыма аднавіць рэзервовыя копіі.</string>
     <!-- Dialog positive button text to try entering their recovery key again -->
     <string name="EnterBackupKey_try_again">Паўтарыць спробу</string>
     <!-- Dialog negative button text to get help with recovery key -->
-    <string name="EnterBackupKey_backup_key_help">Падтрымка па ключу для аднаўлення</string>
+    <string name="EnterBackupKey_backup_key_help">Падтрымка па коду для аднаўлення</string>
     <!-- Text field error text when the recovery key provided has been confirmed invalid -->
-    <string name="EnterBackupKey_incorrect_backup_key_error">Няправільны ключ для аднаўлення</string>
+    <string name="EnterBackupKey_incorrect_backup_key_error">Няправільны код для аднаўлення</string>
     <!-- Text field error text when the recovery key is too long -->
     <string name="EnterBackupKey_too_long_error">Занадта доўгі (%1$d/%2$d)</string>
     <!-- Text field error when the recovery key is invalid -->
-    <string name="EnterBackupKey_invalid_backup_key_error">Несапраўдны ключ для аднаўлення</string>
+    <string name="EnterBackupKey_invalid_backup_key_error">Несапраўдны код для аднаўлення</string>
     <!-- Dialog title shown during registration and trying to restore a remote backup -->
     <string name="EnterBackupKey_backup_not_found">Рэзервовая копія не знойдзена</string>
     <!-- Dialog message shown during registration and trying to restore a remote backup -->
-    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Ключ для аднаўлення, што вы ўвялі, правільны, але няма рэзервовых копій, з якімі ён суадносіцца. Калі вы яшчэ маеце свой стары тэлефон, праверце, каб былі ўключаны рэзервовыя копіі і каб было завершана рэзервовае капіраванне, потым паспрабуйце яшчэ раз.</string>
+    <string name="EnterBackupKey_backup_key_you_entered_is_correct_but_no_backup">Код для аднаўлення, што вы ўвялі, правільны, але няма рэзервовых копій, з якімі ён суадносіцца. Калі вы яшчэ маеце свой стары тэлефон, праверце, каб былі ўключаны рэзервовыя копіі і каб было завершана рэзервовае капіраванне, потым паспрабуйце яшчэ раз.</string>
     <!-- Dialog message shown during registration and trying to restore a remote backup -->
     <string name="EnterBackupKey_backup_key_incorrect_or_backups_not_enabled">Магчыма, вы няправільна ўвялі код для аднаўлення або не зрабілі, як мінімум, адну рэзервовую копію на сваёй старой прыладзе.\n\nПраверце падчас рэгістрацыі, што вы ўжываеце той жа нумар тэлефона і код для аднаўлення, які вы захавалі, калі ўключалі «Бяспечнае рэзервовае капіраванне Signal», і пацвердзіце, што ваша старая прылада завяршыла рэзервовае капіраванне.</string>
     <!-- Dialog message shown during registration and trying to restore a remote backup -->
@@ -9153,6 +9711,132 @@
     <!-- Email subject when contacting support on a permanent backup import failure -->
     <string name="EnterBackupKey_permanent_failure_support_email">Пастаянны збой падчас аднаўлення рэзервовай копіі Signal Android</string>
   <!-- Removed by excludeNonTranslatables <string name="EnterBackupKey_permanent_failure_support_email_filter" translatable="false">Android SignalBackups Import Permanent Failure</string> -->
+
+    <!-- EnterLocalBackupKeyScreen: Screen title for entering recovery key for local backup restore -->
+    <string name="EnterLocalBackupKeyScreen__enter_your_recovery_key">Увядзіце свой код для аднаўлення</string>
+    <!-- EnterLocalBackupKeyScreen: Screen subtitle explaining what the recovery key is -->
+    <string name="EnterLocalBackupKeyScreen__your_recovery_key_is_a_64_character_code">Ваш код для аднаўлення – гэта 64-значны код, які неабходны для аднаўлення вашага ўліковага запісу і даных.</string>
+    <!-- EnterLocalBackupKeyScreen: Button text when user does not have a recovery key -->
+    <string name="EnterLocalBackupKeyScreen__no_recovery_key">Няма кода для аднаўлення?</string>
+    <!-- EnterLocalBackupKeyScreen: Button to proceed to next step -->
+    <string name="EnterLocalBackupKeyScreen__next">Далей</string>
+
+    <!-- RestoreLocalBackupDialog: Error message when the selected archive fails to load -->
+    <string name="RestoreLocalBackupDialog__failed_to_load_archive">Не атрымалася загрузіць архіў. Выберыце іншы каталог.</string>
+    <!-- RestoreLocalBackupDialog: Dismiss button for dialog -->
+    <string name="RestoreLocalBackupDialog__ok">OK</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore">Прапусціць аднаўленне?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user about the consequences of skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore_body">Калі вы прапусціце аднаўленне зараз, пазней аднавіць гэта ўжо не атрымаецца. Калі вы паўторна ўключыце рэзервовае капіраванне пасля таго, як прапусціце аднаўленне, ваша бягучая рэзервовая копія будзе заменена на новую гісторыю паведамленняў.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the skip restore dialog -->
+    <string name="RestoreLocalBackupDialog__skip_restore_confirm">Прапусціць аднаўленне</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm restoring a backup from a different account -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account">Аднавіць для новага ўліковага запісу?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user that the backup was created with a different account and they will lose group memberships -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account_body">Рэзервовая копія, што вы аднаўляеце, была створана з выкарыстаннем іншага ўліковага запісу Signal. Вы можаце аднавіць гэтую рэзервовую копію для новага ўліковага запісу, але вы больш не будзеце ўдзельнікам аніякіх адноўленых груп.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the restore to new account dialog -->
+    <string name="RestoreLocalBackupDialog__restore">Аднавіць</string>
+
+    <!-- RestoreLocalBackupActivity: Toast message when backup restore fails -->
+    <string name="RestoreLocalBackupActivity__backup_restore_failed">Не атрымалася аднавіць рэзервовую копію</string>
+    <!-- RestoreLocalBackupActivity: Screen title shown during restore -->
+    <string name="RestoreLocalBackupActivity__restoring_backup">Аднаўленне рэзервовай копіі</string>
+    <!-- RestoreLocalBackupActivity: Screen subtitle explaining restore duration -->
+    <string name="RestoreLocalBackupActivity__depending_on_the_size">У залежнасці ад памеру рэзервовай копіі гэта можа заняць некалькі хвілін.</string>
+    <!-- RestoreLocalBackupActivity: Status text while restoring messages -->
+    <string name="RestoreLocalBackupActivity__restoring_messages">Аднаўленне паведамленняў…</string>
+    <!-- RestoreLocalBackupActivity: Status text while finalizing restore -->
+    <string name="RestoreLocalBackupActivity__finalizing">Завяршаецца…</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore is complete -->
+    <string name="RestoreLocalBackupActivity__restore_complete">Аднаўленне завершана</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore fails -->
+    <string name="RestoreLocalBackupActivity__restore_failed">Не атрымалася зрабіць аднаўленне</string>
+    <!-- RestoreLocalBackupActivity: Progress text showing bytes read of total with percentage, e.g. "1.2 MB of 5.0 MB (24%)" -->
+    <string name="RestoreLocalBackupActivity__s_of_s_d_percent">%1$s з %2$s (%3$d)</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__cant_restore_backup">Не атрымалася аднавіць рэзервовую копію</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__error_occurred_while_restoring">Адбылася памылка падчас аднаўлення рэзервовай копіі. Немагчыма аднавіць вашу рэзервовую копію. Калі ласка, звярніцеся да службы падтрымкі.</string>
+
+    <!-- RestoreLocalBackupActivity: Label for the button that opens the contact support form -->
+    <string name="RestoreLocalBackupActivity__contact_support">Звярнуцца да службы падтрымкі</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when the restored backup belongs to a different account -->
+    <string name="RestoreLocalBackupActivity__turn_on_on_device_backups">Уключыць рэзервовае капіраванне на прыладзе?</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when the restored backup belongs to a different account, prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__to_continue_using_on_device_backups">Каб працягваць выкарыстоўваць рэзервовыя копіі на прыладзе, вам трэба ўключыць іх для гэтага ўліковага запісу і запісаць новы код для аднаўлення. Вы можаце ў любы час зрабіць гэта ў «Налады» &gt; «Рэзервовыя копіі».</string>
+
+    <!-- RestoreLocalBackupActivity: Confirm button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__turn_on_now">Уключыць зараз</string>
+
+    <!-- RestoreLocalBackupActivity: Dismiss button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__not_now">Не зараз</string>
+
+    <!-- RestoreLocalBackupActivity: Body text for the dialog shown after a successful restore, prompting the user to choose a backup folder -->
+    <string name="RestoreLocalBackupActivity__choose_a_folder_for_backups">Каб працягваць выкарыстоўваць рэзервовыя копіі на прыладзе, выберыце на сваёй прыладзе папку, дзе будуць захоўвацца новыя рэзервовыя копіі.</string>
+
+    <!-- RestoreLocalBackupActivity: Positive button label for the dialog shown after a successful restore; keeps the current backup folder -->
+    <string name="RestoreLocalBackupActivity__use_current_folder">Выкарыстоўваць бягучую папку</string>
+
+    <!-- RestoreLocalBackupActivity: Neutral button label for the dialog shown after a successful restore; opens folder picker to select a different backup location -->
+    <string name="RestoreLocalBackupActivity__choose_new_folder">Выбраць новую папку</string>
+
+    <!-- RestoreLocalBackupActivity: Negative button label for the dialog shown after a successful restore; disables on-device backups -->
+    <string name="RestoreLocalBackupActivity__disable_backups">Адключыць рэзервовае капіраванне</string>
+
+    <!-- SelectInstructionsSheet: Title for the select backup folder instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_folder">Выберыце папку рэзервовых копій</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the select this folder button -->
+    <string name="SelectInstructionsSheet__tap_select_this_folder">Націснеце «Выбраць гэту папку»</string>
+    <!-- SelectInstructionsSheet: Instruction not to select individual files -->
+    <string name="SelectInstructionsSheet__do_not_select_individual_files">Не выбірайце асобныя файлы</string>
+    <!-- SelectInstructionsSheet: Title for the select backup file instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_file">Выберыце файл рэзервовай копіі</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the backup file saved to device -->
+    <string name="SelectInstructionsSheet__tap_on_the_backup_file">Націснеце на файл рэзервовай копіі, што вы захавалі на сваёй прыладзе</string>
+    <!-- SelectInstructionsSheet: Subtitle explaining how to access backup after tapping continue -->
+    <string name="SelectInstructionsSheet__after_tapping_continue">Калі вы націснеце «Працягнуць», вы зможаце атрымаць доступ да рэзервовай копіі наступным чынам:</string>
+    <!-- SelectInstructionsSheet: Instruction to select the top-level backup folder -->
+    <string name="SelectInstructionsSheet__select_the_top_level_folder">Выберыце папку верхняга ўзроўню, дзе захоўваецца ваша рэзервовая копія</string>
+    <!-- SelectInstructionsSheet: Continue button text -->
+    <string name="SelectInstructionsSheet__continue_button">Працягнуць</string>
+
+    <!-- SelectLocalBackupScreen: Screen title for restoring on-device backup -->
+    <string name="SelectLocalBackupScreen__restore_on_device_backup">Аднавіце рэзервовую копію на прыладзе</string>
+    <!-- SelectLocalBackupScreen: Screen subtitle explaining the restore process -->
+    <string name="SelectLocalBackupScreen__restore_your_messages_from_the_backup_folder">Аднавіце паведамленні з папкі рэзервовай копіі, што вы захавалі на сваёй прыладзе. Калі вы не зробіце гэта зараз, пазней аднавіць іх ужо не атрымаецца.</string>
+    <!-- SelectLocalBackupScreen: Button to initiate backup restoration -->
+    <string name="SelectLocalBackupScreen__restore_backup">Аднавіць рэзервовую копію</string>
+    <!-- SelectLocalBackupScreen: Button to choose an earlier backup when current is latest -->
+    <string name="SelectLocalBackupScreen__choose_an_earlier_backup">Выбраць ранейшую рэзервовую копію</string>
+    <!-- SelectLocalBackupScreen: Button to choose a different backup -->
+    <string name="SelectLocalBackupScreen__choose_a_different_backup">Выбраць іншую рэзервовую копію</string>
+    <!-- SelectLocalBackupScreen: Label for latest backup card -->
+    <string name="SelectLocalBackupScreen__your_latest_backup">Ваша апошняя рэзервовая копія:</string>
+    <!-- SelectLocalBackupScreen: Label for non-latest backup card -->
+    <string name="SelectLocalBackupScreen__your_backup">Ваша рэзервовая копія:</string>
+
+    <!-- SelectLocalBackupSheet: Title for backup selection bottom sheet -->
+    <string name="SelectLocalBackupSheet__choose_a_backup_to_restore">Выберыце рэзервовую копію, што патрэбуе аднаўлення</string>
+    <!-- SelectLocalBackupSheet: Subtitle warning about choosing an older backup -->
+    <string name="SelectLocalBackupSheet__choosing_an_older_backup">Калі вы выберыце старую рэзервовую копію, гэта можа прывесці да страты паведамленняў або медыяфайлаў.</string>
+    <!-- SelectLocalBackupSheet: Continue button text -->
+    <string name="SelectLocalBackupSheet__continue_button">Працягнуць</string>
+
+    <!-- SelectLocalBackupTypeScreen: Screen title for selecting backup type -->
+    <string name="SelectLocalBackupTypeScreen__restore_on_device_backup">Аднавіце рэзервовую копію на прыладзе</string>
+    <!-- SelectLocalBackupTypeScreen: Screen subtitle explaining restore options -->
+    <string name="SelectLocalBackupTypeScreen__restore_your_messages_from_the_backup">Аднавіце паведамленні з рэзервовай копіі, што вы захавалі на сваёй прыладзе. Калі вы не зробіце гэта зараз, пазней аднавіць іх ужо не атрымаецца.</string>
+    <!-- SelectLocalBackupTypeScreen: Button for users who saved backup as single file -->
+    <string name="SelectLocalBackupTypeScreen__i_saved_my_backup_as_a_single_file">Я захаваў рэзервовую копію як адзін файл</string>
+    <!-- SelectLocalBackupTypeScreen: Card title for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__choose_backup_folder">Выбраць папку рэзервовых копій</string>
+    <!-- SelectLocalBackupTypeScreen: Card description for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__select_the_folder_on_your_device">Выберыце папку на прыладзе, дзе захоўваецца ваша рэзервовая копія</string>
 
     <!-- Email subject when contacting support on a create backup failure -->
     <string name="BackupAlertBottomSheet_network_failure_support_email">Памылка сеткі падчас экспарту рэзервовай копіі Signal Android</string>
@@ -9205,7 +9889,7 @@
     <!-- Prepare Device screen title for quick restore flow -->
     <string name="PrepareDevice_title">Ідзе падрыхтоўка вашай прылады</string>
     <!-- Prepare Device screen body text explaining backup recommendation -->
-    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <string name="PrepareDevice_body">Перад пераносам пачніце рэзервовае капіраванне. Магчыма, вы атрымалі паведамленні, з якіх яшчэ не створаны рэзервовыя копіі.</string>
     <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
     <string name="PrepareDevice_last_backup">Ваша апошняя рэзервовая копія была зроблена %1$s у %2$s.</string>
     <!-- Prepare Device screen back up now button -->
@@ -9213,7 +9897,7 @@
     <!-- Prepare Device screen skip and continue button -->
     <string name="PrepareDevice_skip_and_continue">Прапусціць і працягнуць</string>
     <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
-    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+    <string name="PrepareDevice_last_backup_description">Ваша апошняя рэзервовая копія была зроблена %1$s. </string>
 
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">Завяршыце на іншай прыладзе</string>
@@ -9259,6 +9943,27 @@
     <string name="MainToolbar__notification_profile_content_description">Профіль апавяшчэнняў</string>
     <!-- Accessibility label for more options button in MainToolbar -->
     <string name="MainToolbar__proxy_content_description">Проксі</string>
+    <!-- Accessibility label for search filter button in MainToolbar -->
+  <!-- Removed by excludeNonTranslatables <string name="MainToolbar__search_filter_content_description" translatable="false">Search filter</string> -->
+
+    <!-- SearchFilterBottomSheet: Title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__filter_search" translatable="false">Filter search</string> -->
+    <!-- SearchFilterBottomSheet: Start date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__start_date" translatable="false">Start date</string> -->
+    <!-- SearchFilterBottomSheet: End date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__end_date" translatable="false">End date</string> -->
+    <!-- SearchFilterBottomSheet: Author label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__author" translatable="false">Author</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset date -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__not_set" translatable="false">Not set</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset author -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__anyone" translatable="false">Anyone</string> -->
+    <!-- SearchFilterBottomSheet: Apply button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__apply" translatable="false">Apply</string> -->
+    <!-- SearchFilterBottomSheet: Clear button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__clear" translatable="false">Clear</string> -->
+    <!-- SearchFilterBottomSheet: Select date dialog title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__select_date" translatable="false">Select date</string> -->
 
     <!-- Accessibility label for a button displayed in the toolbar to return to the previous screen. -->
     <string name="DefaultTopAppBar__navigate_up_content_description">Перайсці ўперад</string>
@@ -9511,6 +10216,57 @@
     <string name="PinnedMessage__couldnt_unpin_all">Не атрымалася адмацаваць паведамленні</string>
     <!-- Dialog body when failing to pin a message -->
     <string name="PinnedMessage__check_connection">Праверце падключэнне і паўтарыце спробу.</string>
+
+    <!-- Group member label screen title. -->
+    <string name="GroupMemberLabel__title">Метка ўдзельніка</string>
+    <!-- Group member label text field placeholder. -->
+    <string name="GroupMemberLabel__label_text_placeholder">Дадаць сваю метку</string>
+    <!-- Group member label preview section header. -->
+    <string name="GroupMemberLabel__preview_section_header">Папярэдні прагляд</string>
+    <!-- Sample message shown in the group member label message preview. -->
+    <string name="GroupMemberLabel__preview_sample_message">Прывітанне!</string>
+    <!-- Group member label save button label. -->
+    <string name="GroupMemberLabel__save">Захаваць</string>
+    <!-- Description explaining the group member labels feature. -->
+    <string name="GroupMemberLabel__description">Дадайце метку ўдзельніка, каб апісаць сябе або сваю ролю ў гэтай групе. Меткі бачныя толькі для гэтай групы.</string>
+    <!-- Error message shown when the group member label fails to save due to a network error. -->
+    <string name="GroupMemberLabel__error_cant_save_no_network">Не атрымалася захаваць метку. Праверце падключэнне і паўтарыце спробу.</string>
+    <!-- Error message shown when trying to edit a member label without adequate permission. -->
+    <string name="GroupMemberLabel__error_no_edit_permission">Толькі адміністратары могуць дадаваць меткі ўдзельнікаў у гэтай групе.</string>
+    <!-- Accessibility label for the button to open the group member label emoji picker. -->
+    <string name="GroupMemberLabel__accessibility_select_emoji">Выбраць эмодзі</string>
+    <!-- Accessibility label for the group member label close screen button. -->
+    <string name="GroupMemberLabel__accessibility_close_screen">Закрыць экран</string>
+    <!-- Accessibility label for the group member label text field clear button. -->
+    <string name="GroupMemberLabel__accessibility_clear_label">Ачысціць метку</string>
+    <!-- Section header for the list of group members who have labels set. -->
+    <string name="GroupMemberLabel__group_members_with_labels">Удзельнікі групы з меткамі</string>
+
+    <!-- Title for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__title">Меткі ўдзельнікаў</string>
+    <!-- Body for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__body">Выкарыстоўвайце метку ўдзельніка, каб апісаць сябе або сваю ролю ў гэтай групе. Меткі ўдзельнікаў бачныя толькі для гэтай групы.</string>
+    <!-- Button to set a new member label. -->
+    <string name="MemberLabelsEducation__set_label">Усталяваць метку ўдзельніка</string>
+    <!-- Button to edit an existing member label. -->
+    <string name="MemberLabelsEducation__edit_label">Рэдагаваць сваю метку</string>
+
+    <!-- Title for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__title">Паказ меткі ўдзельніка</string>
+    <!-- Body for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__body">У гэтай групе ваша метка ўдзельніка будзе паказана побач з вашым фота замест раздзела «Аб кантакце».</string>
+
+    <!-- Label for internal-only section showing groups with same members -->
+  <!-- Removed by excludeNonTranslatables <string name="AddGroupDetailsFragment__groups_with_same_members" translatable="false">Groups with same members (Labs)</string> -->
+
+    <!-- Title of the sheet shown when a local backup restore could not be completed -->
+    <string name="CouldNotCompleteBackupRestoreSheet__title">Не атрымалася аднавіць рэзервовую копію</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining the likely cause -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_error">Узнікла памылка, таму рэзервовую копію немагчыма аднавіць. Магчыма, гэта адбылося таму, што падчас аднаўлення рэзервовай копіі папка з рэзервовай копіяй была перамешчана на вашу прыладу.</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining how to try again -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_retry">Каб паспрабаваць яшчэ раз, выдаліце і пераўсталюйце Signal на гэтай прыладзе і потым выберыце «Аднавіць або перанесці».</string>
 
     <!-- EOF -->
 </resources>

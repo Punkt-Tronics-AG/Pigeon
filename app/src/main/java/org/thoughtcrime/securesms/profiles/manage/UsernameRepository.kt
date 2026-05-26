@@ -14,6 +14,9 @@ import org.signal.core.util.toByteArray
 import org.signal.libsignal.net.RequestResult
 import org.signal.libsignal.usernames.BaseUsernameException
 import org.signal.libsignal.usernames.Username
+import org.signal.libsignal.usernames.UsernameLinkInvalidEntropyDataLength
+import org.signal.libsignal.usernames.UsernameLinkInvalidLinkData
+import org.signal.network.NetworkResult
 import org.thoughtcrime.securesms.components.settings.app.usernamelinks.main.UsernameLinkResetResult
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.AppDependencies
@@ -24,7 +27,6 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
 import org.thoughtcrime.securesms.util.NetworkUtil
 import org.thoughtcrime.securesms.util.UsernameUtil
-import org.whispersystems.signalservice.api.NetworkResult
 import org.whispersystems.signalservice.api.SignalServiceAccountManager
 import org.whispersystems.signalservice.api.push.UsernameLinkComponents
 import org.whispersystems.signalservice.api.util.Usernames
@@ -234,25 +236,24 @@ object UsernameRepository {
 
     return Single
       .fromCallable {
-        val encryptedUsername = when (val result = SignalNetwork.username.getEncryptedUsernameFromLinkServerId(components.serverId)) {
-          is NetworkResult.Success -> result.result
-          is NetworkResult.StatusCodeError -> {
-            return@fromCallable when (result.code) {
-              404 -> UsernameLinkConversionResult.NotFound(null)
-              422 -> UsernameLinkConversionResult.Invalid
-              else -> UsernameLinkConversionResult.NetworkError
+        val username = when (val result = SignalNetwork.username.getDecryptedUsernameFromLinkServerIdAndEntropy(components.serverId, components.entropy)) {
+          is RequestResult.Success ->
+            result.result ?: return@fromCallable UsernameLinkConversionResult.NotFound(null)
+          is RequestResult.NonSuccess -> {
+            when (result.error) {
+              is UsernameLinkInvalidEntropyDataLength,
+              is UsernameLinkInvalidLinkData -> {
+                Log.w(TAG, "[convertLinkToUsername] Bad username conversion. ${result.error}")
+                return@fromCallable UsernameLinkConversionResult.Invalid
+              }
             }
           }
-          is NetworkResult.NetworkError -> return@fromCallable UsernameLinkConversionResult.NetworkError
-          is NetworkResult.ApplicationError -> throw result.throwable
-        }
-
-        val link = Username.UsernameLink(components.entropy, encryptedUsername)
-        val username: Username = try {
-          Username.fromLink(link)
-        } catch (e: BaseUsernameException) {
-          Log.w(TAG, "[convertLinkToUsername] Bad username conversion.", e)
-          return@fromCallable UsernameLinkConversionResult.Invalid
+          is RequestResult.RetryableNetworkError -> {
+            return@fromCallable UsernameLinkConversionResult.NetworkError
+          }
+          is RequestResult.ApplicationError -> {
+            throw result.cause
+          }
         }
 
         when (val result = SignalNetwork.username.getAciByUsername(username)) {
@@ -441,6 +442,7 @@ object UsernameRepository {
         SignalDatabase.recipients.setUsername(Recipient.self().id, updatedUsername.username)
         SignalStore.account.usernameSyncState = AccountValues.UsernameSyncState.IN_SYNC
         SignalStore.account.usernameSyncErrorCount = 0
+        SignalStore.misc.needsUsernameRestore = false
 
         SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
         StorageSyncHelper.scheduleSyncForDataChange()
@@ -473,6 +475,7 @@ object UsernameRepository {
         SignalDatabase.recipients.setUsername(Recipient.self().id, username.username)
         SignalStore.account.usernameSyncState = AccountValues.UsernameSyncState.IN_SYNC
         SignalStore.account.usernameSyncErrorCount = 0
+        SignalStore.misc.needsUsernameRestore = false
 
         SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
         StorageSyncHelper.scheduleSyncForDataChange()
@@ -530,6 +533,7 @@ object UsernameRepository {
         SignalStore.account.usernameLink = null
         SignalStore.account.usernameSyncState = AccountValues.UsernameSyncState.IN_SYNC
         SignalStore.account.usernameSyncErrorCount = 0
+        SignalStore.misc.needsUsernameRestore = false
         SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
         StorageSyncHelper.scheduleSyncForDataChange()
         Log.i(TAG, "[deleteUsername] Successfully deleted the username.")
@@ -548,7 +552,12 @@ object UsernameRepository {
     val link = username.generateLink(usernameLinkComponents.entropy)
 
     return when (val result = SignalNetwork.account.confirmUsername(username, link)) {
-      is NetworkResult.Success -> UsernameReclaimResult.SUCCESS
+      is NetworkResult.Success -> {
+        SignalStore.account.usernameLink = UsernameLinkComponents(usernameLinkComponents.entropy, result.result)
+        SignalDatabase.recipients.markNeedsSync(Recipient.self().id)
+        StorageSyncHelper.scheduleSyncForDataChange()
+        UsernameReclaimResult.SUCCESS
+      }
       is NetworkResult.StatusCodeError -> {
         when (result.code) {
           409 -> {

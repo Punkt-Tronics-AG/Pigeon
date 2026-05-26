@@ -8,18 +8,21 @@
 package org.signal.registration
 
 import android.os.Parcelable
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import android.widget.Toast
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -30,14 +33,33 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 import kotlinx.serialization.Serializable
+import org.signal.core.models.AccountEntropyPool
 import org.signal.core.ui.navigation.ResultEffect
+import org.signal.core.ui.navigation.TransitionSpecs
+import org.signal.core.util.LinkActions
+import org.signal.core.util.LinkActions.OpenUrlError
+import org.signal.core.util.serialization.AccountEntropyPoolSerializer
 import org.signal.registration.screens.accountlocked.AccountLockedScreen
 import org.signal.registration.screens.accountlocked.AccountLockedScreenEvents
 import org.signal.registration.screens.accountlocked.AccountLockedState
+import org.signal.registration.screens.aepentry.EnterAepForLocalBackupViewModel
+import org.signal.registration.screens.aepentry.EnterAepForRemoteBackupPostRegistrationViewModel
+import org.signal.registration.screens.aepentry.EnterAepForRemoteBackupPreRegistrationViewModel
+import org.signal.registration.screens.aepentry.EnterAepScreen
 import org.signal.registration.screens.captcha.CaptchaScreen
 import org.signal.registration.screens.captcha.CaptchaScreenEvents
 import org.signal.registration.screens.captcha.CaptchaState
+import org.signal.registration.screens.countrycode.Country
+import org.signal.registration.screens.countrycode.CountryCodePickerRepository
+import org.signal.registration.screens.countrycode.CountryCodePickerScreen
+import org.signal.registration.screens.countrycode.CountryCodePickerViewModel
+import org.signal.registration.screens.localbackuprestore.EnterLocalBackupV1PassphaseScreen
+import org.signal.registration.screens.localbackuprestore.LocalBackupRestoreEvents
+import org.signal.registration.screens.localbackuprestore.LocalBackupRestoreResult
+import org.signal.registration.screens.localbackuprestore.LocalBackupRestoreScreen
+import org.signal.registration.screens.localbackuprestore.LocalBackupRestoreViewModel
 import org.signal.registration.screens.permissions.PermissionsScreen
 import org.signal.registration.screens.phonenumber.PhoneNumberEntryScreenEvents
 import org.signal.registration.screens.phonenumber.PhoneNumberEntryViewModel
@@ -45,38 +67,45 @@ import org.signal.registration.screens.phonenumber.PhoneNumberScreen
 import org.signal.registration.screens.pincreation.PinCreationScreen
 import org.signal.registration.screens.pincreation.PinCreationViewModel
 import org.signal.registration.screens.pinentry.PinEntryForRegistrationLockViewModel
+import org.signal.registration.screens.pinentry.PinEntryForSmsBypassViewModel
 import org.signal.registration.screens.pinentry.PinEntryForSvrRestoreViewModel
 import org.signal.registration.screens.pinentry.PinEntryScreen
-import org.signal.registration.screens.restore.RestoreViaQrScreen
-import org.signal.registration.screens.restore.RestoreViaQrScreenEvents
-import org.signal.registration.screens.restore.RestoreViaQrState
+import org.signal.registration.screens.quickrestore.QuickRestoreQrScreen
+import org.signal.registration.screens.quickrestore.QuickRestoreQrViewModel
+import org.signal.registration.screens.remotebackuprestore.RemoteBackupRestoreViewModel
+import org.signal.registration.screens.remotebackuprestore.RemoteRestoreScreen
+import org.signal.registration.screens.restoreselection.ArchiveRestoreOption
+import org.signal.registration.screens.restoreselection.ArchiveRestoreSelectionScreen
+import org.signal.registration.screens.restoreselection.ArchiveRestoreSelectionViewModel
 import org.signal.registration.screens.util.navigateBack
 import org.signal.registration.screens.util.navigateTo
 import org.signal.registration.screens.verificationcode.VerificationCodeScreen
 import org.signal.registration.screens.verificationcode.VerificationCodeViewModel
 import org.signal.registration.screens.welcome.WelcomeScreen
 import org.signal.registration.screens.welcome.WelcomeScreenEvents
+import org.signal.registration.util.AccountEntropyPoolParceler
 
 /**
  * Navigation routes for the registration flow.
  * Using @Serializable and NavKey for type-safe navigation with Navigation 3.
  */
+@Serializable
 @Parcelize
 sealed interface RegistrationRoute : NavKey, Parcelable {
   @Serializable
   data object Welcome : RegistrationRoute
 
   @Serializable
-  data class Permissions(val forRestore: Boolean = false) : RegistrationRoute
+  data class Permissions(val nextRoute: RegistrationRoute) : RegistrationRoute
 
   @Serializable
   data object PhoneNumberEntry : RegistrationRoute
 
   @Serializable
-  data object CountryCodePicker : RegistrationRoute
+  data class CountryCodePicker(val country: Country? = null) : RegistrationRoute
 
   @Serializable
-  data class VerificationCodeEntry(val session: NetworkController.SessionMetadata, val e164: String) : RegistrationRoute
+  data object VerificationCodeEntry : RegistrationRoute
 
   @Serializable
   data class Captcha(val session: NetworkController.SessionMetadata) : RegistrationRoute
@@ -91,16 +120,76 @@ sealed interface RegistrationRoute : NavKey, Parcelable {
   ) : RegistrationRoute
 
   @Serializable
+  data class PinEntryForSmsBypass(val svrCredentials: NetworkController.SvrCredentials) : RegistrationRoute
+
+  @Serializable
   data class AccountLocked(val timeRemainingMs: Long) : RegistrationRoute
 
   @Serializable
   data object PinCreate : RegistrationRoute
 
   @Serializable
-  data object Restore : RegistrationRoute
+  data class ArchiveRestoreSelection(val restoreOptions: List<ArchiveRestoreOption>, val isPreRegistration: Boolean) : RegistrationRoute {
+    companion object {
+      fun forQuickRestore(hasRemoteBackup: Boolean): ArchiveRestoreSelection {
+        return ArchiveRestoreSelection(
+          restoreOptions = buildList {
+            if (hasRemoteBackup) {
+              add(ArchiveRestoreOption.SignalSecureBackup)
+            }
+            add(ArchiveRestoreOption.LocalBackup)
+            add(ArchiveRestoreOption.DeviceTransfer)
+          },
+          isPreRegistration = true
+        )
+      }
+
+      fun forManualRestore(): ArchiveRestoreSelection {
+        return ArchiveRestoreSelection(
+          restoreOptions = buildList {
+            add(ArchiveRestoreOption.SignalSecureBackup)
+            add(ArchiveRestoreOption.LocalBackup)
+            add(ArchiveRestoreOption.DeviceTransfer)
+          },
+          isPreRegistration = true
+        )
+      }
+
+      fun forPostRegister(): ArchiveRestoreSelection {
+        return ArchiveRestoreSelection(
+          restoreOptions = buildList {
+            add(ArchiveRestoreOption.SignalSecureBackup)
+            add(ArchiveRestoreOption.LocalBackup)
+            add(ArchiveRestoreOption.DeviceTransfer)
+            add(ArchiveRestoreOption.None)
+          },
+          isPreRegistration = false
+        )
+      }
+    }
+  }
 
   @Serializable
-  data object RestoreViaQr : RegistrationRoute
+  data class LocalBackupRestore(val isPreRegistration: Boolean) : RegistrationRoute
+
+  @Serializable
+  data object EnterLocalBackupV1Passphrase : RegistrationRoute
+
+  @Serializable
+  data object EnterAepForLocalBackup : RegistrationRoute
+
+  @Serializable
+  data class EnterAepForRemoteBackupPreRegistration(val e164: String) : RegistrationRoute
+
+  @Serializable
+  data object EnterAepForRemoteBackupPostRegistration : RegistrationRoute
+
+  @Serializable
+  @TypeParceler<AccountEntropyPool, AccountEntropyPoolParceler>
+  data class RemoteRestore(@Serializable(with = AccountEntropyPoolSerializer::class) val aep: AccountEntropyPool) : RegistrationRoute
+
+  @Serializable
+  data object QuickRestoreQrScan : RegistrationRoute
 
   @Serializable
   data object Transfer : RegistrationRoute
@@ -113,6 +202,9 @@ sealed interface RegistrationRoute : NavKey, Parcelable {
 }
 
 private const val CAPTCHA_RESULT = "captcha_token"
+private const val COUNTRY_CODE_RESULT = "country_code_result"
+private const val BACKUP_CREDENTIAL_RESULT = "backup_credential_result"
+private const val LOCAL_BACKUP_RESTORE_RESULT = "local_backup_restore_result"
 
 /**
  * Sets up the navigation graph for the registration flow using Navigation 3.
@@ -137,19 +229,33 @@ fun RegistrationNavHost(
   )
 
   val registrationState by viewModel.state.collectAsStateWithLifecycle()
-  val permissions: MultiplePermissionsState = permissionsState ?: rememberMultiplePermissionsState(viewModel.getRequiredPermissions())
+
+  if (registrationState.isRestoringNavigationState) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+      CircularProgressIndicator()
+    }
+    return
+  }
+
+  val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+  LaunchedEffect(viewModel, backDispatcher) {
+    viewModel.finishRequests.collect {
+      backDispatcher?.onBackPressed()
+    }
+  }
 
   val entryProvider = entryProvider {
     navigationEntries(
       registrationRepository = registrationRepository,
       registrationViewModel = viewModel,
-      permissionsState = permissions,
+      permissionsState = permissionsState,
       onRegistrationComplete = onRegistrationComplete
     )
   }
 
   val decorators = listOf(
-    rememberSaveableStateHolderNavEntryDecorator<NavKey>()
+    rememberSaveableStateHolderNavEntryDecorator<NavKey>(),
+    rememberViewModelStoreNavEntryDecorator()
   )
 
   val entries = rememberDecoratedNavEntries(
@@ -163,51 +269,37 @@ fun RegistrationNavHost(
     onBack = { viewModel.onEvent(RegistrationFlowEvent.NavigateBack) },
     modifier = modifier,
     transitionSpec = {
-      // Slide in from right and fade in when navigating forward
-      (
-        slideInHorizontally(
-          initialOffsetX = { it },
-          animationSpec = tween(200)
-        ) + fadeIn(animationSpec = tween(200))
-        ) togetherWith
-        // Slide out to left and fade out
-        (
-          slideOutHorizontally(
-            targetOffsetX = { -it },
-            animationSpec = tween(200)
-          ) + fadeOut(animationSpec = tween(200))
-          )
+      if (targetState.key is RegistrationRoute.CountryCodePicker) {
+        TransitionSpecs.VerticalSlide.transitionSpec.invoke(this)
+      } else {
+        TransitionSpecs.HorizontalSlide.transitionSpec.invoke(this)
+      }
     },
     popTransitionSpec = {
-      // Slide in from left and fade in when navigating back
-      (
-        slideInHorizontally(
-          initialOffsetX = { -it },
-          animationSpec = tween(200)
-        ) + fadeIn(animationSpec = tween(200))
-        ) togetherWith
-        // Slide out to right and fade out
-        (
-          slideOutHorizontally(
-            targetOffsetX = { it },
-            animationSpec = tween(200)
-          ) + fadeOut(animationSpec = tween(200))
-          )
+      when {
+        initialState.key is RegistrationRoute.CountryCodePicker -> {
+          TransitionSpecs.VerticalSlide.popTransitionSpec.invoke(this)
+        }
+
+        initialState.key == RegistrationRoute.EnterAepForLocalBackup.toString() || initialState.key == RegistrationRoute.EnterAepForRemoteBackupPreRegistration.toString() -> {
+          TransitionSpecs.HorizontalSlide.transitionSpec.invoke(this)
+        }
+
+        initialState.key == RegistrationRoute.LocalBackupRestore.toString() && targetState.key == RegistrationRoute.PhoneNumberEntry.toString() -> {
+          TransitionSpecs.HorizontalSlide.transitionSpec.invoke(this)
+        }
+
+        else -> {
+          TransitionSpecs.HorizontalSlide.popTransitionSpec.invoke(this)
+        }
+      }
     },
     predictivePopTransitionSpec = {
-      // Same as popTransitionSpec for predictive back gestures
-      (
-        slideInHorizontally(
-          initialOffsetX = { -it },
-          animationSpec = tween(200)
-        ) + fadeIn(animationSpec = tween(200))
-        ) togetherWith
-        (
-          slideOutHorizontally(
-            targetOffsetX = { it },
-            animationSpec = tween(200)
-          ) + fadeOut(animationSpec = tween(200))
-          )
+      if (initialState.key is RegistrationRoute.CountryCodePicker) {
+        TransitionSpecs.VerticalSlide.predictivePopTransitionSpec.invoke(this, it)
+      } else {
+        TransitionSpecs.HorizontalSlide.predictivePopTransitionSpec.invoke(this, it)
+      }
     }
   )
 }
@@ -215,19 +307,29 @@ fun RegistrationNavHost(
 private fun EntryProviderScope<NavKey>.navigationEntries(
   registrationRepository: RegistrationRepository,
   registrationViewModel: RegistrationViewModel,
-  permissionsState: MultiplePermissionsState,
+  permissionsState: MultiplePermissionsState?,
   onRegistrationComplete: () -> Unit
 ) {
   val parentEventEmitter: (RegistrationFlowEvent) -> Unit = registrationViewModel::onEvent
 
   // --- Welcome Screen
   entry<RegistrationRoute.Welcome> {
+    val context = LocalContext.current
+    val termsAndPrivacyUrl = stringResource(R.string.terms_and_privacy_policy_url)
     WelcomeScreen(
       onEvent = { event ->
         when (event) {
-          WelcomeScreenEvents.Continue -> parentEventEmitter.navigateTo(RegistrationRoute.Permissions(forRestore = false))
-          WelcomeScreenEvents.DoesNotHaveOldPhone -> parentEventEmitter.navigateTo(RegistrationRoute.Restore)
-          WelcomeScreenEvents.HasOldPhone -> parentEventEmitter.navigateTo(RegistrationRoute.Permissions(forRestore = true))
+          WelcomeScreenEvents.Continue -> parentEventEmitter.navigateTo(RegistrationRoute.Permissions(nextRoute = RegistrationRoute.PhoneNumberEntry))
+          WelcomeScreenEvents.LinkDevice -> throw NotImplementedError("Haven't implemented linked devices yet")
+          WelcomeScreenEvents.HasOldPhone -> parentEventEmitter.navigateTo(RegistrationRoute.Permissions(nextRoute = RegistrationRoute.QuickRestoreQrScan))
+          WelcomeScreenEvents.DoesNotHaveOldPhone -> parentEventEmitter.navigateTo(RegistrationRoute.Permissions(nextRoute = RegistrationRoute.ArchiveRestoreSelection.forManualRestore()))
+          WelcomeScreenEvents.ViewTermsAndPrivacy -> {
+            LinkActions.openUrl(context, termsAndPrivacyUrl) { error ->
+              when (error) {
+                OpenUrlError.NoBrowserFound -> Toast.makeText(context, R.string.LinkActions_error_no_browser_found, Toast.LENGTH_SHORT).show()
+              }
+            }
+          }
         }
       }
     )
@@ -235,15 +337,14 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
 
   // --- Permissions Screen
   entry<RegistrationRoute.Permissions> { key ->
+    val onProceed = { parentEventEmitter.navigateTo(key.nextRoute) }
+    val localPermissionsState = permissionsState ?: rememberMultiplePermissionsState(
+      permissions = registrationViewModel.getRequiredPermissions(),
+      onPermissionsResult = { onProceed() }
+    )
     PermissionsScreen(
-      permissionsState = permissionsState,
-      onProceed = {
-        if (key.forRestore) {
-          parentEventEmitter.navigateTo(RegistrationRoute.RestoreViaQr)
-        } else {
-          parentEventEmitter.navigateTo(RegistrationRoute.PhoneNumberEntry)
-        }
-      }
+      permissionsState = localPermissionsState,
+      onProceed = onProceed
     )
   }
 
@@ -264,6 +365,16 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
       }
     }
 
+    ResultEffect<Country?>(registrationViewModel.resultBus, COUNTRY_CODE_RESULT) { country ->
+      if (country != null) {
+        viewModel.onEvent(PhoneNumberEntryScreenEvents.CountrySelected(country.countryCode, country.regionCode, country.name, country.emoji))
+      }
+    }
+
+    ResultEffect<LocalBackupRestoreResult>(registrationViewModel.resultBus, LOCAL_BACKUP_RESTORE_RESULT) { result ->
+      viewModel.onEvent(PhoneNumberEntryScreenEvents.LocalBackupRestoreCompleted(result))
+    }
+
     PhoneNumberScreen(
       state = state,
       onEvent = { viewModel.onEvent(it) }
@@ -271,9 +382,22 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
   }
 
   // -- Country Code Picker
-  entry<RegistrationRoute.CountryCodePicker> {
-    // We'll also want this to be some sort of launch-for-result flow as well
-    TODO()
+  entry<RegistrationRoute.CountryCodePicker> { key ->
+    val viewModel: CountryCodePickerViewModel = viewModel(
+      factory = CountryCodePickerViewModel.Factory(
+        repository = CountryCodePickerRepository(),
+        parentEventEmitter = parentEventEmitter,
+        resultBus = registrationViewModel.resultBus,
+        resultKey = COUNTRY_CODE_RESULT,
+        initialCountry = key.country
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    CountryCodePickerScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
   }
 
   // -- Captcha Screen
@@ -288,6 +412,7 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
             registrationViewModel.resultBus.sendResult(CAPTCHA_RESULT, event.token)
             parentEventEmitter.navigateBack()
           }
+
           CaptchaScreenEvents.Cancel -> {
             parentEventEmitter.navigateBack()
           }
@@ -366,9 +491,29 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
     )
   }
 
+  // -- SMS Bypass PIN Entry Screen
+  entry<RegistrationRoute.PinEntryForSmsBypass> { key ->
+    val viewModel: PinEntryForSmsBypassViewModel = viewModel(
+      factory = PinEntryForSmsBypassViewModel.Factory(
+        repository = registrationRepository,
+        parentState = registrationViewModel.state,
+        parentEventEmitter = registrationViewModel::onEvent,
+        svrCredentials = key.svrCredentials
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    PinEntryScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
   // -- Account Locked Screen
   entry<RegistrationRoute.AccountLocked> { key ->
     val daysRemaining = (key.timeRemainingMs / (1000 * 60 * 60 * 24)).toInt()
+    val context = LocalContext.current
+    val learnMoreUrl = stringResource(R.string.AccountLockedScreen__learn_more_url)
     AccountLockedScreen(
       state = AccountLockedState(daysRemaining = daysRemaining),
       onEvent = { event ->
@@ -377,37 +522,152 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
             // TODO: Navigate to appropriate next screen (likely back to welcome or phone entry)
             parentEventEmitter.navigateTo(RegistrationRoute.Welcome)
           }
+
           AccountLockedScreenEvents.LearnMore -> {
-            // TODO: Open learn more URL
+            LinkActions.openUrl(context, learnMoreUrl) { error ->
+              when (error) {
+                OpenUrlError.NoBrowserFound -> Toast.makeText(context, R.string.LinkActions_error_no_browser_found, Toast.LENGTH_SHORT).show()
+              }
+            }
           }
         }
       }
     )
   }
 
-  entry<RegistrationRoute.Restore> {
-    // TODO: Implement RestoreScreen
+  // -- Archive Restore Selection for Quick Restore Screen
+  entry<RegistrationRoute.ArchiveRestoreSelection> { key ->
+    val viewModel: ArchiveRestoreSelectionViewModel = viewModel(
+      factory = ArchiveRestoreSelectionViewModel.Factory(
+        restoreOptions = key.restoreOptions,
+        isPreRegistration = key.isPreRegistration,
+        parentEventEmitter = registrationViewModel::onEvent
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ArchiveRestoreSelectionScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
   }
 
-  entry<RegistrationRoute.RestoreViaQr> {
-    RestoreViaQrScreen(
-      state = RestoreViaQrState(),
-      onEvent = { event ->
-        when (event) {
-          RestoreViaQrScreenEvents.RetryQrCode -> {
-            // TODO: Retry QR code generation
-          }
-          RestoreViaQrScreenEvents.Cancel -> {
-            parentEventEmitter.navigateBack()
-          }
-          RestoreViaQrScreenEvents.UseProxy -> {
-            // TODO: Navigate to proxy settings
-          }
-          RestoreViaQrScreenEvents.DismissError -> {
-            // TODO: Clear error state
-          }
-        }
+  // -- Remote Restore Screen
+  entry<RegistrationRoute.RemoteRestore> { key ->
+    val viewModel: RemoteBackupRestoreViewModel = viewModel(
+      factory = RemoteBackupRestoreViewModel.Factory(
+        aep = key.aep,
+        repository = registrationRepository,
+        parentEventEmitter = registrationViewModel::onEvent
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    RemoteRestoreScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
+  // -- Local Backup Restore Screen
+  entry<RegistrationRoute.LocalBackupRestore> { key ->
+    val viewModel: LocalBackupRestoreViewModel = viewModel(
+      factory = LocalBackupRestoreViewModel.Factory(
+        repository = registrationRepository,
+        parentEventEmitter = registrationViewModel::onEvent,
+        isPreRegistration = key.isPreRegistration,
+        resultBus = registrationViewModel.resultBus,
+        resultKey = LOCAL_BACKUP_RESTORE_RESULT
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ResultEffect<String?>(registrationViewModel.resultBus, BACKUP_CREDENTIAL_RESULT) { passphrase ->
+      if (passphrase != null) {
+        viewModel.onEvent(LocalBackupRestoreEvents.PassphraseSubmitted(passphrase))
       }
+    }
+
+    LocalBackupRestoreScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
+  // -- Enter Backup Passphrase (V1)
+  entry<RegistrationRoute.EnterLocalBackupV1Passphrase> {
+    EnterLocalBackupV1PassphaseScreen(
+      onSubmit = { passphrase ->
+        registrationViewModel.resultBus.sendResult(BACKUP_CREDENTIAL_RESULT, passphrase)
+        parentEventEmitter.navigateBack()
+      },
+      onCancel = {
+        parentEventEmitter.navigateBack()
+      }
+    )
+  }
+
+  // TODO I think we can re-use the screen but attach different viewmodels to progress forward rather than do for-result flows?
+
+  // -- Enter AEP
+  entry<RegistrationRoute.EnterAepForLocalBackup> {
+    val viewModel: EnterAepForLocalBackupViewModel = viewModel(
+      factory = EnterAepForLocalBackupViewModel.Factory(
+        parentEventEmitter = registrationViewModel::onEvent,
+        resultBus = registrationViewModel.resultBus,
+        resultKey = BACKUP_CREDENTIAL_RESULT
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    EnterAepScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
+  entry<RegistrationRoute.EnterAepForRemoteBackupPreRegistration> { key ->
+    val viewModel: EnterAepForRemoteBackupPreRegistrationViewModel = viewModel(
+      factory = EnterAepForRemoteBackupPreRegistrationViewModel.Factory(
+        e164 = key.e164,
+        repository = registrationRepository,
+        parentEventEmitter = registrationViewModel::onEvent
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    EnterAepScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
+  entry<RegistrationRoute.EnterAepForRemoteBackupPostRegistration> {
+    val viewModel: EnterAepForRemoteBackupPostRegistrationViewModel = viewModel(
+      factory = EnterAepForRemoteBackupPostRegistrationViewModel.Factory(
+        parentEventEmitter = registrationViewModel::onEvent
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    EnterAepScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
+    )
+  }
+
+  entry<RegistrationRoute.QuickRestoreQrScan> {
+    val viewModel: QuickRestoreQrViewModel = viewModel(
+      factory = QuickRestoreQrViewModel.Factory(
+        repository = registrationRepository,
+        parentEventEmitter = registrationViewModel::onEvent
+      )
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    QuickRestoreQrScreen(
+      state = state,
+      onEvent = { viewModel.onEvent(it) }
     )
   }
 

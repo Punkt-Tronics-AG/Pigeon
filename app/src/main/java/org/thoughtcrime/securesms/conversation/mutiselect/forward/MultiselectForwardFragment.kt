@@ -25,8 +25,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.launch
+import org.signal.core.ui.BottomSheetUtil
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getParcelableArrayListCompat
 import org.signal.core.util.getParcelableCompat
@@ -37,11 +43,15 @@ import org.thoughtcrime.securesms.components.ContactFilterView
 import org.thoughtcrime.securesms.components.TooltipPopup
 import org.thoughtcrime.securesms.components.WrapperDialogFragment
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchAdapter
+import org.thoughtcrime.securesms.contacts.paged.ContactSearchCallbacks
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchConfiguration
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchError
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchKey
-import org.thoughtcrime.securesms.contacts.paged.ContactSearchMediator
+import org.thoughtcrime.securesms.contacts.paged.ContactSearchPagedDataSourceRepository
+import org.thoughtcrime.securesms.contacts.paged.ContactSearchRepository
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchState
+import org.thoughtcrime.securesms.contacts.paged.ContactSearchView
+import org.thoughtcrime.securesms.contacts.paged.ContactSearchViewModel
 import org.thoughtcrime.securesms.database.RecipientTable
 import org.thoughtcrime.securesms.database.model.IdentityRecord
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -49,6 +59,7 @@ import org.thoughtcrime.securesms.mediasend.v2.stories.ChooseGroupStoryBottomShe
 import org.thoughtcrime.securesms.mediasend.v2.stories.ChooseStoryTypeBottomSheet
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.safety.SafetyNumberBottomSheet
+import org.thoughtcrime.securesms.search.SearchRepository
 import org.thoughtcrime.securesms.sharing.ShareSelectionAdapter
 import org.thoughtcrime.securesms.sharing.ShareSelectionMappingModel
 import org.thoughtcrime.securesms.stories.GroupStoryEducationSheet
@@ -57,7 +68,6 @@ import org.thoughtcrime.securesms.stories.Stories.getHeaderAction
 import org.thoughtcrime.securesms.stories.settings.create.CreateStoryFlowDialogFragment
 import org.thoughtcrime.securesms.stories.settings.create.CreateStoryWithViewersFragment
 import org.thoughtcrime.securesms.stories.settings.privacy.ChooseInitialMyStoryMembershipBottomSheetDialogFragment
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.FullscreenHelper
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.ViewUtil
@@ -90,12 +100,22 @@ class MultiselectForwardFragment :
   ChooseInitialMyStoryMembershipBottomSheetDialogFragment.Callback {
 
   private val viewModel: MultiselectForwardViewModel by viewModels(factoryProducer = this::createViewModelFactory)
+  private val contactSearchViewModel: ContactSearchViewModel by viewModels {
+    ContactSearchViewModel.Factory(
+      selectionLimits = RemoteConfig.shareSelectionLimit,
+      isMultiSelect = !args.selectSingleRecipient,
+      repository = ContactSearchRepository(),
+      performSafetyNumberChecks = true,
+      arbitraryRepository = null,
+      searchRepository = SearchRepository(requireContext().getString(R.string.note_to_self)),
+      contactSearchPagedDataSourceRepository = ContactSearchPagedDataSourceRepository(requireContext())
+    )
+  }
   private val disposables = LifecycleDisposable()
 
   private lateinit var contactFilterView: ContactFilterView
   private lateinit var addMessage: EditText
-  private lateinit var contactSearchMediator: ContactSearchMediator
-  private lateinit var contactSearchRecycler: RecyclerView
+  private lateinit var contactSearch: ContactSearchView
 
   private lateinit var callback: Callback
   private var dismissibleDialog: SimpleProgressDialog.DismissibleDialog? = null
@@ -122,26 +142,25 @@ class MultiselectForwardFragment :
 
     view.minimumHeight = resources.displayMetrics.heightPixels
 
-    contactSearchRecycler = view.findViewById(R.id.contact_selection_list)
-    contactSearchMediator = ContactSearchMediator(
-      this,
-      emptySet(),
-      RemoteConfig.shareSelectionLimit,
-      ContactSearchAdapter.DisplayOptions(
+    contactSearch = view.findViewById(R.id.contact_selection_list)
+    contactSearch.bind(
+      viewModel = contactSearchViewModel,
+      fragmentManager = childFragmentManager,
+      displayOptions = ContactSearchAdapter.DisplayOptions(
         displayCheckBox = !args.selectSingleRecipient,
         displaySecondaryInformation = ContactSearchAdapter.DisplaySecondaryInformation.NEVER,
         displayStoryRing = true
       ),
-      this::getConfiguration,
-      object : ContactSearchMediator.SimpleCallbacks() {
+      mapStateToConfiguration = this::getConfiguration,
+      callbacks = object : ContactSearchCallbacks.Simple() {
         override fun onBeforeContactsSelected(view: View?, contactSearchKeys: Set<ContactSearchKey>): Set<ContactSearchKey> {
           val filtered: Set<ContactSearchKey> = filterContacts(view, contactSearchKeys)
           Log.d(TAG, "onBeforeContactsSelected() Attempting to select: ${contactSearchKeys.map { it.toString() }}, Filtered selection: ${filtered.map { it.toString() } }")
           return filtered
         }
-      }
+      },
+      contentBottomPaddingDp = 44f
     )
-    contactSearchRecycler.adapter = contactSearchMediator.adapter
 
     callback = findListener()!!
     disposables.bindTo(viewLifecycleOwner.lifecycle)
@@ -156,7 +175,7 @@ class MultiselectForwardFragment :
     }
 
     contactFilterView.setOnFilterChangedListener {
-      contactSearchMediator.onFilterChanged(it)
+      contactSearchViewModel.setQuery(it)
     }
 
     val container = callback.getContainer()
@@ -207,32 +226,31 @@ class MultiselectForwardFragment :
 
     container.addView(bottomBarAndSpacer)
 
-    contactSearchMediator.getSelectionState().observe(viewLifecycleOwner) { contactSelection ->
-      if (contactSelection.isNotEmpty() && isPigeonVersion()) {
-        onSend(sendButton)
-        return@observe
-      }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        contactSearchViewModel.selectionState.collect { contactSelection ->
+          if (contactSelection.isNotEmpty() && args.selectSingleRecipient) {
+            onSend(sendButton)
+            return@collect
+          }
 
-      if (contactSelection.isNotEmpty() && args.selectSingleRecipient) {
-        onSend(sendButton)
-        return@observe
-      }
+          shareSelectionAdapter.submitList(contactSelection.mapIndexed { index, key -> ShareSelectionMappingModel(key.requireShareContact(), index == 0) })
 
-      shareSelectionAdapter.submitList(contactSelection.mapIndexed { index, key -> ShareSelectionMappingModel(key.requireShareContact(), index == 0) })
+          addMessage.visible = !args.forceDisableAddMessage && contactSelection.any { key -> !key.requireRecipientSearchKey().isStory } && args.multiShareArgs.isNotEmpty()
 
-      addMessage.visible = !args.forceDisableAddMessage && contactSelection.any { key -> !key.requireRecipientSearchKey().isStory } && args.multiShareArgs.isNotEmpty()
-
-      if (contactSelection.isNotEmpty() && !bottomBar.isVisible) {
-        bottomBar.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_fade_from_bottom)
-        bottomBar.visible = true
-      } else if (contactSelection.isEmpty() && bottomBar.isVisible) {
-        bottomBar.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_fade_to_bottom)
-        bottomBar.visible = false
+          if (contactSelection.isNotEmpty() && !bottomBar.isVisible) {
+            bottomBar.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_fade_from_bottom)
+            bottomBar.visible = true
+          } else if (contactSelection.isEmpty() && bottomBar.isVisible) {
+            bottomBar.animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_fade_to_bottom)
+            bottomBar.visible = false
+          }
+        }
       }
     }
 
-    disposables += contactSearchMediator
-      .getErrorEvents()
+    disposables += contactSearchViewModel.errorEventsStream
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         val toastMessage: Int? = when (it) {
           ContactSearchError.CONTACT_NOT_SELECTABLE -> R.string.MultiselectForwardFragment__only_admins_can_send_messages_to_this_group
@@ -269,15 +287,15 @@ class MultiselectForwardFragment :
 
     setFragmentResultListener(CreateStoryWithViewersFragment.REQUEST_KEY) { _, bundle ->
       val recipientId: RecipientId = bundle.getParcelableCompat(CreateStoryWithViewersFragment.STORY_RECIPIENT, RecipientId::class.java)!!
-      contactSearchMediator.setKeysSelected(setOf(ContactSearchKey.RecipientSearchKey(recipientId, true)))
+      contactSearchViewModel.setKeysSelected(setOf(ContactSearchKey.RecipientSearchKey(recipientId, true)))
       contactFilterView.clear()
     }
 
     setFragmentResultListener(ChooseGroupStoryBottomSheet.GROUP_STORY) { _, bundle ->
       val groups: Set<RecipientId> = bundle.getParcelableArrayListCompat(ChooseGroupStoryBottomSheet.RESULT_SET, RecipientId::class.java)?.toSet() ?: emptySet()
       val keys: Set<ContactSearchKey.RecipientSearchKey> = groups.map { ContactSearchKey.RecipientSearchKey(it, true) }.toSet()
-      contactSearchMediator.addToVisibleGroupStories(keys)
-      contactSearchMediator.setKeysSelected(keys)
+      contactSearchViewModel.addToVisibleGroupStories(keys)
+      contactSearchViewModel.setKeysSelected(keys)
       contactFilterView.clear()
     }
   }
@@ -291,7 +309,7 @@ class MultiselectForwardFragment :
     val expiringMessages = args.multiShareArgs.filter { it.expiresAt > 0L }
     val firstToExpire = expiringMessages.minByOrNull { it.expiresAt }
     val earliestExpiration = firstToExpire?.expiresAt ?: -1L
-    if (viewModel.state.value?.stage is MultiselectForwardState.Stage.SelectionConfirmed && contactSearchMediator.getSelectedContacts().isNotEmpty()) {
+    if (viewModel.state.value?.stage is MultiselectForwardState.Stage.SelectionConfirmed && contactSearchViewModel.getSelectedContacts().isNotEmpty()) {
       onCanceled()
     }
     if (earliestExpiration > 0) {
@@ -325,7 +343,7 @@ class MultiselectForwardFragment :
       .setMessage(R.string.MultiselectForwardFragment__forwarded_messages_are_now)
       .setPositiveButton(resources.getQuantityString(R.plurals.MultiselectForwardFragment_send_d_messages, messageCount, messageCount)) { d, _ ->
         d.dismiss()
-        viewModel.confirmFirstSend(addMessage.text.toString(), contactSearchMediator.getSelectedContacts())
+        viewModel.confirmFirstSend(addMessage.text.toString(), contactSearchViewModel.getSelectedContacts())
       }
       .setNegativeButton(android.R.string.cancel) { d, _ ->
         d.dismiss()
@@ -336,7 +354,7 @@ class MultiselectForwardFragment :
 
   private fun onSend(sendButton: View) {
     sendButton.isEnabled = false
-    viewModel.send(addMessage.text.toString(), contactSearchMediator.getSelectedContacts())
+    viewModel.send(addMessage.text.toString(), contactSearchViewModel.getSelectedContacts())
   }
 
   private fun displaySafetyNumberConfirmation(identityRecords: List<IdentityRecord>, selectedContacts: List<ContactSearchKey>) {
@@ -346,7 +364,7 @@ class MultiselectForwardFragment :
   }
 
   private fun dismissWithSuccess(@PluralsRes toastTextResId: Int) {
-    Log.d(TAG, "dismissWithSuccess() Selected: ${contactSearchMediator.getSelectedContacts().map { it.toString() }}")
+    Log.d(TAG, "dismissWithSuccess() Selected: ${contactSearchViewModel.getSelectedContacts().map { it.toString() }}")
 
     requireListener<Callback>().setResult(
       Bundle().apply {
@@ -358,7 +376,7 @@ class MultiselectForwardFragment :
   }
 
   private fun dismissAndShowToast(@PluralsRes toastTextResId: Int) {
-    Log.d(TAG, "dismissAndShowToast() Selected: ${contactSearchMediator.getSelectedContacts().map { it.toString() }}")
+    Log.d(TAG, "dismissAndShowToast() Selected: ${contactSearchViewModel.getSelectedContacts().map { it.toString() }}")
 
     val argCount = getMessageCount()
 
@@ -524,12 +542,12 @@ class MultiselectForwardFragment :
   }
 
   override fun onWrapperDialogFragmentDismissed() {
-    contactSearchMediator.refresh()
+    contactSearchViewModel.refresh()
   }
 
   override fun onMyStoryConfigured(recipientId: RecipientId) {
-    contactSearchMediator.setKeysSelected(setOf(ContactSearchKey.RecipientSearchKey(recipientId, true)))
-    contactSearchMediator.refresh()
+    contactSearchViewModel.setKeysSelected(setOf(ContactSearchKey.RecipientSearchKey(recipientId, true)))
+    contactSearchViewModel.refresh()
   }
 
   interface Callback {

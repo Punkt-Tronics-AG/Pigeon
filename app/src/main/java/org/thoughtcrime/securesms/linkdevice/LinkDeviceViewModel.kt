@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.signal.core.models.backup.MessageBackupKey
+import org.signal.core.util.Util
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.LinkedDeviceInactiveCheckJob
@@ -23,8 +24,8 @@ import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.OneTimeEven
 import org.thoughtcrime.securesms.linkdevice.LinkDeviceSettingsState.QrCodeState
 import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogRepository
 import org.thoughtcrime.securesms.notifications.NotificationIds
+import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.ServiceUtil
-import org.thoughtcrime.securesms.util.Util
 import org.whispersystems.signalservice.api.link.TransferArchiveError
 import org.whispersystems.signalservice.api.link.WaitForLinkedDeviceResponse
 import kotlin.jvm.optionals.getOrNull
@@ -39,7 +40,7 @@ class LinkDeviceViewModel : ViewModel() {
     val TAG = Log.tag(LinkDeviceViewModel::class)
   }
 
-  private val _state = MutableStateFlow(LinkDeviceSettingsState())
+  private val _state = MutableStateFlow(LinkDeviceSettingsState(isInternalUser = RemoteConfig.internalUser))
   val state = _state.asStateFlow()
   private val submitDebugLogRepository: SubmitDebugLogRepository = SubmitDebugLogRepository()
 
@@ -104,8 +105,7 @@ class LinkDeviceViewModel : ViewModel() {
 
   private fun loadDevices(initialLoad: Boolean = false) {
     _state.value = _state.value.copy(
-      deviceListLoading = true,
-      showFrontCamera = null
+      deviceListLoading = true
     )
 
     viewModelScope.launch(Dispatchers.IO) {
@@ -152,21 +152,11 @@ class LinkDeviceViewModel : ViewModel() {
     pollJob?.cancel()
   }
 
-  fun showFrontCamera() {
-    _state.update {
-      val frontCamera = it.showFrontCamera
-      it.copy(
-        showFrontCamera = if (frontCamera == null) true else !frontCamera
-      )
-    }
-  }
-
   fun markQrEducationSheetSeen() {
     SignalStore.uiHints.markHasSeenLinkDeviceQrEducationSheet()
     _state.update {
       it.copy(
-        seenQrEducationSheet = true,
-        showFrontCamera = null
+        seenQrEducationSheet = true
       )
     }
   }
@@ -182,8 +172,7 @@ class LinkDeviceViewModel : ViewModel() {
       _state.update {
         it.copy(
           qrCodeState = if (uri.supportsLinkAndSync()) QrCodeState.VALID_WITH_SYNC else QrCodeState.VALID_WITHOUT_SYNC,
-          linkUri = uri,
-          showFrontCamera = null
+          linkUri = uri
         )
       }
     } else {
@@ -191,8 +180,7 @@ class LinkDeviceViewModel : ViewModel() {
       _state.update {
         it.copy(
           qrCodeState = QrCodeState.INVALID,
-          linkUri = uri,
-          showFrontCamera = null
+          linkUri = uri
         )
       }
     }

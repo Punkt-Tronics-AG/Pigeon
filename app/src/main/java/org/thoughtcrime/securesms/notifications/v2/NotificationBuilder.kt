@@ -11,6 +11,7 @@ import android.text.TextUtils
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.annotation.WorkerThread
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import androidx.core.content.LocusIdCompat
@@ -34,12 +35,13 @@ import org.thoughtcrime.securesms.util.ConversationUtil
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import java.util.Optional
 import androidx.core.app.Person as PersonCompat
+import org.signal.core.ui.R as CoreUiR
 
 private const val BIG_PICTURE_DIMEN = 500
 
 /**
  * Wraps the compat and OS versions of the Notification builders so we can more easily access native
- * features in newer versions. Also provides some domain specific helpers.
+ * features in newer versions. Also provides some domain-specific helpers.
  *
  * Note: All business logic should exist in the base builder or the models that drive the notifications
  * like NotificationConversation and NotificationItemV2.
@@ -66,7 +68,6 @@ sealed class NotificationBuilder(protected val context: Context) {
   abstract fun setOnlyAlertOnce(onlyAlertOnce: Boolean)
   abstract fun setGroupSummary(isGroupSummary: Boolean)
   abstract fun setSubText(subText: String)
-  abstract fun addMarkAsReadActionActual(state: NotificationState)
   abstract fun setPriority(priority: Int)
   abstract fun setAlarms(recipient: Recipient?)
   abstract fun setTicker(ticker: CharSequence?)
@@ -79,8 +80,12 @@ sealed class NotificationBuilder(protected val context: Context) {
   protected abstract fun setShortcutIdActual(shortcutId: String)
   protected abstract fun setWhen(timestamp: Long)
   protected abstract fun addActions(replyMethod: ReplyMethod, conversation: NotificationConversation)
+  protected abstract fun addMarkAsReadActionActual(conversation: NotificationConversation)
+  protected abstract fun addMarkAsReadActionActual(state: NotificationState)
   protected abstract fun addMessagesActual(conversation: NotificationConversation, includeShortcut: Boolean)
   protected abstract fun addMessagesActual(state: NotificationState)
+
+  @WorkerThread
   protected abstract fun setBubbleMetadataActual(conversation: NotificationConversation, bubbleState: BubbleUtil.BubbleState)
   protected abstract fun setLights(@ColorInt color: Int, onTime: Int, offTime: Int)
 
@@ -115,15 +120,22 @@ sealed class NotificationBuilder(protected val context: Context) {
   }
 
   fun addReplyActions(conversation: NotificationConversation) {
-    if (privacy.isDisplayMessage && isNotLocked && !conversation.recipient.isPushV1Group && RecipientUtil.isMessageRequestAccepted(context, conversation.recipient)) {
+    if (privacy.isDisplayMessage && isNotLocked && !conversation.recipient.isPushV1Group && RecipientUtil.isMessageRequestAccepted(conversation.recipient)) {
       if (conversation.recipient.isPushV2Group) {
         val group: Optional<GroupRecord> = SignalDatabase.groups.getGroup(conversation.recipient.requireGroupId())
         if (group.isPresent && group.get().isAnnouncementGroup && !group.get().isAdmin(Recipient.self())) {
+          addMarkAsReadAction(conversation)
           return
         }
       }
 
       addActions(ReplyMethod.forRecipient(conversation.recipient), conversation)
+    }
+  }
+
+  fun addMarkAsReadAction(conversation: NotificationConversation) {
+    if (privacy.isDisplayMessage && isNotLocked) {
+      addMarkAsReadActionActual(conversation)
     }
   }
 
@@ -145,6 +157,7 @@ sealed class NotificationBuilder(protected val context: Context) {
     addMessagesActual(state)
   }
 
+  @WorkerThread
   fun setBubbleMetadata(conversation: NotificationConversation, bubbleState: BubbleUtil.BubbleState) {
     if (privacy.isDisplayContact && isNotLocked) {
       setBubbleMetadataActual(conversation, bubbleState)
@@ -191,17 +204,7 @@ sealed class NotificationBuilder(protected val context: Context) {
     override fun addActions(replyMethod: ReplyMethod, conversation: NotificationConversation) {
       val extender: NotificationCompat.WearableExtender = NotificationCompat.WearableExtender()
 
-      val markAsRead: PendingIntent? = conversation.getMarkAsReadIntent(context)
-      if (markAsRead != null) {
-        val markAsReadAction: NotificationCompat.Action =
-          NotificationCompat.Action.Builder(R.drawable.symbol_check_24, context.getString(R.string.MessageNotifier_mark_read), markAsRead)
-            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
-            .setShowsUserInterface(false)
-            .build()
-
-        builder.addAction(markAsReadAction)
-        extender.addAction(markAsReadAction)
-      }
+      addMarkAsReadActionActual(conversation)
 
       if (conversation.mostRecentNotification.canReply(context)) {
         val quickReply: PendingIntent? = conversation.getQuickReplyIntent(context)
@@ -235,11 +238,25 @@ sealed class NotificationBuilder(protected val context: Context) {
       builder.extend(extender)
     }
 
+    override fun addMarkAsReadActionActual(conversation: NotificationConversation) {
+      val markAsRead: PendingIntent? = conversation.getMarkAsReadIntent(context)
+      if (markAsRead != null) {
+        val markAsReadAction: NotificationCompat.Action =
+          NotificationCompat.Action.Builder(CoreUiR.drawable.symbol_check_24, context.getString(R.string.MessageNotifier_mark_read), markAsRead)
+            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
+            .setShowsUserInterface(false)
+            .build()
+
+        builder.addAction(markAsReadAction)
+        builder.extend(NotificationCompat.WearableExtender().addAction(markAsReadAction))
+      }
+    }
+
     override fun addMarkAsReadActionActual(state: NotificationState) {
       val markAsRead: PendingIntent? = state.getMarkAsReadIntent(context)
 
       if (markAsRead != null) {
-        val markAllAsReadAction = NotificationCompat.Action(R.drawable.symbol_check_24, context.getString(R.string.MessageNotifier_mark_all_as_read), markAsRead)
+        val markAllAsReadAction = NotificationCompat.Action(CoreUiR.drawable.symbol_check_24, context.getString(R.string.MessageNotifier_mark_all_as_read), markAsRead)
         builder.addAction(markAllAsReadAction)
         builder.extend(NotificationCompat.WearableExtender().addAction(markAllAsReadAction))
       }
@@ -248,7 +265,7 @@ sealed class NotificationBuilder(protected val context: Context) {
     override fun addTurnOffJoinedNotificationsAction(pendingIntent: PendingIntent?) {
       if (pendingIntent != null) {
         val turnOffTheseNotifications = NotificationCompat.Action(
-          R.drawable.symbol_check_24,
+          CoreUiR.drawable.symbol_check_24,
           context.getString(R.string.MessageNotifier_turn_off_these_notifications),
           pendingIntent
         )
@@ -347,22 +364,25 @@ sealed class NotificationBuilder(protected val context: Context) {
       }
     }
 
+    @WorkerThread
     override fun setBubbleMetadataActual(conversation: NotificationConversation, bubbleState: BubbleUtil.BubbleState) {
       if (Build.VERSION.SDK_INT < ConversationUtil.CONVERSATION_SUPPORT_VERSION) {
         return
       }
 
+      val wallpaper = conversation.recipient.wallpaper
+      wallpaper?.prefetch(context, 250)
       val intent: PendingIntent? = NotificationPendingIntentHelper.getActivity(
         context,
         0,
-        ConversationIntents.createBubbleIntent(context, conversation.recipient.id, conversation.thread.threadId),
+        ConversationIntents.createBubbleIntent(context, conversation.recipient.id, conversation.thread.threadId, wallpaper != null),
         mutable()
       )
 
       if (intent != null) {
         val bubbleMetadata = NotificationCompat.BubbleMetadata.Builder(intent, AvatarUtil.getIconCompat(context, conversation.recipient))
           .setAutoExpandBubble(bubbleState === BubbleUtil.BubbleState.SHOWN)
-          .setDesiredHeight(600)
+          .setDesiredHeight(BubbleUtil.getDesiredBubbleHeightPx(context))
           .setSuppressNotification(bubbleState === BubbleUtil.BubbleState.SHOWN)
           .build()
 

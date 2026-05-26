@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Gizliliğinizi koruyun.\nHer iletide kendiniz olun.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal kâr amacı gütmeyen bir kuruluştur\nŞartlar ve Gizlilik Politikası</string>
+    <string name="RegistrationActivity_continue">Devam et</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">Geri yükle veya aktar</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">İzinleri etkinleştir</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Signal, tanıdığın kişilere mesaj gönderebilmen için bu izinleri talep edecek. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">Şimdi değil</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">İleri</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">Bildirimler</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">Yeni mesajlar geldiğinde bildirim al.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">Kişiler</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">Tanıdığın kişileri bul. Kişilerin şifrelendi ve Signal hizmetinde görünmüyor.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">Telefon çağrıları</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">Kayıt işlemini kolaylaştır ve ek çağrı özelliklerini etkinleştir.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">Depolama</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Cihazından fotoğraf, video ve dosya gönder.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">Telefon numarası</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Bir doğrulama kodu alacaksın. Tarife ücreti uygulanabilir.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Bir ülke seç</string>
+    <string name="RegistrationActivity_phone_number_description">Telefon numarası</string>
+    <string name="RegistrationActivity_next">İleri</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">Aşağıdaki telefon numarası doğru mu?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">Bu numaraya bir doğrulama kodu gönderilecektir. Telefon operatörü ücretleri uygulanabilir.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">Numarayı düzenle</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">Menüyü aç</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">Vekil sunucu kullan</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">Cihaz bağla</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">Daha fazlasını öğren</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">Ülken</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">Kapat</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">İsim ya da ülke koduna göre ara</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">Bilinmeyen ülke</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">Doğrulama kodu</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">%1$s numarasına gönderdiğimiz kodu gir</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">Yanlış numara?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">Kodu Yeniden Gönder</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">Bunun yerine beni ara</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">Beni ara (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">Geçersiz kod</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">Bağlanılamıyor. Lütfen ağını kontrol et ve tekrar dene.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">Çok fazla deneme %1$s içinde tekrar dene.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">Beklenmedik bir hata oluştu. Lütfen tekrar dene.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">Numarana SMS gönderemiyoruz. Lütfen birkaç saat sonra tekrar dene.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">Seçilen yöntemle kod gönderilemedi. Lütfen başka bir seçenek dene.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">Kayıt başarısız oldu. Lütfen tekrar dene.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">Sorun mu yaşıyorsun?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">Eski telefonum var</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">Hızla başlamak için mevcut Signal hesabından bir kare kod tara</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">Eski telefonum yanımda değil</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">Ya da Signal\'ı aynı cihaza yeniden yüklüyorsun</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">Hesabı geri yükle veya aktar</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">Mesaj geçmişini ve hesap verilerini nasıl geri yüklemek istediğini seç.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Signal Yedeklemelerinden</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">Ücretsiz veya ücretli Signal Yedekleme planın</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">Cihazda yedeklemeyi geri yükle</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">Mesajlarını cihazına kaydettiğin bir yedeklemeden geri yükle.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">Aktarmadan devam et</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">Mesajlar ve medya aktarılmayacaktır</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">Bir yedekleme klasöründen</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">Bir yedekleme dosyasından</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">Kaydettiğin bir yedeklemeyi seç</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">Eski telefonundan</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">Doğrudan eski Android\'inden aktar</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">Atla</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">Geri yükleme atlansın mı?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">Şimdi geri yüklemeyi atlarsan, daha sonra geri yükleme yapamazsın. Geri yüklemeyi atladıktan sonra yedeklemeleri yeniden etkinleştirirsen, mevcut yedeğin yeni mesaj geçmişinle değiştirilir.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">Geri yüklemeyi atla</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">Cihazda yedeklemeyi geri yükle</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">Mesajlarını cihazına kaydettiğin yedekten geri yükle. Şimdi geri yüklemezsen, daha sonra geri yükleyemezsin.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">Yedekleme klasörü seç</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">Cihazında yedeklemenin depolandığı klasörü seç</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">Yedeklemeler aranıyor…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">Mesajlarını cihazına kaydettiğin yedekleme klasöründen geri yükle. Şimdi geri yüklemezsen, daha sonra geri yükleyemezsin.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">Son yedeklemen:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">Yedeği geri yükle</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">Daha önceki bir yedeklemeyi seç</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">Geri yüklemek için bir yedekleme seç</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">Daha eski bir yedeklemenin seçilmesi, mesajların veya medyanın kaybolmasıyla sonuçlanabilir.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">Yedekleme bulunamadı</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">Seçilen klasörde Signal yedeklemesi bulunamadı. Lütfen farklı bir klasör dene.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">Farklı bir klasör dene</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">Yedek parolasını gir</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">Yerel yedek parolan, hesabını ve verilerini kurtarmak için gereken 30 haneli bir koddur.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">Kurtarma anahtarı</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">Çok uzun (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">Parolan yok mu?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">İleri</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">Kurtarma anahtarını gir</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">Kurtarma anahtarın, hesabını ve verilerini kurtarmak için gereken 64 karakterli bir koddur.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">Kurtarma anahtarı</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">Kurtarma anahtarın mı yok?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">Çok uzun (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">Geçersiz kurtarma anahtarı</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">Hatalı kurtarma anahtarı</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">Geri yükleme hazırlanıyor…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">Yedekleme geri yükleniyor</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">Mesajların ve verilerin geri yüklenirken, lütfen bekle.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">Devam et</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">Geri yükleme başarısız oldu</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">Yedeklemen geri yüklenirken bir hata oluştu. Lütfen tekrar dene.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">Tekrar dene</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">Hesabını bağla</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">Halen Signal\'da değil misin?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">Hesap oluştur</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">Yedekten geri yükle</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">Yedekleme ayrıntıları getiriliyor…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">Yedeği geri yükle</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">Son yedeklemen %1$s tarihinde %2$s saatinde yapılmıştır.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">Medyan arka planda geri yüklenecektir. Şimdi geri yüklememeyi seçersen, daha sonra geri yükleyemezsin.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">Yedek bulunamadı</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">Bu hesap için yedekleme bulunamadı.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">Yedekleme geri yüklenemiyor</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">Yedeklemen şu anda geri yüklenemez. Lütfen tekrar dene.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">Tekrar dene</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">Geri yükleme tamamlanamadı</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">Sunucuya bağlanılırken bir hata oluştu. Lütfen bağlantını kontrol edip tekrar dene.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">Yedeklemen geri yüklenirken bir hata oluştu. Lütfen tekrar dene.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">Bu yedekleme geri yüklenemedi</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal\'ın bu sürümü yedeklemeni geri yükleyemez. En son sürüme güncelle ve tekrar dene.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Signal\'ı Güncelle</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">Şimdi değil</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">Yedekleme geri yüklenemiyor</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">Yedeklemen geri yüklenirken bir hata oluştu. Yedeklemen kurtarılamaz. Lütfen yardım için destek ekibiyle iletişime geç.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">Destekle iletişime geç</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">Yedekleme indiriliyor…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">Mesajlar geri yükleniyor…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">Tamamlanıyor…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">Geri yükleniyor…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%1$s / %2$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">Hiçbir web tarayıcısı bulunamadı.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">Hesap kilitlendi</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">Gizliliğini ve güvenliğini korumak için hesabın kilitlendi. %1$d gün boyunca hesabında hareket olmazsa, PIN’e ihtiyaç duymadan bu telefon numarasını yeniden kaydedebilirsin. Tüm içerikler silinecektir.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">Eski telefonunda Signal\'ı aç</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">Ayarlar &gt; Hesap aktar seçeneğine git</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">Bu kare kodu tara</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">Kaydediliyor…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">Kayıt sırasında bir hata oluştu</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">Eski cihazdan tara</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">Kare kod tarandı</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">Tekrar dene</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"Kare kod üretilemedi"</string>
+</resources>

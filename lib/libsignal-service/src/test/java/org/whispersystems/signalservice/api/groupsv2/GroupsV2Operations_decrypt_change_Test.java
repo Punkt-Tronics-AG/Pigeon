@@ -2,6 +2,9 @@ package org.whispersystems.signalservice.api.groupsv2;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.signal.core.models.ServiceId.ACI;
+import org.signal.core.models.ServiceId.PNI;
+import org.signal.core.util.UuidUtil;
 import org.signal.libsignal.zkgroup.InvalidInputException;
 import org.signal.libsignal.zkgroup.VerificationFailedException;
 import org.signal.libsignal.zkgroup.groups.ClientZkGroupCipher;
@@ -23,6 +26,7 @@ import org.signal.storageservice.storage.protos.groups.local.DecryptedApproveMem
 import org.signal.storageservice.storage.protos.groups.local.DecryptedBannedMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroupChange;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedMember;
+import org.signal.storageservice.storage.protos.groups.local.DecryptedModifyMemberLabel;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedModifyMemberRole;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedPendingMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedPendingMemberRemoval;
@@ -30,9 +34,6 @@ import org.signal.storageservice.storage.protos.groups.local.DecryptedRequesting
 import org.signal.storageservice.storage.protos.groups.local.DecryptedString;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedTimer;
 import org.signal.storageservice.storage.protos.groups.local.EnabledState;
-import org.signal.core.models.ServiceId.ACI;
-import org.signal.core.models.ServiceId.PNI;
-import org.signal.core.util.UuidUtil;
 import org.whispersystems.signalservice.internal.util.Util;
 import org.whispersystems.signalservice.testutil.LibSignalLibraryUtil;
 
@@ -50,8 +51,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.whispersystems.signalservice.api.groupsv2.ProtobufTestUtils.getMaxDeclaredFieldNumber;
 
+@SuppressWarnings("NewClassNamingConvention")
 public final class GroupsV2Operations_decrypt_change_Test {
-
   private GroupSecretParams                  groupSecretParams;
   private GroupsV2Operations.GroupOperations groupOperations;
   private ClientZkOperations                 clientZkOperations;
@@ -72,7 +73,7 @@ public final class GroupsV2Operations_decrypt_change_Test {
     int maxFieldFound = getMaxDeclaredFieldNumber(DecryptedGroupChange.class);
 
     assertEquals("GroupV2Operations#decryptChange and its tests need updating to account for new fields on " + DecryptedGroupChange.class.getName(),
-                 24,
+                 28,
                  maxFieldFound);
   }
 
@@ -457,6 +458,100 @@ public final class GroupsV2Operations_decrypt_change_Test {
                                                                                .profileKey(ByteString.of(profileKey.serialize()))
                                                                                .joinedAtRevision(5)
                                                                                .build())));
+  }
+
+  @Test
+  public void can_decrypt_modify_member_label_field26() {
+    ACI aci = ACI.from(UUID.fromString("d1d1d1d1-0000-4000-8000-000000000001"));
+
+    DecryptedModifyMemberLabel modifyLabelAction = new DecryptedModifyMemberLabel.Builder()
+        .aciBytes(aci.toByteString())
+        .labelString("Label Text")
+        .labelEmoji("🔥")
+        .build();
+
+    assertDecryption(
+        groupOperations.createChangeMemberLabel(aci, "Label Text", "🔥"),
+        new DecryptedGroupChange.Builder().modifyMemberLabels(List.of(modifyLabelAction))
+    );
+  }
+
+  @Test
+  public void member_label_text_is_treated_as_unset_on_decryption_error_field26() {
+    ACI        aci          = ACI.from(UUID.fromString("d1d1d1d1-0000-4000-8000-000000000001"));
+    ByteString invalidBytes = ByteString.of(new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 });
+
+    GroupChange.Actions.Builder change = new GroupChange.Actions.Builder()
+        .modifyMemberLabels(
+            List.of(
+                new GroupChange.Actions.ModifyMemberLabelAction.Builder()
+                    .userId(groupOperations.encryptServiceId(aci))
+                    .labelString(invalidBytes)
+                    .build()
+            )
+        );
+
+    DecryptedGroupChange.Builder expected = new DecryptedGroupChange.Builder()
+        .modifyMemberLabels(
+            List.of(
+                new DecryptedModifyMemberLabel.Builder()
+                    .aciBytes(aci.toByteString())
+                    .labelEmoji("")
+                    .labelString("")
+                    .build()
+            )
+        );
+
+    assertDecryption(change, expected);
+  }
+
+  @Test
+  public void member_label_emoji_is_treated_as_unset_on_decryption_error_field26() {
+    ACI        aci          = ACI.from(UUID.fromString("d1d1d1d1-0000-4000-8000-000000000001"));
+    ByteString invalidBytes = ByteString.of(new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 });
+
+    GroupChange.Actions.Builder change = new GroupChange.Actions.Builder()
+        .modifyMemberLabels(
+            List.of(
+                new GroupChange.Actions.ModifyMemberLabelAction.Builder()
+                    .userId(groupOperations.encryptServiceId(aci))
+                    .labelEmoji(invalidBytes)
+                    .build()
+            )
+        );
+
+    DecryptedGroupChange.Builder expected = new DecryptedGroupChange.Builder()
+        .modifyMemberLabels(
+            List.of(
+                new DecryptedModifyMemberLabel.Builder()
+                    .aciBytes(aci.toByteString())
+                    .labelEmoji("")
+                    .labelString("")
+                    .build()
+            )
+        );
+
+    assertDecryption(change, expected);
+  }
+
+  @Test
+  public void can_pass_through_new_member_label_access_field_27() {
+    GroupChange.Actions.Builder encryptedChange = groupOperations.createChangeMemberLabelRights(AccessControl.AccessRequired.ADMINISTRATOR);
+
+    DecryptedGroupChange.Builder expectedDecryptedChange = new DecryptedGroupChange.Builder()
+        .newMemberLabelAccess(AccessControl.AccessRequired.ADMINISTRATOR);
+
+    assertDecryption(encryptedChange, expectedDecryptedChange);
+  }
+
+  @Test
+  public void can_pass_through_terminate_group_field_28() {
+    GroupChange.Actions.Builder encryptedChange = groupOperations.createTerminateGroup();
+
+    DecryptedGroupChange.Builder expectedDecryptedChange = new DecryptedGroupChange.Builder()
+        .terminateGroup(true);
+
+    assertDecryption(encryptedChange, expectedDecryptedChange);
   }
 
   private static ProfileKey newProfileKey() {

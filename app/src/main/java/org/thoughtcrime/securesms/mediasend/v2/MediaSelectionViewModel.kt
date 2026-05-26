@@ -24,6 +24,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
 import org.signal.core.models.media.Media
 import org.signal.core.util.BreakIteratorCompat
+import org.signal.core.util.Util
 import org.signal.core.util.getParcelableArrayListCompat
 import org.signal.core.util.getParcelableCompat
 import org.signal.core.util.logging.Log
@@ -41,7 +42,6 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.scribbles.ImageEditorFragment
 import org.thoughtcrime.securesms.stories.Stories
 import org.thoughtcrime.securesms.util.MediaUtil
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.livedata.Store
 import java.util.Collections
 import kotlin.math.max
@@ -198,10 +198,18 @@ class MediaSelectionViewModel(
                     video.uri to VideoTrimData(true, duration, 0, maxDuration)
                   }
                 }
+
+              val updatedCameraFirstCapture = if (it.cameraFirstCapture != null) {
+                filterResult.filteredMedia.find { filtered -> filtered.uri == it.cameraFirstCapture.uri }
+              } else {
+                null
+              }
+
               it.copy(
                 selectedMedia = filterResult.filteredMedia,
                 focusedMedia = it.focusedMedia ?: filterResult.filteredMedia.first(),
-                editorStateMap = it.editorStateMap + initializedVideoEditorStates
+                editorStateMap = it.editorStateMap + initializedVideoEditorStates,
+                cameraFirstCapture = updatedCameraFirstCapture ?: it.cameraFirstCapture
               )
             }
 
@@ -464,7 +472,7 @@ class MediaSelectionViewModel(
   }
 
   private fun shouldPreUpload(metered: Boolean): Boolean {
-    return !metered
+    return !metered && !isContactSelectionRequired
   }
 
   fun onSaveState(outState: Bundle) {

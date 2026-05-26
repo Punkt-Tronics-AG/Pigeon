@@ -21,10 +21,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.signal.core.models.AccountEntropyPool
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyScreen
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
@@ -65,7 +65,7 @@ class PostRegistrationEnterBackupKeyFragment : ComposeFragment() {
 
     EnterBackupKeyScreen(
       isDisplayedDuringManualRestore = false,
-      backupKey = viewModel.backupKey,
+      enteredText = viewModel.enteredText,
       isBackupKeyValid = state.backupKeyValid,
       inProgress = state.inProgress,
       chunkLength = 4,

@@ -14,13 +14,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.signal.core.util.logging.Log
+import org.signal.libsignal.net.RequestResult
 import org.signal.registration.NetworkController
 import org.signal.registration.RegistrationFlowEvent
 import org.signal.registration.RegistrationFlowState
 import org.signal.registration.RegistrationRepository
 import org.signal.registration.RegistrationRoute
+import org.signal.registration.screens.EventDrivenViewModel
 import org.signal.registration.screens.util.navigateTo
 
 /**
@@ -33,7 +34,7 @@ class PinEntryForSvrRestoreViewModel(
   private val repository: RegistrationRepository,
   private val parentState: StateFlow<RegistrationFlowState>,
   private val parentEventEmitter: (RegistrationFlowEvent) -> Unit
-) : ViewModel() {
+) : EventDrivenViewModel<PinEntryScreenEvents>(TAG) {
 
   companion object {
     private val TAG = Log.tag(PinEntryForSvrRestoreViewModel::class)
@@ -47,23 +48,18 @@ class PinEntryForSvrRestoreViewModel(
 
   val state: StateFlow<PinEntryState> = _state
     .onEach { Log.d(TAG, "[State] $it") }
-    .stateIn(viewModelScope, SharingStarted.Eagerly, PinEntryState(showNeedHelp = true))
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PinEntryState(showNeedHelp = true))
 
-  fun onEvent(event: PinEntryScreenEvents) {
-    viewModelScope.launch {
-      val stateEmitter: (PinEntryState) -> Unit = { state ->
-        _state.value = state
-      }
-      applyEvent(state.value, event, stateEmitter, parentEventEmitter)
-    }
+  override suspend fun processEvent(event: PinEntryScreenEvents) {
+    applyEvent(state.value, event, parentEventEmitter) { _state.value = it }
   }
 
   @VisibleForTesting
   suspend fun applyEvent(
     state: PinEntryState,
     event: PinEntryScreenEvents,
-    stateEmitter: (PinEntryState) -> Unit,
-    parentEventEmitter: (RegistrationFlowEvent) -> Unit
+    parentEventEmitter: (RegistrationFlowEvent) -> Unit,
+    stateEmitter: (PinEntryState) -> Unit
   ) {
     when (event) {
       is PinEntryScreenEvents.PinEntered -> {
@@ -90,11 +86,11 @@ class PinEntryForSvrRestoreViewModel(
     Log.d(TAG, "[PinEntered] Attempting to restore master key from SVR...")
 
     val svrCredentials = when (val result = repository.getSvrCredentials()) {
-      is NetworkController.RegistrationNetworkResult.Success<NetworkController.SvrCredentials> -> {
-        result.data
+      is RequestResult.Success<NetworkController.SvrCredentials> -> {
+        result.result
       }
-      is NetworkController.RegistrationNetworkResult.Failure<NetworkController.GetSvrCredentialsError> -> {
-        when (result.error) {
+      is RequestResult.NonSuccess<NetworkController.GetSvrCredentialsError> -> {
+        when (val error = result.error) {
           NetworkController.GetSvrCredentialsError.NoServiceCredentialsAvailable -> {
             Log.w(TAG, "[PinEntered] No service credentials available when restoring from SVR. This should not happen. Resetting.")
             parentEventEmitter(RegistrationFlowEvent.ResetState)
@@ -107,46 +103,49 @@ class PinEntryForSvrRestoreViewModel(
           }
         }
       }
-      is NetworkController.RegistrationNetworkResult.NetworkError -> {
+      is RequestResult.RetryableNetworkError -> {
         return state.copy(oneTimeEvent = PinEntryState.OneTimeEvent.NetworkError)
       }
-      is NetworkController.RegistrationNetworkResult.ApplicationError -> {
+      is RequestResult.ApplicationError -> {
         return state.copy(oneTimeEvent = PinEntryState.OneTimeEvent.UnknownError)
       }
     }
 
     return when (val result = repository.restoreMasterKeyFromSvr(svrCredentials, event.pin, state.isAlphanumericKeyboard, forRegistrationLock = false)) {
-      is NetworkController.RegistrationNetworkResult.Success -> {
+      is RequestResult.Success -> {
         Log.i(TAG, "[PinEntered] Successfully restored master key from SVR.")
-        parentEventEmitter(RegistrationFlowEvent.MasterKeyRestoredViaPostRegisterPinEntry(result.data.masterKey))
-        parentEventEmitter.navigateTo(RegistrationRoute.FullyComplete)
+        repository.enqueueSvrResetGuessCountJob()
+        parentEventEmitter(RegistrationFlowEvent.MasterKeyRestoredFromSvr(result.result.masterKey))
+        parentEventEmitter(RegistrationFlowEvent.RegistrationComplete)
         state
       }
-      is NetworkController.RegistrationNetworkResult.Failure -> {
-        when (result.error) {
+      is RequestResult.NonSuccess -> {
+        when (val error = result.error) {
           is NetworkController.RestoreMasterKeyError.WrongPin -> {
-            Log.w(TAG, "[PinEntered] Wrong PIN. Tries remaining: ${result.error.triesRemaining}")
-            state.copy(triesRemaining = result.error.triesRemaining)
+            Log.w(TAG, "[PinEntered] Wrong PIN. Tries remaining: ${error.triesRemaining}")
+            state.copy(triesRemaining = error.triesRemaining)
           }
           is NetworkController.RestoreMasterKeyError.NoDataFound -> {
-            Log.w(TAG, "[PinEntered] No SVR data found. Proceeding without restore.")
-            state.copy(oneTimeEvent = PinEntryState.OneTimeEvent.SvrDataMissing)
+            Log.w(TAG, "[PinEntered] No SVR data found. Need to create a PIN instead.")
+            parentEventEmitter.navigateTo(RegistrationRoute.PinCreate)
+            state
           }
         }
       }
-      is NetworkController.RegistrationNetworkResult.NetworkError -> {
-        Log.w(TAG, "[PinEntered] Network error when restoring master key.", result.exception)
+      is RequestResult.RetryableNetworkError -> {
+        Log.w(TAG, "[PinEntered] Network error when restoring master key.", result.networkError)
         state.copy(oneTimeEvent = PinEntryState.OneTimeEvent.NetworkError)
       }
-      is NetworkController.RegistrationNetworkResult.ApplicationError -> {
-        Log.w(TAG, "[PinEntered] Application error when restoring master key.", result.exception)
+      is RequestResult.ApplicationError -> {
+        Log.w(TAG, "[PinEntered] Application error when restoring master key.", result.cause)
         state.copy(oneTimeEvent = PinEntryState.OneTimeEvent.UnknownError)
       }
     }
   }
 
   private fun handleSkip() {
-    TODO("Handle skip")
+    // TODO [registration] - Handle skip
+    throw NotImplementedError("Handle skip")
   }
 
   class Factory(

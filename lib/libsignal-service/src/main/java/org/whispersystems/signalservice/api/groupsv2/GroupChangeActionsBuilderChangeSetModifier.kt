@@ -48,7 +48,7 @@ internal class GroupChangeActionsBuilderChangeSetModifier(private val result: Gr
   }
 
   override fun clearModifyDisappearingMessagesTimer() {
-    result.modifyDisappearingMessageTimer= null
+    result.modifyDisappearingMessageTimer = null
   }
 
   override fun clearModifyAttributesAccess() {
@@ -99,6 +99,18 @@ internal class GroupChangeActionsBuilderChangeSetModifier(private val result: Gr
 
   override fun removePromotePendingPniAciMembers(i: Int) {
     result.promote_members_pending_pni_aci_profile_key = result.promote_members_pending_pni_aci_profile_key.removeIndex(i)
+  }
+
+  override fun removeModifyMemberLabels(i: Int) {
+    result.modifyMemberLabels = result.modifyMemberLabels.removeIndex(i)
+  }
+
+  override fun clearModifyMemberLabelAccess() {
+    result.modifyMemberLabelAccess = null
+  }
+
+  override fun clearTerminateGroup() {
+    result.terminate_group = null
   }
 
   private fun <T> List<T>.removeIndex(i: Int): List<T> {

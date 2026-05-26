@@ -51,13 +51,19 @@ public class MainNavigator {
                                                  .subscribe(intent -> activity.startActivity(intent));
       lifecycleDisposable.add(disposable);
     } else {
-      Disposable disposable = ConversationIntents.createBuilder(activity, recipientId, threadId)
-                                                 .map(builder -> builder.withDistributionType(distributionType)
-                                                                        .withStartingPosition(startingPosition)
-                                                                        .toConversationArgs())
-                                                 .subscribe(args -> viewModel.goTo(new MainNavigationDetailLocation.Chats.Conversation(args)));
-      lifecycleDisposable.add(disposable);
+      goToConversation(recipientId, threadId, distributionType, startingPosition, false);
     }
+  }
+
+  public void goToConversation(@NonNull RecipientId recipientId, long threadId, int distributionType, int startingPosition, boolean incognito) {
+    Disposable disposable = ConversationIntents.createBuilder(activity, recipientId, threadId)
+                                               .map(builder -> builder.withDistributionType(distributionType)
+                                                                      .withStartingPosition(startingPosition)
+                                                                      .asIncognito(incognito)
+                                                                      .toConversationArgs())
+                                               .subscribe(args -> viewModel.goTo(new MainNavigationDetailLocation.Conversation(args)));
+
+    lifecycleDisposable.add(disposable);
   }
 
   public void goToAppSettings() {

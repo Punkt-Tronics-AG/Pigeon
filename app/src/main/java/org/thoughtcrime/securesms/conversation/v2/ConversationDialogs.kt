@@ -10,6 +10,7 @@ import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.concurrent.SimpleTask
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity
+import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.recipients.Recipient
@@ -29,6 +30,20 @@ object ConversationDialogs {
     MaterialAlertDialogBuilder(context).setTitle(R.string.ConversationActivity_cant_start_group_call)
       .setMessage(R.string.ConversationActivity_only_admins_of_this_group_can_start_a_call)
       .setPositiveButton(android.R.string.ok) { d: DialogInterface, w: Int -> d.dismiss() }
+      .show()
+  }
+
+  fun displayCannotStartGroupCallDueToNoLongerAMemberDialog(context: Context) {
+    MaterialAlertDialogBuilder(context).setTitle(R.string.ConversationActivity_cant_start_group_call)
+      .setMessage(R.string.CallLogFragment__cant_start_call_no_longer_a_member)
+      .setPositiveButton(android.R.string.ok) { d: DialogInterface, _: Int -> d.dismiss() }
+      .show()
+  }
+
+  fun displayCannotStartGroupCallDueToGroupEndedDialog(context: Context) {
+    MaterialAlertDialogBuilder(context).setTitle(R.string.ConversationActivity_cant_start_group_call)
+      .setMessage(R.string.conversation_activity__group_action_not_allowed_group_ended)
+      .setPositiveButton(android.R.string.ok) { d: DialogInterface, _: Int -> d.dismiss() }
       .show()
   }
 
@@ -92,6 +107,37 @@ object ConversationDialogs {
         }
       }
       .show()
+  }
+
+  fun displayTerminatedGroupSendFailedDialog(context: Context, messageRecord: MessageRecord) {
+    MaterialAlertDialogBuilder(context)
+      .setMessage(R.string.conversation_activity__send_failed_group_ended)
+      .setNegativeButton(R.string.ConversationFragment_delete_for_me) { _, _ ->
+        SignalExecutors.BOUNDED.execute {
+          SignalDatabase.messages.deleteMessage(messageRecord.id)
+        }
+      }
+      .setPositiveButton(android.R.string.ok, null)
+      .show()
+  }
+
+  fun displayDeletionFailedDialog(context: Context, messageRecord: MessageRecord, canRetry: Boolean) {
+    if (canRetry) {
+      MaterialAlertDialogBuilder(context)
+        .setMessage(R.string.conversation_activity__message_failed_to_delete_retry)
+        .setNegativeButton(android.R.string.cancel, null)
+        .setPositiveButton(R.string.conversation_activity__send) { _, _ ->
+          SignalExecutors.BOUNDED.execute {
+            MessageSender.resendAdminDelete(messageRecord, messageRecord.networkFailures.map { it.recipientId })
+          }
+        }
+        .show()
+    } else {
+      MaterialAlertDialogBuilder(context)
+        .setMessage(R.string.conversation_activity__message_failed_to_delete)
+        .setPositiveButton(android.R.string.ok, null)
+        .show()
+    }
   }
 
   @JvmStatic

@@ -230,16 +230,21 @@ object Rows {
     labels: Array<String>,
     values: Array<String>,
     selection: Array<String>,
+    noSelectionLabel: String,
     onSelectionChanged: (Array<String>) -> Unit
   ) {
     var displayDialog by remember { mutableStateOf(false) }
 
     TextRow(
       text = text,
-      label = selection.joinToString(", ") {
-        val index = values.indexOf(it)
-        if (index == -1) error("not found: $it in ${values.joinToString(", ")}")
-        labels[index]
+      label = if (selection.isNotEmpty()) {
+        selection.joinToString(", ") {
+          val index = values.indexOf(it)
+          if (index == -1) error("not found: $it in ${values.joinToString(", ")}")
+          labels[index]
+        }
+      } else {
+        noSelectionLabel
       },
       onClick = {
         displayDialog = true
@@ -740,6 +745,7 @@ private fun MultiSelectRowPreview() {
       labels = arrayOf("A", "B", "C"),
       values = arrayOf("a", "b", "c"),
       selection = selectedValues,
+      noSelectionLabel = "None",
       onSelectionChanged = {
         selectedValues = it
       }

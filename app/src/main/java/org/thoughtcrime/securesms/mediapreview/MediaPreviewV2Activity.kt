@@ -22,6 +22,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.util.WindowUtil
+import org.signal.core.ui.R as CoreUiR
 import pigeon.extensions.isPigeonVersion
 
 class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner {
@@ -91,7 +92,7 @@ class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaContr
     setContentView(R.layout.activity_mediapreview_v2)
 
     transitionImageView = findViewById(R.id.transition_image_view)
-    val cacheDrawable = MediaPreviewCache.drawable
+    val cacheDrawable = MediaPreviewCache.drawable?.let { RecycledBitmapGuardDrawable(it) }
     if (cacheDrawable != null && !args.skipSharedElementTransition) {
       val bounds = cacheDrawable.bounds
       val aspectRatio = bounds.width().toFloat() / bounds.height()
@@ -106,7 +107,9 @@ class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaContr
         }
       }
 
-      transitionImageView.setImageDrawable(MediaPreviewCache.drawable)
+      val originalCallback = cacheDrawable.callback
+      transitionImageView.setImageDrawable(cacheDrawable)
+      cacheDrawable.callback = originalCallback
 
       lifecycleDisposable += viewModel.state.map {
         it.isInSharedAnimation to it.loadState
@@ -126,7 +129,7 @@ class MediaPreviewV2Activity : PassphraseRequiredActivity(), VoiceNoteMediaContr
 
     voiceNoteMediaController = VoiceNoteMediaController(this, false)
 
-    val systemBarColor = ContextCompat.getColor(this, R.color.signal_dark_colorSurface)
+    val systemBarColor = ContextCompat.getColor(this, CoreUiR.color.signal_dark_colorSurface)
     window.statusBarColor = systemBarColor
     window.navigationBarColor = systemBarColor
     WindowUtil.clearLightStatusBar(window)

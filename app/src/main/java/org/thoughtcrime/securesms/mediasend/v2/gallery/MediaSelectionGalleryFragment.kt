@@ -3,19 +3,21 @@ package org.thoughtcrime.securesms.mediasend.v2.gallery
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.signal.core.models.media.Media
+import org.signal.core.ui.permissions.Permissions
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionNavigator
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionNavigator.Companion.requestPermissionsForCamera
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionViewModel
 import org.thoughtcrime.securesms.mediasend.v2.review.MediaSelectionItemTouchHelper
-import org.thoughtcrime.securesms.permissions.Permissions
+import org.signal.core.ui.R as CoreUiR
 
 private const val MEDIA_GALLERY_TAG = "MEDIA_GALLERY"
 
@@ -49,7 +51,12 @@ class MediaSelectionGalleryFragment : Fragment(R.layout.fragment_container), Med
     mediaGalleryFragment.bindSelectedMediaItemDragHelper(ItemTouchHelper(MediaSelectionItemTouchHelper(sharedViewModel)))
 
     sharedViewModel.state.observe(viewLifecycleOwner) { state ->
-      mediaGalleryFragment.onViewStateUpdated(MediaGalleryFragment.ViewState(state.selectedMedia))
+      mediaGalleryFragment.onViewStateUpdated(
+        MediaGalleryFragment.ViewState(
+          selectedMedia = state.selectedMedia,
+          chatColor = state.recipient?.chatColors?.asSingleColor() ?: ContextCompat.getColor(requireContext(), CoreUiR.color.signal_light_colorPrimary)
+        )
+      )
     }
 
     lifecycleDisposable += sharedViewModel.mediaErrors

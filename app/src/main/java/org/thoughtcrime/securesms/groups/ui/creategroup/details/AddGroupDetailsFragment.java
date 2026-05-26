@@ -29,17 +29,21 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.RequestManager;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.EditTextUtil;
-import org.thoughtcrime.securesms.LoggingFragment;
+import org.signal.core.ui.logging.LoggingFragment;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.avatar.picker.AvatarPickerFragment;
+import org.thoughtcrime.securesms.contacts.ContactChip;
+import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.components.settings.app.privacy.expire.ExpireTimerSettingsFragment;
 import org.thoughtcrime.securesms.groups.ui.GroupMemberListView;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.signal.core.models.media.Media;
-import org.thoughtcrime.securesms.mms.DecryptableUri;
+import org.signal.glide.decryptableuri.DecryptableUri;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -70,7 +74,6 @@ public class AddGroupDetailsFragment extends LoggingFragment {
   private EditText                       name;
   private Toolbar                        toolbar;
   private View                           disappearingMessagesRow;
-  private TextView                       header;
 
   @Override
   public void onAttach(@NonNull Context context) {
@@ -97,7 +100,6 @@ public class AddGroupDetailsFragment extends LoggingFragment {
     name                    = view.findViewById(R.id.name);
     toolbar                 = view.findViewById(R.id.toolbar);
     disappearingMessagesRow = view.findViewById(R.id.group_disappearing_messages_row);
-    header                  = view.findViewById(R.id.header);
 
     setCreateEnabled(false);
 
@@ -154,9 +156,30 @@ public class AddGroupDetailsFragment extends LoggingFragment {
       startActivityForResult(RecipientDisappearingMessagesActivity.forCreateGroup(requireContext(), viewModel.getDisappearingMessagesTimer().getValue()), REQUEST_DISAPPEARING_TIMER);
     });
 
-    animateGroup(name, header);
+    View      sameGroupsSection   = view.findViewById(R.id.same_groups_section);
+    ChipGroup sameGroupsChipGroup = view.findViewById(R.id.same_groups_chip_group);
+
+    if (SignalStore.labs().getGroupSuggestionsForMembers()) {
+      viewModel.getSameGroups().observe(getViewLifecycleOwner(), groups -> {
+        sameGroupsChipGroup.removeAllViews();
+        if (groups.isEmpty()) {
+          sameGroupsSection.setVisibility(View.GONE);
+        } else {
+          sameGroupsSection.setVisibility(View.VISIBLE);
+          RequestManager requestManager = Glide.with(this);
+          for (Recipient group : groups) {
+            ContactChip chip = new ContactChip(requireContext());
+            chip.setText(group.getDisplayName(requireContext()));
+            chip.setAvatar(requestManager, group, null);
+            chip.setCloseIconVisible(false);
+            chip.setOnClickListener(v -> navigateToConversation(group.getId()));
+            sameGroupsChipGroup.addView(chip);
+          }
+        }
+      });
+    }
+
     name.requestFocus();
-    focusOnLeft(create);
 
     getParentFragmentManager().setFragmentResultListener(AvatarPickerFragment.REQUEST_KEY_SELECT_AVATAR,
                                                          getViewLifecycleOwner(),
@@ -270,6 +293,14 @@ public class AddGroupDetailsFragment extends LoggingFragment {
   private void setCreateEnabled(boolean isEnabled) {
     create.setClickable(isEnabled);
     create.setEnabled(isEnabled);
+  }
+
+  private void navigateToConversation(@NonNull RecipientId groupRecipientId) {
+    ConversationIntents.createBuilder(requireContext(), groupRecipientId, -1L)
+                       .subscribe(builder -> {
+                         startActivity(builder.build());
+                         requireActivity().finish();
+                       });
   }
 
   private void showAvatarPicker() {

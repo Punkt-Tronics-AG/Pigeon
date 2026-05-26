@@ -153,6 +153,22 @@ import org.thoughtcrime.securesms.database.helpers.migration.V296_RemovePollVote
 import org.thoughtcrime.securesms.database.helpers.migration.V297_AddPinnedMessageColumns
 import org.thoughtcrime.securesms.database.helpers.migration.V298_DoNotBackupReleaseNotes
 import org.thoughtcrime.securesms.database.helpers.migration.V299_AddAttachmentMetadataTable
+import org.thoughtcrime.securesms.database.helpers.migration.V300_AddKeyTransparencyColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V301_RemoveCallLinkEpoch
+import org.thoughtcrime.securesms.database.helpers.migration.V302_AddDeletedByColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V303_CaseInsensitiveUsernames
+import org.thoughtcrime.securesms.database.helpers.migration.V304_CallAndReplyNotificationSettings
+import org.thoughtcrime.securesms.database.helpers.migration.V305_AddStoryArchivedColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V306_AddRemoteDeletedColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V308_AddBackRemoteDeletedColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V309_GroupTerminatedColumnMigration
+import org.thoughtcrime.securesms.database.helpers.migration.V310_AddStarredColumn
+import org.thoughtcrime.securesms.database.helpers.migration.V311_AddAttachmentMediaOverviewSizeIndex
+import org.thoughtcrime.securesms.database.helpers.migration.V312_RefactorNameCollisionTables
+import org.thoughtcrime.securesms.database.helpers.migration.V313_AddCollapsingUpdateColumns
+import org.thoughtcrime.securesms.database.helpers.migration.V314_FixMessageRequestAcceptedToRecipient
+import org.thoughtcrime.securesms.database.helpers.migration.V315_CleanupE164SenderKeyShared
+import org.thoughtcrime.securesms.database.helpers.migration.V316_AddVerifiedGroupNameHashMigration
 import org.thoughtcrime.securesms.database.SQLiteDatabase as SignalSqliteDatabase
 
 /**
@@ -312,10 +328,27 @@ object SignalDatabaseMigrations {
     296 to V296_RemovePollVoteConstraint,
     297 to V297_AddPinnedMessageColumns,
     298 to V298_DoNotBackupReleaseNotes,
-    299 to V299_AddAttachmentMetadataTable
+    299 to V299_AddAttachmentMetadataTable,
+    300 to V300_AddKeyTransparencyColumn,
+    301 to V301_RemoveCallLinkEpoch,
+    302 to V302_AddDeletedByColumn,
+    303 to V303_CaseInsensitiveUsernames,
+    304 to V304_CallAndReplyNotificationSettings,
+    305 to V305_AddStoryArchivedColumn,
+    306 to V306_AddRemoteDeletedColumn,
+//    307 to V307_RemoveRemoteDeletedColumn - Removed due to unsolvable OOM crashes. [TODO]: Attempt to fix in the future
+    308 to V308_AddBackRemoteDeletedColumn,
+    309 to V309_GroupTerminatedColumnMigration,
+    310 to V310_AddStarredColumn,
+    311 to V311_AddAttachmentMediaOverviewSizeIndex,
+    312 to V312_RefactorNameCollisionTables,
+    313 to V313_AddCollapsingUpdateColumns,
+    314 to V314_FixMessageRequestAcceptedToRecipient,
+    315 to V315_CleanupE164SenderKeyShared,
+    316 to V316_AddVerifiedGroupNameHashMigration
   )
 
-  const val DATABASE_VERSION = 299
+  const val DATABASE_VERSION = 316
 
   @JvmStatic
   fun migrate(context: Application, db: SignalSqliteDatabase, oldVersion: Int, newVersion: Int) {
@@ -365,8 +398,5 @@ object SignalDatabaseMigrations {
 
   @JvmStatic
   fun migratePostTransaction(context: Context, oldVersion: Int) {
-    if (oldVersion < V149_LegacyMigrations.MIGRATE_PREKEYS_VERSION) {
-      PreKeyMigrationHelper.cleanUpPreKeys(context)
-    }
   }
 }

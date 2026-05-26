@@ -13,5 +13,5 @@ repositories {
 }
 
 dependencies {
-  implementation("com.squareup.wire:wire-schema:4.4.3")
+  implementation("com.squareup.wire:wire-schema:6.0.0-alpha02")
 }

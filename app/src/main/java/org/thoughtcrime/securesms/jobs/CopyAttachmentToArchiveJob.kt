@@ -8,12 +8,14 @@ import org.signal.core.util.bytes
 import org.signal.core.util.logging.Log
 import org.signal.core.util.logging.logW
 import org.signal.libsignal.zkgroup.VerificationFailedException
+import org.signal.network.NetworkResult
 import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.attachments.Cdn
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment
 import org.thoughtcrime.securesms.backup.ArchiveUploadProgress
 import org.thoughtcrime.securesms.backup.v2.ArchiveDatabaseExecutor
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
+import org.thoughtcrime.securesms.backup.v2.hadIntegrityCheckPerformed
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.database.SignalDatabase
 import org.thoughtcrime.securesms.dependencies.AppDependencies
@@ -24,7 +26,6 @@ import org.thoughtcrime.securesms.jobs.protos.CopyAttachmentToArchiveJobData
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.RemoteConfig
-import org.whispersystems.signalservice.api.NetworkResult
 import java.util.concurrent.TimeUnit
 
 /**
@@ -85,6 +86,11 @@ class CopyAttachmentToArchiveJob private constructor(private val attachmentId: A
       return Result.success()
     }
 
+    if (SignalStore.backup.isNotEnoughRemoteStorageSpace) {
+      Log.w(TAG, "[$attachmentId] Already marked as out of remote storage space. Failing.")
+      return Result.failure()
+    }
+
     val attachment: DatabaseAttachment? = SignalDatabase.attachments.getAttachment(attachmentId)
 
     if (attachment == null) {
@@ -129,6 +135,12 @@ class CopyAttachmentToArchiveJob private constructor(private val attachmentId: A
 
     if (attachment.contentType == MediaUtil.LONG_TEXT) {
       Log.i(TAG, "[$attachmentId]$mediaIdLog Attachment is long text. Resetting transfer state to none and skipping.")
+      setArchiveTransferStateWithDelayedNotification(attachmentId, AttachmentTable.ArchiveTransferState.NONE)
+      return Result.success()
+    }
+
+    if (!attachment.hadIntegrityCheckPerformed()) {
+      Log.w(TAG, "[$attachmentId]$mediaIdLog Attachment has not had its integrity check performed yet (transferState: ${attachment.transferState}). Resetting transfer state to none and skipping.")
       setArchiveTransferStateWithDelayedNotification(attachmentId, AttachmentTable.ArchiveTransferState.NONE)
       return Result.success()
     }
@@ -201,6 +213,10 @@ class CopyAttachmentToArchiveJob private constructor(private val attachmentId: A
             ArchiveAttachmentReconciliationJob.enqueueIfRetryAllowed(forced = true)
 
             Result.retry(defaultBackoff())
+          }
+          429 -> {
+            Log.w(TAG, "[$attachmentId]$mediaIdLog Rate limit exceeded. Retrying.")
+            Result.retry(archiveResult.retryAfter()?.inWholeMilliseconds ?: defaultBackoff())
           }
           else -> {
             Log.w(TAG, "[$attachmentId]$mediaIdLog Got back a non-2xx status code: ${archiveResult.code}. Retrying.")

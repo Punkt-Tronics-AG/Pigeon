@@ -24,6 +24,7 @@ import org.thoughtcrime.securesms.util.layoutIn
 import org.thoughtcrime.securesms.util.toLocalDate
 import java.util.Locale
 import kotlin.math.max
+import org.signal.core.ui.R as CoreUiR
 
 private typealias ConversationElement = MappingModel<*>
 
@@ -56,6 +57,12 @@ class ConversationItemDecorations(hasWallpaper: Boolean = false, private val sch
       field = value
       headerCache.values.forEach { it.updateForWallpaper() }
       unreadViewHolder?.updateForWallpaper()
+    }
+
+  var isReleaseNotes: Boolean = false
+    set(value) {
+      field = value
+      headerCache.values.forEach { it.updateForWallpaper() }
     }
 
   var selfRecipientId: RecipientId? = null
@@ -306,12 +313,15 @@ class ConversationItemDecorations(hasWallpaper: Boolean = false, private val sch
     }
 
     fun updateForWallpaper() {
-      if (hasWallpaper) {
+      if (isReleaseNotes) {
+        date.setBackgroundResource(R.drawable.release_notes_date_header_background)
+        date.setTextColor(ContextCompat.getColor(itemView.context, CoreUiR.color.signal_colorOnSurfaceVariant))
+      } else if (hasWallpaper) {
         date.setBackgroundResource(R.drawable.wallpaper_bubble_background_18)
-        date.setTextColor(ContextCompat.getColor(itemView.context, R.color.signal_colorNeutralInverse))
+        date.setTextColor(ContextCompat.getColor(itemView.context, CoreUiR.color.signal_colorNeutralInverse))
       } else {
         date.background = null
-        date.setTextColor(ContextCompat.getColor(itemView.context, R.color.signal_colorOnSurfaceVariant))
+        date.setTextColor(ContextCompat.getColor(itemView.context, CoreUiR.color.signal_colorOnSurfaceVariant))
       }
     }
   }

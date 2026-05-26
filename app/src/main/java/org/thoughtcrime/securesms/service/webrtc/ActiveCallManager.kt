@@ -27,11 +27,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import org.signal.core.ui.permissions.Permissions
 import org.signal.core.util.PendingIntentFlags
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobs.UnableToStartException
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.service.SafeForegroundService
@@ -212,7 +212,14 @@ class ActiveCallManager(
 
   fun sendAudioCommand(audioCommand: AudioManagerCommand) {
     if (signalAudioManager == null) {
-      signalAudioManager = create(application, this)
+      val canUseTelecom = if (audioCommand is AudioManagerCommand.Initialize) {
+        !audioCommand.isGroupCall
+      } else {
+        Log.w(TAG, "First AudioCommand received was not Initialize, skipping Telecom usage, command: ${audioCommand.javaClass.simpleName}")
+        false
+      }
+
+      signalAudioManager = create(context = application, eventListener = this, canUseTelecom = canUseTelecom)
     }
 
     Log.i(TAG, "Sending audio command [" + audioCommand.javaClass.simpleName + "] to " + signalAudioManager?.javaClass?.simpleName)
@@ -281,12 +288,16 @@ class ActiveCallManager(
       private const val EXTRA_RECIPIENT_ID = "RECIPIENT_ID"
       private const val EXTRA_IS_VIDEO_CALL = "IS_VIDEO_CALL"
       private const val EXTRA_TYPE = "TYPE"
+      private const val EXTRA_SCREEN_SHARING = "SCREEN_SHARING"
 
-      fun update(context: Context, @CallNotificationBuilder.CallNotificationType type: Int, recipientId: RecipientId, isVideoCall: Boolean) {
+      @JvmStatic
+      @JvmOverloads
+      fun update(context: Context, @CallNotificationBuilder.CallNotificationType type: Int, recipientId: RecipientId, isVideoCall: Boolean, isScreenSharing: Boolean = false) {
         val extras = bundleOf(
           EXTRA_TYPE to type,
           EXTRA_RECIPIENT_ID to recipientId,
-          EXTRA_IS_VIDEO_CALL to isVideoCall
+          EXTRA_IS_VIDEO_CALL to isVideoCall,
+          EXTRA_SCREEN_SHARING to isScreenSharing
         )
 
         if (!SafeForegroundService.update(context, ActiveCallForegroundService::class.java, extras)) {
@@ -301,27 +312,13 @@ class ActiveCallManager(
       }
     }
 
+    private var isScreenSharing: Boolean = false
+
     override val tag: String
       get() = TAG
 
     override val notificationId: Int
       get() = CallNotificationBuilder.WEBRTC_NOTIFICATION
-
-    @get:RequiresApi(30)
-    override val serviceType: Int
-      get() {
-        var type = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-
-        if (Permissions.hasAll(this, Manifest.permission.RECORD_AUDIO)) {
-          type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-        }
-
-        if (Permissions.hasAll(this, Manifest.permission.CAMERA)) {
-          type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
-        }
-
-        return type
-      }
 
     @Suppress("DEPRECATION")
     private var hangUpRtcOnDeviceCallAnswered: PhoneStateListener? = null
@@ -372,6 +369,31 @@ class ActiveCallManager(
       }
     }
 
+    @RequiresApi(30)
+    override fun serviceType(intent: Intent): Int {
+      val telecom = Build.VERSION.SDK_INT >= 36 && AndroidTelecomUtil.hasActiveController()
+
+      var type = if (telecom) {
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
+      } else {
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+      }
+
+      if (Permissions.hasAll(this, Manifest.permission.RECORD_AUDIO)) {
+        type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+      }
+
+      if (Permissions.hasAll(this, Manifest.permission.CAMERA)) {
+        type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+      }
+
+      if (intent.getBooleanExtra(EXTRA_SCREEN_SHARING, false)) {
+        type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+      }
+
+      return type
+    }
+
     override fun getForegroundNotification(intent: Intent): Notification {
       notificationDisposable.dispose()
 
@@ -408,6 +430,15 @@ class ActiveCallManager(
       }
 
       return createNotification(type, recipient, isVideoCall, skipAvatarLoad = requiresAsyncNotificationLoad)
+    }
+
+    override fun onServiceUpdateCommandReceived(intent: Intent) {
+      val wasScreenSharing = isScreenSharing
+      isScreenSharing = intent.getBooleanExtra(EXTRA_SCREEN_SHARING, false)
+
+      if (isScreenSharing && !wasScreenSharing) {
+        AppDependencies.signalCallManager.onScreenSharingServiceReady()
+      }
     }
 
     private fun createNotification(type: Int, recipient: Recipient, isVideoCall: Boolean, skipAvatarLoad: Boolean): Notification {

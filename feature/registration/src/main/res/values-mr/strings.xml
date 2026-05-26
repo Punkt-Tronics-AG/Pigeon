@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">गोपनीयता आपल्यासोबत न्या.\nप्रत्येक संदेशात आपण स्वतः रहा.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal एक ना-नफा संस्था आहे\nअटी व गोपनीयता धोरण</string>
+    <string name="RegistrationActivity_continue">सुरू ठेवा</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">परत मिळवा किंवा हस्तांतरण करा</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">परवानग्यांची अनुमती द्या</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">आपण ओळखत असलेल्या लोकांना संदेश करण्यास मदत करण्यासाठी, Signal या परवानग्यांची विनंती करेल. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">आता नाही</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">पुढे</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">अधिसूचना</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">नवीन संदेश आल्यानंतर सूचना प्राप्त करा.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">संपर्क</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">आपण ओळखत असलेल्या लोकांना शोधा. आपले संपर्क कूटबद्ध केलेले आहेत आणि ते Signal सेवेला दृश्यमान नाहीत.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">फोन कॉल्स</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">नोंदणी करणे अधिक सोपे करते आणि अतिरिक्त कॉलिंग वैशिष्ट्ये सक्षम करते.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">संचयन</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">फोटो, व्हिडीओ आणि फाईल आपल्या डिव्हाइसवरून पाठवा.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">फोन नंबर</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">आपल्याला एक सत्यापन कोड प्राप्त होईल. वाहक रेट लागू होऊ शकतात.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">एक देश निवडा</string>
+    <string name="RegistrationActivity_phone_number_description">फोन नंबर</string>
+    <string name="RegistrationActivity_next">पुढे</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">खाली दिलेला फोन नंबर बरोबर आहे काय?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">या नंबरला सत्यापन कोड पाठवला जाईल. कॅरियर दर लागू शकतात.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">नंबर संपादित करा</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">मेनू उघडा</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">प्रॉक्सी वापरा</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">डिव्हाईस लिंक करा</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">अधिक जाणून घ्या</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">तुमचा देश</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">बंद करा</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">नाव किंवा कंट्री कोड नंबर द्वारा शोधा</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">अज्ञात देश</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">सत्यापन कोड</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">%1$s वर पाठवलेला कोड प्रविष्ट करा</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">चुकीचा नंबर?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">कोड पुन्हा पाठवा</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">मग मला कॉल करा</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">(%1$02d:%2$02d) मला कॉल करा</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">चुकीचा कोड</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">कनेक्ट करता येत नाही. कृपया तुमचे नेटवर्क तपासा आणि पुन्हा प्रयत्न करा.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">खूप जास्त प्रयत्न. %1$s नंतर पुन्हा प्रयत्न करा.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">अनपेक्षित त्रूटी उद्भवली. कृपया पुन्हा प्रयत्न करा.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">आम्हाला तुमच्या क्रमांकावर SMS पाठवता येत नाहीये. कृपया काही तासांनी पुन्हा प्रयत्न करा.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">निवडलेल्या पद्धतीने कोड पाठवता आला नाही. कृपया दुसरा मार्ग वापरून पाहा.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">नोंदणी अपयशी ठरली. कृपया पुन्हा प्रयत्न करा.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">अडचण येत आहे का?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">माझ्याकडे माझा जुना फोन आहे</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">पटकन सुरु करण्यासाठी आपल्या चालू Signal अकाऊंट मधून QR कोड स्कॅन करा</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">माझ्याकडे माझा जुना फोन नाही</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">किंवा आपण त्याच डिव्हाईसवर Signal पुन्हा इन्स्टॉल करत आहात</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">अकाऊंट परत मिळवा किंवा हस्तांतरित करा</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">तुम्हाला तुमचा संदेश इतिहास आणि खाते माहिती परत कशी मिळवायची आहे ते निवडा.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Signal बॅकअप्स वरून</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">आपला विनामूल्य किंवा सशुल्क Signal बॅकअप प्लॅन</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">डिव्हाईस वरील बॅकअप परत मिळवा</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">तुमचे संदेश तुम्ही तुमच्या डिव्हाईसवर जतन केलेल्या बॅकअपमधून परत मिळवा.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">हस्तांतरित न करता पुढे जा</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">संदेश आणि मीडिया हस्तांतरित होणार नाहीत</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">बॅकअप फोल्डर मधून</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">बॅकअप फाईलमधून</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">तुम्ही जतन केलेला बॅकअप निवडा</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">आपल्या जुन्या फोनमधून</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">आपल्या जुन्या ॲन्ड्राइड वरून थेट हस्तांतरण करा</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">वगळा</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">परत मिळवण्याची क्रिया वगळायची?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">जर तुम्ही आत्ता परत मिळवले नाहीत तर तुम्हाला नंतरही परत मिळवता येणार नाही. जर तुम्ही परत रीस्टोर न करता नंतर बॅकअप्स सक्रिय केलेत, तर तुमचा नवीन संदेश इतिहास तुमच्या सध्याच्या बॅकअपची जागा घेईल.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">पुर्नस्थापित करणे वगळा</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">डिव्हाईस वरील बॅकअप परत मिळवा</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">आपले संदेश आपण आपल्या डिव्हाईसवर जतन केलेल्या बॅकअपमधून परत मिळवा. जर तुम्ही ते आत्ता परत मिळवले नाहीत, तर तुम्हाला ते नंतर परत मिळवता येणार नाहीत.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">बॅकअप फोल्डर निवडा</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">तुमच्या डिव्हाईस वर जिथे बॅकअप जतन केलेला आहे तो फोल्डर निवडा</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">बॅकअप्स शोधत आहोत…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">तुम्ही तुमच्या डिव्हाईसवर जतन केलेल्या बॅकअप फोल्डरमधून तुमचे संदेश परत मिळवा. जर तुम्ही ते आत्ता परत मिळवले नाहीत, तर तुम्हाला ते नंतर परत मिळवता येणार नाहीत.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">तुमचा नवीन बॅकअप:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">बॅकअप पुनर्स्थापित करा</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">या आधीचा बॅकअप निवडा:</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">कोणता बॅकअप परत मिळवायचा ते निवडा</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">जुना बॅकअप निवडल्याने तुम्ही संदेश किंवा मीडिया गमावू शकता.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">बॅकअप मिळाला नाही</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">निवडलेल्या फोल्डरमध्ये Signal बॅकअप मिळाला नाही. कृपया एका वेगळ्या फोल्डरमध्ये प्रयत्न करून पाहा.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">वेगळ्या फोल्डरमध्ये प्रयत्न करून पाहा</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">बॅकअप पासफ्रेझ प्रविष्ट करा</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">तुमचे स्थानिक बॅकअप संकेतवाक्य एक 30 अंकी कोड आहे जो तुमचे खाते आणि डेटा परत मिळवण्यासाठी आवश्यक असतो.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">रीकव्हरी की</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">खूप लांब (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">पासफ्रेज नाही?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">पुढे</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">तुमची रीकव्हरी की प्रविष्ट करा</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">आपली रीकव्हरी की एक 64 अंकी कोड असतो जो आपला अकाऊंट आणि माहिती परत मिळवण्यासाठी आवश्यक असतो.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">रीकव्हरी की</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">रीकव्हरी की नाही?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">खूप लांब (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">अवैध रीकव्हरी की</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">चुकीची रीकव्हरी की</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">रीस्टोर तयार होत आहे…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">बॅकअप परत मिळवत आहोत</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">तुमचे संदेश आणि डेटा रीस्टोर होत आहेत, तोपर्यंत कृपया थांबा.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">सुरू ठेवा</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">रीस्टोर अपयशी ठरले</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">तुमचा बॅकअप रीस्टोर करतेवेळी एक त्रुटी उद्भवली. कृपया पुन्हा प्रयत्न करा.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">पुन्हा प्रयत्न करा</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">तुमचे खाते लिंक करा</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">अजून Signal वर आले नाही?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">खाते तयार करा</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">बॅकअपवरून पुनर्स्थापित करा</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">बॅकअप तपशील आणत आहे…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">बॅकअप पुनर्स्थापित करा</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">आपला शेवटचा बॅकअप %1$s रोजी %2$s वाजता घेतला.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">तुमचा मीडिया पाठीमागे पूर्ववत होईल. तुम्ही आत्ता पूर्ववत न करण्याचा निर्णय घेतलात, तर तुम्हाला नंतर ते पूर्ववत करता येणार नाहीत.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">बॅकअप सापडला नाही</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">या खात्यासाठी कोणताही बॅकअप मिळाला नाही.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">बॅकअप पुनर्स्थापित करता येत नाही</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">तुमचा बॅकअप आत्ता पुनर्स्थापित करता येणार नाही. कृपया पुन्हा प्रयत्न करा.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">पुन्हा प्रयत्न करा</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">रीस्टोर पूर्ण करता आले नाही</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">सर्व्हरशी कनेक्ट करताना एक त्रुटी उद्भवली. कृपया तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">तुमचा बॅकअप रीस्टोर करतेवेळी एक त्रुटी उद्भवली. कृपया पुन्हा प्रयत्न करा.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">हा बॅकअप परत आणता आला नाही</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal ची ही आवृत्ती तुमचा बॅकअप परत आणू शकत नाही. अद्यतन करून नवीन आवृत्ती घ्या आणि पुन्हा प्रयत्न करा.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Signal अद्यतनित करा</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">आता नाही</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">बॅकअप पुनर्स्थापित करता येत नाही</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">तुमचा बॅकअप रीस्टोर करतेवेळी एक त्रुटी उद्भवली. तुमचा बॅकअप परत मिळवता येणार नाही. कृपया मदतीसाठी सपोर्टशी संंपर्क साधा.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">सपोर्टशी संपर्क साधा</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">बॅकअप डाउनलोड करत आहे…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">संदेश पुर्नस्थापित करत आहे…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">पूर्ण होत आहे…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">पुर्नस्थापित करत आहे…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%2$s (%3$s) पैकी %1$s</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">कुठलाही वेब ब्राऊझर सापडला नाही.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">खाते लॉक केले गेले</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">आपल्या गोपनीयतेसाठी आणि सुरक्षेसाठी आपले अकाऊंट लॉक केले गेले आहे. आपल्या अकाऊंटमध्ये %1$d दिवसांच्या निष्क्रियतेनंतर आपल्या PIN विना आपल्याला या फोन नंबर सोबत पुन्हा नोंदणी करता येईल. सर्व मजकूर हटवला जाईल.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">तुमच्या जुन्या फोनवर, Signal उघडा</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">सेटिंग्जमध्ये जा &gt; खाते हस्तांतरित करा</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">हा QR कोड स्कॅन करा</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">नोंदणी होत आहे…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">नोंदणी दरम्यान एक त्रुटी उद्भवली</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">जुन्या डिव्हाईसवरून स्कॅन करा</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">QR कोड स्कॅन झाला</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">पुन्हा प्रयत्न करा</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"QR कोड तयार करण्यात अपयश आले"</string>
+</resources>

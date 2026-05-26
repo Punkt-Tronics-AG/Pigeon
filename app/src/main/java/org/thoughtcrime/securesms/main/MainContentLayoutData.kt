@@ -12,11 +12,13 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowWidthSizeClass
-import org.thoughtcrime.securesms.window.isAtLeast
-import org.thoughtcrime.securesms.window.isSplitPane
+import androidx.window.core.layout.WindowSizeClass
+import org.signal.core.ui.WindowBreakpoint
+import org.signal.core.ui.getWindowBreakpoint
+import org.signal.core.ui.rememberIsSplitPane
 
 private val MEDIUM_CONTENT_CORNERS = 18.dp
 private val EXTENDED_CONTENT_CORNERS = 14.dp
@@ -45,7 +47,7 @@ data class MainContentLayoutData(
    */
   @Composable
   fun hasDragHandle(): Boolean {
-    return currentWindowAdaptiveInfo().windowSizeClass.isSplitPane()
+    return LocalResources.current.rememberIsSplitPane()
   }
 
   /**
@@ -53,12 +55,13 @@ data class MainContentLayoutData(
    */
   @Composable
   fun rememberDefaultPanePreferredWidth(maxWidth: Dp): Dp {
+    val isSplitPane = LocalResources.current.rememberIsSplitPane()
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
-    return remember(maxWidth, windowSizeClass) {
+    return remember(maxWidth, windowSizeClass, isSplitPane) {
       when {
-        !windowSizeClass.isSplitPane() -> maxWidth
-        windowSizeClass.windowWidthSizeClass.isAtLeast(WindowWidthSizeClass.EXPANDED) -> 416.dp
+        !isSplitPane -> maxWidth
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> 416.dp
         else -> (maxWidth - extraPadding) / 2f
       }
     }
@@ -71,26 +74,31 @@ data class MainContentLayoutData(
     @Composable
     fun rememberContentLayoutData(mode: MainToolbarMode): MainContentLayoutData {
       val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+      val resources = LocalResources.current
+      val breakpoint = resources.getWindowBreakpoint()
+      val isSplitPane = resources.rememberIsSplitPane()
 
-      return remember(windowSizeClass, mode) {
+      return remember(windowSizeClass, mode, breakpoint, isSplitPane) {
+        val isLargeWindowSize = breakpoint == WindowBreakpoint.LARGE
+
         MainContentLayoutData(
           shape = when {
-            !windowSizeClass.isSplitPane() -> RectangleShape
-            windowSizeClass.windowWidthSizeClass.isAtLeast(WindowWidthSizeClass.EXPANDED) -> RoundedCornerShape(EXTENDED_CONTENT_CORNERS)
+            !isSplitPane -> RectangleShape
+            isLargeWindowSize -> RoundedCornerShape(EXTENDED_CONTENT_CORNERS)
             else -> RoundedCornerShape(MEDIUM_CONTENT_CORNERS)
           },
           navigationBarShape = when {
-            !windowSizeClass.isSplitPane() -> RectangleShape
-            windowSizeClass.windowWidthSizeClass.isAtLeast(WindowWidthSizeClass.EXPANDED) -> RoundedCornerShape(0.dp, 0.dp, EXTENDED_CONTENT_CORNERS, EXTENDED_CONTENT_CORNERS)
+            !isSplitPane -> RectangleShape
+            isLargeWindowSize -> RoundedCornerShape(0.dp, 0.dp, EXTENDED_CONTENT_CORNERS, EXTENDED_CONTENT_CORNERS)
             else -> RoundedCornerShape(0.dp, 0.dp, MEDIUM_CONTENT_CORNERS, MEDIUM_CONTENT_CORNERS)
           },
           partitionWidth = when {
-            !windowSizeClass.isSplitPane() -> 0.dp
-            windowSizeClass.windowWidthSizeClass.isAtLeast(WindowWidthSizeClass.EXPANDED) -> 24.dp
+            !isSplitPane -> 0.dp
+            isLargeWindowSize -> 24.dp
             else -> 13.dp
           },
           listPaddingStart = when {
-            !windowSizeClass.isSplitPane() -> 0.dp
+            !isSplitPane -> 0.dp
             else -> {
               when (mode) {
                 MainToolbarMode.SEARCH -> 24.dp
@@ -99,8 +107,8 @@ data class MainContentLayoutData(
             }
           },
           detailPaddingEnd = when {
-            !windowSizeClass.isSplitPane() -> 0.dp
-            windowSizeClass.windowWidthSizeClass.isAtLeast(WindowWidthSizeClass.EXPANDED) -> 24.dp
+            !isSplitPane -> 0.dp
+            isLargeWindowSize -> 24.dp
             else -> 12.dp
           }
         )

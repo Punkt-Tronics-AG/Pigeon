@@ -5,6 +5,7 @@ import okio.ByteString.Companion.toByteString
 import org.signal.core.util.Base64
 import org.signal.core.util.UuidUtil
 import org.signal.core.util.toByteArray
+import org.signal.libsignal.protocol.message.CiphertextMessage
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.messages.SignalServiceProtoUtil.buildWith
@@ -42,7 +43,7 @@ object MessageContentFuzzer {
    */
   fun envelope(timestamp: Long, serverGuid: UUID = UUID.randomUUID()): Envelope {
     return Envelope.Builder()
-      .timestamp(timestamp)
+      .clientTimestamp(timestamp)
       .serverTimestamp(timestamp + 5)
       .serverGuidBinary(serverGuid.toByteArray().toByteString())
       .build()
@@ -58,7 +59,8 @@ object MessageContentFuzzer {
       sourceDeviceId = sourceDeviceId,
       sealedSender = true,
       groupId = groupId?.decodedId,
-      destinationServiceId = Recipient.resolved(destination).requireServiceId()
+      destinationServiceId = Recipient.resolved(destination).requireServiceId(),
+      ciphertextMessageType = CiphertextMessage.WHISPER_TYPE
     )
   }
 
@@ -290,7 +292,7 @@ object MessageContentFuzzer {
             body = string()
             val quoted = quoteAble.random(random)
             quote = DataMessage.Quote.Builder().buildWith {
-              id = quoted.envelope.timestamp
+              id = quoted.envelope.clientTimestamp
               authorAciBinary = quoted.metadata.sourceServiceId.toByteString()
               text = quoted.content.dataMessage?.body
               attachments(quoted.content.dataMessage?.attachments ?: emptyList())
@@ -302,7 +304,7 @@ object MessageContentFuzzer {
           if (random.nextFloat() < 0.1 && quoteAble.isNotEmpty()) {
             val quoted = quoteAble.random(random)
             quote = DataMessage.Quote.Builder().buildWith {
-              id = random.nextLong(quoted.envelope.timestamp!! - 1000000, quoted.envelope.timestamp!!)
+              id = random.nextLong(quoted.envelope.clientTimestamp!! - 1000000, quoted.envelope.clientTimestamp!!)
               authorAciBinary = quoted.metadata.sourceServiceId.toByteString()
               text = quoted.content.dataMessage?.body
             }
@@ -331,7 +333,7 @@ object MessageContentFuzzer {
               emoji = emojis.random(random)
               remove = false
               targetAuthorAciBinary = reactTo.metadata.sourceServiceId.toByteString()
-              targetSentTimestamp = reactTo.envelope.timestamp
+              targetSentTimestamp = reactTo.envelope.clientTimestamp
             }
           }
         }

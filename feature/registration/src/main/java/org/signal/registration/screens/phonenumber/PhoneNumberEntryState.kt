@@ -5,23 +5,48 @@
 
 package org.signal.registration.screens.phonenumber
 
+import com.google.i18n.phonenumbers.NumberParseException
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import org.signal.registration.NetworkController
 import org.signal.registration.NetworkController.SessionMetadata
+import org.signal.registration.PendingRestoreOption
+import org.signal.registration.PreExistingRegistrationData
+import org.signal.registration.util.DebugLoggable
+import org.signal.registration.util.DebugLoggableModel
 import kotlin.time.Duration
 
 data class PhoneNumberEntryState(
-  val regionCode: String = "US",
-  val countryCode: String = "1",
+  val regionCode: String = "",
+  val countryCode: String = "",
+  val countryName: String = "",
+  val countryEmoji: String = "",
   val nationalNumber: String = "",
   val formattedNumber: String = "",
+  val sessionE164: String? = null,
   val sessionMetadata: SessionMetadata? = null,
-  val showFullScreenSpinner: Boolean = false,
-  val oneTimeEvent: OneTimeEvent? = null
-) {
-  sealed interface OneTimeEvent {
+  val showSpinner: Boolean = false,
+  val showDialog: Boolean = false,
+  val oneTimeEvent: OneTimeEvent? = null,
+  val preExistingRegistrationData: PreExistingRegistrationData? = null,
+  val restoredSvrCredentials: List<NetworkController.SvrCredentials> = emptyList(),
+  val pendingRestoreOption: PendingRestoreOption? = null
+) : DebugLoggableModel() {
+  sealed interface OneTimeEvent : DebugLoggable {
     data object NetworkError : OneTimeEvent
     data object UnknownError : OneTimeEvent
     data class RateLimited(val retryAfter: Duration) : OneTimeEvent
-    data object ThirdPartyError : OneTimeEvent
+    data object UnableToSendSms : OneTimeEvent
     data object CouldNotRequestCodeWithSelectedTransport : OneTimeEvent
   }
+
+  val isNumberPossible: Boolean
+    get() {
+      if (countryCode.isEmpty() || nationalNumber.isEmpty()) return false
+      return try {
+        val number = PhoneNumberUtil.getInstance().parse("+$countryCode$nationalNumber", null)
+        PhoneNumberUtil.getInstance().isPossibleNumber(number)
+      } catch (_: NumberParseException) {
+        false
+      }
+    }
 }

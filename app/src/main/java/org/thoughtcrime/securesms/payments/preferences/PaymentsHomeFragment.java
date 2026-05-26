@@ -18,12 +18,12 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.annimon.stream.Stream;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.LoggingFragment;
+import org.signal.core.ui.view.Stub;
+import org.signal.core.ui.logging.LoggingFragment;
 import org.thoughtcrime.securesms.PaymentPreferencesDirections;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.banner.BannerManager;
@@ -43,7 +43,6 @@ import org.thoughtcrime.securesms.util.PlayStoreUtil;
 import org.thoughtcrime.securesms.util.SpanUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
-import org.thoughtcrime.securesms.util.views.Stub;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -139,7 +138,7 @@ public class PaymentsHomeFragment extends LoggingFragment {
     });
 
     viewModel.getList().observe(getViewLifecycleOwner(), list -> {
-      boolean hadPaymentItems = Stream.of(adapter.getCurrentList()).anyMatch(model -> model instanceof PaymentItem);
+      boolean hadPaymentItems = adapter.getCurrentList().stream().anyMatch(model -> model instanceof PaymentItem);
 
       if (!hadPaymentItems) {
         adapter.submitList(list, () -> recycler.scrollToPosition(0));

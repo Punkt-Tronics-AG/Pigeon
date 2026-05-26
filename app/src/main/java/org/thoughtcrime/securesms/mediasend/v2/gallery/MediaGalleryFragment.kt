@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -16,24 +17,25 @@ import androidx.lifecycle.map
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import org.signal.core.models.media.Media
+import org.signal.core.ui.permissions.Permissions
+import org.signal.core.ui.util.StorageUtil
 import org.signal.core.util.Stopwatch
+import org.signal.core.util.permissions.PermissionCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.recyclerview.GridDividerDecoration
 import org.thoughtcrime.securesms.conversation.ManageContextMenu
 import org.thoughtcrime.securesms.databinding.V2MediaGalleryFragmentBinding
 import org.thoughtcrime.securesms.mediasend.MediaRepository
-import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil
+import org.thoughtcrime.securesms.mediasend.camerax.CameraXRemoteConfig
 import org.thoughtcrime.securesms.mediasend.v2.review.MediaGalleryGridItemTouchListener
-import org.thoughtcrime.securesms.permissions.PermissionCompat
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.util.Material3OnScrollHelper
-import org.thoughtcrime.securesms.util.StorageUtil
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.fragments.requireListener
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.visible
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Displays a collection of files and folders to the user to allow them to select
@@ -54,7 +56,7 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
   private val selectedAdapter = MappingAdapter()
   private val mediaGalleryGridItemTouchListener = MediaGalleryGridItemTouchListener()
 
-  private val viewStateLiveData = MutableLiveData(ViewState())
+  private lateinit var viewStateLiveData: MutableLiveData<ViewState>
 
   private val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(false) {
     override fun handleOnBackPressed() {
@@ -63,6 +65,7 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    viewStateLiveData = MutableLiveData(ViewState(chatColor = ContextCompat.getColor(requireContext(), CoreUiR.color.signal_light_colorPrimary)))
     callbacks = requireListener()
     val binding = V2MediaGalleryFragmentBinding.bind(view)
 
@@ -101,7 +104,7 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
     if (callbacks.isCameraEnabled()) {
       binding.mediaGalleryToolbar.setOnMenuItemClickListener { item ->
         if (item.itemId == R.id.action_camera) {
-          if (CameraXUtil.isSupported()) {
+          if (CameraXRemoteConfig.isSupported()) {
             callbacks.onNavigateToCamera()
           } else {
             Permissions.with(this)
@@ -109,7 +112,13 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
               .ifNecessary()
               .onAllGranted { callbacks.onNavigateToCamera() }
               .withRationaleDialog(getString(R.string.CameraXFragment_allow_access_camera), getString(R.string.CameraXFragment_to_capture_photos_and_video_allow_camera), R.drawable.ic_camera_24)
-              .withPermanentDenialDialog(getString(R.string.CameraXFragment_signal_needs_camera_access_capture_photos), null, R.string.CameraXFragment_allow_access_camera, R.string.CameraXFragment_to_capture_photos_videos, getParentFragmentManager())
+              .withPermanentDenialDialog(
+                getString(R.string.CameraXFragment_signal_needs_camera_access_capture_photos),
+                null,
+                R.string.CameraXFragment_allow_access_camera,
+                R.string.CameraXFragment_to_capture_photos_videos,
+                getParentFragmentManager()
+              )
               .onAnyDenied { Toast.makeText(requireContext(), R.string.CameraXFragment_signal_needs_camera_access_capture_photos, Toast.LENGTH_LONG).show() }
               .execute()
           }
@@ -191,6 +200,7 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
     viewStateLiveData.observe(viewLifecycleOwner) { state ->
       binding.mediaGalleryBottomBarGroup.visible = state.selectedMedia.isNotEmpty()
       binding.mediaGalleryCountButton.setCount(state.selectedMedia.size)
+      state.chatColor?.let { binding.mediaGalleryCountButton.setChatColor(it) }
 
       val stopwatch = Stopwatch("mediaSubmit")
       selectedAdapter.submitList(state.selectedMedia.map { MediaGallerySelectedItem.Model(it) }) {
@@ -208,11 +218,17 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
 
     val galleryItemsWithSelection = LiveDataUtil.combineLatest(
       viewModel.state.map { it.items },
-      viewStateLiveData.map { it.selectedMedia }
-    ) { galleryItems, selectedMedia ->
+      viewStateLiveData.map { it.selectedMedia },
+      viewStateLiveData.map { it.chatColor }
+    ) { galleryItems, selectedMedia, chatColor ->
       galleryItems.map {
         if (it is MediaGallerySelectableItem.FileModel) {
-          it.copy(isSelected = selectedMedia.contains(it.media), selectionOneBasedIndex = selectedMedia.indexOf(it.media) + 1)
+          val selectedIndex = selectedMedia.indexOfFirst { selected -> selected.uri == it.media.uri }
+          it.copy(
+            isSelected = selectedIndex >= 0,
+            selectionOneBasedIndex = selectedIndex + 1,
+            chatColor = chatColor
+          )
         } else {
           it
         }
@@ -291,7 +307,14 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
       .request(*PermissionCompat.forImagesAndVideos())
       .ifNecessary()
       .onAnyResult { refreshMediaGallery() }
-      .withPermanentDenialDialog(getString(R.string.AttachmentManager_signal_requires_the_external_storage_permission_in_order_to_attach_photos_videos_or_audio), null, R.string.AttachmentManager_signal_allow_storage, R.string.AttachmentManager_signal_to_show_photos, true, parentFragmentManager)
+      .withPermanentDenialDialog(
+        getString(R.string.AttachmentManager_signal_requires_the_external_storage_permission_in_order_to_attach_photos_videos_or_audio),
+        null,
+        R.string.AttachmentManager_signal_allow_storage,
+        R.string.AttachmentManager_signal_to_show_photos,
+        true,
+        parentFragmentManager
+      )
       .onSomeDenied {
         val deniedPermission = PermissionCompat.getRequiredPermissionsForDenial()
         if (it.containsAll(deniedPermission.toList())) {
@@ -322,7 +345,8 @@ class MediaGalleryFragment : Fragment(R.layout.v2_media_gallery_fragment) {
   }
 
   data class ViewState(
-    val selectedMedia: List<Media> = listOf()
+    val selectedMedia: List<Media> = listOf(),
+    val chatColor: Int
   )
 
   interface Callbacks {

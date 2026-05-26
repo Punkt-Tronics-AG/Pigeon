@@ -25,6 +25,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleEmitter
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.signal.core.util.StreamUtil
+import org.signal.core.util.Util
 import org.signal.core.util.concurrent.MaybeCompat
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.dp
@@ -96,7 +97,6 @@ import org.thoughtcrime.securesms.util.GroupUtil
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.MessageUtil
 import org.thoughtcrime.securesms.util.SignalLocalMetrics
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.hasLinkPreview
 import org.thoughtcrime.securesms.util.hasSharedContact
 import org.thoughtcrime.securesms.util.hasTextSlide
@@ -155,7 +155,7 @@ class ConversationRepository(
         metadata.threadSize
       )
       val config = PagingConfig.Builder().setPageSize(25)
-        .setBufferPages(2)
+        .setBufferPages(3)
         .setStartIndex(max(metadata.getStartPosition(), 0))
         .build()
 
@@ -221,6 +221,13 @@ class ConversationRepository(
       if (threadRecipient.isPushV2Group && threadRecipient.groupId.getOrNull()?.isV2 != true) {
         Log.w(TAG, "Missing group id")
         emitter.tryOnError(Exception("Poll terminate failed"))
+        return@create
+      }
+
+      if (threadRecipient.isPushV2Group && !SignalDatabase.groups.isActive(threadRecipient.requireGroupId())) {
+        Log.w(TAG, "Cannot end poll in terminated or inactive group")
+        emitter.tryOnError(Exception("Poll terminate failed"))
+        return@create
       }
 
       val message = OutgoingMessage.pollTerminateMessage(
@@ -428,6 +435,16 @@ class ConversationRepository(
       } else {
         emitter.tryOnError(Exception("Unpin message failed"))
       }
+    }.subscribeOn(Schedulers.io())
+  }
+
+  fun setMessageStarred(messageId: Long, starred: Boolean): Completable {
+    return setMessagesStarred(setOf(messageId), starred)
+  }
+
+  fun setMessagesStarred(messageIds: Set<Long>, starred: Boolean): Completable {
+    return Completable.fromAction {
+      SignalDatabase.messages.setStarred(messageIds, starred)
     }.subscribeOn(Schedulers.io())
   }
 
@@ -830,6 +847,18 @@ class ConversationRepository(
     return Single
       .fromCallable { SignalDatabase.messages.getEarliestMessageSentDate(threadId) }
       .subscribeOn(Schedulers.io())
+  }
+
+  fun collapseEvents(messageId: Long) {
+    SignalDatabase.messages.collapseEvents(messageId)
+  }
+
+  fun collapseAllEvents() {
+    SignalDatabase.messages.collapseAllEvents()
+  }
+
+  fun expandEvents(messageId: Long) {
+    SignalDatabase.messages.expandEvents(messageId)
   }
 
   /**

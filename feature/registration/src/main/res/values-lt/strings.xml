@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pasiimkite privatumą kartu su savimi.\nBūkite savimi kiekvienoje žinutėje.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">„Signal“ yra ne pelno organizacija\nNuostatos ir privatumo politika</string>
+    <string name="RegistrationActivity_continue">Tęsti</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">Atkurti arba perkelti</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">Suteik leidimus</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Kad padėtų tau siųsti žinutes savo pažįstamiems, „Signal“ paprašys šių leidimų. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">Ne dabar</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">Kitas</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">Pranešimai</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">Gauk pranešimus, kai ateina naujos žinutės.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">Adresatai</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">Rask savo pažįstamų. Tavo adresatai yra užšifruoti ir „Signal“ jų nemato.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">Telefono skambučiai</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">Palengvink registraciją ir įjunk papildomas skambinimo funkcijas.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">Saugykla</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Siųsk nuotraukas, vaizdo įrašus ir failus iš savo įrenginio.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">Telefono numeris</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Gausite patvirtinimo kodą. Gali būti taikomi mobiliojo ryšio tinklo operatoriaus mokesčiai.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Pasirinkite šalį</string>
+    <string name="RegistrationActivity_phone_number_description">Telefono numeris</string>
+    <string name="RegistrationActivity_next">Kitas</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">Ar toliau nurodytas telefono numeris teisingas?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">Patvirtinimo kodas bus išsiųstas šiuo numeriu. Gali būti taikomi operatoriaus mokesčiai.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">Taisyti numerį</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">Atidaryti meniu</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">Naudoti įgaliotąjį serverį</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">Susieti įrenginį</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">Sužinoti daugiau</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">Jūsų šalis</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">Užverti</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">Ieškoti pagal vardą ar šalies kodą</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">Nežinoma šalis</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">Patvirtinimo kodas</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">Įveskite kodą, kurį išsiuntėme į %1$s</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">Neteisingas numeris?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">Siųsti kodą iš naujo</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">Verčiau man paskambinkite</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">Skambinti man (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">Neteisingas kodas</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">Nepavyko prisijungti. Patikrinkite tinklą ir bandykite dar kartą.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">Per daug bandymų. Bandykite dar kartą už %1$s.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">Įvyko nenumatyta klaida. Bandykite dar kartą.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">Nepavyko išsiųsti SMS žinutės jūsų numeriu. Bandykite dar kartą po kelių valandų.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">Nepavyko išsiųsti kodo pasirinktu būdu. Bandykite kitą variantą.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">Registracija nepavyko. Bandykite dar kartą.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">Kyla problemų?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">Turiu savo senąjį telefoną</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">Norėdami greitai pradėti, nuskaitykite QR kodą iš dabartinės „Signal“ paskyros</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">Neturiu savo senojo telefono</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">Arba iš naujo įdiegiate „Signal“ tame pačiame įrenginyje</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">Atkurti arba perkelti paskyrą</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">Pasirinkite, kaip pageidaujate atkurti žinučių istoriją ir paskyros duomenis.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Iš „Signal“ atsarginių kopijų</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">Jūsų nemokamas arba mokamas „Signal“ atsarginių kopijų planas</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">Atkurti atsarginę kopiją įrenginyje</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">Atkurkite žinutes iš atsarginės kopijos, kurią išsaugojote įrenginyje.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">Tęsti neperkėlus</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">Žinutės ir įrašai nebus perkelti</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">Iš atsarginės kopijos aplanko</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">Iš atsarginės kopijos failo</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">Pasirinkite išsaugotą atsarginę kopiją</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">Iš senojo telefono</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">Perkelkite tiesiai iš savo senojo „Android“ įrenginio</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">Praleisti</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">Praleisti atkūrimą?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">Jeigu praleisite atkurti dabar, vėliau to padaryti nebegalėsite. Jei praleidę atkūrimo veiksmą vėl įjungsite atsargines kopijas, nauja žinučių istorija pakeis dabartinę atsarginę kopiją.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">Praleisti atkūrimą</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">Atkurti atsarginę kopiją įrenginyje</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">Atkurkite žinutes iš atsarginės kopijos, kurią išsaugojote įrenginyje. Jeigu neatkursite dabar, vėliau to padaryti nebegalėsite.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">Pasirinkite atsarginės kopijos aplanką</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">Pasirinkite aplanką savo įrenginyje, kuriame saugoma atsarginė kopija</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">Ieškoma atsarginių kopijų…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">Atkurkite žinutes iš atsarginės kopijos aplanko, kurį išsaugojote įrenginyje. Jeigu neatkursite dabar, vėliau to padaryti nebegalėsite.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">Naujausia atsarginė kopija:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">Atkurti atsarginę kopiją</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">Rinktis ankstesnę atsarginę kopiją</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">Pasirinkite atsarginę kopiją, kurią norite atkurti</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">Pasirinkę senesnę atsarginę kopiją galite prarasti žinutes arba įrašus.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">Atsarginė kopija nerasta</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">Pasirinktame aplanke „Signal“ atsarginės kopijos nerasta. Bandykite kitą aplanką.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">Bandyti kitą aplanką</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">Įveskite atsarginės kopijos slaptafrazę</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">Jūsų vietinės atsarginės kopijos slaptafrazė yra 30 skaitmenų kodas, reikalingas norint atkurti paskyrą ir duomenis.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">Atkūrimo raktas</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">Per ilgas (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">Slaptafrazės neturite?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">Kitas</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">Įveskite atkūrimo raktą</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">Jūsų atkūrimo raktas yra 64 simbolių kodas, reikalingas norint atkurti paskyrą ir duomenis.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">Atkūrimo raktas</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">Neturite atkūrimo rakto?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">Per ilgas (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">Negaliojantis atkūrimo raktas</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">Neteisingas atkūrimo raktas</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">Ruošiamasi atkurti…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">Atkuriama atsarginė kopija</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">Luktelėkite, kol jūsų žinutės ir duomenys atkuriami.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">Tęsti</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">Atkurti nepavyko</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">Atkuriant atsarginę kopiją įvyko klaida. Bandykite dar kartą.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">Bandykite dar kartą</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">Susieti savo paskyrą</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">Dar nesinaudojate „Signal“?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">Susikurkite paskyrą</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">Atkurti iš atsarginės kopijos</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">Gaunama informacija apie atsarginę kopiją…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">Atkurti atsarginę kopiją</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">Paskutinė atsarginė kopija buvo sukurta %1$s, %2$s.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">Jūsų įrašai bus atkuriami fone. Jei pasirinksite neatkurti dabar, vėliau to padaryti nebegalėsite.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">Atsarginė kopija nerasta</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">Šios paskyros atsarginė kopija nerasta.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">Nepavyko atkurti atsarginės kopijos</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">Šiuo metu negalima atkurti jūsų atsarginės kopijos. Bandykite dar kartą.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">Bandykite dar kartą</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">Nepavyko užbaigti atkūrimo</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">Jungiantis prie serverio įvyko klaida. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">Atkuriant atsarginę kopiją įvyko klaida. Bandykite dar kartą.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">Nepavyko atkurti atsarginės kopijos</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Ši „Signal“ versija negali atkurti jūsų atsarginės kopijos. Atnaujinkite į naujausią versiją ir bandykite dar kartą.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Atnaujinti Signal</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">Ne dabar</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">Nepavyko atkurti atsarginės kopijos</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">Atkuriant atsarginę kopiją įvyko klaida. Jūsų atsarginės kopijos atkurti negalima. Dėl pagalbos kreipkitės į aptarnavimo komandą.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">Susisiekti su aptarnavimo komanda</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">Atsisiunčiama atsarginė kopija…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">Atkuriamos žinutės…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">Užbaigiama…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">Atkuriama…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%1$s iš %2$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">Nerasta jokios saityno naršyklės.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">Paskyra užrakinta</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">Siekiant apsaugoti tavo privatumą ir saugumą, tavo paskyra buvo užrakinta. Po %1$d dienų neveiklumo galėsi iš naujo registruoti šį telefono numerį be būtinybės įvesti PIN kodą. Visas turinys bus ištrintas.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">Senajame telefone atverkite „Signal“</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">Eikite į Nustatymai &gt; Perkelti paskyrą</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">Nuskaitykite šį QR kodą</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">Registruojama…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">Registruojantis įvyko klaida</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">Nuskaityti iš senojo telefono</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">QR kodas nuskaitytas</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">Bandyti dar kartą</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"Nepavyko sugeneruoti QR kodo"</string>
+</resources>

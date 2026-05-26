@@ -20,7 +20,7 @@ import com.bumptech.glide.request.target.Target;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.model.databaseprotos.Wallpaper;
-import org.thoughtcrime.securesms.mms.DecryptableUri;
+import org.signal.glide.decryptableuri.DecryptableUri;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -116,6 +116,12 @@ public final class UriChatWallpaper implements ChatWallpaper, Parcelable {
     }
 
     return false;
+  }
+
+  @Override
+  public boolean isPrefetched() {
+    Bitmap cached = CACHE.get(uri);
+    return cached != null && !cached.isRecycled();
   }
 
   public @NonNull Uri getUri() {

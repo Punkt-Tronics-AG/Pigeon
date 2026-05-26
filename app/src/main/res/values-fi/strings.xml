@@ -10,7 +10,7 @@
   <!-- Removed by excludeNonTranslatables <string name="install_url" translatable="false">https://signal.org/install</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_url" translatable="false">https://signal.org/donate</string> -->
   <!-- Removed by excludeNonTranslatables <string name="backup_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="backup_failed_support_url" translatable="false">https://support.signal.org/hc/articles/8768161836954</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="remote_backup_support_url" translatable="false">https://support.signal.org/hc/articles/9708267671322</string> -->
   <!-- Removed by excludeNonTranslatables <string name="transfer_support_url" translatable="false">https://support.signal.org/hc/articles/360007059752</string> -->
   <!-- Removed by excludeNonTranslatables <string name="support_center_url" translatable="false">https://support.signal.org/</string> -->
   <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
@@ -22,6 +22,7 @@
   <!-- Removed by excludeNonTranslatables <string name="export_account_data_url" translatable="false">https://support.signal.org/hc/articles/5538911756954</string> -->
   <!-- Removed by excludeNonTranslatables <string name="pending_transfer_url" translatable="false">https://support.signal.org/hc/articles/360031949872#pending</string> -->
   <!-- Removed by excludeNonTranslatables <string name="donate_faq_url" translatable="false">https://support.signal.org/hc/articles/360031949872#donate</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="inactive_primary_support" translatable="false">https://support.signal.org/hc/articles/9021007554074</string> -->
 
     <!-- First placeholder is productId, second placeholder is app package -->
     <string name="backup_subscription_management_url">https://play.google.com/store/account/subscriptions?sku=%1$s&amp;package=%2$s</string>
@@ -313,6 +314,20 @@
     <string name="CameraXFragment_to_capture_videos">Videoiden tallentaminen äänellä:</string>
     <!-- Dialog description that explains the steps needed to give Signal camera permissions -->
     <string name="CameraXFragment_to_scan_qr_codes">QR-koodien skannaus:</string>
+    <!-- Error message shown when we try to take a photo, but fail -->
+    <string name="CameraXFragment_photo_capture_failed">Kuvan ottaminen epäonnistui. Yritä uudelleen.</string>
+    <!-- Error message shown when we try to take a photo, but fail when trying to process it (convert it into something the user can see). -->
+    <string name="CameraXFragment_photo_processing_failed">Kuvan käsittely epäonnistui. Yritä uudelleen.</string>
+    <!-- Accessibility label for the switch camera button -->
+    <string name="CameraXFragment_switch_camera">Vaihda kameraa</string>
+    <!-- Accessibility label for flash button when flash is off -->
+    <string name="CameraXFragment_flash_off">Salama pois päältä</string>
+    <!-- Accessibility label for flash button when flash is on -->
+    <string name="CameraXFragment_flash_on">Salama päällä</string>
+    <!-- Accessibility label for flash button when flash is set to auto -->
+    <string name="CameraXFragment_flash_auto">Salama automaattitilassa</string>
+    <!-- Accessibility label for the send button in media selection -->
+    <string name="CameraXFragment_send">Lähetä</string>
 
     <!-- CameraContacts -->
     <string name="CameraContacts_recent_contacts">Viimeisimmät yhteystiedot</string>
@@ -419,7 +434,11 @@
     <!-- ConversationItem -->
     <string name="ConversationItem_error_not_sent_tap_for_details">Ei lähetetty, napauta nähdäksesi lisätietoja</string>
     <string name="ConversationItem_error_partially_not_delivered">Osittain lähetetty, napauta nähdäksesi lisätietoja</string>
+    <!-- Warning footer when an admin delete has not been sent to everyone -->
+    <string name="ConversationItem_error_partially_not_deleted">Osittain poistettu, napauta nähdäksesi lisätietoja</string>
     <string name="ConversationItem_error_network_not_delivered">Lähetys epäonnistui</string>
+    <!-- Warning footer when an admin delete has failed to send -->
+    <string name="ConversationItem_error_delete_failed">Poistaminen epäonnistui. Napauta saadaksesi lisätietoja</string>
     <string name="ConversationItem_group_action_left">%1$s on poistunut ryhmästä.</string>
     <string name="ConversationItem_send_paused">Lähetys keskeytetty</string>
     <string name="ConversationItem_click_to_approve_unencrypted_sms_dialog_title">Käytetäänkö salaamattomia tekstiviestejä?</string>
@@ -434,8 +453,12 @@
     <!-- Footer shown at the end of long body messages to download more of it -->
     <string name="ConversationItem_download_more">  Lataa lisää</string>
     <string name="ConversationItem_pending">  Käsiteltävänä</string>
-    <string name="ConversationItem_this_message_was_deleted">Viesti poistettiin.</string>
-    <string name="ConversationItem_you_deleted_this_message">Poistit tämän viestin.</string>
+    <string name="ConversationItem_this_message_was_deleted">Tämä viesti poistettiin</string>
+    <!-- Conversation message shown when someone deletes their own message. Placeholder is the name of the person. -->
+    <string name="ConversationItem_s_deleted_this_message">%1$s poisti viestin</string>
+    <string name="ConversationItem_you_deleted_this_message">Poistit tämän viestin</string>
+    <!-- Conversation message when a message has been deleted by an admin. The placeholder is the admin\'s name. -->
+    <string name="ConversationItem_admin_s_deleted_this_message">Ylläpitäjä %1$s poisti viestin</string>
     <!-- Dialog error message shown when user can\'t download a message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
     <string name="ConversationItem_cant_download_message_s_will_need_to_send_it_again">Viestiä ei voi ladata. Käyttäjän %1$s on lähetettävä se uudelleen.</string>
     <!-- Dialog error message shown when user can\'t download an image message from someone else due to a permanent failure (e.g., unable to decrypt), placeholder is other\'s name -->
@@ -466,7 +489,6 @@
     <!-- Toast shown when user is unable to find the recipient when sending a message -->
     <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">Annettu numero tai sähköpostiosoite ei ole kelvollinen!</string>
     <string name="ConversationActivity_message_is_empty_exclamation">Viesti on tyhjä!</string>
-    <string name="ConversationActivity_group_members">Ryhmän jäsenet</string>
     <!-- Warning dialog text shown to user if they try to send a message edit that is too old where %1$d is replaced with the amount of hours, e.g. 3 -->
     <plurals name="ConversationActivity_edit_message_too_old">
         <item quantity="one">Muokkauksia voidaan tehdä vain %1$d tunnin kuluessa tämän viestin lähettämisestä.</item>
@@ -495,6 +517,8 @@
     <string name="ConversationActivity_attachment_exceeds_size_limits">Liitetiedosto ylittää lähettämäsi viestityypin kokorajoituksen.</string>
     <string name="ConversationActivity_unable_to_record_audio">Äänen tallennus ei onnistunut!</string>
     <string name="ConversationActivity_you_cant_send_messages_to_this_group">Et voi lähettää viestejä tälle ryhmälle, koska et enää ole sen jäsen.</string>
+  <!-- Removed by excludeNonTranslatables <string name="DisabledInputView__incognito_mode" translatable="false">Incognito mode (Labs)</string> -->
+    <string name="ConversationActivity_you_cant_send_messages_because_group_ended">Et voi lähettää viestejä tälle ryhmälle, koska se on suljettu.</string>
     <string name="ConversationActivity_only_s_can_send_messages">Vain %1$s voi(vat) lähettää viestejä.</string>
     <string name="ConversationActivity_admins">ylläpitäjät</string>
     <string name="ConversationActivity_message_an_admin">Lähetä viesti ylläpitäjälle</string>
@@ -602,6 +626,23 @@
     <string name="ConversationFragment_deleting_messages">Viestejä poistetaan…</string>
     <string name="ConversationFragment_delete_for_me">Poista minulta</string>
     <string name="ConversationFragment_delete_for_everyone">Poista kaikilta</string>
+    <!-- Title of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_title">
+        <item quantity="one">Poistetaanko valittu viesti?</item>
+        <item quantity="other">Poistetaanko valitut viestit?</item>
+    </plurals>
+    <!-- Body of dialog confirming whether to delete the message -->
+    <plurals name="ConversationFragment_delete_selected_body">
+        <item quantity="one">Keneltä haluat poistaa viestin?</item>
+        <item quantity="other">Keneltä haluat poistaa viestit?</item>
+    </plurals>
+    <!-- Confirmation button to delete the message -->
+    <string name="ConversationFragment_delete_for_everyone_title">Poistetaanko kaikilta?</string>
+    <!-- Body of dialog explaining what happens during deletion -->
+    <plurals name="ConversationFragment_delete_for_everyone_body">
+        <item quantity="one">Uusimpia Signal-versioita käyttävät ryhmän jäsenet näkevät, että poistit viestin.</item>
+        <item quantity="other">Uusimpia Signal-versioita käyttävät ryhmän jäsenet näkevät, että poistit viestit.</item>
+    </plurals>
     <!-- Dialog button for deleting one or more note-to-self messages only on this device, leaving that same message intact on other devices. -->
     <string name="ConversationFragment_delete_on_this_device">Poista tältä laitteelta</string>
     <!-- Dialog button for deleting one or more note-to-self messages that will be sync\'d to other devices -->
@@ -617,7 +658,11 @@
     <string name="ConversationFragment_view_once_media_is_deleted_after_sending">Kertaluontoinen media poistetaan lähettämisen jälkeen</string>
     <string name="ConversationFragment_you_already_viewed_this_message">Olet jo katsonut tämän viestin</string>
     <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">Voit lisätä itsellesi muistiinpanoja tähän keskusteluun. Jos tililläsi on linkitettyjä laitteita, uudet muistiinpanot synkronoidaan.</string>
-    <string name="ConversationFragment__d_group_members_have_the_same_name">%1$d ryhmän jäsenellä on sama nimi.</string>
+    <!-- Text in banner to show how many people have the same name. -->
+    <plurals name="ConversationFragment__d_group_members_have_the_same_name">
+        <item quantity="one">%1$d ryhmän jäsenellä on sama nimi.</item>
+        <item quantity="other">%1$d ryhmän jäsenellä on sama nimi.</item>
+    </plurals>
     <string name="ConversationFragment__tap_to_review">Tarkista napauttamalla</string>
     <!-- The body of a banner that can show up at the top of a chat, letting the user know that you have two contacts with the same name -->
     <string name="ConversationFragment__review_banner_body">Tällä henkilöllä on sama nimi kuin toisella kontaktilla</string>
@@ -670,10 +715,19 @@
     <string name="ConversationFragment_you_accepted_a_message_request_from_s">Hyväksyit viestipyynnön käyttäjältä %1$s. Jos tämä oli virhe, voit valita toiminnon alta.</string>
     <!-- Text shown in conversation header when in a message request state and to carefully review the user -->
     <string name="ConversationFragment_review_carefully">Tarkista huolellisesti</string>
-    <!-- Text shown in conversation header when in a message request state that profile names are not verified. Placeholder will be \'Profile names\' -->
-    <string name="ConversationFragment_profile_names_not_verified">%1$s ei ole vahvistettu</string>
-    <!-- Text shown in conversation header when in a message request state that group names are not verified. Placeholder will be \'Group names\' -->
-    <string name="ConversationFragment_group_names_not_verified">%1$s ei ole vahvistettu</string>
+    <!-- Text shown in conversation header when in a message request state that the name is not verified -->
+    <string name="ConversationFragment_name_not_verified">Nimeä ei ole vahvistettu</string>
+    <!-- Label for official chat pill shown in the Note to Self conversation header -->
+    <string name="ConversationFragment_official_chat">Virallinen keskustelu</string>
+    <!-- Description shown in the Signal release notes conversation header -->
+    <string name="ConversationFragment_release_notes_description">Ainoa virallinen Signal-keskustelu. Pysy ajan tasalla uutisista ja julkaisutiedotteista.</string>
+    <!-- Label shown in place of the input in the Signal release notes conversation -->
+    <string name="ConversationFragment_the_only_official_chat_from_signal">Ainoa virallinen Signal-keskustelu</string>
+    <!-- Plural for group member count shown in conversation header. %1$d is the number of members -->
+    <plurals name="ConversationFragment_group_member_count">
+        <item quantity="one">%1$d jäsen</item>
+        <item quantity="other">%1$d jäsentä</item>
+    </plurals>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about profile names -->
     <string name="ConversationFragment_profile_names">Profiilin nimet</string>
     <!-- Placeholder text shown in conversation header that when clicked will open a dialog about group names -->
@@ -699,43 +753,61 @@
 
     <!-- Title of Safety Tips bottom sheet dialog -->
     <string name="SafetyTips_title">Turvallisuusvinkkejä</string>
-    <!-- Dialog subtitle when showign tips for a 1:1 conversation -->
-    <string name="SafetyTips_subtitle_individual">Ole varovainen vastaanottaessasi viestipyyntöjä tuntemattomilta henkilöiltä. Varo seuraavia:</string>
-    <!-- Dialog subtitle when showing tips for a group conversation -->
-    <string name="SafetyTips_subtitle_group">Tarkista pyyntö huolellisesti. Yksikään kontakteistasi tai ihmisistä, joiden kanssa keskustelet, ei ole tässä ryhmässä. Tässä muutamia asioita, joita kiinnittää varoa:</string>
-    <!-- Button text to move to the previous tip-->
+    <!-- Button text to view more safety tips -->
+    <string name="SafetyTips_view_more">Näytä lisää</string>
+    <!-- Content description for previous tip button -->
     <string name="SafetyTips_previous_tip">Edellinen vinkki</string>
-    <!-- Button text to move to the next tip -->
+    <!-- Content description for next tip button -->
     <string name="SafetyTips_next_tip">Seuraava vinkki</string>
-    <!-- Title of tip 0 -->
-    <string name="SafetyTips_tip0_title">Väärennetyt nimet ja tilit</string>
-    <!-- Message of tip 0 -->
-    <string name="SafetyTips_tip0_message">Signal ei koskaan ota sinuun yhteyttä pyytääkseen rekisteröintikoodia tai PIN-koodia. Varo pyyntöjä, joissa esitetään toista käyttäjää. Profiilin nimi on tilin haltijan valittavissa eikä sitä vahvisteta.</string>
-    <!-- Title of tip 1 -->
-    <string name="SafetyTips_tip1_title">Kryptovaluutta- tai muut rahahuijaukset</string>
-    <!-- Message of tip 1 -->
-    <string name="SafetyTips_tip1_message">Jos sinulle tuntematon viestittää kryptovaluutoista (esim. Bitcoinista) tai taloudellisesta mahdollisuudesta, ole varovainen – viesti on todennäköisesti roskapostia.</string>
-    <!-- Title of tip 2 -->
-    <string name="SafetyTips_tip2_title">Epämääräisiä tai merkityksettömiä viestejä</string>
-    <!-- Message of tip 2 -->
-    <string name="SafetyTips_tip2_message">Herättääkseen mielenkiintosi roskapostittajat aloittavat usein yksinkertaisella viestillä, kuten ”Hei”. Jos vastaat, he jatkavat sitouttamista.</string>
-    <!-- Title of tip 3 -->
-    <string name="SafetyTips_tip3_title">Viestit, joissa on linkkejä</string>
-    <!-- Message of tip 3 -->
-    <string name="SafetyTips_tip3_message">Ole varovainen tuntemattomien lähettämissä viesteissä, joissa on linkkejä verkkosivustoille. Älä koskaan käy viestin linkeissä, jos et luota sen lähettäjään.</string>
-    <!-- Title of tip 4 -->
-    <string name="SafetyTips_tip4_title">Väärennetyt yritykset ja organisaatiot</string>
-    <!-- Message of tip 4 -->
-    <string name="SafetyTips_tip4_message">Varo yrityksiä tai virastoja, jotka ottavat sinuun yhteyttä. Viestit, joissa mainitaan esim. verovirasto tai logistiikkayhtiö, voivat olla roskapostia.</string>
+
+    <!-- Summary tip 0 title: Don\'t respond to chats from Signal -->
+    <string name="SafetyTips_summary_tip0_title">Älä vastaa keskusteluihin, joiden lähettäjänä on Signal</string>
+    <!-- Summary tip 0 message -->
+    <string name="SafetyTips_summary_tip0_message">Signal ei koskaan lähetä viestejä pyytääkseen rekisteröintikoodia, PIN-koodia tai palautusavainta. Älä vastaa keskusteluihin, joissa lähettäjä esittää edustavansa Signalia.</string>
+    <!-- Summary tip 1 title: Review names and photos -->
+    <string name="SafetyTips_summary_tip1_title">Tarkista nimet ja kuvat</string>
+    <!-- Summary tip 1 message -->
+    <string name="SafetyTips_summary_tip1_message">Kiinnitä huomiota ilmoitukseen ”Nimeä ei ole vahvistettu”. Jokainen asettaa itse profiilinsa nimen ja kuvan Signalissa.</string>
+    <!-- Summary tip 2 title: Look out for scams -->
+    <string name="SafetyTips_summary_tip2_title">Varo huijauksia</string>
+    <!-- Summary tip 2 message -->
+    <string name="SafetyTips_summary_tip2_message">Vältä epämääräisiä viestejä, joilla yritetään saada sinut vastaamaan. Varo taloudellisia vinkkejä ja epäilyttäviä verkkolinkkejä.</string>
+
+    <!-- Detail tip 0 title -->
+    <string name="SafetyTips_detail_tip0_title">Älä vastaa keskusteluihin, joiden lähettäjänä on Signal</string>
+    <!-- Detail tip 0 message -->
+    <string name="SafetyTips_detail_tip0_message">Signal ei koskaan lähetä viestejä pyytääkseen rekisteröintikoodia, PIN-koodia tai palautusavainta. Älä vastaa keskusteluihin, joissa lähettäjä esittää edustavansa Signalia tai Signal-tukea. Huijarit aloittavat väärennettyjä keskusteluja tarkoituksenaan kaapata tilisi.</string>
+    <!-- Detail tip 1 title -->
+    <string name="SafetyTips_detail_tip1_title">Tarkista nimet ja kuvat</string>
+    <!-- Detail tip 1 message -->
+    <string name="SafetyTips_detail_tip1_message">Kiinnitä huomiota ilmoitukseen ”Nimeä ei ole vahvistettu”. Jokainen asettaa Signalissa profiilinsa nimen ja kuvan itse. Jos et ole varma, keneltä uusi pyyntö on peräisin, on turvallisinta jättää se huomiotta.</string>
+    <!-- Detail tip 2 title -->
+    <string name="SafetyTips_detail_tip2_title">Epämääräisiä tai merkityksettömiä viestejä</string>
+    <!-- Detail tip 2 message -->
+    <string name="SafetyTips_detail_tip2_message">Herättääkseen mielenkiintosi roskapostittajat aloittavat usein yksinkertaisella viestillä, kuten ”Hei”. Jos vastaat, he jatkavat sitouttamista.</string>
+    <!-- Detail tip 3 title -->
+    <string name="SafetyTips_detail_tip3_title">Viestit, joissa on linkkejä verkkoon</string>
+    <!-- Detail tip 3 message -->
+    <string name="SafetyTips_detail_tip3_message">Ole varovainen tuntemattomien lähettämissä viesteissä, joissa on linkkejä verkkosivustoille. Älä koskaan käy viestin linkeissä, jos et luota sen lähettäjään.</string>
+    <!-- Detail tip 4 title -->
+    <string name="SafetyTips_detail_tip4_title">Kryptovaluutta- tai muut rahahuijaukset</string>
+    <!-- Detail tip 4 message -->
+    <string name="SafetyTips_detail_tip4_message">Jos sinulle tuntematon viestittää kryptovaluutoista (esim. Bitcoinista) tai taloudellisesta mahdollisuudesta, ole varovainen – viesti on todennäköisesti roskapostia.</string>
+    <!-- Detail tip 5 title -->
+    <string name="SafetyTips_detail_tip5_title">Väärennetyt yritykset</string>
+    <!-- Detail tip 5 message -->
+    <string name="SafetyTips_detail_tip5_message">Varo yrityksiä tai virastoja, jotka ottavat sinuun yhteyttä. Viestit, joissa mainitaan esim. verovirasto tai logistiikkayhtiö, voivat olla roskapostia.</string>
 
     <!-- Bottom sheet text explaining that profile names are chosen by the account holder. Placeholder will be \'Profile names\' -->
     <string name="ProfileNameBottomSheet__profile_names_on_signal">%1$s Signalissa on tilin haltijan valittavissa.</string>
-    <!-- Bottom sheet text explaining that profile names are not verified. -->
-    <string name="ProfileNameBottomSheet__profile_names_arent_verified">Profiilin nimiä ei vahvisteta</string>
+    <!-- Bottom sheet text explaining that Signal can\'t verify names and photos -->
+    <string name="ProfileNameBottomSheet__signal_cant_verify">Signal ei voi vahvistaa nimien tai kuvien oikeellisuutta</string>
+    <!-- Bottom sheet text explaining that Signal will never contact you for registration code, PIN, or recovery key -->
+    <string name="ProfileNameBottomSheet__signal_will_never_contact">Signal ei koskaan ota sinuun yhteyttä pyytääkseen rekisteröintikoodia, PIN-koodia tai palautusavainta.</string>
     <!-- Bottom sheet text explaining that accounts can impersonate other people and to be cautious -->
     <string name="ProfileNameBottomSheet__be_cautious_of_accounts">Varo tilejä, jotka esittävät toista käyttäjää</string>
     <!-- Bottom sheet text explaining that personal information should not be shared with strangers -->
-    <string name="ProfileNameBottomSheet__dont_share_personal">Älä jaa henkilökohtaisia tietoja tuntemattomien ihmisten kanssa</string>
+    <string name="ProfileNameBottomSheet__dont_share_personal">Älä jaa henkilökohtaisia tietoja tuntemattomille ihmisille</string>
     <!-- Bottom sheet text explaining that group names are chosen by the group members. Placeholder will be \'Group names\' -->
     <string name="ProfileNameBottomSheet__group_names_on_signal">%1$s ovat ryhmän jäsenten valittavissa.</string>
     <!-- Bottom sheet text explaining that groups can impersonate organizations and to be cautious -->
@@ -940,7 +1012,7 @@
     <string name="BackupsPreferenceFragment__backup_time">Varmuuskopiointiaika</string>
     <string name="BackupsPreferenceFragment__verify_backup_passphrase">Varmenna varmuuskopion salalause</string>
     <string name="BackupsPreferenceFragment__test_your_backup_passphrase">Tarkista varmuuskopion salalause ja varmista että se täsmää</string>
-    <string name="BackupsPreferenceFragment__turn_on">Ota käyttöön</string>
+    <string name="BackupsPreferenceFragment__turn_on">Ota varmuuskopiot käyttöön</string>
     <string name="BackupsPreferenceFragment__turn_off">Poista käytöstä</string>
     <string name="BackupsPreferenceFragment__to_restore_a_backup">"Palauta varmuuskopio asentamalla Signal uudelleen tai uuteen laitteeseen. Avaa sovellus, napauta Palauta varmuuskopio ja etsi sitten varmuuskopiotiedosto. %1$s"</string>
     <string name="BackupsPreferenceFragment__learn_more">Lue lisää</string>
@@ -1638,6 +1710,8 @@
     <string name="GroupJoinBottomSheetDialogFragment_unable_to_join_group_please_try_again_later">Ryhmään liittyminen ei onnistunut. Yritä myöhemmin uudelleen.</string>
     <string name="GroupJoinBottomSheetDialogFragment_encountered_a_network_error">Verkkovirhe.</string>
     <string name="GroupJoinBottomSheetDialogFragment_this_group_link_is_not_active">Tämä ryhmälinkki ei ole aktiivinen</string>
+    <!-- Toast message shown when trying to join a group via link but the group has been ended -->
+    <string name="GroupJoinBottomSheetDialogFragment_this_group_has_been_ended">Tähän ryhmään ei voi liittyä.</string>
     <!-- Toast message shown when trying to join a group by link but the group is full -->
     <string name="GroupJoinBottomSheetDialogFragment_group_limit_reached">Ryhmän yläraja saavutettu. Ryhmään liittyminen ei onnistu</string>
     <!-- Title shown when there was an known issue getting group information from a group link -->
@@ -1738,6 +1812,8 @@
     <string name="MediaOverviewActivity_Files">Tiedostot</string>
     <string name="MediaOverviewActivity_Audio">Ääni</string>
     <string name="MediaOverviewActivity_All">Kaikki</string>
+    <string name="MediaOverviewActivity_Links">Linkit</string>
+    <string name="MediaOverviewActivity_link">Linkki</string>
     <plurals name="MediaOverviewActivity_Media_delete_confirm_title">
         <item quantity="one">Poistetaanko valittu?</item>
         <item quantity="other">Poistetaanko valitut?</item>
@@ -1748,6 +1824,8 @@
     </plurals>
     <string name="MediaOverviewActivity_Media_delete_progress_title">Poistetaan</string>
     <string name="MediaOverviewActivity_Media_delete_progress_message">Viestejä poistetaan…</string>
+    <!-- Format string showing current vs. total items being deleted, e.g. "12 of 207" -->
+    <string name="MediaOverviewActivity_Media_delete_progress_count">%1$d / %2$d</string>
     <string name="MediaOverviewActivity_Sort_by">Järjestä</string>
     <string name="MediaOverviewActivity_Newest">Uusin</string>
     <string name="MediaOverviewActivity_Oldest">Vanhin</string>
@@ -1784,6 +1862,7 @@
     <string name="MediaOverviewActivity_sent_by_you_to_s">Sinun lähettämäsi, vastaanottaja %1$s</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="MediaOverviewActivity_this_media_is_not_sent_yet">Tätä mediaa ei ole vielä lähetetty.</string>
+    <string name="MediaOverviewActivity_jump_to_message">Siirry viestiin</string>
 
     <!-- Megaphones -->
     <string name="Megaphones_remind_me_later">Muistuta minua myöhemmin</string>
@@ -1806,6 +1885,16 @@
 
     <!-- Title of a bottom sheet to render messages that all quote a specific message -->
     <string name="MessageQuotesBottomSheet_replies">Vastaukset</string>
+
+    <!-- StarredMessagesFragment -->
+    <!-- Title for the starred messages screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesActivity__starred_messages" translatable="false">Starred messages</string> -->
+    <!-- Empty state text when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__no_starred_messages" translatable="false">No starred messages</string> -->
+    <!-- Empty state description when there are no starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessagesFragment__tap_and_hold_on_a_message_to_star_it" translatable="false">Tap and hold on a message to star it.</string> -->
+    <!-- Format for starred message source label, e.g. "Alice › Book Club" -->
+  <!-- Removed by excludeNonTranslatables <string name="StarredMessages__s_chevron_s" translatable="false">%1$s \u203A %2$s</string> -->
 
     <!-- NotificationBarManager -->
     <string name="NotificationBarManager__establishing_signal_call">Muodostetaan Signal-puhelua</string>
@@ -1841,6 +1930,12 @@
     <string name="MessageRecord_left_group">Olet poistunut ryhmästä.</string>
     <string name="MessageRecord_you_updated_group">Päivitit ryhmää.</string>
     <string name="MessageRecord_the_group_was_updated">Ryhmä päivitettiin.</string>
+    <!-- Update message shown a group is terminated, but the person that terminated it is unknown. -->
+    <string name="MessageRecord_the_group_was_terminated">Ryhmä suljettiin.</string>
+    <!-- Update message shown when a group is terminated, placeholder is the name of the person that terminated the group. -->
+    <string name="MessageRecord_s_terminated_the_group">%1$s sulki ryhmän</string>
+    <!-- Update message shown when a group is terminated by you -->
+    <string name="MessageRecord_you_terminated_the_group">Suljit ryhmän</string>
     <!-- Update message shown when placing an outgoing 1:1 voice/audio call -->
     <string name="MessageRecord_outgoing_voice_call">Lähtevä äänipuhelu</string>
     <!-- Update message shown when placing an outgoing 1:1 video call -->
@@ -1857,6 +1952,10 @@
     <string name="MessageRecord_declined_voice_call">Hylätty äänipuhelu</string>
     <!-- Update message shown when receiving an incoming 1:1 video call and not answered -->
     <string name="MessageRecord_declined_video_call">Hylätty videopuhelu</string>
+    <!-- Update message shown when placing an outgoing 1:1 voice/audio call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_voice_call">Vastaamaton äänipuhelu</string>
+    <!-- Update message shown when placing an outgoing 1:1 video call and the remote party did not answer -->
+    <string name="MessageRecord_unanswered_video_call">Vastaamaton videopuhelu</string>
     <!-- Update message shown when receiving an incoming voice call and declined due to notification profile -->
     <string name="MessageRecord_missed_voice_call_notification_profile">Vastaamaton äänipuhelu ilmoitusprofiilin ollessa käytössä</string>
     <!-- Update message shown when receiving an incoming video call and declined due to notification profile -->
@@ -1984,6 +2083,13 @@
     <string name="MessageRecord_you_changed_who_can_edit_group_membership_to_s">Muutit ryhmän jäsenyyden muokkaajaksi käyttäjän %1$s.</string>
     <string name="MessageRecord_s_changed_who_can_edit_group_membership_to_s">%1$s muutti ryhmän jäsenyyden muokkaajaksi käyttäjän %2$s.</string>
     <string name="MessageRecord_who_can_edit_group_membership_has_been_changed_to_s">Ryhmän jäsenyyden muokkaajaksi on nyt muutettu käyttäjä %1$s.</string>
+
+    <!-- Shown when the current user changes the member label permission. -->
+    <string name="MessageRecord_you_changed_who_can_add_member_labels_to_s">Muutit ryhmän jäsenroolien lisääjäksi %1$s.</string>
+    <!-- Shown when another group member changes the member label permission. -->
+    <string name="MessageRecord_s_changed_who_can_add_member_labels_to_s">%1$s muutti ryhmän jäsenroolien lisääjäksi %2$s.</string>
+    <!-- Shown when the member label permission is changed by an unknown admin. -->
+    <string name="MessageRecord_unknown_admin_changed_who_can_add_member_labels_to_s">Ylläpitäjä muutti ryhmän jäsenroolien lisääjäksi %1$s.</string>
 
     <!-- GV2 announcement group change -->
     <string name="MessageRecord_you_allow_all_members_to_send">Muutit ryhmän asetuksia ja nyt kaikki ryhmän jäsenet voivat lähettää viestejä.</string>
@@ -2143,8 +2249,10 @@
     <string name="MessageRecord__payment_tombstone">Maksu</string>
     <!-- Update message shown in chat after reporting it as spam -->
     <string name="MessageRecord_reported_as_spam">Ilmoitettu roskapostista</string>
-    <!-- Update message shown in chat after accept a message request -->
-    <string name="MessageRecord_you_accepted_the_message_request">Hyväksyit viestipyynnön</string>
+    <!-- Update message shown in chat after accept a message request, placeholder is the other person\'s display name -->
+    <string name="MessageRecord_you_accepted_s_message_request">Hyväksyit viestipyynnön henkilöltä %1$s</string>
+    <!-- Update message shown in a group chat after accepting a group message request -->
+    <string name="MessageRecord_you_accepted_the_group_request">Hyväksyit ryhmäpyynnön</string>
     <!-- Update message shown in chat after you block a person -->
     <string name="MessageRecord_you_blocked_this_person">Estit tämän henkilön</string>
     <!-- Update message shown in chat after you unblock a person -->
@@ -2168,7 +2276,7 @@
     <string name="MessageRequestBottomView_unblock">Poista esto</string>
     <!-- Text explaining a message request from someone you\'ve removed before -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_you_removed_them_before">Sallitaanko henkilön %1$s lähettää sinulle viestejä ja nähdä nimesi ja kuvasi? Olet aiemmin poistanut tämän henkilön.</string>
-    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Sallitaanko henkilön %1$s lähettää sinulle viestejä ja nähdä nimesi ja profiilikuvasi? Hän ei tiedä, että olet nähnyt hänen viestinsä ennen hyväksymistäsi.</string>
+    <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Haluatko, että henkilö voi lähettää sinulle viestejä ja että hänelle näytetään nimesi ja valokuvasi? Hän ei tiedä, että olet nähnyt viestin, jollet hyväksy sitä.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock a Signal user -->
     <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Sallitaanko henkilön %1$s lähettää sinulle viestejä ja nähdä nimesi ja profiilikuvasi? Et saa viestejä, ennen kuin poistat eston.</string>
     <!-- Shown in message request flow. Describes what will happen if you unblock an SMS user -->
@@ -2230,11 +2338,15 @@
         <item quantity="other">%1$d muuta</item>
     </plurals>
     <!-- Button label to report spam for a conversation when in a message request state -->
-    <string name="MessageRequestBottomView_report">Ilmoita…</string>
+    <string name="MessageRequestBottomView_report">Ilmoita</string>
     <!-- Alert dialog title to accept a message request -->
     <string name="MessageRequestBottomView_accept_request">Hyväksytäänkö pyyntö?</string>
     <!-- Alert dialog body to review the message request carefully -->
     <string name="MessageRequestBottomView_review_requests_carefully">Tarkista pyynnöt huolellisesti. Profiilin nimi on tilin haltijan valittavissa eikä sitä vahvisteta.</string>
+    <!-- Alert dialog body for accepting a message request. Contains bold substring placeholder -->
+    <string name="MessageRequestBottomView_accept_request_body">Hyväksy pyynnöt vain luotettavilta henkilöiltä. %1$s pyydä sinulta rekisteröintikoodia, PIN-koodia tai palautusavainta.</string>
+    <!-- Bold substring used in accept request body: "Signal will never" -->
+    <string name="MessageRequestBottomView_signal_will_never">Signal ei koskaan</string>
     <!-- Alert dialog title to accept a message request to join a group -->
     <string name="MessageRequestBottomView_join_group">Liitytäänkö ryhmään?</string>
     <!-- Alert dialog body to review the message request for a group carefully -->
@@ -2564,6 +2676,8 @@
     <string name="WebRtcCallView__s_remotely_muted_s">%1$s mykisti käyttäjän %2$s.</string>
     <!-- Alert message indicating that the local user joined a call on a second device and muted this one from the other one. -->
     <string name="WebRtcCallView__you_muted_yourself">Mykistit itsesi toiselta laitteelta.</string>
+    <!-- Toast message shown when user is auto-muted because they are joining a large group call. -->
+    <string name="WebRtcCallView__youve_been_muted_large_group">Sinut on mykistetty, koska puhelussa on monta osallistujaa.</string>
 
     <!-- Error message when the developer added a button in the wrong place. -->
     <string name="WebRtcAudioOutputToggleButton_fragment_activity_error">Tapahtui käyttöliittymävirhe. Ilmoita tästä virheestä kehittäjille.</string>
@@ -2588,6 +2702,10 @@
     <string name="CallOverflowPopupWindow__lower_hand">Laske</string>
     <!-- A negative button for a dialog confirming the user wants to lower their hand (withdraw a raised hand) -->
     <string name="CallOverflowPopupWindow__cancel">Peruuta</string>
+    <!-- A clickable button to share your screen in a call -->
+    <string name="CallOverflowPopupWindow__share_screen">Jaa näyttö</string>
+    <!-- A clickable button to stop sharing your screen in a call -->
+    <string name="CallOverflowPopupWindow__stop_screen_share">Lopeta jakaminen</string>
     <!-- A button to take you to a list of participants with raised hands -->
     <string name="CallOverflowPopupWindow__view">Näytä</string>
 
@@ -2664,6 +2782,8 @@
     <string name="AboutSheet__you">Sinä</string>
     <!-- Displays the name of a contact. The first placeholder is the name the user has assigned to that contact, the second name is the name the contact assigned to themselves -->
     <string name="AboutSheet__user_set_display_name_and_profile_name">%1$s (%2$s)</string>
+    <!-- Placeholder text in the group member label row when the user has no label set. -->
+    <string name="AboutSheet__add_group_member_label">Lisää jäsentunniste</string>
 
     <!-- Title of the screen showing which groups they have in common with another user. -->
     <plurals name="GroupsInCommon__n_groups_in_common_title">
@@ -2710,6 +2830,8 @@
 
     <!-- CallToastPopupWindow -->
     <string name="CallToastPopupWindow__swipe_to_view_screen_share">Pyyhkäise nähdäksesi näytönjaon</string>
+    <!-- Hint shown to teach the user they can swipe between the grid view and the active speaker view -->
+    <string name="CallToastPopupWindow__swipe_to_view_speaker">Näytä kaiutin sipaisemalla</string>
 
     <!-- ProxyBottomSheetFragment -->
     <string name="ProxyBottomSheetFragment_proxy_server">Välityspalvelin</string>
@@ -2751,15 +2873,14 @@
     <string name="RegistrationActivity_i_understand">Selvä</string>
     <string name="RegistrationActivity_play_services_error">Play-palvelujen virhe</string>
     <string name="RegistrationActivity_google_play_services_is_updating_or_unavailable">Google Play -palveluita päivitetään tai ne eivät ole käytettävissä. Yritä myöhemmin uudelleen.</string>
-    <string name="RegistrationActivity_terms_and_privacy">Käyttöehdot ja yksityisyydensuoja</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Signal tarvitsee yhteystietojen ja median käyttöoikeudet, jotta voit olla yhteydessä kavereihisi ja lähettää viestejä. Yhteystietosi lähetetään käyttäen Signalin yksityistä yhteystietohakua ja ne on suojattu päästä päähän -salauksella. Ne eivät missään vaiheessa paljastu Signal-palvelulle.</string>
     <string name="RegistrationActivity_signal_needs_access_to_your_contacts_in_order_to_connect_with_friends">Signal tarvitsee yhteystietojen käyttöoikeuden, jotta voit olla yhteydessä kavereihisi. Yhteystietosi lähetetään käyttäen Signalin yksityistä yhteystietohakua ja ne on suojattu päästä päähän -salauksella. Ne eivät missään vaiheessa paljastu Signal-palvelulle.</string>
     <string name="RegistrationActivity_rate_limited_to_service">Olet yrittänyt rekisteröidä tämän numeron liian monta kertaa. Yritä myöhemmin uudelleen.</string>
     <!--    During registration, if the user attempts (and fails) to register, we display this error message with a number of minutes timer they are allowed to try again.-->
     <string name="RegistrationActivity_rate_limited_to_try_again">Olet yrittänyt rekisteröidä tämän numeron liian monta kertaa. Yritä uudelleen, kun on kulunut %1$s.</string>
     <string name="RegistrationActivity_unable_to_connect_to_service">Yhteyttä ei voitu muodostaa palveluun. Tarkista verkkoyhteytesi ja yritä uudelleen.</string>
-    <!-- Dialog error message shown when attempting to register and the SMS provider fails to send an SMS -->
-    <string name="RegistrationActivity_sms_provider_error">Signal ei voinut lähettää tekstiviestikoodia operaattoriin liittyvien ongelmien vuoksi. Yritä uudelleen muutaman tunnin kuluttua.</string>
+    <!-- Dialog error message shown when we are unable to send an SMS to the user\'s number -->
+    <string name="RegistrationActivity_sms_provider_error">Emme voi lähettää tekstiviestikoodia numeroosi. Yritä uudelleen muutaman tunnin kuluttua.</string>
     <!-- A description text for an alert dialog when the entered phone number is not eligible for a verification SMS. -->
     <string name="RegistrationActivity_we_couldnt_send_you_a_verification_code">Emme voineet lähettää sinulle vahvistuskoodia tekstiviestillä. Yritä sen sijaan vastaanottaa koodi äänipuhelun välityksellä.</string>
     <!-- Generic error when the app is unable to request an SMS code for an unknown reason. -->
@@ -2784,8 +2905,6 @@
     <!-- Dialog button to cancel the pending action and return to the previous state. -->
     <string name="RegistrationActivity_cancel">Peruuta</string>
     <string name="RegistrationActivity_next">Seuraava</string>
-    <string name="RegistrationActivity_continue">Jatka</string>
-    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Yksityisyys aina mukana.\nOle itsesi jokaisessa viestissä.</string>
     <!-- Title of registration screen when asking for the users phone number -->
     <string name="RegistrationActivity_phone_number">Puhelinnumero</string>
     <!-- Subtitle of registration screen when asking for the users phone number -->
@@ -3004,6 +3123,8 @@
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_signal_package" translatable="false">Signal package:</string> -->
     <string name="SupportEmailUtil_registration_lock">Rekisteröintiesto:</string>
   <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_locale" translatable="false">Locale:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_challenge_received" translatable="false">Challenge Received:</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="SupportEmailUtil_registered" translatable="false">Registered:</string> -->
 
     <!-- ThreadRecord -->
     <string name="ThreadRecord_group_updated">Ryhmä päivitetty</string>
@@ -3016,8 +3137,14 @@
     <string name="ThreadRecord_view_once_photo">Kerran katsottava kuva</string>
     <string name="ThreadRecord_view_once_video">Kerran katsottava video</string>
     <string name="ThreadRecord_view_once_media">Kerran katsottava media</string>
-    <string name="ThreadRecord_this_message_was_deleted">Tämä viesti poistettiin.</string>
-    <string name="ThreadRecord_you_deleted_this_message">Poistit tämän viestin.</string>
+    <!-- Thread preview when someone has deleted their own message -->
+    <string name="ThreadRecord_this_message_was_deleted">Viesti poistettiin</string>
+    <!-- Thread preview when someone has deleted their own message. Placeholder is the name of the person. -->
+    <string name="ThreadRecord_s_deleted_this_message">%1$s poisti viestin</string>
+    <!-- Thread preview when you deleted a message -->
+    <string name="ThreadRecord_you_deleted_this_message">Poistit viestin</string>
+    <!-- Thread preview when an admin has deleted a message -->
+    <string name="ThreadRecord_admin_deleted_this_message">Ylläpitäjä %1$s poisti viestin</string>
     <!-- Displayed in the notification when the user sends a request to activate payments -->
     <string name="ThreadRecord_you_sent_request">Lähetit Signal-maksujen aktivointipyynnön</string>
     <!-- Displayed in the notification when the recipient wants to activate payments -->
@@ -3166,7 +3293,22 @@
     <string name="MessageDisplayHelper_message_encrypted_for_non_existing_session">Viesti salattu istunnolle, jota ei ole olemassa</string>
 
     <!-- MuteDialog -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
     <string name="MuteDialog_mute_notifications">Mykistä ilmoitukset</string>
+    <!-- Dialog option that, when pressed, will open a time picker to let the user choose how long they\'d like to mute notifications for -->
+    <string name="MuteDialog__mute_until">Mykistä…</string>
+
+    <!-- MuteUntilTimePickerBottomSheet -->
+    <!-- Title for a dialog where a user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__dialog_title">Mykistä ilmoitukset…</string>
+    <!-- Label for a data selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_date_title">Valitse päivämäärä</string>
+    <!-- Label for a time selector where the user chooses how long they\'d like to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__select_time_title">Valitse aika</string>
+    <!-- Label for a button that, when pressed, will confirm the user\'s choice on how long to mute notifications for -->
+    <string name="MuteUntilTimePickerBottomSheet__mute_notifications">Mykistä ilmoitukset</string>
+    <!-- Subtitle in a dialog that describes the timezone the user is picking times in. The first placeholder is a UTC offset, and the second placeholder is a user-friendly name for the timezone, e.g. "All times in (GMT-05:00) Eastern Standard Time" -->
+    <string name="MuteUntilTimePickerBottomSheet__timezone_disclaimer">Kaikki ajat (%1$s) %2$s</string>
 
     <!-- KeyCachingService -->
     <string name="KeyCachingService_signal_passphrase_cached">Siirry takaisin sovellukseen koskettamalla tästä.</string>
@@ -3325,6 +3467,17 @@
 
     <!-- Message explaining that it is not possible to save media to the device storage after the user denied the system save to storage permission. -->
     <string name="AttachmentSaver__unable_to_write_to_external_storage_without_permission">Tallennus ulkoiseen tallennustilaan ei onnistu ilman käyttöoikeutta.</string>
+
+    <!-- Dialog title shown when attempting to save media that has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_media">Mediaa ei voi tallentaa</string>
+    <!-- Dialog message explaining that media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__media_offloaded_message">Tämä mediasisältö on siirretty laitteestasi sivuun, koska laitteen tallennustilan optimointi on päällä. Voit tallentaa kohteet yksittäin. Laittamalla laitteen tallennustilan optimoinnin pois päältä voit ladata kaiken median laitteellesi.</string>
+    <!-- Dialog title shown when attempting to save multiple media items, some of which have been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__cant_save_all_items">Kaikkia kohteita ei voi tallentaa</string>
+    <!-- Dialog message explaining that some selected media cannot be saved because it has been offloaded from the device by the storage optimization feature. -->
+    <string name="AttachmentSaver__some_media_offloaded_message">Osa valitsemastasi mediasisällöstä on siirretty laitteestasi sivuun, koska laitteen tallennustilan optimointi on päällä. Voit tallentaa kohteet yksittäin. Laittamalla laitteen tallennustilan optimoinnin pois päältä voit ladata kaiken median laitteellesi.</string>
+    <!-- Button label in the offloaded media dialog that navigates to the storage settings screen. -->
+    <string name="AttachmentSaver__view_storage_settings">Näytä tallennustilan asetukset</string>
 
     <!-- SearchToolbar -->
     <string name="SearchToolbar_search">Hae</string>
@@ -3532,6 +3685,14 @@
     <!-- Accessibility content description describing how a user can lock voice note recording. -->
     <string name="conversation_activity__quick_attachment_drawer_lock_record_description">Lukitse ääniviestin tallennus</string>
     <string name="conversation_activity__message_could_not_be_sent">Viestin lähetys ei onnistunut. Tarkista verkkoyhteytesi ja yritä uudelleen.</string>
+    <!-- Dialog body shown when tapping a failed message in a terminated group -->
+    <string name="conversation_activity__send_failed_group_ended">Et voi enää lähettää tai vastaanottaa viestejä tässä ryhmässä, koska se on suljettu.</string>
+    <!-- Dialog body shown when tapping a group action button (e.g. invite friends) in a terminated group -->
+    <string name="conversation_activity__group_action_not_allowed_group_ended">Toiminto ei ole mahdollinen, koska ryhmä on suljettu.</string>
+    <!-- Dialog body when a message failed to delete and retry is possible. -->
+    <string name="conversation_activity__message_failed_to_delete_retry">Viestin poistaminen epäonnistui. Tarkista verkkoyhteys ja yritä uudelleen.</string>
+    <!-- Dialog body when a message failed to delete. -->
+    <string name="conversation_activity__message_failed_to_delete">Viestin poistaminen epäonnistui.</string>
 
     <!-- conversation_input_panel -->
     <string name="conversation_input_panel__slide_to_cancel">Hylkää pyyhkäisemällä</string>
@@ -3578,9 +3739,29 @@
     <!-- Update item alerting the user they hid this person and that they can message them to unhide them -->
     <string name="ConversationUpdateItem_hidden_contact_message_to_add_back">Olet poistanut tämän henkilön. Jos lähetät hänelle viestin uudelleen, hänet lisätään takaisin luetteloosi.</string>
     <!-- Update item button text shown for the accepted message request update message -->
-    <string name="ConversationUpdateItem_options">Valinnat</string>
+    <string name="ConversationUpdateItem_block_report">Estä tai ilmoita…</string>
     <!-- Update item button text shown for a profile name change. -->
     <string name="ConversationUpdateItem_update">Päivitä</string>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__group_update">
+        <item quantity="one">%1$d päivitys ryhmissä</item>
+        <item quantity="other">%1$d päivitystä ryhmissä</item>
+    </plurals>
+    <!-- Update item button text to show how many group updates there are. -->
+    <plurals name="CollapsedEvent__chat_update">
+        <item quantity="one">%1$d päivitys keskusteluissa</item>
+        <item quantity="other">%1$d päivitystä keskusteluissa</item>
+    </plurals>
+    <!-- Update item button text to show how many disappearing message timer changes are. %2$s is what the timer was ultimately set to.-->
+    <plurals name="CollapsedEvent__disappearing_timer">
+        <item quantity="one">%1$d muutos katoavien viestien ajastimessa · %2$s</item>
+        <item quantity="other">%1$d muutosta katoavien viestien ajastimessa · %2$s</item>
+    </plurals>
+    <!-- Update item button text to show how many call events are. -->
+    <plurals name="CollapsedEvent__call_event">
+        <item quantity="one">%1$d puhelutapahtuma</item>
+        <item quantity="other">%1$d puhelutapahtumaa</item>
+    </plurals>
 
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">Soita … keskeytä</string>
@@ -3816,15 +3997,55 @@
     <string name="verify_display_fragment__loading">Ladataan…</string>
     <string name="verify_display_fragment__mark_as_verified">Merkitse varmennetuksi</string>
     <string name="verify_display_fragment__clear_verification">Poista varmennus</string>
+    <!-- Header title for automatic key verification -->
+    <string name="verify_display_fragment__automatic">Automaattinen avaimen vahvistus</string>
+    <!-- Button text to verify automatically    -->
+    <string name="verify_display_fragment__verify_automatic">Vahvista automaattisesti</string>
+    <!-- Loading text when verifying -->
+    <string name="verify_display_fragment__verifying">Salausta vahvistetaan…</string>
+    <!-- Success text shown when encryption is verified -->
+    <string name="verify_display_fragment__encryption_verified">Salaus vahvistettu</string>
+    <!-- Text shown when verification fails -->
+    <string name="verify_display_fragment__encryption_unavailable">Automaattinen vahvistus ei ole käytettävissä</string>
+    <!-- Caption text explaining more about automatic verification   -->
+    <string name="verify_display_fragment__auto_verify_not_available">Automaattinen vahvistus ei ole käytettävissä kaikissa keskustelussa.</string>
+  <!-- Removed by excludeNonTranslatables <string name="verify_display_fragment__link" translatable="false">https://support.signal.org/hc/articles/10223569377562</string> -->
+
+    <!-- Bottom sheet title when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_success">Tämän keskustelun salaus vahvistettiin automaattisesti.</string>
+    <!-- Bottom sheet body when encryption is auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_success">Kun yhteys toiseen käyttäjään perustuu puhelinnumeroon, Signal voi vahvistaa yhteyden suojauksen automaattisesti avaimen läpinäkyvyydeksi kutsutulla prosessilla. Saat lisäturvaa varmistamalla päästä päähän -salauksen käsin vertaamalla edellisen näytön numeroita tai skannaamalla hänen laitteensa koodin.</string>
+    <!-- Bottom sheet title when encryption is no longer auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_no_longer_unavailable">Automaattinen vahvistus ei ole keskustelussa enää käytettävissä.</string>
+    <!-- Bottom sheet body when encryption is no longer auto-verified. Placeholder is the name of the person. -->
+    <string name="EncryptionVerifiedSheet__body_no_longer_unavailable">Signal ei voi enää automaattisesti vahvistaa keskustelun salausta. Tämä johtuu todennäköisesti siitä, että %1$s on vaihtanut puhelinnumeroaan. Varmista päästä päähän -salaus käsin vertaamalla edellisen näytön numeroita tai skannaamalla hänen laitteensa koodi.</string>
+    <!-- Bottom sheet title when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__title_unavailable">Automaattinen vahvistus ei ole keskustelussa enää käytettävissä.</string>
+    <!-- Bottom sheet body when encryption cannot be auto-verified -->
+    <string name="EncryptionVerifiedSheet__body_unavailable">Signal voi automaattisesti tarkistaa salauksen vain keskusteluissa, joissa yhteys on muodostettu puhelinnumeron avulla. Jos keskustelu on aloitettu käyttäjänimen tai yhteisen ryhmän perusteella, varmista päästä päähän -salaus vertaamalla edellisen näytön numeroita tai skannaamalla hänen laitteensa koodi.</string>
 
     <!-- Title for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__title">Signal vahvistaa nyt päästä päähän -salauksen automaattisesti</string>
+    <string name="VerifyAutomaticallyEducationSheet__title">Signal voi nyt tarkistaa avaimen salauksen automaattisesti.</string>
     <!-- Body for auto verification education sheet -->
-    <string name="VerifyAutomaticallyEducationSheet__body">Kun vahvistat turvanumeron, Signal vahvistaa yhteyden suojauksen automaattisesti avaimen läpinäkyvyydeksi kutsutulla prosessilla. Voit edelleen vahvistaa yhteydet manuaalisesti QR-koodilla tai numerolla.</string>
+    <string name="VerifyAutomaticallyEducationSheet__body">Kun yhteys toiseen käyttäjään perustuu puhelinnumeroon, Signal voi vahvistaa yhteyden suojauksen automaattisesti avaimen läpinäkyvyydeksi kutsutulla prosessilla. Lisäturvan saamiseksi voit edelleen vahvistaa yhteydet manuaalisesti QR-koodilla tai turvanumerolla.</string>
     <!-- Button to learn more about automatic verification -->
     <string name="VerifyAutomaticallyEducationSheet__learn_more">Lue lisää</string>
     <!-- Button to go to verification page -->
-    <string name="VerifyAutomaticallyEducationSheet__verify">Vahvista</string>
+    <string name="VerifyAutomaticallyEducationSheet__continue">Jatka</string>
+
+    <!-- Title for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__title">Automaattinen avaimen vahvistus ei ole tällä hetkellä käytettävissä laitteellasi. Lähetetäänkö vianetsintäloki?</string>
+    <!-- Body for bottom sheet when self verification fails -->
+    <string name="SelfVerificationFailureSheet__body">Virheenkorjauslokit auttavat meitä diagnosoimaan ja korjaamaan ongelman, eivätkä ne sisällä tunnistetietoja.</string>
+    <!-- Button to decline submitting logs -->
+    <string name="SelfVerificationFailureSheet__no_thanks">Ei kiitos</string>
+    <!-- Button to submit logs -->
+    <string name="SelfVerificationFailureSheet__submit">Lähetä</string>
+    <!-- Email subject line when submitting logs following a verification failure -->
+    <string name="SelfVerificationFailureSheet__email_subject">Virhe automaattisessa avaimen vahvistamisessa</string>
+  <!-- Removed by excludeNonTranslatables <string name="SelfVerificationFailureSheet__email_filter" translatable="false">AutomaticKeyVerificationFailure</string> -->
+    <!-- Link to learn more about debug logs -->
+    <string name="SelfVerificationFailureSheet__learn_more">Lue lisää</string>
 
     <!-- verity_scan_fragment -->
     <string name="verify_scan_fragment__scan_the_qr_code_on_your_contact">Skannaa yhteystietosi laitteessa näkyvä QR-koodi.</string>
@@ -4201,6 +4422,10 @@
     <string name="preferences_compact">Kompakti</string>
     <!-- Dialog message body explaining that we have to restart the app in order to apply the user\'s new language setting.  -->
     <string name="preferences_language_change_confirmation_message">Sovellus käynnistyy uudelleen uuden kieliasetuksen käyttöön ottamiseksi.</string>
+    <!-- Preference title for automatic key verification -->
+    <string name="preferences_automatic_key_verification">Automaattinen avaimen vahvistus</string>
+    <!-- Preference summary for automatic key verification -->
+    <string name="preferences_automatic_key_verification_body">Kun toiminto on käytössä, Signal yrittää automaattisesti varmistaa henkilökohtaisten keskustelujen salauksen.</string>
 
 
     <string name="configurable_single_select__customize_option">Mukautettu vaihtoehto</string>
@@ -4277,43 +4502,6 @@
     <!-- Alert dialog button to update now -->
     <string name="PaymentsHomeFragment__update_now">Päivitä nyt</string>
 
-    <!-- GrantPermissionsFragment -->
-    <!-- Displayed as a text-only action button at the bottom start of the screen -->
-    <string name="GrantPermissionsFragment__not_now">Ei nyt</string>
-    <!-- Displayed as an action button at the bottom end of the screen -->
-    <string name="GrantPermissionsFragment__next">Seuraava</string>
-    <!-- Displayed as a title at the top of the screen -->
-    <string name="GrantPermissionsFragment__allow_permissions">Myönnä käyttöoikeudet</string>
-    <!-- Displayed as a subtitle at the top of the screen -->
-    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Signal pyytää näitä käyttöoikeuksia, jotta voisit viestiä tuntemillesi ihmisille helpommin. </string>
-    <!-- Notifications permission row title -->
-    <string name="GrantPermissionsFragment__notifications">Ilmoitukset</string>
-    <!-- Notifications permission row description -->
-    <string name="GrantPermissionsFragment__get_notified_when">Saat ilmoituksen, kun uusia viestejä saapuu.</string>
-    <!-- Contacts permission row title -->
-    <string name="GrantPermissionsFragment__contacts">Yhteystiedot</string>
-    <!-- Contacts permission row description -->
-    <string name="GrantPermissionsFragment__find_people_you_know">Etsi tuntemiasi ihmisiä. Yhteystietosi salataan, eivätkä ne näy Signal-palvelussa.</string>
-    <!-- Phone calls permission row title -->
-    <string name="GrantPermissionsFragment__phone_calls">Puhelut</string>
-    <!-- Phone calls permission row description -->
-    <string name="GrantPermissionsFragment__make_registering_easier">Helpota rekisteröitymistä ja ota käyttöön puheluiden lisäominaisuuksia.</string>
-    <!-- Storage permission row title -->
-    <string name="GrantPermissionsFragment__storage">Tallennustila</string>
-    <!-- Storage permission row description -->
-    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Lähetä valokuvia, videoita ja tiedostoja laitteestasi.</string>
-
-    <!-- PermissionDeniedBottomSheet -->
-    <!-- Sheet describing step 1 on how to give permissions by opening settings -->
-    <string name="PermissionDeniedBottomSheet__1_tap_settings_below">1. Napauta alla kohtaa Asetukset</string>
-    <!-- Sheet describing step 2 on how to give permissions by checking the permissions button in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__2_allow_permission">2. %1$s Myönnä käyttöoikeus</string>
-    <!-- Sheet describing step 2 on how to give permissions by tapping permissions in their settings -->
-    <string name="PermissionDeniedBottomSheet__2_tap_permissions">2. Napauta Käyttöoikeudet</string>
-    <!-- Sheet describing step 3 on how to give permissions for photos and videos in settings where %s will be replaced with an image of a checked button -->
-    <string name="PermissionDeniedBottomSheet__3_allow_permission">3. %1$s Myönnä käyttöoikeus kuville ja videoille</string>
-    <!-- Label for button at the bottom of the sheet which opens the system permission settings -->
-    <string name="PermissionDeniedBottomSheet__settings">Asetukset</string>
 
     <!-- PaymentsSecuritySetupFragment -->
     <!-- Toolbar title -->
@@ -4489,6 +4677,10 @@
     <string name="conversation_selection__menu_copy">Kopioi</string>
     <!-- Button to delete a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_delete">Poista</string>
+    <!-- Button to star a message to save it for later; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_star" translatable="false">Star (Labs)</string> -->
+    <!-- Button to remove the star from a message; Action item -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_selection__menu_unstar" translatable="false">Unstar (Labs)</string> -->
     <!-- Button to forward a message to another person or group chat; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD  -->
     <string name="conversation_selection__menu_forward">Välitä</string>
     <!-- Button to reply to a message; Action item with hyphenation. Translation can use soft hyphen - Unicode U+00AD -->
@@ -4557,6 +4749,7 @@
     <string name="conversation__menu_view_all_media">Kaikki media</string>
     <string name="conversation__menu_conversation_settings">Keskusteluasetukset</string>
     <string name="conversation__menu_add_shortcut">Lisätty kotinäytölle</string>
+  <!-- Removed by excludeNonTranslatables <string name="conversation__menu_export" translatable="false">Export (Labs)</string> -->
     <string name="conversation__menu_create_bubble">Luo kupla</string>
     <!-- Overflow menu option that allows formatting of text -->
     <string name="conversation__menu_format_text">Muotoile tekstiä</string>
@@ -4565,6 +4758,13 @@
 
     <!-- conversation_callable_insecure -->
     <string name="conversation_add_to_contacts__menu_add_to_contacts">Lisää yhteystietoihin</string>
+
+    <!-- conversation export -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__exporting" translatable="false">Exporting chat…</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_complete" translatable="false">Chat exported successfully</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_failed" translatable="false">Export failed</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__export_cancelled" translatable="false">Export cancelled</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="conversation_export__preparing" translatable="false">Preparing export…</string> -->
 
     <!-- conversation scheduled messages bar -->
 
@@ -4577,7 +4777,6 @@
     </plurals>
 
     <!-- conversation_group_options -->
-    <string name="convesation_group_options__recipients_list">Vastaanottajalista</string>
     <string name="conversation_group_options__delivery">Toimitus</string>
     <!-- Label for a menu item that appears after pressing the three-dot icon in a  -->
     <string name="conversation_group_options__conversation">Keskustelu</string>
@@ -4594,6 +4793,8 @@
     <!-- text_secure_normal -->
     <string name="text_secure_normal__menu_new_group">Uusi ryhmä</string>
     <string name="text_secure_normal__menu_settings">Asetukset</string>
+    <!-- Menu item in the main conversation list to view all starred messages -->
+  <!-- Removed by excludeNonTranslatables <string name="text_secure_normal__starred_messages" translatable="false">Starred messages (Labs)</string> -->
     <string name="text_secure_normal__menu_clear_passphrase">Lukitse</string>
     <string name="text_secure_normal__mark_all_as_read">Merkitse kaikki luetuiksi</string>
     <string name="text_secure_normal__invite_friends">Kutsu ystäviä</string>
@@ -4767,9 +4968,6 @@
     <!-- transport_selection_list_item -->
     <string name="ConversationListFragment_loading">Ladataan…</string>
     <string name="CallNotificationBuilder_connecting">Yhdistetään…</string>
-    <string name="Permissions_permission_required">Käyttöoikeus vaaditaan</string>
-    <string name="Permissions_continue">Jatka</string>
-    <string name="Permissions_not_now">Ei nyt</string>
     <string name="SQLCipherMigrationHelper_migrating_signal_database">Signalin tietokantaa siirretään</string>
     <string name="enter_backup_passphrase_dialog__backup_passphrase">Varmuuskopion salalause</string>
     <string name="backup_enable_dialog__backups_will_be_saved_to_external_storage_and_encrypted_with_the_passphrase_below_you_must_have_this_passphrase_in_order_to_restore_a_backup">Varmuuskopiot tallennetaan laitteesi tallennustilaan ja ne salataan allaolevalla salalauseella. Ilman tätä salalausetta et voi palauttaa varmuuskopiota.</string>
@@ -4778,8 +4976,6 @@
     <string name="backup_enable_dialog__i_have_written_down_this_passphrase">Olen kirjoittanut ylös tämän salalauseen, joka on välttämätön varmuuskopion palauttamiseen.</string>
     <string name="registration_activity__restore_backup">Palauta varmuuskopio</string>
     <string name="registration_activity__transfer_or_restore_account">Siirrä tai palauta tili</string>
-    <!-- Screen title for restoring or transfering account -->
-    <string name="registration_activity__restore_or_transfer">Palauta tai siirrä</string>
     <string name="registration_activity__transfer_account">Siirrä tili</string>
     <string name="registration_activity__skip">Ohita</string>
     <!-- Text label button to skip restoring -->
@@ -4806,6 +5002,8 @@
     <string name="BackupDialog_delete_backups">Poistetaanko varmuuskopiot?</string>
     <string name="BackupDialog_disable_and_delete_all_local_backups">Otetaanko paikalliset varmuuskopiot pois käytöstä ja poistetaanko ne?</string>
     <string name="BackupDialog_delete_backups_statement">Poista varmuuskopiot</string>
+    <!-- Progress dialog message shown while local backup files are being deleted -->
+    <string name="BackupDialog_deleting_local_backup">Poistetaan paikallista varmuuskopiota…</string>
     <string name="BackupDialog_to_enable_backups_choose_a_folder">Valitse kansio, jotta varmuuskopiot voidaan ottaa käyttöön. Varmuuskopiot tallennetaan tähän paikkaan.</string>
     <!-- Button shown in dialog to choose a folder for backups -->
     <string name="BackupDialog_choose_folder">Valitse kansio</string>
@@ -4892,13 +5090,6 @@
     <string name="RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later">Olet yrittänyt liian monta kertaa. Yritä myöhemmin uudelleen.</string>
     <string name="RegistrationActivity_error_connecting_to_service">Virhe yhdistettäessä palveluun</string>
     <string name="preferences_chats__backups">Varmuuskopiot</string>
-
-    <!-- Button label to indicate that a feature is in beta mode -->
-    <string name="Beta__beta_title">Beta</string>
-    <!-- Content description for info icon -->
-    <string name="Beta__info">Tietoja</string>
-    <!-- Text in header describing that the feature is a beta feature and prone to frequent changes -->
-    <string name="Beta__this_is_beta">Tämä on beta-ominaisuus ja sitä parannetaan ajan myötä.</string>
 
     <!-- Title text shown when Signal is locked and needs to be unlocked -->
     <string name="prompt_passphrase_activity__unlock_signal">Avaa Signalin lukitus</string>
@@ -5113,6 +5304,8 @@
     <string name="RecipientBottomSheet_remove_from_group">Poista ryhmästä</string>
 
     <string name="RecipientBottomSheet_remove_s_as_group_admin">Poistetaanko %1$s ryhmän ylläpitäjistä?</string>
+    <!-- Message shown when removing an admin will also clear their member label. -->
+    <string name="RecipientBottomSheet_remove_s_as_group_admin_and_clear_member_label">Poistetaanko %1$s ryhmän ylläpitäjistä? Tämä poistaa myös heidän jäsenroolinsa.</string>
     <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">"%1$s voi tulevaisuudessa muokata ryhmää ja sen jäseniä."</string>
 
     <string name="RecipientBottomSheet_remove_s_from_the_group">Poistetaanko %1$s ryhmästä?</string>
@@ -5125,6 +5318,8 @@
     <!-- Button text to approve a user that has requested to join a group -->
     <string name="GroupRecipientListItem_approve_description">Hyväksy</string>
     <string name="GroupRecipientListItem_deny_description">Hylkää</string>
+    <!-- Placeholder shown in the group member list when the user has not yet set a member label. -->
+    <string name="GroupRecipientListItem__add_member_label">Lisää jäsenrooli</string>
 
 
     <!-- GroupsLearnMoreBottomSheetDialogFragment -->
@@ -5153,8 +5348,6 @@
     <!-- This is a title in a banner describing the conversation sender to receiver placeholders of the currently playing voice memo. -->
     <string name="VoiceNoteMediaItemFactory__s_to_s">%1$s käyttäjälle %2$s</string>
 
-    <!-- StorageUtil -->
-    <string name="StorageUtil__s_s">%1$s/%2$s</string>
     <string name="BlockedUsersActivity__s_has_been_blocked">%1$s on estetty.</string>
     <string name="BlockedUsersActivity__failed_to_block_s">Henkilön %1$s estäminen epäonnistui</string>
     <string name="BlockedUsersActivity__s_has_been_unblocked">Henkilön %1$s esto on poistettu.</string>
@@ -5600,6 +5793,41 @@
         <item quantity="other">%1$d kansiota</item>
     </plurals>
 
+    <!-- Row title for the option to export chat history as a plaintext archive -->
+    <string name="ChatsSettingsFragment__export_chat_history">Vie keskusteluhistoria</string>
+    <!-- Row description for the plaintext chat export option -->
+    <string name="ChatsSettingsFragment__export_chat_history_label">Vie koneellisesti luettava JSON-kopio kaikista keskusteluistasi. Kadonneita viestejä ei viedä.</string>
+    <!-- Biometrics prompt title shown before allowing the user to export chat history -->
+    <string name="ChatsSettingsFragment__unlock_to_export_chat_history">Avaa lukitus viedäksesi keskusteluhistorian</string>
+    <!-- Snackbar shown when biometric authentication fails before a chat export -->
+    <string name="ChatsSettingsFragment__authentication_failed">Tunnistautuminen epäonnistui</string>
+
+    <!-- ChatExportDialogs -->
+    <!-- Progress dialog message shown while canceling an in-progress chat export -->
+    <string name="ChatExportDialogs__canceling_export">Peruutetaan vientiä…</string>
+    <!-- Title of the dialog asking the user to confirm they want to export chat history -->
+    <string name="ChatExportDialogs__export_chat_history_title">Viedäänkö keskusteluhistoria?</string>
+    <!-- Bold warning prefix in the export confirmation dialog body -->
+    <string name="ChatExportDialogs__be_careful_warning">OLE VAROVAINEN!</string>
+    <!-- Body of the export confirmation dialog, displayed after the bold "BE CAREFUL!" prefix -->
+    <string name="ChatExportDialogs__export_confirm_body">ÄLÄ jaa tätä tiedostoa kenellekään. Keskusteluhistoriasi tallennetaan laitteellesi, ja muut sovellukset voivat käyttää sitä laitteesi käyttöoikeuksista riippuen. Vienti median kera johtaa suurempaan tiedostokokoon.</string>
+    <!-- Button in the export confirmation dialog to export messages and media -->
+    <string name="ChatExportDialogs__export_with_media">Vie median kera</string>
+    <!-- Button in the export confirmation dialog to export messages only -->
+    <string name="ChatExportDialogs__export_without_media">Vie ilman mediaa</string>
+    <!-- Title of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_title">Valitse kansio</string>
+    <!-- Body of the dialog prompting the user to pick a destination folder for the export -->
+    <string name="ChatExportDialogs__choose_a_folder_body">Valitse laitteesi tallennustilasta kansio, johon keskusteluhistoriasi tallennetaan.</string>
+    <!-- Button that opens the system folder picker -->
+    <string name="ChatExportDialogs__choose_folder_button">Valitse kansio</string>
+    <!-- Title of the dialog shown when a chat export finishes successfully -->
+    <string name="ChatExportDialogs__complete_title">Keskusteluiden vienti onnistui</string>
+    <!-- Bold warning prefix in the export complete dialog body -->
+    <string name="ChatExportDialogs__be_careful">OLE VAROVAINEN</string>
+    <!-- Body of the export complete dialog, displayed after the bold "BE CAREFUL" prefix -->
+    <string name="ChatExportDialogs__complete_body">tallentaessasi keskusteluhistoriasi tiedostoa. Älä jaa sitä kenellekään. Muut laitteesi sovellukset voivat käyttää sitä laitteesi käyttöoikeuksista riippuen.</string>
+
     <!-- ChatFoldersEducationSheet -->
     <!-- Text in a bottom sheet describing chat folders and what they can be created for -->
     <string name="ChatFoldersEducationSheet__create_folders_for_family">Luo kansioita perheelle, ystäville, työlle ja muille</string>
@@ -5793,12 +6021,16 @@
     <string name="HelpSettingsFragment__terms_amp_privacy_policy">Käyttöehdot ja yksityisyydensuoja</string>
     <string name="HelpFragment__copyright_signal_messenger">Copyright Signal Messenger</string>
     <string name="HelpFragment__licenced_under_the_agplv3">Käyttöoikeus: GNU AGPLv3 -lisenssi</string>
+    <!-- Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="HelpSettingsFragment__signal_is_a_501c3">Signal on voittoa tavoittelematon organisaatio.</string>
 
     <!-- DataAndStorageSettingsFragment -->
     <string name="DataAndStorageSettingsFragment__media_quality">Median laatu</string>
     <!-- Category title for the quality of the media to be sent -->
     <string name="DataAndStorageSettingsFragment__sent_media_quality">Lähetettävän median laatu</string>
     <string name="DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data">Korkealaatuisen median lähetys kuluttaa enemmän dataa.</string>
+    <!-- Disclaimer shown under the media auto-download settings. Placeholder is a formatted size like "100 KB". -->
+    <string name="DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded">Puheviestit ja tarrat (alle %1$s) ladataan aina automaattisesti.</string>
     <!-- Setting option that can be selected to default media to be sent as high quality by default -->
     <string name="DataAndStorageSettingsFragment__high">Korkea</string>
     <!-- Setting option that can be selected to default media to be sent as standard quality by default -->
@@ -5912,6 +6144,8 @@
     <string name="ConversationSettingsFragment__search">Haku</string>
     <string name="ConversationSettingsFragment__disappearing_messages">Katoavat viestit</string>
     <string name="ConversationSettingsFragment__sounds_and_notifications">Äänet ja ilmoitukset</string>
+    <!-- Label for the starred messages option in conversation settings -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__starred_messages" translatable="false">Starred messages</string> -->
   <!-- Removed by excludeNonTranslatables <string name="ConversationSettingsFragment__internal_details" translatable="false">Internal details</string> -->
     <string name="ConversationSettingsFragment__contact_details">Puhelimen yhteystieto</string>
     <string name="ConversationSettingsFragment__view_safety_number">Näytä turvanumero</string>
@@ -5925,6 +6159,8 @@
     <string name="ConversationSettingsFragment__permissions">Käyttöoikeudet</string>
     <string name="ConversationSettingsFragment__requests_and_invites">Liittymispyynnöt ja kutsut</string>
     <string name="ConversationSettingsFragment__group_link">Ryhmälinkki</string>
+    <!-- Label for button that opens the group member label permissions screen. -->
+    <string name="ConversationSettingsFragment__group_member_label">Jäsentunniste</string>
     <!-- Option in conversation settings to add a user as a contact -->
     <string name="ConversationSettingsFragment__add_as_a_contact">Lisää uudeksi kontaktiksi</string>
     <string name="ConversationSettingsFragment__unmute">Poista mykistys</string>
@@ -5936,6 +6172,19 @@
     <string name="ConversationSettingsFragment__get_badges">Hanki profiiliisi merkkejä tukemalla Signalia. Lue lisää napauttamalla merkkiä.</string>
     <!-- Error message shown when the user is trying to open a media that is not sent yet. -->
     <string name="ConversationSettingsFragment__this_media_is_not_sent_yet">Tätä mediaa ei ole vielä lähetetty.</string>
+    <!-- End group option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__end_group">Sulje ryhmä</string>
+    <!-- Banner shown at the top of group settings when the group has been ended -->
+    <string name="ConversationSettingsFragment__this_group_was_ended">Tämä ryhmä on suljettu.</string>
+    <!-- Archive chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__archive_chat">Arkistoi keskustelu</string>
+    <!-- Delete chat option in group conversation settings screen -->
+    <string name="ConversationSettingsFragment__delete_chat">Poista keskustelu</string>
+    <!-- Member section header for terminated groups. %1$d is the member count -->
+    <plurals name="ConversationSettingsFragment__d_former_members">
+        <item quantity="one">%1$d aiempi jäsen</item>
+        <item quantity="other">%1$d aiempaa jäsentä</item>
+    </plurals>
 
     <!-- PermissionsSettingsFragment -->
     <string name="PermissionsSettingsFragment__add_members">Lisää jäseniä</string>
@@ -5946,15 +6195,42 @@
     <string name="PermissionsSettingsFragment__who_can_add_new_members">Kuka voi lisätä uusia jäseniä?</string>
     <string name="PermissionsSettingsFragment__who_can_edit_this_groups_info">Kuka voi muokata tämän ryhmän tietoja?</string>
     <string name="PermissionsSettingsFragment__who_can_send_messages">Kuka voi lähettää viestejä ja aloittaa puheluita?</string>
+    <!-- Label for the member labels permission button in the group permissions settings screen. -->
+    <string name="PermissionsSettingsFragment__add_member_labels">Lisää jäsenrooleja</string>
+    <!-- Dialog title shown when choosing who has permission to add member labels in the group. -->
+    <string name="PermissionsSettingsFragment__who_can_add_member_labels">Kuka voi lisätä jäsenrooleja?</string>
+    <!-- Warning title shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_title">Jäsenroolit poistetaan</string>
+    <!-- Warning body shown before restricting member labels to admins only. -->
+    <string name="PermissionsSettingsFragment__member_labels_will_be_cleared_body">"Käyttöoikeuden asettaminen arvoon Vain ylläpitäjät poistaa muiden kuin ylläpitäjien ryhmässä määrittämät jäsenroolit."</string>
+    <!-- Confirm button for changing member label permission after warning. -->
+    <string name="PermissionsSettingsFragment__change_permission">Muuta käyttöoikeutta</string>
 
     <!-- SoundsAndNotificationsSettingsFragment -->
+    <!-- Label for the setting to mute notifications for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__mute_notifications">Mykistä ilmoitukset</string>
+    <!-- Summary text shown when a conversation is not muted -->
     <string name="SoundsAndNotificationsSettingsFragment__not_muted">Ei mykistetty</string>
+    <!-- Label for the mentions notification setting in conversation sounds and notifications -->
     <string name="SoundsAndNotificationsSettingsFragment__mentions">Maininnat</string>
+    <!-- Dialog option to always send notifications for the selected category even when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__always_notify">Ilmoita aina</string>
-    <!-- Dialog option to not send notifications if mentioned when the conversation is muted -->
+    <!-- Dialog option to not send notifications for the selected category when the conversation is muted -->
     <string name="SoundsAndNotificationsSettingsFragment__do_not_notify">Älä ilmoita</string>
+    <!-- Label for the setting to configure custom notification sounds and vibration for a conversation -->
     <string name="SoundsAndNotificationsSettingsFragment__custom_notifications">Mukautetut ilmoitukset</string>
+    <!-- Section header for settings that control which notifications still come through when a conversation is muted -->
+    <string name="SoundsAndNotificationsSettingsFragment__when_muted">Mykistetyssä tilassa</string>
+    <!-- Label for the calls notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls">Puhelut</string>
+    <!-- Explanatory text shown in the calls notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__calls_dialog_message">Anna äänimerkki ja vastaanota ilmoituksia, kun puhelu aloitetaan mykistetyissä keskusteluissa.</string>
+    <!-- Explanatory text shown in the mentions notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__mentions_dialog_message">Vastaanota ilmoituksia, kun sinut mainitaan mykistetyissä keskusteluissa.</string>
+    <!-- Label for the replies notification setting in conversation sounds and notifications -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_to_you">Vastaukset sinulle</string>
+    <!-- Explanatory text shown in the replies notification setting dialog describing what the setting controls -->
+    <string name="SoundsAndNotificationsSettingsFragment__replies_dialog_message">Vastaanota ilmoituksia, kun joku vastaa viestiisi mykistetyissä keskusteluissa.</string>
 
     <!-- StickerKeyboard -->
     <string name="StickerKeyboard__recently_used">Äskettäin käytetyt</string>
@@ -6180,7 +6456,7 @@
     <string name="SelectFeaturedBadgeFragment__failed_to_update_profile">Profiilin päivitys epäonnistui</string>
 
     <!-- Displayed on primary button in the bottom sheet as a call-to-action to launch into the donation flow -->
-    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Lahjoita nyt</string>
+    <string name="ViewBadgeBottomSheetDialogFragment__donate_now">Lahjoita</string>
     <!-- Title of a page in the bottom sheet. Placeholder is a user\'s short-name -->
     <string name="ViewBadgeBottomSheetDialogFragment__s_supports_signal">%1$s tukee Signalia</string>
     <!-- Description of a page in the bottom sheet of a monthly badge. Placeholder is a user\'s short-name -->
@@ -6208,13 +6484,15 @@
     <string name="Subscription__expires_s">Päättyy %1$s</string>
 
     <!-- Title of learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">Signal on erilainen.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_different">Itsenäisenä, voittoa tavoittelemattomana organisaationa Signal on sitoutunut yksityiseen viestintään ja puheluihin. Ei mainoksia, seurantaevästeitä tai valvontaa. Tue Signalia lahjoittamalla.</string>
     <!-- First small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">Yksityistä viestintää. Ei mainoksia, seurantaevästeitä tai valvontaa.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__private_messaging">No ads, no trackers, no surveillance. Donate today to support Signal.</string>
     <!-- Second small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_supported_by">Signalia tuetaan lahjoituksilla. Tämä tarkoittaa, että yksityisyytesi on koko toimintamme keskiössä. Signal on luotu sinua varten, ei datan tarpeisiin tai voiton tavoittelemiseksi.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__donate_and_get_badge">Saat lahjoituksen yhteydessä merkin, jonka voit halutessasi liittää profiiliisi.</string>
     <!-- Third small text blurb on learn more sheet -->
-    <string name="SubscribeLearnMoreBottomSheetDialogFragment__if_you_can">Jos mahdollista, lahjoita Signalille jo tänään varmistaaksesi, että Signal pysyy jatkossakin hauskana, luotettavana ja kaikkien käytettävissä.</string>
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__your_privacy_is_our_mission">Sinun yksityisyytesi on tärkein tehtävämme</string>
+    <!-- Fourth small text blurb on learn more sheet. Non-English translations should use "Signal is a nonprofit." instead, dropping the 501c3 reference. -->
+    <string name="SubscribeLearnMoreBottomSheetDialogFragment__signal_is_a_501c3">Signal on voittoa tavoittelematon organisaatio.</string>
 
     <string name="SubscribeThanksForYourSupportBottomSheetDialogFragment__thanks_for_your_support">Kiitämme tuestasi!</string>
     <!-- Subtext underneath the dialog title on the thanks sheet -->
@@ -6249,9 +6527,9 @@
     <!-- Dialog title shown when a donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet -->
     <string name="ManageDonationsFragment__couldnt_confirm_donation">Lahjoitusta ei voitu vahvistaa</string>
     <!-- Dialog message shown when a monthly donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed">Lahjoitustasi %1$s / kk ei voitu vahvistaa. Käy pankkisi sovelluksessa hyväksymässä iDEAL-maksu.</string>
+    <string name="ManageDonationsFragment__your_monthly_s_donation_couldnt_be_confirmed_ideal_wero">Lahjoitustasi %1$s / kk ei voitu vahvistaa. Käy pankkisi sovelluksessa hyväksymässä iDEAL | Wero -maksu.</string>
     <!-- Dialog message shown when a one-time donation requires verifying/confirmation outside of the app and the user hasn\'t done that yet, placeholder is money amount -->
-    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed">Kertalahjoitusta summalle %1$s ei voitu vahvistaa. Käy pankkisi sovelluksessa hyväksymässä iDEAL-maksu.</string>
+    <string name="ManageDonationsFragment__your_one_time_s_donation_couldnt_be_confirmed_ideal_wero">Kertalahjoitusta summalle %1$s ei voitu vahvistaa. Käy pankkisi sovelluksessa hyväksymässä iDEAL | Wero -maksu.</string>
 
     <string name="Boost__enter_custom_amount">Syötä uusi summa</string>
     <!-- Error label when the amount is smaller than what we can accept -->
@@ -6380,7 +6658,7 @@
     <!-- Displayed as a dialog message when the user\'s profile could not be fetched, likely due to lack of internet -->
     <string name="DonationsErrors__your_donation_could_not_be_sent">Lahjoitustasi ei voitu lähettää verkkovirheen takia. Tarkista yhteytesi ja yritä uudelleen.</string>
     <!-- Displayed as a dialog message when the user encounters an error during an iDEAL donation -->
-    <string name="DonationsErrors__your_ideal_couldnt_be_processed">iDEAL-lahjoitustasi ei voitu käsitellä. Kokeile toista maksutapaa tai ole yhteydessä pankkiisi saadaksesi lisätietoja.</string>
+    <string name="DonationsErrors__your_ideal_wero_couldnt_be_processed">iDEAL | Wero -lahjoitustasi ei voitu käsitellä. Kokeile toista maksutapaa tai ole yhteydessä pankkiisi saadaksesi lisätietoja.</string>
 
     <!-- Gift message view title -->
     <string name="GiftMessageView__donation_on_behalf_of_s">Lahjoitus henkilön %1$s puolesta</string>
@@ -6608,12 +6886,6 @@
     <!-- Banner action when notification permission is disabled -->
     <string name="NotificationSettingsFragment__turn_on">Ota käyttöön</string>
 
-    <!-- Description shown for the Signal Release Notes channel -->
-    <string name="ReleaseNotes__signal_release_notes_and_news">Signalin julkaisutiedot ja uutiset</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining that it is the only chat from Signal -->
-    <string name="ReleaseNotes__this_is_official_chat_period">Tämä on ainoa virallinen Signal-keskustelu.</string>
-    <!-- Text description shown for the Signal Release Notes channel explaining what the channel is for -->
-    <string name="ReleaseNotes__keep_up_to_date_period">Pysy ajan tasalla uutisista ja julkaisutiedotteista.</string>
     <!-- Text description in Signal Release channel details explaining that it is the only chat from Signal -->
     <string name="ReleaseNotes__this_is_official_chat">Tämä on ainoa virallinen Signal-keskustelu</string>
     <!-- Text description in Signal Release channel details explaining what the channel is for -->
@@ -6713,8 +6985,57 @@
     <string name="MyStories__delete_story">Poistetaanko tarina?</string>
     <!-- Message of dialog to confirm deletion of story -->
     <string name="MyStories__this_story_will_be_deleted">Tämä tarina poistetaan sinulta ja kaikilta sen vastaanottaneilta.</string>
+    <!-- Message of dialog to confirm deletion of story in a terminated group -->
+    <string name="MyStories__delete_story_terminated_group">Se poistetaan vain sinulta, koska ryhmä on suljettu.</string>
     <!-- Toast shown when story media cannot be saved -->
     <string name="MyStories__unable_to_save">Tallennus ei onnistu</string>
+
+    <!-- StoryArchive -->
+    <!-- Title for the story archive screen -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__story_archive" translatable="false">Story archive (Labs)</string> -->
+    <!-- Section header in story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__archive" translatable="false">Archive</string> -->
+    <!-- Label for switch to enable story archiving -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_in_archive" translatable="false">Keep stories in archive</string> -->
+    <!-- Description for the archive toggle -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__save_stories_after_they_expire" translatable="false">Save your sent stories after they leave the active feed.</string> -->
+    <!-- Label for archive duration preference -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__keep_stories_for" translatable="false">Keep stories for</string> -->
+    <!-- Archive duration option: forever -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__forever" translatable="false">Forever</string> -->
+    <!-- Archive duration option: 1 year -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__1_year" translatable="false">1 year</string> -->
+    <!-- Archive duration option: 6 months -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__6_months" translatable="false">6 months</string> -->
+    <!-- Archive duration option: 30 days -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__30_days" translatable="false">30 days</string> -->
+    <!-- Empty state title when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories" translatable="false">No archived stories</string> -->
+    <!-- Empty state message when no archived stories exist -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__no_archived_stories_message" translatable="false">Turn on \"Save Stories to Archive\" in story settings to auto-archive your stories.</string> -->
+    <!-- Empty state button to navigate to story settings -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__go_to_settings" translatable="false">Go to settings</string> -->
+    <!-- Label for sort order menu -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__sort_by" translatable="false">Sort by</string> -->
+    <!-- Sort order option: newest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__newest" translatable="false">Newest</string> -->
+    <!-- Sort order option: oldest first -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__oldest" translatable="false">Oldest</string> -->
+    <!-- Delete action in story archive multi-select bottom bar -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__delete" translatable="false">Delete</string> -->
+    <!-- Content description for selecting a story in multi-select mode -->
+  <!-- Removed by excludeNonTranslatables <string name="StoryArchive__select_story" translatable="false">Select story</string> -->
+    <!-- Confirmation dialog body when deleting stories from archive -->
+    <plurals name="StoryArchive__delete_n_stories">
+        <item quantity="one">Poistetaanko %1$d tarina? Toimintoa ei voi perua.</item>
+        <item quantity="other">Poistetaanko %1$d tarinaa? Toimintoa ei voi perua.</item>
+    </plurals>
+    <!-- Title shown in toolbar when in multi-select mode in story archive, %d is count of selected items -->
+    <plurals name="StoryArchive__d_selected">
+        <item quantity="one">%1$d valittu</item>
+        <item quantity="other">%1$d valittu</item>
+    </plurals>
+
     <!-- Displayed at bottom of story viewer when current item has views -->
     <plurals name="StoryViewerFragment__d_views">
         <item quantity="one">%1$d katselua</item>
@@ -7244,11 +7565,11 @@
 
     <!-- DonateToSignalFragment -->
     <!-- Title below avatar -->
-    <string name="DonateToSignalFragment__privacy_over_profit">Yksityisyys voiton sijaan</string>
+    <string name="DonateToSignalFragment__privacy_over_profit">Voittoa tavoittelematon ja ylpeä siitä</string>
     <!-- Continue button label -->
     <string name="DonateToSignalFragment__continue">Jatka</string>
     <!-- Description below title -->
-    <string name="DonateToSignalFragment__private_messaging">Yksityistä viestintää – sinun rahoittamanasi. Ei mainoksia, seurantaa tai kompromisseja. Tue Signalia lahjoittamalla nyt.</string>
+    <string name="DonateToSignalFragment__private_messaging">Lahjoita tukeaksesi yksityistä viestinvaihtoa. Auta pitämään Signal itsenäisenä ja mainoksettomana.</string>
     <!-- Dialog title when a user tries to donate while they already have a pending donation. -->
     <string name="DonateToSignalFragment__you_have_a_donation_pending">Sinulla on käsittelyssä oleva lahjoitus</string>
     <!-- Dialog body when a user tries to donate while they already have a pending monthly donation. -->
@@ -7260,7 +7581,7 @@
     <!-- Dialog body when a user tries to donate while they already have a pending one time donation. -->
     <string name="DonateToSignalFragment__your_payment_is_still_being_processed_onetime">Lahjoitusta käsitellään vielä. Tämä voi kestää muutamia minuutteja yhteydestäsi riippuen. Odota, kunnes maksu on suoritettu, ennen kuin teet uuden lahjoituksen.</string>
     <!-- Dialog body when a user opens the manage donations main screen and they have a pending iDEAL donation -->
-    <string name="DonateToSignalFragment__your_ideal_payment_is_still_processing">iDEAL-lahjoitustasi käsitellään edelleen. Käy pankkisovelluksessasi hyväksymässä maksu ennen uuden lahjoituksen tekemistä.</string>
+    <string name="DonateToSignalFragment__your_ideal_wero_payment_is_still_processing">iDEAL | Wero -lahjoitustasi käsitellään edelleen. Käy pankkisovelluksessasi hyväksymässä maksu ennen uuden lahjoituksen tekemistä.</string>
     <!-- Dialog title shown when a user tries to donate an amount higher than is allowed for a given payment method. -->
     <string name="DonateToSignal__donation_amount_too_high">Lahjoituksen summa on liian suuri</string>
     <!-- Dialog body shown when a user tries to donate an amount higher than is allowed for a given payment method, place holder is the maximum -->
@@ -7290,11 +7611,13 @@
     <!-- Sheet summary when giving donating for a friend -->
     <string name="GatewaySelectorBottomSheet__donate_for_a_friend">Lahjoita ystävän puolesta</string>
     <!-- Button label for paying with iDEAL -->
-    <string name="GatewaySelectorBottomSheet__ideal">iDEAL</string>
+    <string name="GatewaySelectorBottomSheet__ideal_wero">iDEAL | Wero</string>
 
     <!-- Dialog title for launching external intent -->
     <string name="ExternalNavigationHelper__leave_signal_to_confirm_payment">Siirrytäänkö pois Signalista lahjoituksen vahvistamiseksi?</string>
     <string name="ExternalNavigationHelper__once_this_payment_is_confirmed">Palaa Signaliin lahjoituksen vahvistamisen jälkeen, jotta se voidaan käsitellä loppuun.</string>
+    <!-- Dialog message shown when leaving Signal to complete a donation in an external app. Placeholder is the resolved app name (e.g. a banking app). -->
+    <string name="ExternalNavigationHelper__once_payment_confirmed_in_app">Lähetämme sinut sovellukseen %1$s. Palaa Signaliin lahjoituksen vahvistamisen jälkeen, jotta lahjoitus voidaan käsitellä loppuun.</string>
 
     <!-- BankTransferMandateFragment -->
     <!-- Title of screen displaying the bank transfer mandate -->
@@ -7335,8 +7658,8 @@
     <string name="BankTransferDetailsFragment__iban_country_code_is_not_supported">IBAN-maakoodia ei tueta</string>
     <!-- Error label for IBAN field when number is invalid -->
     <string name="BankTransferDetailsFragment__invalid_iban">Virheellinen IBAN-tilinumero</string>
-    <!-- Error label for name field when name is not at least two characters long -->
-    <string name="BankTransferDetailsFragment__minimum_2_characters">Vähintään 2 merkkiä</string>
+    <!-- Error label for name field when name is not at least three characters long (Stripe API enforced minimum) -->
+    <string name="BankTransferDetailsFragment__minimum_3_characters">Vähintään 3 merkkiä</string>
     <!-- Error label for email field when email is not valid -->
     <string name="BankTransferDetailsFragment__invalid_email_address">Virheellinen sähköpostiosoite</string>
 
@@ -7356,7 +7679,7 @@
     <!-- Default label for bank selection -->
     <string name="IdealTransferDetailsFragment__choose_your_bank">Valitse pankki</string>
     <!-- Dialog title shown when using iDEAL payment for setting up a monthly donation -->
-    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal">Vahvista lahjoituksesi iDEAL-maksulla</string>
+    <string name="IdealTransferDetailsFragment__confirm_your_donation_with_ideal_wero">Vahvista lahjoituksesi iDEAL | Wero -maksulla</string>
     <!-- Dialog warning shown when using iDEAL payment for setting up a monthly donation. Placeholder is donation amount.Z -->
     <string name="IdealTransferDetailsFragment__to_setup_your_recurring_donation">Määritä toistuva lahjoitus napauttamalla Jatka. Tämä vahvistaa 0,01 euron veloituksen pankkitiiltäsi. Veloitus mahdollistaa jatkuvan lahjoituksen veloituksen tilitäsi summalla %1$s / kk ja se hyvitetään automaattisesti.</string>
     <!-- Dialog button shown when using iDEAL payment for setting up a monthly donation to continue with the donation -->
@@ -7520,6 +7843,8 @@
     <string name="CallLogAdapter__incoming">Saapuva</string>
     <!-- Displayed for outgoing calls -->
     <string name="CallLogAdapter__outgoing">Lähtevä</string>
+    <!-- Displayed for outgoing calls that were not accepted by the remote party -->
+    <string name="CallLogAdapter__unanswered">Vastaamaton</string>
     <!-- Displayed for missed calls -->
     <string name="CallLogAdapter__missed">Vastaamaton</string>
     <!-- Displayed for one missed call declined by notification profile -->
@@ -7604,6 +7929,8 @@
     <string name="CallLogFragment__get_started_by_calling_a_friend">Aloita soittamalla kaverillesi.</string>
     <!-- Displayed as a message in a dialog when deleting multiple items -->
     <string name="CallLogFragment__call_links_youve_created">Luomasi puhelulinkit eivät enää toimi kenelläkään, joilla on linkki käytössään.</string>
+    <!-- Dialog message shown when trying to start a group call but the user is no longer a member -->
+    <string name="CallLogFragment__cant_start_call_no_longer_a_member">Et ole enää ryhmän jäsen.</string>
 
     <!-- New call activity -->
     <!-- Activity title in title bar -->
@@ -7661,6 +7988,14 @@
     <string name="CallLinkInfoSheet__remove">Poista</string>
     <!-- Dialog action to block participant from the call -->
     <string name="CallLinkInfoSheet__block_from_call">Estä puhelusta</string>
+
+    <!-- CallParticipantSheet -->
+    <!-- Action to mute a participant\'s audio in a group call -->
+    <string name="CallParticipantSheet__mute_audio">Mykistä ääni</string>
+    <!-- Action to remove a participant from a call -->
+    <string name="CallParticipantSheet__remove_from_call">Poista puhelusta</string>
+    <!-- Action to view contact details for a participant -->
+    <string name="CallParticipantSheet__contact_details">Yhteystieto</string>
 
     <!-- CreateCallLinkBottomSheetDialogFragment -->
     <!-- Fragment title -->
@@ -7829,8 +8164,6 @@
 
     <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__title">Ota Signal Secure -varmuuskopiointi käyttöön</string>
-    <!-- Title of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups. Special string for the beta period. -->
-    <string name="TurnOnSignalBackups__title_beta">Kokeile Signal Secure -varmuuskopiointia</string>
     <!-- Body of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups -->
     <string name="TurnOnSignalBackups__body">Älä koskaan menetä viestiä, kun hankit uuden puhelimen tai asennat Signalin uudelleen.</string>
     <!-- Button of a megaphone shown at the bottom of the chat list to prompt the user to enable message backups that will take the user to the flow to enable backups -->
@@ -7839,6 +8172,88 @@
     <string name="TurnOnSignalBackups__not_now">Ei nyt</string>
     <!-- Text for a "toast" that pops up at the bottom of the user\'s screen after they respond "not now" to a prompt asking them to enable backups -->
     <string name="TurnOnSignalBackups__toast_not_now">Voit ottaa varmuuskopiot käyttöön Asetuksissa.</string>
+
+    <!-- Title of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__title">Älä koskaan kadota viestiä</string>
+    <!-- Body of Megaphone B: upsell to enable backups when user has many messages -->
+    <string name="BackupMessagesUpsell__body">Ota Signal Secure-varmuuskopiointi käyttöön säilyttääksesi viestit ja mediat.</string>
+    <!-- Primary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__turn_on">Ota käyttöön</string>
+    <!-- Secondary button of Megaphone B -->
+    <string name="BackupMessagesUpsell__not_now">Ei nyt</string>
+
+    <!-- Title of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__title">Varmuuskopioi kaikki mediasisältö</string>
+    <!-- Body of Megaphone C: upsell to upgrade backups when user has lots of media -->
+    <string name="BackupMediaUpsell__body">Maksulliset Signal Secure -varmuuskopiointitilaukset säilyttävät kaikki mediasi, jopa 100 Gt.</string>
+    <!-- Primary button of Megaphone C -->
+    <string name="BackupMediaUpsell__upgrade">Päivitä</string>
+    <!-- Secondary button of Megaphone C -->
+    <string name="BackupMediaUpsell__not_now">Ei nyt</string>
+
+    <!-- Title of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__title">Säästä tilaa maksullisella varmuuskopiointitilauksella</string>
+    <!-- Body of Megaphone D: upsell backups when device storage is low -->
+    <string name="BackupStorageUpsell__body">Maksullinen suojattu varmuuskopioinnin tilaus voi säästää laitteen tallennustilaa siirtämällä mediaa pois laitteelta.</string>
+    <!-- Primary button of Megaphone D when user has free tier backups -->
+    <string name="BackupStorageUpsell__upgrade">Päivitä</string>
+    <!-- Primary button of Megaphone D when user has no backups -->
+    <string name="BackupStorageUpsell__turn_on">Ota käyttöön</string>
+    <!-- Secondary button of Megaphone D -->
+    <string name="BackupStorageUpsell__not_now">Ei nyt</string>
+
+    <!-- Title of the backup upsell bottom sheet promoting paid backup plans -->
+    <string name="BackupUpsellBottomSheet__title">Päivitä tilaus varmuuskopioidaksesi kaiken median</string>
+    <!-- Body of the backup upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__body">Maksulliset Signal Secure -varmuuskopiointitilaukset tallentavat kaiken lähettämäsi ja vastaanottamasi median, enintään 100 Gt. Älä koskaan menetä kuvaa tai videota, kun hankit uuden puhelimen tai asennat Signalin uudelleen.</string>
+    <!-- Label for the paid plan price shown in the feature card, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__price_per_month">%1$s/kk</string>
+    <!-- Subtitle for the paid plan feature card -->
+    <string name="BackupUpsellBottomSheet__text_and_all_media">Teksti ja kaikki mediasisältö</string>
+    <!-- Feature bullet: full text and media backup -->
+    <string name="BackupUpsellBottomSheet__full_text_media_backup">Koko teksti- ja mediasisällön varmuuskopio</string>
+    <!-- Feature bullet: 100GB storage -->
+    <string name="BackupUpsellBottomSheet__storage_100gb">100 Gt tallennustilaa</string>
+    <!-- Feature bullet: save on-device storage -->
+    <string name="BackupUpsellBottomSheet__save_on_device_storage">Säästä laitteen tallennustilaa</string>
+    <!-- Feature bullet: thanks for supporting Signal -->
+    <string name="BackupUpsellBottomSheet__thanks_for_supporting">Kiitos, että tuet Signalia</string>
+    <!-- Primary button for the upsell bottom sheet. The %s is replaced by the subscription price, e.g. "$1.99/month" -->
+    <string name="BackupUpsellBottomSheet__subscribe_for">Tilaa hintaan %1$s / kk</string>
+    <!-- Secondary/dismiss button for the upsell bottom sheet -->
+    <string name="BackupUpsellBottomSheet__no_thanks">Ei kiitos</string>
+
+    <!-- Title of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__title">Kaikki on valmista. Aloita varmuuskopiointi nyt.</string>
+    <!-- Body of the backup setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__body">Tämä voi kestää hetken. Voit käyttää Signalia normaalisti varmuuskopioinnin aikana.</string>
+    <!-- Label for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_storage">Optimoi Signalin tallennustila</string>
+    <!-- Subtitle for the optimize storage toggle -->
+    <string name="BackupSetupCompleteBottomSheet__optimize_subtitle">Vanhempi media poistetaan, mutta se voidaan ladata varmuuskopiosta milloin tahansa.</string>
+    <!-- Primary button on the setup complete bottom sheet -->
+    <string name="BackupSetupCompleteBottomSheet__back_up_now">Varmuuskopioi nyt</string>
+
+    <!-- Title of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__title">Käytä uutta laitteella olevaa varmuuskopiota</string>
+    <!-- Body of a megaphone shown to prompt the user to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__body">Laitteellasi oleva varmuuskopiointi tallentuu nopeammin ja käyttää vähemmän dataa.</string>
+    <!-- Button of a megaphone that will take the user to the upgrade flow -->
+    <string name="UseNewOnDeviceBackups__upgrade">Päivitä</string>
+    <!-- Button of a megaphone that will snooze the reminder to upgrade to the new local backups type -->
+    <string name="UseNewOnDeviceBackups__not_now">Ei nyt</string>
+
+    <!-- Title of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__title">Avaa Signal puhelimessa</string>
+    <!-- Body of a megaphone shown to prompt the user to open Signal on their primary device -->
+    <string name="InactivePrimary__body">Pidä tilisi aktiivisena avaamalla Signal ensisijaisella laitteellasi.</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will navigate to a support page -->
+    <string name="InactivePrimary__learn_more">Lue lisää</string>
+    <!-- Button of a megaphone shown to prompt the user to open Signal on their primary device that will snooze the megaphone -->
+    <string name="InactivePrimary__got_it">Selvä</string>
+
+    <!-- Text describing how to restore a backup displayed on the on-device backups screen -->
+    <string name="OnDeviceBackupsScreen__to_restore_a_backup">"Palauta varmuuskopio asentamalla uusi kopio Signalista. Avaa sovellus, napauta Palauta varmuuskopio ja etsi sitten varmuuskopiokansio."</string>
 
     <!-- Title of a megaphone shown to prompt the user to verify their recovery key -->
     <string name="VerifyBackupKey__title">Vahvista palautusavain</string>
@@ -8059,6 +8474,12 @@
     <!-- Backup redemption error sheet bullet point 2 -->
     <string name="BackupAlertBottomSheet__have_too_many_devices_using_the_same_subscription">Sinulla on liian monta laitetta, jotka käyttävät samaa tilausta.</string>
 
+    <!-- OnDeviceBackupsFragment -->
+    <!-- Snackbar message shown after successfully updating the on-device backups recovery key. -->
+    <string name="OnDeviceBackupsFragment__recovery_key_updated">Palautusavain päivitetty</string>
+    <!-- Toast message shown after selecting a folder to store on-device backups. Placeholder is the selected folder. -->
+    <string name="OnDeviceBackupsFragment__directory_selected">Valittu hakemisto: %1$s</string>
+
     <!-- BackupStatus -->
     <!-- Status title when user does not have enough free space to download their media. Placeholder is required disk space. -->
     <string name="BackupStatus__free_up_s_of_space_to_download_your_media">Vapauta %1$s tilaa median palauttamiseksi.</string>
@@ -8075,6 +8496,15 @@
     <!-- Status action label for resume restore from a paused state -->
     <string name="BackupStatus__resume">Jatka</string>
 
+    <!-- Status subtitle for banner when we are creating a backup file -->
+    <string name="BackupStatus__status_creating_backup">Luodaan varmuuskopiota…</string>
+    <!-- Status title for banner when user is actively uploading backup data -->
+    <string name="BackupStatus__uploading_backup">Varmuuskopiota ladataan</string>
+    <!-- Status title for banner when user is temporarily unable to upload a backup -->
+    <string name="BackupStatus__upload_paused">Varmuuskopiointi keskeytetty</string>
+    <!-- Status title for banner when user has finished creating a backup -->
+    <string name="BackupStatus__upload_complete">Varmuuskopiointi valmis</string>
+
     <!-- Status subtitle for banner when restoring media pauses for Wi-Fi -->
     <string name="BackupStatus__status_waiting_for_wifi">Odotetaan Wi-Fi-yhteyttä…</string>
     <!-- Status subtitle for banner when restoring media pauses for internet in general -->
@@ -8083,6 +8513,10 @@
     <string name="BackupStatus__status_device_has_low_battery">Laitteen akku on vähissä</string>
     <!-- Status subtitle for banner when restoring media. Placeholders are size already restored and total size to restore. e.g., 4.5MB of 100MB -->
     <string name="BackupStatus__status_size_of_size">%1$s / %2$s</string>
+    <!-- Label for a context menu item that, when pressed, will hide a banner so it will no longer be shown. -->
+    <string name="BackupStatus__hide">Piilota</string>
+    <!-- Label for a context menu item that, when pressed, will cancel the ongoing backup. -->
+    <string name="BackupStatus__cancel_upload">Peruuta varmuuskopiointi</string>
 
     <!-- BackupStatusRow -->
     <!-- Content description for x icon at the end of the linear progress indicator -->
@@ -8124,6 +8558,15 @@
     <string name="ResumeRestoreCellular_resume_using_cellular_title">Jatketaanko käyttöä mobiilidatalla?</string>
     <!-- Dialog message to prompt resuming media restore over cellular -->
     <string name="ResumeRestoreCellular_resume_using_cellular_message">Median palauttamisesta mobiilidatalla voi seurata datamaksuja. Voit muodostaa yhteyden Wi-Fi-verkkoon, ja palautus jatkuu automaattisesti.</string>
+
+    <!-- Title of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_title">Peruutetaanko varmuuskopiointi?</string>
+    <!-- Body of a dialog box prompting to confirm whether the user truly wants to cancel their backup. -->
+    <string name="CancelBackupDialog_body">Varmuuskopioinnin peruuttaminen ei poista varmuuskopiota. Voit jatkaa varmuuskopiointia milloin tahansa varmuuskopioinnin asetuksista.</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will confirm canceling the currently-running backup (future backups are unaffected). -->
+    <string name="CancelBackupDialog_cancel_action">Peruuta varmuuskopiointi</string>
+    <!-- Button on a dialog box that confirming backup cancellation. When pressed, this button will continue the backup rather than cancel it. -->
+    <string name="CancelBackupDialog_continue_action">Jatka varmuuskopiointia</string>
 
     <!-- BackupsTypeSettingsFragment -->
     <!-- Displayed as the user\'s payment method as a label in a preference row -->
@@ -8223,6 +8666,28 @@
     <string name="MediaNoLongerAvailableSheet__continue">Jatka</string>
     <!-- Secondary action button on bottom sheet -->
     <string name="MediaNoLongerAvailableSheet__not_now">Ei nyt</string>
+
+    <!-- End group button label shown in confirmation dialogs -->
+    <string name="EndGroupDialog__end_group">Sulje ryhmä</string>
+    <!-- Title of first end group confirmation dialog. %1$s is the group name -->
+    <string name="EndGroupDialog__end_s">Suljetaanko %1$s?</string>
+    <!-- Body of first end group confirmation dialog -->
+    <string name="EndGroupDialog__members_will_no_longer_be_able_to_send">Jäsenet eivät enää voi lähettää ryhmään viestejä tai aloittaa siinä puheluita. He saavat ilmoituksen, että olet sulkenut ryhmän. Pääsy ryhmän viestihistoriaan säilyy.</string>
+    <!-- Body of second/final end group confirmation dialog -->
+    <string name="EndGroupDialog__this_will_end_the_group_permanently">Toiminto sulkee ryhmän pysyvästi. Haluatko varmasti jatkaa?</string>
+    <!-- Progress message shown while ending a group -->
+    <string name="EndGroupDialog__ending_group">Suljetaan ryhmää…</string>
+    <!-- Message shown when ending a group fails -->
+    <string name="EndGroupDialog__ending_the_group_failed">Ryhmää ei voitu sulkea. Tarkista verkkoyhteys ja yritä uudelleen.</string>
+    <!-- Retry button shown when ending a group fails -->
+    <string name="EndGroupDialog__try_again">Yritä uudelleen</string>
+
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, with admin name. %1$s is the admin\'s display name -->
+    <string name="TerminatedGroupBottomSheet__s_ended_the_group">%1$s sulki ryhmän</string>
+    <!-- Title of bottom sheet shown when opening a terminated group for the first time, without admin name -->
+    <string name="TerminatedGroupBottomSheet__the_group_has_been_ended">Tämä ryhmä on suljettu.</string>
+    <!-- Body of bottom sheet shown when opening a terminated group -->
+    <string name="TerminatedGroupBottomSheet__you_can_no_longer_send_and_receive">Et voi enää lähettää tai vastaanottaa ryhmässä viestejä tai puheluita.</string>
 
     <!-- Educational bottom sheet dialog title shown to notify about delete syncs causing deletes to happen across all devices -->
     <string name="DeleteSyncEducation_title">Poistaminen synkronoidaan nyt kaikkien laitteidesi välillä</string>
@@ -8477,6 +8942,49 @@
     <!-- Button label to open QR scanner to scan a device and transfer a backup -->
     <string name="RemoteBackupsSettingsFragment__scan_qr_code">Skannaa QR-koodi</string>
 
+    <!-- BackupCreationProgressRow -->
+    <!-- Progress text shown while the backup database is being processed -->
+    <string name="BackupCreationProgressRow__processing_backup">Käsitellään varmuuskopiota…</string>
+    <!-- Progress text shown while the backup is being prepared (e.g. exporting accounts, recipients, etc.) -->
+    <string name="BackupCreationProgressRow__preparing_backup">Valmistellaan varmuuskopiointia…</string>
+    <!-- Progress text shown while the backup is being finalized (e.g. cleaning up old files) -->
+    <string name="BackupCreationProgressRow__finalizing">Viimeistellään…</string>
+    <!-- Progress text shown while messages are being processed, with no count available yet -->
+    <string name="BackupCreationProgressRow__processing_messages">Käsitellään viestejä…</string>
+    <!-- Progress text shown while messages are being processed. %1$s is the formatted current count (e.g. "1,000"), %2$s is the formatted total count (e.g. "100,000"), %3$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__processing_messages_s_of_s_d">Käsitellään viestejä: %1$s / %2$s (%3$d %%)</string>
+    <!-- Progress text shown while media is being uploaded to the server. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__uploading_media_d">Lähetetään mediaa: %1$d %%</string>
+    <!-- Progress text shown while media is being exported to local storage. %1$d is the percent complete (e.g. 42). -->
+    <string name="BackupCreationProgressRow__exporting_media_d">Viedään mediaa: %1$d %%</string>
+
+    <!-- LocalArchiveJob -->
+    <!-- Notification title shown while media attachments are being exported during a local backup -->
+    <string name="LocalArchiveJob__exporting_media">Viedään mediaa…</string>
+
+    <!-- OnDeviceBackupsImprovementsScreen -->
+    <!-- Title displayed at the top of the screen explaining on-device backup improvements -->
+    <string name="OnDeviceBackupsImprovementsScreen__improvements_to_on_device_backups">Parannuksia laitteelle tallentuvaan varmuuskopiointiin</string>
+    <!-- Subtitle describing that the backup will be upgraded to a new format with a new recovery key -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_on_device_backup_will_be_upgraded">Laitteella oleva varmuuskopio päivitetään uuteen muotoon uutta palautusavainta käyttämällä.</string>
+    <!-- Feature description explaining backups are faster and use less data -->
+    <string name="OnDeviceBackupsImprovementsScreen__backups_now_save_faster">Varmuuskopiot tallentuvat nyt nopeammin ja käyttävät vähemmän dataa.</string>
+    <!-- Feature description explaining backups will be saved as a folder with many files -->
+    <string name="OnDeviceBackupsImprovementsScreen__your_backup_will_be_saved_as_a_folder">Varmuuskopio tallennetaan kansiona, jossa on useita tiedostoja.</string>
+    <!-- Feature description explaining backups remain end-to-end encrypted -->
+    <string name="OnDeviceBackupsImprovementsScreen__all_backups_remain_end_to_end_encrypted">Kaikki varmuuskopiot salataan edelleen päästä päähän.</string>
+    <!-- Button text to continue to the next step -->
+    <string name="OnDeviceBackupsImprovementsScreen__continue">Jatka</string>
+
+    <!-- OnDeviceBackupsSettingsScreen -->
+    <!-- Card text prompting user to update to a new recovery key for faster backups -->
+    <string name="OnDeviceBackupsSettingsScreen__update_to_a_new_recovery_key">Päivitä uuteen palautusavaimeen, jotta varmuuskopiointi tallentuu nopeammin.</string>
+    <!-- Button text to update to a new recovery key -->
+    <string name="OnDeviceBackupsSettingsScreen__update">Päivitä</string>
+
+    <!-- UnifiedOnDeviceBackupsSettingsScreen -->
+    <string name="UnifiedOnDeviceBackupsSettingsScreen__view_recovery_key">Näytä palautusavain</string>
+
     <!-- DownloadYourBackupTodayDialog -->
     <!-- Dialog title -->
     <string name="DownloadYourBackupTodayDialog__download_your_backup_today">Lataa varmuuskopio tänään</string>
@@ -8530,12 +9038,34 @@
     <!-- MessageBackupsKeyEducationScreen -->
     <!-- Screen headline -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key">Palautusavain</string>
+    <!-- Screen headline shown when upgrading on-device backups to a new recovery key. -->
+    <string name="MessageBackupsKeyEducationScreen__your_new_recovery_key">Uusi palautusavaimesi</string>
+    <!-- Screen headline shown when the user already has an on-device recovery key set. -->
+    <string name="MessageBackupsKeyEducationScreen__your_recovery_key">Palautusavaimesi</string>
     <!-- Screen body part 1 -->
     <string name="MessageBackupsKeyEducationScreen__your_backup_key_is_a">Palautusavain on 64-numeroinen koodi, jota tarvitaan varmuuskopion palauttamiseen.</string>
     <!-- Screen body part 2 -->
     <string name="MessageBackupsKeyEducationScreen__store_your_recovery">Säilytä palautusavainta turvallisessa paikassa, kuten salasananhallintaohjelmassa, äläkä jaa sitä kenellekään.</string>
     <!-- Screen body part 3 -->
     <string name="MessageBackupsKeyEducationScreen__if_you_lose_it">Jos kadotat sen, et voi palauttaa viestejäsi.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description">Palautusavain on 64 merkkiä sisältävä koodi, jonka avulla voit palauttaa kaikki erilaiset varmuuskopiot.</string>
+    <!-- Screen body shown when upgrading on-device backups to a new recovery key (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_upgrade_description_bold">Tämä avain korvaa laitteella olevan varmuuskopion avaimen.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 1). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description">Palautusavain on 64 merkkiä sisältävä koodi, jonka avulla voit palauttaa varmuuskopiot, kun asennat Signalin uudelleen.</string>
+    <!-- Screen body shown when enabling Signal Secure Backups while on-device backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__remote_backup_with_local_enabled_description_bold">Avain on sama kuin laitteellasi oleva palautusavain.</string>
+    <!-- Screen body shown when enabling on-device backups while Signal Secure Backups are already enabled (part 2, bolded). -->
+    <string name="MessageBackupsKeyEducationScreen__local_backup_with_remote_enabled_description_bold">Tämä on sama avain kuin Signal-varmuuskopioinnin palautusavain.</string>
+    <!-- Label shown above a list of actions that the recovery key can be used for. -->
+    <string name="MessageBackupsKeyEducationScreen__use_this_key_to">Tällä avaimella voit:</string>
+    <!-- Row label indicating that the recovery key can be used to restore an on-device backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_on_device_backup">Palauttaa laitteella olevan varmuuskopion</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_a_signal_secure_backup">Palauttaa Signal Secure -varmuuskopion</string>
+    <!-- Row label indicating that the recovery key can be used to restore a Signal Secure Backup. -->
+    <string name="MessageBackupsKeyEducationScreen__restore_your_signal_secure_backup">Palauttaa Signal Secure -varmuuskopion</string>
     <!-- Action button label -->
     <string name="MessageBackupsKeyEducationScreen__view_recovery_key">Näytä palautusavain</string>
 
@@ -8544,6 +9074,8 @@
     <string name="MessageBackupsKeyRecordScreen__record_your_backup_key">Tallenna palautusavain</string>
     <!-- Screen subhead -->
     <string name="MessageBackupsKeyRecordScreen__this_key_is_required_to_recover">Tätä avainta tarvitaan tilisi ja tietojesi palauttamiseen. Säilytä avain turvallisessa paikassa. Jos kadotat sen, et voi palauttaa tiliäsi.</string>
+    <!-- Screen subhead shown when the recovery key is shared between Signal Secure Backups and on-device backups. -->
+    <string name="MessageBackupsKeyRecordScreen__this_key_is_the_same_as_your_on_device_recovery_key">Avain on sama kuin laitteellasi oleva palautusavain. Se vaaditaan tilisi ja tietojesi palauttamiseksi.</string>
     <!-- Copy to clipboard button label -->
     <string name="MessageBackupsKeyRecordScreen__copy_to_clipboard">Kopioi leikepöydälle</string>
     <!-- Label for the button to save a recovery key to the device password manager. -->
@@ -8707,11 +9239,13 @@
     <!-- Screen subtitle for selecting which restore method to use during registration -->
     <string name="SelectRestoreMethodFragment__get_your_signal_account">Siirrä Signal-tilisi ja viestihistoriasi tälle laitteelle.</string>
     <!-- Option title for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__from_signal_backups">Lähde: Signal Secure -varmuuskopiointi</string>
+    <string name="SelectRestoreMethodFragment__restore_signal_backup">Palauta Signal-varmuuskopio</string>
     <!-- Option subtitle for restoring via signal secure backups -->
-    <string name="SelectRestoreMethodFragment__your_free_or_paid_signal_backup_plan">Ilmainen tai maksullinen Signal-varmuuskopioinnin tilaus</string>
-    <!-- Option title for restoring via a local backup folder -->
-    <string name="SelectRestoreMethodFragment__from_a_backup_folder">Varmuuskopiokansiosta</string>
+    <string name="SelectRestoreMethodFragment__restore_your_text_messages_and_media_from">Palauta tekstiviestit ja media Signal-varmuuskopioinnin tilauksella</string>
+    <!-- Option title for restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_on_device_backup">Palauta laitteella oleva varmuuskopio</string>
+    <!-- Option subtitle fdor restoring via a local backup file or folder -->
+    <string name="SelectRestoreMethodFragment__restore_your_messages_from">Palauta viestit laitteelle tallentamastasi varmuuskopiosta.</string>
     <!-- Option title for restoring via a local backup file -->
     <string name="SelectRestoreMethodFragment__from_a_backup_file">Varmuuskopiotiedostosta</string>
     <!-- Option subtitle for restoring via a local backup -->
@@ -8786,6 +9320,132 @@
     <string name="EnterBackupKey_permanent_failure_support_email">Pysyvä virhe Signal Androidin varmuuskopion palauttamisessa</string>
   <!-- Removed by excludeNonTranslatables <string name="EnterBackupKey_permanent_failure_support_email_filter" translatable="false">Android SignalBackups Import Permanent Failure</string> -->
 
+    <!-- EnterLocalBackupKeyScreen: Screen title for entering recovery key for local backup restore -->
+    <string name="EnterLocalBackupKeyScreen__enter_your_recovery_key">Anna palautusavain</string>
+    <!-- EnterLocalBackupKeyScreen: Screen subtitle explaining what the recovery key is -->
+    <string name="EnterLocalBackupKeyScreen__your_recovery_key_is_a_64_character_code">Palautusavain on 64 merkkiä sisältävä koodi, jota tarvitaan tilin ja tietojen palauttamiseen.</string>
+    <!-- EnterLocalBackupKeyScreen: Button text when user does not have a recovery key -->
+    <string name="EnterLocalBackupKeyScreen__no_recovery_key">Eikö sinulla ole palautusavainta?</string>
+    <!-- EnterLocalBackupKeyScreen: Button to proceed to next step -->
+    <string name="EnterLocalBackupKeyScreen__next">Seuraava</string>
+
+    <!-- RestoreLocalBackupDialog: Error message when the selected archive fails to load -->
+    <string name="RestoreLocalBackupDialog__failed_to_load_archive">Arkiston lataaminen epäonnistui. Valitse toinen hakemisto.</string>
+    <!-- RestoreLocalBackupDialog: Dismiss button for dialog -->
+    <string name="RestoreLocalBackupDialog__ok">OK</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore">Ohitetaanko palauttaminen?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user about the consequences of skipping backup restore -->
+    <string name="RestoreLocalBackupDialog__skip_restore_body">Jos ohitat palauttamisen nyt, et voi tehdä palautusta enää myöhemmin. Jos otat varmuuskopiot uudelleen käyttöön palautuksen ohittamisen jälkeen, nykyinen varmuuskopio korvataan uudella viestihistoriallasi.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the skip restore dialog -->
+    <string name="RestoreLocalBackupDialog__skip_restore_confirm">Ohita palautus</string>
+    <!-- RestoreLocalBackupDialog: Title of the dialog asking the user to confirm restoring a backup from a different account -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account">Palautetaanko tiedot uudelle tilille?</string>
+    <!-- RestoreLocalBackupDialog: Body of the dialog warning the user that the backup was created with a different account and they will lose group memberships -->
+    <string name="RestoreLocalBackupDialog__restore_to_new_account_body">Palauttamasi varmuuskopio luotiin toisella Signal-tilillä. Voit palauttaa varmuuskopion uudelle tilille, mutta jäsenyytesi palautetuissa ryhmissä päättyy.</string>
+    <!-- RestoreLocalBackupDialog: Confirm button label for the restore to new account dialog -->
+    <string name="RestoreLocalBackupDialog__restore">Palauta</string>
+
+    <!-- RestoreLocalBackupActivity: Toast message when backup restore fails -->
+    <string name="RestoreLocalBackupActivity__backup_restore_failed">Varmuuskopion palautus epäonnistui</string>
+    <!-- RestoreLocalBackupActivity: Screen title shown during restore -->
+    <string name="RestoreLocalBackupActivity__restoring_backup">Palautetaan varmuuskopiota</string>
+    <!-- RestoreLocalBackupActivity: Screen subtitle explaining restore duration -->
+    <string name="RestoreLocalBackupActivity__depending_on_the_size">Varmuuskopion koosta riippuen tämä voi kestää muutaman minuutin.</string>
+    <!-- RestoreLocalBackupActivity: Status text while restoring messages -->
+    <string name="RestoreLocalBackupActivity__restoring_messages">Palautetaan viestejä…</string>
+    <!-- RestoreLocalBackupActivity: Status text while finalizing restore -->
+    <string name="RestoreLocalBackupActivity__finalizing">Viimeistellään…</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore is complete -->
+    <string name="RestoreLocalBackupActivity__restore_complete">Palautus suoritettu</string>
+    <!-- RestoreLocalBackupActivity: Status text when restore fails -->
+    <string name="RestoreLocalBackupActivity__restore_failed">Palautus epäonnistui</string>
+    <!-- RestoreLocalBackupActivity: Progress text showing bytes read of total with percentage, e.g. "1.2 MB of 5.0 MB (24%)" -->
+    <string name="RestoreLocalBackupActivity__s_of_s_d_percent">%1$s/%2$s (%3$d)</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__cant_restore_backup">Varmuuskopiota ei voitu palauttaa</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when backup restore fails and is not recoverable -->
+    <string name="RestoreLocalBackupActivity__error_occurred_while_restoring">Varmuuskopion palauttamisessa tapahtui virhe. Varmuuskopiota ei voi palauttaa. Ota yhteyttä tukeen saadaksesi apua.</string>
+
+    <!-- RestoreLocalBackupActivity: Label for the button that opens the contact support form -->
+    <string name="RestoreLocalBackupActivity__contact_support">Ota yhteyttä tukeen</string>
+
+    <!-- RestoreLocalBackupActivity: Title for the dialog shown when the restored backup belongs to a different account -->
+    <string name="RestoreLocalBackupActivity__turn_on_on_device_backups">Otetaanko laitteessa olevat varmuuskopiot käyttöön?</string>
+
+    <!-- RestoreLocalBackupActivity: Body for the dialog shown when the restored backup belongs to a different account, prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__to_continue_using_on_device_backups">Jotta voit jatkaa laitteessa olevien varmuuskopioiden käyttöä, sinun on otettava ne käyttöön tälle tilille ja tallennettava uusi palautusavain. Voit tehdä sen menemällä kohtaan Asetukset &gt; Varmuuskopiointi.</string>
+
+    <!-- RestoreLocalBackupActivity: Confirm button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__turn_on_now">Ota käyttöön</string>
+
+    <!-- RestoreLocalBackupActivity: Dismiss button label for the dialog prompting the user to re-enable on-device backups -->
+    <string name="RestoreLocalBackupActivity__not_now">Ei nyt</string>
+
+    <!-- RestoreLocalBackupActivity: Body text for the dialog shown after a successful restore, prompting the user to choose a backup folder -->
+    <string name="RestoreLocalBackupActivity__choose_a_folder_for_backups">Jotta voit jatkaa laitteella olevien varmuuskopioiden käyttöä, valitse laitteesi kansio, jonne uudet varmuuskopiot tallennetaan.</string>
+
+    <!-- RestoreLocalBackupActivity: Positive button label for the dialog shown after a successful restore; keeps the current backup folder -->
+    <string name="RestoreLocalBackupActivity__use_current_folder">Käytä nykyistä kansiota</string>
+
+    <!-- RestoreLocalBackupActivity: Neutral button label for the dialog shown after a successful restore; opens folder picker to select a different backup location -->
+    <string name="RestoreLocalBackupActivity__choose_new_folder">Valitse uusi kansio</string>
+
+    <!-- RestoreLocalBackupActivity: Negative button label for the dialog shown after a successful restore; disables on-device backups -->
+    <string name="RestoreLocalBackupActivity__disable_backups">Ota varmuuskopiointi pois käytöstä</string>
+
+    <!-- SelectInstructionsSheet: Title for the select backup folder instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_folder">Valitse varmuuskopioinnin kansio</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the select this folder button -->
+    <string name="SelectInstructionsSheet__tap_select_this_folder">Napauta Valitse tämä kansio</string>
+    <!-- SelectInstructionsSheet: Instruction not to select individual files -->
+    <string name="SelectInstructionsSheet__do_not_select_individual_files">Älä valitse yksittäisiä tiedostoja</string>
+    <!-- SelectInstructionsSheet: Title for the select backup file instruction sheet -->
+    <string name="SelectInstructionsSheet__select_your_backup_file">Valitse varmuuskopioinnin tiedosto</string>
+    <!-- SelectInstructionsSheet: Instruction to tap the backup file saved to device -->
+    <string name="SelectInstructionsSheet__tap_on_the_backup_file">Napauta laitteelle tallentamaasi varmuuskopiotiedostoa</string>
+    <!-- SelectInstructionsSheet: Subtitle explaining how to access backup after tapping continue -->
+    <string name="SelectInstructionsSheet__after_tapping_continue">Napautettuasi Jatka voit käyttää varmuuskopiotasi seuraavasti:</string>
+    <!-- SelectInstructionsSheet: Instruction to select the top-level backup folder -->
+    <string name="SelectInstructionsSheet__select_the_top_level_folder">Valitse ylätason kansio, johon varmuuskopio on tallennettu</string>
+    <!-- SelectInstructionsSheet: Continue button text -->
+    <string name="SelectInstructionsSheet__continue_button">Jatka</string>
+
+    <!-- SelectLocalBackupScreen: Screen title for restoring on-device backup -->
+    <string name="SelectLocalBackupScreen__restore_on_device_backup">Palauta laitteella oleva varmuuskopio</string>
+    <!-- SelectLocalBackupScreen: Screen subtitle explaining the restore process -->
+    <string name="SelectLocalBackupScreen__restore_your_messages_from_the_backup_folder">Palauta viestit laitteelle tallentamastasi varmuuskopiotiedostosta. Jos et palauta niitä nyt, et voi palauttaa niitä enää myöhemmin.</string>
+    <!-- SelectLocalBackupScreen: Button to initiate backup restoration -->
+    <string name="SelectLocalBackupScreen__restore_backup">Palauta varmuuskopio</string>
+    <!-- SelectLocalBackupScreen: Button to choose an earlier backup when current is latest -->
+    <string name="SelectLocalBackupScreen__choose_an_earlier_backup">Valitse aikaisempi varmuuskopio</string>
+    <!-- SelectLocalBackupScreen: Button to choose a different backup -->
+    <string name="SelectLocalBackupScreen__choose_a_different_backup">Valitse toinen varmuuskopio</string>
+    <!-- SelectLocalBackupScreen: Label for latest backup card -->
+    <string name="SelectLocalBackupScreen__your_latest_backup">Viimeisin varmuuskopio:</string>
+    <!-- SelectLocalBackupScreen: Label for non-latest backup card -->
+    <string name="SelectLocalBackupScreen__your_backup">Varmuuskopio:</string>
+
+    <!-- SelectLocalBackupSheet: Title for backup selection bottom sheet -->
+    <string name="SelectLocalBackupSheet__choose_a_backup_to_restore">Valitse palautettava varmuuskopio</string>
+    <!-- SelectLocalBackupSheet: Subtitle warning about choosing an older backup -->
+    <string name="SelectLocalBackupSheet__choosing_an_older_backup">Vanhemman varmuuskopion valitseminen voi johtaa viestien tai median katoamiseen.</string>
+    <!-- SelectLocalBackupSheet: Continue button text -->
+    <string name="SelectLocalBackupSheet__continue_button">Jatka</string>
+
+    <!-- SelectLocalBackupTypeScreen: Screen title for selecting backup type -->
+    <string name="SelectLocalBackupTypeScreen__restore_on_device_backup">Palauta laitteella oleva varmuuskopio</string>
+    <!-- SelectLocalBackupTypeScreen: Screen subtitle explaining restore options -->
+    <string name="SelectLocalBackupTypeScreen__restore_your_messages_from_the_backup">Palauta viestit laitteelle tallentamastasi varmuuskopiosta. Jos et palauta niitä nyt, et voi palauttaa niitä enää myöhemmin.</string>
+    <!-- SelectLocalBackupTypeScreen: Button for users who saved backup as single file -->
+    <string name="SelectLocalBackupTypeScreen__i_saved_my_backup_as_a_single_file">Tallensin varmuuskopioni yhtenä tiedostona</string>
+    <!-- SelectLocalBackupTypeScreen: Card title for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__choose_backup_folder">Valitse varmuuskopioinnin kansio</string>
+    <!-- SelectLocalBackupTypeScreen: Card description for choosing backup folder -->
+    <string name="SelectLocalBackupTypeScreen__select_the_folder_on_your_device">Valitse laitteelta kansio, johon varmuuskopio on tallennettu</string>
+
     <!-- Email subject when contacting support on a create backup failure -->
     <string name="BackupAlertBottomSheet_network_failure_support_email">Verkkovirhe Signal Androidin varmuuskopion palauttamisessa</string>
     <!-- Email filter when contacting support on a create backup failure -->
@@ -8837,7 +9497,7 @@
     <!-- Prepare Device screen title for quick restore flow -->
     <string name="PrepareDevice_title">Laitteen valmistelu</string>
     <!-- Prepare Device screen body text explaining backup recommendation -->
-    <string name="PrepareDevice_body">Back up now before transferring. You may have received messages that haven\'t been backed up yet.</string>
+    <string name="PrepareDevice_body">Varmuuskopioi ennen tietojen siirtoa. Olet saattanut saada viestejä, joita ei ole vielä varmuuskopioitu.</string>
     <!-- Prepare Device screen last backup text format, %1$s is the date and %2$s is the time -->
     <string name="PrepareDevice_last_backup">Viimeisin varmuuskopio tehtiin %1$s klo %2$s.</string>
     <!-- Prepare Device screen back up now button -->
@@ -8845,7 +9505,7 @@
     <!-- Prepare Device screen skip and continue button -->
     <string name="PrepareDevice_skip_and_continue">Ohita ja jatka</string>
     <!-- A string describing the last time the user\'s backup was made. The placeholder represents a date-time. An example would be "Your last backup was made on July 18, 2025 at 9:00am." -->
-    <string name="PrepareDevice_last_backup_description">Your last backup was made %1$s. </string>
+    <string name="PrepareDevice_last_backup_description">Viimeisin varmuuskopio tehtiin %1$s. </string>
 
     <!-- Restore Complete bottom sheet dialog title -->
     <string name="RestoreCompleteBottomSheet_restore_complete">Viimeistele toisella laitteellasi</string>
@@ -8891,6 +9551,27 @@
     <string name="MainToolbar__notification_profile_content_description">Ilmoitusprofiili</string>
     <!-- Accessibility label for more options button in MainToolbar -->
     <string name="MainToolbar__proxy_content_description">Välityspalvelin</string>
+    <!-- Accessibility label for search filter button in MainToolbar -->
+  <!-- Removed by excludeNonTranslatables <string name="MainToolbar__search_filter_content_description" translatable="false">Search filter</string> -->
+
+    <!-- SearchFilterBottomSheet: Title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__filter_search" translatable="false">Filter search</string> -->
+    <!-- SearchFilterBottomSheet: Start date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__start_date" translatable="false">Start date</string> -->
+    <!-- SearchFilterBottomSheet: End date label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__end_date" translatable="false">End date</string> -->
+    <!-- SearchFilterBottomSheet: Author label -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__author" translatable="false">Author</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset date -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__not_set" translatable="false">Not set</string> -->
+    <!-- SearchFilterBottomSheet: Placeholder for unset author -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__anyone" translatable="false">Anyone</string> -->
+    <!-- SearchFilterBottomSheet: Apply button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__apply" translatable="false">Apply</string> -->
+    <!-- SearchFilterBottomSheet: Clear button -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__clear" translatable="false">Clear</string> -->
+    <!-- SearchFilterBottomSheet: Select date dialog title -->
+  <!-- Removed by excludeNonTranslatables <string name="SearchFilterBottomSheet__select_date" translatable="false">Select date</string> -->
 
     <!-- Accessibility label for a button displayed in the toolbar to return to the previous screen. -->
     <string name="DefaultTopAppBar__navigate_up_content_description">Siirry ylös</string>
@@ -9137,6 +9818,57 @@
     <string name="PinnedMessage__couldnt_unpin_all">Viestien kiinnityksen poistaminen epäonnistui</string>
     <!-- Dialog body when failing to pin a message -->
     <string name="PinnedMessage__check_connection">Tarkista verkkoyhteys ja yritä uudelleen.</string>
+
+    <!-- Group member label screen title. -->
+    <string name="GroupMemberLabel__title">Jäsentunniste</string>
+    <!-- Group member label text field placeholder. -->
+    <string name="GroupMemberLabel__label_text_placeholder">Lisää oma tunniste</string>
+    <!-- Group member label preview section header. -->
+    <string name="GroupMemberLabel__preview_section_header">Esikatselu</string>
+    <!-- Sample message shown in the group member label message preview. -->
+    <string name="GroupMemberLabel__preview_sample_message">Hei!</string>
+    <!-- Group member label save button label. -->
+    <string name="GroupMemberLabel__save">Tallenna</string>
+    <!-- Description explaining the group member labels feature. -->
+    <string name="GroupMemberLabel__description">Määritä jäsenrooli, joka kuvaa itseäsi tai rooliasi ryhmässä. Roolit näkyvät vain tässä ryhmässä.</string>
+    <!-- Error message shown when the group member label fails to save due to a network error. -->
+    <string name="GroupMemberLabel__error_cant_save_no_network">Roolin tallentaminen epäonnistui. Tarkista verkkoyhteys ja yritä uudelleen.</string>
+    <!-- Error message shown when trying to edit a member label without adequate permission. -->
+    <string name="GroupMemberLabel__error_no_edit_permission">Vain ylläpitäjät voivat määrittää ryhmän jäsenroolit.</string>
+    <!-- Accessibility label for the button to open the group member label emoji picker. -->
+    <string name="GroupMemberLabel__accessibility_select_emoji">Valitse emoji</string>
+    <!-- Accessibility label for the group member label close screen button. -->
+    <string name="GroupMemberLabel__accessibility_close_screen">Sulje näyttö</string>
+    <!-- Accessibility label for the group member label text field clear button. -->
+    <string name="GroupMemberLabel__accessibility_clear_label">Tyhjennä rooli</string>
+    <!-- Section header for the list of group members who have labels set. -->
+    <string name="GroupMemberLabel__group_members_with_labels">Ryhmän jäsenet, joilla on jäsenrooli</string>
+
+    <!-- Title for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__title">Jäsenroolit</string>
+    <!-- Body for the member labels education sheet. -->
+    <string name="MemberLabelsEducation__body">Määritä jäsenrooli, joka kuvaa itseäsi tai rooliasi ryhmässä. Jäsentunnisteet näkyvät vain ryhmän sisällä.</string>
+    <!-- Button to set a new member label. -->
+    <string name="MemberLabelsEducation__set_label">Lisää jäsenrooli</string>
+    <!-- Button to edit an existing member label. -->
+    <string name="MemberLabelsEducation__edit_label">Muokkaa roolia</string>
+
+    <!-- Title for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__title">Jäsenroolin näyttö</string>
+    <!-- Body for screen shown to let the user know that displaying their member label will take priority over their about text. -->
+    <string name="MemberLabelsAboutOverride__body">Tässä ryhmässä jäsenroolisi näytetään kuvasi vieressä Tietoja-sivun paikalla.</string>
+
+    <!-- Label for internal-only section showing groups with same members -->
+  <!-- Removed by excludeNonTranslatables <string name="AddGroupDetailsFragment__groups_with_same_members" translatable="false">Groups with same members (Labs)</string> -->
+
+    <!-- Title of the sheet shown when a local backup restore could not be completed -->
+    <string name="CouldNotCompleteBackupRestoreSheet__title">Varmuuskopiota ei voitu palauttaa</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining the likely cause -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_error">Varmuuskopiotasi ei voitu palauttaa virheen vuoksi. Varmuuskopiokansiota saatettiin siirtää laitteellasi varmuuskopioinnin palautuksen aikana.</string>
+
+    <!-- Body of the sheet shown when a local backup restore could not be completed, explaining how to try again -->
+    <string name="CouldNotCompleteBackupRestoreSheet__body_retry">Yritä uudelleen poistamalla Signal laitteeltasi, asentamalla se uudelleen ja valitsemalla ”Palauta tai siirrä”.</string>
 
     <!-- EOF -->
 </resources>

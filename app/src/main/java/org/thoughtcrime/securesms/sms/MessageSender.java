@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import com.annimon.stream.Stream;
 
 import org.greenrobot.eventbus.EventBus;
 import org.signal.core.util.logging.Log;
@@ -48,6 +47,7 @@ import org.thoughtcrime.securesms.database.model.StoryType;
 import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
+import org.thoughtcrime.securesms.jobs.AdminDeleteSendJob;
 import org.thoughtcrime.securesms.jobs.AttachmentCompressionJob;
 import org.thoughtcrime.securesms.jobs.AttachmentCopyJob;
 import org.thoughtcrime.securesms.jobs.AttachmentUploadJob;
@@ -68,7 +68,7 @@ import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.ParcelUtil;
 import org.thoughtcrime.securesms.util.SignalLocalMetrics;
 import org.whispersystems.signalservice.api.push.DistributionId;
-import org.whispersystems.signalservice.api.util.Preconditions;
+import org.signal.network.util.Preconditions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +78,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -297,8 +296,8 @@ public class MessageSender {
       Recipient recipient         = message.getThreadRecipient();
       long      allocatedThreadId = threadTable.getOrCreateValidThreadId(message.getThreadRecipient(), threadId);
 
-      List<AttachmentId> attachmentIds = Stream.of(preUploadResults).map(PreUploadResult::getAttachmentId).toList();
-      List<String>       jobIds        = Stream.of(preUploadResults).map(PreUploadResult::getJobIds).flatMap(Stream::of).toList();
+      List<AttachmentId> attachmentIds = preUploadResults.stream().map(PreUploadResult::getAttachmentId).collect(Collectors.toList());
+      List<String>       jobIds        = preUploadResults.stream().map(PreUploadResult::getJobIds).flatMap(x -> x.stream()).collect(Collectors.toList());
 
       if (!attachmentDatabase.hasAttachments(attachmentIds)) {
         Log.w(TAG, "Attachments not found in database for " + message.getThreadRecipient().getId() + ", thread: " + threadId + ", pre-uploads: " + preUploadResults);
@@ -337,16 +336,16 @@ public class MessageSender {
                                         @NonNull Collection<PreUploadResult> preUploadResults,
                                         boolean overwritePreUploadMessageIds)
   {
-    Log.i(TAG, "Sending media broadcast (overwrite: " + overwritePreUploadMessageIds + ") to " + Stream.of(messages).map(m -> m.getThreadRecipient().getId()).toList());
+    Log.i(TAG, "Sending media broadcast (overwrite: " + overwritePreUploadMessageIds + ") to " + messages.stream().map(m -> m.getThreadRecipient().getId()).collect(Collectors.toList()));
     Preconditions.checkArgument(messages.size() > 0, "No messages!");
-    Preconditions.checkArgument(Stream.of(messages).allMatch(m -> m.getAttachments().isEmpty()), "Messages can't have attachments! They should be pre-uploaded.");
+    Preconditions.checkArgument(messages.stream().allMatch(m -> m.getAttachments().isEmpty()), "Messages can't have attachments! They should be pre-uploaded.");
 
     JobManager         jobManager                 = AppDependencies.getJobManager();
     AttachmentTable    attachmentDatabase         = SignalDatabase.attachments();
     MessageTable       mmsDatabase                = SignalDatabase.messages();
     ThreadTable        threadTable                = SignalDatabase.threads();
-    List<AttachmentId> preUploadAttachmentIds     = Stream.of(preUploadResults).map(PreUploadResult::getAttachmentId).toList();
-    List<String>       preUploadJobIds            = Stream.of(preUploadResults).map(PreUploadResult::getJobIds).flatMap(Stream::of).toList();
+    List<AttachmentId> preUploadAttachmentIds     = preUploadResults.stream().map(PreUploadResult::getAttachmentId).collect(Collectors.toList());
+    List<String>       preUploadJobIds            = preUploadResults.stream().map(PreUploadResult::getJobIds).flatMap(x -> x.stream()).collect(Collectors.toList());
     List<Long>         messageIds                 = new ArrayList<>(messages.size());
     List<String>       messageDependsOnIds        = new ArrayList<>(preUploadJobIds);
     OutgoingMessage    primaryMessage             = messages.get(0);
@@ -370,9 +369,8 @@ public class MessageSender {
         messageIds.add(primaryMessageId);
       }
 
-      List<DatabaseAttachment> preUploadAttachments = Stream.of(preUploadAttachmentIds)
-                                                            .map(attachmentDatabase::getAttachment)
-                                                            .toList();
+      List<DatabaseAttachment> preUploadAttachments = preUploadAttachmentIds.stream()
+                                                                            .map(attachmentDatabase::getAttachment).collect(Collectors.toList());
 
       if (messages.size() > 0) {
         List<OutgoingMessage>    secondaryMessages = overwritePreUploadMessageIds ? messages.subList(1, messages.size()) : messages;
@@ -425,14 +423,6 @@ public class MessageSender {
         }
       }
 
-      for (AttachmentId attachmentId : attachmentsWithPreuploadId) {
-        long messageId = SignalDatabase.attachments().getMessageId(attachmentId);
-        if (BackupRepository.shouldCopyAttachmentToArchive(attachmentId, messageId)) {
-          Log.i(TAG, "[" + attachmentId + "] Was previously preuploaded and should now be copied to the archive.");
-          jobManager.add(new CopyAttachmentToArchiveJob(attachmentId));
-        }
-      }
-
       onMessageSent();
       mmsDatabase.setTransactionSuccessful();
     } catch (MmsException e) {
@@ -440,6 +430,14 @@ public class MessageSender {
       return;
     } finally {
       mmsDatabase.endTransaction();
+    }
+
+    for (AttachmentId attachmentId : attachmentsWithPreuploadId) {
+      long messageId = SignalDatabase.attachments().getMessageId(attachmentId);
+      if (BackupRepository.shouldCopyAttachmentToArchive(attachmentId, messageId)) {
+        Log.i(TAG, "[" + attachmentId + "] Was previously preuploaded and should now be copied to the archive.");
+        jobManager.add(new CopyAttachmentToArchiveJob(attachmentId));
+      }
     }
 
     for (int i = 0; i < messageIds.size(); i++) {
@@ -506,15 +504,39 @@ public class MessageSender {
   }
 
   public static void sendRemoteDelete(long messageId) {
-    MessageTable db = SignalDatabase.messages();
-    db.markAsRemoteDelete(messageId);
-    db.markAsSending(messageId);
-
     try {
+      MessageTable db = SignalDatabase.messages();
+      db.markAsDeleteBySelf(messageId);
+      db.markAsSending(messageId);
       RemoteDeleteSendJob.create(messageId).enqueue();
       onMessageSent();
     } catch (NoSuchMessageException e) {
       Log.w(TAG, "[sendRemoteDelete] Could not find message! Ignoring.");
+    }
+  }
+
+  public static void sendAdminDelete(long messageId) {
+    try {
+      SignalDatabase.messages().markAsDeleteBySelf(messageId);
+      SignalDatabase.messages().markAsPendingAdminDelete(messageId);
+      AdminDeleteSendJob job = AdminDeleteSendJob.create(messageId, Collections.emptyList());
+      if (job != null) {
+        AppDependencies.getJobManager().add(job);
+      } else {
+        Log.w(TAG, "[sendAdminDelete] Could not create the admin delete job.");
+      }
+    } catch (NoSuchMessageException e) {
+      Log.w(TAG, "[sendAdminDelete] Could not find message! Ignoring.");
+    }
+  }
+
+  public static void resendAdminDelete(MessageRecord message, List<RecipientId> filteredRecipients) {
+    SignalDatabase.messages().markAsPendingAdminDelete(message.getId());
+    AdminDeleteSendJob job = AdminDeleteSendJob.create(message.getId(), filteredRecipients);
+    if (job != null) {
+      AppDependencies.getJobManager().add(job);
+    } else {
+      Log.w(TAG, "[resendAdminDelete] Could not resend the admin delete job.");
     }
   }
 

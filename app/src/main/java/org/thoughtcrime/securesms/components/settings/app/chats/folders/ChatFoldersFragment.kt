@@ -44,19 +44,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.DropdownMenus
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
-import org.signal.core.ui.compose.copied.androidx.compose.DragAndDropEvent
-import org.signal.core.ui.compose.copied.androidx.compose.DraggableItem
-import org.signal.core.ui.compose.copied.androidx.compose.dragContainer
-import org.signal.core.ui.compose.copied.androidx.compose.rememberDragDropState
+import org.signal.core.ui.compose.SignalIcons
+import org.signal.core.ui.compose.list.ReorderListEvent
+import org.signal.core.ui.compose.list.ReorderableItem
+import org.signal.core.ui.compose.list.rememberReorderableListState
+import org.signal.core.ui.compose.list.reorderableList
 import org.signal.core.util.toInt
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 
@@ -76,7 +77,7 @@ class ChatFoldersFragment : ComposeFragment() {
     Scaffolds.Settings(
       title = stringResource(id = R.string.ChatsSettingsFragment__chat_folders),
       onNavigationClick = { requireActivity().onNavigateUp() },
-      navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24),
+      navigationIcon = SignalIcons.ArrowStart.imageVector,
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { contentPadding: PaddingValues ->
       FoldersScreen(
@@ -100,11 +101,11 @@ class ChatFoldersFragment : ComposeFragment() {
         onDeleteDismissed = {
           viewModel.showDeleteDialog(false)
         },
-        onDragAndDropEvent = { event ->
+        onReorderListEvent = { event ->
           when (event) {
-            is DragAndDropEvent.OnItemMove -> viewModel.updateItemPosition(event.fromIndex, event.toIndex)
-            is DragAndDropEvent.OnItemDrop -> viewModel.saveItemPositions()
-            is DragAndDropEvent.OnDragCancel -> {}
+            is ReorderListEvent.ItemMoved -> viewModel.updateItemPosition(event.fromIndex, event.toIndex)
+            is ReorderListEvent.ItemDropped -> viewModel.saveItemPositions()
+            is ReorderListEvent.DragCanceled -> {}
           }
         }
       )
@@ -122,10 +123,10 @@ fun FoldersScreen(
   onDeleteClicked: (ChatFolderRecord) -> Unit = {},
   onDeleteConfirmed: () -> Unit = {},
   onDeleteDismissed: () -> Unit = {},
-  onDragAndDropEvent: (DragAndDropEvent) -> Unit = {}
+  onReorderListEvent: (ReorderListEvent) -> Unit = {}
 ) {
   val listState = rememberLazyListState()
-  val dragDropState = rememberDragDropState(listState, includeHeader = true, includeFooter = true, onEvent = onDragAndDropEvent)
+  val reorderableListState = rememberReorderableListState(listState, includeHeader = true, includeFooter = true, onEvent = onReorderListEvent)
 
   LaunchedEffect(Unit) {
     if (!SignalStore.uiHints.hasSeenChatFoldersEducationSheet) {
@@ -146,14 +147,14 @@ fun FoldersScreen(
   }
 
   LazyColumn(
-    modifier = Modifier.dragContainer(
-      dragDropState = dragDropState,
+    modifier = Modifier.reorderableList(
+      reorderableListState = reorderableListState,
       dragHandleWidth = 56.dp
     ),
     state = listState
   ) {
     item {
-      DraggableItem(dragDropState, 0) {
+      ReorderableItem(reorderableListState, 0) {
         Text(
           text = stringResource(id = R.string.ChatFoldersFragment__organize_your_chats),
           style = MaterialTheme.typography.bodyMedium,
@@ -174,7 +175,7 @@ fun FoldersScreen(
     }
 
     itemsIndexed(state.folders) { index, folder ->
-      DraggableItem(dragDropState, 1 + index) { isDragging ->
+      ReorderableItem(reorderableListState, 1 + index) { isDragging ->
         val elevation = if (isDragging) 1.dp else 0.dp
         val isAllChats = folder.folderType == ChatFolderRecord.FolderType.ALL
         FolderRow(
@@ -192,7 +193,7 @@ fun FoldersScreen(
     }
 
     item {
-      DraggableItem(dragDropState, 1 + state.folders.size) {
+      ReorderableItem(reorderableListState, 1 + state.folders.size) {
         if (state.suggestedFolders.isNotEmpty()) {
           Dividers.Default()
 
@@ -369,7 +370,7 @@ fun FolderRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
           Icon(
-            painter = painterResource(id = R.drawable.symbol_edit_24),
+            painter = SignalIcons.Edit.painter,
             contentDescription = null
           )
           Text(
@@ -387,7 +388,7 @@ fun FolderRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
           Icon(
-            painter = painterResource(id = R.drawable.symbol_trash_24),
+            painter = SignalIcons.Trash.painter,
             contentDescription = null
           )
           Text(

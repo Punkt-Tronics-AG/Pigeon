@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">นำความเป็นส่วนตัวไปกับคุณทุกที่\nเป็นตัวคุณในทุกข้อความ</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal เป็นแอปไม่แสวงหาผลกำไร\nเงื่อนไขและนโยบายความเป็นส่วนตัว</string>
+    <string name="RegistrationActivity_continue">ทำต่อ</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">กู้คืนหรือถ่ายโอน</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">การอนุญาตสิทธิ์</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">เพื่อให้คุณสามารถส่งข้อความหาผู้ติดต่อที่รู้จัก Signal จะขอสิทธิ์การเข้าถึงต่อไปนี้ </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">ไว้ทีหลัง</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">ดำเนินการต่อ</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">การแจ้งเตือน</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">ได้รับแจ้งเตือนเมื่อมีข้อความใหม่</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">ผู้ติดต่อ</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">ค้นหาคนที่คุณรู้จัก โดยรายชื่อผู้ติดต่อของคุณจะได้รับการเข้ารหัสและไม่ถูกเปิดเผยต่อบริการของ Signal</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">การโทร</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">ช่วยให้การลงทะเบียนง่ายขึ้น พร้อมเข้าถึงฟีเจอร์การโทรอื่นๆ เพิ่มเติม</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">พื้นที่จัดเก็บ</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">ส่งรูปภาพ วิดีโอ และไฟล์ต่างๆ จากอุปกรณ์ของคุณ</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">หมายเลขโทรศัพท์</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">คุณจะได้รับรหัสตรวจยืนยัน ซึ่งอาจมีค่าบริการจากผู้ให้บริการโทรศัพท์</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">เลือกประเทศ</string>
+    <string name="RegistrationActivity_phone_number_description">หมายเลขโทรศัพท์</string>
+    <string name="RegistrationActivity_next">ต่อไป</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">โปรดตรวจสอบว่าหมายเลขโทรศัพท์ด้านล่างนี้ถูกต้องหรือไม่</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">รหัสยืนยันจะถูกส่งไปยังหมายเลขโทรศัพท์นี้ อาจมีค่าบริการจากผู้ให้บริการโทรศัพท์</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">แก้ไขหมายเลข</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">เปิดเมนู</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">ใช้พร็อกซี</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">เชื่อมโยงอุปกรณ์</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">เรียนรู้เพิ่มเติม</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">ประเทศของคุณ</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">ปิด</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">ค้นหาโดยชื่อหรือรหัสประเทศ</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">ประเทศที่ไม่รู้จัก</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">รหัสยืนยัน</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">ใส่รหัสที่เราส่งไปให้ %1$s</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">หมายเลขไม่ถูกต้องหรือเปล่า</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">ส่งรหัสอีกครั้ง</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">โทรหาฉันแทน</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">โทรหาฉัน (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">รหัสไม่ถูกต้อง</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">ไม่สามารถเชื่อมต่อได้ โปรดตรวจสอบเครือข่ายของคุณแล้วลองอีกครั้ง</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">คุณลองหลายครั้งเกินไป โปรดลองอีกครั้งใน %1$s</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">มีข้อผิดพลาดที่ไม่คาดคิดเกิดขึ้น โปรดลองอีกครั้ง</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">เราไม่สามารถส่ง SMS ไปยังหมายเลขโทรศัพท์ของคุณได้ โปรดรอประมาณ 2-3 ชั่วโมงแล้วลองใหม่อีกครั้ง</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">ไม่สามารถส่งรหัสผ่านทางวิธีที่คุณเลือก โปรดลองวิธีอื่น</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">ลงทะเบียนไม่สำเร็จ โปรดลองอีกครั้ง</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">ประสบปัญหาใช่หรือไม่</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">ฉันมีโทรศัพท์เครื่องเก่า</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">เริ่มใช้งานได้เร็วทันใจด้วยการสแกนคิวอาร์โค้ดจากบัญชี Signal ที่คุณใช้อยู่</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">ฉันไม่มีโทรศัพท์เครื่องเก่า</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">หรือติดตั้ง Signal ใหม่บนอุปกรณ์เครื่องเดียวกันนั้น</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">กู้คืนหรือถ่ายโอนบัญชี</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">เลือกวิธีกู้คืนประวัติการส่งข้อความและข้อมูลบัญชีของคุณ</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">จากการสำรองข้อมูลของ Signal</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">แพ็กเกจสำรองข้อมูลของ Signal แบบฟรีหรือแบบชำระค่าบริการ</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">กู้คืนจากการสำรองข้อมูลไว้บนอุปกรณ์</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">กู้คืนข้อความของคุณจากข้อมูลสำรองที่คุณบันทึกไว้ในอุปกรณ์</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">ดำเนินการต่อโดยไม่ถ่ายโอน</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">ข้อความและไฟล์สื่อจะไม่ได้รับการถ่ายโอน</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">จากโฟลเดอร์ข้อมูลสำรอง</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">จากไฟล์ข้อมูลสำรอง</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">เลือกข้อมูลสำรองที่คุณเคยบันทึกไว้</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">จากโทรศัพท์เครื่องเก่า</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">ถ่ายโอนโดยตรงจากโทรศัพท์ Android เครื่องเก่าของคุณ</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">ข้าม</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">ข้ามการกู้คืนใช่หรือไม่</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">หากข้ามการกู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง โดยเมื่อคุณเปิดใช้งานการสำรองข้อมูลอีกครั้งหลังจากเลือกข้ามการกู้คืน ข้อมูลสำรองที่มีอยู่จะถูกแทนที่ด้วยประวัติการส่งข้อความใหม่</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">ข้ามการกู้คืน</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">กู้คืนจากการสำรองข้อมูลไว้บนอุปกรณ์</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">กู้คืนข้อความของคุณจากข้อมูลสำรองที่บันทึกไว้ในอุปกรณ์ หากไม่กู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">เลือกโฟลเดอร์ข้อมูลสำรอง</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">เลือกโฟลเดอร์บนอุปกรณ์ที่คุณจัดเก็บข้อมูลสำรองไว้</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">กำลังค้นหาข้อมูลสำรอง…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">กู้คืนข้อความของคุณจากโฟลเดอร์ข้อมูลสำรองที่คุณบันทึกไว้ในอุปกรณ์ หากไม่กู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">ข้อมูลสำรองล่าสุดของคุณ:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">กู้คืนจากข้อมูลสำรอง</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">เลือกข้อมูลสำรองที่เก่ากว่านี้</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">เลือกข้อมูลสำรองที่ต้องการกู้คืน</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">การเลือกข้อมูลสำรองเก่าอาจทำให้ข้อความหรือไฟล์สื่อสูญหาย</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">ไม่พบข้อมูลสำรอง</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">ไม่พบข้อมูลสำรองของ Signal ในโฟลเดอร์ที่คุณเลือก โปรดเลือกโฟลเดอร์อื่น</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">เลือกโฟลเดอร์อื่น</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">ใส่วลีรหัสผ่านสำหรับข้อมูลสำรอง</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">วลีรหัสผ่านของข้อมูลสำรองคือรหัส 30 หลักที่คุณต้องใช้ในการกู้คืนบัญชีและข้อมูล</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">กุญแจกู้คืน</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">ยาวเกินกำหนด (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">ฉันไม่มีวลีรหัสผ่าน</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">ดำเนินการต่อ</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">ป้อนกุญแจกู้คืนของคุณ</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">กุญแจกู้คืนคือรหัส 64 ตัวที่คุณต้องใช้ในการกู้คืนบัญชีและข้อมูล</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">กุญแจกู้คืน</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">แตะที่นี่หากไม่มีกุญแจกู้คืน</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">ยาวเกินกำหนด (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">กุญแจกู้คืนใช้งานไม่ได้</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">กุญแจกู้คืนไม่ถูกต้อง</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">กำลังเตรียมการกู้คืน…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">กำลังกู้คืนข้อมูลสำรอง</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">โปรดรอสักครู่ ระบบกำลังกู้คืนข้อความและข้อมูลของคุณ</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">ทำต่อ</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">กู้คืนไม่สำเร็จ</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">เกิดข้อผิดพลาดขณะกู้คืนข้อมูลสำรอง โปรดลองอีกครั้ง</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">ลองอีกครั้ง</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">เชื่อมโยงบัญชีของคุณ</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">เริ่มต้นใช้งาน Signal</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">สร้างบัญชีใหม่</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">กู้คืนจากข้อมูลสำรอง</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">กำลังเรียกดูข้อมูลสำรอง…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">กู้คืนจากข้อมูลสำรอง</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">คุณสำรองข้อมูลครั้งล่าสุดเมื่อวันที่ %1$s เวลา %2$s</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">โดยการกู้คืนไฟล์สื่อจะดำเนินการในพื้นหลัง หากเลือกไม่กู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">ไม่พบข้อมูลสำรอง</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">ไม่พบข้อมูลสำรองของบัญชีนี้</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">ไม่สามารถกู้คืนข้อมูลสำรอง</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">ไม่สามารถกู้คืนข้อมูลสำรองของคุณได้ในขณะนี้ โปรดลองอีกครั้ง</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">ลองอีกครั้ง</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">ไม่สามารถดำเนินการกู้คืนให้เสร็จสิ้นได้</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">เกิดข้อผิดพลาดขณะเชื่อมต่อกับเซิร์ฟเวอร์ โปรดตรวจสอบการเชื่อมต่อของคุณแล้วลองอีกครั้ง</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">เกิดข้อผิดพลาดขณะกู้คืนข้อมูลสำรอง โปรดลองอีกครั้ง</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">ไม่สามารถกู้คืนข้อมูลสำรองนี้</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal เวอร์ชันนี้ไม่สามารถกู้คืนข้อมูลสำรองของคุณได้ โปรดอัปเดตเป็นเวอร์ชันล่าสุดแล้วลองอีกครั้ง</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">อัปเดต Signal</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">ไว้ทีหลัง</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">ไม่สามารถกู้คืนข้อมูลสำรอง</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">เกิดข้อผิดพลาดขณะกู้คืนข้อมูลสำรอง ระบบไม่สามารถกู้ข้อมูลสำรองของคุณได้ โปรดติดต่อฝ่ายสนับสนุน</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">ติดต่อฝ่ายสนับสนุน</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">กำลังดาวน์โหลดข้อมูลสำรอง…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">กำลังกู้คืนข้อความ…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">ใกล้เสร็จสิ้น…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">กำลังกู้คืน…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%1$s จาก %2$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">ไม่เจอเว็บเบราว์เซอร์</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">บัญชีถูกล็อก</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">บัญชีของคุณถูกล็อกเพื่อปกป้องความเป็นส่วนตัวและความปลอดภัย หากไม่มีความเคลื่อนไหวภายใน %1$d วัน คุณจะสามารถลงทะเบียนหมายเลขโทรศัพท์นี้ได้อีกครั้งโดยไม่ต้องใช้ PIN โดยเนื้อหาทั้งหมดจะถูกลบ</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">เปิด Signal บนโทรศัพท์เครื่องเก่าของคุณ</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">ไปที่การตั้งค่า &gt; ถ่ายโอนบัญชี</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">สแกนคิวอาร์โค้ดนี้</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">กำลังลงทะเบียน…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">เกิดข้อผิดพลาดขณะลงทะเบียน</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">สแกนด้วยอุปกรณ์เครื่องเก่า</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">สแกนคิวอาร์โค้ดแล้ว</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">ลองใหม่</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"สร้างคิวอาร์โค้ดไม่สำเร็จ"</string>
+</resources>

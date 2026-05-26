@@ -7,6 +7,7 @@ package org.thoughtcrime.securesms.restore.devicetransfer
 
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
@@ -14,9 +15,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.signal.core.ui.logging.LoggingFragment
 import org.signal.devicetransfer.DeviceToDeviceTransferService
 import org.signal.devicetransfer.TransferStatus
-import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.databinding.FragmentDeviceTransferBinding
@@ -62,6 +63,8 @@ abstract class DeviceTransferFragment : LoggingFragment(R.layout.fragment_device
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
     binding.deviceTransferFragmentCancel.setOnClickListener {
       cancelActiveTransfer()
     }
@@ -80,6 +83,7 @@ abstract class DeviceTransferFragment : LoggingFragment(R.layout.fragment_device
   }
 
   override fun onDestroyView() {
+    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     EventBus.getDefault().unregister(transferModeListener)
     super.onDestroyView()
   }

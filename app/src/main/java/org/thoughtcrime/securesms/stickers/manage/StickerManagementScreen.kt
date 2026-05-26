@@ -67,20 +67,22 @@ import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.DropdownMenus
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Snackbars
-import org.signal.core.ui.compose.copied.androidx.compose.DragAndDropEvent
-import org.signal.core.ui.compose.copied.androidx.compose.DraggableItem
-import org.signal.core.ui.compose.copied.androidx.compose.dragContainer
-import org.signal.core.ui.compose.copied.androidx.compose.rememberDragDropState
+import org.signal.core.ui.compose.list.ReorderListEvent
+import org.signal.core.ui.compose.list.ReorderableItem
+import org.signal.core.ui.compose.list.rememberReorderableListState
+import org.signal.core.ui.compose.list.reorderableList
 import org.signal.core.ui.compose.showSnackbar
+import org.signal.core.ui.getWindowSizeClass
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.menu.ActionItem
 import org.thoughtcrime.securesms.components.menu.SignalBottomActionBar
 import org.thoughtcrime.securesms.database.model.StickerPackId
 import org.thoughtcrime.securesms.stickers.StickerPreviewDataFactory
 import org.thoughtcrime.securesms.stickers.manage.AvailableStickerPack.DownloadStatus
-import org.thoughtcrime.securesms.window.getWindowSizeClass
 import java.text.NumberFormat
+import org.signal.core.ui.R as CoreUiR
 
 object StickerManagementScreen {
   /**
@@ -138,7 +140,7 @@ interface InstalledStickersContentCallbacks {
   fun onRemoveStickerPacksCanceled()
   fun onSelectionToggle(pack: InstalledStickerPack)
   fun onSelectAllToggle()
-  fun onDragAndDropEvent(event: DragAndDropEvent)
+  fun onReorderableEvent(event: ReorderListEvent)
   fun onShowPreviewClick(pack: InstalledStickerPack)
 
   object Empty : InstalledStickersContentCallbacks {
@@ -148,7 +150,7 @@ interface InstalledStickersContentCallbacks {
     override fun onRemoveStickerPacksCanceled() = Unit
     override fun onSelectionToggle(pack: InstalledStickerPack) = Unit
     override fun onSelectAllToggle() = Unit
-    override fun onDragAndDropEvent(event: DragAndDropEvent) = Unit
+    override fun onReorderableEvent(event: ReorderListEvent) = Unit
     override fun onShowPreviewClick(pack: InstalledStickerPack) = Unit
   }
 }
@@ -277,7 +279,7 @@ private fun TopAppBar(
           modifier = Modifier.padding(end = 16.dp)
         ) {
           Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
+            imageVector = SignalIcons.ArrowStart.imageVector,
             contentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description)
           )
         }
@@ -325,7 +327,7 @@ private fun MultiSelectTopAppBar(
   Scaffolds.DefaultTopAppBar(
     title = pluralStringResource(R.plurals.StickerManagement_title_n_selected, selectedItemCount, NumberFormat.getInstance().format(selectedItemCount)),
     titleContent = { _, title -> Text(text = title, style = MaterialTheme.typography.titleLarge) },
-    navigationIcon = ImageVector.vectorResource(R.drawable.symbol_x_24),
+    navigationIcon = SignalIcons.X.imageVector,
     navigationContentDescription = stringResource(R.string.StickerManagement_accessibility_exit_multi_select_mode),
     onNavigationClick = onExitClick
   )
@@ -454,7 +456,7 @@ private fun InstalledStickersContent(
     EmptyView(text = stringResource(R.string.StickerManagement_installed_tab_empty_text))
   } else {
     val listState = rememberLazyListState()
-    val dragDropState = rememberDragDropState(lazyListState = listState, includeHeader = true, includeFooter = false, onEvent = callbacks::onDragAndDropEvent)
+    val reorderableListState = rememberReorderableListState(lazyListState = listState, includeHeader = true, includeFooter = false, onEvent = callbacks::onReorderableEvent)
 
     val density = LocalDensity.current
     val haptics = LocalHapticFeedback.current
@@ -471,13 +473,13 @@ private fun InstalledStickersContent(
         state = listState,
         modifier = modifier
           .fillMaxHeight()
-          .dragContainer(
-            dragDropState = dragDropState,
+          .reorderableList(
+            reorderableListState = reorderableListState,
             dragHandleWidth = 56.dp
           )
       ) {
         item(key = "installed_section_header") {
-          DraggableItem(dragDropState, 0) {
+          ReorderableItem(reorderableListState, 0) {
             StickerPackSectionHeader(
               text = stringResource(R.string.StickerManagement_installed_stickers_header),
               modifier = Modifier.animateItem()
@@ -491,9 +493,9 @@ private fun InstalledStickersContent(
         ) { index, pack ->
           val menuController = remember { DropdownMenus.MenuController() }
 
-          DraggableItem(
+          ReorderableItem(
             index = index + 1,
-            dragDropState = dragDropState
+            reorderableListState = reorderableListState
           ) { isDragging ->
             InstalledStickerPackRow(
               pack = pack,
@@ -546,7 +548,7 @@ private fun InstalledStickersContent(
         visible = multiSelectEnabled,
         items = listOf(
           ActionItem(
-            iconRes = R.drawable.symbol_check_circle_24,
+            iconRes = CoreUiR.drawable.symbol_check_circle_24,
             title = if (selectedPackIds.size == packs.size) {
               stringResource(R.string.StickerManagement_action_deselect_all)
             } else {
@@ -555,7 +557,7 @@ private fun InstalledStickersContent(
             action = callbacks::onSelectAllToggle
           ),
           ActionItem(
-            iconRes = R.drawable.symbol_trash_24,
+            iconRes = CoreUiR.drawable.symbol_trash_24,
             title = stringResource(R.string.StickerManagement_action_delete_selected),
             action = { callbacks.onRemoveClick(selectedPackIds) }
           )

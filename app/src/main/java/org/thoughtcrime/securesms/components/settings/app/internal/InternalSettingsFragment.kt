@@ -13,8 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.signal.core.ui.BottomSheetUtil
+import org.signal.core.ui.permissions.PermissionDeniedBottomSheet
+import org.signal.core.ui.permissions.RationaleDialog
 import org.signal.core.util.AppUtil
 import org.signal.core.util.ThreadUtil
+import org.signal.core.util.Util
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.concurrent.SimpleTask
 import org.signal.core.util.logging.Log
@@ -45,6 +49,8 @@ import org.thoughtcrime.securesms.database.model.InAppPaymentSubscriberRecord
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.JobTracker
+import org.thoughtcrime.securesms.jobs.BackfillCollapsedMessageJob
+import org.thoughtcrime.securesms.jobs.CheckKeyTransparencyJob
 import org.thoughtcrime.securesms.jobs.DownloadLatestEmojiDataJob
 import org.thoughtcrime.securesms.jobs.EmojiSearchIndexDownloadJob
 import org.thoughtcrime.securesms.jobs.InAppPaymentKeepAliveJob
@@ -60,10 +66,9 @@ import org.thoughtcrime.securesms.megaphone.Megaphones
 import org.thoughtcrime.securesms.payments.DataExportUtil
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
+import org.thoughtcrime.securesms.registration.data.QuickstartCredentialExporter
 import org.thoughtcrime.securesms.storage.StorageSyncHelper
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.ConversationUtil
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.whispersystems.signalservice.api.push.UsernameLinkComponents
@@ -161,6 +166,16 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
         }
       )
 
+      if (BuildConfig.DEBUG) {
+        clickPref(
+          title = DSLSettingsText.from("Export quickstart credentials"),
+          summary = DSLSettingsText.from("Export registration credentials to a JSON file for quickstart builds."),
+          onClick = {
+            exportQuickstartCredentials()
+          }
+        )
+      }
+
       clickPref(
         title = DSLSettingsText.from("Unregister"),
         summary = DSLSettingsText.from("This will unregister your account without deleting it."),
@@ -176,17 +191,65 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
           promptUserForSentTimestamp()
         }
       )
+
+      switchPref(
+        title = DSLSettingsText.from("Disable internal user flag"),
+        summary = DSLSettingsText.from("Experience life as a non-internal user. Force-stop the app to be an internal user again."),
+        isChecked = state.disableInternalUser,
+        onClick = {
+          viewModel.setDisableInternalUser(!state.disableInternalUser)
+        }
+      )
+
       dividerPref()
 
       sectionHeaderPref(DSLSettingsText.from("App UI"))
 
       switchPref(
         title = DSLSettingsText.from("Force split pane UI on phones."),
+        isEnabled = !state.forceSinglePane,
         isChecked = state.forceSplitPane,
         onClick = {
           viewModel.setForceSplitPane(!state.forceSplitPane)
         }
       )
+
+      switchPref(
+        title = DSLSettingsText.from("Force single-pane on newer devices."),
+        isChecked = state.forceSinglePane,
+        onClick = {
+          viewModel.setForceSinglePane(!state.forceSinglePane)
+        }
+      )
+
+      clickPref(
+        title = DSLSettingsText.from("Display enable permission sheet"),
+        onClick = {
+          PermissionDeniedBottomSheet.showPermissionFragment(
+            titleRes = R.string.app_name,
+            subtitleRes = R.string.app_name,
+            useExtended = true
+          ).show(parentFragmentManager, null)
+        }
+      )
+
+      clickPref(
+        title = DSLSettingsText.from("Display permission rationale dialog"),
+        onClick = {
+          RationaleDialog.createFor(requireContext(), "Title", "Details", R.drawable.symbol_key_24).show()
+        }
+      )
+
+      clickPref(
+        title = DSLSettingsText.from("Collapse chat updates"),
+        summary = DSLSettingsText.from("Collapses certain consecutive chat updates - cannot be undone."),
+        onClick = {
+          SignalStore.misc.completedCollapsedEventsMigration = false
+          AppDependencies.jobManager.add(BackfillCollapsedMessageJob())
+        }
+      )
+
+      dividerPref()
 
       sectionHeaderPref(DSLSettingsText.from("Playgrounds"))
 
@@ -304,6 +367,23 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+        }
+      )
+
+      clickPref(
+        title = DSLSettingsText.from("Run self-check key transparency"),
+        summary = DSLSettingsText.from("Automatically enqueues a job to run KT against yourself without waiting for the elapsed time."),
+        onClick = {
+          SignalStore.misc.lastKeyTransparencyTime = 0
+          CheckKeyTransparencyJob.enqueueIfNecessary(addDelay = false)
+        }
+      )
+
+      switchPref(
+        title = DSLSettingsText.from("Enable ANR-induced crashing"),
+        isChecked = SignalStore.internal.anrDetectionCrashes,
+        onClick = {
+          SignalStore.internal.anrDetectionCrashes = !SignalStore.internal.anrDetectionCrashes
         }
       )
 
@@ -758,6 +838,13 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
       )
 
       clickPref(
+        title = DSLSettingsText.from("Add remote backups note"),
+        onClick = {
+          viewModel.addSampleReleaseNote("remote_backups")
+        }
+      )
+
+      clickPref(
         title = DSLSettingsText.from("Add remote donate megaphone"),
         onClick = {
           viewModel.addRemoteDonateMegaphone()
@@ -911,6 +998,14 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
         isChecked = state.useConversationItemV2ForMedia,
         onClick = {
           viewModel.setUseConversationItemV2Media(!state.useConversationItemV2ForMedia)
+        }
+      )
+
+      switchPref(
+        title = DSLSettingsText.from("Use new media activity"),
+        isChecked = state.useNewMediaActivity,
+        onClick = {
+          viewModel.setUseNewMediaActivity(!state.useNewMediaActivity)
         }
       )
     }
@@ -1104,6 +1199,21 @@ class InternalSettingsFragment : DSLSettingsFragment(R.string.preferences__inter
     }) {
       Toast.makeText(requireContext(), "Dumped to logs", Toast.LENGTH_SHORT).show()
     }
+  }
+
+  private fun exportQuickstartCredentials() {
+    MaterialAlertDialogBuilder(requireContext())
+      .setTitle("Export quickstart credentials?")
+      .setMessage("This will export your account's private keys and credentials to an unencrypted file on disk. This is very dangerous! Only use it with test accounts.")
+      .setPositiveButton("Export") { _, _ ->
+        SimpleTask.run({
+          QuickstartCredentialExporter.export(requireContext())
+        }) { file ->
+          Toast.makeText(requireContext(), "Exported to ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        }
+      }
+      .setNegativeButton(android.R.string.cancel, null)
+      .show()
   }
 
   private fun promptUserForSentTimestamp() {

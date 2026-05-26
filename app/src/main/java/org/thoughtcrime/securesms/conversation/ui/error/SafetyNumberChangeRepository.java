@@ -8,8 +8,7 @@ import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.annimon.stream.Stream;
-
+import org.signal.core.util.Util;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.IdentityKey;
@@ -28,7 +27,6 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.safety.SafetyNumberRecipient;
 import org.thoughtcrime.securesms.sms.MessageSender;
-import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.signalservice.api.SignalSessionLock;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
@@ -48,8 +46,8 @@ public final class SafetyNumberChangeRepository {
 
   private final Context context;
 
-  public SafetyNumberChangeRepository(Context context) {
-    this.context = context.getApplicationContext();
+  public SafetyNumberChangeRepository() {
+    this.context = AppDependencies.getApplication();
   }
 
   @NonNull
@@ -89,11 +87,10 @@ public final class SafetyNumberChangeRepository {
       messageRecord = getMessageRecord(messageId, messageType);
     }
 
-    List<Recipient> recipients = Stream.of(recipientIds).map(Recipient::resolved).toList();
+    List<Recipient> recipients = recipientIds.stream().map(Recipient::resolved).collect(Collectors.toList());
 
-    List<ChangedRecipient> changedRecipients = Stream.of(AppDependencies.getProtocolStore().aci().identities().getIdentityRecords(recipients).getIdentityRecords())
-                                                     .map(record -> new ChangedRecipient(Recipient.resolved(record.getRecipientId()), record))
-                                                     .toList();
+    List<ChangedRecipient> changedRecipients = AppDependencies.getProtocolStore().aci().identities().getIdentityRecords(recipients).getIdentityRecords().stream()
+                                                              .map(record -> new ChangedRecipient(Recipient.resolved(record.getRecipientId()), record)).collect(Collectors.toList());
 
     Log.d(TAG, "Safety number change state, message: " + (messageRecord != null ? messageRecord.getId() : "null") + " records: " + Util.join(changedRecipients, ","));
 
@@ -183,7 +180,9 @@ public final class SafetyNumberChangeRepository {
       }
     }
 
-    if (messageRecord.isOutgoing()) {
+    if (messageRecord.isFailedAdminDelete()) {
+      processAdminDeletedMessageRecord(changedRecipients, messageRecord);
+    } else if (messageRecord.isOutgoing()) {
       processOutgoingMessageRecord(changedRecipients, messageRecord);
     }
 
@@ -220,6 +219,24 @@ public final class SafetyNumberChangeRepository {
       } else {
         MessageSender.resendDistributionList(context, messageRecord, resendIds);
       }
+    }
+  }
+
+  @WorkerThread
+  private void processAdminDeletedMessageRecord(@NonNull List<ChangedRecipient> changedRecipients, @NonNull MessageRecord messageRecord) {
+    Log.d(TAG, "processAdminDeletedMessageRecord");
+    Set<RecipientId> resendIds = new HashSet<>();
+
+    for (ChangedRecipient changedRecipient : changedRecipients) {
+      RecipientId id          = changedRecipient.getRecipient().getId();
+      IdentityKey identityKey = changedRecipient.getIdentityRecord().getIdentityKey();
+
+      SignalDatabase.messages().removeMismatchedIdentity(messageRecord.getId(), id, identityKey);
+      resendIds.add(id);
+    }
+
+    if (Util.hasItems(resendIds) ) {
+      MessageSender.resendAdminDelete(messageRecord, resendIds.stream().collect(Collectors.toList()));
     }
   }
 

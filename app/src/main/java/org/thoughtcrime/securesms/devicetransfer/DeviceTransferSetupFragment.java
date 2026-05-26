@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,10 +32,10 @@ import org.signal.core.util.logging.Log;
 import org.signal.devicetransfer.DeviceToDeviceTransferService;
 import org.signal.devicetransfer.TransferStatus;
 import org.signal.devicetransfer.WifiDirect;
-import org.thoughtcrime.securesms.LoggingFragment;
+import org.signal.core.ui.logging.LoggingFragment;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogActivity;
-import org.thoughtcrime.securesms.permissions.Permissions;
+import org.signal.core.ui.permissions.Permissions;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.SpanUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -70,6 +71,8 @@ public abstract class DeviceTransferSetupFragment extends LoggingFragment {
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     Group          progressGroup   = view.findViewById(R.id.device_transfer_setup_fragment_progress_group);
     Group          errorGroup      = view.findViewById(R.id.device_transfer_setup_fragment_error_group);
     View           verifyGroup     = view.findViewById(R.id.device_transfer_setup_fragment_verify);
@@ -97,6 +100,7 @@ public abstract class DeviceTransferSetupFragment extends LoggingFragment {
       switch (step) {
         case INITIAL:
           status.setText("");
+          // fall through so the INITIAL state checks permissions
         case PERMISSIONS_CHECK:
           requestRequiredPermission();
           break;
@@ -273,6 +277,7 @@ public abstract class DeviceTransferSetupFragment extends LoggingFragment {
 
   @Override
   public void onDestroyView() {
+    requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     cancelTakingTooLong();
     EventBus.getDefault().unregister(this);
     super.onDestroyView();

@@ -22,15 +22,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
-import com.annimon.stream.Stream;
 
 import org.signal.core.util.ResourceUtil;
-import org.thoughtcrime.securesms.LoggingFragment;
+import org.signal.core.ui.logging.LoggingFragment;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.emoji.EmojiImageView;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.SupportEmailUtil;
-import org.thoughtcrime.securesms.util.Util;
+import org.signal.core.util.Util;
 import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 
@@ -110,7 +109,7 @@ public class HelpFragment extends LoggingFragment {
 
   private void initializeListeners() {
     problem.addTextChangedListener(new AfterTextChanged(e -> helpViewModel.onProblemChanged(e.toString())));
-    Stream.of(emoji).forEach(view -> view.setOnClickListener(this::handleEmojiClicked));
+    emoji.stream().forEach(view -> view.setOnClickListener(this::handleEmojiClicked));
     faq.setOnClickListener(v -> launchFaq());
     debugLogInfo.setOnClickListener(v -> launchDebugLogInfo());
     next.setOnClickListener(v -> submitForm());
@@ -150,7 +149,7 @@ public class HelpFragment extends LoggingFragment {
     if (clicked.isSelected()) {
       clicked.setSelected(false);
     } else {
-      Stream.of(emoji).forEach(view -> view.setSelected(false));
+      emoji.stream().forEach(view -> view.setSelected(false));
       clicked.setSelected(true);
     }
   }
@@ -185,10 +184,10 @@ public class HelpFragment extends LoggingFragment {
   }
 
   private void submitFormWithDebugLog(@Nullable String debugLog) {
-    Feeling feeling = Stream.of(emoji)
-                            .filter(View::isSelected)
-                            .map(view -> Feeling.getByViewId(view.getId()))
-                            .findFirst().orElse(null);
+    Feeling feeling = emoji.stream()
+                           .filter(View::isSelected)
+                           .map(view -> Feeling.getByViewId(view.getId()))
+                           .findFirst().orElse(null);
 
 
     CommunicationActions.openEmail(requireContext(),

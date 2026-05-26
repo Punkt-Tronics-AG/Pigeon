@@ -215,16 +215,25 @@ class ConversationSettingsRepository(
 
   @WorkerThread
   fun isMessageRequestAccepted(recipient: Recipient): Boolean {
-    return RecipientUtil.isMessageRequestAccepted(context, recipient)
+    return RecipientUtil.isMessageRequestAccepted(recipient)
   }
 
   fun getMembershipCountDescription(liveGroup: LiveGroup): LiveData<String> {
     return liveGroup.getMembershipCountDescription(context.resources)
   }
 
-  fun getExternalPossiblyMigratedGroupRecipientId(groupId: GroupId, consumer: (RecipientId) -> Unit) {
-    SignalExecutors.BOUNDED.execute {
-      consumer(Recipient.externalPossiblyMigratedGroup(groupId).id)
-    }
+  @WorkerThread
+  fun isArchived(recipientId: RecipientId): Boolean {
+    return SignalDatabase.threads.isArchived(recipientId)
+  }
+
+  @WorkerThread
+  fun setArchived(threadId: Long, archived: Boolean) {
+    SignalDatabase.threads.setArchived(setOf(threadId), archived)
+  }
+
+  @WorkerThread
+  fun deleteChat(threadId: Long) {
+    SignalDatabase.threads.deleteConversation(threadId)
   }
 }

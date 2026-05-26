@@ -1,6 +1,7 @@
 plugins {
   id("signal-library")
   id("kotlin-parcelize")
+  id("com.squareup.wire")
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlinx.serialization)
 }
@@ -10,6 +11,11 @@ android {
 
   buildFeatures {
     compose = true
+    buildConfig = true
+  }
+
+  lint {
+    disable += "StopShip"
   }
 
   testOptions {
@@ -19,14 +25,26 @@ android {
   }
 }
 
+wire {
+  kotlin {
+    javaInterop = true
+  }
+
+  sourcePath {
+    srcDir("src/main/protowire")
+  }
+}
+
 dependencies {
   implementation(libs.androidx.ui.test.junit4)
   lintChecks(project(":lintchecks"))
 
   // Project dependencies
+  api(project(":lib:archive"))
   implementation(project(":core:ui"))
   implementation(project(":core:util"))
   implementation(project(":core:models-jvm"))
+  implementation(project(":core:serialization"))
   implementation(libs.libsignal.android)
 
   // Compose BOM
@@ -59,6 +77,7 @@ dependencies {
   implementation(libs.google.libphonenumber)
 
   // Testing
+  testImplementation(testFixtures(project(":core:ui")))
   testImplementation(testLibs.junit.junit)
   testImplementation(testLibs.mockk)
   testImplementation(testLibs.assertk)

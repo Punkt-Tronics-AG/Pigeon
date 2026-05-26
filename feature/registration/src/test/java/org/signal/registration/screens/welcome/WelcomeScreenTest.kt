@@ -9,13 +9,14 @@ import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.signal.core.ui.CoreUiDependenciesRule
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.registration.test.TestTags
 
@@ -30,8 +31,34 @@ class WelcomeScreenTest {
   @get:Rule
   val composeTestRule = createComposeRule()
 
+  @get:Rule
+  val coreUiDependenciesRule = CoreUiDependenciesRule(ApplicationProvider.getApplicationContext())
+
   @Test
   fun `when Get Started is clicked, Continue event is emitted`() {
+    // Given
+    var emittedEvent: WelcomeScreenEvents? = null
+
+    composeTestRule.setContent {
+      SignalTheme {
+        WelcomeScreen(
+          onEvent = { event ->
+            emittedEvent = event
+          }
+        )
+      }
+    }
+
+    // When
+    composeTestRule.onNodeWithTag(TestTags.WELCOME_GET_STARTED_BUTTON).performClick()
+
+    // Then
+    assert(emittedEvent == WelcomeScreenEvents.Continue)
+  }
+
+  @Config(qualifiers = "w1280dp-h800dp-xhdpi")
+  @Test
+  fun `when Link Your Account is clicked, LinkDevice event is emitted`() {
     // Given
     var emittedEvent: WelcomeScreenEvents? = null
 
@@ -125,7 +152,7 @@ class WelcomeScreenTest {
     }
 
     // Then
-    composeTestRule.onNodeWithText("Welcome to Signal").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TestTags.WELCOME_HEADLINE).assertIsDisplayed()
     composeTestRule.onNodeWithTag(TestTags.WELCOME_GET_STARTED_BUTTON).assertIsDisplayed()
     composeTestRule.onNodeWithTag(TestTags.WELCOME_RESTORE_OR_TRANSFER_BUTTON).assertIsDisplayed()
   }

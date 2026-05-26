@@ -9,8 +9,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -51,24 +49,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,24 +71,22 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import org.signal.core.ui.compose.BottomSheets
 import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Snackbars
 import org.signal.core.ui.compose.Texts
 import org.signal.core.ui.compose.horizontalGutters
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.core.util.bytes
 import org.signal.core.util.gibiBytes
-import org.signal.core.util.logging.Log
 import org.signal.core.util.mebiBytes
 import org.signal.core.util.money.FiatMoney
-import org.thoughtcrime.securesms.BiometricDeviceAuthentication
-import org.thoughtcrime.securesms.BiometricDeviceLockContract
-import org.thoughtcrime.securesms.DevicePinAuthEducationSheet
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.ArchiveUploadProgress
 import org.thoughtcrime.securesms.backup.DeletionState
@@ -108,11 +101,11 @@ import org.thoughtcrime.securesms.backup.v2.ui.status.BackupStatusRow
 import org.thoughtcrime.securesms.backup.v2.ui.status.RestoreType
 import org.thoughtcrime.securesms.backup.v2.ui.subscription.MessageBackupsType
 import org.thoughtcrime.securesms.billing.launchManageBackupsSubscription
-import org.thoughtcrime.securesms.components.compose.BetaHeader
+import org.thoughtcrime.securesms.components.compose.BiometricsAuthentication
+import org.thoughtcrime.securesms.components.compose.rememberBiometricsAuthentication
 import org.thoughtcrime.securesms.components.settings.app.AppSettingsActivity
 import org.thoughtcrime.securesms.components.settings.app.backups.BackupState
 import org.thoughtcrime.securesms.components.settings.app.subscription.MessageBackupsCheckoutLauncher.createBackupsCheckoutLauncher
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.compose.StatusBarColorNestedScrollConnection
 import org.thoughtcrime.securesms.help.HelpFragment
 import org.thoughtcrime.securesms.keyvalue.SignalStore
@@ -137,10 +130,6 @@ import org.signal.core.ui.R as CoreUiR
  */
 class RemoteBackupsSettingsFragment : ComposeFragment() {
 
-  companion object {
-    private val TAG = Log.tag(RemoteBackupsSettingsFragment::class)
-  }
-
   private val viewModel by viewModel {
     RemoteBackupsSettingsViewModel()
   }
@@ -148,8 +137,6 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
   private val args: RemoteBackupsSettingsFragmentArgs by navArgs()
 
   private lateinit var checkoutLauncher: ActivityResultLauncher<MessageBackupTier?>
-  private lateinit var biometricDeviceAuthentication: BiometricDeviceAuthentication
-  private lateinit var biometricFallbackLauncher: ActivityResultLauncher<String>
 
   @Composable
   override fun FragmentContent() {
@@ -215,16 +202,7 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
     }
 
     override fun onViewBackupKeyClick() {
-      if (biometricDeviceAuthentication.shouldShowEducationSheet(requireContext())) {
-        DevicePinAuthEducationSheet.show(getString(R.string.RemoteBackupsSettingsFragment__to_view_your_key), parentFragmentManager)
-        parentFragmentManager.setFragmentResultListener(DevicePinAuthEducationSheet.REQUEST_KEY, viewLifecycleOwner) { _, _ ->
-          if (!biometricDeviceAuthentication.authenticate(requireContext(), true, this@RemoteBackupsSettingsFragment::showConfirmDeviceCredentialIntent)) {
-            displayBackupKey()
-          }
-        }
-      } else if (!biometricDeviceAuthentication.authenticate(requireContext(), true, this@RemoteBackupsSettingsFragment::showConfirmDeviceCredentialIntent)) {
-        displayBackupKey()
-      }
+      displayBackupKey()
     }
 
     override fun onStartMediaRestore() {
@@ -310,10 +288,6 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
     findNavController().safeNavigate(R.id.action_remoteBackupsSettingsFragment_to_backupKeyDisplayFragment)
   }
 
-  private fun showConfirmDeviceCredentialIntent() {
-    biometricFallbackLauncher.launch(getString(R.string.RemoteBackupsSettingsFragment__unlock_to_view_backup_key))
-  }
-
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     checkoutLauncher = createBackupsCheckoutLauncher { backUpLater ->
@@ -321,15 +295,6 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
         viewModel.requestSnackbar(RemoteBackupsSettingsState.Snackbar.BACKUP_WILL_BE_CREATED_OVERNIGHT)
       }
     }
-
-    biometricFallbackLauncher = registerForActivityResult(
-      contract = BiometricDeviceLockContract(),
-      callback = { result ->
-        if (result == BiometricDeviceAuthentication.AUTHENTICATED) {
-          displayBackupKey()
-        }
-      }
-    )
 
     setFragmentResultListener(BackupKeyDisplayFragment.AEP_ROTATION_KEY) { _, bundle ->
       val didRotate = bundle.getBoolean(BackupKeyDisplayFragment.AEP_ROTATION_KEY, false)
@@ -342,37 +307,11 @@ class RemoteBackupsSettingsFragment : ComposeFragment() {
     if (savedInstanceState == null && args.backupLaterSelected) {
       viewModel.requestSnackbar(RemoteBackupsSettingsState.Snackbar.BACKUP_WILL_BE_CREATED_OVERNIGHT)
     }
-
-    val biometricManager = BiometricManager.from(requireContext())
-    val biometricPrompt = BiometricPrompt(this, AuthListener())
-    val promptInfo: BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
-      .setAllowedAuthenticators(BiometricDeviceAuthentication.ALLOWED_AUTHENTICATORS)
-      .setTitle(getString(R.string.RemoteBackupsSettingsFragment__unlock_to_view_backup_key))
-      .build()
-
-    biometricDeviceAuthentication = BiometricDeviceAuthentication(biometricManager, biometricPrompt, promptInfo)
   }
 
   override fun onResume() {
     super.onResume()
     viewModel.refresh()
-  }
-
-  private inner class AuthListener : BiometricPrompt.AuthenticationCallback() {
-    override fun onAuthenticationFailed() {
-      Log.w(TAG, "onAuthenticationFailed")
-      Toast.makeText(requireContext(), R.string.RemoteBackupsSettingsFragment__authenticatino_required, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-      Log.i(TAG, "onAuthenticationSucceeded")
-      displayBackupKey()
-    }
-
-    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-      Log.w(TAG, "onAuthenticationError: $errorCode, $errString")
-      onAuthenticationFailed()
-    }
   }
 }
 
@@ -424,6 +363,15 @@ private fun RemoteBackupsSettingsContent(
   backupProgress: ArchiveUploadProgressState?,
   statusBarColorNestedScrollConnection: StatusBarColorNestedScrollConnection?
 ) {
+  val context = LocalContext.current
+  val biometrics = rememberBiometricsAuthentication(
+    promptTitle = stringResource(R.string.RemoteBackupsSettingsFragment__unlock_to_view_backup_key),
+    educationSheetMessage = stringResource(R.string.RemoteBackupsSettingsFragment__to_view_your_key),
+    onAuthenticationFailed = {
+      Toast.makeText(context, R.string.RemoteBackupsSettingsFragment__authenticatino_required, Toast.LENGTH_SHORT).show()
+    }
+  )
+
   val snackbarHostState = remember {
     SnackbarHostState()
   }
@@ -448,7 +396,7 @@ private fun RemoteBackupsSettingsContent(
           Text(text = title, style = MaterialTheme.typography.titleLarge)
         },
         onNavigationClick = contentCallbacks::onNavigationClick,
-        navigationIcon = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24),
+        navigationIcon = SignalIcons.ArrowStart.imageVector,
         navigationContentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description),
         scrollBehavior = scrollBehavior
       )
@@ -470,10 +418,6 @@ private fun RemoteBackupsSettingsContent(
       modifier = Modifier
         .padding(it)
     ) {
-      item {
-        BetaHeader(modifier = Modifier.padding(horizontal = 16.dp))
-      }
-
       if (state.isOutOfStorageSpace) {
         item {
           OutOfStorageSpaceBlock(
@@ -547,7 +491,8 @@ private fun RemoteBackupsSettingsContent(
           state = state,
           backupRestoreState = backupRestoreState,
           backupProgress = backupProgress,
-          contentCallbacks = contentCallbacks
+          contentCallbacks = contentCallbacks,
+          biometrics = biometrics
         )
       } else {
         if (state.backupCreationError != null) {
@@ -885,7 +830,8 @@ private fun LazyListScope.appendBackupDetailsItems(
   state: RemoteBackupsSettingsState,
   backupRestoreState: BackupRestoreState,
   backupProgress: ArchiveUploadProgressState?,
-  contentCallbacks: ContentCallbacks
+  contentCallbacks: ContentCallbacks,
+  biometrics: BiometricsAuthentication
 ) {
   item {
     Dividers.Default()
@@ -986,7 +932,7 @@ private fun LazyListScope.appendBackupDetailsItems(
   item {
     Rows.TextRow(
       text = stringResource(R.string.RemoteBackupsSettingsFragment__view_backup_key),
-      onClick = contentCallbacks::onViewBackupKeyClick,
+      onClick = { biometrics.withBiometricsAuthentication { contentCallbacks.onViewBackupKeyClick() } },
       enabled = state.canViewBackupKey
     )
   }
@@ -1106,9 +1052,10 @@ private fun BackupCard(
             else -> error("Not supported here.")
           }
 
+          val locale = LocalLocale.current.platformLocale
           if (backupState.renewalTime > 0.seconds) {
             Text(
-              text = stringResource(resource, DateUtils.formatDateWithYear(Locale.getDefault(), backupState.renewalTime.inWholeMilliseconds))
+              text = stringResource(resource, DateUtils.formatDateWithYear(locale, backupState.renewalTime.inWholeMilliseconds))
             )
           }
         }
@@ -1155,7 +1102,7 @@ private fun CallToActionButton(
     enabled = enabled,
     colors = ButtonDefaults.filledTonalButtonColors().copy(
       containerColor = SignalTheme.colors.colorTransparent5,
-      contentColor = colorResource(R.color.signal_light_colorOnSurface)
+      contentColor = colorResource(CoreUiR.color.signal_light_colorOnSurface)
     ),
     modifier = Modifier.padding(top = 12.dp)
   ) {
@@ -1178,7 +1125,7 @@ private fun OutOfStorageSpaceBlock(
       .padding(vertical = 12.dp)
   ) {
     Icon(
-      imageVector = ImageVector.vectorResource(R.drawable.symbol_error_circle_fill_24),
+      imageVector = SignalIcons.ErrorCircle.imageVector,
       tint = MaterialTheme.colorScheme.error,
       contentDescription = null,
       modifier = Modifier
@@ -1212,7 +1159,7 @@ private fun RedemptionErrorAlert(
       .padding(top = 8.dp, bottom = 4.dp)
       .border(
         width = 1.dp,
-        color = colorResource(R.color.signal_colorOutline_38),
+        color = colorResource(CoreUiR.color.signal_colorOutline_38),
         shape = RoundedCornerShape(12.dp)
       )
       .padding(vertical = 16.dp)
@@ -1368,7 +1315,7 @@ private fun SubscriptionNotFoundCard(
         onClick = onRenewClick,
         colors = ButtonDefaults.filledTonalButtonColors().copy(
           containerColor = SignalTheme.colors.colorTransparent5,
-          contentColor = colorResource(R.color.signal_light_colorOnSurface)
+          contentColor = colorResource(CoreUiR.color.signal_light_colorOnSurface)
         ),
         modifier = Modifier
           .padding(top = 24.dp)
@@ -1384,7 +1331,7 @@ private fun SubscriptionNotFoundCard(
         enabled = isRenewEnabled,
         colors = ButtonDefaults.filledTonalButtonColors().copy(
           containerColor = SignalTheme.colors.colorTransparent5,
-          contentColor = colorResource(R.color.signal_light_colorOnSurface)
+          contentColor = colorResource(CoreUiR.color.signal_light_colorOnSurface)
         ),
         modifier = Modifier
           .padding(top = 24.dp)
@@ -1485,7 +1432,7 @@ private fun ArchiveProgressIndicator(
     if (isCancelable) {
       IconButton(onClick = cancel) {
         Icon(
-          imageVector = ImageVector.vectorResource(R.drawable.symbol_x_24),
+          imageVector = SignalIcons.X.imageVector,
           contentDescription = stringResource(R.string.RemoteBackupsSettingsFragment__cancel_upload)
         )
       }
@@ -1928,8 +1875,10 @@ private fun ErrorCardPreview() {
 @Composable
 private fun PendingCardPreview() {
   Previews.Preview {
+    val locale = LocalLocale.current.platformLocale
+
     PendingCard(
-      price = FiatMoney(BigDecimal.TEN, Currency.getInstance(Locale.getDefault()))
+      price = FiatMoney(BigDecimal.TEN, Currency.getInstance(locale))
     )
   }
 }

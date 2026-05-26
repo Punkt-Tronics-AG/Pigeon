@@ -13,11 +13,12 @@ import com.squareup.wire.internal.toUnmodifiableList
 import org.signal.core.models.ServiceId
 import org.signal.core.models.ServiceId.ACI
 import org.signal.core.models.ServiceId.PNI
+import org.signal.core.util.LRUCache
 import org.signal.core.util.PendingIntentFlags
 import org.signal.core.util.UuidUtil
-import org.signal.core.util.isAbsent
 import org.signal.core.util.logging.Log
 import org.signal.core.util.logging.logW
+import org.signal.core.util.orNull
 import org.signal.core.util.roundedString
 import org.signal.libsignal.metadata.InvalidMetadataMessageException
 import org.signal.libsignal.metadata.InvalidMetadataVersionException
@@ -38,6 +39,7 @@ import org.signal.libsignal.protocol.message.CiphertextMessage
 import org.signal.libsignal.protocol.message.DecryptionErrorMessage
 import org.signal.libsignal.protocol.message.SenderKeyDistributionMessage
 import org.signal.libsignal.zkgroup.groups.GroupMasterKey
+import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.crypto.ReentrantSessionLock
 import org.thoughtcrime.securesms.crypto.SealedSenderAccessUtil
@@ -57,8 +59,8 @@ import org.thoughtcrime.securesms.notifications.NotificationChannels
 import org.thoughtcrime.securesms.notifications.NotificationIds
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.thoughtcrime.securesms.util.LRUCache
 import org.thoughtcrime.securesms.util.RemoteConfig
+import org.thoughtcrime.securesms.util.SignalTrace
 import org.thoughtcrime.securesms.util.asChain
 import org.whispersystems.signalservice.api.InvalidMessageStructureException
 import org.whispersystems.signalservice.api.crypto.ContentHint
@@ -132,7 +134,7 @@ object MessageDecryptor {
       return Result.Ignore(envelope, serverDeliveredTimestamp, emptyList())
     }
 
-    val sourceServiceId = ServiceId.parseOrNull(envelope.sourceServiceId)
+    val sourceServiceId = ServiceId.parseOrNull(envelope.sourceServiceId, envelope.sourceServiceIdBinary)
     if (sourceServiceId is PNI && envelope.type != Envelope.Type.SERVER_DELIVERY_RECEIPT) {
       Log.w(TAG, "${logPrefix(envelope)} Got a message from a PNI that was not a SERVER_DELIVERY_RECEIPT.")
       return Result.Ignore(envelope, serverDeliveredTimestamp, emptyList())
@@ -140,7 +142,7 @@ object MessageDecryptor {
 
     val followUpOperations: MutableList<FollowUpOperation> = mutableListOf()
 
-    if (envelope.type == Envelope.Type.PREKEY_BUNDLE) {
+    if (envelope.type == Envelope.Type.PREKEY_MESSAGE) {
       Log.i(TAG, "${logPrefix(envelope)} Prekey message. Scheduling a prekey sync job.")
       followUpOperations += FollowUpOperation {
         PreKeysSyncJob.create().asChain()
@@ -153,13 +155,16 @@ object MessageDecryptor {
 
     return try {
       val startTimeNanos = System.nanoTime()
+      SignalTrace.beginSection("MessageDecryptor#cipherDecrypt")
       val cipherResult: SignalServiceCipherResult? = cipher.decrypt(envelope, serverDeliveredTimestamp)
+      SignalTrace.endSection()
       val endTimeNanos = System.nanoTime()
 
       val envelope = if (cipherResult?.metadata?.sourceServiceId != null) {
         envelope.newBuilder()
-          .sourceServiceId(cipherResult.metadata.sourceServiceId.toString())
-          .sourceDevice(cipherResult.metadata.sourceDeviceId)
+          .sourceServiceId(if (BuildConfig.USE_STRING_ID) cipherResult.metadata.sourceServiceId.toString() else null)
+          .sourceServiceIdBinary(if (RemoteConfig.useBinaryId) cipherResult.metadata.sourceServiceId.toByteString() else null)
+          .sourceDeviceId(cipherResult.metadata.sourceDeviceId)
           .build()
       } else {
         envelope
@@ -170,14 +175,14 @@ object MessageDecryptor {
         return Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations.toUnmodifiableList())
       }
 
-      if (cipherResult.metadata.sourceServiceId is PNI && envelope.sourceServiceId == null) {
+      if (cipherResult.metadata.sourceServiceId is PNI && (envelope.sourceServiceId == null && envelope.sourceServiceIdBinary == null)) {
         Log.w(TAG, "${logPrefix(envelope)} Invalid message! Sealed sender used for a PNI.")
         return Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations.toUnmodifiableList())
       }
 
       Log.d(TAG, "${logPrefix(envelope, cipherResult)} Successfully decrypted the envelope in ${(endTimeNanos - startTimeNanos).nanoseconds.toDouble(DurationUnit.MILLISECONDS).roundedString(2)} ms  (GUID ${UuidUtil.getStringUUID(envelope.serverGuid, envelope.serverGuidBinary)}). Delivery latency: ${serverDeliveredTimestamp - envelope.serverTimestamp!!} ms, Urgent: ${envelope.urgent}")
 
-      val validationResult: EnvelopeContentValidator.Result = EnvelopeContentValidator.validate(envelope, cipherResult.content, SignalStore.account.aci!!)
+      val validationResult: EnvelopeContentValidator.Result = EnvelopeContentValidator.validate(envelope, cipherResult.content, SignalStore.account.aci!!, cipherResult.metadata.ciphertextMessageType)
 
       if (validationResult is EnvelopeContentValidator.Result.Invalid) {
         Log.w(TAG, "${logPrefix(envelope, cipherResult)} Invalid content! ${validationResult.reason}", validationResult.throwable)
@@ -250,7 +255,7 @@ object MessageDecryptor {
 
             followUpOperations += FollowUpOperation {
               Recipient.external(e.sender)?.let {
-                AutomaticSessionResetJob(it.id, e.senderDevice, envelope.timestamp!!).asChain()
+                AutomaticSessionResetJob(it.id, e.senderDevice, envelope.clientTimestamp!!).asChain()
               } ?: null.logW(TAG, "${logPrefix(envelope, e)} Failed to create a recipient with the provided identifier!")
             }
 
@@ -271,7 +276,7 @@ object MessageDecryptor {
         }
 
         is SelfSendException -> {
-          Log.i(TAG, "[${envelope.timestamp}] Dropping sealed sender message from self!", e)
+          Log.i(TAG, "[${envelope.clientTimestamp}] Dropping sealed sender message from self!", e)
           Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations.toUnmodifiableList())
         }
 
@@ -315,7 +320,7 @@ object MessageDecryptor {
       Log.w(TAG, "${logPrefix(envelope)} Decryption error for a sync message! Enqueuing a session reset job.", true)
 
       followUpOperations += FollowUpOperation {
-        AutomaticSessionResetJob(sender.id, senderDevice, envelope.timestamp!!).asChain()
+        AutomaticSessionResetJob(sender.id, senderDevice, envelope.clientTimestamp!!).asChain()
       }
 
       return Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations)
@@ -336,7 +341,7 @@ object MessageDecryptor {
 
       if (contentHint == ContentHint.IMPLICIT) {
         Log.w(TAG, "${logPrefix(envelope, senderServiceId)} The content hint is $contentHint, so no error message is needed.", true)
-        Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations)
+        return Result.Ignore(envelope, serverDeliveredTimestamp, followUpOperations)
       } else {
         Log.w(TAG, "${logPrefix(envelope, senderServiceId)} The content hint is $contentHint, so we need to insert an error right away.", true)
         return Result.DecryptionError(envelope, serverDeliveredTimestamp, protocolException.toErrorMetadata(), followUpOperations.toUnmodifiableList())
@@ -350,7 +355,7 @@ object MessageDecryptor {
 
       // Note: if the message is sealed sender, it's envelope type will be UNIDENTIFIED_SENDER. The only way we can currently check if the error is
       // prekey-related in that situation is using a string match.
-      if (envelope.type == Envelope.Type.PREKEY_BUNDLE || protocolException.message?.lowercase()?.contains("prekey") == true) {
+      if (envelope.type == Envelope.Type.PREKEY_MESSAGE || protocolException.message?.lowercase()?.contains("prekey") == true) {
         Log.w(TAG, "${logPrefix(envelope, senderServiceId)} Got a decryption error on a prekey message. Forcing a prekey rotation before requesting the retry.", true)
         PreKeysSyncJob.create(forceRotationRequested = true).asChain().then(retryJob)
       } else {
@@ -371,7 +376,7 @@ object MessageDecryptor {
           val groupId: GroupId? = protocolException.parseGroupId(envelope)
 
           val threadId: Long? = if (groupId != null) {
-            if (SignalDatabase.groups.getGroup(groupId).isAbsent()) {
+            if (!SignalDatabase.groups.groupExists(groupId)) {
               Log.w(TAG, "${logPrefix(envelope, senderServiceId)} No group found for $groupId! Not inserting a retry receipt.")
               return@FollowUpOperation null
             }
@@ -387,7 +392,7 @@ object MessageDecryptor {
             return@FollowUpOperation null
           }
 
-          AppDependencies.pendingRetryReceiptCache.insert(sender.id, senderDevice, envelope.timestamp!!, receivedTimestamp, threadId)
+          AppDependencies.pendingRetryReceiptCache.insert(sender.id, senderDevice, envelope.clientTimestamp!!, receivedTimestamp, threadId)
           AppDependencies.pendingRetryReceiptManager.scheduleIfNecessary()
           null
         }
@@ -486,26 +491,26 @@ object MessageDecryptor {
   }
 
   private fun logPrefix(envelope: Envelope): String {
-    return logPrefix(envelope.timestamp!!, ServiceId.parseOrNull(envelope.sourceServiceId, envelope.sourceServiceIdBinary)?.logString() ?: "<sealed>", envelope.sourceDevice)
+    return logPrefix(envelope.clientTimestamp!!, ServiceId.parseOrNull(envelope.sourceServiceId, envelope.sourceServiceIdBinary)?.logString() ?: "<sealed>", envelope.sourceDeviceId)
   }
 
   private fun logPrefix(envelope: Envelope, sender: ServiceId?): String {
-    return logPrefix(envelope.timestamp!!, sender?.logString() ?: "?", envelope.sourceDevice)
+    return logPrefix(envelope.clientTimestamp!!, sender?.logString() ?: "?", envelope.sourceDeviceId)
   }
 
   private fun logPrefix(envelope: Envelope, sender: String): String {
-    return logPrefix(envelope.timestamp!!, ServiceId.parseOrNull(sender)?.logString() ?: "?", envelope.sourceDevice)
+    return logPrefix(envelope.clientTimestamp!!, ServiceId.parseOrNull(sender)?.logString() ?: "?", envelope.sourceDeviceId)
   }
 
   private fun logPrefix(envelope: Envelope, cipherResult: SignalServiceCipherResult): String {
-    return logPrefix(envelope.timestamp!!, cipherResult.metadata.sourceServiceId.logString(), cipherResult.metadata.sourceDeviceId)
+    return logPrefix(envelope.clientTimestamp!!, cipherResult.metadata.sourceServiceId.logString(), cipherResult.metadata.sourceDeviceId)
   }
 
   private fun logPrefix(envelope: Envelope, exception: ProtocolException): String {
     return if (exception.sender != null) {
-      logPrefix(envelope.timestamp!!, ServiceId.parseOrNull(exception.sender)?.logString() ?: "?", exception.senderDevice)
+      logPrefix(envelope.clientTimestamp!!, ServiceId.parseOrNull(exception.sender)?.logString() ?: "?", exception.senderDevice)
     } else {
-      logPrefix(envelope.timestamp!!, ServiceId.parseOrNull(envelope.sourceServiceId, envelope.sourceServiceIdBinary).toString(), envelope.sourceDevice)
+      logPrefix(envelope.clientTimestamp!!, ServiceId.parseOrNull(envelope.sourceServiceId, envelope.sourceServiceIdBinary).toString(), envelope.sourceDeviceId)
     }
   }
 
@@ -526,7 +531,7 @@ object MessageDecryptor {
       envelopeType = envelope.type!!.value.toCiphertextMessageType()
     }
 
-    val decryptionErrorMessage: DecryptionErrorMessage = DecryptionErrorMessage.forOriginalMessage(originalContent, envelopeType, envelope.timestamp!!, protocolException.senderDevice)
+    val decryptionErrorMessage: DecryptionErrorMessage = DecryptionErrorMessage.forOriginalMessage(originalContent, envelopeType, envelope.clientTimestamp!!, protocolException.senderDevice)
     val groupId: GroupId? = protocolException.parseGroupId(envelope)
     return SendRetryReceiptJob(sender.id, Optional.ofNullable(groupId), decryptionErrorMessage)
   }
@@ -536,7 +541,7 @@ object MessageDecryptor {
       try {
         GroupId.push(this.groupId.get())
       } catch (e: BadGroupIdException) {
-        Log.w(TAG, "[${envelope.timestamp}] Bad groupId!", true)
+        Log.w(TAG, "[${envelope.clientTimestamp}] Bad groupId!", true)
         null
       }
     } else {
@@ -546,8 +551,8 @@ object MessageDecryptor {
 
   private fun Int.toCiphertextMessageType(): Int {
     return when (this) {
-      Envelope.Type.CIPHERTEXT.value -> CiphertextMessage.WHISPER_TYPE
-      Envelope.Type.PREKEY_BUNDLE.value -> CiphertextMessage.PREKEY_TYPE
+      Envelope.Type.DOUBLE_RATCHET.value -> CiphertextMessage.WHISPER_TYPE
+      Envelope.Type.PREKEY_MESSAGE.value -> CiphertextMessage.PREKEY_TYPE
       Envelope.Type.UNIDENTIFIED_SENDER.value -> CiphertextMessage.SENDERKEY_TYPE
       Envelope.Type.PLAINTEXT_CONTENT.value -> CiphertextMessage.PLAINTEXT_CONTENT_TYPE
       else -> CiphertextMessage.WHISPER_TYPE
@@ -558,20 +563,20 @@ object MessageDecryptor {
     return ErrorMetadata(
       sender = this.sender,
       senderDevice = this.senderDevice,
-      groupId = if (this.groupId.isPresent) GroupId.v2(GroupMasterKey(this.groupId.get())) else null
+      groupMasterKey = this.groupId.map(::GroupMasterKey).orNull()
     )
   }
 
   private fun SignalServiceCipherResult.toErrorMetadata(): ErrorMetadata {
-    val groupId = if (this.content.dataMessage.hasGroupContext) {
-      GroupId.v2(GroupMasterKey(this.content.dataMessage!!.groupV2!!.masterKey!!.toByteArray()))
+    val groupMasterKey = if (this.content.dataMessage.hasGroupContext) {
+      GroupMasterKey(this.content.dataMessage!!.groupV2!!.masterKey!!.toByteArray())
     } else {
       null
     }
     return ErrorMetadata(
       sender = this.metadata.sourceServiceId.toString(),
       senderDevice = this.metadata.sourceDeviceId,
-      groupId = groupId
+      groupMasterKey = groupMasterKey
     )
   }
 
@@ -639,8 +644,10 @@ object MessageDecryptor {
   data class ErrorMetadata(
     val sender: String,
     val senderDevice: Int,
-    val groupId: GroupId?
-  )
+    val groupMasterKey: GroupMasterKey?
+  ) {
+    val groupId: GroupId.V2? by lazy { groupMasterKey?.let { GroupId.v2(it) } }
+  }
 
   data class DecryptionErrorCount(
     var count: Int,

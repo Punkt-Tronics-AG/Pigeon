@@ -1,15 +1,17 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+
 plugins {
   id("com.android.library")
   id("androidx.benchmark")
-  id("org.jetbrains.kotlin.android")
   id("ktlint")
 }
 
 android {
   namespace = "org.signal.microbenchmark"
-  compileSdkVersion = libs.versions.compileSdk.get()
+  compileSdkVersion(libs.versions.compileSdk.get())
 
   compileOptions {
     isCoreLibraryDesugaringEnabled = true
@@ -17,12 +19,11 @@ android {
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
   }
 
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
-  }
-
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
+
+    testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
+
     testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
   }
 
@@ -37,6 +38,12 @@ android {
     release {
       isDefault = true
     }
+  }
+}
+
+kotlin {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
   }
 }
 

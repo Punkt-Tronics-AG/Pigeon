@@ -52,19 +52,20 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.NightPreview
 import org.signal.core.ui.compose.Previews
+import org.signal.glide.compose.GlideImage
+import org.signal.glide.compose.GlideImageScaleType
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.avatar.AvatarImage
 import org.thoughtcrime.securesms.components.emoji.EmojiTextView
 import org.thoughtcrime.securesms.components.settings.app.subscription.BadgeImageLarge
 import org.thoughtcrime.securesms.components.webrtc.TextureViewRenderer
-import org.thoughtcrime.securesms.compose.GlideImage
-import org.thoughtcrime.securesms.compose.GlideImageScaleType
 import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto
 import org.thoughtcrime.securesms.events.CallParticipant
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.rememberRecipientField
 import org.thoughtcrime.securesms.ringrtc.CameraState
 import org.webrtc.RendererCommon
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Displays a remote participant (or local participant in pre-join screen).
@@ -90,7 +91,7 @@ fun RemoteParticipantContent(
   val isBlocked = recipient.isBlocked
   val isMissingMediaKeys = !participant.isMediaKeysReceived &&
     (System.currentTimeMillis() - participant.addedToCallTime) > 5000
-  val infoMode = isBlocked || isMissingMediaKeys
+  val infoMode = !participant.isSelf && (isBlocked || isMissingMediaKeys)
 
   Box(modifier = modifier) {
     BlurredBackgroundAvatar(recipient = recipient)
@@ -599,7 +600,7 @@ private fun RaiseHandIndicator(
   Row(
     modifier = modifier
       .background(
-        color = colorResource(R.color.signal_light_colorSurface),
+        color = colorResource(CoreUiR.color.signal_light_colorSurface),
         shape = RoundedCornerShape(percent = 50)
       ),
     verticalAlignment = Alignment.CenterVertically
@@ -614,7 +615,7 @@ private fun RaiseHandIndicator(
     if (name.isNotBlank()) {
       Text(
         text = name,
-        color = colorResource(R.color.signal_light_colorOnSurface),
+        color = colorResource(CoreUiR.color.signal_light_colorOnSurface),
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.padding(end = 12.dp)
       )
@@ -652,6 +653,10 @@ private fun InfoOverlay(
       if (!renderInPip) {
         Spacer(modifier = Modifier.size(12.dp))
 
+        val shortDisplayName = rememberRecipientField(recipient) { getShortDisplayName(context) }
+        val sIsBlocked = stringResource(R.string.CallParticipantView__s_is_blocked, shortDisplayName)
+        val canNotReceiveAudio = stringResource(R.string.CallParticipantView__cant_receive_audio_video_from_s, shortDisplayName)
+
         // Use AndroidView for EmojiTextView
         AndroidView(
           factory = { ctx ->
@@ -669,15 +674,9 @@ private fun InfoOverlay(
           },
           update = { view ->
             view.text = if (isBlocked) {
-              context.getString(
-                R.string.CallParticipantView__s_is_blocked,
-                recipient.getShortDisplayName(context)
-              )
+              sIsBlocked
             } else {
-              context.getString(
-                R.string.CallParticipantView__cant_receive_audio_video_from_s,
-                recipient.getShortDisplayName(context)
-              )
+              canNotReceiveAudio
             }
           },
           modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)

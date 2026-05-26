@@ -76,7 +76,7 @@ class BufferedSessionStore(private val selfServiceId: ServiceId) : SignalService
 
       if (fromDatabase != null) {
         store[address] = fromDatabase
-        return fromDatabase.hasSenderChain()
+        return fromDatabase.hasSenderChain(0.0)
       } else {
         false
       }

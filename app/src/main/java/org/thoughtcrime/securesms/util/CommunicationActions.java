@@ -23,11 +23,13 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.signal.core.util.LinkActions;
+import org.signal.core.util.LinkActions.OpenUrlError;
+import org.signal.core.util.Util;
 import org.signal.core.util.concurrent.JvmRxExtensions;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
-import org.signal.ringrtc.CallLinkEpoch;
 import org.signal.ringrtc.CallLinkRootKey;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.calls.links.CallLinks;
@@ -42,7 +44,7 @@ import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinUpdateRequiredBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.groups.v2.GroupInviteLinkUrl;
-import org.thoughtcrime.securesms.permissions.Permissions;
+import org.signal.core.ui.permissions.Permissions;
 import org.thoughtcrime.securesms.profiles.manage.UsernameRepository;
 import org.thoughtcrime.securesms.profiles.manage.UsernameRepository.UsernameLinkConversionResult;
 import org.thoughtcrime.securesms.proxy.ProxyBottomSheetFragment;
@@ -55,9 +57,9 @@ import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 import org.whispersystems.signalservice.api.push.UsernameLinkComponents;
 
 import io.reactivex.rxjava3.core.Single;
+import kotlin.Unit;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -237,15 +239,14 @@ public class CommunicationActions {
   }
 
   public static void openBrowserLink(@NonNull Context context, @NonNull String link) {
-    try {
-      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-      if (!(context instanceof Activity)) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    LinkActions.openUrl(context, link, error -> {
+      if (error instanceof OpenUrlError.NoBrowserFound) {
+        Toast.makeText(context, R.string.CommunicationActions_no_browser_found, Toast.LENGTH_SHORT).show();
+      } else {
+        throw new AssertionError("Unhandled OpenUrlError: " + error);
       }
-      context.startActivity(intent);
-    } catch (ActivityNotFoundException e) {
-      Toast.makeText(context, R.string.CommunicationActions_no_browser_found, Toast.LENGTH_SHORT).show();
-    }
+      return Unit.INSTANCE;
+    });
   }
 
   public static void openEmail(@NonNull Context context, @NonNull String address, @Nullable String subject, @Nullable String body) {
@@ -292,8 +293,8 @@ public class CommunicationActions {
     SimpleTask.run(SignalExecutors.BOUNDED, () -> {
       GroupRecord group = SignalDatabase.groups().getGroup(groupId).orElse(null);
 
-      return group != null && group.isActive() ? Recipient.resolved(group.getRecipientId())
-                                               : null;
+      return group != null && (group.isMember() || group.isTerminated()) ? Recipient.resolved(group.getRecipientId())
+                                                                         : null;
     },
     recipient -> {
       if (recipient != null) {
@@ -339,8 +340,8 @@ public class CommunicationActions {
       return;
     }
 
-    CallLinks.CallLinkParseResult linkParseResult = CallLinks.parseUrl(potentialUrl);
-    if (linkParseResult == null) {
+    CallLinkRootKey callLinkRootKey = CallLinks.parseUrl(potentialUrl);
+    if (callLinkRootKey == null) {
       Log.w(TAG, "Failed to parse root key from call link");
       new MaterialAlertDialogBuilder(activity)
           .setTitle(R.string.CommunicationActions_invalid_link)
@@ -350,7 +351,7 @@ public class CommunicationActions {
       return;
     }
 
-    startVideoCall(new ActivityCallContext(activity), linkParseResult.getRootKey(), linkParseResult.getEpoch(), onUserAlreadyInAnotherCall);
+    startVideoCall(new ActivityCallContext(activity), callLinkRootKey, onUserAlreadyInAnotherCall);
   }
 
   /**
@@ -358,7 +359,7 @@ public class CommunicationActions {
    * Otherwise returns false, indicating it was not a quick restore link.
    */
   public static boolean handlePotentialQuickRestoreUrl(@NonNull FragmentActivity activity, @NonNull String potentialQuickRestoreUrl, @NonNull Runnable onContinue) {
-    URI uri = URI.create(potentialQuickRestoreUrl);
+    Uri uri = Uri.parse(potentialQuickRestoreUrl);
 
     if ("sgnl".equalsIgnoreCase(uri.getScheme()) && "rereg".equalsIgnoreCase(uri.getHost())) {
       new MaterialAlertDialogBuilder(activity)
@@ -379,14 +380,14 @@ public class CommunicationActions {
    *
    * @param fragment The fragment, which will be used for context and permissions routing.
    */
-  public static void startVideoCall(@NonNull Fragment fragment, @NonNull CallLinkRootKey rootKey, @Nullable CallLinkEpoch epoch, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
-    startVideoCall(new FragmentCallContext(fragment), rootKey, epoch, onUserAlreadyInAnotherCall);
+  public static void startVideoCall(@NonNull Fragment fragment, @NonNull CallLinkRootKey rootKey, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+    startVideoCall(new FragmentCallContext(fragment), rootKey, onUserAlreadyInAnotherCall);
   }
 
-  private static void startVideoCall(@NonNull CallContext callContext, @NonNull CallLinkRootKey rootKey, @Nullable CallLinkEpoch epoch, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
+  private static void startVideoCall(@NonNull CallContext callContext, @NonNull CallLinkRootKey rootKey, @NonNull OnUserAlreadyInAnotherCall onUserAlreadyInAnotherCall) {
     SimpleTask.run(() -> {
       CallLinkRoomId         roomId   = CallLinkRoomId.fromBytes(rootKey.deriveRoomId());
-      CallLinkTable.CallLink callLink = SignalDatabase.callLinks().getOrCreateCallLinkByRootKey(rootKey, epoch);
+      CallLinkTable.CallLink callLink = SignalDatabase.callLinks().getOrCreateCallLinkByRootKey(rootKey);
 
       if (callLink.getState().hasBeenRevoked()) {
         return Optional.<Recipient>empty();
@@ -427,7 +428,7 @@ public class CommunicationActions {
     callContext.getPermissionsBuilder()
                .request(Manifest.permission.RECORD_AUDIO)
                .ifNecessary()
-               .withRationaleDialog(callContext.getContext().getString(R.string.ConversationActivity_allow_access_microphone), callContext.getContext().getString(R.string.ConversationActivity__to_call_signal_needs_access_to_your_microphone), R.drawable.symbol_phone_24)
+               .withRationaleDialog(callContext.getContext().getString(R.string.ConversationActivity_allow_access_microphone), callContext.getContext().getString(R.string.ConversationActivity__to_call_signal_needs_access_to_your_microphone), org.signal.core.ui.R.drawable.symbol_phone_24)
                .withPermanentDenialDialog(callContext.getContext().getString(R.string.ConversationActivity__to_call_signal_needs_access_to_your_microphone), null, R.string.ConversationActivity_allow_access_microphone, R.string.ConversationActivity__to_start_call, callContext.getFragmentManager())
                .onAnyDenied(() -> Toast.makeText(callContext.getContext(), R.string.ConversationActivity_signal_needs_microphone_access_voice_call, Toast.LENGTH_LONG).show())
                .onAllGranted(() -> {

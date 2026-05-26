@@ -13,6 +13,8 @@ import org.signal.libsignal.zkgroup.receipts.ReceiptCredential
 import org.signal.libsignal.zkgroup.receipts.ReceiptCredentialPresentation
 import org.signal.libsignal.zkgroup.receipts.ReceiptCredentialRequestContext
 import org.signal.libsignal.zkgroup.receipts.ReceiptCredentialResponse
+import org.signal.network.NetworkResult
+import org.signal.network.exceptions.NonSuccessfulResponseCodeException
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
 import org.thoughtcrime.securesms.backup.v2.MessageBackupTier
 import org.thoughtcrime.securesms.components.settings.app.subscription.InAppPaymentsRepository
@@ -28,8 +30,6 @@ import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.JobManager.Chain
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
 import org.thoughtcrime.securesms.keyvalue.SignalStore
-import org.whispersystems.signalservice.api.NetworkResult
-import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResponseCodeException
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription.ChargeFailure
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription.Subscription
@@ -547,7 +547,20 @@ class InAppPaymentRecurringContextJob private constructor(
       }
 
       409 -> {
-        warning("Already redeemed this token during new subscription. Failing.", applicationError)
+        warning("Already redeemed this token during new subscription.", applicationError)
+
+        if (inAppPayment.type == InAppPaymentType.RECURRING_DONATION) {
+          info("Token already redeemed for recurring donation. Treating as successful redemption.")
+          SignalDatabase.inAppPayments.update(
+            inAppPayment = inAppPayment.copy(
+              state = InAppPaymentTable.State.END,
+              data = inAppPayment.data.newBuilder().redemption(
+                redemption = InAppPaymentData.RedemptionState(stage = InAppPaymentData.RedemptionState.Stage.REDEEMED)
+              ).build()
+            )
+          )
+          throw Exception(applicationError)
+        }
 
         // During keep-alive processing, we don't alert the user about redemption failures.
         if (inAppPayment.type == InAppPaymentType.RECURRING_BACKUP && inAppPayment.data.redemption?.keepAlive != true) {

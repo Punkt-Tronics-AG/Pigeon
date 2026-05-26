@@ -15,7 +15,7 @@ import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.Util;
+import org.signal.core.util.Util;
 import org.thoughtcrime.securesms.util.VersionTracker;
 
 import java.util.LinkedHashMap;
@@ -191,9 +191,17 @@ public class ApplicationMigrations {
     static final int EMOJI_ENGLISH_SEARCH          = 147;
     static final int AEP_ROTATE_FIX                = 148;
     static final int ATTACHMENT_HASH_BACKFILL_2    = 149;
+    static final int SVR2_ENCLAVE_UPDATE_5         = 150;
+    static final int STICKER_PACK_ADDITION_2       = 151;
+    static final int DELETED_BY_DB_MIGRATION       = 152;
+    static final int RELEASE_CHANNEL_RECIPIENT_FIX = 153;
+    static final int EMOJI_VERSION_13              = 154;
+    static final int COLLAPSED_EVENTS              = 155;
+    static final int COLLAPSED_EVENTS_2            = 156;
+    static final int KEY_TRANSPARENCY              = 157;
   }
 
-  public static final int CURRENT_VERSION = 149;
+  public static final int CURRENT_VERSION = 157;
 
   /**
    * This *must* be called after the {@link JobManager} has been instantiated, but *before* the call
@@ -882,6 +890,38 @@ public class ApplicationMigrations {
 
     if (lastSeenVersion < Version.ATTACHMENT_HASH_BACKFILL_2) {
       jobs.put(Version.ATTACHMENT_HASH_BACKFILL_2, new AttachmentHashBackfillMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.SVR2_ENCLAVE_UPDATE_5) {
+      jobs.put(Version.SVR2_ENCLAVE_UPDATE_5, new Svr2MirrorMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.STICKER_PACK_ADDITION_2) {
+      jobs.put(Version.STICKER_PACK_ADDITION_2, new StickerPackAddition2MigrationJob());
+    }
+
+    if (lastSeenVersion < Version.DELETED_BY_DB_MIGRATION) {
+      jobs.put(Version.DELETED_BY_DB_MIGRATION, new DatabaseMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.RELEASE_CHANNEL_RECIPIENT_FIX) {
+      jobs.put(Version.RELEASE_CHANNEL_RECIPIENT_FIX, new ReleaseChannelRecipientFixMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.EMOJI_VERSION_13) {
+      jobs.put(Version.EMOJI_VERSION_13, new EmojiDownloadMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.COLLAPSED_EVENTS) {
+      jobs.put(Version.COLLAPSED_EVENTS, new BackfillCollapsedEventsMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.COLLAPSED_EVENTS_2) {
+      jobs.put(Version.COLLAPSED_EVENTS_2, new BackfillCollapsedEventsMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.KEY_TRANSPARENCY) {
+      jobs.put(Version.KEY_TRANSPARENCY, new ResetKeyTransparencyMigrationJob());
     }
 
     return jobs;

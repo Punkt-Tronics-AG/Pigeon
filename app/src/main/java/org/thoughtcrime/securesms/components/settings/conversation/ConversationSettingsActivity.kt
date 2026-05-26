@@ -1,13 +1,9 @@
 package org.thoughtcrime.securesms.components.settings.conversation
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.util.Pair
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.DSLSettingsActivity
@@ -17,7 +13,7 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.DynamicConversationSettingsTheme
 import org.thoughtcrime.securesms.util.DynamicTheme
 
-open class ConversationSettingsActivity : DSLSettingsActivity(), ConversationSettingsFragment.Callback {
+open class ConversationSettingsActivity : DSLSettingsActivity(), ConversationSettingsFragment.TransitionCallback {
 
   override val dynamicTheme: DynamicTheme = DynamicConversationSettingsTheme()
 
@@ -27,7 +23,7 @@ open class ConversationSettingsActivity : DSLSettingsActivity(), ConversationSet
     super.onCreate(savedInstanceState, ready)
   }
 
-  override fun onContentWillRender() {
+  override fun onReadyForEnterTransition() {
     ActivityCompat.startPostponedEnterTransition(this)
   }
 
@@ -37,35 +33,6 @@ open class ConversationSettingsActivity : DSLSettingsActivity(), ConversationSet
   }
 
   companion object {
-
-    @JvmStatic
-    fun createTransitionBundle(context: Context, avatar: View, windowContent: View): Bundle? {
-      return if (context is Activity) {
-        ActivityOptionsCompat.makeSceneTransitionAnimation(
-          context,
-          *arrayOf(
-            androidx.core.util.Pair.create(avatar, "avatar"),
-            androidx.core.util.Pair.create(windowContent, "window_content")
-          )
-        ).toBundle()
-      } else {
-        null
-      }
-    }
-
-    @JvmStatic
-    fun createTransitionBundle(context: Context, avatar: View): Bundle? {
-      return if (context is Activity) {
-        ActivityOptionsCompat.makeSceneTransitionAnimation(
-          context,
-          avatar,
-          "avatar"
-        ).toBundle()
-      } else {
-        null
-      }
-    }
-
     @JvmStatic
     fun forGroup(context: Context, groupId: GroupId): Intent {
       val startBundle = ConversationSettingsFragmentArgs.Builder(null, groupId, null)

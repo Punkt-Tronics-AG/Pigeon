@@ -29,7 +29,7 @@ import org.thoughtcrime.securesms.database.model.databaseprotos.BodyRangeList;
 import org.thoughtcrime.securesms.database.model.databaseprotos.MessageExtras;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.whispersystems.signalservice.api.util.Preconditions;
+import org.signal.network.util.Preconditions;
 
 import java.util.Objects;
 
@@ -206,6 +206,14 @@ public final class ThreadRecord {
       } else {
         return getRecipient().getId();
       }
+    }
+  }
+
+  public @NonNull RecipientId getDeletedByRecipientId() {
+    if (extra != null && extra.getDeletedBy() != null) {
+      return RecipientId.from(extra.getDeletedBy());
+    } else {
+      return RecipientId.UNKNOWN;
     }
   }
 

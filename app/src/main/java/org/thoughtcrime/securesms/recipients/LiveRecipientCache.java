@@ -7,7 +7,9 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 
+import org.jetbrains.annotations.NotNull;
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
@@ -15,10 +17,11 @@ import org.thoughtcrime.securesms.database.RecipientTable;
 import org.thoughtcrime.securesms.database.RecipientTable.MissingRecipientException;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
+import org.thoughtcrime.securesms.database.model.RecipientRecord;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.signal.core.util.CursorUtil;
-import org.thoughtcrime.securesms.util.LRUCache;
+import org.signal.core.util.LRUCache;
 import org.signal.core.util.Stopwatch;
 import org.thoughtcrime.securesms.util.concurrent.FilteredExecutor;
 import org.signal.core.models.ServiceId.ACI;
@@ -27,9 +30,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public final class LiveRecipientCache {
 
@@ -99,6 +104,29 @@ public final class LiveRecipientCache {
       } else {
         recipients.remove(oldId);
       }
+    }
+  }
+
+  /**
+   * Resolves and updates entries for each recipient already in the cache.
+   */
+  @WorkerThread
+  public void refresh(@NonNull Collection<RecipientId> recipientIds) {
+    Set<RecipientId> cachedIds;
+    synchronized (recipients) {
+      cachedIds = recipientIds.stream().filter(recipients::containsKey).collect(Collectors.toSet());
+    }
+
+    if (!cachedIds.isEmpty()) {
+      Set<Recipient> recipients = SignalDatabase
+          .recipients()
+          .getExistingRecords(cachedIds)
+          .values()
+          .stream()
+          .map(record -> RecipientCreator.forRecord(context, record))
+          .collect(Collectors.toSet());
+
+      addToCache(recipients);
     }
   }
 

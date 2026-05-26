@@ -10,15 +10,15 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.models.media.Media;
+import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.badges.models.Badge;
-import org.thoughtcrime.securesms.conversation.v2.ConversationActivity;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadTable;
-import org.signal.core.models.media.Media;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.stickers.StickerLocator;
-import org.whispersystems.signalservice.api.util.Preconditions;
+import org.signal.network.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +47,8 @@ public class ConversationIntents {
   private static final String EXTRA_GIFT_BADGE                       = "gift_badge";
   private static final String EXTRA_SHARE_DATA_TIMESTAMP             = "share_data_timestamp";
   private static final String EXTRA_CONVERSATION_TYPE                = "conversation_type";
+  private static final String EXTRA_INCOGNITO                        = "incognito";
+  private static final String EXTRA_HAS_WALLPAPER                    = "has_wallpaper";
   private static final String INTENT_DATA                            = "intent_data";
   private static final String INTENT_TYPE                            = "intent_type";
 
@@ -74,12 +76,15 @@ public class ConversationIntents {
     }
   }
 
-  public static @NonNull Builder createPopUpBuilder(@NonNull Context context, @NonNull RecipientId recipientId, long threadId) {
-    return new Builder(context, ConversationPopupActivity.class, recipientId, threadId, ConversationScreenType.POPUP);
+  public static @NonNull Builder createPopUpBuilder(@NonNull Context context, @NonNull RecipientId recipientId, long threadId, boolean hasWallpaper) {
+    return new Builder(context, ConversationPopupActivity.class, recipientId, threadId, ConversationScreenType.POPUP)
+        .withHasWallpaper(hasWallpaper);
   }
 
-  public static @NonNull Intent createBubbleIntent(@NonNull Context context, @NonNull RecipientId recipientId, long threadId) {
-    return new Builder(context, BubbleConversationActivity.class, recipientId, threadId, ConversationScreenType.BUBBLE).build();
+  public static @NonNull Intent createBubbleIntent(@NonNull Context context, @NonNull RecipientId recipientId, long threadId, boolean hasWallpaper) {
+    return new Builder(context, BubbleConversationActivity.class, recipientId, threadId, ConversationScreenType.BUBBLE)
+        .withHasWallpaper(hasWallpaper)
+        .build();
   }
 
   /**
@@ -93,13 +98,15 @@ public class ConversationIntents {
    */
   public static @NonNull Builder createBuilderSync(@NonNull Context context, @NonNull RecipientId recipientId, long threadId) {
     Preconditions.checkArgument(threadId > 0, "threadId is invalid");
-    return new Builder(context, ConversationActivity.class, recipientId, threadId, ConversationScreenType.NORMAL);
+    return new Builder(context, MainActivity.class, recipientId, threadId, ConversationScreenType.NORMAL)
+        .withFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
   }
 
   public static @NonNull Builder createBuilderSync(@NonNull Context context, @NonNull ConversationArgs conversationArgs) {
     Preconditions.checkArgument(conversationArgs.threadId > 0, "threadId is invalid");
-    return new Builder(context, ConversationActivity.class, conversationArgs.getRecipientId(), conversationArgs.threadId, ConversationScreenType.NORMAL)
-        .withArgs(conversationArgs);
+    return new Builder(context, MainActivity.class, conversationArgs.getRecipientId(), conversationArgs.threadId, ConversationScreenType.NORMAL)
+        .withArgs(conversationArgs)
+        .withFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
   }
 
   static @Nullable Uri getIntentData(@NonNull Bundle bundle) {
@@ -152,7 +159,10 @@ public class ConversationIntents {
                                   false,
                                   null,
                                   -1L,
-                                  ConversationScreenType.BUBBLE);
+                                  ConversationScreenType.BUBBLE,
+                                  false,
+                                  Boolean.parseBoolean(intentDataUri.getQueryParameter(EXTRA_HAS_WALLPAPER))
+      );
     }
 
     return new ConversationArgs(RecipientId.from(Objects.requireNonNull(arguments.getString(EXTRA_RECIPIENT))),
@@ -169,7 +179,9 @@ public class ConversationIntents {
                                 arguments.getBoolean(EXTRA_WITH_SEARCH_OPEN, false),
                                 arguments.getParcelable(EXTRA_GIFT_BADGE),
                                 arguments.getLong(EXTRA_SHARE_DATA_TIMESTAMP, -1L),
-                                ConversationScreenType.from(arguments.getInt(EXTRA_CONVERSATION_TYPE, 0)));
+                                ConversationScreenType.from(arguments.getInt(EXTRA_CONVERSATION_TYPE, 0)),
+                                arguments.getBoolean(EXTRA_INCOGNITO, false),
+                                arguments.getBoolean(EXTRA_HAS_WALLPAPER, false));
   }
 
   public final static class Builder {
@@ -191,6 +203,9 @@ public class ConversationIntents {
     private boolean                withSearchOpen;
     private Badge                  giftBadge;
     private long                   shareDataTimestamp = -1L;
+    private boolean                incognito;
+    private boolean                hasWallpaper;
+    private int                    flags;
 
     private Builder(@NonNull Context context,
                     @NonNull Class<? extends Activity> conversationActivityClass,
@@ -218,6 +233,8 @@ public class ConversationIntents {
       withSearchOpen = args.isWithSearchOpen();
       giftBadge = args.getGiftBadge();
       shareDataTimestamp = args.getShareDataTimestamp();
+      incognito = args.isIncognito();
+      hasWallpaper = args.getHasWallpaper();
 
       return this;
     }
@@ -282,6 +299,21 @@ public class ConversationIntents {
       return this;
     }
 
+    public @NonNull Builder asIncognito(boolean incognito) {
+      this.incognito = incognito;
+      return this;
+    }
+
+    public @NonNull Builder withHasWallpaper(boolean hasWallpaper) {
+      this.hasWallpaper = hasWallpaper;
+      return this;
+    }
+
+    public @NonNull Builder withFlags(int flags) {
+      this.flags = flags;
+      return this;
+    }
+
     public @NonNull ConversationArgs toConversationArgs() {
       return new ConversationArgs(
           recipientId,
@@ -298,7 +330,9 @@ public class ConversationIntents {
           withSearchOpen,
           giftBadge,
           shareDataTimestamp,
-          conversationScreenType
+          conversationScreenType,
+          incognito,
+          hasWallpaper
       );
     }
 
@@ -310,10 +344,15 @@ public class ConversationIntents {
       Intent intent = new Intent(context, conversationActivityClass);
       intent.setAction(ConversationIntents.ACTION);
 
+      if (flags != 0) {
+        intent.addFlags(flags);
+      }
+
       if (conversationScreenType.isInBubble()) {
         intent.setData(new Uri.Builder().authority(BUBBLE_AUTHORITY)
                                         .appendQueryParameter(EXTRA_RECIPIENT, recipientId.serialize())
                                         .appendQueryParameter(EXTRA_THREAD_ID, String.valueOf(threadId))
+                                        .appendQueryParameter(EXTRA_HAS_WALLPAPER, String.valueOf(hasWallpaper))
                                         .build());
 
         return intent;
@@ -329,6 +368,8 @@ public class ConversationIntents {
       intent.putExtra(EXTRA_GIFT_BADGE, giftBadge);
       intent.putExtra(EXTRA_SHARE_DATA_TIMESTAMP, shareDataTimestamp);
       intent.putExtra(EXTRA_CONVERSATION_TYPE, conversationScreenType.code);
+      intent.putExtra(EXTRA_INCOGNITO, incognito);
+      intent.putExtra(EXTRA_HAS_WALLPAPER, hasWallpaper);
 
       if (draftText != null) {
         intent.putExtra(EXTRA_TEXT, draftText);

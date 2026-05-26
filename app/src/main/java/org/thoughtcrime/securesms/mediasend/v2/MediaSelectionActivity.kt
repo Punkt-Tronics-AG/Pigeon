@@ -52,6 +52,7 @@ import org.thoughtcrime.securesms.util.FullscreenHelper
 import org.thoughtcrime.securesms.util.WindowUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.visible
+import org.signal.core.ui.R as CoreUiR
 
 class MediaSelectionActivity :
   PassphraseRequiredActivity(),
@@ -94,13 +95,7 @@ class MediaSelectionActivity :
     super.attachBaseContext(newBase)
   }
 
-  override fun onCreate(savedInstanceState: Bundle?, ready: Boolean) {
-    setContentView(R.layout.media_selection_activity)
-
-    FullscreenHelper.showSystemUI(window)
-    WindowUtil.setNavigationBarColor(this, 0x01000000)
-    WindowUtil.setStatusBarColor(window, Color.TRANSPARENT)
-
+  override fun onPreCreate() {
     val sendType: MessageSendType = requireNotNull(intent.getParcelableExtraCompat(MESSAGE_SEND_TYPE, MessageSendType::class.java))
     val initialMedia: List<Media> = intent.getParcelableArrayListExtraCompat(MEDIA, Media::class.java) ?: listOf()
     val message: CharSequence? = if (shareToTextStory) null else draftText
@@ -109,6 +104,14 @@ class MediaSelectionActivity :
 
     val factory = MediaSelectionViewModel.Factory(destination, sendType, initialMedia, message, isReply, isStory, isAddToGroupStoryFlow, MediaSelectionRepository(this))
     viewModel = ViewModelProvider(this, factory)[MediaSelectionViewModel::class.java]
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?, ready: Boolean) {
+    setContentView(R.layout.media_selection_activity)
+
+    FullscreenHelper.showSystemUI(window)
+    WindowUtil.setNavigationBarColor(this, 0x01000000)
+    WindowUtil.setStatusBarColor(window, Color.TRANSPARENT)
 
     val textStoryToggle: ConstraintLayout = findViewById(R.id.switch_widget)
     val cameraDisplay = CameraDisplay.getDisplay(this)
@@ -207,8 +210,8 @@ class MediaSelectionActivity :
   }
 
   private fun animateTextStyling(selectedSwitch: TextView, unselectedSwitch: TextView, duration: Long) {
-    val offTextColor = ContextCompat.getColor(this, R.color.signal_colorOnSurface)
-    val onTextColor = ContextCompat.getColor(this, R.color.signal_colorSecondaryContainer)
+    val offTextColor = ContextCompat.getColor(this, CoreUiR.color.signal_colorOnSurface)
+    val onTextColor = ContextCompat.getColor(this, CoreUiR.color.signal_colorSecondaryContainer)
 
     animateInShadowLayerValueAnimator?.cancel()
     animateInTextColorValueAnimator?.cancel()

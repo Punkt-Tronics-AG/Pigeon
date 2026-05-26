@@ -32,6 +32,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import org.signal.core.models.media.Media
+import org.signal.core.ui.BottomSheetUtil
+import org.signal.core.ui.permissions.Permissions
 import org.signal.core.util.bytes
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.concurrent.SimpleTask
@@ -40,7 +42,9 @@ import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchKey
 import org.thoughtcrime.securesms.conversation.MessageSendType
+import org.thoughtcrime.securesms.conversation.ReenableScheduledMessagesDialogFragment
 import org.thoughtcrime.securesms.conversation.ScheduleMessageContextMenu
+import org.thoughtcrime.securesms.conversation.ScheduleMessageDialogCallback
 import org.thoughtcrime.securesms.conversation.ScheduleMessageTimePickerBottomSheet
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardActivity
 import org.thoughtcrime.securesms.conversation.mutiselect.forward.MultiselectForwardFragmentArgs
@@ -52,12 +56,11 @@ import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionNavigator
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionState
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionViewModel
 import org.thoughtcrime.securesms.mediasend.v2.stories.StoriesMultiselectForwardActivity
+import org.thoughtcrime.securesms.mediasend.v2.videos.VideoTrimData
 import org.thoughtcrime.securesms.mms.MediaConstraints
 import org.thoughtcrime.securesms.mms.SentMediaQuality
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.scribbles.ImageEditorFragment
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
@@ -70,11 +73,12 @@ import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Allows the user to view and edit selected media.
  */
-class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), ScheduleMessageTimePickerBottomSheet.ScheduleCallback, VideoThumbnailsRangeSelectorView.RangeDragListener {
+class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), ScheduleMessageTimePickerBottomSheet.ScheduleCallback, ScheduleMessageDialogCallback, VideoThumbnailsRangeSelectorView.RangeDragListener {
 
   private val sharedViewModel: MediaSelectionViewModel by viewModels(
     ownerProducer = { requireActivity() }
@@ -280,8 +284,7 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
             scheduledSendTime = null
             ScheduleMessageTimePickerBottomSheet.showSchedule(childFragmentManager)
           } else {
-            scheduledSendTime = time
-            sendButton.performClick()
+            startScheduledSend(time)
           }
         }
         true
@@ -338,7 +341,10 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
       pagerAdapter.submitMedia(state.selectedMedia)
 
       selectionAdapter.submitList(
-        state.selectedMedia.map { MediaReviewSelectedItem.Model(it, state.focusedMedia == it) } + MediaReviewAddItem.Model
+        state.selectedMedia.map {
+          val trimStartTimeUs = (state.editorStateMap[it.uri] as? VideoTrimData)?.startTimeUs ?: 0L
+          MediaReviewSelectedItem.Model(it, state.focusedMedia == it, trimStartTimeUs)
+        } + MediaReviewAddItem.Model
       )
 
       presentSendButton(readyToSend, state.sendType, state.recipient)
@@ -418,8 +424,8 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
     }
 
     val icon = when (state.quality) {
-      SentMediaQuality.HIGH -> R.drawable.symbol_quality_high_24
-      else -> R.drawable.symbol_quality_high_slash_24
+      SentMediaQuality.HIGH -> CoreUiR.drawable.symbol_quality_high_24
+      else -> CoreUiR.drawable.symbol_quality_high_slash_24
     }
 
     MediaReviewToastPopupWindow.show(controls, icon, description)
@@ -448,7 +454,7 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
       .setInterpolator(MediaAnimations.interpolator)
       .alpha(1f)
 
-    disposables += sharedViewModel
+    sharedViewModel
       .send(selection.filterIsInstance<ContactSearchKey.RecipientSearchKey>(), scheduledSendTime)
       .subscribe(
         { result ->
@@ -493,8 +499,8 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
     }
     qualityButton.setImageResource(
       when (state.quality) {
-        SentMediaQuality.STANDARD -> R.drawable.symbol_quality_high_slash_24
-        SentMediaQuality.HIGH -> R.drawable.symbol_quality_high_24
+        SentMediaQuality.STANDARD -> CoreUiR.drawable.symbol_quality_high_slash_24
+        SentMediaQuality.HIGH -> CoreUiR.drawable.symbol_quality_high_24
       }
     )
   }
@@ -503,7 +509,7 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
     val sendButtonBackgroundTint = when {
       !enabled -> ContextCompat.getColor(requireContext(), R.color.core_grey_50)
       recipient != null -> recipient.chatColors.asSingleColor()
-      sendType.usesSignalTransport -> ContextCompat.getColor(requireContext(), R.color.signal_colorOnSecondaryContainer)
+      sendType.usesSignalTransport -> ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorOnSecondaryContainer)
       else -> ContextCompat.getColor(requireContext(), R.color.core_grey_50)
     }
 
@@ -513,9 +519,9 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
     }
 
     val sendButtonForegroundTint = when {
-      !enabled -> ContextCompat.getColor(requireContext(), R.color.signal_colorSecondaryContainer)
-      recipient != null -> ContextCompat.getColor(requireContext(), R.color.signal_colorOnCustom)
-      else -> ContextCompat.getColor(requireContext(), R.color.signal_colorSecondaryContainer)
+      !enabled -> ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorSecondaryContainer)
+      recipient != null -> ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorOnCustom)
+      else -> ContextCompat.getColor(requireContext(), CoreUiR.color.signal_colorSecondaryContainer)
     }
 
     sendButton.setImageDrawable(sendButtonForegroundDrawable)
@@ -787,6 +793,18 @@ class MediaReviewFragment : Fragment(R.layout.v2_media_review_fragment), Schedul
   }
 
   override fun onScheduleSend(scheduledTime: Long) {
+    startScheduledSend(scheduledTime)
+  }
+
+  override fun onSchedulePermissionsGranted(metricId: String?, scheduledDate: Long) {
+    scheduledSendTime = scheduledDate
+    sendButton.performClick()
+  }
+
+  private fun startScheduledSend(scheduledTime: Long) {
+    if (ReenableScheduledMessagesDialogFragment.showIfNeeded(requireContext(), childFragmentManager, null, scheduledTime)) {
+      return
+    }
     scheduledSendTime = scheduledTime
     sendButton.performClick()
   }

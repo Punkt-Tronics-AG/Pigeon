@@ -2,12 +2,14 @@ package org.thoughtcrime.securesms.contacts.paged
 
 import org.thoughtcrime.securesms.contacts.HeaderAction
 import org.thoughtcrime.securesms.database.RecipientTable
+import org.thoughtcrime.securesms.search.SearchFilter
 
 /**
  * A strongly typed descriptor of how a given list of contacts should be formatted
  */
 class ContactSearchConfiguration private constructor(
   val query: String?,
+  val searchFilter: SearchFilter,
   val sections: List<Section>,
   val emptyStateSections: List<Section>
 ) {
@@ -105,7 +107,7 @@ class ContactSearchConfiguration private constructor(
 
     /**
      * A set of arbitrary rows, in the order given in the builder. Usage requires
-     * an implementation of [ArbitraryRepository] to be passed into [ContactSearchMediator]
+     * an implementation of [ArbitraryRepository] to be passed into [ContactSearchViewModel.Factory]
      *
      * Key: [ContactSearchKey.Arbitrary]
      * Data: [ContactSearchData.Arbitrary]
@@ -198,7 +200,7 @@ class ContactSearchConfiguration private constructor(
     /**
      * Chat types that are displayed when creating a chat folder.
      *
-     * Key: [ContactSearchKey.ChatType]
+     * Key: [ContactSearchKey.ChatTypeSearchKey]
      * Data: [ContactSearchData.ChatTypeRow]
      * Model: [ContactSearchAdapter.ChatTypeModel]
      */
@@ -335,6 +337,7 @@ class ContactSearchConfiguration private constructor(
     private val sections: MutableList<Section> = mutableListOf()
 
     override var query: String? = null
+    override var searchFilter: SearchFilter = SearchFilter.EMPTY
 
     override fun addSection(section: Section) {
       sections.add(section)
@@ -357,6 +360,7 @@ class ContactSearchConfiguration private constructor(
     private val emptyState = EmptyStateBuilder()
 
     override var query: String? = null
+    override var searchFilter: SearchFilter = SearchFilter.EMPTY
 
     override fun addSection(section: Section) {
       sections.add(section)
@@ -369,6 +373,7 @@ class ContactSearchConfiguration private constructor(
     fun build(): ContactSearchConfiguration {
       return ContactSearchConfiguration(
         query = query,
+        searchFilter = searchFilter,
         sections = sections,
         emptyStateSections = emptyState.build()
       )
@@ -380,6 +385,7 @@ class ContactSearchConfiguration private constructor(
    */
   interface Builder {
     var query: String?
+    var searchFilter: SearchFilter
 
     fun arbitrary(first: String, vararg rest: String) {
       addSection(Section.Arbitrary(setOf(first) + rest.toSet()))

@@ -4,9 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import com.annimon.stream.Stream;
-
 import org.signal.core.util.SetUtil;
+import org.signal.core.util.Util;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.MessageTable;
 import org.thoughtcrime.securesms.database.NoSuchMessageException;
@@ -17,9 +16,10 @@ import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
 import org.thoughtcrime.securesms.dependencies.AppDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
-import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
+import org.thoughtcrime.securesms.jobmanager.JsonJobData;
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint;
 import org.thoughtcrime.securesms.messages.GroupSendUtil;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -27,7 +27,6 @@ import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
 import org.thoughtcrime.securesms.util.GroupUtil;
-import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.signalservice.api.crypto.ContentHint;
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
 import org.whispersystems.signalservice.api.messages.SendMessageResult;
@@ -37,6 +36,8 @@ import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedExcept
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RemoteDeleteSendJob extends BaseJob {
 
@@ -72,8 +73,9 @@ public class RemoteDeleteSendJob extends BaseJob {
         return AppDependencies.getJobManager().startChain(MultiDeviceStorySendSyncJob.create(message.getDateSent(), messageId));
       }
     } else {
-      recipients = conversationRecipient.isGroup() ? Stream.of(conversationRecipient.getParticipantIds()).toList()
-                                                   : Stream.of(conversationRecipient.getId()).toList();
+      recipients = conversationRecipient.isGroup()
+                   ? conversationRecipient.getParticipantIds().stream().collect(Collectors.toList())
+                   : Stream.of(conversationRecipient.getId()).collect(Collectors.toList());
     }
 
     recipients.remove(Recipient.self().getId());
@@ -83,6 +85,7 @@ public class RemoteDeleteSendJob extends BaseJob {
                                                           recipients.size(),
                                                           new Parameters.Builder()
                                                                         .setQueue(conversationRecipient.getId().toQueueKey())
+                                                                        .addConstraint(SealedSenderConstraint.KEY)
                                                                         .setLifespan(TimeUnit.DAYS.toMillis(1))
                                                                         .setMaxAttempts(Parameters.UNLIMITED)
                                                                         .build());
@@ -151,9 +154,14 @@ public class RemoteDeleteSendJob extends BaseJob {
       return;
     }
 
-    List<Recipient>   possible = Stream.of(recipients).map(Recipient::resolved).toList();
-    List<Recipient>   eligible = RecipientUtil.getEligibleForSending(Stream.of(recipients).map(Recipient::resolved).filter(Recipient::getHasServiceId).toList());
-    List<RecipientId> skipped  = Stream.of(SetUtil.difference(possible, eligible)).map(Recipient::getId).toList();
+    if (conversationRecipient.isPushV2Group() && !SignalDatabase.groups().isActive(conversationRecipient.requireGroupId())) {
+      Log.w(TAG, "Unable to remote delete messages in terminated or inactive groups");
+      return;
+    }
+
+    List<Recipient>   possible = recipients.stream().map(Recipient::resolved).collect(Collectors.toList());
+    List<Recipient>   eligible = RecipientUtil.getEligibleForSending(recipients.stream().map(Recipient::resolved).filter(Recipient::getHasServiceId).collect(Collectors.toList()));
+    List<RecipientId> skipped  = SetUtil.difference(possible, eligible).stream().map(Recipient::getId).collect(Collectors.toList());
 
     boolean            isForStory         = message.isMms() && (((MmsMessageRecord) message).getStoryType().isStory() || ((MmsMessageRecord) message).getParentStoryId() != null);
     DistributionListId distributionListId = isForStory ? message.getToRecipient().getDistributionListId().orElse(null) : null;
@@ -194,6 +202,11 @@ public class RemoteDeleteSendJob extends BaseJob {
     if (e instanceof NotPushRegisteredException) return false;
     return e instanceof IOException ||
            e instanceof RetryLaterException;
+  }
+
+  @Override
+  public long getNextRunAttemptBackoff(int pastAttemptCount, @NonNull Exception exception) {
+    return SendJobUtil.getBackoffMillisFromException(this, TAG, pastAttemptCount, exception, () -> super.getNextRunAttemptBackoff(pastAttemptCount, exception));
   }
 
   @Override

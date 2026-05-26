@@ -21,6 +21,7 @@ import org.signal.core.util.logging.Log
 import org.signal.core.util.money.FiatMoney
 import org.signal.core.util.throttleLatest
 import org.signal.donations.InAppPaymentType
+import org.signal.network.NetworkResult
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
 import org.thoughtcrime.securesms.backup.v2.MessageBackupTier
 import org.thoughtcrime.securesms.backup.v2.ui.subscription.MessageBackupsType
@@ -33,7 +34,6 @@ import org.thoughtcrime.securesms.database.model.InAppPaymentSubscriberRecord
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.InternetConnectionObserver
-import org.whispersystems.signalservice.api.NetworkResult
 import org.whispersystems.signalservice.api.subscriptions.ActiveSubscription
 import java.math.BigDecimal
 import java.util.Currency
@@ -166,8 +166,7 @@ class BackupStateObserver(
     }
 
     val price = latestPayment.data.amount!!.toFiatMoney()
-    val isKeepAlive = latestPayment.data.redemption?.keepAlive == true
-    val isPending = latestPayment.state == InAppPaymentTable.State.PENDING && !isKeepAlive
+    val isPending = SignalDatabase.inAppPayments.hasPendingBackupRedemption()
     if (isPending) {
       Log.d(TAG, "[getDatabaseBackupState] We have a pending subscription.")
       return BackupState.Pending(price = price)
@@ -243,8 +242,7 @@ class BackupStateObserver(
    * Utilizes everything we can to resolve the most accurate backup state available, including database and network.
    */
   private suspend fun getNetworkBackupState(lastPurchase: InAppPaymentTable.InAppPayment?): BackupState {
-    val isKeepAlive = lastPurchase?.data?.redemption?.keepAlive == true
-    if (lastPurchase?.state == InAppPaymentTable.State.PENDING && !isKeepAlive) {
+    if (lastPurchase?.state == InAppPaymentTable.State.PENDING) {
       Log.d(TAG, "[getNetworkBackupState] We have a pending subscription.")
       return BackupState.Pending(
         price = lastPurchase.data.amount!!.toFiatMoney()

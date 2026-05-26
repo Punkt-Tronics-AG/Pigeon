@@ -62,6 +62,10 @@ class ConversationGroupViewModel(
     disposables.clear()
   }
 
+  fun isAdmin(): Boolean {
+    return _memberLevel.value?.groupTableMemberLevel == GroupTable.MemberLevel.ADMINISTRATOR
+  }
+
   fun isNonAdminInAnnouncementGroup(): Boolean {
     val memberLevel = _memberLevel.value ?: return false
     return memberLevel.groupTableMemberLevel != GroupTable.MemberLevel.ADMINISTRATOR && memberLevel.isAnnouncementGroup
@@ -69,7 +73,7 @@ class ConversationGroupViewModel(
 
   fun canEditGroupInfo(): Boolean {
     val memberLevel = _memberLevel.value ?: return true
-    return memberLevel.groupTableMemberLevel == GroupTable.MemberLevel.ADMINISTRATOR || memberLevel.allMembersCanEditGroupInfo
+    return groupRecordSnapshot?.isActive == true && (memberLevel.groupTableMemberLevel == GroupTable.MemberLevel.ADMINISTRATOR || memberLevel.allMembersCanEditGroupInfo)
   }
 
   fun blockJoinRequests(recipient: Recipient): Single<GroupBlockJoinRequestResult> {

@@ -7,12 +7,13 @@ package org.thoughtcrime.securesms.jobs
 
 import okio.ByteString.Companion.toByteString
 import org.signal.core.util.logging.Log
+import org.signal.network.exceptions.PushNetworkException
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkCredentials
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import org.whispersystems.signalservice.internal.push.SyncMessage.CallLinkUpdate
 import kotlin.time.Duration.Companion.days
 
@@ -29,6 +30,7 @@ class MultiDeviceCallLinkSyncJob private constructor(
     Parameters.Builder()
       .setQueue("__MULTI_DEVICE_CALL_LINK_UPDATE_JOB__")
       .addConstraint(NetworkConstraint.KEY)
+      .addConstraint(SealedSenderConstraint.KEY)
       .setLifespan(1.days.inWholeMilliseconds)
       .setMaxAttempts(Parameters.UNLIMITED)
       .build(),

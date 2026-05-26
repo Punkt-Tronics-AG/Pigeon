@@ -3,6 +3,7 @@ package org.whispersystems.signalservice.api.messages
 import okio.ByteString
 import org.signal.core.models.ServiceId
 import org.signal.core.models.ServiceId.ACI
+import org.signal.libsignal.protocol.message.CiphertextMessage
 import org.signal.libsignal.protocol.message.DecryptionErrorMessage
 import org.signal.libsignal.protocol.message.SenderKeyDistributionMessage
 import org.signal.libsignal.zkgroup.InvalidInputException
@@ -32,9 +33,10 @@ object EnvelopeContentValidator {
   private const val MAX_POLL_QUESTION_CHARACTER_LENGTH = 200
   private const val MAX_POLL_CHARACTER_LENGTH = 100
   private const val MIN_POLL_OPTIONS = 2
+  private const val MAX_POLL_OPTIONS = 10
 
-  fun validate(envelope: Envelope, content: Content, localAci: ACI): Result {
-    if (envelope.type == Envelope.Type.PLAINTEXT_CONTENT) {
+  fun validate(envelope: Envelope, content: Content, localAci: ACI, ciphertextMessageType: Int): Result {
+    if (envelope.type == Envelope.Type.PLAINTEXT_CONTENT || ciphertextMessageType == CiphertextMessage.PLAINTEXT_CONTENT_TYPE) {
       validatePlaintextContent(content)?.let { return it }
     }
 
@@ -82,12 +84,16 @@ object EnvelopeContentValidator {
       return Result.Invalid("[DataMessage] Missing timestamp!")
     }
 
-    if (dataMessage.timestamp != envelope.timestamp) {
-      return Result.Invalid("[DataMessage] Timestamps don't match! envelope: ${envelope.timestamp}, content: ${dataMessage.timestamp}")
+    if (dataMessage.timestamp != envelope.clientTimestamp) {
+      return Result.Invalid("[DataMessage] Timestamps don't match! envelope: ${envelope.clientTimestamp}, content: ${dataMessage.timestamp}")
     }
 
     if (dataMessage.quote != null && ACI.parseOrNull(dataMessage.quote.authorAci, dataMessage.quote.authorAciBinary).isNullOrInvalidServiceId()) {
       return Result.Invalid("[DataMessage] Invalid ACI on quote!")
+    }
+
+    if (dataMessage.quote != null && dataMessage.quote.bodyRanges.any { Util.anyNotNull(it.mentionAci, it.mentionAciBinary) && ACI.parseOrNull(it.mentionAci, it.mentionAciBinary).isNullOrInvalidServiceId() }) {
+      return Result.Invalid("[DataMessage] Invalid ACI on quote body range!")
     }
 
     if (dataMessage.contact.any { it.avatar != null && it.avatar.avatar.isPresentAndInvalid() }) {
@@ -152,7 +158,7 @@ object EnvelopeContentValidator {
       return Result.Invalid("[DataMessage] Invalid poll terminate!")
     }
 
-    if (dataMessage.pollVote != null && (dataMessage.pollVote.targetAuthorAciBinary.isNullOrInvalidAci() || dataMessage.pollVote.targetSentTimestamp == null || dataMessage.pollVote.voteCount == null)) {
+    if (dataMessage.pollVote != null && (dataMessage.pollVote.targetAuthorAciBinary.isNullOrInvalidAci() || dataMessage.pollVote.targetSentTimestamp == null || dataMessage.pollVote.voteCount == null || dataMessage.pollVote.optionIndexes.size > MAX_POLL_OPTIONS)) {
       return Result.Invalid("[DataMessage] Invalid poll vote!")
     }
 
@@ -162,6 +168,10 @@ object EnvelopeContentValidator {
 
     if (dataMessage.unpinMessage != null && (dataMessage.unpinMessage.targetAuthorAciBinary.isNullOrInvalidAci() || dataMessage.unpinMessage.targetSentTimestamp == null)) {
       return Result.Invalid("[DataMessage] Invalid unpin message!")
+    }
+
+    if (dataMessage.adminDelete != null && (dataMessage.adminDelete.targetAuthorAciBinary.isNullOrInvalidAci() || dataMessage.adminDelete.targetSentTimestamp == null)) {
+      return Result.Invalid("[DataMessage] Invalid admin delete message!")
     }
 
     return Result.Valid
@@ -245,7 +255,7 @@ object EnvelopeContentValidator {
       return Result.Invalid("[SyncMessage] Missing packId in stickerPackOperationList!")
     }
 
-    if (syncMessage.blocked != null && syncMessage.blocked.acis.any { it.isNullOrInvalidAci() } && syncMessage.blocked.acisBinary.any { it.isNullOrInvalidAci() }) {
+    if (syncMessage.blocked != null && (syncMessage.blocked.acis.any { it.isNullOrInvalidAci() } || syncMessage.blocked.acisBinary.any { it.isNullOrInvalidAci() })) {
       return Result.Invalid("[SyncMessage] Invalid ACI in SyncMessage.blocked!")
     }
 
@@ -271,8 +281,8 @@ object EnvelopeContentValidator {
   private fun validateTypingMessage(envelope: Envelope, typingMessage: TypingMessage): Result {
     return if (typingMessage.timestamp == null) {
       return Result.Invalid("[TypingMessage] Missing timestamp!")
-    } else if (typingMessage.timestamp != envelope.timestamp) {
-      Result.Invalid("[TypingMessage] Timestamps don't match! envelope: ${envelope.timestamp}, content: ${typingMessage.timestamp}")
+    } else if (typingMessage.timestamp != envelope.clientTimestamp) {
+      Result.Invalid("[TypingMessage] Timestamps don't match! envelope: ${envelope.clientTimestamp}, content: ${typingMessage.timestamp}")
     } else if (typingMessage.action == null) {
       Result.Invalid("[TypingMessage] Missing action!")
     } else {

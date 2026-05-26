@@ -6,6 +6,7 @@
 package org.thoughtcrime.securesms.backup.v2.exporters
 
 import android.database.Cursor
+import org.signal.archive.proto.Chat
 import org.signal.core.util.decodeOrNull
 import org.signal.core.util.requireBlob
 import org.signal.core.util.requireBoolean
@@ -13,7 +14,6 @@ import org.signal.core.util.requireInt
 import org.signal.core.util.requireIntOrNull
 import org.signal.core.util.requireLong
 import org.thoughtcrime.securesms.backup.v2.ExportState
-import org.thoughtcrime.securesms.backup.v2.proto.Chat
 import org.thoughtcrime.securesms.backup.v2.util.ChatStyleConverter
 import org.thoughtcrime.securesms.backup.v2.util.isValid
 import org.thoughtcrime.securesms.conversation.colors.ChatColors
@@ -62,7 +62,7 @@ class ChatArchiveExporter(private val cursor: Cursor, private val db: SignalData
       expireTimerVersion = cursor.requireInt(RecipientTable.MESSAGE_EXPIRATION_TIME_VERSION),
       muteUntilMs = cursor.requireLong(RecipientTable.MUTE_UNTIL).takeIf { it > 0 },
       markedUnread = ThreadTable.ReadStatus.deserialize(cursor.requireInt(ThreadTable.READ)) == ThreadTable.ReadStatus.FORCED_UNREAD,
-      dontNotifyForMentionsIfMuted = RecipientTable.MentionSetting.DO_NOT_NOTIFY.id == cursor.requireInt(RecipientTable.MENTION_SETTING),
+      dontNotifyForMentionsIfMuted = RecipientTable.NotificationSetting.DO_NOT_NOTIFY.id == cursor.requireInt(RecipientTable.MENTION_SETTING),
       style = ChatStyleConverter.constructRemoteChatStyle(
         db = db,
         chatColors = chatColors,

@@ -6,6 +6,7 @@
 package org.thoughtcrime.securesms.backup.v2.database
 
 import android.content.ContentValues
+import org.signal.archive.proto.AccountData
 import org.signal.core.models.ServiceId
 import org.signal.core.util.Base64
 import org.signal.core.util.logging.Log
@@ -15,7 +16,6 @@ import org.signal.core.util.update
 import org.signal.libsignal.zkgroup.InvalidInputException
 import org.thoughtcrime.securesms.backup.v2.exporters.ContactArchiveExporter
 import org.thoughtcrime.securesms.backup.v2.exporters.GroupArchiveExporter
-import org.thoughtcrime.securesms.backup.v2.proto.AccountData
 import org.thoughtcrime.securesms.database.GroupTable
 import org.thoughtcrime.securesms.database.IdentityTable
 import org.thoughtcrime.securesms.database.RecipientTable
@@ -57,6 +57,7 @@ fun RecipientTable.getContactsForBackup(selfId: Long): ContactArchiveExporter {
       "${RecipientTable.TABLE_NAME}.${RecipientTable.CUSTOM_CHAT_COLORS_ID}",
       "${RecipientTable.TABLE_NAME}.${RecipientTable.AVATAR_COLOR}",
       "${RecipientTable.TABLE_NAME}.${RecipientTable.EXTRAS}",
+      "${RecipientTable.TABLE_NAME}.${RecipientTable.KEY_TRANSPARENCY_DATA}",
       "${IdentityTable.TABLE_NAME}.${IdentityTable.IDENTITY_KEY}",
       "${IdentityTable.TABLE_NAME}.${IdentityTable.VERIFIED}"
     )
@@ -96,7 +97,7 @@ fun RecipientTable.getGroupsForBackup(selfAci: ServiceId.ACI): GroupArchiveExpor
       "${GroupTable.TABLE_NAME}.${GroupTable.V2_MASTER_KEY}",
       "${GroupTable.TABLE_NAME}.${GroupTable.SHOW_AS_STORY_STATE}",
       "${GroupTable.TABLE_NAME}.${GroupTable.TITLE}",
-      "${GroupTable.TABLE_NAME}.${GroupTable.ACTIVE}",
+      "${GroupTable.TABLE_NAME}.${GroupTable.IS_MEMBER}",
       "${GroupTable.TABLE_NAME}.${GroupTable.V2_DECRYPTED_GROUP}"
     )
     .from(

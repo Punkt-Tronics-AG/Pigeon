@@ -31,13 +31,13 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.SimpleColorFilter
 import com.google.android.material.animation.ArgbEvaluatorCompat
+import org.signal.core.ui.util.ThemeUtil
 import org.signal.core.util.SetUtil
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge.PulseRequest
 import org.thoughtcrime.securesms.conversation.v2.items.InteractiveConversationElement
 import org.thoughtcrime.securesms.database.model.InMemoryMessageRecord
-import org.thoughtcrime.securesms.util.ThemeUtil
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import java.lang.Integer.max
@@ -273,6 +273,9 @@ class MultiselectItemDecoration(
       val parts: MultiselectCollection = child.conversationMessage.multiselectCollection
 
       parts.toSet().forEach {
+        if (it is MultiselectPart.CollapsedHead) {
+          return@forEach
+        }
         val topBoundary = child.getTopBoundaryOfMultiselectPart(it)
         val bottomBoundary = child.getBottomBoundaryOfMultiselectPart(it)
         if (drawCircleBehindSelector) {

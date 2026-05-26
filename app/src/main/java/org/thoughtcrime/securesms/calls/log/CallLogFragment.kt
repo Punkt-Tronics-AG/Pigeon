@@ -21,7 +21,9 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.kotlin.Flowables
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.launch
+import org.signal.core.ui.BottomSheetUtil
 import org.signal.core.ui.compose.Snackbars
+import org.signal.core.ui.isSplitPane
 import org.signal.core.util.DimensionUnit
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.concurrent.addTo
@@ -56,15 +58,13 @@ import org.thoughtcrime.securesms.main.MainToolbarMode
 import org.thoughtcrime.securesms.main.MainToolbarViewModel
 import org.thoughtcrime.securesms.main.Material3OnScrollHelperBinder
 import org.thoughtcrime.securesms.recipients.Recipient
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.doAfterNextLayout
 import org.thoughtcrime.securesms.util.fragments.requireListener
 import org.thoughtcrime.securesms.util.visible
-import org.thoughtcrime.securesms.window.getWindowSizeClass
-import org.thoughtcrime.securesms.window.isSplitPane
 import java.util.Objects
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Call Log tab.
@@ -132,7 +132,7 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
         val filteredCount = callLogAdapter.submitCallRows(
           data,
           selected,
-          activeCallLogRowId = activeRowId.orNull().takeIf { resources.getWindowSizeClass().isSplitPane() },
+          activeCallLogRowId = activeRowId.orNull().takeIf { resources.isSplitPane() },
           viewModel.callLogPeekHelper.localDeviceCallRecipientId,
           scrollToPositionDelegate::notifyListCommitted
         )
@@ -161,13 +161,13 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
     binding.bottomActionBar.setItems(
       listOf(
         ActionItem(
-          iconRes = R.drawable.symbol_check_circle_24,
+          iconRes = CoreUiR.drawable.symbol_check_circle_24,
           title = getString(R.string.CallLogFragment__select_all)
         ) {
           viewModel.selectAll()
         },
         ActionItem(
-          iconRes = R.drawable.symbol_trash_24,
+          iconRes = CoreUiR.drawable.symbol_trash_24,
           title = getString(R.string.CallLogFragment__delete),
           action = this::handleDeleteSelectedRows
         )
@@ -186,7 +186,7 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
       }
     }
 
-    if (!resources.getWindowSizeClass().isSplitPane()) {
+    if (!resources.isSplitPane()) {
       ViewUtil.setBottomMargin(binding.bottomActionBar, ViewUtil.getNavigationBarHeight(binding.bottomActionBar))
     }
 
@@ -218,9 +218,16 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
 
   private fun handleDeleteSelectedRows() {
     val count = callLogActionMode.getCount()
+    val selectionState = viewModel.selectionStateSnapshot
+    val hasCallLinks = selectionState.isExclusionary() || selectionState.selected().any { it is CallLogRow.Id.CallLink }
+
     MaterialAlertDialogBuilder(requireContext())
       .setTitle(resources.getQuantityString(R.plurals.CallLogFragment__delete_d_calls, count, count))
-      .setMessage(getString(R.string.CallLogFragment__call_links_youve_created))
+      .apply {
+        if (hasCallLinks) {
+          setMessage(getString(R.string.CallLogFragment__call_links_youve_created))
+        }
+      }
       .setPositiveButton(R.string.CallLogFragment__delete) { _, _ ->
         performDeletion(count, viewModel.stageSelectionDeletion())
         callLogActionMode.end()
@@ -326,7 +333,7 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
     if (viewModel.selectionStateSnapshot.isNotEmpty(binding.recycler.adapter!!.itemCount)) {
       viewModel.toggleSelected(callLogRow.id)
     } else {
-      mainNavigationViewModel.goTo(MainNavigationDetailLocation.Calls.CallLinks.CallLinkDetails(callLogRow.record.roomId))
+      mainNavigationViewModel.goTo(MainNavigationDetailLocation.CallLinkDetails(callLogRow.record.roomId))
     }
   }
 
@@ -356,18 +363,21 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
     }
   }
 
-  override fun onStartVideoCallClicked(recipient: Recipient, canUserBeginCall: Boolean) {
-    if (canUserBeginCall) {
-      CommunicationActions.startVideoCall(this, recipient) {
-        mainNavigationViewModel.snackbarRegistry.emit(
-          SnackbarState(
-            getString(R.string.CommunicationActions__you_are_already_in_a_call),
-            hostKey = MainSnackbarHostKey.MainChrome
+  override fun onStartVideoCallClicked(recipient: Recipient, canUserBeginCall: CallLogRow.CanStartCall) {
+    when (canUserBeginCall) {
+      CallLogRow.CanStartCall.ALLOWED -> {
+        CommunicationActions.startVideoCall(this, recipient) {
+          mainNavigationViewModel.snackbarRegistry.emit(
+            SnackbarState(
+              getString(R.string.CommunicationActions__you_are_already_in_a_call),
+              hostKey = MainSnackbarHostKey.MainChrome
+            )
           )
-        )
+        }
       }
-    } else {
-      ConversationDialogs.displayCannotStartGroupCallDueToPermissionsDialog(requireContext())
+      CallLogRow.CanStartCall.GROUP_TERMINATED -> ConversationDialogs.displayCannotStartGroupCallDueToGroupEndedDialog(requireContext())
+      CallLogRow.CanStartCall.NOT_A_MEMBER -> ConversationDialogs.displayCannotStartGroupCallDueToNoLongerAMemberDialog(requireContext())
+      CallLogRow.CanStartCall.ADMIN_ONLY -> ConversationDialogs.displayCannotStartGroupCallDueToPermissionsDialog(requireContext())
     }
   }
 
@@ -379,7 +389,11 @@ class CallLogFragment : Fragment(R.layout.call_log_fragment), CallLogAdapter.Cal
   override fun deleteCall(call: CallLogRow) {
     MaterialAlertDialogBuilder(requireContext())
       .setTitle(resources.getQuantityString(R.plurals.CallLogFragment__delete_d_calls, 1, 1))
-      .setMessage(getString(R.string.CallLogFragment__call_links_youve_created))
+      .apply {
+        if (call is CallLogRow.CallLink) {
+          setMessage(getString(R.string.CallLogFragment__call_links_youve_created))
+        }
+      }
       .setPositiveButton(R.string.CallLogFragment__delete) { _, _ ->
         performDeletion(1, viewModel.stageCallDeletion(call))
       }

@@ -15,7 +15,7 @@ import org.thoughtcrime.securesms.messages.WebSocketDrainer;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.service.GenericForegroundService;
 import org.thoughtcrime.securesms.util.AppForegroundObserver;
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
+import org.signal.network.exceptions.PushNetworkException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;

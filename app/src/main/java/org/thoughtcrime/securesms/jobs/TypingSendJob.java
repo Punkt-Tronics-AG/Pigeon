@@ -3,7 +3,7 @@ package org.thoughtcrime.securesms.jobs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.annimon.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.GroupTable;
@@ -12,6 +12,7 @@ import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobmanager.JsonJobData;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint;
 import org.thoughtcrime.securesms.messages.GroupSendUtil;
 import org.thoughtcrime.securesms.net.NotPushRegisteredException;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -43,6 +44,7 @@ public class TypingSendJob extends BaseJob {
                            .setMaxAttempts(1)
                            .setLifespan(TimeUnit.SECONDS.toMillis(5))
                            .addConstraint(NetworkConstraint.KEY)
+                           .addConstraint(SealedSenderConstraint.KEY)
                            .setMemoryOnly(true)
                            .build(),
          threadId,
@@ -107,6 +109,11 @@ public class TypingSendJob extends BaseJob {
       return;
     }
 
+    if (recipient.isPushV2Group() && !SignalDatabase.groups().isActive(recipient.requireGroupId())) {
+      Log.w(TAG, "Not sending typing indicators to terminated or inactive groups.");
+      return;
+    }
+
     if (!recipient.isRegistered()) {
       Log.w(TAG, "Not sending typing indicators to non-Signal recipients.");
       return;
@@ -120,9 +127,8 @@ public class TypingSendJob extends BaseJob {
       groupId    = Optional.of(recipient.requireGroupId().getDecodedId());
     }
 
-    recipients = RecipientUtil.getEligibleForSending(Stream.of(recipients)
-                                                           .map(Recipient::resolve)
-                                                           .toList());
+    recipients = RecipientUtil.getEligibleForSending(recipients.stream()
+                                                               .map(Recipient::resolve).collect(Collectors.toList()));
 
     SignalServiceTypingMessage typingMessage = new SignalServiceTypingMessage(typing ? Action.STARTED : Action.STOPPED, System.currentTimeMillis(), groupId);
 

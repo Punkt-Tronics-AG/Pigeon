@@ -10,8 +10,8 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.DSLConfiguration
 import org.thoughtcrime.securesms.components.settings.DSLSettingsFragment
 import org.thoughtcrime.securesms.components.settings.DSLSettingsText
-import org.thoughtcrime.securesms.components.settings.app.subscription.models.CurrencySelection
-import org.thoughtcrime.securesms.components.settings.app.subscription.models.NetworkFailure
+import org.thoughtcrime.securesms.components.settings.app.subscription.ui.CurrencySelection
+import org.thoughtcrime.securesms.components.settings.app.subscription.ui.NetworkFailure
 import org.thoughtcrime.securesms.components.settings.configure
 import org.thoughtcrime.securesms.components.settings.models.IndeterminateLoadingCircle
 import org.thoughtcrime.securesms.components.settings.models.SplashImage
@@ -19,8 +19,8 @@ import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.activityViewModel
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
-import org.thoughtcrime.securesms.util.viewModel
 import java.util.concurrent.TimeUnit
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * Landing fragment for sending gifts.
@@ -72,7 +72,7 @@ class GiftFlowStartFragment : DSLSettingsFragment(
         title = DSLSettingsText.from(
           R.string.GiftFlowStartFragment__donate_for_a_friend,
           DSLSettingsText.CenterModifier,
-          DSLSettingsText.TextAppearanceModifier(R.style.Signal_Text_Headline)
+          DSLSettingsText.TextAppearanceModifier(CoreUiR.style.Signal_Text_Headline)
         )
       )
 

@@ -33,7 +33,9 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.IconButtons.IconButton
@@ -76,6 +78,7 @@ fun RecipientSearchBar(
         onValueChange = onQueryChange,
         placeholder = { Text(hint) },
         singleLine = true,
+        textStyle = TextStyle(textDirection = TextDirection.ContentOrLtr),
         shape = SearchBarDefaults.inputFieldShape,
         colors = TextFieldDefaults.colors(
           unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

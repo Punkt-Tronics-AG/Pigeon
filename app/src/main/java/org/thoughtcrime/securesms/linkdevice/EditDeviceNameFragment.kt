@@ -30,7 +30,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -41,13 +40,13 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.util.isNotNullOrBlank
-import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 
 /**
  * Fragment for changing the name of a linked device
@@ -55,7 +54,6 @@ import org.thoughtcrime.securesms.compose.ComposeFragment
 class EditDeviceNameFragment : ComposeFragment() {
 
   companion object {
-    private val TAG = Log.tag(EditDeviceNameFragment::class)
     const val MAX_LENGTH = 50
   }
 
@@ -65,16 +63,15 @@ class EditDeviceNameFragment : ComposeFragment() {
   override fun FragmentContent() {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val navController: NavController by remember { mutableStateOf(findNavController()) }
-    val context = LocalContext.current
 
     LaunchedEffect(state.oneTimeEvent) {
       when (state.oneTimeEvent) {
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeSuccess -> {
-          Snackbar.make(requireView(), context.getString(R.string.EditDeviceNameFragment__device_name_updated), Snackbar.LENGTH_LONG).show()
+          Snackbar.make(requireView(), getString(R.string.EditDeviceNameFragment__device_name_updated), Snackbar.LENGTH_LONG).show()
           navController.popBackStack()
         }
         LinkDeviceSettingsState.OneTimeEvent.SnackbarNameChangeFailure -> {
-          Snackbar.make(requireView(), context.getString(R.string.EditDeviceNameFragment__unable_to_change), Snackbar.LENGTH_LONG).show()
+          Snackbar.make(requireView(), getString(R.string.EditDeviceNameFragment__unable_to_change), Snackbar.LENGTH_LONG).show()
         }
         LinkDeviceSettingsState.OneTimeEvent.HideFinishedSheet,
         LinkDeviceSettingsState.OneTimeEvent.LaunchQrCodeScanner,
@@ -91,7 +88,7 @@ class EditDeviceNameFragment : ComposeFragment() {
     Scaffolds.Settings(
       title = stringResource(id = R.string.EditDeviceNameFragment__edit),
       onNavigationClick = { navController.popBackStack() },
-      navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24),
+      navigationIcon = SignalIcons.ArrowStart.imageVector,
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { contentPadding: PaddingValues ->
       EditNameScreen(

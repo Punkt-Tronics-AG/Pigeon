@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -18,21 +18,28 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.storageservice.storage.protos.groups.AccessControl;
 import org.thoughtcrime.securesms.BlockUnblockDialog;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.components.settings.conversation.ConversationSettingsActivity;
+import org.thoughtcrime.securesms.components.settings.conversation.ConversationSettingsNavigator;
+import org.thoughtcrime.securesms.conversation.colors.ColorizerV2;
 import org.thoughtcrime.securesms.database.GroupTable;
 import org.thoughtcrime.securesms.database.SignalDatabase;
+import org.thoughtcrime.securesms.database.model.GroupRecord;
 import org.thoughtcrime.securesms.database.model.IdentityRecord;
 import org.thoughtcrime.securesms.database.model.StoryViewState;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.LiveGroup;
+import org.thoughtcrime.securesms.groups.memberlabel.MemberLabel;
+import org.thoughtcrime.securesms.groups.memberlabel.MemberLabelRepository;
+import org.thoughtcrime.securesms.groups.memberlabel.StyledMemberLabel;
 import org.thoughtcrime.securesms.groups.ui.GroupChangeFailureReason;
 import org.thoughtcrime.securesms.groups.ui.GroupErrors;
 import org.thoughtcrime.securesms.groups.ui.addtogroup.AddToGroupsActivity;
 import org.thoughtcrime.securesms.jobs.AvatarGroupsV2DownloadJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileAvatarJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
+import org.thoughtcrime.securesms.recipients.LiveRecipient;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
@@ -44,24 +51,25 @@ import org.thoughtcrime.securesms.util.livedata.LiveDataUtil;
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity;
 
 import java.util.Objects;
-
-import kotlin.Pair;
+import java.util.Optional;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 final class RecipientDialogViewModel extends ViewModel {
 
-  private final Context                         context;
-  private final RecipientDialogRepository       recipientDialogRepository;
-  private final LiveData<Recipient>             recipient;
-  private final MutableLiveData<IdentityRecord> identity;
-  private final LiveData<AdminActionStatus>     adminActionStatus;
-  private final LiveData<Boolean>               canAddToAGroup;
-  private final MutableLiveData<Boolean>        adminActionBusy;
-  private final MutableLiveData<StoryViewState> storyViewState;
-  private final CompositeDisposable             disposables;
-  private final boolean                         isDeprecatedOrUnregistered;
+  private final Context                                context;
+  private final RecipientDialogRepository              recipientDialogRepository;
+  private final LiveData<Recipient>                    recipient;
+  private final MutableLiveData<IdentityRecord>        identity;
+  private final LiveData<AdminActionStatus>            adminActionStatus;
+  private final LiveData<Boolean>                      canAddToAGroup;
+  private final MutableLiveData<Boolean>               adminActionBusy;
+  private final MutableLiveData<StoryViewState>        storyViewState;
+  private final MutableLiveData<RecipientDetailsState> recipientDetailsState;
+  private final CompositeDisposable                    disposables;
+  private final boolean                                isDeprecatedOrUnregistered;
+
   private RecipientDialogViewModel(@NonNull Context context,
                                    @NonNull RecipientDialogRepository recipientDialogRepository)
   {
@@ -70,28 +78,31 @@ final class RecipientDialogViewModel extends ViewModel {
     this.identity                   = new MutableLiveData<>();
     this.adminActionBusy            = new MutableLiveData<>(false);
     this.storyViewState             = new MutableLiveData<>();
+    this.recipientDetailsState      = new MutableLiveData<>();
     this.disposables                = new CompositeDisposable();
     this.isDeprecatedOrUnregistered = SignalStore.misc().isClientDeprecated() || TextSecurePreferences.isUnauthorizedReceived(context);
 
     boolean recipientIsSelf = recipientDialogRepository.getRecipientId().equals(Recipient.self().getId());
 
-    recipient = Recipient.live(recipientDialogRepository.getRecipientId()).getLiveData();
+    final LiveRecipient liveRecipient = Recipient.live(recipientDialogRepository.getRecipientId());
+    recipient = liveRecipient.getLiveData();
 
     if (recipientDialogRepository.getGroupId() != null && recipientDialogRepository.getGroupId().isV2() && !recipientIsSelf) {
       LiveGroup source = new LiveGroup(recipientDialogRepository.getGroupId());
 
-      LiveData<Pair<Boolean, Boolean>> localStatus          = LiveDataUtil.combineLatest(source.isSelfAdmin(), Transformations.map(source.getGroupLink(), s -> s == null || s.isEnabled()), Pair::new);
-      LiveData<GroupTable.MemberLevel> recipientMemberLevel = Transformations.switchMap(recipient, source::getMemberLevel);
+      adminActionStatus = LiveDataUtil.combineLatest(source.getGroupRecord(), recipient, (group, r) -> {
+        boolean                      active         = group.isActive();
+        boolean                      localAdmin     = group.isAdmin(Recipient.self());
+        GroupTable.MemberLevel       memberLevel    = group.memberLevel(r);
+        boolean                      inGroup        = memberLevel.isInGroup();
+        boolean                      recipientAdmin = memberLevel == GroupTable.MemberLevel.ADMINISTRATOR;
+        AccessControl.AccessRequired linkAccess     = group.requireV2GroupProperties().getDecryptedGroup().accessControl != null ? group.requireV2GroupProperties().getDecryptedGroup().accessControl.addFromInviteLink
+                                                                                                                                 : AccessControl.AccessRequired.UNKNOWN;
+        boolean                      isLinkActive   = linkAccess == AccessControl.AccessRequired.ANY || linkAccess == AccessControl.AccessRequired.ADMINISTRATOR;
 
-      adminActionStatus = LiveDataUtil.combineLatest(localStatus, recipientMemberLevel, (statuses, memberLevel) -> {
-        boolean localAdmin     = statuses.getFirst();
-        boolean isLinkActive   = statuses.getSecond();
-        boolean inGroup        = memberLevel.isInGroup();
-        boolean recipientAdmin = memberLevel == GroupTable.MemberLevel.ADMINISTRATOR;
-
-        return new AdminActionStatus(inGroup && localAdmin,
-                                     inGroup && localAdmin && !recipientAdmin,
-                                     inGroup && localAdmin && recipientAdmin,
+        return new AdminActionStatus(active && inGroup && localAdmin,
+                                     active && inGroup && localAdmin && !recipientAdmin,
+                                     active && inGroup && localAdmin && recipientAdmin,
                                      isLinkActive);
       });
     } else {
@@ -114,6 +125,35 @@ final class RecipientDialogViewModel extends ViewModel {
                                                         .subscribe(storyViewState::postValue);
 
     disposables.add(storyViewStateDisposable);
+
+    Disposable recipientDisposable = liveRecipient.observable().subscribe(this::updateRecipientDetailsState);
+    disposables.add(recipientDisposable);
+  }
+
+  private void updateRecipientDetailsState(@NonNull Recipient recipient) {
+    GroupId groupId   = recipientDialogRepository.getGroupId();
+    String  aboutText = recipient.isReleaseNotes() ? null : recipient.getCombinedAboutAndEmoji();
+
+    if (groupId != null && groupId.isV2() && recipient.isIndividual() && !recipient.isSelf()) {
+      SignalExecutors.BOUNDED.execute(() -> {
+        GroupId.V2        v2GroupId   = (GroupId.V2) groupId;
+        MemberLabel       label       = MemberLabelRepository.getInstance().getLabelSync(v2GroupId, recipient);
+        StyledMemberLabel styledLabel = null;
+
+        if (label != null) {
+          ColorizerV2           colorizer   = new ColorizerV2();
+          Optional<GroupRecord> groupRecord = SignalDatabase.groups().getGroup(v2GroupId);
+          if (groupRecord.isPresent()) {
+            colorizer.onGroupMembershipChanged(groupRecord.get().requireV2GroupProperties().getMemberServiceIds());
+          }
+          styledLabel = new StyledMemberLabel(label, colorizer.getIncomingGroupSenderColor(context, recipient));
+        }
+
+        recipientDetailsState.postValue(new RecipientDetailsState(styledLabel, aboutText));
+      });
+    } else {
+      recipientDetailsState.postValue(new RecipientDetailsState(null, aboutText));
+    }
   }
 
   @Override protected void onCleared() {
@@ -149,6 +189,10 @@ final class RecipientDialogViewModel extends ViewModel {
     return adminActionBusy;
   }
 
+  LiveData<RecipientDetailsState> getRecipientDetails() {
+    return recipientDetailsState;
+  }
+
   void onNoteToSelfClicked(@NonNull Activity activity) {
     if (storyViewState.getValue() == null || storyViewState.getValue() == StoryViewState.NONE) {
       onMessageClicked(activity);
@@ -156,8 +200,8 @@ final class RecipientDialogViewModel extends ViewModel {
       activity.startActivity(StoryViewerActivity.createIntent(
           activity,
           new StoryViewerArgs.Builder(recipientDialogRepository.getRecipientId(), recipient.getValue().getShouldHideStory())
-                             .isFromQuote(true)
-                             .build()));
+              .isFromQuote(true)
+              .build()));
     }
   }
 
@@ -189,72 +233,80 @@ final class RecipientDialogViewModel extends ViewModel {
     VerifyIdentityActivity.startOrShowExchangeMessagesDialog(activity, identityRecord);
   }
 
-  void onAvatarClicked(@NonNull Activity activity) {
+  void onAvatarClicked(@NonNull FragmentActivity activity) {
     if (storyViewState.getValue() == null || storyViewState.getValue() == StoryViewState.NONE) {
-      activity.startActivity(ConversationSettingsActivity.forRecipient(activity, recipientDialogRepository.getRecipientId()));
+      recipientDialogRepository.getRecipient(recipient -> ConversationSettingsNavigator.navigate(activity, recipient));
     } else {
       activity.startActivity(StoryViewerActivity.createIntent(
           activity,
           new StoryViewerArgs.Builder(recipientDialogRepository.getRecipientId(), recipient.getValue().getShouldHideStory())
-                             .isFromQuote(true)
-                             .build()));
+              .isFromQuote(true)
+              .build()));
     }
   }
 
   void onMakeGroupAdminClicked(@NonNull Activity activity) {
     new MaterialAlertDialogBuilder(activity)
-                   .setMessage(context.getString(R.string.RecipientBottomSheet_s_will_be_able_to_edit_group, Objects.requireNonNull(recipient.getValue()).getDisplayName(context)))
-                   .setPositiveButton(R.string.RecipientBottomSheet_make_admin,
-                                      (dialog, which) -> {
-                                        adminActionBusy.setValue(true);
-                                        recipientDialogRepository.setMemberAdmin(true, result -> {
-                                          adminActionBusy.setValue(false);
-                                          if (!result) {
-                                            Toast.makeText(activity, R.string.ManageGroupActivity_failed_to_update_the_group, Toast.LENGTH_SHORT).show();
-                                          }
-                                        },
-                                        this::showErrorToast);
-                                      })
-                   .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
-                   .show();
+        .setMessage(context.getString(R.string.RecipientBottomSheet_s_will_be_able_to_edit_group, Objects.requireNonNull(recipient.getValue()).getDisplayName(context)))
+        .setPositiveButton(R.string.RecipientBottomSheet_make_admin,
+                           (dialog, which) -> {
+                             adminActionBusy.setValue(true);
+                             recipientDialogRepository.setMemberAdmin(true, result -> {
+                                                                        adminActionBusy.setValue(false);
+                                                                        if (!result) {
+                                                                          Toast.makeText(activity, R.string.ManageGroupActivity_failed_to_update_the_group, Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                      },
+                                                                      this::showErrorToast);
+                           })
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
+        .show();
   }
 
+  @MainThread
   void onRemoveGroupAdminClicked(@NonNull Activity activity) {
-    new MaterialAlertDialogBuilder(activity)
-                   .setMessage(context.getString(R.string.RecipientBottomSheet_remove_s_as_group_admin, Objects.requireNonNull(recipient.getValue()).getDisplayName(context)))
-                   .setPositiveButton(R.string.RecipientBottomSheet_remove_as_admin,
-                                      (dialog, which) -> {
-                                        adminActionBusy.setValue(true);
-                                        recipientDialogRepository.setMemberAdmin(false, result -> {
-                                          adminActionBusy.setValue(false);
-                                          if (!result) {
-                                            Toast.makeText(activity, R.string.ManageGroupActivity_failed_to_update_the_group, Toast.LENGTH_SHORT).show();
-                                          }
-                                        },
-                                        this::showErrorToast);
-                                      })
-                   .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
-                   .show();
+    Recipient groupMember = Objects.requireNonNull(recipient.getValue());
+
+    recipientDialogRepository.willAdminDemotionClearLabel(willDemotionClearLabel -> {
+      int messageRes = willDemotionClearLabel ? R.string.RecipientBottomSheet_remove_s_as_group_admin_and_clear_member_label
+                                              : R.string.RecipientBottomSheet_remove_s_as_group_admin;
+
+      new MaterialAlertDialogBuilder(activity)
+          .setMessage(context.getString(messageRes, groupMember.getDisplayName(context)))
+          .setPositiveButton(R.string.RecipientBottomSheet_remove_as_admin,
+                             (dialog, which) -> {
+                               adminActionBusy.setValue(true);
+                               recipientDialogRepository.setMemberAdmin(false, result -> {
+                                                                          adminActionBusy.setValue(false);
+                                                                          if (!result) {
+                                                                            Toast.makeText(activity, R.string.ManageGroupActivity_failed_to_update_the_group, Toast.LENGTH_SHORT).show();
+                                                                          }
+                                                                        },
+                                                                        this::showErrorToast);
+                             })
+          .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
+          .show();
+    });
   }
 
   void onRemoveFromGroupClicked(@NonNull Activity activity, boolean isLinkActive, @NonNull Runnable onSuccess) {
     new MaterialAlertDialogBuilder(activity)
-                   .setMessage(context.getString(isLinkActive ? R.string.RecipientBottomSheet_remove_s_from_the_group_they_will_not_be_able_to_rejoin
-                                                              : R.string.RecipientBottomSheet_remove_s_from_the_group,
-                                                 Objects.requireNonNull(recipient.getValue()).getDisplayName(context)))
-                   .setPositiveButton(R.string.RecipientBottomSheet_remove,
-                                      (dialog, which) -> {
-                                        adminActionBusy.setValue(true);
-                                        recipientDialogRepository.removeMember(result -> {
-                                          adminActionBusy.setValue(false);
-                                          if (result) {
-                                            onSuccess.run();
-                                          }
-                                        },
-                                        this::showErrorToast);
-                                      })
-                   .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
-                   .show();
+        .setMessage(context.getString(isLinkActive ? R.string.RecipientBottomSheet_remove_s_from_the_group_they_will_not_be_able_to_rejoin
+                                                   : R.string.RecipientBottomSheet_remove_s_from_the_group,
+                                      Objects.requireNonNull(recipient.getValue()).getDisplayName(context)))
+        .setPositiveButton(R.string.RecipientBottomSheet_remove,
+                           (dialog, which) -> {
+                             adminActionBusy.setValue(true);
+                             recipientDialogRepository.removeMember(result -> {
+                                                                      adminActionBusy.setValue(false);
+                                                                      if (result) {
+                                                                        onSuccess.run();
+                                                                      }
+                                                                    },
+                                                                    this::showErrorToast);
+                           })
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
+        .show();
   }
 
   void refreshRecipient() {

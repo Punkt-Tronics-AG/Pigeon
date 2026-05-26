@@ -26,13 +26,16 @@ import kotlinx.coroutines.withContext
 import org.signal.core.models.AccountEntropyPool
 import org.signal.core.models.MasterKey
 import org.signal.core.models.backup.MessageBackupKey
+import org.signal.core.ui.permissions.Permissions
 import org.signal.core.util.Base64
+import org.signal.core.util.Util
 import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.logging.Log
 import org.signal.libsignal.protocol.IdentityKey
 import org.signal.libsignal.protocol.IdentityKeyPair
 import org.signal.libsignal.protocol.ecc.ECPrivateKey
 import org.signal.libsignal.zkgroup.profiles.ProfileKey
+import org.signal.network.NetworkResult
 import org.signal.registration.proto.RegistrationProvisionMessage
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
 import org.thoughtcrime.securesms.backup.v2.RestoreTimestampResult
@@ -48,7 +51,6 @@ import org.thoughtcrime.securesms.keyvalue.intendToRestore
 import org.thoughtcrime.securesms.keyvalue.isDecisionPending
 import org.thoughtcrime.securesms.keyvalue.isTerminal
 import org.thoughtcrime.securesms.keyvalue.isWantingManualRemoteRestore
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.pin.SvrRepository
 import org.thoughtcrime.securesms.pin.SvrWrongPinException
 import org.thoughtcrime.securesms.registration.data.AccountRegistrationResult
@@ -84,9 +86,7 @@ import org.thoughtcrime.securesms.registration.util.RegistrationUtil
 import org.thoughtcrime.securesms.registration.viewmodel.SvrAuthCredentialSet
 import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.TextSecurePreferences
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.dualsim.MccMncProducer
-import org.whispersystems.signalservice.api.NetworkResult
 import org.whispersystems.signalservice.api.SvrNoDataException
 import org.whispersystems.signalservice.api.messages.multidevice.RequestMessage
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
@@ -474,8 +474,8 @@ class RegistrationViewModel : ViewModel() {
   }
 
   fun submitCaptchaToken(context: Context) {
-    val e164 = getCurrentE164() ?: throw IllegalStateException("Can't submit captcha token if no phone number is set!")
-    val captchaToken = store.value.captchaToken ?: throw IllegalStateException("Can't submit captcha token if no captcha token is set!")
+    val e164 = getCurrentE164() ?: return clearChallengesAndBail { Log.w(TAG, "Phone number was null when trying to submit captcha token.") }
+    val captchaToken = store.value.captchaToken ?: return bail { Log.w(TAG, "Captcha token was null when trying to submit captcha token.") }
 
     store.update {
       it.copy(captchaToken = null, challengeInProgress = true, inProgress = true)
@@ -502,7 +502,7 @@ class RegistrationViewModel : ViewModel() {
   fun requestAndSubmitPushToken(context: Context) {
     Log.v(TAG, "validatePushToken()")
 
-    val e164 = getCurrentE164() ?: throw IllegalStateException("Can't submit captcha token if no phone number is set!")
+    val e164 = getCurrentE164() ?: return clearChallengesAndBail { Log.w(TAG, "Phone number was null when trying to submit push token.") }
 
     viewModelScope.launch {
       Log.d(TAG, "Getting session in order to perform push token verification…")
@@ -515,7 +515,14 @@ class RegistrationViewModel : ViewModel() {
       Log.d(TAG, "Requesting push challenge token…")
       val pushSubmissionResult = RegistrationRepository.requestAndVerifyPushToken(context, session.sessionId, e164, password)
       Log.d(TAG, "Push challenge token submitted.", true)
-      handleSessionStateResult(context, pushSubmissionResult)
+      val success = handleSessionStateResult(context, pushSubmissionResult)
+
+      if (!success) {
+        Log.i(TAG, "Push challenge was not successful, removing from challenge list to allow fallback.")
+        store.update {
+          it.copy(challengesRequested = it.challengesRequested.minus(Challenge.PUSH), inProgress = false)
+        }
+      }
     }
   }
 
@@ -663,6 +670,11 @@ class RegistrationViewModel : ViewModel() {
     store.update {
       it.copy(inProgress = false, networkError = cause)
     }
+  }
+
+  /** Clears the recovery password from state, e.g. when a backup-key-based registration attempt fails and the stale password must not be retried. */
+  fun clearRecoveryPassword() {
+    setRecoveryPassword(null)
   }
 
   private fun setRecoveryPassword(recoveryPassword: String?) {
@@ -814,7 +826,7 @@ class RegistrationViewModel : ViewModel() {
         registrationCheckpoint = RegistrationCheckpoint.PIN_ENTERED
       )
     }
-    viewModelScope.launch {
+    viewModelScope.launch(context = coroutineExceptionHandler) {
       verifyCodeInternal(
         context = context,
         registrationLocked = true,
@@ -946,7 +958,7 @@ class RegistrationViewModel : ViewModel() {
       Log.w(TAG, "Unable to start auth websocket", e)
     }
 
-    if (!remoteResult.reRegistration && SignalStore.registration.restoreDecisionState.isDecisionPending) {
+    if (!remoteResult.reRegistration && SignalStore.registration.restoreDecisionState.isDecisionPending && SignalStore.backup.localRestoreAccountEntropyPool == null) {
       Log.v(TAG, "Not re-registration, and still pending restore decision, likely an account with no data to restore, skipping post register restore")
       SignalStore.registration.restoreDecisionState = RestoreDecisionState.NewAccount
     }
@@ -1077,6 +1089,22 @@ class RegistrationViewModel : ViewModel() {
   private fun bail(logMessage: () -> Unit) {
     logMessage()
     setInProgress(false)
+  }
+
+  /**
+   * Like [bail], but also clears challenge state. This is needed when challenge handling fails due to missing phone number,
+   * since otherwise the stale challenges would re-trigger the observer on every config change.
+   */
+  private fun clearChallengesAndBail(logMessage: () -> Unit) {
+    logMessage()
+    store.update {
+      it.copy(
+        inProgress = false,
+        challengesRequested = emptyList(),
+        challengeInProgress = false,
+        captchaToken = null
+      )
+    }
   }
 
   fun registerWithBackupKey(context: Context, backupKey: String, e164: String?, pin: String?, aciIdentityKeyPair: IdentityKeyPair?, pniIdentityKeyPair: IdentityKeyPair?) {

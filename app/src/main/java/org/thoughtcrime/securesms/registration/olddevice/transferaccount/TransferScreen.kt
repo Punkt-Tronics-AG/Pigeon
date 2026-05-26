@@ -37,6 +37,7 @@ import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Texts
 import org.signal.core.ui.compose.horizontalGutters
 import org.thoughtcrime.securesms.R
@@ -101,7 +102,7 @@ fun TransferAccountScreen(
 
       Text(
         text = buildAnnotatedString {
-          SignalSymbol(SignalSymbols.Weight.REGULAR, SignalSymbols.Glyph.LOCK)
+          SignalSymbol(SignalSymbols.Glyph.LOCK)
           append(" ")
           append(stringResource(id = R.string.TransferAccount_messages_e2e))
         },
@@ -153,7 +154,7 @@ private fun TopAppBarContent(onBackClicked: () -> Unit) {
     navigationIcon = {
       IconButton(onClick = onBackClicked) {
         Icon(
-          painter = painterResource(R.drawable.symbol_x_24),
+          painter = SignalIcons.X.painter,
           tint = MaterialTheme.colorScheme.onSurface,
           contentDescription = null
         )

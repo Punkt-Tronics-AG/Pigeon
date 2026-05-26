@@ -6,13 +6,13 @@
 package org.thoughtcrime.securesms.backup.v2.importer
 
 import androidx.core.content.contentValuesOf
+import org.signal.archive.proto.Chat
 import org.signal.core.util.SqlUtil
 import org.signal.core.util.insertInto
 import org.signal.core.util.toInt
 import org.thoughtcrime.securesms.attachments.AttachmentId
 import org.thoughtcrime.securesms.backup.v2.ImportState
 import org.thoughtcrime.securesms.backup.v2.database.restoreWallpaperAttachment
-import org.thoughtcrime.securesms.backup.v2.proto.Chat
 import org.thoughtcrime.securesms.backup.v2.util.parseChatWallpaper
 import org.thoughtcrime.securesms.backup.v2.util.toLocal
 import org.thoughtcrime.securesms.backup.v2.util.toLocalAttachment
@@ -60,7 +60,7 @@ object ChatArchiveImporter {
       .update(
         RecipientTable.TABLE_NAME,
         contentValuesOf(
-          RecipientTable.MENTION_SETTING to (if (chat.dontNotifyForMentionsIfMuted) RecipientTable.MentionSetting.DO_NOT_NOTIFY.id else RecipientTable.MentionSetting.ALWAYS_NOTIFY.id),
+          RecipientTable.MENTION_SETTING to (if (chat.dontNotifyForMentionsIfMuted) RecipientTable.NotificationSetting.DO_NOT_NOTIFY.id else RecipientTable.NotificationSetting.ALWAYS_NOTIFY.id),
           RecipientTable.MUTE_UNTIL to (chat.muteUntilMs ?: 0),
           RecipientTable.MESSAGE_EXPIRATION_TIME to (chat.expirationTimerMs?.milliseconds?.inWholeSeconds ?: 0),
           RecipientTable.MESSAGE_EXPIRATION_TIME_VERSION to chat.expireTimerVersion,

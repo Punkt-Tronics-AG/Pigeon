@@ -4,14 +4,15 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager
 import org.signal.core.util.getParcelableCompat
+import org.signal.network.util.Preconditions
 import org.thoughtcrime.securesms.contacts.paged.ContactSearchKey
 import org.thoughtcrime.securesms.conversation.ui.error.SafetyNumberChangeDialog
 import org.thoughtcrime.securesms.database.model.IdentityRecord
 import org.thoughtcrime.securesms.database.model.MessageId
 import org.thoughtcrime.securesms.database.model.MessageRecord
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord
+import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
-import org.whispersystems.signalservice.api.util.Preconditions
 
 /**
  * Object responsible for the construction of SafetyNumberBottomSheetFragment and Arg objects.
@@ -73,17 +74,32 @@ object SafetyNumberBottomSheet {
   }
 
   /**
-   * Create a factory to generate a sheet for the given message record. This will try
+   * Create a factory to generate a sheet for an outgoing message record. This will try
    * to resend the message automatically when the user confirms.
    *
    * @param context Not held on to, so any context is fine.
    * @param messageRecord The message record containing failed identities.
    */
   @JvmStatic
-  fun forMessageRecord(context: Context, messageRecord: MessageRecord): Factory {
+  fun forOutgoingMessageRecord(context: Context, messageRecord: MessageRecord): Factory {
     val args = SafetyNumberBottomSheetArgs(
       untrustedRecipients = messageRecord.identityKeyMismatches.map { it.recipientId },
       destinations = getDestinationFromRecord(messageRecord),
+      messageId = MessageId(messageRecord.id)
+    )
+
+    return SheetFactory(args)
+  }
+
+  /**
+   * Create a factory to generate a sheet for an incoming message record. This will try
+   * to resend the message automatically when the user confirms.
+   */
+  @JvmStatic
+  fun forIncomingMessageRecord(messageRecord: MessageRecord, conversationRecipient: Recipient): Factory {
+    val args = SafetyNumberBottomSheetArgs(
+      untrustedRecipients = messageRecord.identityKeyMismatches.map { it.recipientId },
+      destinations = listOf(ContactSearchKey.RecipientSearchKey(conversationRecipient.id, false)),
       messageId = MessageId(messageRecord.id)
     )
 
@@ -104,6 +120,17 @@ object SafetyNumberBottomSheet {
     )
 
     return SheetFactory(args)
+  }
+
+  /**
+   * Create a factory to generate a sheet for the given recipient IDs and destinations.
+   *
+   * @param recipientIds The list of untrusted recipient IDs
+   * @param destinations The list of locations the user was trying to send content
+   */
+  @JvmStatic
+  fun forRecipientIdsAndDestinations(recipientIds: List<RecipientId>, destinations: List<ContactSearchKey.RecipientSearchKey>): Factory {
+    return SheetFactory(SafetyNumberBottomSheetArgs(recipientIds, destinations))
   }
 
   /**

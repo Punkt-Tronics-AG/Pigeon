@@ -6,7 +6,7 @@ import android.os.ResultReceiver;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.annimon.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.signal.core.util.logging.Log;
 import org.signal.libsignal.protocol.IdentityKey;
@@ -34,7 +34,7 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.ringrtc.CallState;
-import org.thoughtcrime.securesms.ringrtc.Camera;
+import org.thoughtcrime.securesms.ringrtc.OutgoingVideoSourceRouter;
 import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.service.webrtc.WebRtcData.CallMetadata;
@@ -290,7 +290,7 @@ public abstract class WebRtcActionProcessor {
     RemotePeer peer = currentState.getCallInfoState().getPeerByCallId(new CallId(callId));
     if (peer == null || !peer.callIdEquals(currentState.getCallInfoState().getActivePeer())) {
       Log.w(tag, "Received telecom approval after call terminated. callId: " + callId + " recipient: " + recipientId);
-      webRtcInteractor.terminateCall(recipientId);
+      webRtcInteractor.terminateCall(recipientId, android.telecom.DisconnectCause.LOCAL);
       return currentState;
     }
 
@@ -414,6 +414,16 @@ public abstract class WebRtcActionProcessor {
     return currentState;
   }
 
+  protected @NonNull WebRtcServiceState handleSetLocalScreenShare(@NonNull WebRtcServiceState currentState, boolean enable, @Nullable android.content.Intent mediaProjectionData) {
+    Log.i(tag, "handleSetLocalScreenShare not processed");
+    return currentState;
+  }
+
+  protected @NonNull WebRtcServiceState handleScreenSharingServiceReady(@NonNull WebRtcServiceState currentState) {
+    Log.i(tag, "handleScreenSharingServiceReady not processed");
+    return currentState;
+  }
+
   protected @NonNull WebRtcServiceState handleReceivedHangup(@NonNull WebRtcServiceState currentState,
                                                              @NonNull CallMetadata callMetadata,
                                                              @NonNull HangupMetadata hangupMetadata)
@@ -533,9 +543,9 @@ public abstract class WebRtcActionProcessor {
   protected final @NonNull WebRtcServiceState handleSendIceCandidates(@NonNull WebRtcServiceState currentState, @NonNull CallMetadata callMetadata, boolean broadcast, @NonNull List<byte[]> iceCandidates) {
     Log.i(tag, "handleSendIceCandidates(): id: " + callMetadata.getCallId().format(callMetadata.getRemoteDevice()));
 
-    List<IceUpdateMessage> iceUpdateMessages = Stream.of(iceCandidates)
-                                                     .map(c -> new IceUpdateMessage(callMetadata.getCallId().longValue(), c))
-                                                     .toList();
+    List<IceUpdateMessage> iceUpdateMessages = iceCandidates.stream()
+                                                            .map(c -> new IceUpdateMessage(callMetadata.getCallId().longValue(), c))
+                                                            .collect(Collectors.toList());
 
     Integer                  destinationDeviceId = broadcast ? null : callMetadata.getRemoteDevice();
     SignalServiceCallMessage callMessage         = SignalServiceCallMessage.forIceUpdates(iceUpdateMessages, destinationDeviceId);
@@ -586,6 +596,10 @@ public abstract class WebRtcActionProcessor {
     return currentState;
   }
 
+  protected @NonNull WebRtcServiceState handleSetIncomingRingingVanity(@NonNull WebRtcServiceState currentState, boolean enabled) {
+    Log.i(tag, "handleSetIncomingRingingVanity not processed");
+    return currentState;
+  }
 
   protected @NonNull WebRtcServiceState handleSelfRaiseHand(@NonNull WebRtcServiceState currentState, boolean raised) {
     Log.i(tag, "raiseHand not processed");
@@ -634,9 +648,9 @@ public abstract class WebRtcActionProcessor {
   }
 
   protected @NonNull WebRtcServiceState handleOrientationChanged(@NonNull WebRtcServiceState currentState, boolean isLandscapeEnabled, int orientationDegrees) {
-    Camera camera = currentState.getVideoState().getCamera();
-    if (camera != null) {
-      camera.setOrientation(orientationDegrees);
+    OutgoingVideoSourceRouter router = currentState.getVideoState().getRouter();
+    if (router != null) {
+      router.setOrientation(orientationDegrees);
     }
 
     int sinkRotationDegrees  = isLandscapeEnabled ? BroadcastVideoSink.DEVICE_ROTATION_IGNORE : orientationDegrees;
@@ -965,6 +979,12 @@ public abstract class WebRtcActionProcessor {
 
   protected @NonNull WebRtcServiceState handleSetCallLinkJoinRequestRejected(@NonNull WebRtcServiceState currentState, @NonNull RecipientId participant) {
     Log.i(tag, "handleSetCallLinkJoinRequestRejected not processed");
+
+    return currentState;
+  }
+
+  protected @NonNull WebRtcServiceState handleSendRemoteMuteRequest(@NonNull WebRtcServiceState currentState, @NonNull CallParticipant participant) {
+    Log.i(tag, "handleSendRemoteMuteRequest not processed");
 
     return currentState;
   }

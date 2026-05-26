@@ -36,6 +36,7 @@ interface CallScreenControlsListener {
   fun onNavigateUpClicked()
   fun toggleControls()
   fun onAudioPermissionsRequested(onGranted: Runnable?)
+  fun onScreenShareChanged(sharing: Boolean)
 
   // PIGEON Code
   fun onVolumePressed()
@@ -62,6 +63,7 @@ interface CallScreenControlsListener {
     override fun onNavigateUpClicked() = Unit
     override fun toggleControls() = Unit
     override fun onAudioPermissionsRequested(onGranted: Runnable?) = Unit
+    override fun onScreenShareChanged(sharing: Boolean) = Unit
 
     // PIGEON Code
     override fun onVolumePressed() = Unit

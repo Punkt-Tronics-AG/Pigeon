@@ -1,16 +1,17 @@
 package org.thoughtcrime.securesms.jobs
 
 import org.signal.core.util.logging.Log
+import org.signal.network.exceptions.PushNetworkException
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.net.NotPushRegisteredException
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException
 import org.whispersystems.signalservice.api.messages.multidevice.KeysMessage
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException
 import java.io.IOException
 
@@ -27,6 +28,7 @@ class MultiDeviceKeysUpdateJob private constructor(parameters: Parameters) : Bas
       .setQueue("MultiDeviceKeysUpdateJob")
       .setMaxInstancesForFactory(2)
       .addConstraint(NetworkConstraint.KEY)
+      .addConstraint(SealedSenderConstraint.KEY)
       .setMaxAttempts(10)
       .build()
   )
@@ -54,7 +56,6 @@ class MultiDeviceKeysUpdateJob private constructor(parameters: Parameters) : Bas
     val syncMessage = SignalServiceSyncMessage.forKeys(
       KeysMessage(
         storageService = SignalStore.storageService.storageKey,
-        master = SignalStore.svr.masterKey,
         accountEntropyPool = SignalStore.account.accountEntropyPool,
         mediaRootBackupKey = SignalStore.backup.mediaRootBackupKey
       )

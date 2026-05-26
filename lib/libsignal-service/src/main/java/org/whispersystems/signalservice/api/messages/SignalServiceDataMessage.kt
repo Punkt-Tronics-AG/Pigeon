@@ -24,7 +24,6 @@ import org.whispersystems.signalservice.internal.push.DataMessage.Quote as Quote
  * @param groupContext The group information (or null if none).
  * @param attachments The attachments (or null if none).
  * @param body The message contents.
- * @param isEndSession Flag indicating whether this message should close a session.
  * @param expiresInSeconds Number of seconds in which the message should disappear after being seen.
  */
 class SignalServiceDataMessage private constructor(
@@ -32,7 +31,6 @@ class SignalServiceDataMessage private constructor(
   val groupContext: Optional<SignalServiceGroupV2>,
   val attachments: Optional<List<SignalServiceAttachment>>,
   val body: Optional<String>,
-  val isEndSession: Boolean,
   val expiresInSeconds: Int,
   val expireTimerVersion: Int,
   val isExpirationUpdate: Boolean,
@@ -55,7 +53,8 @@ class SignalServiceDataMessage private constructor(
   val pollVote: Optional<PollVote>,
   val pollTerminate: Optional<PollTerminate>,
   val pinnedMessage: Optional<PinnedMessage>,
-  val unpinnedMessage: Optional<UnpinnedMessage>
+  val unpinnedMessage: Optional<UnpinnedMessage>,
+  val adminDelete: Optional<AdminDelete>
 ) {
   val isActivatePaymentsRequest: Boolean = payment.map { it.isActivationRequest }.orElse(false)
   val isPaymentsActivated: Boolean = payment.map { it.isActivation }.orElse(false)
@@ -88,7 +87,6 @@ class SignalServiceDataMessage private constructor(
     private var groupV2: SignalServiceGroupV2? = null
     private val attachments: MutableList<SignalServiceAttachment> = LinkedList<SignalServiceAttachment>()
     private var body: String? = null
-    private var endSession: Boolean = false
     private var expiresInSeconds: Int = 0
     private var expireTimerVersion: Int = 1
     private var expirationUpdate: Boolean = false
@@ -112,6 +110,7 @@ class SignalServiceDataMessage private constructor(
     private var pollTerminate: PollTerminate? = null
     private var pinnedMessage: PinnedMessage? = null
     private var unpinnedMessage: UnpinnedMessage? = null
+    private var adminDelete: AdminDelete? = null
 
     fun withTimestamp(timestamp: Long): Builder {
       this.timestamp = timestamp
@@ -130,12 +129,6 @@ class SignalServiceDataMessage private constructor(
 
     fun withBody(body: String?): Builder {
       this.body = body
-      return this
-    }
-
-    @JvmOverloads
-    fun asEndSessionMessage(endSession: Boolean = true): Builder {
-      this.endSession = endSession
       return this
     }
 
@@ -260,6 +253,11 @@ class SignalServiceDataMessage private constructor(
       return this
     }
 
+    fun withAdminDelete(adminDelete: AdminDelete?): Builder {
+      this.adminDelete = adminDelete
+      return this
+    }
+
     fun build(): SignalServiceDataMessage {
       if (timestamp == 0L) {
         timestamp = System.currentTimeMillis()
@@ -270,7 +268,6 @@ class SignalServiceDataMessage private constructor(
         groupContext = groupV2.asOptional(),
         attachments = attachments.asOptional(),
         body = body.emptyIfStringEmpty(),
-        isEndSession = endSession,
         expiresInSeconds = expiresInSeconds,
         expireTimerVersion = expireTimerVersion,
         isExpirationUpdate = expirationUpdate,
@@ -293,7 +290,8 @@ class SignalServiceDataMessage private constructor(
         pollVote = pollVote.asOptional(),
         pollTerminate = pollTerminate.asOptional(),
         pinnedMessage = pinnedMessage.asOptional(),
-        unpinnedMessage = unpinnedMessage.asOptional()
+        unpinnedMessage = unpinnedMessage.asOptional(),
+        adminDelete = adminDelete.asOptional()
       )
     }
   }
@@ -342,6 +340,7 @@ class SignalServiceDataMessage private constructor(
   data class PollTerminate(val targetSentTimestamp: Long)
   data class PinnedMessage(val targetAuthor: ServiceId, val targetSentTimestamp: Long, val pinDurationInSeconds: Int?, val forever: Boolean?)
   data class UnpinnedMessage(val targetAuthor: ServiceId, val targetSentTimestamp: Long)
+  data class AdminDelete(val targetAuthor: ServiceId, val targetSentTimestamp: Long)
 
   companion object {
     @JvmStatic

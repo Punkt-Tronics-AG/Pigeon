@@ -44,13 +44,14 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowWidthSizeClass
 import org.signal.core.ui.compose.AllNightPreviews
 import org.signal.core.ui.compose.NightPreview
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.SignalIcons
+import org.signal.core.ui.compose.theme.SignalTheme
+import org.signal.core.ui.isWidthCompact
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.avatar.AvatarImage
-import org.thoughtcrime.securesms.compose.SignalTheme
 import org.thoughtcrime.securesms.events.CallParticipant
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.rememberRecipientField
@@ -85,7 +86,7 @@ fun CallScreenPreJoinOverlay(
       .background(color = Color(0f, 0f, 0f, 0.4f))
       .then(modifier)
   ) {
-    val isCompactWidth = currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT
+    val isCompactWidth = currentWindowAdaptiveInfo().windowSizeClass.isWidthCompact
 
     if (!isLocalVideoEnabled) {
       TopWithCenteredContentLayout(
@@ -193,7 +194,8 @@ private fun PreJoinHeader(
         text = callStatus,
         style = MaterialTheme.typography.bodyMedium,
         color = Color.White,
-        modifier = Modifier.padding(top = 8.dp)
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
       )
     }
   }
@@ -394,7 +396,7 @@ fun CallScreenTopAppBar(
         onClick = onNavigationClick
       ) {
         Icon(
-          painter = painterResource(id = R.drawable.symbol_arrow_start_24),
+          painter = SignalIcons.ArrowStart.painter,
           contentDescription = stringResource(id = R.string.CallScreenTopBar__go_back),
           tint = Color.White
         )
@@ -406,7 +408,7 @@ fun CallScreenTopAppBar(
         modifier = Modifier.padding(16.dp)
       ) {
         Icon(
-          painter = painterResource(id = R.drawable.symbol_info_24),
+          painter = SignalIcons.Info.painter,
           contentDescription = stringResource(id = R.string.CallScreenTopBar__call_information),
           tint = Color.White
         )

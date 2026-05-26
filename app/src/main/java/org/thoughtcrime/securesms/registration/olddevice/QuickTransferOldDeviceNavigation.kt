@@ -6,6 +6,7 @@
 package org.thoughtcrime.securesms.registration.olddevice
 
 import android.os.Parcelable
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +50,13 @@ fun TransferAccountNavHost(
 ) {
   val backStack by viewModel.backStack.collectAsStateWithLifecycle()
 
+  val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+  LaunchedEffect(viewModel, backDispatcher) {
+    viewModel.finishRequests.collect {
+      backDispatcher?.onBackPressed()
+    }
+  }
+
   val entryProvider = entryProvider {
     navigationEntries(
       viewModel = viewModel,
@@ -72,7 +80,7 @@ fun TransferAccountNavHost(
     modifier = modifier,
     transitionSpec = TransitionSpecs.HorizontalSlide.transitionSpec,
     popTransitionSpec = TransitionSpecs.HorizontalSlide.popTransitionSpec,
-    predictivePopTransitionSpec = TransitionSpecs.HorizontalSlide.predictivePopTransitonSpec
+    predictivePopTransitionSpec = TransitionSpecs.HorizontalSlide.predictivePopTransitionSpec
   )
 }
 

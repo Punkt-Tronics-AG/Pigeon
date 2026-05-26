@@ -7,14 +7,42 @@ package org.signal.registration
 
 import org.signal.core.models.AccountEntropyPool
 import org.signal.core.models.MasterKey
+import org.signal.registration.util.DebugLoggable
 
-sealed interface RegistrationFlowEvent {
+sealed interface RegistrationFlowEvent : DebugLoggable {
+  /** Navigate to a specific screen. */
   data class NavigateToScreen(val route: RegistrationRoute) : RegistrationFlowEvent
+
+  /** Navigate back one screen. */
   data object NavigateBack : RegistrationFlowEvent
+
+  /** We've encountered some irrecoverable state where the best course of action is to completely reset registration. */
   data object ResetState : RegistrationFlowEvent
+
+  /** An update has been made to the ongoing registration session.  */
   data class SessionUpdated(val session: NetworkController.SessionMetadata) : RegistrationFlowEvent
+
+  /** The e164 associated with this registration attempt has been updated.  */
   data class E164Chosen(val e164: String) : RegistrationFlowEvent
+
+  /** The user has successfully registered. */
   data class Registered(val accountEntropyPool: AccountEntropyPool) : RegistrationFlowEvent
-  data class MasterKeyRestoredViaRegistrationLock(val masterKey: MasterKey) : RegistrationFlowEvent
-  data class MasterKeyRestoredViaPostRegisterPinEntry(val masterKey: MasterKey) : RegistrationFlowEvent
+
+  /** The master key has been restored from SVR. */
+  data class MasterKeyRestoredFromSvr(val masterKey: MasterKey) : RegistrationFlowEvent
+
+  /** We've discovered that RRP-based registration is not possible for this account. */
+  data object RecoveryPasswordInvalid : RegistrationFlowEvent
+
+  /** The user selected (or cleared) a restore option before entering their phone number. */
+  data class PendingRestoreOptionSelected(val option: PendingRestoreOption?) : RegistrationFlowEvent
+
+  /** An AEP was manually input by the user. It has not yet been verified against the server. */
+  data class UserSuppliedAepSubmitted(val aep: AccountEntropyPool) : RegistrationFlowEvent
+
+  /** An AEP that was previously manually input by the user (see [UserSuppliedAepSubmitted]) has been validated. We should use it as the canonical AEP.  */
+  data class UserSuppliedAepVerified(val aep: AccountEntropyPool) : RegistrationFlowEvent
+
+  /** Registration has been completed. Will finalize any pending state, then navigate to flow's conclusion. */
+  data object RegistrationComplete : RegistrationFlowEvent
 }

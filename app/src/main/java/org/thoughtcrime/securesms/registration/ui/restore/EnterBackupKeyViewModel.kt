@@ -5,17 +5,26 @@
 
 package org.thoughtcrime.securesms.registration.ui.restore
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.signal.core.models.AccountEntropyPool
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.backup.v2.local.ArchiveFileSystem
+import org.thoughtcrime.securesms.backup.v2.local.LocalArchiver
+import org.thoughtcrime.securesms.backup.v2.local.SnapshotFileSystem
+import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.data.network.RegisterAccountResult
+import java.util.concurrent.atomic.AtomicInteger
 
 class EnterBackupKeyViewModel : ViewModel() {
 
@@ -30,14 +39,23 @@ class EnterBackupKeyViewModel : ViewModel() {
     )
   )
 
+  private val verifyGeneration = AtomicInteger(0)
+
+  /** Raw user-typed text (illegal chars stripped, length-capped). Bound to the TextField so #/= stay visible. */
+  var enteredText by mutableStateOf("")
+    private set
+
+  /** Storage-normalized lowercase form of [enteredText], used for parseOrNull and submit. */
   var backupKey by mutableStateOf("")
     private set
 
   val state: StateFlow<EnterBackupKeyState> = store
 
   fun updateBackupKey(key: String) {
-    val newKey = AccountEntropyPool.removeIllegalCharacters(key).take(AccountEntropyPool.LENGTH + 16).lowercase()
+    val newEnteredText = AccountEntropyPool.removeIllegalCharacters(key).take(AccountEntropyPool.LENGTH + 16)
+    val newKey = AccountEntropyPool.formatForStorage(newEnteredText).lowercase()
     val changed = newKey != backupKey
+    enteredText = newEnteredText
     backupKey = newKey
     store.update {
       val (isValid, updatedError) = AccountEntropyPoolVerification.verifyAEP(
@@ -49,8 +67,50 @@ class EnterBackupKeyViewModel : ViewModel() {
     }
   }
 
+  fun verifyLocalBackupKey(selectedTimestamp: Long) {
+    if (!state.value.backupKeyValid) {
+      return
+    }
+
+    val generation = verifyGeneration.incrementAndGet()
+    store.update { it.copy(backupKeyValid = false) }
+
+    viewModelScope.launch(Dispatchers.IO) {
+      val result = verifyKey(selectedTimestamp)
+
+      if (verifyGeneration.get() == generation) {
+        if (result) {
+          store.update { it.copy(backupKeyValid = true) }
+        } else {
+          store.update { it.copy(aepValidationError = AccountEntropyPoolVerification.AEPValidationError.Incorrect) }
+        }
+      }
+    }
+  }
+
+  private fun verifyKey(selectedTimestamp: Long): Boolean {
+    try {
+      val aep = AccountEntropyPool.parseOrNull(backupKey) ?: return false
+
+      val dirUri = SignalStore.backup.newLocalBackupsDirectory ?: return false
+      val archiveFileSystem = ArchiveFileSystem.openForRestore(AppDependencies.application, Uri.parse(dirUri)) ?: return false
+      val snapshot = archiveFileSystem.listSnapshots().firstOrNull { it.timestamp == selectedTimestamp } ?: return false
+
+      val snapshotFs = SnapshotFileSystem(AppDependencies.application, snapshot.file)
+      return LocalArchiver.canDecryptMainArchive(snapshotFs, aep.deriveMessageBackupKey())
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to verify local backup key", e)
+      return false
+    }
+  }
+
   fun registering() {
     store.update { it.copy(isRegistering = true) }
+  }
+
+  /** Resets [EnterBackupKeyState.isRegistering] without triggering a registration error dialog. Use when navigation away from this screen is handling the error itself. */
+  fun cancelRegistering() {
+    store.update { it.copy(isRegistering = false) }
   }
 
   fun handleRegistrationFailure(registerAccountResult: RegisterAccountResult) {

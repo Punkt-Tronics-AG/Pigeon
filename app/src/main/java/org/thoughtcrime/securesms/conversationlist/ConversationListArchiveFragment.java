@@ -26,13 +26,12 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.annotation.WorkerThread;
 import org.signal.core.ui.compose.Snackbars;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.signal.core.util.concurrent.LifecycleDisposable;
 import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.ui.view.Stub;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.thoughtcrime.securesms.MainActivity;
@@ -42,9 +41,6 @@ import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.main.MainNavigationListLocation;
 import org.thoughtcrime.securesms.main.MainSnackbarHostKey;
 import org.thoughtcrime.securesms.util.ConversationUtil;
-import org.thoughtcrime.securesms.util.views.Stub;
-
-import java.util.Set;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
@@ -83,7 +79,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment
 
     lifecycleDisposable.bindTo(getViewLifecycleOwner());
 
-    coordinator = view.findViewById(R.id.coordinator);
+    coordinator = view.findViewById(org.signal.core.ui.R.id.coordinator);
     list        = view.findViewById(R.id.list);
     emptyState  = new Stub<>(view.findViewById(R.id.empty_state));
     foldersList = view.findViewById(R.id.chat_folder_list);
@@ -114,25 +110,8 @@ public class ConversationListArchiveFragment extends ConversationListFragment
   }
 
   @Override
-  protected @StringRes int getArchivedSnackbarTitleRes() {
-    return R.plurals.ConversationListFragment_moved_conversations_to_inbox;
-  }
-
-  @Override
   protected @DrawableRes int getArchiveIconRes() {
     return R.drawable.symbol_archive_up_24;
-  }
-
-  @Override
-  @WorkerThread
-  protected void archiveThreads(Set<Long> threadIds) {
-    SignalDatabase.threads().setArchived(threadIds, false);
-  }
-
-  @Override
-  @WorkerThread
-  protected void reverseArchiveThreads(Set<Long> threadIds) {
-    SignalDatabase.threads().setArchived(threadIds, true);
   }
 
   @SuppressLint("StaticFieldLeak")

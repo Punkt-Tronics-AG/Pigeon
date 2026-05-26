@@ -36,9 +36,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.Dialogs
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.theme.SignalTheme
 import org.thoughtcrime.securesms.PassphraseRequiredActivity
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.SignalTheme
 import org.thoughtcrime.securesms.contacts.SelectedContact
 import org.thoughtcrime.securesms.groups.SelectionLimits
 import org.thoughtcrime.securesms.groups.ui.creategroup.CreateGroupUiState.NavTarget
@@ -105,7 +105,7 @@ private fun CreateGroupScreen(
   )
 
   val callbacks = remember {
-    object : UiCallbacks {
+    object : CreateGroupUiCallbacks {
       override fun onSearchQueryChanged(query: String) = viewModel.onSearchQueryChanged(query)
       override fun onFindByUsername() = findByLauncher.launch(FindByMode.USERNAME)
       override fun onFindByPhoneNumber() = findByLauncher.launch(FindByMode.PHONE_NUMBER)
@@ -143,7 +143,7 @@ private fun CreateGroupScreen(
 @Composable
 private fun CreateGroupScreenUi(
   uiState: CreateGroupUiState,
-  callbacks: UiCallbacks
+  callbacks: CreateGroupUiCallbacks
 ) {
   val title = if (uiState.newSelections.isNotEmpty()) {
     pluralStringResource(
@@ -176,33 +176,32 @@ private fun CreateGroupScreenUi(
         Dialogs.IndeterminateProgressDialog()
       }
     },
+    // Comment for Pigeon
 //    floatingActionButton = {
-//      if (isSignalVersion()) {
-//        AnimatedContent(
-//          targetState = uiState.newSelections.isNotEmpty(),
-//          transitionSpec = {
-//            ContentTransform(
-//              targetContentEnter = EnterTransition.None,
-//              initialContentExit = ExitTransition.None
-//            ) using SizeTransform(sizeAnimationSpec = { _, _ -> tween(300) })
-//          }
-//        ) { hasSelectedContacts ->
-//          if (hasSelectedContacts) {
-//            FilledTonalIconButton(
-//              onClick = callbacks::onNextClicked,
-//              content = {
-//                Icon(
-//                  imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_end_24),
-//                  contentDescription = stringResource(R.string.CreateGroupActivity__accessibility_next)
-//                )
-//              }
-//            )
-//          } else {
-//            Buttons.MediumTonal(
-//              onClick = callbacks::onNextClicked
-//            ) {
-//              Text(text = stringResource(R.string.CreateGroupActivity__skip))
+//      AnimatedContent(
+//        targetState = uiState.newSelections.isNotEmpty(),
+//        transitionSpec = {
+//          ContentTransform(
+//            targetContentEnter = EnterTransition.None,
+//            initialContentExit = ExitTransition.None
+//          ) using SizeTransform(sizeAnimationSpec = { _, _ -> tween(300) })
+//        }
+//      ) { hasSelectedContacts ->
+//        if (hasSelectedContacts) {
+//          FilledTonalIconButton(
+//            onClick = callbacks::onNextClicked,
+//            content = {
+//              Icon(
+//                imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_end_24),
+//                contentDescription = stringResource(R.string.CreateGroupActivity__accessibility_next)
+//              )
 //            }
+//          )
+//        } else {
+//          Buttons.MediumTonal(
+//            onClick = callbacks::onNextClicked
+//          ) {
+//            Text(text = stringResource(R.string.CreateGroupActivity__skip))
 //          }
 //        }
 //      }
@@ -213,7 +212,7 @@ private fun CreateGroupScreenUi(
 @Composable
 private fun CreateGroupRecipientPicker(
   uiState: CreateGroupUiState,
-  callbacks: UiCallbacks,
+  callbacks: CreateGroupUiCallbacks,
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier.fillMaxSize()) {
@@ -268,8 +267,7 @@ private fun CreateGroupRecipientPicker(
   }
 }
 
-
-private interface UiCallbacks :
+private interface CreateGroupUiCallbacks :
   RecipientPickerCallbacks.ListActions,
   RecipientPickerCallbacks.FindByUsername,
   RecipientPickerCallbacks.FindByPhoneNumber {
@@ -280,7 +278,7 @@ private interface UiCallbacks :
   fun onBackPressed()
   fun onPendingDestinationConsumed()
 
-  object Empty : UiCallbacks {
+  object Empty : CreateGroupUiCallbacks {
     override fun onSearchQueryChanged(query: String) = Unit
     override fun onFindByUsername() = Unit
     override fun onFindByPhoneNumber() = Unit
@@ -319,7 +317,7 @@ private fun CreateGroupScreenPreview() {
         forceSplitPane = false,
         selectionLimits = SelectionLimits.NO_LIMITS
       ),
-      callbacks = UiCallbacks.Empty
+      callbacks = CreateGroupUiCallbacks.Empty
     )
   }
 }

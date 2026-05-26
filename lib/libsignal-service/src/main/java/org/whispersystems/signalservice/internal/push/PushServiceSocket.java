@@ -15,15 +15,15 @@ import org.signal.core.util.Hex;
 import org.signal.libsignal.protocol.InvalidKeyException;
 import org.signal.libsignal.protocol.logging.Log;
 import org.signal.storageservice.storage.protos.groups.AvatarUploadAttributes;
+import org.signal.storageservice.storage.protos.groups.ExternalGroupCredential;
 import org.signal.storageservice.storage.protos.groups.Group;
 import org.signal.storageservice.storage.protos.groups.GroupChange;
 import org.signal.storageservice.storage.protos.groups.GroupChangeResponse;
 import org.signal.storageservice.storage.protos.groups.GroupChanges;
-import org.signal.storageservice.storage.protos.groups.ExternalGroupCredential;
 import org.signal.storageservice.storage.protos.groups.GroupJoinInfo;
 import org.signal.storageservice.storage.protos.groups.GroupResponse;
 import org.signal.storageservice.storage.protos.groups.Member;
-import org.whispersystems.signalservice.api.NetworkResult;
+import org.signal.network.NetworkResult;
 import org.whispersystems.signalservice.api.account.AccountAttributes;
 import org.whispersystems.signalservice.api.account.PreKeyCollection;
 import org.whispersystems.signalservice.api.crypto.SealedSenderAccess;
@@ -47,17 +47,17 @@ import org.whispersystems.signalservice.api.push.exceptions.HttpConflictExceptio
 import org.whispersystems.signalservice.api.push.exceptions.IncorrectRegistrationRecoveryPasswordException;
 import org.whispersystems.signalservice.api.push.exceptions.InvalidRegistrationSessionIdException;
 import org.whispersystems.signalservice.api.push.exceptions.InvalidTransportModeException;
-import org.whispersystems.signalservice.api.push.exceptions.MalformedRequestException;
-import org.whispersystems.signalservice.api.push.exceptions.MalformedResponseException;
+import org.signal.network.exceptions.MalformedRequestException;
+import org.signal.network.exceptions.MalformedResponseException;
 import org.whispersystems.signalservice.api.push.exceptions.MissingConfigurationException;
 import org.whispersystems.signalservice.api.push.exceptions.MustRequestNewCodeException;
 import org.whispersystems.signalservice.api.push.exceptions.NoContentException;
 import org.whispersystems.signalservice.api.push.exceptions.NoSuchSessionException;
-import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResponseCodeException;
+import org.signal.network.exceptions.NonSuccessfulResponseCodeException;
 import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResumableUploadResponseCodeException;
 import org.whispersystems.signalservice.api.push.exceptions.NotFoundException;
 import org.whispersystems.signalservice.api.push.exceptions.ProofRequiredException;
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
+import org.signal.network.exceptions.PushNetworkException;
 import org.whispersystems.signalservice.api.push.exceptions.RangeException;
 import org.whispersystems.signalservice.api.push.exceptions.RateLimitException;
 import org.whispersystems.signalservice.api.push.exceptions.RequestVerificationCodeRateLimitException;
@@ -67,7 +67,6 @@ import org.whispersystems.signalservice.api.push.exceptions.SubmitVerificationCo
 import org.whispersystems.signalservice.api.push.exceptions.TokenNotAcceptedException;
 import org.whispersystems.signalservice.api.push.exceptions.UnregisteredUserException;
 import org.whispersystems.signalservice.api.registration.RestoreMethodBody;
-import org.whispersystems.signalservice.api.remoteconfig.RemoteConfigResponse;
 import org.whispersystems.signalservice.api.svr.Svr3Credentials;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
 import org.whispersystems.signalservice.api.util.Tls12SocketFactory;
@@ -79,11 +78,9 @@ import org.whispersystems.signalservice.internal.configuration.SignalUrl;
 import org.whispersystems.signalservice.internal.crypto.AttachmentDigest;
 import org.whispersystems.signalservice.internal.push.exceptions.ForbiddenException;
 import org.whispersystems.signalservice.internal.push.exceptions.GroupExistsException;
-import org.whispersystems.signalservice.internal.push.exceptions.GroupMismatchedDevicesException;
 import org.whispersystems.signalservice.internal.push.exceptions.GroupNotFoundException;
 import org.whispersystems.signalservice.internal.push.exceptions.GroupPatchNotAcceptedException;
-import org.whispersystems.signalservice.internal.push.exceptions.GroupStaleDevicesException;
-import org.whispersystems.signalservice.internal.push.exceptions.InvalidUnidentifiedAccessHeaderException;
+import org.whispersystems.signalservice.internal.push.exceptions.GroupTerminatedException;
 import org.whispersystems.signalservice.internal.push.exceptions.MismatchedDevicesException;
 import org.whispersystems.signalservice.internal.push.exceptions.NotInGroupException;
 import org.whispersystems.signalservice.internal.push.exceptions.StaleDevicesException;
@@ -97,7 +94,7 @@ import org.whispersystems.signalservice.internal.storage.protos.StorageItems;
 import org.whispersystems.signalservice.internal.storage.protos.StorageManifest;
 import org.whispersystems.signalservice.internal.storage.protos.WriteOperation;
 import org.whispersystems.signalservice.internal.util.BlacklistingTrustManager;
-import org.whispersystems.signalservice.internal.util.JsonUtil;
+import org.signal.network.util.JsonUtil;
 import org.whispersystems.signalservice.internal.util.Util;
 
 import java.io.ByteArrayInputStream;
@@ -135,12 +132,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import kotlin.Pair;
-
 import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.ConnectionSpec;
 import okhttp3.Dns;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -407,55 +402,13 @@ public class PushServiceSocket {
    * V2 API: Submits registration request and returns the raw Response for manual handling.
    * Caller is responsible for closing the response.
    */
-  public Response submitRegistrationRequestV2(@Nullable String sessionId, @Nullable String recoveryPassword, AccountAttributes attributes, PreKeyCollection aciPreKeys, PreKeyCollection pniPreKeys, @Nullable String fcmToken, boolean skipDeviceTransfer) throws IOException {
-    String path = REGISTRATION_PATH;
-    if (sessionId == null && recoveryPassword == null) {
-      throw new IllegalArgumentException("Neither Session ID nor Recovery Password provided.");
-    }
-
-    if (sessionId != null && recoveryPassword != null) {
-      throw new IllegalArgumentException("You must supply one and only one of either: Session ID, or Recovery Password.");
-    }
-
-    GcmRegistrationId gcmRegistrationId;
-    if (attributes.getFetchesMessages()) {
-      gcmRegistrationId = null;
-    } else {
-      gcmRegistrationId = new GcmRegistrationId(fcmToken, true);
-    }
-
-    RegistrationSessionRequestBody body;
-    try {
-      final SignedPreKeyEntity aciSignedPreKey = new SignedPreKeyEntity(Objects.requireNonNull(aciPreKeys.getSignedPreKey()).getId(),
-                                                                        aciPreKeys.getSignedPreKey().getKeyPair().getPublicKey(),
-                                                                        aciPreKeys.getSignedPreKey().getSignature());
-      final SignedPreKeyEntity pniSignedPreKey = new SignedPreKeyEntity(Objects.requireNonNull(pniPreKeys.getSignedPreKey()).getId(),
-                                                                        pniPreKeys.getSignedPreKey().getKeyPair().getPublicKey(),
-                                                                        pniPreKeys.getSignedPreKey().getSignature());
-      final KyberPreKeyEntity aciLastResortKyberPreKey = new KyberPreKeyEntity(Objects.requireNonNull(aciPreKeys.getLastResortKyberPreKey()).getId(),
-                                                                               aciPreKeys.getLastResortKyberPreKey().getKeyPair().getPublicKey(),
-                                                                               aciPreKeys.getLastResortKyberPreKey().getSignature());
-      final KyberPreKeyEntity pniLastResortKyberPreKey = new KyberPreKeyEntity(Objects.requireNonNull(pniPreKeys.getLastResortKyberPreKey()).getId(),
-                                                                               pniPreKeys.getLastResortKyberPreKey().getKeyPair().getPublicKey(),
-                                                                               pniPreKeys.getLastResortKyberPreKey().getSignature());
-
-      body = new RegistrationSessionRequestBody(sessionId,
-                                                recoveryPassword,
-                                                attributes,
-                                                Base64.encodeWithoutPadding(aciPreKeys.getIdentityKey().serialize()),
-                                                Base64.encodeWithoutPadding(pniPreKeys.getIdentityKey().serialize()),
-                                                aciSignedPreKey,
-                                                pniSignedPreKey,
-                                                aciLastResortKyberPreKey,
-                                                pniLastResortKyberPreKey,
-                                                gcmRegistrationId,
-                                                skipDeviceTransfer,
-                                                true);
-    } catch (InvalidKeyException e) {
-      throw new AssertionError("unexpected invalid key", e);
-    }
-
-    return makeServiceRequestWithoutValidation(path, "POST", jsonRequestBody(JsonUtil.toJson(body)), NO_HEADERS, SealedSenderAccess.NONE, false);
+  /**
+   * V2 API: Checks SVR2 auth credentials and returns the raw Response for manual handling.
+   * Caller is responsible for closing the response.
+   */
+  public Response checkSvr2AuthCredentialsV2(@Nullable String number, @Nonnull List<String> passwords) throws IOException {
+    String jsonBody = JsonUtil.toJson(new BackupAuthCheckRequest(number, passwords));
+    return makeServiceRequestWithoutValidation(BACKUP_AUTH_CHECK_V2, "POST", jsonRequestBody(jsonBody), NO_HEADERS, SealedSenderAccess.NONE, false);
   }
 
   /**
@@ -531,62 +484,6 @@ public class PushServiceSocket {
   public RegisterAsSecondaryDeviceResponse registerAsSecondaryDevice(RegisterAsSecondaryDeviceRequest request) throws IOException {
     String responseText = makeServiceRequest("/v1/devices/link", "PUT", JsonUtil.toJson(request));
     return JsonUtil.fromJson(responseText, RegisterAsSecondaryDeviceResponse.class);
-  }
-
-  public SendGroupMessageResponse sendGroupMessage(byte[] body, @Nonnull SealedSenderAccess sealedSenderAccess, long timestamp, boolean online, boolean urgent, boolean story)
-      throws NonSuccessfulResponseCodeException, PushNetworkException, MalformedResponseException
-  {
-    ServiceConnectionHolder connectionHolder = (ServiceConnectionHolder) getRandom(serviceClients, random);
-
-    String path = String.format(Locale.US, GROUP_MESSAGE_PATH, timestamp, online, urgent, story);
-
-    Request.Builder requestBuilder = new Request.Builder();
-    requestBuilder.url(String.format("%s%s", connectionHolder.getUrl(), path));
-    requestBuilder.put(RequestBody.create(MediaType.get("application/vnd.signal-messenger.mrm"), body));
-    requestBuilder.addHeader(sealedSenderAccess.getHeaderName(), sealedSenderAccess.getHeaderValue());
-
-    if (signalAgent != null) {
-      requestBuilder.addHeader("X-Signal-Agent", signalAgent);
-    }
-
-    if (connectionHolder.getHostHeader().isPresent()) {
-      requestBuilder.addHeader("Host", connectionHolder.getHostHeader().get());
-    }
-
-    Call call = connectionHolder.getUnidentifiedClient().newCall(requestBuilder.build());
-
-    synchronized (connections) {
-      connections.add(call);
-    }
-
-    try (Response response = call.execute()) {
-      switch (response.code()) {
-        case 200:
-          return readBodyJson(response.body(), SendGroupMessageResponse.class);
-        case 401:
-          throw new InvalidUnidentifiedAccessHeaderException();
-        case 404:
-          throw new NotFoundException("At least one unregistered user in message send.");
-        case 409:
-          GroupMismatchedDevices[] mismatchedDevices = readBodyJson(response.body(), GroupMismatchedDevices[].class);
-          throw new GroupMismatchedDevicesException(mismatchedDevices);
-        case 410:
-          GroupStaleDevices[] staleDevices = readBodyJson(response.body(), GroupStaleDevices[].class);
-          throw new GroupStaleDevicesException(staleDevices);
-        case 508:
-          throw new ServerRejectedException();
-        default:
-          throw new NonSuccessfulResponseCodeException(response.code());
-      }
-    } catch (PushNetworkException | NonSuccessfulResponseCodeException | MalformedResponseException e) {
-      throw e;
-    } catch (IOException e) {
-      throw new PushNetworkException(e);
-    } finally {
-      synchronized (connections) {
-        connections.remove(call);
-      }
-    }
   }
 
   public SendMessageResponse sendMessage(OutgoingPushMessageList bundle, @Nullable SealedSenderAccess sealedSenderAccess, boolean story)
@@ -728,14 +625,6 @@ public class PushServiceSocket {
   public void pingStorageService() throws IOException {
     try (Response response = makeStorageRequest(null, "/ping", "GET", null, NO_HANDLER)) {
       return;
-    }
-  }
-
-  public RemoteConfigResponse getRemoteConfig() throws IOException {
-    try (Response response = makeServiceRequest(REMOTE_CONFIG, "GET", jsonRequestBody(null), NO_HEADERS, NO_HANDLER, SealedSenderAccess.NONE, false)) {
-      RemoteConfigResponse remoteConfigResponse = JsonUtil.fromJson(readBodyString(response), RemoteConfigResponse.class);
-      remoteConfigResponse.setServerEpochTime(response.headers().get("X-Signal-Timestamp") != null ? Long.parseLong(response.headers().get("X-Signal-Timestamp")) : System.currentTimeMillis());
-      return remoteConfigResponse;
     }
   }
 
@@ -990,6 +879,10 @@ public class PushServiceSocket {
   }
 
   public String getResumableUploadUrl(AttachmentUploadForm uploadForm) throws IOException {
+    return getResumableUploadUrl(uploadForm, null);
+  }
+
+  public String getResumableUploadUrl(AttachmentUploadForm uploadForm, @Nullable String checksumSha256) throws IOException {
     ConnectionHolder connectionHolder = getRandom(cdnClientsMap.get(uploadForm.cdn), random);
     OkHttpClient     okHttpClient     = connectionHolder.getClient()
                                                         .newBuilder()
@@ -1017,6 +910,9 @@ public class PushServiceSocket {
     } else if (uploadForm.cdn == 3) {
       request.addHeader("Upload-Defer-Length", "1")
              .addHeader("Tus-Resumable", "1.0.0");
+      if (checksumSha256 != null) {
+        request.addHeader("x-signal-checksum-sha256", checksumSha256);
+      }
     } else {
       throw new AssertionError("Unknown CDN version: " + uploadForm.cdn);
     }
@@ -1042,6 +938,75 @@ public class PushServiceSocket {
         connections.remove(call);
       }
     }
+  }
+
+  public AttachmentDigest createAndUploadToCdn3(AttachmentUploadForm uploadForm,
+                                                @Nullable String checksumSha256,
+                                                PushAttachmentData attachmentData)
+      throws IOException
+  {
+    ConnectionHolder     connectionHolder = getRandom(cdnClientsMap.get(3), random);
+    OkHttpClient         okHttpClient     = connectionHolder.getClient()
+                                                            .newBuilder()
+                                                            .connectTimeout(soTimeoutMillis, TimeUnit.MILLISECONDS)
+                                                            .readTimeout(soTimeoutMillis, TimeUnit.MILLISECONDS)
+                                                            .build();
+    DigestingRequestBody file             = new DigestingRequestBody(attachmentData.getData(), attachmentData.getOutputStreamFactory(), "application/offset+octet-stream", attachmentData.getDataSize(), attachmentData.getIncremental(), attachmentData.getListener(), attachmentData.getCancelationSignal(), 0);
+
+    Request.Builder request = new Request.Builder().url(buildConfiguredUrl(connectionHolder, uploadForm.signedUploadLocation))
+                                                   .post(file)
+                                                   .addHeader("Upload-Length", String.valueOf(attachmentData.getDataSize()))
+                                                   .addHeader("Tus-Resumable", "1.0.0");
+
+    for (Map.Entry<String, String> header : uploadForm.headers.entrySet()) {
+      if (!header.getKey().equalsIgnoreCase("host")) {
+        request.header(header.getKey(), header.getValue());
+      }
+    }
+
+    if (checksumSha256 != null) {
+      request.addHeader("x-signal-checksum-sha256", checksumSha256);
+    }
+
+    if (connectionHolder.getHostHeader().isPresent()) {
+      request.header("host", connectionHolder.getHostHeader().get());
+    }
+
+    Call call = okHttpClient.newCall(request.build());
+
+    synchronized (connections) {
+      connections.add(call);
+    }
+
+    try (Response response = call.execute()) {
+      if (response.isSuccessful()) {
+        return file.getAttachmentDigest();
+      } else {
+        throw new NonSuccessfulResponseCodeException(response.code(), "Response: " + response, response.body().string());
+      }
+    } catch (PushNetworkException | NonSuccessfulResponseCodeException e) {
+      throw e;
+    } catch (IOException e) {
+      if (e instanceof StreamResetException) {
+        throw e;
+      }
+      throw new PushNetworkException(e);
+    } finally {
+      synchronized (connections) {
+        connections.remove(call);
+      }
+    }
+  }
+
+  public void uploadBackupFile(AttachmentUploadForm uploadForm,
+                               @Nullable String checksumSha256,
+                               InputStream data,
+                               long length,
+                               ProgressListener progressListener,
+                               CancelationSignal cancelationSignal)
+      throws IOException
+  {
+    createAndUploadToCdn3(uploadForm, checksumSha256, new PushAttachmentData(null, data, length, false, new NoCipherOutputStreamFactory(), progressListener, cancelationSignal, null));
   }
 
   private AttachmentDigest uploadToCdn2(String resumableUrl, InputStream data, String contentType, long length, boolean incremental, OutputStreamFactory outputStreamFactory, ProgressListener progressListener, CancelationSignal cancelationSignal) throws IOException {
@@ -1102,7 +1067,7 @@ public class PushServiceSocket {
     if (uploadForm.cdn == 2) {
       uploadToCdn2(resumableUploadUrl, data, "application/octet-stream", dataLength, false, new NoCipherOutputStreamFactory(), progressListener, null);
     } else {
-      uploadToCdn3(resumableUploadUrl, data, "application/octet-stream", dataLength, false, new NoCipherOutputStreamFactory(), progressListener, null, uploadForm.headers);
+      uploadToCdn3(resumableUploadUrl, data, "application/offset+octet-stream", dataLength, false, new NoCipherOutputStreamFactory(), progressListener, null, uploadForm.headers);
     }
   }
 
@@ -1271,6 +1236,9 @@ public class PushServiceSocket {
     } catch (PushNetworkException | NonSuccessfulResponseCodeException e) {
       throw e;
     } catch (IOException e) {
+      if (e instanceof StreamResetException || e instanceof ResumeLocationInvalidException) {
+        throw e;
+      }
       throw new PushNetworkException(e);
     } finally {
       synchronized (connections) {
@@ -1948,6 +1916,10 @@ public class PushServiceSocket {
 
       throw message != null ? new GroupPatchNotAcceptedException(message) : new GroupPatchNotAcceptedException();
     }
+
+    if (responseCode == 423) {
+      throw new GroupTerminatedException();
+    }
   };
 
   private static final ResponseCodeHandler GROUPS_V2_GET_JOIN_INFO_HANDLER  = (responseCode, body, getHeader) -> {
@@ -1957,6 +1929,10 @@ public class PushServiceSocket {
 
     if (responseCode == 403) {
       throw new ForbiddenException(Optional.ofNullable(getHeader.apply("X-Signal-Forbidden-Reason")));
+    }
+
+    if (responseCode == 423) {
+      throw new GroupTerminatedException();
     }
   };
 

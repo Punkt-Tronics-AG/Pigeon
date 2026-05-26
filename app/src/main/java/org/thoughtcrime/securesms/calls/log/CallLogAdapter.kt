@@ -26,6 +26,7 @@ import org.thoughtcrime.securesms.util.adapter.mapping.PagingMappingAdapter
 import org.thoughtcrime.securesms.util.setRelativeDrawables
 import org.thoughtcrime.securesms.util.visible
 import java.util.Locale
+import org.signal.core.ui.R as CoreUiR
 
 /**
  * RecyclerView Adapter for the Call Log screen
@@ -222,7 +223,7 @@ class CallLogAdapter(
     binding: CallLogAdapterItemBinding,
     private val onCallLinkClicked: (CallLogRow.CallLink) -> Unit,
     private val onCallLinkLongClicked: (View, CallLogRow.CallLink) -> Boolean,
-    private val onStartVideoCallClicked: (Recipient, Boolean) -> Unit
+    private val onStartVideoCallClicked: (Recipient, CallLogRow.CanStartCall) -> Unit
   ) : BindingViewHolder<CallLinkModel, CallLogAdapterItemBinding>(binding) {
     override fun bind(model: CallLinkModel) {
       if (payload.size == 1 && payload.contains(PAYLOAD_TIMESTAMP)) {
@@ -254,7 +255,7 @@ class CallLogAdapter(
 
       binding.callRecipientName.text = SearchUtil.getHighlightedSpan(
         Locale.getDefault(),
-        { arrayOf(TextAppearanceSpan(context, R.style.Signal_Text_TitleSmall)) },
+        { arrayOf(TextAppearanceSpan(context, CoreUiR.style.Signal_Text_TitleSmall)) },
         callLinkName,
         model.callLink.searchQuery,
         SearchUtil.MATCH_ALL
@@ -266,7 +267,7 @@ class CallLogAdapter(
       TextViewCompat.setCompoundDrawableTintList(
         binding.callInfo,
         ColorStateList.valueOf(
-          ContextCompat.getColor(context, R.color.signal_colorOnSurfaceVariant)
+          ContextCompat.getColor(context, CoreUiR.color.signal_colorOnSurfaceVariant)
         )
       )
 
@@ -279,7 +280,7 @@ class CallLogAdapter(
           }
         )
         binding.groupCallButton.setOnClickListener {
-          onStartVideoCallClicked(model.callLink.recipient, true)
+          onStartVideoCallClicked(model.callLink.recipient, CallLogRow.CanStartCall.ALLOWED)
         }
         binding.callType.visible = false
         binding.groupCallButton.visible = true
@@ -287,7 +288,7 @@ class CallLogAdapter(
         binding.callType.setImageResource(R.drawable.symbol_video_24)
         binding.callType.contentDescription = context.getString(R.string.CallLogAdapter__start_a_video_call)
         binding.callType.setOnClickListener {
-          onStartVideoCallClicked(model.callLink.recipient, true)
+          onStartVideoCallClicked(model.callLink.recipient, CallLogRow.CanStartCall.ALLOWED)
         }
         binding.callType.visible = true
         binding.groupCallButton.visible = false
@@ -300,7 +301,7 @@ class CallLogAdapter(
     private val onCallClicked: (CallLogRow.Call) -> Unit,
     private val onCallLongClicked: (View, CallLogRow.Call) -> Boolean,
     private val onStartAudioCallClicked: (Recipient) -> Unit,
-    private val onStartVideoCallClicked: (Recipient, Boolean) -> Unit
+    private val onStartVideoCallClicked: (Recipient, CallLogRow.CanStartCall) -> Unit
   ) : BindingViewHolder<CallModel, CallLogAdapterItemBinding>(binding) {
     override fun bind(model: CallModel) {
       itemView.setOnClickListener {
@@ -323,18 +324,21 @@ class CallLogAdapter(
         return
       }
 
-      presentRecipientDetails(model.call.peer, model.call.searchQuery)
+      presentRecipientDetails(model.call)
       presentCallInfo(model.call, model.call.date)
       presentCallType(model)
     }
 
-    private fun presentRecipientDetails(recipient: Recipient, searchQuery: String?) {
-      binding.callRecipientAvatar.setAvatar(Glide.with(binding.callRecipientAvatar), recipient, true)
+    private fun presentRecipientDetails(call: CallLogRow.Call) {
+      val recipient = call.peer
+      val searchQuery = call.searchQuery
+      binding.callRecipientAvatar.setAvatar(Glide.with(binding.callRecipientAvatar), recipient, false)
+      binding.callRecipientAvatar.setOnClickListener { onCallClicked(call) }
       binding.callRecipientBadge.setBadgeFromRecipient(recipient)
       binding.callRecipientName.text = if (searchQuery != null) {
         SearchUtil.getHighlightedSpan(
           Locale.getDefault(),
-          { arrayOf(TextAppearanceSpan(context, R.style.Signal_Text_TitleSmall)) },
+          { arrayOf(TextAppearanceSpan(context, CoreUiR.style.Signal_Text_TitleSmall)) },
           recipient.getDisplayName(context),
           searchQuery,
           SearchUtil.MATCH_ALL
@@ -373,9 +377,9 @@ class CallLogAdapter(
       val color = ContextCompat.getColor(
         context,
         if (call.record.isDisplayedAsMissedCallInUi) {
-          R.color.signal_colorError
+          CoreUiR.color.signal_colorError
         } else {
-          R.color.signal_colorOnSurfaceVariant
+          CoreUiR.color.signal_colorOnSurfaceVariant
         }
       )
 
@@ -390,7 +394,7 @@ class CallLogAdapter(
     private fun presentCallType(model: CallModel) {
       when (model.call.record.type) {
         CallTable.Type.AUDIO_CALL -> {
-          binding.callType.setImageResource(R.drawable.symbol_phone_24)
+          binding.callType.setImageResource(CoreUiR.drawable.symbol_phone_24)
           binding.callType.contentDescription = context.getString(R.string.CallLogAdapter__start_a_voice_call)
           binding.callType.setOnClickListener { onStartAudioCallClicked(model.call.peer) }
           binding.callType.visible = true
@@ -400,7 +404,7 @@ class CallLogAdapter(
         CallTable.Type.VIDEO_CALL -> {
           binding.callType.setImageResource(R.drawable.symbol_video_24)
           binding.callType.contentDescription = context.getString(R.string.CallLogAdapter__start_a_video_call)
-          binding.callType.setOnClickListener { onStartVideoCallClicked(model.call.peer, true) }
+          binding.callType.setOnClickListener { onStartVideoCallClicked(model.call.peer, CallLogRow.CanStartCall.ALLOWED) }
           binding.callType.visible = true
           binding.groupCallButton.visible = false
         }
@@ -573,6 +577,6 @@ class CallLogAdapter(
     /**
      * Invoked when user presses the video icon
      */
-    fun onStartVideoCallClicked(recipient: Recipient, canUserBeginCall: Boolean)
+    fun onStartVideoCallClicked(recipient: Recipient, canUserBeginCall: CallLogRow.CanStartCall)
   }
 }

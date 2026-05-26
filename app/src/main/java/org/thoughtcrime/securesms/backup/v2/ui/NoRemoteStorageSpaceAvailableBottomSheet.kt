@@ -19,22 +19,23 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import org.signal.core.ui.compose.ComposeBottomSheetDialogFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Previews
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.v2.BackupRepository
 import org.thoughtcrime.securesms.components.contactsupport.ContactSupportDialogFragment
-import org.thoughtcrime.securesms.compose.ComposeBottomSheetDialogFragment
 import org.thoughtcrime.securesms.util.CommunicationActions
 
 class NoRemoteStorageSpaceAvailableBottomSheet : ComposeBottomSheetDialogFragment() {
   @Composable
   override fun SheetContent() {
     val context = LocalContext.current
+    val supportUrl = stringResource(R.string.remote_backup_support_url)
 
     NoRemoteStorageSpaceAvailableBottomSheetContent(
       onLearnMoreClick = {
-        CommunicationActions.openBrowserLink(context, context.getString(R.string.backup_failed_support_url))
+        CommunicationActions.openBrowserLink(context, supportUrl)
       },
       onContactSupportClick = {
         ContactSupportDialogFragment.create(

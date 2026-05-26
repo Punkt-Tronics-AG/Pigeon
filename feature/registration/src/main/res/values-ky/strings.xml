@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Купуялуулукту сактаңыз. \nБардык билдирүүлөрдө өзүңүздөй жооп бериңиз.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal категориясындагы коммерциялык эмес уюм\nШарттар жана Купуялык саясаты</string>
+    <string name="RegistrationActivity_continue">Улантуу</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">Калыбына келтирүү же өткөрүү</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">Уруксаттарды иштетүү</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Тааныган адамдар менен жазышууга жардам берүү үчүн Signal ушул уруксаттарды сурайт. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">Азыр эмес</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">Кийинки</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">Билдирмелер</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">Жаңы билдирүүлөрдүн келгенин билип турасыз.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">Байланыштар</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">Тааныштарыңызды табасыз. Байланыштарыңыз шифрленип, Signal кызматына көрүнбөйт.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">Телефон чалуулар</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">Катталуу процессин жеңилдетип, кошумча чалуу мүмкүнчүлүктөрүн иштетесиз.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">Сактагыч</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Түзмөгүңүздөн сүрөттөрдү, видеолорду жана файлдарды жөнөтөсүз.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">Телефон номериңиз</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Сиз текшерүү кодун аласыз. Оператордун тарифтери колдонулушу мүмкүн.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Өлкөнү тандоо</string>
+    <string name="RegistrationActivity_phone_number_description">Телефон номериңиз</string>
+    <string name="RegistrationActivity_next">Кийинки</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">Төмөнкү телефон номери туурабы?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">Бул номерге ырастоо коду жөнөтүлөт. Байланыш операторуңуз акы алышы мүмкүн.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">Номерди алмаштыруу</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">Менюну ачуу</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">Проксини колдонуу</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">Түзмөктү байланыштыруу</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">Кененирээк маалымат</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">Өлкөңүз</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">Жабуу</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">Аталышы же өлкө коду менен издеңиз</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">Белгисиз өлкө</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">Текшерүү коду</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">%1$sномерине жиберилген кодду киргизиңиз</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">Номер туура эмеспи?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">Кодду кайра жөнөтүү</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">Анда мага чалыңыз</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">Мага чал (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">Код туура эмес</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">Туташуу мүмкүн эмес. Тармагыңызды текшерип, кайра аракет кылыңыз.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">Ашыкча көп аракет көрүлдү. %1$s кийин кайра аракет кылып көрүңүз.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">Күтүлбөгөн ката кетти. Кайталап көрүңүз.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">Номериңизге SMS жөнөтө албай жатабыз. Бир нече сааттан кийин кайталап көрүңүз.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">Тандалган ыкма аркылуу код жөнөтүлгөн жок. Башка вариантты колдонуп көрүңүз.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">Каттоо ишке ашкан жок. Кайталап көрүңүз.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">Кыйынчылык болуп жатабы?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">Эски телефонум бар</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">Баштоо үчүн учурдагы Signal аккаунтуңуздан QR кодду скандаңыз</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">Эски телефонум жок</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">Же Signal\'ды ошол эле телефонго кайра орнотуңуз</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">Аккаунтту калыбына келтирүү же өткөрүү</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">Билдирүүлөр таржымалын жана аккаунттагы нерселерди калыбына келтирүү жолун тандаңыз.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Signal\'дын камдык көчүрмөлөрүнөн</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">Signal\'дын камдык көчүрмөлөрүнүн акысыз же акы алынуучу тарифтик планы</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">Түзмөктөгү камдык көчүрмөлөрдү калыбына келтирүү</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">Түзмөгүңүздө сакталган камдык көчүрмөлөрдөн билдирүүлөрүңүздү калыбына келтириңиз.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">Билдирүүлөрдү өткөрбөй улантуу</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">Билдирүүлөр менен медиа файлдар өткөн жок</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">Камдык көчүрмөлөр папкасынан</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">Камдык көчүрмө файлынан</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">Сакталган камдык көчүрмөнү тандаңыз</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">Эски телефонуңуздан</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">Дароо эски Android телефонуңуздан өткөрөсүз</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">Өткөрүп жиберүү</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">Калыбына келтирүү өткөрүп жиберилсинби?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">Азыр өткөрүп жиберсеңиз, кийин калыбына келтире албай каласыз. Калыбына келтирүү процессин өткөрүп жибергенден кийин камдык көчүрмөлөрдү кайра иштетсеңиз, учурдагы камдык көчүрмөлөр жаңы билдирүүлөр таржымалынан башталат.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">Өткөрүп жиберүү</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">Түзмөктөгү камдык көчүрмөлөрдү калыбына келтирүү</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">Түзмөгүңүздө сакталган камдык көчүрмөлөрдөн билдирүүлөрүңүздү калыбына келтириңиз. Азыр калыбына келтирбесеңиз, кийин таптакыр жоготуп алышыңыз мүмкүн.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">Камдык көчүрмө папкасын тандоо</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">Түзмөгүңүздөгү камдык көчүрмөңүз сакталган папканы тандаңыз</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">Камдык көчүрмөлөр изделүүдө…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">Түзмөгүңүздө сакталган камдык көчүрмө папкасынан билдирүүлөрүңүздү калыбына келтириңиз. Азыр калыбына келтирбесеңиз, кийин таптакыр жоготуп алышыңыз мүмкүн.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">Акыркы камдык көчүрмөңүз:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">Резервдик копияны эски калыбына келтирүү</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">Мурунку камдык көчүрмөнү тандоо</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">Калыбына келтирүү үчүн камдык көчүрмөнү тандоо</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">Эски камдык көчүрмөнү тандоо билдирүүлөрдү же медиа файлдарды жоготууга алып келиши мүмкүн.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">Эч нерсе табылган жок</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">Тандалган папкада Signal камдык көчүрмөлөрү табылган жок. Башка папканы карап көрүңүз.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">Башка папканы карап көрүү</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">Кошумча сыр сөз айкашы киргизиңиз</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">Түзмөгүңүздө сакталган камдык көчүрмөлөрдүн сыр сөз айкашы 30 сандан турган код. Анын жардамы менен аккаунтуңузду жана андагы нерселерди калыбына келтиресиз.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">Калыбына келтирүү ачкычы</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">Өтө узун (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">Сыр сөз айкашыңыз жокпу?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">Кийинки</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">Калыбына келтирүү ачкычыңызды киргизиңиз</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">Ал аккаунтуңузду жана андагы нерселерди калыбына келтирүүчү 64 орундуу код.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">Калыбына келтирүү ачкычы</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">Калыбына келтирүү ачкычы жокпу?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">Өтө узун (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">Калыбына келтирүү ачкычы жарабайт</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">Калыбына келтирүү ачкычы туура эмес</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">Калыбына келгени жатат…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">Камдык көчүрмө калыбына келтирилүүдө</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">Билдирүүлөрүңүз жана башка нерселериңиз калыбына келгиче күтө туруңуз.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">Улантуу</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">Калыбына келтирүү ишке ашкан жок</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">Камдык көчүрмөңүздү калыбына келтирүүдө ката кетти. Кайталап көрүңүз.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">Кайталап көрүү</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">Аккаунтуңузду байлаңыз</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">Signal\'ыңыз жокпу?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">Аккаунт түзүү</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">Камдык көчүрмөдөн калыбына келтирүү</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">Камдык көчүрмөнүн чоо-жайы алынууда…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">Резервдик копияны эски калыбына келтирүү</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">Камдык көчүрмө акыркы жолу качан сакталган: %1$s, %2$s.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">Медиа файлдар фондо калыбына келет. Азыр калыбына келтирбесеңиз, кийин калыбына келтире албай каласыз.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">Камдык көчүрмө табылган жок</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">Бул аккаунт үчүн камдык көчүрмө табылган жок.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">Камдык көчүрмөнү калыбына келтирүү мүмкүн эмес</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">Азыр калыбына келтире албайсыз. Кайталап көрүңүз.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">Кайталап көрүү</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">Калыбына келтирүү аягына чыккан жок</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">Серверге туташууда ката кетти. Туташууңузду текшерип, кайталап көрүңүз.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">Камдык көчүрмөңүздү калыбына келтирүүдө ката кетти. Кайталап көрүңүз.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">Бул камдык көчүрмө калыбына келген жок</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal\'дын бул версиясы аны калыбына келтире албайт. Версиясын жаңыртып, кайталап көрүңүз.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Signal\'ды жаңыртуу</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">Азыр эмес</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">Камдык көчүрмөнү калыбына келтирүү мүмкүн эмес</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">Камдык көчүрмөңүздү калыбына келтирүүдө ката кетти. Аны калыбына келтирүү мүмкүн эмес окшойт. Кардарларды тейлеген кызматтан жардам сураңыз.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">Кардарларды колдоо кызматына кайрылуу</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">Камдык көчүрмөлөрүңүз жүктөлүп алынууда…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">Билдирүүлөр калыбына келүүдө…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">Бүтүп жатат…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">Калыбына келүүдө…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%2$s ичинен %1$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">Серепчи табылган жок.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">Аккаунт кулпуланган</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">Аккаунтуңуз купуялыгыңызды жана коопсуздугуңузду коргоо үчүн кулпуланган. Аккаунтуңузду %1$d күн аракетсиз болгондон кийин, бул телефон номерин PIN кодуңузду талап кылбастан кайра каттай аласыз. Бардык мазмун өчүрүлөт.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">Эски телефонуңуздан Signal\'ды ачыңыз</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">Параметрлер &gt; Аккаунтту өткөрүү дегенге өтүңүз</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">Ушул QR кодду скандаңыз</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">Катталууда…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">Катталып жатканда ката кетти</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">Эски түзмөктөн скандоо</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">QR код скандалды</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">Кайра аракет кылуу</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"QR код түзүлгөн жок"</string>
+</resources>

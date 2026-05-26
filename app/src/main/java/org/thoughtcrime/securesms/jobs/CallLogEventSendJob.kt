@@ -7,14 +7,15 @@ package org.thoughtcrime.securesms.jobs
 
 import androidx.annotation.WorkerThread
 import okio.ByteString.Companion.toByteString
+import org.signal.network.exceptions.PushNetworkException
 import org.thoughtcrime.securesms.database.CallTable
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.jobmanager.Job
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint
+import org.thoughtcrime.securesms.jobmanager.impl.SealedSenderConstraint
 import org.thoughtcrime.securesms.jobs.protos.CallLogEventSendJobData
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage
-import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import org.whispersystems.signalservice.api.push.exceptions.ServerRejectedException
 import org.whispersystems.signalservice.internal.push.SyncMessage
 import java.util.concurrent.TimeUnit
@@ -39,6 +40,7 @@ class CallLogEventSendJob private constructor(
         .setLifespan(TimeUnit.DAYS.toMillis(1))
         .setMaxAttempts(Parameters.UNLIMITED)
         .addConstraint(NetworkConstraint.KEY)
+        .addConstraint(SealedSenderConstraint.KEY)
         .build(),
       SyncMessage.CallLogEvent(
         timestamp = call.timestamp,
@@ -57,6 +59,7 @@ class CallLogEventSendJob private constructor(
         .setLifespan(TimeUnit.DAYS.toMillis(1))
         .setMaxAttempts(Parameters.UNLIMITED)
         .addConstraint(NetworkConstraint.KEY)
+        .addConstraint(SealedSenderConstraint.KEY)
         .build(),
       SyncMessage.CallLogEvent(
         timestamp = call.timestamp,
@@ -76,6 +79,7 @@ class CallLogEventSendJob private constructor(
         .setLifespan(TimeUnit.DAYS.toMillis(1))
         .setMaxAttempts(Parameters.UNLIMITED)
         .addConstraint(NetworkConstraint.KEY)
+        .addConstraint(SealedSenderConstraint.KEY)
         .build(),
       SyncMessage.CallLogEvent(
         timestamp = call.timestamp,

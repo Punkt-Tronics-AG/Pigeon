@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.BatteryManager;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.annotation.RequiresApi;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.dependencies.AppDependencies;
+
 
 /**
  * Easy access to various properties of the device, typically to make performance-related decisions.
@@ -24,6 +26,10 @@ public final class DeviceProperties {
    * large numbers of APNGs simultaneously.
    */
   public static boolean shouldAllowApngStickerAnimation(@NonNull Context context) {
+    if (RemoteConfig.newApngRenderer()) {
+      return true;
+    }
+
     MemoryInfo memoryInfo = getMemoryInfo(context);
     int        memoryMb   = (int) ByteUnit.BYTES.toMegabytes(memoryInfo.totalMem);
 
@@ -77,6 +83,25 @@ public final class DeviceProperties {
   public static boolean isBackgroundRestricted(@NonNull Context context) {
     ActivityManager activityManager = ServiceUtil.getActivityManager(context);
     return activityManager.isBackgroundRestricted();
+  }
+
+  /**
+   * Returns the current battery level as a percentage (0-100), or -1 if unavailable.
+   */
+  public static int getBatteryLevel(@NonNull Context context) {
+    BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+    if (batteryManager != null) {
+      return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+    }
+    return -1;
+  }
+
+  /**
+   * Returns whether the device is currently charging.
+   */
+  public static boolean isCharging(@NonNull Context context) {
+    BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+    return batteryManager != null && batteryManager.isCharging();
   }
 
   public static DataSaverState getDataSaverState(@NonNull Context context) {

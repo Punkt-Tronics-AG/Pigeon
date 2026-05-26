@@ -14,8 +14,8 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.signal.core.ui.logging.LoggingFragment
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.databinding.FragmentRegistrationLockBinding
@@ -143,10 +143,11 @@ class RegistrationLockFragment : LoggingFragment(R.layout.fragment_registration_
       is VerificationCodeRequestResult.RateLimited -> onRateLimited()
 
       is VerificationCodeRequestResult.RegistrationLocked -> {
-        Log.i(TAG, "Registration locked response to verify account!")
+        Log.w(TAG, "Registration locked response to verify account!")
+        viewModel.setInProgress(false)
         binding.kbsLockPinConfirm.cancelSpinning()
         enableAndFocusPinEntry()
-        Toast.makeText(requireContext(), "Reg lock!", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), R.string.RegistrationActivity_error_connecting_to_service, Toast.LENGTH_LONG).show()
       }
 
       else -> {
@@ -165,10 +166,11 @@ class RegistrationLockFragment : LoggingFragment(R.layout.fragment_registration_
       }
 
       is RegisterAccountResult.RegistrationLocked -> {
-        Log.i(TAG, "Registration locked response to register account!")
+        Log.w(TAG, "Registration locked response to register account!")
+        viewModel.setInProgress(false)
         binding.kbsLockPinConfirm.cancelSpinning()
         enableAndFocusPinEntry()
-        Toast.makeText(requireContext(), "Reg lock!", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), R.string.RegistrationActivity_error_connecting_to_service, Toast.LENGTH_LONG).show()
       }
 
       is RegisterAccountResult.SvrWrongPin -> onIncorrectKbsRegistrationLockPin(result.triesRemaining)

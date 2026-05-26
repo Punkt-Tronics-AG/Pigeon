@@ -20,6 +20,8 @@ message DecryptedMember {
   bytes       profileKey       = 3;
   uint32      joinedAtRevision = 5;
   bytes       pniBytes         = 6;
+  string      labelEmoji       = 7;
+  string      labelString      = 8;
 }
 
 message DecryptedPendingMember {
@@ -56,6 +58,12 @@ message DecryptedModifyMemberRole {
   Member.Role role     = 2;
 }
 
+message DecryptedModifyMemberLabel {
+  bytes  aciBytes    = 1;
+  string labelEmoji  = 2;
+  string labelString = 3;
+}
+
 // Decrypted version of message Group
 // Keep field numbers in step
 message DecryptedGroup {
@@ -71,6 +79,7 @@ message DecryptedGroup {
            string                    description               = 11;
            EnabledState              isAnnouncementGroup       = 12;
   repeated DecryptedBannedMember     bannedMembers             = 13;
+           bool                      terminated                = 14;
            bool                      isPlaceholderGroup        = 64;
 }
 
@@ -102,6 +111,9 @@ message DecryptedGroupChange {
   repeated DecryptedBannedMember         newBannedMembers            = 22;
   repeated DecryptedBannedMember         deleteBannedMembers         = 23;
   repeated DecryptedMember               promotePendingPniAciMembers = 24;
+  repeated DecryptedModifyMemberLabel    modifyMemberLabels          = 26;
+           AccessControl.AccessRequired  newMemberLabelAccess        = 27;
+           bool                          terminateGroup              = 28;
 }
 
 message DecryptedString {
@@ -128,4 +140,3 @@ enum EnabledState {
   ENABLED  = 1;
   DISABLED = 2;
 }
-

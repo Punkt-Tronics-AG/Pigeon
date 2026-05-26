@@ -11,13 +11,27 @@ import androidx.preference.PreferenceManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.signal.billing.BillingFactory;
+import org.signal.core.models.ServiceId.ACI;
+import org.signal.core.models.ServiceId.PNI;
 import org.signal.core.util.ThreadUtil;
 import org.signal.core.util.billing.BillingApi;
 import org.signal.core.util.concurrent.DeadlockDetector;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.libsignal.net.Network;
+import org.signal.libsignal.protocol.SignalProtocolAddress;
 import org.signal.libsignal.zkgroup.profiles.ClientZkProfileOperations;
 import org.signal.libsignal.zkgroup.receipts.ClientZkReceiptOperations;
+import org.signal.network.api.ArchiveApi;
+import org.signal.network.api.CallingApi;
+import org.signal.network.api.CdsApi;
+import org.signal.network.api.CertificateApi;
+import org.signal.network.api.LinkDeviceApi;
+import org.signal.network.api.PaymentsApi;
+import org.signal.network.api.ProvisioningApi;
+import org.signal.network.api.RateLimitChallengeApi;
+import org.signal.network.api.RemoteConfigApi;
+import org.signal.network.api.SvrBApi;
+import org.signal.network.api.UsernameApi;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.components.TypingStatusRepository;
 import org.thoughtcrime.securesms.components.TypingStatusSender;
@@ -64,6 +78,7 @@ import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
 import org.thoughtcrime.securesms.recipients.LiveRecipientCache;
 import org.thoughtcrime.securesms.revealable.ViewOnceMessageManager;
 import org.thoughtcrime.securesms.service.DeletedCallEventManager;
+import org.thoughtcrime.securesms.service.ExpiringArchivedStoriesManager;
 import org.thoughtcrime.securesms.service.ExpiringMessageManager;
 import org.thoughtcrime.securesms.service.ExpiringStoriesManager;
 import org.thoughtcrime.securesms.service.PendingRetryReceiptManager;
@@ -79,6 +94,7 @@ import org.thoughtcrime.securesms.util.ByteUnit;
 import org.thoughtcrime.securesms.util.EarlyMessageCache;
 import org.thoughtcrime.securesms.util.Environment;
 import org.thoughtcrime.securesms.util.FrameRateTracker;
+import org.thoughtcrime.securesms.util.PreKeyBatcher;
 import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.video.exo.GiphyMp4Cache;
@@ -89,30 +105,18 @@ import org.whispersystems.signalservice.api.SignalServiceDataStore;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.account.AccountApi;
-import org.whispersystems.signalservice.api.archive.ArchiveApi;
 import org.whispersystems.signalservice.api.attachment.AttachmentApi;
-import org.whispersystems.signalservice.api.calling.CallingApi;
-import org.whispersystems.signalservice.api.cds.CdsApi;
-import org.whispersystems.signalservice.api.certificate.CertificateApi;
 import org.whispersystems.signalservice.api.donations.DonationsApi;
 import org.whispersystems.signalservice.api.groupsv2.ClientZkOperations;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
 import org.whispersystems.signalservice.api.keys.KeysApi;
-import org.whispersystems.signalservice.api.link.LinkDeviceApi;
+import org.whispersystems.signalservice.api.keys.PreKeyRepository;
 import org.whispersystems.signalservice.api.message.MessageApi;
-import org.whispersystems.signalservice.api.payments.PaymentsApi;
 import org.whispersystems.signalservice.api.profiles.ProfileApi;
-import org.whispersystems.signalservice.api.provisioning.ProvisioningApi;
-import org.signal.core.models.ServiceId.ACI;
-import org.signal.core.models.ServiceId.PNI;
-import org.whispersystems.signalservice.api.ratelimit.RateLimitChallengeApi;
 import org.whispersystems.signalservice.api.registration.RegistrationApi;
-import org.whispersystems.signalservice.api.remoteconfig.RemoteConfigApi;
 import org.whispersystems.signalservice.api.services.DonationsService;
 import org.whispersystems.signalservice.api.services.ProfileService;
 import org.whispersystems.signalservice.api.storage.StorageServiceApi;
-import org.whispersystems.signalservice.api.svr.SvrBApi;
-import org.whispersystems.signalservice.api.username.UsernameApi;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
 import org.whispersystems.signalservice.api.util.SleepTimer;
 import org.whispersystems.signalservice.api.util.UptimeSleepTimer;
@@ -178,9 +182,18 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
                                             Optional.of(new SecurityEventListener(context)),
                                             SignalExecutors.newCachedBoundedExecutor("signal-messages", ThreadUtil.PRIORITY_IMPORTANT_BACKGROUND_THREAD, 1, 16, 30),
                                             RemoteConfig.maxEnvelopeSizeBytes(),
+                                            RemoteConfig.maxIncrementalMacsPerEnvelope(),
                                             RemoteConfig::useMessageSendRestFallback,
                                             RemoteConfig.useBinaryId(),
-                                            BuildConfig.USE_STRING_ID);
+                                            BuildConfig.USE_STRING_ID,
+                                            new PreKeyRepository(
+                                                keysApi,
+                                                protocolStore.aci(),
+                                                new SignalProtocolAddress(pushServiceSocket.getCredentialsProvider().getAci().getLibSignalServiceId(),
+                                                                          pushServiceSocket.getCredentialsProvider().getDeviceId()),
+                                                PreKeyBatcher.INSTANCE
+                                              )
+                                            );
   }
 
   @Override
@@ -261,6 +274,11 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   }
 
   @Override
+  public @NonNull ExpiringArchivedStoriesManager provideExpiringArchivedStoriesManager() {
+    return new ExpiringArchivedStoriesManager(context);
+  }
+
+  @Override
   public @NonNull ExpiringMessageManager provideExpiringMessageManager() {
     return new ExpiringMessageManager(context);
   }
@@ -282,9 +300,8 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
 
   @Override
   public @NonNull Network provideLibsignalNetwork(@NonNull SignalServiceConfiguration config) {
-    Network network = new Network(BuildConfig.LIBSIGNAL_NET_ENV, StandardUserAgentInterceptor.USER_AGENT);
+    Network network = new Network(BuildConfig.LIBSIGNAL_NET_ENV, StandardUserAgentInterceptor.USER_AGENT, RemoteConfig.getLibsignalConfigs(), Network.BuildVariant.PRODUCTION);
     LibSignalNetworkExtensions.applyConfiguration(network, config);
-    network.setRemoteConfig(RemoteConfig.getLibsignalConfigs());
 
     return network;
   }
@@ -339,7 +356,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   @Override
   public @NonNull SignalWebSocket.AuthenticatedWebSocket provideAuthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
     SleepTimer                   sleepTimer    = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
-    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer);
+    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer, true);
     int                          pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
     int                          pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
     //todo PIGEON BATTERY SAVER
@@ -375,7 +392,7 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   @Override
   public @NonNull SignalWebSocket.UnauthenticatedWebSocket provideUnauthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
     SleepTimer                   sleepTimer    = !SignalStore.account().isFcmEnabled() || SignalStore.internal().isWebsocketModeForced() ? new AlarmSleepTimer(context) : new UptimeSleepTimer();
-    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer);
+    SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer, false);
 
     int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
     int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
@@ -587,6 +604,11 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   @Override
   public @NonNull SvrBApi provideSvrBApi(@NotNull Network libSignalNetwork) {
     return new SvrBApi(libSignalNetwork);
+  }
+
+  @Override
+  public @NonNull KeyTransparencyApi provideKeyTransparencyApi(@NonNull SignalWebSocket.UnauthenticatedWebSocket unauthWebSocket) {
+    return new KeyTransparencyApi(unauthWebSocket);
   }
 
   @VisibleForTesting

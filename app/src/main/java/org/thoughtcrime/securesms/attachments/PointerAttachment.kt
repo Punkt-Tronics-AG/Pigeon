@@ -3,8 +3,8 @@ package org.thoughtcrime.securesms.attachments
 import android.net.Uri
 import android.os.Parcel
 import androidx.annotation.VisibleForTesting
+import org.signal.blurhash.BlurHash
 import org.signal.core.util.Base64
-import org.thoughtcrime.securesms.blurhash.BlurHash
 import org.thoughtcrime.securesms.database.AttachmentTable
 import org.thoughtcrime.securesms.stickers.StickerLocator
 import org.whispersystems.signalservice.api.InvalidMessageStructureException
@@ -145,6 +145,11 @@ class PointerAttachment : Attachment {
         return Optional.empty()
       }
 
+      val cdn = Cdn.fromCdnNumber(thumbnail?.asPointer()?.cdnNumber ?: 0)
+      if (cdn == Cdn.S3) {
+        return Optional.empty()
+      }
+
       return Optional.of(
         PointerAttachment(
           quote = true,
@@ -153,7 +158,7 @@ class PointerAttachment : Attachment {
           transferState = AttachmentTable.TRANSFER_PROGRESS_PENDING,
           size = (if (thumbnail != null) thumbnail.asPointer().size.orElse(0) else 0).toLong(),
           fileName = quotedAttachment.fileName,
-          cdn = Cdn.fromCdnNumber(thumbnail?.asPointer()?.cdnNumber ?: 0),
+          cdn = cdn,
           location = thumbnail?.asPointer()?.remoteId?.toString() ?: "0",
           key = thumbnail?.asPointer()?.key?.let { Base64.encodeWithPadding(it) },
           iv = null,

@@ -4,8 +4,8 @@ import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import org.signal.core.models.media.Media
+import org.signal.glide.decryptableuri.DecryptableUri
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.mms.DecryptableUri
 import org.thoughtcrime.securesms.util.MediaUtil
 import org.thoughtcrime.securesms.util.adapter.mapping.LayoutFactory
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
@@ -20,13 +20,13 @@ object MediaReviewSelectedItem {
     mappingAdapter.registerFactory(Model::class.java, LayoutFactory({ ViewHolder(it, onSelectedMediaClicked) }, R.layout.v2_media_review_selected_item))
   }
 
-  class Model(val media: Media, val isSelected: Boolean) : MappingModel<Model> {
+  class Model(val media: Media, val isSelected: Boolean, val videoTrimStartTimeUs: Long = 0) : MappingModel<Model> {
     override fun areItemsTheSame(newItem: Model): Boolean {
       return media == newItem.media
     }
 
     override fun areContentsTheSame(newItem: Model): Boolean {
-      return media == newItem.media && isSelected == newItem.isSelected
+      return media == newItem.media && isSelected == newItem.isSelected && videoTrimStartTimeUs == newItem.videoTrimStartTimeUs
     }
   }
 
@@ -38,7 +38,7 @@ object MediaReviewSelectedItem {
 
     override fun bind(model: Model) {
       Glide.with(imageView)
-        .load(DecryptableUri(model.media.uri))
+        .load(DecryptableUri(model.media.uri, model.videoTrimStartTimeUs))
         .centerCrop()
         .into(imageView)
 

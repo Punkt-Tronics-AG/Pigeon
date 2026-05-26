@@ -19,21 +19,23 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.annimon.stream.Stream;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.signal.core.util.ClearClipboardAlarmReceiver;
 import org.signal.core.util.PendingIntentFlags;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.payments.Mnemonic;
 import org.thoughtcrime.securesms.util.ServiceUtil;
-import org.thoughtcrime.securesms.util.Util;
+import org.signal.core.util.Util;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 public class PaymentsRecoveryPhraseFragment extends Fragment {
 
@@ -68,10 +70,9 @@ public class PaymentsRecoveryPhraseFragment extends Fragment {
       setUpForDisplay(message, next, edit, copy, words, args);
     }
 
-    List<MnemonicPart> parts = Stream.of(words)
-                                     .mapIndexed(MnemonicPart::new)
-                                     .sorted(new MnemonicPartComparator(words.size(), SPAN_COUNT))
-                                     .toList();
+    List<MnemonicPart> parts = IntStream.range(0, words.size()).boxed()
+                                     .map(index -> new MnemonicPart(index, words.get(index)))
+                                     .sorted(new MnemonicPartComparator(words.size(), SPAN_COUNT)).collect(Collectors.toList());
 
     MnemonicPartAdapter adapter = new MnemonicPartAdapter();
 

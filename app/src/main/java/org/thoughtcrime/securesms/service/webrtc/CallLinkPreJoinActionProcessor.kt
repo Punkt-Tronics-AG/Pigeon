@@ -20,6 +20,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.ringrtc.RemotePeer
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState
 import org.thoughtcrime.securesms.util.NetworkUtil
+import org.thoughtcrime.securesms.util.RemoteConfig
 import java.io.IOException
 
 /**
@@ -41,6 +42,11 @@ class CallLinkPreJoinActionProcessor(
 
   override fun handlePreJoinCall(currentState: WebRtcServiceState, remotePeer: RemotePeer): WebRtcServiceState {
     Log.i(TAG, "handlePreJoinCall():")
+
+    if (currentState.callInfoState.groupCall != null) {
+      Log.w(TAG, "handlePreJoinCall(): Group call already exists, ignoring duplicate pre-join request")
+      return currentState
+    }
 
     val groupCall = try {
       val callLink = callLinks.getCallLinkByRoomId(remotePeer.recipient.requireCallLinkRoomId())
@@ -65,15 +71,17 @@ class CallLinkPreJoinActionProcessor(
         .groupsV2Authorization
         .getCallLinkAuthorizationForToday(genericServerPublicParams, callLinkSecretParams)
 
+      val dredDuration: Byte = RemoteConfig.dredDuration.toByte()
+
       webRtcInteractor.callManager.createCallLinkCall(
         SignalStore.internal.groupCallingServer,
         serverPublicParams.endorsementPublicKey,
         callLinkAuthCredentialPresentation.serialize(),
         callLinkRootKey,
-        callLink.credentials.epoch,
         callLink.credentials.adminPassBytes,
         ByteArray(0),
         AUDIO_LEVELS_INTERVAL,
+        dredDuration,
         RingRtcDynamicConfiguration.getAudioConfig(),
         webRtcInteractor.groupCallObserver
       )
@@ -89,7 +97,7 @@ class CallLinkPreJoinActionProcessor(
 
     try {
       groupCall.setOutgoingAudioMuted(true)
-      groupCall.setOutgoingVideoMuted(true)
+      groupCall.setOutgoingVideoMuted(true, false)
       groupCall.setDataMode(NetworkUtil.getCallingDataMode(context, groupCall.localDeviceState.networkRoute.localAdapterType))
       Log.i(TAG, "Connecting to group call: " + currentState.callInfoState.callRecipient.id)
       groupCall.connect()

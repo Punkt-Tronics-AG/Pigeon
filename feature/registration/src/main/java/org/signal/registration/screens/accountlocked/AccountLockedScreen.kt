@@ -19,10 +19,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.signal.core.ui.compose.DayNightPreviews
+import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.Previews
+import org.signal.registration.R
 
 /**
  * Screen shown when the user's account is locked due to too many failed PIN attempts
@@ -47,7 +49,7 @@ fun AccountLockedScreen(
       Spacer(modifier = Modifier.height(49.dp))
 
       Text(
-        text = "Account locked",
+        text = stringResource(R.string.AccountLockedScreen__account_locked),
         style = MaterialTheme.typography.headlineMedium,
         textAlign = TextAlign.Center
       )
@@ -55,7 +57,7 @@ fun AccountLockedScreen(
       Spacer(modifier = Modifier.height(12.dp))
 
       Text(
-        text = "Your account has been locked to protect your privacy and security. After ${state.daysRemaining} days of inactivity in your account you'll be able to re-register this phone number without needing your PIN. All content will be deleted.",
+        text = stringResource(R.string.AccountLockedScreen__your_account, state.daysRemaining),
         style = MaterialTheme.typography.bodyLarge,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -69,7 +71,7 @@ fun AccountLockedScreen(
         onClick = { onEvent(AccountLockedScreenEvents.Next) },
         modifier = Modifier.fillMaxWidth()
       ) {
-        Text("Next")
+        Text(stringResource(R.string.RegistrationActivity_next))
       }
 
       Spacer(modifier = Modifier.height(16.dp))
@@ -78,7 +80,7 @@ fun AccountLockedScreen(
         onClick = { onEvent(AccountLockedScreenEvents.LearnMore) },
         modifier = Modifier.fillMaxWidth()
       ) {
-        Text("Learn More")
+        Text(stringResource(R.string.RegistrationActivity_learn_more))
       }
 
       Spacer(modifier = Modifier.height(16.dp))
@@ -86,7 +88,7 @@ fun AccountLockedScreen(
   }
 }
 
-@DayNightPreviews
+@AllDevicePreviews
 @Composable
 private fun AccountLockedScreenPreview() {
   Previews.Preview {

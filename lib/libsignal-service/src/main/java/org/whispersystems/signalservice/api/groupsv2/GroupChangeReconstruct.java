@@ -5,6 +5,7 @@ import org.signal.storageservice.storage.protos.groups.local.DecryptedBannedMemb
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroup;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroupChange;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedMember;
+import org.signal.storageservice.storage.protos.groups.local.DecryptedModifyMemberLabel;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedModifyMemberRole;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedPendingMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedPendingMemberRemoval;
@@ -116,8 +117,9 @@ public final class GroupChangeReconstruct {
     Map<ByteString, DecryptedMember>       membersAciMap             = mapByAci(fromState.members);
     Map<ByteString, DecryptedBannedMember> bannedMembersServiceIdMap = bannedServiceIdMap(toState.bannedMembers);
 
-    List<DecryptedModifyMemberRole> modifiedMemberRoles = new ArrayList<>(changedMembers.size());
-    List<DecryptedMember>           modifiedProfileKeys = new ArrayList<>(changedMembers.size());
+    List<DecryptedModifyMemberRole>  modifiedMemberRoles  = new ArrayList<>(changedMembers.size());
+    List<DecryptedMember>            modifiedProfileKeys  = new ArrayList<>(changedMembers.size());
+    List<DecryptedModifyMemberLabel> modifiedMemberLabels = new ArrayList<>(changedMembers.size());
     for (DecryptedMember newState : changedMembers) {
       DecryptedMember oldState = membersAciMap.get(newState.aciBytes);
       if (oldState.role != newState.role) {
@@ -130,13 +132,28 @@ public final class GroupChangeReconstruct {
       if (!oldState.profileKey.equals(newState.profileKey)) {
         modifiedProfileKeys.add(newState);
       }
+
+      if (!oldState.labelEmoji.equals(newState.labelEmoji) || !oldState.labelString.equals(newState.labelString)) {
+        modifiedMemberLabels.add(new DecryptedModifyMemberLabel.Builder()
+                                                               .aciBytes(newState.aciBytes)
+                                                               .labelEmoji(newState.labelEmoji)
+                                                               .labelString(newState.labelString)
+                                                               .build());
+      }
     }
     builder.modifyMemberRoles(modifiedMemberRoles);
     builder.modifiedProfileKeys(modifiedProfileKeys);
+    builder.modifyMemberLabels(modifiedMemberLabels);
 
     if (fromState.accessControl == null || (toState.accessControl != null && !fromState.accessControl.addFromInviteLink.equals(toState.accessControl.addFromInviteLink))) {
       if (toState.accessControl != null) {
         builder.newInviteLinkAccess(toState.accessControl.addFromInviteLink);
+      }
+    }
+
+    if (fromState.accessControl == null || (toState.accessControl != null && !fromState.accessControl.memberLabel.equals(toState.accessControl.memberLabel))) {
+      if (toState.accessControl != null) {
+        builder.newMemberLabelAccess(toState.accessControl.memberLabel);
       }
     }
 
@@ -168,6 +185,10 @@ public final class GroupChangeReconstruct {
                                                         return newBannedBuilder.build();
                                                       })
                                                       .collect(Collectors.toList()));
+
+    if (!fromState.terminated && toState.terminated) {
+      builder.terminateGroup(true);
+    }
 
     return builder.build();
   }

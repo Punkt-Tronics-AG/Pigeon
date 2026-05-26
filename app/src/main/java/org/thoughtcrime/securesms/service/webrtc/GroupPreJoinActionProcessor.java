@@ -1,14 +1,18 @@
 package org.thoughtcrime.securesms.service.webrtc;
 
-import androidx.annotation.NonNull;
+import android.os.ResultReceiver;
 
-import com.annimon.stream.Stream;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.stream.Collectors;
 
 import org.signal.core.util.logging.Log;
 import org.signal.ringrtc.CallException;
 import org.signal.ringrtc.GroupCall;
 import org.signal.ringrtc.PeekInfo;
 import org.thoughtcrime.securesms.components.webrtc.BroadcastVideoSink;
+import org.thoughtcrime.securesms.components.webrtc.CallParticipantsState;
 import org.thoughtcrime.securesms.components.webrtc.EglBaseWrapper;
 import org.thoughtcrime.securesms.events.CallParticipant;
 import org.thoughtcrime.securesms.events.CallParticipantId;
@@ -19,6 +23,7 @@ import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
 import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceStateBuilder;
 import org.thoughtcrime.securesms.util.NetworkUtil;
+import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.whispersystems.signalservice.api.messages.calls.OfferMessage;
 import org.signal.core.models.ServiceId.ACI;
 
@@ -42,16 +47,31 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
   }
 
   @Override
+  protected @NonNull WebRtcServiceState handleIsInCallQuery(@NonNull WebRtcServiceState currentState, @Nullable ResultReceiver resultReceiver) {
+    if (resultReceiver != null) {
+      resultReceiver.send(1, ActiveCallData.fromCallState(currentState).toBundle());
+    }
+    return currentState;
+  }
+
+  @Override
   protected @NonNull WebRtcServiceState handlePreJoinCall(@NonNull WebRtcServiceState currentState, @NonNull RemotePeer remotePeer) {
     Log.i(tag, "handlePreJoinCall():");
 
-    byte[]      groupId = currentState.getCallInfoState().getCallRecipient().requireGroupId().getDecodedId();
-    GroupCall groupCall = webRtcInteractor.getCallManager().createGroupCall(groupId,
-                                                                            SignalStore.internal().getGroupCallingServer(),
-                                                                            new byte[0],
-                                                                            AUDIO_LEVELS_INTERVAL,
-                                                                            RingRtcDynamicConfiguration.getAudioConfig(),
-                                                                            webRtcInteractor.getGroupCallObserver());
+    if (currentState.getCallInfoState().getGroupCall() != null) {
+      Log.w(tag, "handlePreJoinCall(): Group call already exists, ignoring duplicate pre-join request");
+      return currentState;
+    }
+
+    byte      dredDuration = (byte) RemoteConfig.dredDuration();
+    byte[]    groupId      = currentState.getCallInfoState().getCallRecipient().requireGroupId().getDecodedId();
+    GroupCall groupCall    = webRtcInteractor.getCallManager().createGroupCall(groupId,
+                                                                               SignalStore.internal().getGroupCallingServer(),
+                                                                               new byte[0],
+                                                                               AUDIO_LEVELS_INTERVAL,
+                                                                               dredDuration,
+                                                                               RingRtcDynamicConfiguration.getAudioConfig(),
+                                                                               webRtcInteractor.getGroupCallObserver());
 
     if (groupCall == null) {
       return groupCallFailure(currentState, "RingRTC did not create a group call", null);
@@ -59,7 +79,7 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
 
     try {
       groupCall.setOutgoingAudioMuted(true);
-      groupCall.setOutgoingVideoMuted(true);
+      groupCall.setOutgoingVideoMuted(true, false);
       groupCall.setDataMode(NetworkUtil.getCallingDataMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
 
       Log.i(tag, "Connecting to group call: " + currentState.getCallInfoState().getCallRecipient().getId());
@@ -123,9 +143,8 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
       return currentState;
     }
 
-    List<Recipient> callParticipants = Stream.of(peekInfo.getJoinedMembers())
-                                             .map(uuid -> Recipient.externalPush(ACI.from(uuid)))
-                                             .toList();
+    List<Recipient> callParticipants = peekInfo.getJoinedMembers().stream()
+                                               .map(uuid -> Recipient.externalPush(ACI.from(uuid))).collect(Collectors.toList());
 
     WebRtcServiceStateBuilder.CallInfoStateBuilder builder = currentState.builder()
                                                                          .changeCallInfoState()
@@ -149,7 +168,16 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
                                                                      CallParticipant.DeviceOrdinal.PRIMARY));
     }
 
-    return builder.build();
+    WebRtcServiceStateBuilder stateBuilder = builder.commit();
+
+    if (peekInfo.getDeviceCountExcludingPendingDevices() >= CallParticipantsState.PRE_JOIN_MUTE_THRESHOLD && currentState.getLocalDeviceState().isMicrophoneEnabled()) {
+      Log.i(tag, "Large call detected (" + peekInfo.getDeviceCountExcludingPendingDevices() + " participants), auto-muting microphone");
+      return stateBuilder.changeLocalDeviceState()
+                         .isMicrophoneEnabled(false)
+                         .build();
+    }
+
+    return stateBuilder.build();
   }
 
   @Override
@@ -165,11 +193,11 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
 
     webRtcInteractor.setCallInProgressNotification(TYPE_OUTGOING_RINGING, currentState.getCallInfoState().getCallRecipient(), true);
     webRtcInteractor.updatePhoneState(WebRtcUtil.getInCallPhoneState(context));
-    webRtcInteractor.initializeAudioForCall();
+    webRtcInteractor.initializeAudioForCall(true);
 
     try {
-      groupCall.setOutgoingVideoSource(currentState.getVideoState().requireLocalSink(), currentState.getVideoState().requireCamera());
-      groupCall.setOutgoingVideoMuted(!currentState.getLocalDeviceState().getCameraState().isEnabled());
+      groupCall.setOutgoingVideoSource(currentState.getVideoState().requireLocalSink(), currentState.getVideoState().requireRouter());
+      groupCall.setOutgoingVideoMuted(!currentState.getLocalDeviceState().getCameraState().isEnabled(), false);
       groupCall.setOutgoingAudioMuted(!currentState.getLocalDeviceState().isMicrophoneEnabled());
       groupCall.setDataMode(NetworkUtil.getCallingDataMode(context, groupCall.getLocalDeviceState().getNetworkRoute().getLocalAdapterType()));
 
@@ -192,13 +220,13 @@ public class GroupPreJoinActionProcessor extends GroupActionProcessor {
   protected @NonNull WebRtcServiceState handleSetEnableVideo(@NonNull WebRtcServiceState currentState, boolean enable) {
     Log.i(tag, "handleSetEnableVideo(): Changing for pre-join group call. enable: " + enable);
 
-    currentState.getVideoState().requireCamera().setEnabled(enable);
+    currentState.getVideoState().requireRouter().setEnabled(enable);
     return currentState.builder()
                        .changeCallSetupState(RemotePeer.GROUP_CALL_ID)
                        .enableVideoOnCreate(enable)
                        .commit()
                        .changeLocalDeviceState()
-                       .cameraState(currentState.getVideoState().requireCamera().getCameraState())
+                       .cameraState(currentState.getVideoState().requireRouter().getCameraState())
                        .build();
   }
 

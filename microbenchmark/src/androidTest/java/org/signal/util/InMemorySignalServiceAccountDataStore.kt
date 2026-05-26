@@ -136,7 +136,7 @@ class InMemorySignalServiceAccountDataStore : SignalServiceAccountDataStore {
   }
 
   override fun storeKyberPreKey(kyberPreKeyId: Int, record: KyberPreKeyRecord?) {
-    error("Not used")
+    kyberPreKeys[kyberPreKeyId] = record!!
   }
 
   override fun containsKyberPreKey(kyberPreKeyId: Int): Boolean {
@@ -203,7 +203,7 @@ class InMemorySignalServiceAccountDataStore : SignalServiceAccountDataStore {
   }
 
   private fun SessionRecord.isValid(): Boolean {
-    return this.hasSenderChain()
+    return this.hasSenderChain(0.0)
   }
 
   private data class SenderKeyLocator(val address: SignalProtocolAddress, val distributionId: UUID)

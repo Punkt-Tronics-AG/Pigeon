@@ -56,7 +56,8 @@ object SignalServiceProtoUtil {
         pollVote != null ||
         pollTerminate != null ||
         pinMessage != null ||
-        unpinMessage != null
+        unpinMessage != null ||
+        adminDelete != null
     }
 
   val DataMessage.hasDisallowedAnnouncementOnlyContent: Boolean
@@ -86,9 +87,6 @@ object SignalServiceProtoUtil {
 
   val DataMessage.isMediaMessage: Boolean
     get() = attachments.isNotEmpty() || quote != null || contact.isNotEmpty() || sticker != null || bodyRanges.isNotEmpty() || preview.isNotEmpty()
-
-  val DataMessage.isEndSession: Boolean
-    get() = flags != null && flags!! and DataMessage.Flags.END_SESSION.value != 0
 
   val DataMessage.isStoryReaction: Boolean
     get() = reaction != null && storyContext != null

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Beir an príobháideachas leat.\nBíodh cead cainte agat i ngach teachtaireacht.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Eagraíocht neamhbhrabúis is ea é Signal\nTéarmaí agus Polasaí Príobháideachais</string>
+    <string name="RegistrationActivity_continue">Lean ar aghaidh</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">Aischuir nó aistrigh</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">Tabhair ceadanna</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">Chun cabhrú leat teachtaireacht a sheoladh chuig daoine a bhfuil aithne agat orthu, iarrfaidh Signal na ceadanna sin. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">Ní anois</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">Ar aghaidh</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">Fógraí</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">Faigh fógra nuair a thagann teachtaireachtaí nua isteach.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">Teagmhálaithe</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">Aimsigh daoine a bhfuil aithne agat orthu. Tá do theagmhálaithe criptithe agus tá siad dofheicthe ag seirbhís Signal.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">Glaonna gutháin</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">Déan an clárú níos éasca agus cumasaigh gnéithe curtha glaonna breise.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">Stóras</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">Seol grianghraif, físeáin agus comhaid ó do ghléas.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">Uimhir ghutháin</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">Gheobhaidh tú cód fíoraithe. D\'fhéadfadh do sholáthraí seirbhíse táillí a ghearradh ort.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">Roghnaigh tír</string>
+    <string name="RegistrationActivity_phone_number_description">Uimhir ghutháin</string>
+    <string name="RegistrationActivity_next">Ar aghaidh</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">An bhfuil an uimhir ghutháin thíos ceart?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">Seolfar cód fíoraithe chuig an uimhir seo. Féadfaidh rátaí iompróra a bheith i bhfeidhm.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">Cuir an uimhir in eagar</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">Oscail an roghchlár</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">Úsáid seachfhreastalaí</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">Nasc an gléas</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">Tuilleadh faisnéise</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">Do thír</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">Dún</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">Cuardaigh de réir ainm nó uimhreach</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">Tír anaithnid</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">Cód fíoraithe</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">Cuir isteach an cód a sheolamar chuig %1$s</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">Uimhir mhícheart?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">Athsheol Cód</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">Glaoigh orm ina ionad sin</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">Glaoigh orm (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">Cód mícheart</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">Nascadh dodhéanta. Seiceáil do líonra agus triail arís.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">An iomarca iarrachtaí. Triail arís i gceann %1$s.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">Tharla earráid gan choinne. Triail arís.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">Ní féidir linn SMS a sheoladh chuig d\'uimhir. Triail arís i gceann roinnt uaireanta an chloig.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">Níorbh fhéidir an cód a sheoladh tríd an modh roghnaithe. Triail rogha eile.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">Theip ar chlárú. Triail arís.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">Deacracht agat?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">Tá mo sheanghuthán agam</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">Scan cód QR ó do chuntas reatha Signal chun tosú air go tapa</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">Níl mo sheanghuthán agam</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">Nó tá tú ag athshuiteáil Signal ar an ngléas céanna</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">Cuntas a aischur nó a aistriú</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">Roghnaigh conas ba mhaith leat stair do theachtaireachtaí agus sonraí an chuntais a aischur.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Ó Chúltacaí Signal</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">Plean cúltacaí saor in aisce nó íoctha de chuid Signal</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">Cúltaca ar ghléas a aischur</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">Aischuir do theachtaireachtaí ó chúltaca a shábháil tú ar do ghléas.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">Lean leis gan aistriú</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">Ní aistreofar teachtaireachtaí ná meáin</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">Ó fhillteán cúltaca</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">Ó chomhad cúltaca</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">Roghnaigh cúltaca atá sábháilte agat</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">Ó do sheanghuthán</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">Aistrigh go díreach ó do sheanghléas Android</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">Scipeáil</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">Scipeáil an t-aischur?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">Má scipeálann tú an t-aischur anois ní bheidh tú in ann aischur a dhéanamh níos déanaí. Má athchumasaíonn tú cúltacaí tar éis aischur a scipeáil, cuirfear do stair teachtaireachtaí nua in ionad do chúltaca reatha.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">Scipeáil an t-aischur</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">Aischuir cúltaca ar ghléas</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">Aischuir do theachtaireachtaí ó chúltaca a shábháil tú ar do ghléas. Mura ndéanann tú an t-aischur anois, ní bheidh tú in ann iad a aischur níos déanaí.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">Roghnaigh fillteán cúltaca</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">Roghnaigh an fillteán ar an ngléas ar a bhfuil do chúltaca stóráilte</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">Cúltacaí á gcuardach…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">Aischuir do theachtaireachtaí ón bhfillteán cúltaca a shábháil tú ar do ghléas. Mura ndéanann tú an t-aischur anois, ní bheidh tú in ann iad a aischur níos déanaí.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">Do chúltaca is déanaí:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">Aischuir cúltaca</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">Roghnaigh cúltaca níos luaithe</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">Roghnaigh cúltaca le haischur</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">D\'fhéadfaí go gcaillfí teachtaireachtaí nó meáin mar thoradh ar chúltaca níos sine a roghnú.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">Níor aimsíodh cúltaca</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">Níor aimsíodh cúltaca Signal san fhillteán roghnaithe. Triail fillteán difriúil.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">Triail fillteán difriúil</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">Cuir isteach an pasfhrása cúltaca</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">Cód 30 digit is ea do phasfhrása cúltaca logánta a éilítear chun do chuntas agus do shonraí a aischur.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">Eochair athshlánaithe</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">Rófhada (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">Nach bhfuil pasfhrása agat?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">Ar aghaidh</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">Cuir isteach d\'eochair athshlánaithe</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">Cód 64 carachtar is ea d\'eochair athshlánaithe a éilítear chun do chuntas agus do shonraí a athshlánú.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">Eochair athshlánaithe</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">Nach bhfuil eochair athshlánaithe ann?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">Rófhada (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">Eochair athshlánaithe neamhbhailí</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">Eochair athshlánaithe mhícheart</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">Aischur á ullmhú…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">Cúltaca á aischur</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">Fan do ndéanfar do theachtaireachtaí agus do shonraí a aischur.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">Lean ar aghaidh</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">Theip ar an aischur</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">Tharla earráid agus do chúltaca á aischur. Triail arís.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">Triail arís</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">Nasc do chuntas</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">Nach bhfuil tú ar Signal fós?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">Cruthaigh cuntas</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">Aischuir ó chúltaca</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">Sonraí cúltaca á bhfáil…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">Aischuir cúltaca</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">Rinneadh do chúltaca deiridh ar an %1$s ag %2$s.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">Aischuirfear do mheáin sa chúlra. Má roghnaíonn tú gan aischur a dhéanamh anois, ní bheidh tú in ann é a dhéanamh níos déanaí.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">Níor aimsíodh cúltaca</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">Níor aimsíodh cúltaca don chuntas seo.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">Ní féidir an cúltaca a aischur</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">Ní féidir do chúltaca a aischur díreach anois. Triail arís.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">Triail arís</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">Níorbh fhéidir an t-aischur a chur i gcrích</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">Tharla earráid le linn ceangal leis an bhfreastalaí. Seiceáil do cheangal agus triail arís.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">Tharla earráid agus do chúltaca á aischur. Triail arís.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">Níorbh fhéidir an cúltaca seo a aischur</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Ní féidir leis an leagan seo de Signal do chúltaca a aischur. Nuashonraigh chuig an leagan is déanaí agus triail arís é.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Nuashonraigh Signal</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">Ní anois</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">Ní féidir an cúltaca a aischur</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">Tharla earráid agus do chúltaca á aischur. Níl do chúltaca in-athshlánaithe. Déan teagmháil leis an bhfoireann tacaíochta le cabhair a fháil.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">Déan teagmháil leis an bhfoireann tacaíochta</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">Cúltaca á íoslódáil…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">Teachtaireachtaí á gcur ar ais…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">Cur i gcrích ar bun…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">Aischur ar bun…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%1$s as %2$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">Níor aimsíodh aon bhrabhsálaí gréasáin.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">Cuntas glasáilte</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">Glasáladh do chuntas chun do phríobháideachas agus slándáil a chosaint. Tar éis %1$d lá neamhghníomhaíochta i do chuntas beidh tú in ann an uimhir ghutháin seo a athchlárú gan do UAP a bheith de dhíth ort. Scriosfar an t-ábhar ar fad atá ann.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">Ar do sheanghuthán, oscail Signal</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">Gabh chuig Socruithe &gt; Aistrigh cuntas</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">Scan an cód QR seo</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">Clárú…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">Tharla earráid le linn an chláraithe</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">Scan ón seanghléas</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">Cód QR scanta</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">Bain triail eile as</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"Theip ar ghiniúint chód QR"</string>
+</resources>

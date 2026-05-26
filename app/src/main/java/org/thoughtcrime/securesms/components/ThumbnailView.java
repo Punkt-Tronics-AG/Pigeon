@@ -15,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatImageView;
+import com.google.android.material.color.MaterialColors;
 
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
@@ -36,20 +36,22 @@ import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 
+import org.signal.core.models.media.TransformProperties;
 import org.signal.core.util.concurrent.ListenableFuture;
 import org.signal.core.util.concurrent.SettableFuture;
 import org.signal.core.util.logging.Log;
+import org.signal.blurhash.BlurHash;
+import org.signal.core.ui.view.Stub;
+import org.signal.glide.decryptableuri.DecryptableUri;
 import org.signal.glide.load.SignalDownsampleStrategy;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
-import org.thoughtcrime.securesms.blurhash.BlurHash;
 import org.thoughtcrime.securesms.components.transfercontrols.TransferControlView;
 import org.thoughtcrime.securesms.database.AttachmentTable;
 import org.thoughtcrime.securesms.glide.targets.GlideBitmapListeningTarget;
 import org.thoughtcrime.securesms.glide.targets.GlideDrawableListeningTarget;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.mms.DecryptableUri;
 import org.thoughtcrime.securesms.mms.ImageSlide;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.mms.Slide;
@@ -59,8 +61,7 @@ import org.thoughtcrime.securesms.mms.VideoSlide;
 import org.thoughtcrime.securesms.stories.StoryTextPostModel;
 import org.thoughtcrime.securesms.util.AttachmentUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
-import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.views.Stub;
+import org.signal.core.util.Util;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -348,6 +349,7 @@ public class ThumbnailView extends FrameLayout {
 
       transferControlViewStub.setVisibility(View.GONE);
       playOverlay.setVisibility(View.GONE);
+      setBackgroundColor(Color.TRANSPARENT);
 
       requestManager.clear(blurHash);
       blurHash.setImageDrawable(null);
@@ -408,6 +410,8 @@ public class ThumbnailView extends FrameLayout {
     }
 
     if (this.slide != null && this.slide.getFastPreflightId() != null &&
+        this.slide.isInProgress() == slide.isInProgress() &&
+        image.getDrawable() != null &&
         (!slide.hasVideo() || Util.equals(this.slide.getUri(), slide.getUri())) &&
         Util.equals(this.slide.getFastPreflightId(), slide.getFastPreflightId()))
     {
@@ -485,6 +489,12 @@ public class ThumbnailView extends FrameLayout {
     } else {
       requestManager.clear(image);
       image.setImageDrawable(null);
+    }
+
+    if (slide.getTransferState() == AttachmentTable.TRANSFER_RESTORE_OFFLOADED && slide.getDisplayUri() == null) {
+      setBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceVariant, Color.GRAY));
+    } else {
+      setBackgroundColor(Color.TRANSPARENT);
     }
 
     if (!resultHandled) {
@@ -599,7 +609,14 @@ public class ThumbnailView extends FrameLayout {
   }
 
   private RequestBuilder<Drawable> buildThumbnailRequestBuilder(@NonNull RequestManager requestManager, @NonNull Slide slide) {
-    RequestBuilder<Drawable> requestBuilder = applySizing(requestManager.load(new DecryptableUri(Objects.requireNonNull(slide.getDisplayUri())))
+    long                videoTrimStartTimeUs = 0;
+    TransformProperties transformProperties  = slide.asAttachment().transformProperties;
+
+    if (transformProperties != null && !transformProperties.shouldSkipTransform()) {
+      videoTrimStartTimeUs = transformProperties.videoTrimStartTimeUs;
+    }
+
+    RequestBuilder<Drawable> requestBuilder = applySizing(requestManager.load(new DecryptableUri(Objects.requireNonNull(slide.getDisplayUri()), videoTrimStartTimeUs))
                                                               .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                                                               .downsample(SignalDownsampleStrategy.CENTER_OUTSIDE_NO_UPSCALE)
                                                               .transition(withCrossFade()));

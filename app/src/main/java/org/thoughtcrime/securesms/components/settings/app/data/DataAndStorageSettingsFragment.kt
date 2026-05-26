@@ -8,26 +8,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Texts
 import org.signal.core.util.bytes
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.compose.rememberStatusBarColorNestedScrollModifier
 import org.thoughtcrime.securesms.mms.SentMediaQuality
+import org.thoughtcrime.securesms.util.AttachmentUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.webrtc.CallDataMode
 import kotlin.math.abs
@@ -114,7 +114,7 @@ private fun DataAndStorageSettingsScreen(
   Scaffolds.Settings(
     title = stringResource(R.string.preferences__data_and_storage),
     onNavigationClick = callbacks::onNavigationClick,
-    navigationIcon = ImageVector.vectorResource(R.drawable.symbol_arrow_start_24)
+    navigationIcon = SignalIcons.ArrowStart.imageVector
   ) { paddingValues ->
     LazyColumn(
       modifier = Modifier
@@ -143,6 +143,7 @@ private fun DataAndStorageSettingsScreen(
           labels = stringArrayResource(R.array.pref_media_download_entries),
           values = stringArrayResource(R.array.pref_media_download_values),
           selection = state.mobileAutoDownloadValues.toTypedArray(),
+          noSelectionLabel = stringResource(R.string.preferences__none),
           onSelectionChanged = callbacks::onMobileDataAutoDownloadSelectionChanged
         )
       }
@@ -153,6 +154,7 @@ private fun DataAndStorageSettingsScreen(
           labels = stringArrayResource(R.array.pref_media_download_entries),
           values = stringArrayResource(R.array.pref_media_download_values),
           selection = state.wifiAutoDownloadValues.toTypedArray(),
+          noSelectionLabel = stringResource(R.string.preferences__none),
           onSelectionChanged = callbacks::onWifiDataAutoDownloadSelectionChanged
         )
       }
@@ -163,7 +165,23 @@ private fun DataAndStorageSettingsScreen(
           labels = stringArrayResource(R.array.pref_media_download_entries),
           values = stringArrayResource(R.array.pref_media_download_values),
           selection = state.roamingAutoDownloadValues.toTypedArray(),
+          noSelectionLabel = stringResource(R.string.preferences__none),
           onSelectionChanged = callbacks::onRoamingDataAutoDownloadSelectionChanged
+        )
+      }
+
+      item {
+        Rows.TextRow(
+          text = {
+            Text(
+              text = stringResource(
+                R.string.DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded,
+                AttachmentUtil.SMALL_ATTACHMENT_SIZE.toUnitString()
+              ),
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+          }
         )
       }
 

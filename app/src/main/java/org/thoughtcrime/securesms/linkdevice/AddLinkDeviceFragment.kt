@@ -8,29 +8,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import org.signal.camera.CameraScreenEvents
+import org.signal.camera.CameraScreenState
+import org.signal.camera.CameraScreenViewModel
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.DayNightPreviews
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.util.logging.Log
+import org.signal.core.ui.permissions.Permissions
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.util.VibrateUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.components.Mp02CustomDialog
@@ -52,6 +58,9 @@ class AddLinkDeviceFragment : ComposeFragment() {
   @Composable
   override fun FragmentContent() {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val cameraViewModel: CameraScreenViewModel = viewModel { CameraScreenViewModel() }
+    val cameraState by cameraViewModel.state
+    val context = LocalContext.current
     val navController: NavController by remember { mutableStateOf(findNavController()) }
     val cameraPermissionState: PermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
 
@@ -66,19 +75,24 @@ class AddLinkDeviceFragment : ComposeFragment() {
       }
     }
 
-    if (isSignalVersion()) {
-    MainScreen(
-      state = state,
-      navController = navController,
-      hasPermissions = cameraPermissionState.status.isGranted,
-      onRequestPermissions = { askPermissions() },
-      onShowFrontCamera = { viewModel.showFrontCamera() },
-      onQrCodeScanned = { data ->
+    LaunchedEffect(cameraViewModel) {
+      cameraViewModel.qrCodeDetected.collect { data ->
         if (VibrateUtil.isHapticFeedbackEnabled(requireContext())) {
           VibrateUtil.vibrate(requireContext(), VIBRATE_DURATION_MS)
         }
         viewModel.onQrCodeScanned(data)
-      },
+      }
+    }
+
+    if (isSignalVersion()) {
+    MainScreen(
+      state = state,
+      cameraState = cameraState,
+      cameraEmitter = cameraViewModel::onEvent,
+      navController = navController,
+      hasPermissions = cameraPermissionState.status.isGranted,
+      onRequestPermissions = { askPermissions() },
+      onSwitchCamera = { cameraViewModel.onEvent(CameraScreenEvents.SwitchCamera(context)) },
       onQrCodeApproved = {
         navController.popBackStack()
         viewModel.addDevice(shouldSync = false)
@@ -153,11 +167,12 @@ class AddLinkDeviceFragment : ComposeFragment() {
 @Composable
 private fun MainScreen(
   state: LinkDeviceSettingsState,
+  cameraState: CameraScreenState = CameraScreenState(),
+  cameraEmitter: (CameraScreenEvents) -> Unit = {},
   navController: NavController? = null,
   hasPermissions: Boolean = false,
   onRequestPermissions: () -> Unit = {},
-  onShowFrontCamera: () -> Unit = {},
-  onQrCodeScanned: (String) -> Unit = {},
+  onSwitchCamera: () -> Unit = {},
   onQrCodeApproved: () -> Unit = {},
   onQrCodeDismissed: () -> Unit = {},
   onLinkDeviceSuccess: () -> Unit = {},
@@ -170,7 +185,7 @@ private fun MainScreen(
     navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close),
     actions = {
       if (isSignalVersion()) {
-        IconButton(onClick = { onShowFrontCamera() }) {
+        IconButton(onClick = onSwitchCamera) {
           Icon(painterResource(id = R.drawable.symbol_switch_24), contentDescription = null)
         }
       }
@@ -179,9 +194,9 @@ private fun MainScreen(
     LinkDeviceQrScanScreen(
       hasPermission = hasPermissions,
       onRequestPermissions = onRequestPermissions,
-      showFrontCamera = state.showFrontCamera,
+      cameraState = cameraState,
+      cameraEmitter = cameraEmitter,
       qrCodeState = state.qrCodeState,
-      onQrCodeScanned = onQrCodeScanned,
       onQrCodeAccepted = onQrCodeApproved,
       onQrCodeDismissed = onQrCodeDismissed,
       linkDeviceResult = state.linkDeviceResult,

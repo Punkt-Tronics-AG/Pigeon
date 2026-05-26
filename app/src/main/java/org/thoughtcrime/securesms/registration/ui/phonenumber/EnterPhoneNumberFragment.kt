@@ -38,11 +38,11 @@ import com.google.i18n.phonenumbers.AsYouTypeFormatter
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
+import org.signal.core.ui.logging.LoggingFragment
 import org.signal.core.util.ThreadUtil
 import org.signal.core.util.getParcelableCompat
 import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.logging.Log
-import org.thoughtcrime.securesms.LoggingFragment
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ViewBinderDelegate
 import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding
@@ -547,7 +547,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     } else {
       Log.w(TAG, "Unable to request new verification code, prompting to start new session")
       MaterialAlertDialogBuilder(requireContext()).apply {
-        setMessage(R.string.RegistrationActivity_unable_to_connect_to_service)
+        setMessage(R.string.RegistrationActivity_sms_provider_error)
         setPositiveButton(R.string.NetworkFailure__retry) { _, _ ->
           onRegistrationButtonClicked()
         }
@@ -602,7 +602,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       EnterPhoneNumberMode.RESTART_AFTER_COLLECTION -> startNormalRegistration()
 
       EnterPhoneNumberMode.COLLECT_FOR_MANUAL_SIGNAL_BACKUPS_RESTORE -> findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.goToEnterBackupKey())
-      EnterPhoneNumberMode.COLLECT_FOR_LOCAL_V2_SIGNAL_BACKUPS_RESTORE -> findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.goToInternalNewLocalBackupRestore())
+      EnterPhoneNumberMode.COLLECT_FOR_LOCAL_V2_SIGNAL_BACKUPS_RESTORE -> findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.goToRestoreLocalBackupFragment())
     }
   }
 
@@ -645,6 +645,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   private fun updateEnabledControls(showProgress: Boolean, isReRegister: Boolean) {
     binding.countryCode.isEnabled = !showProgress
     binding.number.isEnabled = !showProgress
+    countryPickerView.isEnabled = !showProgress
     binding.cancelButton.visible = !showProgress && isReRegister
   }
 

@@ -45,10 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
+import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.ringrtc.GroupCall
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.webrtc.v2.WebRtcCallViewModel
-import org.thoughtcrime.securesms.compose.SignalTheme
 import org.thoughtcrime.securesms.dependencies.AppDependencies
 import org.thoughtcrime.securesms.events.CallParticipant
 import org.thoughtcrime.securesms.events.GroupCallRaiseHandEvent
@@ -217,11 +217,11 @@ private fun getSnackbarText(state: RaiseHandState): String {
 
   val shouldDisplayLowerYourHand = remember(state) {
     val now = System.currentTimeMillis().milliseconds
-    val hasUnexpiredSelf = state.raisedHands.any { it.sender.isSelf && it.sender.isPrimary && it.getCollapseTimestamp() >= now }
+    val hasSelfRaisedHand = state.raisedHands.any { it.sender.isSelf && it.sender.isPrimary }
     val expiration = state.speechEvent?.getCollapseTimestamp() ?: Duration.ZERO
     val isUnexpired = expiration >= now
 
-    state.speechEvent?.speechEvent == GroupCall.SpeechEvent.LOWER_HAND_SUGGESTION && isUnexpired && hasUnexpiredSelf
+    state.speechEvent?.speechEvent == GroupCall.SpeechEvent.LOWER_HAND_SUGGESTION && isUnexpired && hasSelfRaisedHand
   }
 
   if (shouldDisplayLowerYourHand && state.isExpanded) {

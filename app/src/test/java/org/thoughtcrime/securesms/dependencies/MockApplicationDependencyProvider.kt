@@ -6,6 +6,17 @@ import org.signal.core.util.concurrent.DeadlockDetector
 import org.signal.libsignal.net.Network
 import org.signal.libsignal.zkgroup.profiles.ClientZkProfileOperations
 import org.signal.libsignal.zkgroup.receipts.ClientZkReceiptOperations
+import org.signal.network.api.ArchiveApi
+import org.signal.network.api.CallingApi
+import org.signal.network.api.CdsApi
+import org.signal.network.api.CertificateApi
+import org.signal.network.api.LinkDeviceApi
+import org.signal.network.api.PaymentsApi
+import org.signal.network.api.ProvisioningApi
+import org.signal.network.api.RateLimitChallengeApi
+import org.signal.network.api.RemoteConfigApi
+import org.signal.network.api.SvrBApi
+import org.signal.network.api.UsernameApi
 import org.thoughtcrime.securesms.components.TypingStatusRepository
 import org.thoughtcrime.securesms.components.TypingStatusSender
 import org.thoughtcrime.securesms.crypto.storage.SignalServiceDataStoreImpl
@@ -20,6 +31,7 @@ import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess
 import org.thoughtcrime.securesms.recipients.LiveRecipientCache
 import org.thoughtcrime.securesms.revealable.ViewOnceMessageManager
 import org.thoughtcrime.securesms.service.DeletedCallEventManager
+import org.thoughtcrime.securesms.service.ExpiringArchivedStoriesManager
 import org.thoughtcrime.securesms.service.ExpiringMessageManager
 import org.thoughtcrime.securesms.service.ExpiringStoriesManager
 import org.thoughtcrime.securesms.service.PendingRetryReceiptManager
@@ -38,27 +50,16 @@ import org.whispersystems.signalservice.api.SignalServiceDataStore
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver
 import org.whispersystems.signalservice.api.SignalServiceMessageSender
 import org.whispersystems.signalservice.api.account.AccountApi
-import org.whispersystems.signalservice.api.archive.ArchiveApi
 import org.whispersystems.signalservice.api.attachment.AttachmentApi
-import org.whispersystems.signalservice.api.calling.CallingApi
-import org.whispersystems.signalservice.api.cds.CdsApi
-import org.whispersystems.signalservice.api.certificate.CertificateApi
 import org.whispersystems.signalservice.api.donations.DonationsApi
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations
 import org.whispersystems.signalservice.api.keys.KeysApi
-import org.whispersystems.signalservice.api.link.LinkDeviceApi
 import org.whispersystems.signalservice.api.message.MessageApi
-import org.whispersystems.signalservice.api.payments.PaymentsApi
 import org.whispersystems.signalservice.api.profiles.ProfileApi
-import org.whispersystems.signalservice.api.provisioning.ProvisioningApi
-import org.whispersystems.signalservice.api.ratelimit.RateLimitChallengeApi
 import org.whispersystems.signalservice.api.registration.RegistrationApi
-import org.whispersystems.signalservice.api.remoteconfig.RemoteConfigApi
 import org.whispersystems.signalservice.api.services.DonationsService
 import org.whispersystems.signalservice.api.services.ProfileService
 import org.whispersystems.signalservice.api.storage.StorageServiceApi
-import org.whispersystems.signalservice.api.svr.SvrBApi
-import org.whispersystems.signalservice.api.username.UsernameApi
 import org.whispersystems.signalservice.api.websocket.SignalWebSocket
 import org.whispersystems.signalservice.internal.configuration.SignalServiceConfiguration
 import org.whispersystems.signalservice.internal.push.PushServiceSocket
@@ -132,6 +133,10 @@ class MockApplicationDependencyProvider : AppDependencies.Provider {
   }
 
   override fun provideExpiringStoriesManager(): ExpiringStoriesManager {
+    return mockk(relaxed = true)
+  }
+
+  override fun provideExpiringArchivedStoriesManager(): ExpiringArchivedStoriesManager {
     return mockk(relaxed = true)
   }
 
@@ -308,6 +313,10 @@ class MockApplicationDependencyProvider : AppDependencies.Provider {
   }
 
   override fun provideSvrBApi(libSignalNetwork: Network): SvrBApi {
+    return mockk(relaxed = true)
+  }
+
+  override fun provideKeyTransparencyApi(unauthWebSocket: SignalWebSocket.UnauthenticatedWebSocket): KeyTransparencyApi {
     return mockk(relaxed = true)
   }
 }

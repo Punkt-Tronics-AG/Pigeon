@@ -1,14 +1,15 @@
 package org.whispersystems.signalservice.api.groupsv2;
 
 import org.junit.Test;
+import org.signal.core.util.UuidUtil;
 import org.signal.libsignal.zkgroup.profiles.ProfileKey;
 import org.signal.storageservice.storage.protos.groups.AccessControl;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroup;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedGroupChange;
+import org.signal.storageservice.storage.protos.groups.local.DecryptedMember;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedString;
 import org.signal.storageservice.storage.protos.groups.local.DecryptedTimer;
 import org.signal.storageservice.storage.protos.groups.local.EnabledState;
-import org.signal.core.util.UuidUtil;
 import org.whispersystems.signalservice.internal.util.Util;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public final class GroupChangeReconstructTest {
     int maxFieldFound = getMaxDeclaredFieldNumber(DecryptedGroup.class, ProtobufTestUtils.IGNORED_DECRYPTED_GROUP_TAGS);
 
     assertEquals("GroupChangeReconstruct and its tests need updating to account for new fields on " + DecryptedGroup.class.getName(),
-                 13, maxFieldFound);
+                 14, maxFieldFound);
   }
 
   @Test
@@ -407,5 +408,101 @@ public final class GroupChangeReconstructTest {
     DecryptedGroupChange decryptedGroupChange = GroupChangeReconstruct.reconstructGroupChange(from, to);
 
     assertEquals(new DecryptedGroupChange.Builder().deleteBannedMembers(List.of(bannedMember(uuidOld))).build(), decryptedGroupChange);
+  }
+
+  @Test
+  public void member_label_change() {
+    UUID memberUuid = UUID.fromString("d1d1d1d1-0000-4000-8000-000000000001");
+
+    DecryptedMember existingMember = member(memberUuid);
+    DecryptedMember updatedMember = member(memberUuid)
+        .newBuilder()
+        .labelEmoji("🎉")
+        .labelString("New Label")
+        .build();
+
+    DecryptedGroup from = new DecryptedGroup.Builder()
+        .members(List.of(existingMember))
+        .build();
+
+    DecryptedGroup to = new DecryptedGroup.Builder()
+        .members(List.of(updatedMember))
+        .build();
+
+    DecryptedGroupChange change = GroupChangeReconstruct.reconstructGroupChange(from, to);
+
+    assertEquals(1, change.modifyMemberLabels.size());
+    assertEquals(UuidUtil.toByteString(memberUuid), change.modifyMemberLabels.get(0).aciBytes);
+    assertEquals("🎉", change.modifyMemberLabels.get(0).labelEmoji);
+    assertEquals("New Label", change.modifyMemberLabels.get(0).labelString);
+  }
+
+  @Test
+  public void member_label_clear() {
+    UUID memberUuid = UUID.fromString("d1d1d1d1-0000-4000-8000-000000000001");
+
+    DecryptedMember memberWithLabel = member(memberUuid)
+        .newBuilder()
+        .labelEmoji("🎉")
+        .labelString("existing label")
+        .build();
+
+    DecryptedGroup from = new DecryptedGroup.Builder()
+        .members(List.of(memberWithLabel))
+        .build();
+
+    DecryptedGroup to = new DecryptedGroup.Builder()
+        .members(List.of(member(memberUuid)))
+        .build();
+
+    DecryptedGroupChange change = GroupChangeReconstruct.reconstructGroupChange(from, to);
+
+    assertEquals(1, change.modifyMemberLabels.size());
+    assertEquals(UuidUtil.toByteString(memberUuid), change.modifyMemberLabels.get(0).aciBytes);
+    assertEquals("", change.modifyMemberLabels.get(0).labelEmoji);
+    assertEquals("", change.modifyMemberLabels.get(0).labelString);
+  }
+
+  @Test
+  public void new_member_label_access() {
+    DecryptedGroup from = new DecryptedGroup.Builder()
+        .accessControl(
+            new AccessControl.Builder()
+                .memberLabel(AccessControl.AccessRequired.ADMINISTRATOR)
+                .build())
+        .build();
+
+    DecryptedGroup to = new DecryptedGroup.Builder()
+        .accessControl(
+            new AccessControl.Builder()
+                .memberLabel(AccessControl.AccessRequired.MEMBER)
+                .build())
+        .build();
+
+    DecryptedGroupChange decryptedGroupChange = GroupChangeReconstruct.reconstructGroupChange(from, to);
+
+    assertEquals(
+        new DecryptedGroupChange.Builder()
+            .newMemberLabelAccess(AccessControl.AccessRequired.MEMBER)
+            .build(),
+        decryptedGroupChange);
+  }
+
+  @Test
+  public void terminate_group() {
+    DecryptedGroup from = new DecryptedGroup.Builder()
+        .build();
+
+    DecryptedGroup to = new DecryptedGroup.Builder()
+        .terminated(true)
+        .build();
+
+    DecryptedGroupChange decryptedGroupChange = GroupChangeReconstruct.reconstructGroupChange(from, to);
+
+    assertEquals(
+        new DecryptedGroupChange.Builder()
+            .terminateGroup(true)
+            .build(),
+        decryptedGroupChange);
   }
 }

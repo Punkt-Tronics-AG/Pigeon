@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">আপনার গোপনীয়তা বজায় রাখুন।\n প্রতিটি বার্তায় নিজস্ব থাকুন।</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal একটি অলাভজনক প্রতিষ্ঠান\nশর্তাবলী এবং গোপনীয়তার নীতিমালা</string>
+    <string name="RegistrationActivity_continue">চলতে থাকুন</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">পুনর্বহাল বা ট্রান্সফার করুন</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">অনুমতি দিন</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">আপনার পরিচিত ব্যক্তিদের মেসেজ করতে সাহায্য করার জন্য, Signal এই অনুমতিগুলোর জন্য অনুরোধ করবে। </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">এখন না</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">পরবর্তী</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">নোটিফিকেশন</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">নতুন মেসেজ এলে নোটিফিকেশন পান।</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">পরিচিতিসমূহ</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">আপনার পরিচিত ব্যক্তিদের খুঁজে বের করুন। আপনার কন্টাক্টগুলো এনক্রিপ্ট অবস্থায় আছে এবং সেগুলো সিগন্যাল সার্ভিসে দৃশ্যমান নয়।</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">ফোন কল</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">নিবন্ধন সহজ করুন এবং কল করার কিছু বাড়তি ফিচার সক্রিয় করুন।</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">স্টোরেজ</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">আপনার ডিভাইস থেকে ছবি, ভিডিও ও ফাইল পাঠান।</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">ফোন নম্বর</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">আপনি একটি যাচাইকরণ কোড পাবেন। ক্যারিয়ারের হার প্রযোজ্য হতে পারে।</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">এটি দেশ নির্বাচন করুন</string>
+    <string name="RegistrationActivity_phone_number_description">ফোন নম্বর</string>
+    <string name="RegistrationActivity_next">পরবর্তী</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">নিচের ফোন নম্বরটি কি সঠিক?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">এই নম্বরে একটি যাচাইকরণ কোড পাঠানো হবে। ক্যারিয়ার রেট প্রযোজ্য হতে পারে।</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">নম্বর সম্পাদনা</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">মেনু খুলুন</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">প্রক্সি ব্যবহার করুন</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">ডিভাইস সংযুক্ত করুন</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">আরো জানুন</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">আপনার দেশ</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">বন্ধ</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">নাম বা কান্ট্রি কোড দ্বারা অনুসন্ধান করুন</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">অচেনা দেশ</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">যাচাইকরণ কোড</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">%1$s-তে পাঠানো কোড টি এন্টার করুন</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">ভুল নম্বর?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">কোডটি আবারো পাঠান</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">বরং আমাকে কল করুন</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">আমাকে কল করুন (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">ভুল কোড</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">সংযোগ স্থাপন করা যায়নি। আপনার নেটওয়ার্ক ঠিক আছে কিনা দেখে আবার চেষ্টা করুন।</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">অনেকবার চেষ্টা করা হয়েছে। %1$s পরে আবার চেষ্টা করুন।</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">একটি অপ্রত্যাশিত সমস্যা দেখা দিয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">আমরা আপনার নম্বরে SMS পাঠাতে পারছি না। অনুগ্রহ করে কয়েক ঘন্টা পর আবার চেষ্টা করুন।</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">বেছে নেওয়া পদ্ধতির মাধ্যমে কোড পাঠানো যায়নি। অনুগ্রহ করে অন্য একটি বিকল্প চেষ্টা করুন।</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">নিবন্ধন সফল হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">সমস্যা হচ্ছে?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">আমার পুরানো ফোন আছে</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">দ্রুত শুরু করতে আপনার বর্তমান Signal অ্যাকাউন্ট থেকে একটি QR কোড স্ক্যান করুন</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">আমার পুরানো ফোনটি নেই</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">অথবা আপনি একই ডিভাইসে Signal পুনরায় ইনস্টল করছেন</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">অ্যাকাউন্ট পুনর্বহাল বা ট্রান্সফার করুন</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">আপনার মেসেজের ইতিহাস ও অ্যাকাউন্টের ডেটা কীভাবে পুনর্বহাল করতে চান তা বেছে নিন।</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Signal ব্যাকআপ থেকে</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">ফ্রি বা পেমেন্টের ভিত্তিতে থাকা ব্যাকআপ প্ল্যান</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">ডিভাইসে থাকা ব্যাকআপ পুনর্বহাল করুন</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">আপনার ডিভাইসে সংরক্ষণ করা ব্যাকআপ থেকে আপনার মেসেজগুলো পুনর্বহাল করুন।</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">ট্রান্সফার না করে চালিয়ে যান</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">মেসেজ এবং মিডিয়া ট্রান্সফার করা যাবে না</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">একটি ব্যাকআপ ফোল্ডার থেকে</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">একটি ব্যাকআপ ফাইল থেকে</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">আপনার সংরক্ষিত একটি ব্যাকআপ বেছে নিন</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">আপনার পুরানো ফোন থেকে</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">আপনার পুরানো Android থেকে সরাসরি ট্রান্সফার করুন</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">বাদ দিয়ে যান</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">পুনর্বহাল এড়িয়ে যাবেন?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">আপনি যদি এখন পুনর্বহাল করা এড়িয়ে যান তবে পরে পুনর্বহাল করতে পারবেন না। পুনর্বহাল এড়িয়ে যাওয়ার পর যদি আপনি ব্যাকআপ পুনরায় সচল করেন, তাহলে আপনার বর্তমান ব্যাকআপটির জায়গায় আপনার নতুন মেসেজের ইতিহাস প্রতিস্থাপিত হবে।</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">পুনরুদ্ধার এড়িয়ে যান</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">ডিভাইসে থাকা ব্যাকআপ পুনর্বহাল করুন</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">আপনার ডিভাইসে আপনার সংরক্ষিত ব্যাকআপ থেকে মেসেজগুলো পুনর্বহাল করুন। আপনি এখন পুনর্বহাল না করলে, আপনি পরে পুনর্বহাল করতে পারবেন না।</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">ব্যাকআপ ফোল্ডারটি বেছে নিন</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">আপনার ডিভাইসের সেই ফোল্ডারটি বেছে নিন যেখানে আপনার ব্যাকআপ সংরক্ষণ করা আছে</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">ব্যাকআপ খোঁজা হচ্ছে…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">আপনার ডিভাইসে সংরক্ষিত ব্যাকআপ ফোল্ডার থেকে আপনার মেসেজ পুনর্বহাল করুন। আপনি এখন পুনর্বহাল না করলে, আপনি পরে পুনর্বহাল করতে পারবেন না।</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">আপনার সর্বশেষ ব্যাকআপ:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">ব্যাকঅাপ পুনরুদ্ধার</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">আগের ব্যাকআপ বেছে নিন</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">পুনর্বহাল করার জন্য একটি ব্যাকআপ বেছে নিন</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">পুরনো ব্যাকআপ বেছে নিলে মেসেজ বা মিডিয়া হারিয়ে যেতে পারে।</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">কোনো ব্যাকআপ পাওয়া যায়নি</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">নির্বাচিত ফোল্ডারে কোনো Signal ব্যাকআপ পাওয়া যায়নি। অনুগ্রহ করে অন্য একটি ফোল্ডার দিয়ে চেষ্টা করুন।</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">অন্য একটি ফোল্ডার দিয়ে চেষ্টা করুন</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">ব্যাকঅাপ পাসফ্রেজ প্রবেশ করান</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">আপনার অ্যাকাউন্ট ও ডেটা পুনরুদ্ধার করার জন্য আপনার লোকাল ব্যাকআপ পাসফ্রেজ হলো একটি 30-সংখ্যার কোড।</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">পুনরুদ্ধার \'কি\'</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">অনেক লম্বা (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">পাসফ্রেজ নেই?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">পরবর্তী</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">আপনার পুনরুদ্ধার \'কি\' লিখুন</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">আপনার পুনরুদ্ধার \'কি\' একটি 64-ক্যারেক্টারের কোড যা আপনার অ্যাকাউন্ট ও ডেটা পুনর্বহাল করার সময় প্রয়োজন হবে।</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">পুনরুদ্ধার \'কি\'</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">কোনো পুনরুদ্ধার \'কি\' নেই?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">অনেক লম্বা (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">অকার্যকর পুনরুদ্ধার \'কি\'</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">ভুল পুনরুদ্ধার \'কি\'</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">পুনর্বহালের প্রস্তুতি চলছে…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">ব্যাকআপ পুনর্বহাল করা হচ্ছে</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">আপনার মেসেজ এবং ডেটা পুনর্বহাল করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন।</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">চলতে থাকুন</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">পুনর্বহাল সফল হয়নি</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">আপনার ব্যাকআপ পুনর্বহাল করার সময় একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">আবার চেষ্টা করুন</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">আপনার অ্যাকাউন্ট লিংক করুন</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">এখনো Signal-এ নেই?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">অ্যাকাউন্ট তৈরি করুন</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">ব্যাকআপ থেকে পুনরুদ্ধার করুন</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">ব্যাকআপের তথ্য আনা হচ্ছে…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">ব্যাকঅাপ পুনরুদ্ধার</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">আপনার সর্বশেষ ব্যাকআপ করা হয়েছিল %1$s তারিখে %2$s-টার সময়।</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">আপনার মিডিয়া ব্যাকগ্রাউন্ডে পুনর্বহাল করা হবে। আপনি যদি এখন পুনর্বহাল করতে না চান, তবে পরে পুনর্বহাল করতে পারবেন না।</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">ব্যাকআপ পাওয়া যায়নি</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">এই অ্যাকাউন্টের কোনো ব্যাকআপ খুঁজে পাওয়া যায়নি।</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">ব্যাকআপ পুনর্বহাল করা যায়নি</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">আপনার ব্যাকআপ এখনই পুনর্বহাল করা যাবে না। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">আবার চেষ্টা করুন</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">পুনর্বহাল সম্পন্ন করা যায়নি</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">সার্ভারের সাথে সংযোগ করার সময় একটি ত্রুটি দেখা দিয়েছে। অনুগ্রহ করে আপনার সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">আপনার ব্যাকআপ পুনর্বহাল করার সময় একটি ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">এই ব্যাকআপটি পুনর্বহাল করা যায়নি</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal-এর এই সংস্করণটি আপনার ব্যাকআপ পুনর্বহাল করতে পারে না। সর্বশেষ সংস্করণে আপডেট করুন এবং আবার চেষ্টা করুন।</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Signal আপডেট করুন</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">এখন না</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">ব্যাকআপ পুনর্বহাল করা যায়নি</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">আপনার ব্যাকআপ পুনর্বহাল করার সময় একটি ত্রুটি ঘটেছে। আপনার ব্যাকআপ পুনর্বহালযোগ্য নয়। সাহায্যের জন্য সহায়তা কেন্দ্রে যোগাযোগ করুন।</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">সহায়তা কেন্দ্রে যোগাযোগ করুন</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">ব্যাকআপ ডাউনলোড করা হচ্ছে…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">মেসেজ পুনরুদ্ধার করা হচ্ছে…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">শেষ হচ্ছে…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">পুনরুদ্ধার করা হচ্ছে…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%1$s এর %2$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">কোন ওয়েব ব্রাউজার পাওয়া যায়নি।</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">অ্যাকাউন্ট লক্ করা হয়েছে</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">আপনার গোপনীয়তা এবং সুরক্ষা নিশ্চিত করতে আপনার অ্যাকাউন্টটি লক করা হয়েছে। আপনার অ্যাকাউন্টটি %1$d দিন নিষ্ক্রিয় থাকার পরে আপনি আপনার পিনের প্রয়োজন ছাড়াই এই ফোন নম্বরটি পুনরায় নিবন্ধন করতে সক্ষম হবেন। সকল বিষয়বস্তু মুছে ফেলা হবে।</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">আপনার পুরোনো ফোনে, Signal খুলুন</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">সেটিংস &gt; অ্যাকাউন্ট ট্রান্সফার করুন-এ যান</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">এই QR কোডটি স্ক্যান করুন</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">নিবন্ধন করা হচ্ছে…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">নিবন্ধন করার সময় একটি ত্রুটি ঘটেছে</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">পুরানো ডিভাইস থেকে স্ক্যান করুন</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">QR কোড স্ক্যান করা হয়েছে</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">পুনরায় চেষ্টা করুন</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"QR কোড তৈরি করতে সক্ষম হয়নি"</string>
+</resources>

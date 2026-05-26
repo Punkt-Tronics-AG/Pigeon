@@ -53,6 +53,11 @@ public class OptimizedMessageNotifier implements MessageNotifier {
   }
 
   @Override
+  public void clearVisibleThread(@NonNull ConversationId conversationId) {
+    getNotifier().clearVisibleThread(conversationId);
+  }
+
+  @Override
   public void setVisibleBubbleThread(@Nullable ConversationId conversationId) {
     getNotifier().setVisibleBubbleThread(conversationId);
   }
@@ -60,11 +65,6 @@ public class OptimizedMessageNotifier implements MessageNotifier {
   @Override
   public void clearVisibleBubbleThread() {
     getNotifier().clearVisibleBubbleThread();
-  }
-
-  @Override
-  public void setLastDesktopActivityTimestamp(long timestamp) {
-    getNotifier().setLastDesktopActivityTimestamp(timestamp);
   }
 
   @Override

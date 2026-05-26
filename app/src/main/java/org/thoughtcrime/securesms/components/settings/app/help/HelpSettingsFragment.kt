@@ -27,14 +27,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.Dividers
 import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.Rows.TextAndLabel
 import org.signal.core.ui.compose.Rows.defaultPadding
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
 import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import pigeon.extensions.isPigeonVersion
@@ -59,7 +60,7 @@ class HelpSettingsFragment : ComposeFragment() {
       modifier = Modifier
         .focusable(false),
       onNavigationClick = { navController.popBackStack() },
-      navigationIcon = ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24),
+      navigationIcon = SignalIcons.ArrowStart.imageVector,
       navigationContentDescription = stringResource(id = R.string.Material3SearchToolbar__close)
     ) { contentPadding ->
       LazyColumn(
@@ -83,11 +84,6 @@ class HelpSettingsFragment : ComposeFragment() {
           item {
             Rows.TextRow(
               text = stringResource(id = R.string.HelpSettingsFragment__contact_us),
-              modifier = Modifier
-                .focusRequester(pigeonFocusRequester)
-                .focusProperties {
-                  canFocus = true
-                },
               onClick = {
                 navController.safeNavigate(R.id.action_helpSettingsFragment_to_helpFragment)
               }
@@ -174,6 +170,8 @@ class HelpSettingsFragment : ComposeFragment() {
                   append(getString(R.string.HelpFragment__copyright_signal_messenger))
                   append("\n")
                   append(getString(R.string.HelpFragment__licenced_under_the_agplv3))
+                  append("\n")
+                  append(getString(R.string.HelpSettingsFragment__signal_is_a_501c3))
                 }.toString()
               )
             }

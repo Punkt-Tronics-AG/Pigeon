@@ -115,6 +115,6 @@ internal class ConfirmSvrPinFragment : BaseSvrPinFragment<ConfirmSvrPinViewModel
   }
 
   private fun markMegaphoneSeenIfNecessary() {
-    AppDependencies.megaphoneRepository.markSeen(Megaphones.Event.PINS_FOR_ALL)
+    AppDependencies.megaphoneRepository.markInteractedWith(Megaphones.Event.PINS_FOR_ALL)
   }
 }

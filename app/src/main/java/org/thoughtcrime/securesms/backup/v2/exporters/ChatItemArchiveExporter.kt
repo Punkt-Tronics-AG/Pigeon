@@ -9,6 +9,38 @@ import android.database.Cursor
 import okio.ByteString.Companion.toByteString
 import org.json.JSONArray
 import org.json.JSONException
+import org.signal.archive.proto.AdminDeletedMessage
+import org.signal.archive.proto.ChatItem
+import org.signal.archive.proto.ChatUpdateMessage
+import org.signal.archive.proto.ContactAttachment
+import org.signal.archive.proto.ContactMessage
+import org.signal.archive.proto.DirectStoryReplyMessage
+import org.signal.archive.proto.ExpirationTimerChatUpdate
+import org.signal.archive.proto.GenericGroupUpdate
+import org.signal.archive.proto.GroupCall
+import org.signal.archive.proto.GroupChangeChatUpdate
+import org.signal.archive.proto.GroupExpirationTimerUpdate
+import org.signal.archive.proto.GroupV2MigrationUpdate
+import org.signal.archive.proto.IndividualCall
+import org.signal.archive.proto.LearnedProfileChatUpdate
+import org.signal.archive.proto.MessageAttachment
+import org.signal.archive.proto.PaymentNotification
+import org.signal.archive.proto.PinMessageUpdate
+import org.signal.archive.proto.Poll
+import org.signal.archive.proto.PollTerminateUpdate
+import org.signal.archive.proto.ProfileChangeChatUpdate
+import org.signal.archive.proto.Quote
+import org.signal.archive.proto.Reaction
+import org.signal.archive.proto.RemoteDeletedMessage
+import org.signal.archive.proto.SendStatus
+import org.signal.archive.proto.SessionSwitchoverChatUpdate
+import org.signal.archive.proto.SimpleChatUpdate
+import org.signal.archive.proto.StandardMessage
+import org.signal.archive.proto.Sticker
+import org.signal.archive.proto.StickerMessage
+import org.signal.archive.proto.Text
+import org.signal.archive.proto.ThreadMergeChatUpdate
+import org.signal.archive.proto.ViewOnceMessage
 import org.signal.core.models.ServiceId
 import org.signal.core.util.Base64
 import org.signal.core.util.EventTimer
@@ -19,7 +51,6 @@ import org.signal.core.util.UuidUtil
 import org.signal.core.util.bytes
 import org.signal.core.util.concurrent.SignalExecutors
 import org.signal.core.util.emptyIfNull
-import org.signal.core.util.isEmpty
 import org.signal.core.util.isNotEmpty
 import org.signal.core.util.isNotNullOrBlank
 import org.signal.core.util.kibiBytes
@@ -42,37 +73,6 @@ import org.thoughtcrime.securesms.backup.v2.BackupMode
 import org.thoughtcrime.securesms.backup.v2.ExportOddities
 import org.thoughtcrime.securesms.backup.v2.ExportSkips
 import org.thoughtcrime.securesms.backup.v2.ExportState
-import org.thoughtcrime.securesms.backup.v2.proto.ChatItem
-import org.thoughtcrime.securesms.backup.v2.proto.ChatUpdateMessage
-import org.thoughtcrime.securesms.backup.v2.proto.ContactAttachment
-import org.thoughtcrime.securesms.backup.v2.proto.ContactMessage
-import org.thoughtcrime.securesms.backup.v2.proto.DirectStoryReplyMessage
-import org.thoughtcrime.securesms.backup.v2.proto.ExpirationTimerChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.GenericGroupUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.GroupCall
-import org.thoughtcrime.securesms.backup.v2.proto.GroupChangeChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.GroupExpirationTimerUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.GroupV2MigrationUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.IndividualCall
-import org.thoughtcrime.securesms.backup.v2.proto.LearnedProfileChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.MessageAttachment
-import org.thoughtcrime.securesms.backup.v2.proto.PaymentNotification
-import org.thoughtcrime.securesms.backup.v2.proto.PinMessageUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.Poll
-import org.thoughtcrime.securesms.backup.v2.proto.PollTerminateUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.ProfileChangeChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.Quote
-import org.thoughtcrime.securesms.backup.v2.proto.Reaction
-import org.thoughtcrime.securesms.backup.v2.proto.RemoteDeletedMessage
-import org.thoughtcrime.securesms.backup.v2.proto.SendStatus
-import org.thoughtcrime.securesms.backup.v2.proto.SessionSwitchoverChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.SimpleChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.StandardMessage
-import org.thoughtcrime.securesms.backup.v2.proto.Sticker
-import org.thoughtcrime.securesms.backup.v2.proto.StickerMessage
-import org.thoughtcrime.securesms.backup.v2.proto.Text
-import org.thoughtcrime.securesms.backup.v2.proto.ThreadMergeChatUpdate
-import org.thoughtcrime.securesms.backup.v2.proto.ViewOnceMessage
 import org.thoughtcrime.securesms.backup.v2.util.clampToValidBackupRange
 import org.thoughtcrime.securesms.backup.v2.util.toRemoteFilePointer
 import org.thoughtcrime.securesms.contactshare.Contact
@@ -117,8 +117,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import kotlin.math.max
 import kotlin.time.Duration.Companion.days
-import org.thoughtcrime.securesms.backup.v2.proto.BodyRange as BackupBodyRange
-import org.thoughtcrime.securesms.backup.v2.proto.GiftBadge as BackupGiftBadge
+import org.signal.archive.proto.BodyRange as BackupBodyRange
+import org.signal.archive.proto.GiftBadge as BackupGiftBadge
 
 private val TAG = Log.tag(ChatItemArchiveExporter::class.java)
 private val MAX_INLINED_BODY_SIZE = 128.kibiBytes.bytes.toInt()
@@ -193,9 +193,14 @@ class ChatItemArchiveExporter(
       }
 
       when {
-        record.remoteDeleted -> {
+        record.deletedBy == record.fromRecipientId -> {
           builder.remoteDeletedMessage = RemoteDeletedMessage()
           transformTimer.emit("remote-delete")
+        }
+
+        record.deletedBy != null -> {
+          builder.adminDeletedMessage = AdminDeletedMessage(adminId = record.deletedBy)
+          transformTimer.emit("admin-delete")
         }
 
         MessageTypes.isJoinedType(record.type) -> {
@@ -236,6 +241,10 @@ class ChatItemArchiveExporter(
         }
 
         MessageTypes.isReleaseChannelDonationRequest(record.type) -> {
+          if (exportState.threadIdToRecipientId[builder.chatId] != exportState.releaseNoteRecipientId) {
+            Log.w(TAG, ExportSkips.donationRequestNotInReleaseNotesChat(builder.dateSent))
+            continue
+          }
           builder.updateMessage = simpleUpdate(SimpleChatUpdate.Type.RELEASE_CHANNEL_DONATION_REQUEST)
           transformTimer.emit("simple-update")
         }
@@ -313,7 +322,7 @@ class ChatItemArchiveExporter(
         }
 
         MessageTypes.isSessionSwitchoverType(record.type) -> {
-          builder.updateMessage = record.toRemoteSessionSwitchoverUpdate(record.dateSent) ?: continue
+          builder.updateMessage = record.toRemoteSessionSwitchoverUpdate(record.dateSent)?.takeIf { builder.authorIsAciContact(exportState) } ?: continue
           transformTimer.emit("sse")
         }
 
@@ -564,7 +573,7 @@ private fun BackupMessageRecord.toBasicChatItemBuilder(selfRecipientId: Recipien
   }
 
   val direction = when {
-    record.type.isDirectionlessType() && !record.remoteDeleted -> {
+    record.type.isDirectionlessType() && record.deletedBy == null -> {
       Direction.DIRECTIONLESS
     }
     MessageTypes.isOutgoingMessageType(record.type) || record.fromRecipientId == selfRecipientId.toLong() -> {
@@ -953,8 +962,8 @@ private fun BackupMessageRecord.toRemoteLinkPreviews(attachments: List<DatabaseA
   return emptyList()
 }
 
-private fun LinkPreview.toRemoteLinkPreview(backupMode: BackupMode): org.thoughtcrime.securesms.backup.v2.proto.LinkPreview {
-  return org.thoughtcrime.securesms.backup.v2.proto.LinkPreview(
+private fun LinkPreview.toRemoteLinkPreview(backupMode: BackupMode): org.signal.archive.proto.LinkPreview {
+  return org.signal.archive.proto.LinkPreview(
     url = url,
     title = title.nullIfEmpty(),
     image = (thumbnail.orNull() as? DatabaseAttachment)?.toRemoteMessageAttachment(backupMode = backupMode)?.pointer,
@@ -1169,6 +1178,16 @@ private fun BackupMessageRecord.toRemoteQuote(exportState: ExportState, attachme
     return null
   }
 
+  if (!exportState.recipientIds.contains(this.quoteAuthor)) {
+    Log.w(TAG, ExportOddities.quoteAuthorNotFound(this.dateSent))
+    return null
+  }
+
+  if (exportState.recipientIdToAci[this.quoteAuthor] == null && exportState.recipientIdToE164[this.quoteAuthor] == null) {
+    Log.w(TAG, ExportOddities.quoteAuthorHasNoAciOrE164(this.dateSent))
+    return null
+  }
+
   val localType = QuoteModel.Type.fromCode(this.quoteType)
   val remoteType = when (localType) {
     QuoteModel.Type.NORMAL -> {
@@ -1360,11 +1379,12 @@ private fun FailureReason?.toRemote(): PaymentNotification.TransactionDetails.Fa
 }
 
 private fun List<Mention>.toRemoteBodyRanges(exportState: ExportState): List<BackupBodyRange> {
-  return this.map {
+  return this.mapNotNull {
+    val aci = exportState.recipientIdToAci[it.recipientId.toLong()] ?: return@mapNotNull null
     BackupBodyRange(
       start = it.start,
       length = it.length,
-      mentionAci = exportState.recipientIdToAci[it.recipientId.toLong()]
+      mentionAci = aci
     )
   }
 }
@@ -1377,16 +1397,16 @@ private fun ByteArray.toRemoteBodyRanges(dateSent: Long): List<BackupBodyRange> 
     return emptyList()
   }
 
-  return decoded.ranges.map { range ->
+  return decoded.ranges.mapNotNull { range ->
     val mention = range.mentionUuid?.let { UuidUtil.parseOrNull(it) }?.toByteArray()?.toByteString()?.takeIf { it.isNotEmpty() }
     val style = if (mention == null) {
-      range.style?.toRemote() ?: BackupBodyRange.Style.NONE
+      range.style?.toRemote()
     } else {
       null
     }
 
     if (mention == null && style == null) {
-      return emptyList()
+      return@mapNotNull null
     }
 
     BackupBodyRange(
@@ -1662,29 +1682,36 @@ private fun ChatItem.validateChatItem(exportState: ExportState, selfRecipientId:
     this.giftBadge == null &&
     this.viewOnceMessage == null &&
     this.directStoryReplyMessage == null &&
-    this.poll == null
+    this.poll == null &&
+    this.adminDeletedMessage == null
   ) {
     Log.w(TAG, ExportSkips.emptyChatItem(this.dateSent))
     return null
   }
 
-  if (this.updateMessage != null && this.updateMessage.isOnlyForIndividualChats() && exportState.threadIdToRecipientId[this.chatId] !in exportState.contactRecipientIds) {
+  val validatedUpdateMessage = this.updateMessage
+  if (validatedUpdateMessage != null && validatedUpdateMessage.isOnlyForIndividualChats() && exportState.threadIdToRecipientId[this.chatId] !in exportState.contactRecipientIds) {
     Log.w(TAG, ExportSkips.individualChatUpdateInWrongTypeOfChat(this.dateSent))
     return null
   }
 
-  if (this.updateMessage != null && this.updateMessage.isOnlyForGroupChats() && exportState.threadIdToRecipientId[this.chatId] !in exportState.groupRecipientIds) {
+  if (validatedUpdateMessage != null && validatedUpdateMessage.isOnlyForGroupChats() && exportState.threadIdToRecipientId[this.chatId] !in exportState.groupRecipientIds) {
     Log.w(TAG, ExportSkips.groupChatUpdateInWrongTypeOfChat(this.dateSent))
     return null
   }
 
-  if (this.updateMessage != null && this.updateMessage.canOnlyBeAuthoredBySelf() && this.authorId != selfRecipientId.toLong()) {
+  if (validatedUpdateMessage != null && validatedUpdateMessage.canOnlyBeAuthoredBySelf() && this.authorId != selfRecipientId.toLong()) {
     Log.w(TAG, ExportSkips.individualChatUpdateNotAuthoredBySelf(this.dateSent))
     return null
   }
 
   if (this.incoming != null && exportState.recipientIdToAci[this.authorId] == null && exportState.recipientIdToE164[this.authorId] == null) {
     Log.w(TAG, ExportSkips.incomingMessageAuthorDoesNotHaveAciOrE164(this.dateSent))
+    return null
+  }
+
+  if (this.directionless != null && this.authorId != selfRecipientId.toLong() && exportState.recipientIdToAci[this.authorId] == null && exportState.recipientIdToE164[this.authorId] == null) {
+    Log.w(TAG, ExportSkips.directionlessMessageAuthorDoesNotHaveAciOrE164(this.dateSent))
     return null
   }
 
@@ -1701,7 +1728,9 @@ private fun ChatUpdateMessage.isOnlyForIndividualChats(): Boolean {
     this.simpleUpdate?.type == SimpleChatUpdate.Type.END_SESSION ||
     this.simpleUpdate?.type == SimpleChatUpdate.Type.CHAT_SESSION_REFRESH ||
     this.simpleUpdate?.type == SimpleChatUpdate.Type.PAYMENT_ACTIVATION_REQUEST ||
-    this.simpleUpdate?.type == SimpleChatUpdate.Type.PAYMENTS_ACTIVATED
+    this.simpleUpdate?.type == SimpleChatUpdate.Type.PAYMENTS_ACTIVATED ||
+    this.sessionSwitchover != null ||
+    this.threadMerge != null
 }
 
 private fun ChatUpdateMessage.isOnlyForGroupChats(): Boolean {
@@ -1716,19 +1745,24 @@ private fun ChatUpdateMessage.canOnlyBeAuthoredBySelf(): Boolean {
 }
 
 private fun List<ChatItem>.repairRevisions(current: ChatItem.Builder): List<ChatItem> {
+  val authorFiltered = this.filter { it.authorId == current.authorId }
+  if (authorFiltered.size != this.size) {
+    Log.w(TAG, ExportOddities.mismatchedRevisionAuthor(current.dateSent))
+  }
+
   return if (current.standardMessage != null) {
-    val filtered = this
+    val filtered = authorFiltered
       .filter { it.standardMessage != null }
       .map { it.withDowngradeVoiceNotes() }
 
-    if (this.size != filtered.size) {
+    if (authorFiltered.size != filtered.size) {
       Log.w(TAG, ExportOddities.mismatchedRevisionHistory(current.dateSent))
     }
 
     filtered
   } else if (current.directStoryReplyMessage != null) {
-    val filtered = this.filter { it.directStoryReplyMessage != null }
-    if (this.size != filtered.size) {
+    val filtered = authorFiltered.filter { it.directStoryReplyMessage != null }
+    if (authorFiltered.size != filtered.size) {
       Log.w(TAG, ExportOddities.mismatchedRevisionHistory(current.dateSent))
     }
     filtered
@@ -1753,17 +1787,15 @@ private fun List<MessageAttachment>.withFixedVoiceNotes(textPresent: Boolean): L
 }
 
 private fun ChatItem.withDowngradeVoiceNotes(): ChatItem {
-  if (this.standardMessage == null) {
-    return this
-  }
+  val msg = this.standardMessage ?: return this
 
-  if (this.standardMessage.attachments.none { it.flag == MessageAttachment.Flag.VOICE_MESSAGE }) {
+  if (msg.attachments.none { it.flag == MessageAttachment.Flag.VOICE_MESSAGE }) {
     return this
   }
 
   return this.copy(
-    standardMessage = this.standardMessage.copy(
-      attachments = this.standardMessage.attachments.map {
+    standardMessage = msg.copy(
+      attachments = msg.attachments.map {
         if (it.flag == MessageAttachment.Flag.VOICE_MESSAGE) {
           it.copy(flag = MessageAttachment.Flag.NONE)
         } else {
@@ -1805,7 +1837,6 @@ private fun Cursor.toBackupMessageRecord(pastIds: Set<Long>, backupStartTime: Lo
     toRecipientId = this.requireLong(MessageTable.TO_RECIPIENT_ID),
     expiresIn = expiresIn,
     expireStarted = expireStarted,
-    remoteDeleted = this.requireBoolean(MessageTable.REMOTE_DELETED),
     sealedSender = this.requireBoolean(MessageTable.UNIDENTIFIED),
     linkPreview = this.requireString(MessageTable.LINK_PREVIEWS),
     sharedContacts = this.requireString(MessageTable.SHARED_CONTACTS),
@@ -1830,6 +1861,7 @@ private fun Cursor.toBackupMessageRecord(pastIds: Set<Long>, backupStartTime: Lo
     parentStoryId = this.requireLong(MessageTable.PARENT_STORY_ID),
     pinnedAt = this.requireLong(MessageTable.PINNED_AT),
     pinnedUntil = this.requireLong(MessageTable.PINNED_UNTIL),
+    deletedBy = this.requireLongOrNull(MessageTable.DELETED_BY),
     messageExtrasSize = messageExtras?.size ?: 0
   )
 }
@@ -1847,7 +1879,6 @@ private class BackupMessageRecord(
   val toRecipientId: Long,
   val expiresIn: Long,
   val expireStarted: Long,
-  val remoteDeleted: Boolean,
   val sealedSender: Boolean,
   val linkPreview: String?,
   val sharedContacts: String?,
@@ -1872,6 +1903,7 @@ private class BackupMessageRecord(
   val viewOnce: Boolean,
   val pinnedAt: Long,
   val pinnedUntil: Long,
+  val deletedBy: Long?,
   private val messageExtrasSize: Int
 ) {
   val estimatedSizeInBytes: Int = (body?.length ?: 0) +

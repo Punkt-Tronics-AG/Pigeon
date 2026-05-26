@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,10 +26,9 @@ import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,13 +40,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import org.signal.core.ui.compose.Buttons
+import org.signal.core.ui.compose.ComposeDialogFragment
 import org.signal.core.ui.compose.Scaffolds
+import org.signal.core.ui.compose.SignalIcons
+import org.signal.core.ui.rememberIsSplitPane
 import org.signal.core.util.BreakIteratorCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.calls.links.details.CallLinkDetailsViewModel
-import org.thoughtcrime.securesms.compose.ComposeDialogFragment
 import org.thoughtcrime.securesms.service.webrtc.links.CallLinkRoomId
-import org.thoughtcrime.securesms.window.isSplitPane
 
 class EditCallLinkNameDialogFragment : ComposeDialogFragment() {
 
@@ -110,7 +109,7 @@ fun EditCallLinkNameScreen(
     onNavigationClick = {
       backPressedDispatcherOwner?.onBackPressedDispatcher?.onBackPressed()
     },
-    showNavigationIcon = !currentWindowAdaptiveInfo().windowSizeClass.isSplitPane()
+    showNavigationIcon = !LocalResources.current.rememberIsSplitPane()
   )
 }
 
@@ -134,7 +133,7 @@ private fun EditCallLinkNameScreen(
     title = stringResource(id = R.string.EditCallLinkNameDialogFragment__edit_call_name),
     onNavigationClick = onNavigationClick,
     navigationIcon = if (showNavigationIcon) {
-      ImageVector.vectorResource(id = R.drawable.symbol_arrow_start_24)
+      SignalIcons.ArrowStart.imageVector
     } else {
       null
     },

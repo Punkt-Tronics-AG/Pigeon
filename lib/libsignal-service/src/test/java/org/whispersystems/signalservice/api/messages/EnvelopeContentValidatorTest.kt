@@ -8,20 +8,25 @@ package org.whispersystems.signalservice.api.messages
 import okio.ByteString.Companion.toByteString
 import org.junit.Test
 import org.signal.core.models.ServiceId
+import org.signal.libsignal.protocol.message.CiphertextMessage
+import org.signal.libsignal.protocol.message.DecryptionErrorMessage
+import org.whispersystems.signalservice.internal.push.BodyRange
 import org.whispersystems.signalservice.internal.push.Content
 import org.whispersystems.signalservice.internal.push.DataMessage
 import org.whispersystems.signalservice.internal.push.Envelope
+import org.whispersystems.signalservice.internal.push.SyncMessage
 
 class EnvelopeContentValidatorTest {
 
   companion object {
     private val SELF_ACI = ServiceId.ACI.parseOrThrow("0a5ebe7e-9de7-41a5-a25f-6ace4f8e11d1")
+    private val OTHER_ACI = ServiceId.ACI.parseOrThrow("11111111-9de7-41a5-a25f-6ace4f8e11d1")
   }
 
   @Test
   fun `validate - ensure mismatched timestamps are marked invalid`() {
     val envelope = Envelope(
-      timestamp = 1234
+      clientTimestamp = 1234
     )
 
     val content = Content(
@@ -30,7 +35,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -45,7 +50,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -61,7 +66,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -77,7 +82,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -93,7 +98,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -108,7 +113,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -120,7 +125,7 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
   }
 
@@ -134,7 +139,251 @@ class EnvelopeContentValidatorTest {
       )
     )
 
-    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI)
+    val result = EnvelopeContentValidator.validate(Envelope(), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
     assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - plaintext content via envelope type with valid decryption error message is valid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.PLAINTEXT_CONTENT
+    )
+
+    val content = Content(
+      decryptionErrorMessage = createValidDecryptionErrorMessage()
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
+  }
+
+  @Test
+  fun `validate - plaintext content via ciphertext message type (sealed sender) with valid decryption error message is valid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.UNIDENTIFIED_SENDER
+    )
+
+    val content = Content(
+      decryptionErrorMessage = createValidDecryptionErrorMessage()
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
+  }
+
+  @Test
+  fun `validate - plaintext content via envelope type with unexpected DataMessage is invalid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.PLAINTEXT_CONTENT,
+      clientTimestamp = 1234
+    )
+
+    val content = Content(
+      dataMessage = DataMessage(timestamp = 1234)
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - plaintext content via ciphertext message type (sealed sender) with unexpected DataMessage is invalid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.UNIDENTIFIED_SENDER,
+      clientTimestamp = 1234
+    )
+
+    val content = Content(
+      dataMessage = DataMessage(timestamp = 1234)
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - plaintext content via envelope type without DecryptionErrorMessage is invalid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.PLAINTEXT_CONTENT
+    )
+
+    val content = Content()
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - plaintext content via ciphertext message type (sealed sender) without DecryptionErrorMessage is invalid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.UNIDENTIFIED_SENDER
+    )
+
+    val content = Content()
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - plaintext content with SyncMessage is invalid`() {
+    val envelope = Envelope(
+      type = Envelope.Type.PLAINTEXT_CONTENT
+    )
+
+    val content = Content(
+      syncMessage = org.whispersystems.signalservice.internal.push.SyncMessage()
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.PLAINTEXT_CONTENT_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - regular encrypted message is not subject to plaintext validation`() {
+    val envelope = Envelope(
+      type = Envelope.Type.DOUBLE_RATCHET,
+      clientTimestamp = 1234
+    )
+
+    val content = Content(
+      dataMessage = DataMessage(timestamp = 1234)
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
+  }
+
+  private fun createValidDecryptionErrorMessage(): okio.ByteString {
+    val minimalSenderKeyContent = ByteArray(64)
+    val decryptionErrorMessage = DecryptionErrorMessage.forOriginalMessage(
+      minimalSenderKeyContent,
+      CiphertextMessage.SENDERKEY_TYPE,
+      System.currentTimeMillis(),
+      1
+    )
+    return decryptionErrorMessage.serialize().toByteString()
+  }
+
+  @Test
+  fun `validate - ensure poll votes with too many option indexes are marked invalid`() {
+    val content = Content(
+      dataMessage = DataMessage(
+        timestamp = 1234,
+        pollVote = DataMessage.PollVote(
+          targetAuthorAciBinary = OTHER_ACI.toByteString(),
+          targetSentTimestamp = 1000,
+          voteCount = 1,
+          optionIndexes = List(11) { 0 }
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(Envelope(clientTimestamp = 1234), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - ensure poll votes with max option indexes are marked valid`() {
+    val content = Content(
+      dataMessage = DataMessage(
+        timestamp = 1234,
+        pollVote = DataMessage.PollVote(
+          targetAuthorAciBinary = OTHER_ACI.toByteString(),
+          targetSentTimestamp = 1000,
+          voteCount = 1,
+          optionIndexes = List(10) { it }
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(Envelope(clientTimestamp = 1234), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
+  }
+
+  @Test
+  fun `validate - ensure quote body range mentions with invalid aci are marked invalid`() {
+    val content = Content(
+      dataMessage = DataMessage(
+        timestamp = 1234,
+        quote = DataMessage.Quote(
+          id = 1000,
+          authorAci = OTHER_ACI.toString(),
+          bodyRanges = listOf(
+            BodyRange(start = 0, length = 1, mentionAci = "not-a-uuid")
+          )
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(Envelope(clientTimestamp = 1234), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - ensure quote body range mentions with valid aci are marked valid`() {
+    val content = Content(
+      dataMessage = DataMessage(
+        timestamp = 1234,
+        quote = DataMessage.Quote(
+          id = 1000,
+          authorAci = OTHER_ACI.toString(),
+          bodyRanges = listOf(
+            BodyRange(start = 0, length = 1, mentionAci = OTHER_ACI.toString())
+          )
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(Envelope(clientTimestamp = 1234), content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
+  }
+
+  @Test
+  fun `validate - ensure sync blocked with invalid string aci and empty binary list is marked invalid`() {
+    val envelope = Envelope(sourceServiceId = SELF_ACI.toString())
+    val content = Content(
+      syncMessage = SyncMessage(
+        blocked = SyncMessage.Blocked(
+          acis = listOf("not-a-uuid"),
+          acisBinary = emptyList()
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - ensure sync blocked with invalid binary aci and empty string list is marked invalid`() {
+    val envelope = Envelope(sourceServiceId = SELF_ACI.toString())
+    val content = Content(
+      syncMessage = SyncMessage(
+        blocked = SyncMessage.Blocked(
+          acis = emptyList(),
+          acisBinary = listOf("bad".toByteArray().toByteString())
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Invalid)
+  }
+
+  @Test
+  fun `validate - ensure sync blocked with valid acis is marked valid`() {
+    val envelope = Envelope(sourceServiceId = SELF_ACI.toString())
+    val content = Content(
+      syncMessage = SyncMessage(
+        blocked = SyncMessage.Blocked(
+          acis = listOf(OTHER_ACI.toString()),
+          acisBinary = emptyList()
+        )
+      )
+    )
+
+    val result = EnvelopeContentValidator.validate(envelope, content, SELF_ACI, CiphertextMessage.WHISPER_TYPE)
+    assert(result is EnvelopeContentValidator.Result.Valid)
   }
 }

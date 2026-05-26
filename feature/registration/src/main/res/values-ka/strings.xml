@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <!-- Removed by excludeNonTranslatables <string name="terms_and_privacy_policy_url" translatable="false">https://signal.org/legal</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="AccountLockedScreen__learn_more_url" translatable="false">https://support.signal.org/hc/articles/360007059792</string> -->
+
+    <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">გაითვალისწინეთ კონფიდენციალურობა.\nიყავით საკუთარი თავი ყველა შეტყობინებაში.</string>
+    <!-- Non-English translations should use "Signal is a nonprofit" instead, dropping the 501c3 reference. -->
+    <string name="RegistrationActivity_terms_and_privacy">Signal-ი არაკომერციული ორგანიზაციაა\nწესები &amp; კონფიდენციალურობის პოლიტიკა</string>
+    <string name="RegistrationActivity_continue">გაგრძელება</string>
+    <!-- Screen title for restoring or transfering account -->
+    <string name="registration_activity__restore_or_transfer">აღდგენა ან გადატანა</string>
+
+    <!-- GrantPermissionsFragment -->
+    <!-- Displayed as a title at the top of the screen -->
+    <string name="GrantPermissionsFragment__allow_permissions">ნებართვების დაშვება</string>
+    <!-- Displayed as a subtitle at the top of the screen -->
+    <string name="GrantPermissionsFragment__to_help_you_message_people_you_know">იმისათვის, რომ შენს ნაცნობებთან მიმოწერაში დაგეხმაროთ, Signal-ი ამ ნებართვებს მოითხოვს. </string>
+    <!-- Displayed as a text-only action button at the bottom start of the screen -->
+    <string name="GrantPermissionsFragment__not_now">ახლა არა</string>
+    <!-- Displayed as an action button at the bottom end of the screen -->
+    <string name="GrantPermissionsFragment__next">შემდეგი</string>
+    <!-- Notifications permission row title -->
+    <string name="GrantPermissionsFragment__notifications">შეტყობინებები</string>
+    <!-- Notifications permission row description -->
+    <string name="GrantPermissionsFragment__get_notified_when">მიიღე შეტყობინება ახალ მიმოწერაზე.</string>
+    <!-- Contacts permission row title -->
+    <string name="GrantPermissionsFragment__contacts">კონტაქტები</string>
+    <!-- Contacts permission row description -->
+    <string name="GrantPermissionsFragment__find_people_you_know">იპოვე ნაცნობები. შენი კონტაქტები დაშიფრულია და Signal-ის სერვისისთვის უხილავია.</string>
+    <!-- Phone calls permission row title -->
+    <string name="GrantPermissionsFragment__phone_calls">სატელეფონო ზარები</string>
+    <!-- Phone calls permission row description -->
+    <string name="GrantPermissionsFragment__make_registering_easier">გაიადვილე რეგისტრაცია და ჩართე ზარის დამატებითი ფუნქციები.</string>
+    <!-- Storage permission row title -->
+    <string name="GrantPermissionsFragment__storage">მეხსიერება</string>
+    <!-- Storage permission row description -->
+    <string name="GrantPermissionsFragment__send_photos_videos_and_files">გაგზავნე ფოტოები, ვიდეოები და ფაილები შენი მოწყობილობიდან.</string>
+
+    <!-- PhoneNumberEntryScreen -->
+    <!-- Title of registration screen when asking for the users phone number -->
+    <string name="RegistrationActivity_phone_number">ტელეფონის ნომერი</string>
+    <!-- Text explaining to users that they will be receiving a verification for their phone number and that carrier rates could apply -->
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">თქვენ მიიღებთ დადასტურების კოდს. შეიძლება მოქმედებდეს გადამზიდავის ტარიფები.</string>
+    <!-- Hint text to select a country -->
+    <string name="RegistrationActivity_select_a_country">აირჩიე ქვეყანა</string>
+    <string name="RegistrationActivity_phone_number_description">ტელეფონის ნომერი</string>
+    <string name="RegistrationActivity_next">შემდეგი</string>
+    <!-- Dialog title to confirm phone number -->
+    <string name="RegistrationActivity_is_the_phone_number">ქვემოთ მოცემული ნომერი სწორია?</string>
+    <!-- Dialog body to confirm phone number -->
+    <string name="RegistrationActivity_a_verification_code">ვერიფიკაციის კოდი ამ ნომერზე გაიგზავნება. შეიძლება საფასური დაგეკისროს.</string>
+    <!-- Dialog button to edit the number entered -->
+    <string name="RegistrationActivity_edit_number">ნომრის რედაქტირება</string>
+    <!-- Accessibility label for opening the screen specific dropdown menu. -->
+    <string name="RegistrationActivity_open_menu">მენიუს გახსნა</string>
+    <!-- Menu option to use a proxy -->
+    <string name="RegistrationActivity_use_proxy">პროქსის გამოყენება</string>
+    <!-- Menu option to link this as a device -->
+    <string name="RegistrationActivity_link_device">მოწყობილობის დაკავშირება</string>
+    <!-- Clickable text that opens a corresponding URL -->
+    <string name="RegistrationActivity_learn_more">გაიგე მეტი</string>
+
+    <!-- CountryCodePickerScreen -->
+    <!-- Title of the country code selection screen -->
+    <string name="CountryCodeSelectScreen__your_country">შენი ქვეყანა</string>
+    <!-- Close button content description -->
+    <string name="CountryCodeSelectScreen__close">Close</string>
+    <!-- Search bar hint text -->
+    <string name="CountryCodeSelectScreen__search_by">სახელით ან ქვეყნის კოდით ძებნა</string>
+    <!-- Fallback text for countries with no name -->
+    <string name="CountryCodeSelectScreen__unknown_country">უცნობი ქვეყანა</string>
+
+    <!-- VerificationCodeScreen -->
+    <!-- Title of the verification code entry screen -->
+    <string name="VerificationCodeScreen__verification_code">ვერიფიკაციის კოდი</string>
+    <!-- Subtitle explaining where the code was sent. Placeholder is the phone number -->
+    <string name="VerificationCodeScreen__enter_the_code_we_sent_to_s">შეიყვანეთ კოდი, რომელიც გამოვგზავნეთ %1$s</string>
+    <!-- Button text for wrong number action -->
+    <string name="VerificationCodeScreen__wrong_number">ნომერი არასწორია?</string>
+    <!-- Button text for resend SMS action -->
+    <string name="VerificationCodeScreen__resend_code">კოდის თავიდან გაგზავნა</string>
+    <!-- Button text for call me action -->
+    <string name="VerificationCodeScreen__call_me_instead">დამირეკეთ</string>
+    <!-- Countdown text shown below the resend code button. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__countdown_format">(%1$02d:%2$02d)</string>
+    <!-- Button text for call me when countdown is active. Placeholders are minutes and seconds -->
+    <string name="VerificationCodeScreen__call_me_available_in">დამირეკეთ (%1$02d:%2$02d)</string>
+    <!-- Toast shown when the user enters an incorrect verification code -->
+    <string name="VerificationCodeScreen__incorrect_code">არასწორი კოდი</string>
+    <!-- Snackbar shown when there is a network error -->
+    <string name="VerificationCodeScreen__network_error">დაკავშირება ვერ მოხერხდა. გთხოვთ, შენი ინტერნეტ კავშირი შეამოწმო და თავიდან სცადო.</string>
+    <!-- Snackbar shown when rate limited. Placeholder is the retry duration -->
+    <string name="VerificationCodeScreen__too_many_attempts_try_again_in_s">ზედმეტად ბევრი მცდელობა. დაელოდე %1$s და თავიდან სცადე.</string>
+    <!-- Snackbar shown for generic/unknown errors -->
+    <string name="VerificationCodeScreen__an_unexpected_error_occurred">მოულოდნელ ხარვეზს გადავაწყდით. გთხოვთ, თავიდან სცადო.</string>
+    <!-- Snackbar shown when we are unable to send an SMS to the user\'s number -->
+    <string name="VerificationCodeScreen__unable_to_send_sms">შენს ნომერზე SMS-ს ვერ ვაგზავნით. გთხოვთ, რამდენიმე საათში თავიდან სცადო.</string>
+    <!-- Snackbar shown when the selected transport (SMS/voice) is unavailable -->
+    <string name="VerificationCodeScreen__could_not_send_code_via_selected_method">შერჩეული მეთოდით კოდის გამოგზავნა ვერ მოხერხდა. გთხოვთ, სხვა ვარიანტი სცადო.</string>
+    <!-- Snackbar shown for registration errors -->
+    <string name="VerificationCodeScreen__registration_error">რეგისტრაცია ვერ მოხერხდა. გთხოვთ, თავიდან სცადო.</string>
+    <!-- Button text for having trouble with verification -->
+    <string name="VerificationCodeScreen__having_trouble">პრობლემას გადააწყდი?</string>
+
+    <!-- RestoreWelcomeBottomSheet -->
+    <!-- Row title for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_i_have_my_old_phone">ჩემი ძველი მობილური მაქვს</string>
+    <!-- Row subtitle for restore/transfer using a previous registered phone/device -->
+    <string name="WelcomeFragment_restore_action_scan_qr">სწრაფად დასაწყებად დაასკანირე QR კოდი შენი ახლანდელი Signal-ის ანგარიშიდან</string>
+    <!-- Row title for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_i_dont_have_my_old_phone">ჩემი ძველი მობილური არ მაქვს</string>
+    <!-- Row subtitle for restore/transfer without using a previous device -->
+    <string name="WelcomeFragment_restore_action_reinstalling">ან Signal-ს თავიდან იწერ იმავე მოწყობილობაზე</string>
+
+    <!-- ArchiveRestoreSelectionScreen -->
+    <!-- Title text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__restore_or_transfer_account">აღდგენა ან ანგარიშის გადატანა</string>
+    <!-- Subtitle text for the archive restore selection screen -->
+    <string name="ArchiveRestoreSelectionScreen__subheading">აირჩიე, როგორ გსურს შენი მიმოწერის ისტორიისა და ანგარიშის მონაცემების აღდგენა.</string>
+    <!-- Title for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_signal_backups">Signal-ის სათადარიგო ასლებიდან</string>
+    <!-- Subtitle for the Signal Backups option card -->
+    <string name="ArchiveRestoreSelectionScreen__your_free_or_paid_signal_backup_plan">შენი უფასო ან ფასიანი Signal-ის სათადარიგო ასლების გამოწერა</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_title">მოწყობილობის სათადარიგო ასლების აღდგენა</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__local_backup_card_description">აღადგინე შენი შეტყობინებები შენს მოწყობილობაში შენახული სათადარიგო ასლიდან.</string>
+    <!-- Title for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_title">გადატანის გარეშე გაგრძელება</string>
+    <!-- Description for an option that, when clicked, will take the user to a flow to restore form a local backup -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_description">წერილები &amp; მედია ფაილები არ გადავა</string>
+    <!-- Title for the backup folder option card (V2 format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_folder">სათადარიგო ასლების საქაღალდიდან</string>
+    <!-- Title for the backup file option card (V1 legacy format) -->
+    <string name="ArchiveRestoreSelectionScreen__from_a_backup_file">სათადარიგო ასლების ფაილიდან</string>
+    <!-- Subtitle for the backup folder/file option cards -->
+    <string name="ArchiveRestoreSelectionScreen__choose_a_backup_youve_saved">აირჩიე შენი შენახული სათადარიგო ასლი</string>
+    <!-- Title for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__from_your_old_phone">შენი ძველი მობილურიდან</string>
+    <!-- Subtitle for the device transfer option card -->
+    <string name="ArchiveRestoreSelectionScreen__transfer_directly_from_old">გადმოიტანე პირდაპირ შენი ძველი მობილურიდან</string>
+    <!-- Skip button text -->
+    <string name="ArchiveRestoreSelectionScreen__skip">გამოტოვება</string>
+    <!-- Title for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_title">გსურს აღდგენის გამოტოვება?</string>
+    <!-- Warning body text for the skip restore confirmation dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_warning">თუ ახლა აღდგენას გამოტოვებ, მომავალში ვეღარ შეძლებ. თუ აღდგენის გამოტოვების შემდეგ სათადარიგო ასლებს ისევ ჩართავ, შენი ამჟამინდელი სათადარიგო ასლები შენი ახალი მიმოწერის ისტორიით ჩანაცვლდება.</string>
+    <!-- Confirm button text for the skip restore dialog -->
+    <string name="ArchiveRestoreSelectionScreen__skip_restore_dialog_confirm_button">აღდგენის გამოტოვება</string>
+
+    <!-- LocalBackupRestoreScreen -->
+    <!-- Title for the local backup restore screen -->
+    <string name="LocalBackupRestoreScreen__restore_on_device_backup">მოწყობილობის სათადარიგო ასლების აღდგენა</string>
+    <!-- Description on the folder selection screen -->
+    <string name="LocalBackupRestoreScreen__select_folder_description">აღადგინე შენი შეტყობინებები შენს მოწყობილობაში შენახული სათადარიგო ასლიდან. თუ ახლა არ აღადგენ, მოგვიანებით აღდგენას ვეღარ შეძლებ.</string>
+    <!-- Title for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_backup_folder">აირჩიე სათადარიგო ასლების საქაღალდე</string>
+    <!-- Subtitle for the choose backup folder card -->
+    <string name="LocalBackupRestoreScreen__choose_folder_subtitle">აირჩიე საქაღალდე შენს მოწყობილობაზე, სადაც შენი სათადარიგო ასლები ინახება</string>
+    <!-- Text shown while scanning for backups -->
+    <string name="LocalBackupRestoreScreen__scanning_folder">მიმდინარეობს სათადარიგო ასლების ძიება…</string>
+    <!-- Description shown when a backup is found -->
+    <string name="LocalBackupRestoreScreen__backup_found_description">აღადგინე შენი შეტყობინებები შენს მოწყობილობაში შენახული სარეზერვო ასლების ფაილიდან. თუ ახლა არ აღადგენ, მოგვიანებით აღდგენას ვეღარ შეძლებ.</string>
+    <!-- Title for the latest backup card -->
+    <string name="LocalBackupRestoreScreen__your_latest_backup">შენი ბოლო სათადარიგო ასლები:</string>
+    <!-- Restore backup button text -->
+    <string name="LocalBackupRestoreScreen__restore_backup">სარეზერვო კოპიების აღდგენა</string>
+    <!-- Link to choose an earlier backup -->
+    <string name="LocalBackupRestoreScreen__choose_earlier_backup">წინა სათადარიგო ასლი აირჩიე</string>
+    <!-- Title for the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choose_a_backup_to_restore">აირჩიე აღსადგენი სათადარიგო ასლი</string>
+    <!-- Warning text in the backup picker bottom sheet -->
+    <string name="LocalBackupRestoreScreen__choosing_an_older_backup_warning">შეიძლება უფრო ძველი სათადარიგო ასლის არჩევას წერილების ან მედია ფაილების დაკარგვა მოჰყვეს.</string>
+    <!-- Title when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found">სათადარიგო ასლი ვერ მოიძებნა</string>
+    <!-- Description when no backup is found -->
+    <string name="LocalBackupRestoreScreen__no_backup_found_description">არჩეულ საქაღალდეში სათადარიგო ასლი ვერ მოიძებნა. გთხოვთ, სხვა საქაღალდე სცადო.</string>
+    <!-- Button to try a different folder -->
+    <string name="LocalBackupRestoreScreen__try_different_folder">სცადე სხვა საქაღალდე</string>
+    <!-- Title for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_backup_passphrase">შეიყვანე სარეზერვო კოპიების პაროლ-ფრაზა</string>
+    <!-- Description for V1 passphrase entry screen -->
+    <string name="LocalBackupRestoreScreen__enter_the_30_digit_passphrase">შენი ადგილობრივი სათადარიგო ასლების პასფრაზა 30-ციფრიანი კოდია, რომელიც შენი ანაგარიშისა და მონაცემების აღსადგენადაა საჭირო.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="LocalBackupRestoreScreen__recovery_key">აღდგენის გასაღები</string>
+    <!-- Error text when passphrase is too long -->
+    <string name="LocalBackupRestoreScreen__too_long">ზედმეტად გრძელია (%1$d/%2$d)</string>
+    <!-- Link for users who don\'t have their passphrase -->
+    <string name="LocalBackupRestoreScreen__no_passphrase">არ გაქვს პასფრაზა?</string>
+    <!-- Next button text -->
+    <string name="LocalBackupRestoreScreen__next">შემდეგი</string>
+    <!-- EnterAepScreen -->
+    <!-- Title for recovery key entry screen -->
+    <string name="EnterAepScreen__enter_your_recovery_key">შეიყვანე შენი აღდგენის გასაღები</string>
+    <!-- Description for recovery key entry screen -->
+    <string name="EnterAepScreen__your_recovery_key_is_a_64_character_code">შენი სათადარიგო ასლების გასაღები 64-სიმბოლოიანი კოდია, რომელიც შენი ანგარიშისა და მონაცემების აღსადგენადაა საჭირო.</string>
+    <!-- Label for the recovery key text field -->
+    <string name="EnterAepScreen__recovery_key">აღდგენის გასაღები</string>
+    <!-- Link for users who don\'t have their recovery key -->
+    <string name="EnterAepScreen__no_recovery_key">არ გაქვს აღდგენის გასაღები?</string>
+    <!-- Error text when key is too long -->
+    <string name="EnterAepScreen__too_long">ზედმეტად გრძელია (%1$d/%2$d)</string>
+    <!-- Error text when key is invalid -->
+    <string name="EnterAepScreen__invalid_recovery_key">აღდგენის გასაღები არასწორია</string>
+    <!-- Error text when key is correct format but does not match account -->
+    <string name="EnterAepScreen__incorrect_recovery_key">აღდგენის გასაღები არასწორია</string>
+    <!-- Text shown while preparing the restore -->
+    <string name="LocalBackupRestoreScreen__preparing_restore">მზადდება აღდგენა…</string>
+    <!-- Title shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_backup">მიმდინარეობს სათადარიგო ასლების აღდგენა</string>
+    <!-- Description shown while restore is in progress -->
+    <string name="LocalBackupRestoreScreen__restoring_description">გთხოვთ, მოიცადო, სანამ შენი წერილები და მონაცემები აღდგება.</string>
+    <!-- Description shown when restore is complete -->
+    <string name="LocalBackupRestoreScreen__restore_complete_description">Your messages and account data have been restored successfully.</string>
+    <!-- Continue button text after restore is complete -->
+    <string name="LocalBackupRestoreScreen__continue_button">გაგრძელება</string>
+    <!-- Title shown when restore fails -->
+    <string name="LocalBackupRestoreScreen__restore_failed">აღდგენა ვერ მოხერხდა</string>
+    <!-- Description shown when restore fails with an unknown error -->
+    <string name="LocalBackupRestoreScreen__restore_failed_description">სარეზერვო ასლის აღდგენისას შეცდომა დაფიქსირდა. გთხოვთ, თავიდან სცადო.</string>
+    <!-- Button to retry restore after failure -->
+    <string name="LocalBackupRestoreScreen__try_again">ახლიდან სცადე</string>
+    <!-- Button to link an existing Signal account to this device -->
+    <string name="WelcomeScreen__link_your_account">მიაბი შენი ანგარიში</string>
+    <!-- Prompt shown to users who don\'t have a Signal account yet -->
+    <string name="WelcomeScreen__not_on_signal_yet">ჯერ არ ხარ Signal-ზე?</string>
+    <!-- Button to create a new Signal account -->
+    <string name="WelcomeScreen__create_account">შექმენი ანგარიში</string>
+
+    <!-- RemoteRestoreScreen -->
+    <!-- Title for the remote backup restore screen -->
+    <string name="RemoteRestoreScreen__restore_from_backup">სარეზერვო კოპიიდან აღდგენა</string>
+    <!-- Shown while fetching backup details from server -->
+    <string name="RemoteRestoreScreen__fetching_backup_details">მიმდინარეობს სათადარიგო ასლების დეტალების მიღება…</string>
+    <!-- Button to start restoring the backup -->
+    <string name="RemoteRestoreScreen__restore_backup">სარეზერვო კოპიების აღდგენა</string>
+    <!-- Subtitle showing when the last backup was made, with date and time placeholders -->
+    <string name="RemoteRestoreScreen__your_last_backup_was_made_on_s_at_s">შენი ბოლო სარეზერვო კოპია შეიქმნა %1$s-ში %2$s-ზე.</string>
+    <!-- Description telling the user their media will restore in the background -->
+    <string name="RemoteRestoreScreen__your_media_will_restore_in_the_background">შენი მედია ფაილები უკანა ფონზე აღდგება. თუ ახლა არ აღადგენ, მოგვიანებით აღდგენას ვეღარ შეძლებ.</string>
+    <!-- Title for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__backup_not_found">სათადარიგო ასლების მოძებნა ვერ მოხერხდა</string>
+    <!-- Body for the backup not found dialog -->
+    <string name="RemoteRestoreScreen__no_backup_was_found">ამ ანგარიშის სათადარიგო ასლები ვერ მოიძებნა.</string>
+    <!-- Title for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_backup">სათადარიგო ასლის აღდგენა შეუძლებელია</string>
+    <!-- Body for the restore failed dialog -->
+    <string name="RemoteRestoreScreen__your_backup_cant_be_restored_right_now">ამჟამად შენი სათადარიგო ასლის აღდგენა შეუძლებელია. გთხოვთ, თავიდან სცადო.</string>
+    <!-- Button to try again -->
+    <string name="RemoteRestoreScreen__try_again">ახლიდან სცადე</string>
+    <!-- Title for the network error dialog -->
+    <string name="RemoteRestoreScreen__couldnt_finish_restore">აღდგენის დასრულება ვერ მოხერხდა</string>
+    <!-- Body for the network error dialog -->
+    <string name="RemoteRestoreScreen__error_connecting">სერვერთან დაკავშირებისას ხარვეზი დაფიქსირდა. გთხოვთ, შენი ინტერნეტ კავშირი შეამოწმო და თავიდან სცადო.</string>
+    <!-- Body for the general restore failure dialog -->
+    <string name="RemoteRestoreScreen__error_occurred">სარეზერვო ასლის აღდგენისას შეცდომა დაფიქსირდა. გთხოვთ, თავიდან სცადო.</string>
+    <!-- Title for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__couldnt_restore_this_backup">ამ სათადარიგო ასლის აღდგენა ვერ მოხერხდა</string>
+    <!-- Body for the invalid backup version dialog -->
+    <string name="RemoteRestoreScreen__update_latest">Signal-ის ამ ვერსიაზე სათადარიგო ასლების აღდგენა შეუძლებელია. გადადი უახლეს ვერსიაზე და სცადე თავიდან.</string>
+    <!-- Button to update Signal -->
+    <string name="RemoteRestoreScreen__update_signal">Signal-ის განახლება</string>
+    <!-- Button to dismiss update dialog -->
+    <string name="RemoteRestoreScreen__not_now">ახლა არა</string>
+    <!-- Title for unrecoverable backup failure dialog -->
+    <string name="RemoteRestoreScreen__cant_restore_this_backup">სათადარიგო ასლის აღდგენა შეუძლებელია</string>
+    <!-- Body for unrecoverable backup failure dialog prompting user to contact support -->
+    <string name="RemoteRestoreScreen__your_backup_is_not_recoverable">სარეზერვო ასლის აღდგენისას შეცდომა დაფიქსირდა. შენი სარეზერვო ასლის აღდგენა შეუძლებელია. გთხოვთ, დახმარებისთვის მხარდაჭერის გუნდს მიმართე.</string>
+    <!-- Button to contact support -->
+    <string name="RemoteRestoreScreen__contact_support">მხარდაჭერის გუნდთან დაკავშირება</string>
+    <!-- Shown while downloading the backup from the server -->
+    <string name="RemoteRestoreScreen__downloading_backup">მიმდინარეობს სარეზერვო კოპიების გადმოწერა…</string>
+    <!-- Shown while restoring messages from the downloaded backup -->
+    <string name="RemoteRestoreScreen__restoring_messages">მიმდინარეობს შეტყობინებების აღდგენა…</string>
+    <!-- Shown while finalizing the restore -->
+    <string name="RemoteRestoreScreen__finishing_restore">სრულდება…</string>
+    <!-- Shown as a generic restoring message -->
+    <string name="RemoteRestoreScreen__restoring">მიმდინარეობს აღდგენა…</string>
+    <!-- Byte progress text, e.g. "1.2 MB of 10 MB (12.34%)" -->
+    <string name="RemoteRestoreScreen__s_of_s_s">%2$s-დან %1$s (%3$s)</string>
+    <!-- Shown when attempting to open a URL in the web browser, but a browser app cannot be found. -->
+    <string name="LinkActions_error_no_browser_found">ვებ ბრაუზერი ვერ მოიძებნა.</string>
+
+    <!-- Title for screen when your account is locked -->
+    <string name="AccountLockedScreen__account_locked">მონაცემები დაბლოკილია</string>
+    <!-- Description for screen when account is locked -->
+    <string name="AccountLockedScreen__your_account">შენი მონაცემები დაიბლოკა მათი კონფიდენციალურობისა და უსაფრთხოების დასაცავად. შენს პროფილზე %1$d დღის უმოქმედობის შემდეგ, პინ-კოდის გარეშე შეძლებ ხელახლა დარეგისტრირებას ამ ტელეფონის ნომრით. კონტენტი მთლიანად წაიშლება.</string>
+
+    <!-- Step 1 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_1">გახსენი Signal-ი შენს ძველ ტელეფონზე</string>
+    <!-- Step 2 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_2">აირჩიე პარამეტრები &gt; ანგარიშის გადატანა</string>
+    <!-- Step 3 to quick restore -->
+    <string name="QuickRestoreQRScreen__step_3">დაასკანირე ეს QR კოდი</string>
+    <!-- Loading dialog text when registering -->
+    <string name="QuickRestoreQRScreen__reregister">მიმდინარეობს რეგისტრაცია…</string>
+    <!-- Error message text shown if registering fails -->
+    <string name="QuickRestoreQRScreen__error">რეგისტრაციისას ხარვეზი დაფიქსირდა</string>
+    <!-- Title for quick restoring -->
+    <string name="QuickRestoreQRScreen__scan">დაასკანირე ძველი მოწყობილობიდან</string>
+    <!-- Confirmation dialog when qr code is successfully scanned -->
+    <string name="QuickRestoreQRScreen__scanned">QR კოდი დასკანირდა</string>
+    <!-- Button text to retry scanning the QR code -->
+    <string name="QuickRestoreQRScreen__retry">თავიდან ცდა</string>
+    <!-- Failure text when a code could not be generated -->
+    <string name="QuickRestoreQRScreen__failed">"QR კოდის გენერირება ვერ მოხერხდა"</string>
+</resources>

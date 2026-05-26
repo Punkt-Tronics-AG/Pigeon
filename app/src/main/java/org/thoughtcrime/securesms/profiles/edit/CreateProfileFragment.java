@@ -22,11 +22,12 @@ import com.airbnb.lottie.SimpleColorFilter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import org.signal.core.ui.compose.SignalIcons;
 import org.signal.core.util.EditTextUtil;
 import org.signal.core.util.StreamUtil;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
-import org.thoughtcrime.securesms.LoggingFragment;
+import org.signal.core.ui.logging.LoggingFragment;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.avatar.Avatars;
 import org.thoughtcrime.securesms.avatar.picker.AvatarPickerFragment;
@@ -46,6 +47,7 @@ import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import static org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity.EXCLUDE_SYSTEM;
 import static org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity.GROUP_ID;
@@ -249,7 +251,7 @@ public class CreateProfileFragment extends LoggingFragment {
 
       binding.groupDescriptionText.setVisibility(View.GONE);
       binding.profileDescriptionText.setLearnMoreVisible(true);
-      binding.profileDescriptionText.setLinkColor(ContextCompat.getColor(requireContext(), R.color.signal_colorPrimary));
+      binding.profileDescriptionText.setLinkColor(ContextCompat.getColor(requireContext(), org.signal.core.ui.R.color.signal_colorPrimary));
       binding.profileDescriptionText.setOnLinkClickListener(v -> CommunicationActions.openBrowserLink(requireContext(), getString(R.string.EditProfileFragment__support_link)));
 
       getParentFragmentManager().setFragmentResultListener(WhoCanFindMeByPhoneNumberFragment.REQUEST_KEY, getViewLifecycleOwner(), (requestKey, result) -> {
@@ -340,7 +342,7 @@ public class CreateProfileFragment extends LoggingFragment {
         binding.whoCanFindMeDescription.setText(R.string.PhoneNumberPrivacy_everyone);
         break;
       case NOT_DISCOVERABLE:
-        binding.whoCanFindMeIcon.setImageResource(R.drawable.symbol_lock_24);
+        binding.whoCanFindMeIcon.setImageResource(org.signal.core.ui.R.drawable.symbol_lock_24);
         binding.whoCanFindMeDescription.setText(R.string.PhoneNumberPrivacy_nobody);
         break;
     }
@@ -365,6 +367,7 @@ public class CreateProfileFragment extends LoggingFragment {
         }
       } else {
         Toast.makeText(requireContext(), R.string.CreateProfileActivity_problem_setting_profile, Toast.LENGTH_LONG).show();
+        binding.finishButton.cancelSpinning();
       }
     });
 

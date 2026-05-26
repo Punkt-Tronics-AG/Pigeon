@@ -45,7 +45,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneExpansionAnchor
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
@@ -65,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -81,7 +81,6 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.core.layout.WindowSizeClass
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
@@ -93,15 +92,23 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.signal.core.ui.BottomSheetUtil
 import org.signal.core.ui.compose.Snackbars
+import org.signal.core.ui.compose.theme.SignalTheme
+import org.signal.core.ui.permissions.Permissions
+import org.signal.core.ui.rememberIsSplitPane
+import org.signal.core.util.Util
 import org.signal.core.util.concurrent.LifecycleDisposable
+import org.signal.core.util.getParcelableCompat
 import org.signal.core.util.getSerializableCompat
 import org.signal.core.util.logging.Log
 import org.signal.donations.StripeApi
+import org.signal.mediasend.MediaSendActivityContract
 import org.thoughtcrime.securesms.backup.v2.ArchiveRestoreProgress
+import org.thoughtcrime.securesms.backup.v2.ArchiveRestoreProgressState
+import org.thoughtcrime.securesms.backup.v2.ui.CouldNotCompleteBackupRestoreSheet
 import org.thoughtcrime.securesms.backup.v2.ui.verify.VerifyBackupKeyActivity
 import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar.show
-import org.thoughtcrime.securesms.calls.links.details.CallLinkDetailsActivity
 import org.thoughtcrime.securesms.calls.log.CallLogFilter
 import org.thoughtcrime.securesms.calls.log.CallLogFragment
 import org.thoughtcrime.securesms.calls.new.NewCallActivity
@@ -121,7 +128,6 @@ import org.thoughtcrime.securesms.components.snackbars.SnackbarHostKey
 import org.thoughtcrime.securesms.components.snackbars.SnackbarState
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
-import org.thoughtcrime.securesms.compose.SignalTheme
 import org.thoughtcrime.securesms.conversation.ConversationIntents
 import org.thoughtcrime.securesms.conversation.NewConversationActivity
 import org.thoughtcrime.securesms.conversation.v2.MotionEventRelay
@@ -145,8 +151,10 @@ import org.thoughtcrime.securesms.main.MainContentLayoutData
 import org.thoughtcrime.securesms.main.MainMegaphoneState
 import org.thoughtcrime.securesms.main.MainNavigationBar
 import org.thoughtcrime.securesms.main.MainNavigationDetailLocation
+import org.thoughtcrime.securesms.main.MainNavigationDetailLocationEffect
 import org.thoughtcrime.securesms.main.MainNavigationListLocation
 import org.thoughtcrime.securesms.main.MainNavigationRail
+import org.thoughtcrime.securesms.main.MainNavigationRouter
 import org.thoughtcrime.securesms.main.MainNavigationViewModel
 import org.thoughtcrime.securesms.main.MainSnackbar
 import org.thoughtcrime.securesms.main.MainSnackbarHostKey
@@ -161,10 +169,10 @@ import org.thoughtcrime.securesms.main.chatNavGraphBuilder
 import org.thoughtcrime.securesms.main.navigateToDetailLocation
 import org.thoughtcrime.securesms.main.rememberDetailNavHostController
 import org.thoughtcrime.securesms.main.rememberFocusRequester
-import org.thoughtcrime.securesms.main.rememberMainNavigationDetailLocation
 import org.thoughtcrime.securesms.main.storiesNavGraphBuilder
-import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil
+import org.thoughtcrime.securesms.mediasend.camerax.CameraXRemoteConfig
 import org.thoughtcrime.securesms.mediasend.v2.MediaSelectionActivity
+import org.thoughtcrime.securesms.mediasend.v3.mediaSendLauncher
 import org.thoughtcrime.securesms.megaphone.Megaphone
 import org.thoughtcrime.securesms.megaphone.MegaphoneActionController
 import org.thoughtcrime.securesms.megaphone.Megaphones
@@ -172,16 +180,16 @@ import org.thoughtcrime.securesms.net.DeviceTransferBlockingInterceptor
 import org.thoughtcrime.securesms.notifications.VitalsViewModel
 import org.thoughtcrime.securesms.notifications.profiles.NotificationProfile
 import org.thoughtcrime.securesms.notifications.profiles.NotificationProfiles
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.profiles.manage.UsernameEditFragment
 import org.thoughtcrime.securesms.service.BackupMediaRestoreService
 import org.thoughtcrime.securesms.service.KeyCachingService
+import org.thoughtcrime.securesms.starred.StarredMessagesActivity
 import org.thoughtcrime.securesms.stories.Stories
+import org.thoughtcrime.securesms.stories.archive.StoryArchiveActivity
 import org.thoughtcrime.securesms.stories.landing.StoriesLandingFragment
 import org.thoughtcrime.securesms.stories.settings.StorySettingsActivity
 import org.thoughtcrime.securesms.util.AppForegroundObserver
 import org.thoughtcrime.securesms.util.AppStartup
-import org.thoughtcrime.securesms.util.BottomSheetUtil
 import org.thoughtcrime.securesms.util.CachedInflater
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme
@@ -189,27 +197,35 @@ import org.thoughtcrime.securesms.util.DynamicTheme
 import org.thoughtcrime.securesms.util.Material3OnScrollHelper
 import org.thoughtcrime.securesms.util.SplashScreenUtil
 import org.thoughtcrime.securesms.util.TopToastPopup
-import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.viewModel
 import org.thoughtcrime.securesms.window.AppPaneDragHandle
 import org.thoughtcrime.securesms.window.AppScaffold
 import org.thoughtcrime.securesms.window.AppScaffoldAnimationStateFactory
 import org.thoughtcrime.securesms.window.AppScaffoldNavigator
 import org.thoughtcrime.securesms.window.NavigationType
-import org.thoughtcrime.securesms.window.isSplitPane
 import org.thoughtcrime.securesms.window.rememberThreePaneScaffoldNavigatorDelegate
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
+import org.signal.core.ui.R as CoreUiR
 import pigeon.compose.PreLoader
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import pigeon.fragments.HomePageFragment
 
-class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner, MainNavigator.NavigatorProvider, Material3OnScrollHelperBinder, ConversationListFragment.Callback, CallLogFragment.Callback, GooglePayComponent {
+class MainActivity :
+  PassphraseRequiredActivity(),
+  VoiceNoteMediaControllerOwner,
+  MainNavigator.NavigatorProvider,
+  Material3OnScrollHelperBinder,
+  ConversationListFragment.Callback,
+  MainNavigationRouter,
+  CallLogFragment.Callback,
+  GooglePayComponent {
 
   companion object {
     private val TAG = Log.tag(MainActivity::class)
 
     private const val KEY_STARTING_TAB = "STARTING_TAB"
+    private const val KEY_DETAIL_LOCATION = "DETAIL_LOCATION"
     const val RESULT_CONFIG_CHANGED = Activity.RESULT_FIRST_USER + 901
 
     private val _pigeonShowConversation = MutableStateFlow(false)
@@ -225,6 +241,11 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     @JvmStatic
     fun clearTopAndOpenTab(context: Context, startingTab: MainNavigationListLocation): Intent {
       return clearTop(context).putExtra(KEY_STARTING_TAB, startingTab)
+    }
+
+    @JvmStatic
+    fun clearTopAndOpenDetail(context: Context, location: MainNavigationDetailLocation): Intent {
+      return clearTop(context).putExtra(KEY_DETAIL_LOCATION, location)
     }
   }
 
@@ -270,6 +291,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   override val googlePayRepository: GooglePayRepository by lazy { GooglePayRepository(this) }
   override val googlePayResultPublisher: Subject<GooglePayComponent.GooglePayResult> = PublishSubject.create()
 
+  private lateinit var mediaSendLauncher: ActivityResultLauncher<MediaSendActivityContract.Args>
+
   override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
     return motionEventRelay.offer(ev) || super.dispatchTouchEvent(ev)
   }
@@ -294,6 +317,8 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
     super.onCreate(savedInstanceState, ready)
     navigator = MainNavigator(this, mainNavigationViewModel)
+
+    mediaSendLauncher = mediaSendLauncher()
 
     AppForegroundObserver.addListener(object : AppForegroundObserver.Listener {
       override fun onForeground() {
@@ -336,6 +361,19 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
               Log.i(TAG, "Still restoring media, launching a service. Remaining restoration size: ${it.remainingRestoreSize} out of ${it.totalRestoreSize} ")
               BackupMediaRestoreService.resetTimeout()
               BackupMediaRestoreService.start(this@MainActivity, resources.getString(R.string.BackupStatus__restoring_media))
+            }
+        }
+      }
+
+      launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+          ArchiveRestoreProgress
+            .stateFlow
+            .filter { it.restoreStatus == ArchiveRestoreProgressState.RestoreStatus.LOCAL_RESTORE_DIRECTORY_UNAVAILABLE }
+            .collect {
+              ArchiveRestoreProgress.clearLocalRestoreDirectoryError()
+              CouldNotCompleteBackupRestoreSheet().show(supportFragmentManager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG)
+              Log.i(TAG, "Local restore directory became unavailable.")
             }
         }
       }
@@ -422,7 +460,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         )
       }
 
-      val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+      val isSplitPane = LocalResources.current.rememberIsSplitPane()
       val contentLayoutData = MainContentLayoutData.rememberContentLayoutData(mainToolbarState.mode)
 
       val showSplashScreen = pigeonShowSplashScreen.collectAsState()
@@ -433,11 +471,11 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
         PreLoader()
       } else {
       MainContainer {
-        val wrappedNavigator = rememberNavigator(windowSizeClass, contentLayoutData, maxWidth)
+        val wrappedNavigator = rememberNavigator(isSplitPane, contentLayoutData, maxWidth)
         val listPaneWidth = contentLayoutData.rememberDefaultPanePreferredWidth(maxWidth)
         val navigationType = NavigationType.rememberNavigationType()
 
-        val anchors = remember(contentLayoutData, mainToolbarState) {
+        val anchors = remember(contentLayoutData, mainToolbarState, listPaneWidth, navigationType) {
           val halfPartitionWidth = contentLayoutData.partitionWidth / 2
 
           val detailOffset = when {
@@ -465,7 +503,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           anchors.indexOf(paneExpansionState.currentAnchor)
         }
 
-        LaunchedEffect(windowSizeClass) {
+        LaunchedEffect(anchors) {
           val index = when {
             paneAnchorIndex < 0 -> 1
             paneAnchorIndex > anchors.lastIndex -> anchors.lastIndex
@@ -478,9 +516,9 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           }
         }
 
-        val chatNavGraphState = ChatNavGraphState.remember(windowSizeClass)
+        val chatNavGraphState = ChatNavGraphState.remember(isSplitPane)
         val mutableInteractionSource = remember { MutableInteractionSource() }
-        val mainNavigationDetailLocation by rememberMainNavigationDetailLocation(mainNavigationViewModel, chatNavGraphState::writeGraphicsLayerToBitmap)
+        MainNavigationDetailLocationEffect(mainNavigationViewModel, chatNavGraphState::writeGraphicsLayerToBitmap)
 
         val chatsNavHostController = rememberDetailNavHostController(
           onRequestFocus = rememberFocusRequester(
@@ -510,25 +548,33 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
           storiesNavGraphBuilder()
         }
 
-        LaunchedEffect(mainNavigationDetailLocation) {
-          mainNavigationViewModel.clearEarlyDetailLocation()
-          when (mainNavigationDetailLocation) {
-            is MainNavigationDetailLocation.Empty -> {
-              when (mainNavigationState.currentListLocation) {
-                MainNavigationListLocation.CHATS, MainNavigationListLocation.ARCHIVE -> chatsNavHostController
-                MainNavigationListLocation.CALLS -> callsNavHostController
-                MainNavigationListLocation.STORIES -> storiesNavHostController
-              }.navigateToDetailLocation(mainNavigationDetailLocation)
-            }
+        LaunchedEffect(Unit) {
+          suspend fun navigateToLocation(location: MainNavigationDetailLocation) {
+            when (location) {
+              is MainNavigationDetailLocation.Empty -> {
+                when (mainNavigationState.currentListLocation) {
+                  MainNavigationListLocation.CHATS, MainNavigationListLocation.ARCHIVE -> chatsNavHostController
+                  MainNavigationListLocation.CALLS -> callsNavHostController
+                  MainNavigationListLocation.STORIES -> storiesNavHostController
+                }.navigateToDetailLocation(location)
+              }
 
-            is MainNavigationDetailLocation.Chats -> {
-              chatNavGraphState.writeGraphicsLayerToBitmap()
-              chatsNavHostController.navigateToDetailLocation(mainNavigationDetailLocation)
-            }
+              is MainNavigationDetailLocation.Conversation -> {
+                chatNavGraphState.writeGraphicsLayerToBitmap()
+                chatsNavHostController.navigateToDetailLocation(location)
+              }
 
-            is MainNavigationDetailLocation.Calls -> callsNavHostController.navigateToDetailLocation(mainNavigationDetailLocation)
-            is MainNavigationDetailLocation.Stories -> storiesNavHostController.navigateToDetailLocation(mainNavigationDetailLocation)
+              is MainNavigationDetailLocation.Chats -> chatsNavHostController.navigateToDetailLocation(location)
+              is MainNavigationDetailLocation.CallLinkDetails -> callsNavHostController.navigateToDetailLocation(location)
+              is MainNavigationDetailLocation.Calls -> callsNavHostController.navigateToDetailLocation(location)
+              is MainNavigationDetailLocation.Stories -> storiesNavHostController.navigateToDetailLocation(location)
+            }
           }
+
+          mainNavigationViewModel.earlyNavigationDetailLocationRequested?.let { navigateToLocation(it) }
+          mainNavigationViewModel.clearEarlyDetailLocation()
+
+          mainNavigationViewModel.detailLocation.collect { navigateToLocation(it) }
         }
 
         val scope = rememberCoroutineScope()
@@ -615,7 +661,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
                   onDestinationSelected = mainNavigationCallback
                 )
 
-                if (!windowSizeClass.isSplitPane()) {
+                if (!LocalResources.current.rememberIsSplitPane()) {
                   Spacer(Modifier.navigationBarsPadding())
                 }
               }
@@ -631,7 +677,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
             }
           },
           secondaryContent = {
-            val listContainerColor = if (windowSizeClass.isSplitPane()) {
+            val listContainerColor = if (isSplitPane) {
               SignalTheme.colors.colorSurface1
             } else {
               MaterialTheme.colorScheme.surface
@@ -843,12 +889,12 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   @OptIn(ExperimentalMaterial3AdaptiveApi::class)
   @Composable
   private fun rememberNavigator(
-    windowSizeClass: WindowSizeClass,
+    isSplitPane: Boolean,
     contentLayoutData: MainContentLayoutData,
     maxWidth: Dp
   ): AppScaffoldNavigator<Any> {
     val scaffoldNavigator = rememberThreePaneScaffoldNavigatorDelegate(
-      isSplitPane = windowSizeClass.isSplitPane(),
+      isSplitPane = isSplitPane,
       horizontalPartitionSpacerSize = contentLayoutData.partitionWidth,
       defaultPanePreferredWidth = contentLayoutData.rememberDefaultPanePreferredWidth(maxWidth)
     )
@@ -856,44 +902,24 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     val coroutine = rememberCoroutineScope()
 
     return remember(scaffoldNavigator, coroutine) {
-      mainNavigationViewModel.wrapNavigator(coroutine, scaffoldNavigator) { detailLocation ->
-        when (detailLocation) {
-          is MainNavigationDetailLocation.Chats.Conversation -> {
-            startActivity(
-              ConversationIntents.createBuilderSync(this, detailLocation.conversationArgs.recipientId, detailLocation.conversationArgs.threadId)
-                .withArgs(detailLocation.conversationArgs)
-                .build()
-            )
-          }
-
-          is MainNavigationDetailLocation.Calls.CallLinks.CallLinkDetails -> {
-            startActivity(CallLinkDetailsActivity.createIntent(this, detailLocation.callLinkRoomId))
-          }
-
-          is MainNavigationDetailLocation.Calls.CallLinks.EditCallLinkName -> {
-            error("Unexpected subroute EditCallLinkName.")
-          }
-
-          MainNavigationDetailLocation.Empty -> Unit
-        }
-      }
+      mainNavigationViewModel.wrapNavigator(coroutine, scaffoldNavigator)
     }
   }
 
   @Composable
   private fun MainContainer(content: @Composable BoxWithConstraintsScope.() -> Unit) {
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val isSplitPane = LocalResources.current.rememberIsSplitPane()
 
     CompositionLocalProvider(LocalSnackbarStateConsumerRegistry provides mainNavigationViewModel.snackbarRegistry) {
-      SignalTheme(isDarkMode = DynamicTheme.isDarkTheme(this)) {
-        val backgroundColor = if (!windowSizeClass.isSplitPane()) {
+      SignalTheme {
+        val backgroundColor = if (!isSplitPane) {
           MaterialTheme.colorScheme.surface
         } else {
           SignalTheme.colors.colorSurface1
         }
 
         val modifier = when {
-          windowSizeClass.isSplitPane() -> {
+          isSplitPane -> {
             Modifier
               .systemBarsPadding()
               .displayCutoutPadding()
@@ -927,6 +953,13 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     handleDeepLinkIntent(intent)
 
     val extras = intent.extras ?: return
+
+    val detailLocation = extras.getParcelableCompat(KEY_DETAIL_LOCATION, MainNavigationDetailLocation::class.java)
+    if (detailLocation != null) {
+      goTo(detailLocation)
+      return
+    }
+
     val startingTab = extras.getSerializableCompat(KEY_STARTING_TAB, MainNavigationListLocation::class.java)
 
     when (startingTab) {
@@ -1128,7 +1161,7 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
   private fun handleConversationIntent(intent: Intent) {
     if (ConversationIntents.isConversationIntent(intent)) {
       mainNavigationViewModel.goTo(MainNavigationListLocation.CHATS)
-      mainNavigationViewModel.goTo(MainNavigationDetailLocation.Chats.Conversation(ConversationIntents.readArgsFromBundle(intent.extras!!)))
+      mainNavigationViewModel.goTo(MainNavigationDetailLocation.Conversation(ConversationIntents.readArgsFromBundle(intent.extras!!)))
       intent.action = null
       setIntent(intent)
     }
@@ -1216,24 +1249,32 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
   private fun onCameraClick(destination: MainNavigationListLocation, isForQuickRestore: Boolean) {
     val onGranted = {
-      val intent = if (isForQuickRestore) {
-        MediaSelectionActivity.cameraForQuickRestore(context = this@MainActivity)
+      if (isForQuickRestore) {
+        startActivity(MediaSelectionActivity.cameraForQuickRestore(context = this@MainActivity))
+      } else if (SignalStore.internal.useNewMediaActivity) {
+        mediaSendLauncher.launch(
+          MediaSendActivityContract.Args(
+            isCameraFirst = false,
+            isStory = destination == MainNavigationListLocation.STORIES
+          )
+        )
       } else {
-        MediaSelectionActivity.camera(
-          context = this@MainActivity,
-          isStory = destination == MainNavigationListLocation.STORIES
+        startActivity(
+          MediaSelectionActivity.camera(
+            context = this@MainActivity,
+            isStory = destination == MainNavigationListLocation.STORIES
+          )
         )
       }
-      startActivity(intent)
     }
 
-    if (CameraXUtil.isSupported()) {
+    if (CameraXRemoteConfig.isSupported()) {
       onGranted()
     } else {
       Permissions.with(this@MainActivity)
         .request(Manifest.permission.CAMERA)
         .ifNecessary()
-        .withRationaleDialog(getString(R.string.CameraXFragment_allow_access_camera), getString(R.string.CameraXFragment_to_capture_photos_and_video_allow_camera), R.drawable.symbol_camera_24)
+        .withRationaleDialog(getString(R.string.CameraXFragment_allow_access_camera), getString(R.string.CameraXFragment_to_capture_photos_and_video_allow_camera), CoreUiR.drawable.symbol_camera_24)
         .withPermanentDenialDialog(
           getString(R.string.CameraXFragment_signal_needs_camera_access_capture_photos),
           null,
@@ -1275,6 +1316,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       toolbarViewModel.setChatFilter(ConversationFilter.OFF)
     }
 
+    override fun onStarredMessagesClick() {
+      startActivity(StarredMessagesActivity.createIntent(this@MainActivity))
+    }
+
     override fun onSettingsClick() {
       openSettings.launch(AppSettingsActivity.home(this@MainActivity))
     }
@@ -1307,6 +1352,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
       startActivity(StorySettingsActivity.getIntent(this@MainActivity))
     }
 
+    override fun onStoryArchiveClick() {
+      startActivity(StoryArchiveActivity.createIntent(this@MainActivity))
+    }
+
     override fun onCloseSearchClick() {
       toolbarViewModel.setToolbarMode(MainToolbarMode.FULL)
     }
@@ -1326,6 +1375,14 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
 
     override fun onSearchQueryUpdated(query: String) {
       toolbarViewModel.setSearchQuery(query)
+    }
+
+    override fun onSearchFilterClick() {
+      supportFragmentManager.fragments.forEach { fragment ->
+        if (fragment is ConversationListFragment) {
+          fragment.showSearchFilterBottomSheet()
+        }
+      }
     }
 
     override fun onNotificationProfileTooltipDismissed() {
@@ -1400,6 +1457,10 @@ class MainActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner
     }
   }
 
+  override fun goTo(location: MainNavigationListLocation) = mainNavigationViewModel.goTo(location)
+  override fun goTo(location: MainNavigationDetailLocation) = mainNavigationViewModel.goTo(location)
+
+  //PIGEON CODE
   private fun hideArchivedConversations() {
     // Hide the archived conversations and show the home page fragment PIGEON-ONLY
     expandHomePage()

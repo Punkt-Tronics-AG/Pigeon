@@ -15,14 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.signal.core.util.logging.Log
+import org.signal.libsignal.net.RequestResult
 import org.signal.registration.NetworkController
 import org.signal.registration.RegistrationFlowEvent
 import org.signal.registration.RegistrationFlowState
 import org.signal.registration.RegistrationRepository
-import org.signal.registration.RegistrationRoute
-import org.signal.registration.screens.util.navigateTo
+import org.signal.registration.screens.EventDrivenViewModel
 
 /**
  * ViewModel for the PIN creation screen.
@@ -33,7 +32,7 @@ class PinCreationViewModel(
   private val repository: RegistrationRepository,
   private val parentState: StateFlow<RegistrationFlowState>,
   private val parentEventEmitter: (RegistrationFlowEvent) -> Unit
-) : ViewModel() {
+) : EventDrivenViewModel<PinCreationScreenEvents>(TAG) {
 
   companion object {
     private val TAG = Log.tag(PinCreationViewModel::class)
@@ -48,12 +47,10 @@ class PinCreationViewModel(
   val state: StateFlow<PinCreationState> = _state
     .combine(parentState) { state, parentState -> applyParentState(state, parentState) }
     .onEach { Log.d(TAG, "[State] $it") }
-    .stateIn(viewModelScope, SharingStarted.Eagerly, PinCreationState(inputLabel = "PIN must be at least 4 digits"))
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PinCreationState(inputLabel = "PIN must be at least 4 digits"))
 
-  fun onEvent(event: PinCreationScreenEvents) {
-    viewModelScope.launch {
-      applyEvent(state.value, event)
-    }
+  override suspend fun processEvent(event: PinCreationScreenEvents) {
+    applyEvent(state.value, event)
   }
 
   @VisibleForTesting
@@ -72,7 +69,8 @@ class PinCreationViewModel(
         )
       }
       is PinCreationScreenEvents.LearnMore -> {
-        TODO("Show learn more dialog or navigate to help screen")
+        // TODO [registration] - Show learn more dialog or navigate to help screen
+        throw NotImplementedError("Show learn more dialog or navigate to help screen")
       }
     }
   }
@@ -94,17 +92,18 @@ class PinCreationViewModel(
     val masterKey = state.accountEntropyPool.deriveMasterKey()
 
     return when (val result = repository.setNewlyCreatedPin(pin, state.isAlphanumericKeyboard, masterKey)) {
-      is NetworkController.RegistrationNetworkResult.Success -> {
+      is RequestResult.Success -> {
         Log.i(TAG, "[PinSubmitted] Successfully backed up master key to SVR.")
         // TODO profile creation
-        parentEventEmitter.navigateTo(RegistrationRoute.FullyComplete)
+        parentEventEmitter(RegistrationFlowEvent.RegistrationComplete)
         state
       }
-      is NetworkController.RegistrationNetworkResult.Failure -> {
-        when (result.error) {
+      is RequestResult.NonSuccess -> {
+        when (val error = result.error) {
           is NetworkController.BackupMasterKeyError.EnclaveNotFound -> {
             Log.w(TAG, "[PinSubmitted] SVR enclave not found.")
-            TODO("Report to UI and indicate to library user that pin could not be created")
+            // TODO [registration] - Report to UI and indicate to library user that pin could not be created
+            throw NotImplementedError("Report to UI and indicate to library user that pin could not be created")
           }
           is NetworkController.BackupMasterKeyError.NotRegistered -> {
             Log.w(TAG, "[PinSubmitted] Account not registered. This should not happen. Resetting.")
@@ -113,13 +112,15 @@ class PinCreationViewModel(
           }
         }
       }
-      is NetworkController.RegistrationNetworkResult.NetworkError -> {
-        Log.w(TAG, "[PinSubmitted] Network error when backing up master key.", result.exception)
-        TODO("Report to UI and indicate to library user that pin could not be created")
+      is RequestResult.RetryableNetworkError -> {
+        Log.w(TAG, "[PinSubmitted] Network error when backing up master key.", result.networkError)
+        // TODO [registration] - Report to UI and indicate to library user that pin could not be created
+        throw NotImplementedError("Report to UI and indicate to library user that pin could not be created")
       }
-      is NetworkController.RegistrationNetworkResult.ApplicationError -> {
-        Log.w(TAG, "[PinSubmitted] Application error when backing up master key.", result.exception)
-        TODO("Report to UI and indicate to library user that pin could not be created")
+      is RequestResult.ApplicationError -> {
+        Log.w(TAG, "[PinSubmitted] Application error when backing up master key.", result.cause)
+        // TODO [registration] - Report to UI and indicate to library user that pin could not be created
+        throw NotImplementedError("Report to UI and indicate to library user that pin could not be created")
       }
     }
   }

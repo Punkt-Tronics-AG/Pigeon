@@ -48,7 +48,7 @@ import androidx.lifecycle.Lifecycle;
 
 import org.signal.core.util.concurrent.ListenableFuture;
 import org.signal.core.util.concurrent.SettableFuture;
-import org.thoughtcrime.securesms.util.views.Stub;
+import org.signal.core.ui.view.Stub;
 
 public final class ViewUtil {
 
@@ -89,7 +89,15 @@ public final class ViewUtil {
     if (view.isFocused()) {
       view.post(() -> {
         InputMethodManager inputMethodManager = ServiceUtil.getInputMethodManager(view.getContext());
-        inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        if (!inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)) {
+          /*
+           * Sometimes when animations are disabled, the [InputMethodManager] can end up in a bad state.
+           * To resolve this, we can just cycle the focus of the view.
+           */
+          view.clearFocus();
+          view.requestFocus();
+          inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
       });
     }
   }
@@ -396,6 +404,25 @@ public final class ViewUtil {
       result = resources.getDimensionPixelSize(resourceId);
     }
     return result;
+  }
+
+  /**
+   * Heuristic for whether the device is currently using gesture navigation, used to decide
+   * when a zero bottom inset on API <= 29 should be trusted instead of replaced with the
+   * (3-button) navigation_bar_height fallback. Returns true if either signal reports gestures.
+   */
+  public static boolean isGestureNavigation(@NonNull Resources resources, @Nullable WindowInsetsCompat rootInsets) {
+    if (rootInsets != null && rootInsets.getInsets(WindowInsetsCompat.Type.systemGestures()).bottom > 0) {
+      return true;
+    }
+    int resourceId = resources.getIdentifier("config_navBarInteractionMode", "integer", "android");
+    if (resourceId > 0) {
+      try {
+        return resources.getInteger(resourceId) == 2;
+      } catch (Resources.NotFoundException ignored) {
+      }
+    }
+    return false;
   }
 
   public static void hideKeyboard(@NonNull Context context, @NonNull View view) {

@@ -43,7 +43,7 @@ class ConversationListSearchAdapter(
   init {
     registerFactory(
       ThreadModel::class.java,
-      LayoutFactory({ ThreadViewHolder(onClickedCallbacks::onThreadClicked, lifecycleOwner, requestManager, it) }, R.layout.conversation_list_item_view)
+      LayoutFactory({ ThreadViewHolder(onClickedCallbacks::onThreadClicked, onClickedCallbacks::onThreadLongClicked, lifecycleOwner, requestManager, it) }, R.layout.conversation_list_item_view)
     )
     registerFactory(
       MessageModel::class.java,
@@ -105,6 +105,7 @@ class ConversationListSearchAdapter(
 
   private class ThreadViewHolder(
     private val threadListener: OnClickedCallback<ContactSearchData.Thread>,
+    private val threadLongClickListener: (View, ContactSearchData.Thread) -> Boolean,
     private val lifecycleOwner: LifecycleOwner,
     private val requestManager: RequestManager,
     itemView: View
@@ -113,6 +114,10 @@ class ConversationListSearchAdapter(
       itemView.focusOnLeft()
       itemView.setOnClickListener {
         threadListener.onClicked(itemView, model.thread, false)
+      }
+
+      itemView.setOnLongClickListener {
+        threadLongClickListener(itemView, model.thread)
       }
 
       (itemView as ConversationListItem).bindThread(
@@ -235,6 +240,7 @@ class ConversationListSearchAdapter(
 
   interface ConversationListSearchClickCallbacks : ClickCallbacks {
     fun onThreadClicked(view: View, thread: ContactSearchData.Thread, isSelected: Boolean)
+    fun onThreadLongClicked(view: View, thread: ContactSearchData.Thread): Boolean
     fun onMessageClicked(view: View, thread: ContactSearchData.Message, isSelected: Boolean)
     fun onGroupWithMembersClicked(view: View, groupWithMembers: ContactSearchData.GroupWithMembers, isSelected: Boolean)
     fun onClearFilterClicked()
