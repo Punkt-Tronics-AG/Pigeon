@@ -284,14 +284,14 @@ private fun AppSettingsContent(
               item {
                 Dividers.Default()
 
-              Rows.TextRow(
-                text = stringResource(R.string.AppSettingsFragment__backup_storage_limit_reached),
-                icon = SignalIcons.ErrorCircle.imageVector,
-                iconTint = MaterialTheme.colorScheme.error,
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
-                }
-              )
+                Rows.TextRow(
+                  text = stringResource(R.string.AppSettingsFragment__backup_storage_limit_reached),
+                  icon = SignalIcons.ErrorCircle.imageVector,
+                  iconTint = MaterialTheme.colorScheme.error,
+                  onClick = {
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
+                  }
+                )
 
                 Dividers.Default()
               }
@@ -330,14 +330,14 @@ private fun AppSettingsContent(
           val context = LocalContext.current
           val donateUrl = stringResource(R.string.donate_url)
 
-            Rows.TextRow(
-              visible = isSignalVersion(),
+          Rows.TextRow(
+            visible = isSignalVersion(),
 
-              text = { _, _ ->
-                Text(
-                  text = stringResource(R.string.preferences__donate_to_signal),
-                  modifier = Modifier.weight(1f)
-                )
+            text = { _, _ ->
+              Text(
+                text = stringResource(R.string.preferences__donate_to_signal),
+                modifier = Modifier.weight(1f)
+              )
 
               if (state.hasExpiredGiftBadge) {
                 Icon(
@@ -367,57 +367,57 @@ private fun AppSettingsContent(
           )
         }
 
-          if (isSignalVersion()) {
-            item {
-              Dividers.Default()
-            }
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
           }
+        }
 
-          if (isSignalVersion()) {
-            item {
-              Rows.TextRow(
-                text = stringResource(R.string.preferences__appearance),
-                icon = painterResource(R.drawable.symbol_appearance_24),
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.AppearanceRoute.Appearance)
-                }
-              )
-            }
-          }
-
+        if (isSignalVersion()) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences_chats__chats),
-              icon = painterResource(R.drawable.symbol_chat_24),
+              text = stringResource(R.string.preferences__appearance),
+              icon = painterResource(R.drawable.symbol_appearance_24),
               onClick = {
-                callbacks.navigate(AppSettingsRoute.ChatsRoute.Chats)
+                callbacks.navigate(AppSettingsRoute.AppearanceRoute.Appearance)
+              }
+            )
+          }
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences_chats__chats),
+            icon = painterResource(R.drawable.symbol_chat_24),
+            onClick = {
+              callbacks.navigate(AppSettingsRoute.ChatsRoute.Chats)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__stories),
+              icon = painterResource(R.drawable.symbol_stories_24),
+              onClick = {
+                callbacks.navigate(AppSettingsRoute.StoriesRoute.Privacy(titleId = R.string.preferences__stories))
               },
               enabled = isRegisteredAndUpToDate
             )
           }
-          if (isSignalVersion()) {
-            item {
-              Rows.TextRow(
-                text = stringResource(R.string.preferences__stories),
-                icon = painterResource(R.drawable.symbol_stories_24),
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.StoriesRoute.Privacy(titleId = R.string.preferences__stories))
-                },
-                enabled = isRegisteredAndUpToDate
-              )
-            }
-          }
+        }
 
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__notifications),
-              icon = painterResource(R.drawable.symbol_bell_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.NotificationsRoute.Notifications)
-              },
-              enabled = isRegisteredAndUpToDate
-            )
-          }
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__notifications),
+            icon = painterResource(R.drawable.symbol_bell_24),
+            onClick = {
+              callbacks.navigate(AppSettingsRoute.NotificationsRoute.Notifications)
+            },
+            enabled = isRegisteredAndUpToDate
+          )
+        }
 
         item {
           Rows.TextRow(
@@ -437,11 +437,11 @@ private fun AppSettingsContent(
               text = stringResource(R.string.preferences_chats__backups),
               onClick = {
                 if (isSignalVersion()) {
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups)
+                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups())
                 } else {
                   findNavController(view).safeNavigate(R.id.pigeon_action_appSettingsFragment_to_backupsPreferenceFragment)
                 }
-                        },
+              },
 //              onLongClick = {
 //                callbacks.copyRemoteBackupsSubscriberIdToClipboard()
 //              },
@@ -450,134 +450,126 @@ private fun AppSettingsContent(
           }
         }
 
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__data_and_storage),
-              icon = painterResource(R.drawable.symbol_data_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.DataAndStorageRoute.DataAndStorage)
-              }
-            )
-          }
-
-          if (isSignalVersion()) {
-
-            if (state.showAppUpdates) {
-              item {
-                Rows.TextRow(
-                  text = "App updates",
-                  icon = painterResource(R.drawable.symbol_calendar_24),
-                  onClick = {
-                    callbacks.navigate(AppSettingsRoute.AppUpdates)
-                  }
-                )
-              }
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__data_and_storage),
+            icon = painterResource(R.drawable.symbol_data_24),
+            onClick = {
+              callbacks.navigate(AppSettingsRoute.DataAndStorageRoute.DataAndStorage)
             }
-          }
+          )
+        }
 
-          if (state.isPrimaryDevice && state.showPayments && isSignalVersion()) {
-            item {
-              Dividers.Default()
-            }
+        if (isSignalVersion()) {
 
+          if (state.showAppUpdates) {
             item {
               Rows.TextRow(
-                text = { _, _ ->
+                text = "App updates",
+                icon = painterResource(R.drawable.symbol_calendar_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.AppUpdates)
+                }
+              )
+            }
+          }
+        }
+
+        if (state.isPrimaryDevice && state.showPayments && isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
+
+          item {
+            Rows.TextRow(
+              text = { _, _ ->
+                Text(
+                  text = stringResource(R.string.preferences__payments),
+                  modifier = Modifier.weight(1f)
+                )
+
+                if (state.unreadPaymentsCount > 0) {
                   Text(
-                    text = stringResource(R.string.preferences__payments),
-                    modifier = Modifier.weight(1f)
+                    text = state.unreadPaymentsCount.toString(),
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                      .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(50)
+                      )
+                      .defaultMinSize(minWidth = 30.dp)
+                      .padding(4.dp)
                   )
-
-                  if (state.unreadPaymentsCount > 0) {
-                    Text(
-                      text = state.unreadPaymentsCount.toString(),
-                      color = MaterialTheme.colorScheme.inverseOnSurface,
-                      style = MaterialTheme.typography.bodyMedium,
-                      textAlign = TextAlign.Center,
-                      modifier = Modifier
-                        .background(
-                          color = MaterialTheme.colorScheme.primary,
-                          shape = RoundedCornerShape(50)
-                        )
-                        .defaultMinSize(minWidth = 30.dp)
-                        .padding(4.dp)
-                    )
-                  }
-                },
-                icon = {
-                  Icon(
-                    painter = painterResource(R.drawable.symbol_payment_24),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
-                  )
-                },
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.Payments)
                 }
-              )
-            }
+              },
+              icon = {
+                Icon(
+                  painter = painterResource(R.drawable.symbol_payment_24),
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.onSurface
+                )
+              },
+              onClick = {
+                callbacks.navigate(AppSettingsRoute.Payments)
+              }
+            )
           }
+        }
 
-          if (isSignalVersion()) {
-            item {
-              Dividers.Default()
-            }
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
           }
+        }
 
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.preferences__help),
+            icon = painterResource(R.drawable.symbol_help_24),
+            onClick = {
+              callbacks.navigate(AppSettingsRoute.HelpRoute.Settings())
+            }
+          )
+        }
+
+        if (isSignalVersion()) {
           item {
             Rows.TextRow(
-              text = stringResource(R.string.preferences__help),
-              icon = painterResource(R.drawable.symbol_help_24),
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = painterResource(R.drawable.symbol_invite_24),
               onClick = {
-                callbacks.navigate(AppSettingsRoute.HelpRoute.Settings())
+                callbacks.navigate(AppSettingsRoute.Invite)
               }
             )
           }
 
-          if (isSignalVersion()) {
+          if (state.showInternalPreferences) {
+            if (isSignalVersion()) {
+              item {
+                Dividers.Default()
+              }
+            }
+
             item {
               Rows.TextRow(
-                text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-                icon = painterResource(R.drawable.symbol_invite_24),
+                text = "Labs",
+                icon = painterResource(R.drawable.symbol_flash_24),
                 onClick = {
-                  callbacks.navigate(AppSettingsRoute.Invite)
+                  callbacks.navigate(AppSettingsRoute.LabsRoute.Labs)
                 }
               )
             }
 
-            if (state.showInternalPreferences) {
-              if (isSignalVersion()) {
-                item {
-                  Dividers.Default()
+            item {
+              Rows.TextRow(
+                text = stringResource(R.string.preferences__internal_preferences),
+                icon = painterResource(R.drawable.symbol_key_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
                 }
-              }
-
-          item {
-            Rows.TextRow(
-              text = "Labs",
-              icon = painterResource(R.drawable.symbol_flash_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.LabsRoute.Labs)
-              }
-            )
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences),
-              icon = painterResource(R.drawable.symbol_key_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
-              }
-            )
-              item {
-                Rows.TextRow(
-                  text = stringResource(R.string.preferences__internal_preferences),
-                  onClick = {
-                    callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
-                  }
-                )
-              }
+              )
             }
           }
         }

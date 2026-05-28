@@ -172,7 +172,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { _, _ ->
             Text(
               text = stringResource(
                 R.string.DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded,
