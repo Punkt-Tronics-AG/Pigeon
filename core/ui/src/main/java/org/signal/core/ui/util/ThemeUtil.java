@@ -18,7 +18,7 @@ import androidx.appcompat.view.ContextThemeWrapper;
 
 import org.signal.core.ui.R;
 
-import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.CoreBuildExtensionsKt.isPigeonVersion;
 
 public class ThemeUtil {
 

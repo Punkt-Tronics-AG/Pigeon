@@ -27,11 +27,6 @@ import org.signal.core.util.logging.Log;
 import org.signal.core.ui.BottomSheetUtil;
 import org.signal.core.ui.R;
 import org.signal.core.util.LRUCache;
-import org.thoughtcrime.securesms.BuildConfig;
-import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.BottomSheetUtil;
-import org.thoughtcrime.securesms.util.LRUCache;
-import org.thoughtcrime.securesms.util.ServiceUtil;
 
 import java.lang.ref.WeakReference;
 import java.security.SecureRandom;
@@ -41,6 +36,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import pigeon.permissions.PigeonRationaleDialog;
+import static pigeon.extensions.CoreBuildExtensionsKt.isSignalVersion;
 
 public class Permissions {
 
@@ -187,7 +183,7 @@ public class Permissions {
         executePreGrantedPermissionsRequest(request);
       } else if ((rationaleDialogMessage != null || (rationaleDialogTitle != null && rationaleDialogDetails != null))
                  && rationalDialogHeader != null) {
-        if (BuildConfig.IS_SIGNAL) {
+        if (isSignalVersion()) {
           executePermissionsRequestWithRationale(request);
         } else {
           executePigeonPermissionsRequestWithRationale(request);

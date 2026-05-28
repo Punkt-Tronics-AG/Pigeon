@@ -1,39 +1,48 @@
+/*
+ * Copyright 2026 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 package pigeon.components;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.view.KeyEvent;
 
-import org.thoughtcrime.securesms.R;
+import androidx.annotation.NonNull;
+
+import org.signal.core.ui.R;
 
 import java.lang.ref.WeakReference;
 
 public class Mp02CustomDialog extends AlertDialog {
   public static final String TAG = "Mp02CustomDialog";
 
-  private Context mContext;
+  private final Context mContext;
   private LinearLayout mLinearLayoutTop;
   private LinearLayout mLinearLayoutBottom;
-  private TextView mTvFocusBuffer[] = new TextView[2];
-  private TextView mTvTopBuffer[] = new TextView[2];
-  private TextView mTvBottomBuffer[] = new TextView[3];
+  private final TextView[] mTvFocusBuffer = new TextView[2];
+  private final TextView[] mTvTopBuffer = new TextView[2];
+  private final TextView[] mTvBottomBuffer = new TextView[3];
   private Animation mAnimUpVisible;
   private Animation mAnimUpGone;
   private Animation mAnimDownVisible;
   private Animation mAnimDownGone;
-  private ButtonHandler mHandler;
+  private final ButtonHandler mHandler;
 
   private final View.OnClickListener mDialogClickListener = new View.OnClickListener() {
     @Override
@@ -44,7 +53,7 @@ public class Mp02CustomDialog extends AlertDialog {
       } else if (poi == 2) {
         mHandler.obtainMessage(ButtonHandler.MSG_DIALOG_NEGATIVE).sendToTarget();
       }
-      if(poi != 0){
+      if (poi != 0) {
         mHandler.obtainMessage(ButtonHandler.MSG_DISMISS_DIALOG).sendToTarget();
       }
     }
@@ -55,30 +64,35 @@ public class Mp02CustomDialog extends AlertDialog {
     private static final int MSG_DIALOG_POSITIVE = 1;
     private static final int MSG_DIALOG_NEGATIVE = 2;
 
-    private WeakReference<Mp02CustomDialog> mDialog;
+    private final WeakReference<Mp02CustomDialog> mDialog;
 
-    public ButtonHandler(Mp02CustomDialog dialog) {
+    ButtonHandler(Mp02CustomDialog dialog) {
+      super(Looper.getMainLooper());
       mDialog = new WeakReference<>(dialog);
     }
 
     @Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(@NonNull Message msg) {
       super.handleMessage(msg);
+      Mp02CustomDialog dialog = mDialog.get();
+      if (dialog == null) {
+        return;
+      }
       switch (msg.what) {
-        default:
-        case MSG_DISMISS_DIALOG:
-          mDialog.get().dismiss();
-          break;
         case MSG_DIALOG_POSITIVE:
-          if (mDialog.get().mPositiveListener != null) {
-            mDialog.get().mPositiveListener.onDialogKeyClicked();
+          if (dialog.mPositiveListener != null) {
+            dialog.mPositiveListener.onDialogKeyClicked();
           }
           break;
         case MSG_DIALOG_NEGATIVE:
-          if (mDialog.get().mNegativeListener != null) {
-            mDialog.get().mNegativeListener.onDialogKeyClicked();
+          if (dialog.mNegativeListener != null) {
+            dialog.mNegativeListener.onDialogKeyClicked();
           }
-          mDialog.get().dismiss();
+          dialog.dismiss();
+          break;
+        case MSG_DISMISS_DIALOG:
+        default:
+          dialog.dismiss();
           break;
       }
     }
@@ -115,12 +129,16 @@ public class Mp02CustomDialog extends AlertDialog {
   @Override
   public void show() {
     super.show();
-    WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+    Window window = getWindow();
+    if (window == null) {
+      return;
+    }
+    WindowManager.LayoutParams layoutParams = window.getAttributes();
     layoutParams.gravity = Gravity.BOTTOM;
     layoutParams.width = LayoutParams.MATCH_PARENT;
     layoutParams.height = LayoutParams.MATCH_PARENT;
-    getWindow().getDecorView().setPadding(0, 0, 0, 0);
-    getWindow().setAttributes(layoutParams);
+    window.getDecorView().setPadding(0, 0, 0, 0);
+    window.setAttributes(layoutParams);
     setupDialog();
   }
 
@@ -213,13 +231,13 @@ public class Mp02CustomDialog extends AlertDialog {
 
   private String getTextByPoi(int poi) {
     switch (poi) {
-      default:
-      case 0:
-        return mMessage;
       case 1:
         return mPositive;
       case 2:
         return mNegative;
+      case 0:
+      default:
+        return mMessage;
     }
   }
 
