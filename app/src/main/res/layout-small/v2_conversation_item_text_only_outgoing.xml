@@ -84,14 +84,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="top"
-        app:constraint_referenced_ids="conversation_item_delivery_status,conversation_item_footer_date" />
+        app:constraint_referenced_ids="conversation_item_delivery_status,conversation_item_footer_date,conversation_item_footer_pinned,conversation_item_footer_starred" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier_footer_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="conversation_item_delivery_status,conversation_item_footer_date" />
+        app:constraint_referenced_ids="conversation_item_delivery_status,conversation_item_footer_date,conversation_item_footer_pinned,conversation_item_footer_starred" />
 
     <View
         android:id="@+id/conversation_item_footer_background"
