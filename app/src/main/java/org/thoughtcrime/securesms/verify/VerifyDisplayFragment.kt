@@ -19,15 +19,6 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.crypto.IdentityKeyParcelable
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.CommunicationActions
-import org.thoughtcrime.securesms.util.RemoteConfig
-import org.thoughtcrime.securesms.util.Util
-import org.thoughtcrime.securesms.util.ViewUtil
-import org.thoughtcrime.securesms.util.visible
-import pigeon.extensions.isPigeonVersion
-import pigeon.extensions.isSignalVersion
-import java.nio.charset.StandardCharsets
-import java.util.Locale
-import kotlin.math.max
 
 /**
  * Fragment to display a user's identity key.
@@ -91,10 +82,12 @@ class VerifyDisplayFragment : ComposeFragment() {
         viewModel.copyFingerprintToClipboard()
         true
       }
+
       R.id.menu_compare -> {
         viewModel.compareClipboardToFingerprint()
         true
       }
+
       else -> {
         super.onContextItemSelected(item)
       }

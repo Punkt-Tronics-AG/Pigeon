@@ -346,7 +346,7 @@ class ConversationSettingsFragment :
         adapter.submitList(getPigeonConfiguration(state).toMappingModelList()) {
           if (state.isLoaded) {
             (view?.parent as? ViewGroup)?.doOnPreDraw {
-              callback.onContentWillRender()
+              transitionCallback?.onReadyForEnterTransition()
             }
           }
         }
@@ -1322,7 +1322,7 @@ class ConversationSettingsFragment :
             customPref(
               RecipientPreference.Model(
                 recipient = group,
-                onClick = {
+                onRowClick = {
                   CommunicationActions.startConversation(requireActivity(), group, null)
                   requireActivity().finish()
                 }
@@ -1367,7 +1367,7 @@ class ConversationSettingsFragment :
             RecipientPreference.Model(
               recipient = member.member,
               isAdmin = member.isAdmin,
-              onClick = {
+              onRowClick = {
                 RecipientBottomSheetDialogFragment.show(parentFragmentManager, member.member.id, groupState.groupId)
               }
             )
@@ -1390,7 +1390,7 @@ class ConversationSettingsFragment :
             summary = DSLSettingsText.from(if (groupState.groupLinkEnabled) R.string.preferences_on else R.string.preferences_off),
             icon = DSLSettingsIcon.from(R.drawable.ic_link_16),
             onClick = {
-              navController.safeNavigate(ConversationSettingsFragmentDirections.actionConversationSettingsFragmentToShareableGroupLinkFragment(groupState.groupId.requireV2().toString()))
+              navController.safeNavigate(ConversationSettingsFragmentDirections.actionConversationSettingsFragmentToShareableGroupLinkFragment(groupState.groupId))
             }
           )
 

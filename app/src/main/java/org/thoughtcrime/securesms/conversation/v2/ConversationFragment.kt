@@ -324,7 +324,6 @@ import org.thoughtcrime.securesms.mms.VideoSlide
 import org.thoughtcrime.securesms.nicknames.NicknameActivity
 import org.thoughtcrime.securesms.notifications.v2.ConversationId
 import org.thoughtcrime.securesms.payments.preferences.PaymentsActivity
-import org.thoughtcrime.securesms.permissions.Permissions
 import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
 import org.thoughtcrime.securesms.polls.Poll
 import org.thoughtcrime.securesms.polls.PollOption
@@ -396,8 +395,6 @@ import org.thoughtcrime.securesms.util.visible
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaper
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperDimLevelUtil
-import org.thoughtcrime.securesms.window.getWindowSizeClass
-import org.thoughtcrime.securesms.window.isSplitPane
 import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 import pigeon.permissions.PigeonRationaleDialog
@@ -883,7 +880,7 @@ class ConversationFragment :
   }
 
   private fun handleDeleteMessagesAsPigeonApplication(multiselectParts: Set<MultiselectPart>) {
-    val messageRecords = com.annimon.stream.Stream.of(multiselectParts).map(MultiselectPart::getMessageRecord).collect(com.annimon.stream.Collectors.toSet<MessageRecord>())
+    val messageRecords = multiselectParts.map(MultiselectPart::getMessageRecord).toSet()
     val deleteForEveryone = java.lang.Runnable {
       SignalExecutors.BOUNDED.execute {
         for (message in messageRecords) {
