@@ -179,7 +179,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     if (isSignalVersion()) {
       this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_colorOnSurface)), SpanUtil.getBoldSpan() };
       } else  {
-      this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_text_hint)), SpanUtil.getNormalSpan() };
+      this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_colorOnSurface)), SpanUtil.getNormalSpan() };
     }
 
     if (isSignalVersion()) {
