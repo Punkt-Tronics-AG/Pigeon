@@ -20,7 +20,7 @@ import org.thoughtcrime.securesms.database.SignalDatabase.Companion.threads
 import org.thoughtcrime.securesms.dependencies.AppDependencies.messageNotifier
 import org.thoughtcrime.securesms.groups.ui.creategroup.CreateGroupActivity
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver
-import org.thoughtcrime.securesms.permissions.Permissions
+import org.signal.core.ui.permissions.Permissions
 import pigeon.compose.HomePageScreen
 import pigeon.extensions.cancelNotifications
 

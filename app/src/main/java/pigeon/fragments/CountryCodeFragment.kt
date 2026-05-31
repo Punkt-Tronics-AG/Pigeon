@@ -12,11 +12,8 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.signal.core.util.concurrent.LifecycleDisposable
 import org.signal.core.util.getParcelableCompat
-import org.thoughtcrime.securesms.LoggingFragment
+import org.signal.core.ui.logging.LoggingFragment
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.components.ViewBinderDelegate
-import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding
-import org.thoughtcrime.securesms.databinding.FragmentRegistrationEnterPhoneNumberBinding.bind
 import org.thoughtcrime.securesms.databinding.PigeonFragmentRegistrationCountryCodeBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationViewDelegate.setDebugLogSubmitMultiTapView
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
