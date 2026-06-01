@@ -740,6 +740,23 @@ public class ThumbnailView extends FrameLayout {
     @Override
     public void onClick(View view) {
       boolean controlsVisible = transferControlViewStub.getVisibility() == View.VISIBLE && !transferControlViewStub.get().isGone();
+      if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+        // Pigeon: MP02 has no touch, so the transfer-control overlay (play / download
+        // button) cannot be tapped. When the user activates a focused thumbnail with
+        // the D-Pad OK we still want to open the media preview / trigger a download,
+        // not just bubble the click up to the message bubble (which does nothing for
+        // media on Pigeon).
+        if (thumbnailClickListener != null) {
+          thumbnailClickListener.onClick(view, slide);
+          return;
+        }
+        if (parentClickListener != null) {
+          parentClickListener.onClick(view);
+          return;
+        }
+        return;
+      }
+      // Original Signal logic – DO NOT modify
       if (thumbnailClickListener != null && !controlsVisible) {
         thumbnailClickListener.onClick(view, slide);
       } else if (parentClickListener != null) {

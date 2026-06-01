@@ -271,6 +271,13 @@ public class ComposeText extends EmojiEditText {
       setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
     }
 
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon: MP02 has a hardware keyboard – disable the soft input so the
+      // system does not pop up the IME indicator ("English (US)") on every
+      // focus change of this EditText.
+      setShowSoftInputOnFocus(false);
+    }
+
     if (TextSecurePreferences.isIncognitoKeyboardEnabled(getContext())) {
       setImeOptions(getImeOptions() | 16777216);
     }

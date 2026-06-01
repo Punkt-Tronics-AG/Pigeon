@@ -3,6 +3,14 @@
 This document describes the rules we follow when modifying the upstream
 Signal-Android codebase inside the Pigeon fork.
 
+## Language
+
+All code, identifiers, comments, commit messages, log messages and
+documentation **must be written in English**. This matches the upstream
+Signal codebase and keeps diffs/merges clean. Do not introduce Polish
+(or any other non-English) text into source files, XML resources or
+Markdown docs.
+
 ## Golden Rule
 
 **Do not change the original Signal logic.**
