@@ -793,10 +793,26 @@ class ConversationFragment :
     binding.conversationItemRecycler.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
       if (isPigeonVersion()) {
-        // Pigeon (MP02): the scroll listeners only fire on scroll, so on initial layout we
-        // also evaluate "at bottom" here to set the input panel's visibility correctly.
-        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
+        // Pigeon (MP02): show the input panel only when the recycler is scrolled to the
+        // newest message. Initial layout doesn't trigger scroll listeners so set it here.
+        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
       }
+    }
+
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): if ComposeText (or anything inside the input panel) gains focus, the
+      // panel must be visible – otherwise the IME indicator pops up but the field is hidden.
+      // Combined with the scroll listeners below this also covers the DPAD-down-from-last
+      // -message → compose case: the system grants focus to ComposeText, our listener fires,
+      // and we make sure the panel is on screen.
+      val showIfFocused = View.OnFocusChangeListener { _, hasFocus ->
+        if (hasFocus) {
+          binding.conversationInputPanel.root.isVisible = true
+        } else if (!isScrolledToBottom()) {
+          binding.conversationInputPanel.root.isVisible = false
+        }
+      }
+      composeText.onFocusChangeListener = showIfFocused
     }
 
     binding.toolbar.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
@@ -3572,10 +3588,8 @@ class ConversationFragment :
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
 
       if (isPigeonVersion()) {
-        // Pigeon (MP02): show the input panel only when the recycler is scrolled all the
-        // way to the bottom (newest message in view). When the user scrolls up to read
-        // older messages, hide the panel so the full screen is available for the list.
-        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
+        // Pigeon (MP02): show the input panel only when scrolled to newest message.
+        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
       }
     }
 
@@ -3587,7 +3601,7 @@ class ConversationFragment :
       }
 
       if (isPigeonVersion()) {
-        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
+        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
       }
     }
 
