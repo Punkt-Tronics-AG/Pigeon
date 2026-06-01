@@ -40,6 +40,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.compose.ScreenTitlePane
 import org.thoughtcrime.securesms.window.AppScaffold
 import org.thoughtcrime.securesms.window.rememberAppScaffoldNavigator
+import pigeon.extensions.isSignalVersion
 
 /**
  * Provides the common adaptive layout structure for recipient picker screens.
@@ -60,14 +61,16 @@ fun RecipientPickerScaffold(
 
   AppScaffold(
     topBarContent = {
-      Scaffolds.DefaultTopAppBar(
-        title = if (!isSplitPane) title else "",
-        titleContent = { _, titleText -> Text(text = titleText, style = MaterialTheme.typography.titleLarge) },
-        navigationIcon = SignalIcons.ArrowStart.imageVector,
-        navigationContentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description),
-        onNavigationClick = onNavigateUpClick,
-        actions = { topAppBarActions() }
-      )
+      if (isSignalVersion()) {
+        Scaffolds.DefaultTopAppBar(
+          title = if (!isSplitPane) title else "",
+          titleContent = { _, titleText -> Text(text = titleText, style = MaterialTheme.typography.titleLarge) },
+          navigationIcon = SignalIcons.ArrowStart.imageVector,
+          navigationContentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description),
+          onNavigationClick = onNavigateUpClick,
+          actions = { topAppBarActions() }
+        )
+      }
     },
 
     secondaryContent = {

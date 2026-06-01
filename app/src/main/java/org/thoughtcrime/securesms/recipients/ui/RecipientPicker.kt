@@ -135,7 +135,7 @@ fun RecipientPicker(
       modifier = Modifier
         .focusRequester(searchFocusRequester)
         .fillMaxWidth()
-        .padding(horizontal = 16.dp)
+        .then(if (isPigeonVersion()) Modifier else Modifier.padding(horizontal = 16.dp))
     )
 
     if (isPigeonVersion()) {

@@ -24,6 +24,7 @@ import org.thoughtcrime.securesms.util.EditTextExtensionsKt;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 
 /**
@@ -68,7 +69,14 @@ public final class ContactFilterView extends FrameLayout {
     this.keyboardToggle.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        searchText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+        if (isSignalVersion()) {
+          searchText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+        } else {
+          searchText.setInputType(InputType.TYPE_CLASS_TEXT
+                                  | InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                                  | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                                  | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        }
         ServiceUtil.getInputMethodManager(getContext()).showSoftInput(searchText, 0);
         displayTogglingView(dialpadToggle);
       }

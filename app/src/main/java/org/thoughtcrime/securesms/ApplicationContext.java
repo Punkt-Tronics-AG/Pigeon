@@ -346,6 +346,15 @@ public class ApplicationContext extends Application implements AppForegroundObse
    * This is so we can capture ANR's that happen on boot before the foreground event.
    */
   private void startAnrDetector() {
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon: MP02 is slow during initial setup, use a more permissive threshold
+      // and never crash on detected ANRs.
+      AnrDetector.start(TimeUnit.SECONDS.toMillis(30), () -> false, (dumps) -> {
+        LogDatabase.getInstance(this).anrs().save(System.currentTimeMillis(), dumps);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
     AnrDetector.start(TimeUnit.SECONDS.toMillis(5), () -> RemoteConfig.internalUser() && SignalStore.internal().getAnrDetectionCrashes(), (dumps) -> {
       LogDatabase.getInstance(this).anrs().save(System.currentTimeMillis(), dumps);
       return Unit.INSTANCE;

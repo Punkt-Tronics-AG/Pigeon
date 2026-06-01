@@ -65,7 +65,13 @@ fun RecipientSearchBar(
   var keyboardType by remember(enabledKeyboardTypes) { mutableStateOf(enabledKeyboardTypes.first()) }
   val keyboardOptions = remember(keyboardType) {
     KeyboardOptions(
-      keyboardType = if (isSignalVersion()) androidx.compose.ui.text.input.KeyboardType.Text else keyboardType.wrappedType,
+      keyboardType = when {
+        isSignalVersion() -> androidx.compose.ui.text.input.KeyboardType.Text
+        keyboardType == KeyboardType.Text -> androidx.compose.ui.text.input.KeyboardType.Password
+        else -> keyboardType.wrappedType
+      },
+      // PIGEON: This is a workaround to prevent the "Search" action from being shown in the keyboard, which is confusing since we trigger search on every query change. We should ideally be able to just set imeAction to None, but that causes the keyboard to not show up at all for some reason.
+      autoCorrectEnabled = false,
       imeAction = ImeAction.Search
     )
   }
