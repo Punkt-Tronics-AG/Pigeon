@@ -3048,6 +3048,33 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
       Log.d(TAG, "Item click");
 
+      if (isPigeonVersion()) {
+        // Pigeon (MP02 – no touch): when DPAD-OK is pressed on a focused message bubble that
+        // contains a media slide, open the media preview directly. We must NOT route through
+        // ThumbnailClickListener because on Pigeon isSuppressedInteractionMode() is true
+        // (condensed mode is forced) and ThumbnailClickListener would call performClick() →
+        // infinite recursion back into this listener.
+        if (messageRecord instanceof MmsMessageRecord && !shouldInterceptClicks(messageRecord) && batchSelected.isEmpty()) {
+          SlideDeck slideDeck = ((MmsMessageRecord) messageRecord).getSlideDeck();
+          Slide     slide     = slideDeck.getThumbnailSlide();
+          if (slide == null && !slideDeck.getThumbnailSlides().isEmpty()) {
+            slide = slideDeck.getThumbnailSlides().get(0);
+          }
+          if (slide != null) {
+            if (!canPlayContent && mediaItem != null && eventListener != null) {
+              eventListener.onPlayInlineContent(conversationMessage);
+              return;
+            }
+            if (MediaPreviewV2Fragment.isContentTypeSupported(slide.getContentType()) && slide.getDisplayUri() != null) {
+              AttachmentDownloadJob.downloadAttachmentIfNeeded((DatabaseAttachment) slide.asAttachment());
+              launchMediaPreview(v, slide);
+              return;
+            }
+            // Otherwise (e.g. not yet downloaded) fall through to the regular handling below.
+          }
+        }
+      }
+
       if (eventListener != null && bodyText.getText().toString().contains(getResources().getString(R.string.ConversationItem_read_more))) {
         eventListener.onMoreTextClicked(conversationRecipient.getId(), messageRecord.getId(), messageRecord.isMms());
       }

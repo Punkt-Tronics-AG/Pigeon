@@ -8,7 +8,6 @@
     android:descendantFocusability="blocksDescendants"
     android:focusable="true"
     android:nextFocusRight="@+id/embedded_text_editor"
-    android:nextFocusDown="@+id/embedded_text_editor"
     android:paddingStart="32dp"
     android:paddingEnd="32dp"
     android:visibility="visible"

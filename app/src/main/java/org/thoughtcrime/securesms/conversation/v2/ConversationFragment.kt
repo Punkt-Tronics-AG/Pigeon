@@ -792,6 +792,11 @@ class ConversationFragment :
 
     binding.conversationItemRecycler.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): the scroll listeners only fire on scroll, so on initial layout we
+        // also evaluate "at bottom" here to set the input panel's visibility correctly.
+        binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
+      }
     }
 
     binding.toolbar.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
@@ -989,20 +994,6 @@ class ConversationFragment :
 
     if (SignalStore.rateLimit.needsRecaptcha()) {
       RecaptchaProofBottomSheetFragment.show(childFragmentManager)
-    }
-
-    if (isPigeonVersion()) {
-      // Pigeon (MP02): on every entry into the conversation, jump to the latest message and
-      // pre-focus the compose field so the user can start typing immediately with the
-      // hardware keypad. We do this once per resume (after layout) instead of relying on
-      // the XML <requestFocus /> on ComposeText – the XML tag would re-fire every time the
-      // input panel becomes visible during scroll and trap focus.
-      view?.post {
-        if (!isAdded || this@ConversationFragment.view == null) return@post
-        scrollToBottom()
-        binding.conversationInputPanel.root.isVisible = true
-        composeText.requestFocus()
-      }
     }
   }
 
@@ -2153,8 +2144,15 @@ class ConversationFragment :
     Log.d(TAG, "Update scroll state $scrollButtonState")
     binding.scrollToBottom.setUnreadCount(scrollButtonState.unreadCount)
     binding.scrollToMention.setUnreadCount(0)
-    binding.scrollToMention.isShown = scrollButtonState.hasMentions && scrollButtonState.showScrollButtons
-    binding.scrollToBottom.isShown = scrollButtonState.showScrollButtons
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): no touch – the floating scroll-to-bottom / scroll-to-mention
+      // buttons are unreachable and only steal screen space, so always hide them.
+      binding.scrollToBottom.isShown = false
+      binding.scrollToMention.isShown = false
+    } else {
+      binding.scrollToMention.isShown = scrollButtonState.hasMentions && scrollButtonState.showScrollButtons
+      binding.scrollToBottom.isShown = scrollButtonState.showScrollButtons
+    }
   }
 
   private fun presentGroupCallJoinButton() {
@@ -3574,11 +3572,9 @@ class ConversationFragment :
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
 
       if (isPigeonVersion()) {
-        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        if (position == 0) {
-          binding.conversationInputPanel.root.isVisible = true
-          return
-        }
+        // Pigeon (MP02): show the input panel only when the recycler is scrolled all the
+        // way to the bottom (newest message in view). When the user scrolls up to read
+        // older messages, hide the panel so the full screen is available for the list.
         binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
       }
     }
@@ -3591,11 +3587,6 @@ class ConversationFragment :
       }
 
       if (isPigeonVersion()) {
-        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        if (position == 0) {
-          binding.conversationInputPanel.root.isVisible = true
-          return
-        }
         binding.conversationInputPanel.root.isVisible = !binding.conversationItemRecycler.canScrollVertically(1)
       }
     }
