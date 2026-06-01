@@ -782,6 +782,10 @@ class MainActivity :
                   factory = { context ->
                     NestedScrollView(context).apply {
                       isFillViewport = true
+                      // PIGEON-ONLY: Prevent NestedScrollView from grabbing focus on DPAD_DOWN past last list item,
+                      // which would leave focus in an empty area the user can't escape from.
+                      isFocusable = false
+                      descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
                       layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                       addView(ComposeView(context).apply {
                         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)

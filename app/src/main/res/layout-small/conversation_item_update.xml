@@ -27,6 +27,14 @@
         android:paddingTop="@dimen/conversation_update_vertical_padding"
         android:paddingBottom="@dimen/conversation_update_vertical_padding">
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/conversation_update_collapsed"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="12 group updates" />
+
         <org.thoughtcrime.securesms.components.emoji.EmojiTextView
             android:id="@+id/conversation_update_body"
             style="@style/Signal.Text.BodySmall"
