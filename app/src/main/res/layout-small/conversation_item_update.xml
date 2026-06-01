@@ -29,8 +29,13 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/conversation_update_collapsed"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textAllCaps="false"
             android:visibility="gone"
             tools:visibility="visible"
             tools:text="12 group updates" />
@@ -44,24 +49,17 @@
             android:textColor="@color/conversation_item_update_text_color"
             tools:text="Gwen Stacy set the disappearing message timer to 1 hour" />
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/conversation_update_action"
-                style="@style/Mp02.Signal.Text.MaterialTextButton"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="12dp"
-                android:clickable="false"
-                android:focusable="false"
-                android:visibility="gone"
-                tools:text="Learn more"
-                tools:visibility="visible" />
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/conversation_update_action"
+            style="@style/Mp02.Signal.Text.MaterialTextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:visibility="gone"
+            tools:text="Learn more"
+            tools:visibility="visible" />
 
     </LinearLayout>
 

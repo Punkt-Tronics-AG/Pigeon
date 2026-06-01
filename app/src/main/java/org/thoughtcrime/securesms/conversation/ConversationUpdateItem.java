@@ -199,6 +199,43 @@ public final class ConversationUpdateItem extends FrameLayout
     this.conversationRecipient    = conversationRecipient;
     this.isMessageRequestAccepted = isMessageRequestAccepted;
 
+    // Pigeon: hide call-log update rows entirely (mp02 parity – they would otherwise render as empty chips
+    // and trap D-pad focus). Keep the original Signal code path below intact for non-Pigeon builds.
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      if (shouldHideForPigeon(messageRecord)) {
+        Log.d(TAG, "[Pigeon] Hiding update item id=" + messageRecord.getId()
+                   + " type=" + messageRecord.getType()
+                   + " isCallLog=" + messageRecord.isCallLog());
+        ViewGroup.LayoutParams lp = getLayoutParams();
+        if (lp != null) {
+          lp.height = 0;
+          lp.width  = 0;
+          setLayoutParams(lp);
+        }
+        setVisibility(View.GONE);
+        setPadding(0, 0, 0, 0);
+        setFocusable(false);
+        setFocusableInTouchMode(false);
+        setClickable(false);
+        setLongClickable(false);
+        setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        return;
+      } else {
+        // Restore default state in case the holder is being rebound after being collapsed.
+        if (getVisibility() != View.VISIBLE) {
+          setVisibility(View.VISIBLE);
+          ViewGroup.LayoutParams lp = getLayoutParams();
+          if (lp != null) {
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            lp.width  = ViewGroup.LayoutParams.WRAP_CONTENT;
+            setLayoutParams(lp);
+          }
+          setFocusable(true);
+          setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        }
+      }
+    }
+
     senderObserver.observe(lifecycleOwner, messageRecord.getFromRecipient());
 
     if (conversationRecipient.isActiveGroup() &&
@@ -243,6 +280,15 @@ public final class ConversationUpdateItem extends FrameLayout
     } else {
       body.setMovementMethod(LinkMovementMethod.getInstance());
     }
+  }
+
+  /**
+   * Pigeon-only: decide whether an update row should be hidden from the conversation list.
+   * Currently hides call-log update entries (mp02 parity – they render as empty chips and would otherwise
+   * trap D-pad focus). Keep this private and only call from the Pigeon branch in bind().
+   */
+  private static boolean shouldHideForPigeon(@NonNull MessageRecord record) {
+    return record.isCallLog();
   }
 
   private static boolean shouldCollapse(@NonNull MessageRecord current, @NonNull Optional<MessageRecord> candidate)

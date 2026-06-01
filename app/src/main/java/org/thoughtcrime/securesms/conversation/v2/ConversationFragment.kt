@@ -4170,6 +4170,41 @@ class ConversationFragment :
       val messageRecord: MessageRecord = item.getMessageRecord()
 
       if (isPigeonVersion()) {
+        val cm = item.conversationMessage
+        val body = messageRecord.body
+        val bodyPreview = if (body.length > 80) body.substring(0, 80) + "…" else body
+        Log.d(
+          TAG,
+          "onItemLongClick[Pigeon] itemViewClass=${itemView.javaClass.simpleName} " +
+            "multiselectPartClass=${item.javaClass.simpleName} " +
+            "messageRecordClass=${messageRecord.javaClass.simpleName} " +
+            "id=${messageRecord.id} " +
+            "type=${messageRecord.type} " +
+            "dateSent=${messageRecord.dateSent} " +
+            "dateReceived=${messageRecord.dateReceived} " +
+            "fromRecipientId=${messageRecord.fromRecipient.id} " +
+            "toRecipientId=${messageRecord.toRecipient.id} " +
+            "threadId=${messageRecord.threadId} " +
+            "isMms=${messageRecord.isMms} " +
+            "isSecure=${messageRecord.isSecure} " +
+            "isUpdate=${messageRecord.isUpdate} " +
+            "isRemoteDelete=${messageRecord.isRemoteDelete} " +
+            "isInMemory=${messageRecord.isInMemoryMessageRecord} " +
+            "isOutgoing=${messageRecord.isOutgoing} " +
+            "isViewOnce=${messageRecord.isViewOnce} " +
+            "isPaymentNotification=${messageRecord.isPaymentNotification} " +
+            "isPaymentsRequestToActivate=${messageRecord.isPaymentsRequestToActivate} " +
+            "isCallLog=${messageRecord.isCallLog} " +
+            "hasAttachments=${(messageRecord as? org.thoughtcrime.securesms.database.model.MmsMessageRecord)?.slideDeck?.slides?.size ?: 0} " +
+            "bodyLength=${body.length} " +
+            "bodyPreview='$bodyPreview' " +
+            "multiselectCollectionSize=${cm.multiselectCollection.size} " +
+            "recipientIsBlocked=${viewModel.recipientSnapshot?.isBlocked} " +
+            "recipientIsGroup=${viewModel.recipientSnapshot?.isGroup} " +
+            "recipientIsActiveGroup=${viewModel.recipientSnapshot?.isActiveGroup} " +
+            "selectedItemsEmpty=${adapter.selectedItems.isEmpty()}"
+        )
+
         if (messageRecord.isSecure &&
           !messageRecord.isRemoteDelete &&
           !messageRecord.isUpdate &&
@@ -4177,10 +4212,13 @@ class ConversationFragment :
           (viewModel.recipientSnapshot?.isGroup == false || viewModel.recipientSnapshot?.isActiveGroup == true) &&
           adapter.selectedItems.isEmpty()
         ) {
+          Log.d(TAG, "onItemLongClick[Pigeon] opening ConversationSubMenuActivity for messageId=${messageRecord.id}")
           val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
           startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)
           selectedConversationMessage = item.conversationMessage
           clearFocusedItem()
+        } else {
+          Log.d(TAG, "onItemLongClick[Pigeon] submenu NOT opened (conditions not met)")
         }
         return
       }
