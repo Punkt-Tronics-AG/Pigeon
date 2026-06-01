@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +35,16 @@ public abstract class BaseActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     AppStartup.getInstance().onCriticalRenderEventStart();
     logEvent("onCreate()");
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon: MP02 has a fixed horizontal display – lock every activity to landscape
+      // so the UI never rotates regardless of sensor / system rotation settings.
+      try {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+      } catch (IllegalStateException e) {
+        // Some translucent themes throw when changing orientation after attach – ignore.
+        Log.w(TAG, "Could not lock orientation to landscape", e);
+      }
+    }
     super.onCreate(savedInstanceState);
     AppStartup.getInstance().onCriticalRenderEventEnd();
   }

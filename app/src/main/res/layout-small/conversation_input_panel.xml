@@ -366,10 +366,7 @@
                         android:singleLine="false"
                         android:textCursorDrawable="@drawable/mp02_cursor_style"
                         tools:hint="Send TextSecure message"
-                        tools:visibility="visible">
-
-                        <requestFocus />
-                    </org.thoughtcrime.securesms.components.ComposeText>
+                        tools:visibility="visible" />
                 </FrameLayout>
 
                 <androidx.constraintlayout.widget.Barrier

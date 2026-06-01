@@ -990,6 +990,20 @@ class ConversationFragment :
     if (SignalStore.rateLimit.needsRecaptcha()) {
       RecaptchaProofBottomSheetFragment.show(childFragmentManager)
     }
+
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): on every entry into the conversation, jump to the latest message and
+      // pre-focus the compose field so the user can start typing immediately with the
+      // hardware keypad. We do this once per resume (after layout) instead of relying on
+      // the XML <requestFocus /> on ComposeText – the XML tag would re-fire every time the
+      // input panel becomes visible during scroll and trap focus.
+      view?.post {
+        if (!isAdded || this@ConversationFragment.view == null) return@post
+        scrollToBottom()
+        binding.conversationInputPanel.root.isVisible = true
+        composeText.requestFocus()
+      }
+    }
   }
 
   override fun onPause() {
