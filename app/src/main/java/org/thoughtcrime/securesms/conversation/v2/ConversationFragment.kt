@@ -793,9 +793,9 @@ class ConversationFragment :
     binding.conversationItemRecycler.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
       if (isPigeonVersion()) {
-        // Pigeon (MP02): show the input panel only when the recycler is scrolled to the
-        // newest message. Initial layout doesn't trigger scroll listeners so set it here.
-        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
+        // Pigeon (MP02): set initial panel visibility on layout (scroll listener won't fire
+        // until the user actually scrolls). Show when at newest OR when compose has focus.
+        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
       }
     }
 
@@ -3588,8 +3588,10 @@ class ConversationFragment :
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
 
       if (isPigeonVersion()) {
-        // Pigeon (MP02): show the input panel only when scrolled to newest message.
-        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
+        // Pigeon (MP02): show panel when scrolled to newest OR when ComposeText has focus
+        // (otherwise scroll-driven updates would steal focus's visibility right after the
+        // user navigates DPAD-down into the field).
+        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
       }
     }
 
@@ -3601,7 +3603,7 @@ class ConversationFragment :
       }
 
       if (isPigeonVersion()) {
-        binding.conversationInputPanel.root.isVisible = isScrolledToBottom()
+        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
       }
     }
 
