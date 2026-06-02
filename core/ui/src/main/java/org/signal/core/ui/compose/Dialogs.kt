@@ -58,6 +58,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
+import pigeon.extensions.isPigeonVersion
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -593,7 +594,7 @@ object Dialogs {
     ) {
       Surface(
         modifier = Modifier
-          .padding(vertical = 100.dp)
+          .padding(vertical = if (isPigeonVersion()) 16.dp else 100.dp)
           .background(
             color = SignalTheme.colors.colorSurface2,
             shape = AlertDialogDefaults.shape
@@ -610,7 +611,7 @@ object Dialogs {
           )
 
           LazyColumn(
-            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp),
+            modifier = Modifier.padding(top = if (isPigeonVersion()) 8.dp else 24.dp, bottom = 16.dp),
             state = rememberLazyListState(
               initialFirstVisibleItemIndex = max(selectedIndex, 0)
             )
