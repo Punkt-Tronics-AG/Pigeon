@@ -794,25 +794,34 @@ class ConversationFragment :
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
       if (isPigeonVersion()) {
         // Pigeon (MP02): set initial panel visibility on layout (scroll listener won't fire
-        // until the user actually scrolls). Show when at newest OR when compose has focus.
-        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
+        // until the user actually scrolls). Show when at newest OR when anything in the
+        // input panel has focus (compose, send, voice, attachment-toggle, etc.).
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
       }
     }
 
     if (isPigeonVersion()) {
-      // Pigeon (MP02): if ComposeText (or anything inside the input panel) gains focus, the
-      // panel must be visible – otherwise the IME indicator pops up but the field is hidden.
-      // Combined with the scroll listeners below this also covers the DPAD-down-from-last
-      // -message → compose case: the system grants focus to ComposeText, our listener fires,
-      // and we make sure the panel is on screen.
-      val showIfFocused = View.OnFocusChangeListener { _, hasFocus ->
-        if (hasFocus) {
-          binding.conversationInputPanel.root.isVisible = true
+      // Pigeon (MP02): keep the input panel visible whenever ANY of its descendants holds
+      // focus (ComposeText, send button, voice, attachment-toggle, the whole primary/extra
+      // sub-screen with send2/sendText/etc). Using a global focus listener ensures that
+      // when the user navigates DPAD-right from ComposeText to send, the panel does not
+      // get hidden by a stale scroll listener mid-traversal.
+      val globalFocusListener = ViewTreeObserver.OnGlobalFocusChangeListener { _, newFocus ->
+        val panel = binding.conversationInputPanel.root
+        val newFocusInsidePanel = newFocus != null && panel.findFocus() === newFocus
+        if (newFocusInsidePanel) {
+          panel.isVisible = true
         } else if (!isScrolledToBottom()) {
-          binding.conversationInputPanel.root.isVisible = false
+          panel.isVisible = false
         }
       }
-      composeText.onFocusChangeListener = showIfFocused
+      view.viewTreeObserver.addOnGlobalFocusChangeListener(globalFocusListener)
+      viewLifecycleOwner.lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
+        override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
+          view.viewTreeObserver.removeOnGlobalFocusChangeListener(globalFocusListener)
+        }
+      })
     }
 
     binding.toolbar.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
@@ -3588,10 +3597,11 @@ class ConversationFragment :
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
 
       if (isPigeonVersion()) {
-        // Pigeon (MP02): show panel when scrolled to newest OR when ComposeText has focus
-        // (otherwise scroll-driven updates would steal focus's visibility right after the
-        // user navigates DPAD-down into the field).
-        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
+        // Pigeon (MP02): show panel when scrolled to newest OR when something inside the
+        // panel has focus (otherwise scroll updates would steal visibility mid-DPAD-traversal
+        // between ComposeText and the send / voice / attachment buttons).
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
       }
     }
 
@@ -3603,7 +3613,8 @@ class ConversationFragment :
       }
 
       if (isPigeonVersion()) {
-        binding.conversationInputPanel.root.isVisible = composeText.hasFocus() || isScrolledToBottom()
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
       }
     }
 

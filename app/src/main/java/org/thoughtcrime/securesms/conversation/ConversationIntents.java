@@ -98,12 +98,27 @@ public class ConversationIntents {
    */
   public static @NonNull Builder createBuilderSync(@NonNull Context context, @NonNull RecipientId recipientId, long threadId) {
     Preconditions.checkArgument(threadId > 0, "threadId is invalid");
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon (MP02): the device is non-split-pane and conversations open as a separate
+      // ConversationActivity (not via MainActivity's NavHost). Targeting MainActivity here
+      // would route through ChatsNavHost where Conversation is a content-root destination
+      // (popUpTo(graph.id, inclusive=true)) – pressing back from the conversation would
+      // then exit the app instead of returning to the previous screen.
+      return new Builder(context, org.thoughtcrime.securesms.conversation.v2.ConversationActivity.class, recipientId, threadId, ConversationScreenType.NORMAL);
+    }
+    // Original Signal logic – DO NOT modify
     return new Builder(context, MainActivity.class, recipientId, threadId, ConversationScreenType.NORMAL)
         .withFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
   }
 
   public static @NonNull Builder createBuilderSync(@NonNull Context context, @NonNull ConversationArgs conversationArgs) {
     Preconditions.checkArgument(conversationArgs.threadId > 0, "threadId is invalid");
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon (MP02): see comment in the recipientId/threadId overload above.
+      return new Builder(context, org.thoughtcrime.securesms.conversation.v2.ConversationActivity.class, conversationArgs.getRecipientId(), conversationArgs.threadId, ConversationScreenType.NORMAL)
+          .withArgs(conversationArgs);
+    }
+    // Original Signal logic – DO NOT modify
     return new Builder(context, MainActivity.class, conversationArgs.getRecipientId(), conversationArgs.threadId, ConversationScreenType.NORMAL)
         .withArgs(conversationArgs)
         .withFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
