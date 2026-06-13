@@ -777,7 +777,7 @@ public final class ConversationUpdateItem extends FrameLayout
           passthroughClickListener.onClick(v);
         }
       });
-    } else if (conversationMessage.getMessageRecord().isMessageRequestAccepted()) {
+    } else if (conversationMessage.getMessageRecord().isMessageRequestAccepted() && !pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
       actionButton.setText(R.string.ConversationUpdateItem_block_report);
       actionButton.setVisibility(VISIBLE);
       actionButton.setOnClickListener(v -> {
