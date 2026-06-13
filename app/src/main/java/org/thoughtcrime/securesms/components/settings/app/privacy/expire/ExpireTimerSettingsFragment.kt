@@ -128,6 +128,11 @@ class ExpireTimerSettingsFragment : ComposeFragment() {
     override fun onSaveClick() {
       viewModel.save()
     }
+
+    // PIGEON CODE
+    override fun onPigeonTimerSelectedAndSave(seconds: Int) {
+      viewModel.pigeonSelectAndSave(seconds)
+    }
   }
 
   companion object {
@@ -178,8 +183,7 @@ fun ExpireTimerSettingsScreen(
               text = label,
               isInitiallyFocused = index == 0,
               onClick = {
-                callback.onTimerSelected(seconds)
-                callback.onSaveClick()
+                callback.onPigeonTimerSelectedAndSave(seconds)
               }
             )
           } else {
@@ -339,6 +343,9 @@ interface ExpireTimerSettingsScreenCallback {
   fun onTimerSelected(seconds: Int)
   fun onCustomTimerClick()
   fun onSaveClick()
+
+  // PIGEON CODE
+  fun onPigeonTimerSelectedAndSave(seconds: Int) = Unit
 }
 
 private fun Bundle?.toConfig(): ExpireTimerSettingsViewModel.Config {
