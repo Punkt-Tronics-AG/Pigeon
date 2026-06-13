@@ -23,6 +23,11 @@
             app:navigationIcon="@drawable/symbol_arrow_start_24"
             app:title="@string/BackupsPreferenceFragment__chat_backups" />
 
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/upgrade_to_improved_backups_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <TextView
             android:layout_width="match_parent"
