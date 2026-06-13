@@ -10,6 +10,8 @@ import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -620,28 +622,40 @@ object Dialogs {
               count = values.size,
               key = { values[it] }
             ) { index ->
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .defaultMinSize(minHeight = 48.dp)
-                  .clickable(
-                    enabled = true,
-                    onClick = {
-                      onSelected(index)
-                      onDismissRequest()
-                    }
-                  )
-                  .horizontalGutters()
-              ) {
-                RadioButton(
-                  enabled = true,
+              if (isPigeonVersion()) {
+                PigeonRadioListDialogItem(
+                  label = labels[index],
                   selected = index == selectedIndex,
-                  onClick = null,
-                  modifier = Modifier.padding(end = 24.dp)
+                  isInitiallyFocused = index == max(selectedIndex, 0),
+                  onClick = {
+                    onSelected(index)
+                    onDismissRequest()
+                  }
                 )
+              } else {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
+                    .clickable(
+                      enabled = true,
+                      onClick = {
+                        onSelected(index)
+                        onDismissRequest()
+                      }
+                    )
+                    .horizontalGutters()
+                ) {
+                  RadioButton(
+                    enabled = true,
+                    selected = index == selectedIndex,
+                    onClick = null,
+                    modifier = Modifier.padding(end = 24.dp)
+                  )
 
-                Text(text = labels[index])
+                  Text(text = labels[index])
+                }
               }
             }
           }
@@ -968,6 +982,73 @@ private fun RadioListDialogPreview() {
       values = arrayOf(),
       selectedIndex = -1,
       onSelected = {}
+    )
+  }
+}
+
+@Composable
+private fun PigeonRadioListDialogItem(
+  label: String,
+  selected: Boolean,
+  isInitiallyFocused: Boolean,
+  onClick: () -> Unit
+) {
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+  val focusRequester = remember { FocusRequester() }
+
+  if (isInitiallyFocused) {
+    LaunchedEffect(Unit) {
+      runCatching { focusRequester.requestFocus() }
+    }
+  }
+
+  val backgroundColor = if (isFocused) {
+    MaterialTheme.colorScheme.primary
+  } else {
+    Color.Transparent
+  }
+  val contentColor = if (isFocused) {
+    MaterialTheme.colorScheme.onPrimary
+  } else {
+    MaterialTheme.colorScheme.onSurface
+  }
+  val textStyle = if (isFocused) {
+    MaterialTheme.typography.titleLarge
+  } else {
+    MaterialTheme.typography.bodyLarge
+  }
+
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .fillMaxWidth()
+      .focusRequester(focusRequester)
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        interactionSource = interactionSource,
+        indication = null,
+        onClick = onClick
+      )
+      .background(backgroundColor)
+      .defaultMinSize(minHeight = 56.dp)
+      .horizontalGutters()
+  ) {
+    RadioButton(
+      enabled = true,
+      selected = selected,
+      onClick = null,
+      colors = androidx.compose.material3.RadioButtonDefaults.colors(
+        selectedColor = contentColor,
+        unselectedColor = contentColor
+      ),
+      modifier = Modifier.padding(end = 16.dp)
+    )
+
+    Text(
+      text = label,
+      style = textStyle,
+      color = contentColor
     )
   }
 }

@@ -57,6 +57,7 @@ import org.thoughtcrime.securesms.notifications.TurnOnNotificationsBottomSheet
 import org.thoughtcrime.securesms.util.RingtoneUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.viewModel
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 class NotificationsSettingsFragment : ComposeFragment() {
@@ -436,7 +437,7 @@ fun NotificationsSettingsScreen(
       }
 
       if (deviceState.apiLevel < 30) {
-        if (deviceState.supportsNotificationChannels) {
+        if (deviceState.supportsNotificationChannels && isSignalVersion()) {
           item {
             Rows.TextRow(
               text = stringResource(R.string.preferences_notifications__priority),
@@ -455,6 +456,17 @@ fun NotificationsSettingsScreen(
               onSelected = callbacks::setMessageNotificationPriority
             )
           }
+        }
+      } else if (isPigeonVersion()) {
+        item {
+          Rows.RadioListRow(
+            text = stringResource(R.string.preferences_notifications__priority),
+            labels = stringArrayResource(R.array.pref_notification_priority_entries),
+            values = stringArrayResource(R.array.pref_notification_priority_values),
+            selectedValue = state.messageNotificationsState.priority.toString(),
+            enabled = state.messageNotificationsState.notificationsEnabled,
+            onSelected = callbacks::setMessageNotificationPriority
+          )
         }
       }
 

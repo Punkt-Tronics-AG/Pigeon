@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -45,6 +48,7 @@ import org.thoughtcrime.securesms.util.livedata.distinctUntilChanged
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import kotlin.time.Duration.Companion.seconds
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+import pigeon.extensions.isPigeonVersion
 import pigeon.extensions.isSignalVersion
 
 /**
@@ -157,12 +161,34 @@ fun ExpireTimerSettingsScreen(
           val label = labels[index]
           val seconds = values[index]
 
-          Rows.RadioRow(
-            selected = state.currentTimer == seconds,
-            text = label,
-            modifier = Modifier.clickable { callback.onTimerSelected(seconds) },
-            enabled = true
-          )
+          if (isPigeonVersion()) {
+            // PIGEON CODE
+            val focusRequester = remember { FocusRequester() }
+            if (index == 0) {
+              LaunchedEffect(Unit) {
+                runCatching { focusRequester.requestFocus() }
+              }
+            }
+            Rows.RadioRow(
+              selected = state.currentTimer == seconds,
+              text = label,
+              modifier = Modifier
+                .focusRequester(focusRequester)
+                .focusable(true)
+                .clickable {
+                  callback.onTimerSelected(seconds)
+                  callback.onSaveClick()
+                },
+              enabled = true
+            )
+          } else {
+            Rows.RadioRow(
+              selected = state.currentTimer == seconds,
+              text = label,
+              modifier = Modifier.clickable { callback.onTimerSelected(seconds) },
+              enabled = true
+            )
+          }
         }
 
         item {
