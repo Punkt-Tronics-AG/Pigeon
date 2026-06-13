@@ -5,12 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -163,23 +173,14 @@ fun ExpireTimerSettingsScreen(
 
           if (isPigeonVersion()) {
             // PIGEON CODE
-            val focusRequester = remember { FocusRequester() }
-            if (index == 0) {
-              LaunchedEffect(Unit) {
-                runCatching { focusRequester.requestFocus() }
-              }
-            }
-            Rows.RadioRow(
+            PigeonExpireTimerRow(
               selected = state.currentTimer == seconds,
               text = label,
-              modifier = Modifier
-                .focusRequester(focusRequester)
-                .focusable(true)
-                .clickable {
-                  callback.onTimerSelected(seconds)
-                  callback.onSaveClick()
-                },
-              enabled = true
+              isInitiallyFocused = index == 0,
+              onClick = {
+                callback.onTimerSelected(seconds)
+                callback.onSaveClick()
+              }
             )
           } else {
             Rows.RadioRow(
@@ -211,21 +212,86 @@ fun ExpireTimerSettingsScreen(
         }
       }
 
-      CircularProgressWrapper(
-        isLoading = state.saveState is ProcessState.Working,
-        modifier = Modifier
-          .align(Alignment.BottomEnd)
-          .horizontalGutters()
-          .padding(bottom = 16.dp)
-      ) {
-        Buttons.LargeTonal(
-          onClick = callback::onSaveClick,
-          enabled = state.saveState is ProcessState.Idle
+      if (isSignalVersion()) {
+        CircularProgressWrapper(
+          isLoading = state.saveState is ProcessState.Working,
+          modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .horizontalGutters()
+            .padding(bottom = 16.dp)
         ) {
-          Text(text = stringResource(R.string.ExpireTimerSettingsFragment__save))
+          Buttons.LargeTonal(
+            onClick = callback::onSaveClick,
+            enabled = state.saveState is ProcessState.Idle
+          ) {
+            Text(text = stringResource(R.string.ExpireTimerSettingsFragment__save))
+          }
         }
       }
     }
+  }
+}
+
+// PIGEON CODE
+@Composable
+private fun PigeonExpireTimerRow(
+  selected: Boolean,
+  text: String,
+  isInitiallyFocused: Boolean,
+  onClick: () -> Unit
+) {
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+  val focusRequester = remember { FocusRequester() }
+
+  if (isInitiallyFocused) {
+    LaunchedEffect(Unit) {
+      runCatching { focusRequester.requestFocus() }
+    }
+  }
+
+  val backgroundColor = if (isFocused) {
+    MaterialTheme.colorScheme.primary
+  } else {
+    Color.Transparent
+  }
+  val contentColor = if (isFocused) {
+    MaterialTheme.colorScheme.onPrimary
+  } else {
+    MaterialTheme.colorScheme.onSurface
+  }
+
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .fillMaxWidth()
+      .focusRequester(focusRequester)
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        interactionSource = interactionSource,
+        indication = null,
+        onClick = onClick
+      )
+      .background(backgroundColor)
+      .defaultMinSize(minHeight = 56.dp)
+      .padding(horizontal = 24.dp, vertical = 12.dp)
+  ) {
+    RadioButton(
+      enabled = true,
+      selected = selected,
+      onClick = null,
+      colors = RadioButtonDefaults.colors(
+        selectedColor = contentColor,
+        unselectedColor = contentColor
+      ),
+      modifier = Modifier.padding(end = 16.dp)
+    )
+
+    Text(
+      text = text,
+      style = MaterialTheme.typography.titleLarge,
+      color = contentColor
+    )
   }
 }
 

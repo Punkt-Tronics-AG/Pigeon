@@ -596,6 +596,13 @@ object Dialogs {
     ) {
       Surface(
         modifier = Modifier
+          .then(
+            if (isPigeonVersion()) {
+              Modifier.heightIn(max = getScreenHeight() - 32.dp)
+            } else {
+              Modifier
+            }
+          )
           .padding(vertical = if (isPigeonVersion()) 16.dp else 100.dp)
           .background(
             color = SignalTheme.colors.colorSurface2,
