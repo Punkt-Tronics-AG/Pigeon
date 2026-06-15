@@ -797,7 +797,7 @@ class ConversationFragment :
         // until the user actually scrolls). Show when at newest OR when anything in the
         // input panel has focus (compose, send, voice, attachment-toggle, etc.).
         val panel = binding.conversationInputPanel.root
-        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
+        panel.isVisible = pigeonShouldShowInputPanel()
       }
     }
 
@@ -812,7 +812,7 @@ class ConversationFragment :
         val newFocusInsidePanel = newFocus != null && panel.findFocus() === newFocus
         if (newFocusInsidePanel) {
           panel.isVisible = true
-        } else if (!isScrolledToBottom()) {
+        } else if (!pigeonShouldShowInputPanel()) {
           panel.isVisible = false
         }
       }
@@ -3498,6 +3498,22 @@ class ConversationFragment :
     }
   }
 
+  // Pigeon (MP02): treat the conversation as "showing input" unless the user has
+  // meaningfully scrolled into older history. Using only `isScrolledToBottom()` causes
+  // flicker right after entering a chat whose greeting/welcome is taller than the
+  // viewport, because the value transiently flips during the initial scroll-to-bottom
+  // settle and the resulting visibility change shifts the whole layout up/down.
+  private fun pigeonShouldShowInputPanel(): Boolean {
+    val panel = binding.conversationInputPanel.root
+    if (panel.findFocus() != null) {
+      return true
+    }
+    if (isScrolledToBottom()) {
+      return true
+    }
+    return !isScrolledPastButtonThreshold()
+  }
+
   private fun isScrolledPastButtonThreshold(): Boolean {
     return layoutManager.findFirstVisibleItemPosition() > 4
   }
@@ -3601,7 +3617,7 @@ class ConversationFragment :
         // panel has focus (otherwise scroll updates would steal visibility mid-DPAD-traversal
         // between ComposeText and the send / voice / attachment buttons).
         val panel = binding.conversationInputPanel.root
-        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
+        panel.isVisible = pigeonShouldShowInputPanel()
       }
     }
 
@@ -3614,7 +3630,7 @@ class ConversationFragment :
 
       if (isPigeonVersion()) {
         val panel = binding.conversationInputPanel.root
-        panel.isVisible = panel.findFocus() != null || isScrolledToBottom()
+        panel.isVisible = pigeonShouldShowInputPanel()
       }
     }
 
@@ -3635,6 +3651,13 @@ class ConversationFragment :
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
       if (positionStart == 0 && shouldScrollToBottom()) {
         scrollToBottom()
+      }
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): when items are first populated (e.g. welcome / greeting in a new
+        // chat), the scroll listener does not fire because there's no actual scroll. Make
+        // sure the input panel visibility is re-evaluated so it doesn't stay hidden.
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = pigeonShouldShowInputPanel()
       }
     }
 
