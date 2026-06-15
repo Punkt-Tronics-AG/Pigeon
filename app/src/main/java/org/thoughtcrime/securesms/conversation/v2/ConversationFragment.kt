@@ -793,11 +793,13 @@ class ConversationFragment :
     binding.conversationItemRecycler.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
       if (isPigeonVersion()) {
-        // Pigeon (MP02): set initial panel visibility on layout (scroll listener won't fire
-        // until the user actually scrolls). Show when at newest OR when anything in the
-        // input panel has focus (compose, send, voice, attachment-toggle, etc.).
+        // Pigeon (MP02): only show on layout changes (never hide here). Hiding is driven
+        // by actual scroll events; otherwise transient layout passes during initial
+        // scroll-to-bottom would cause the panel to flicker and shift the screen.
         val panel = binding.conversationInputPanel.root
-        panel.isVisible = pigeonShouldShowInputPanel()
+        if (pigeonShouldShowInputPanel()) {
+          panel.isVisible = true
+        }
       }
     }
 
@@ -1019,6 +1021,15 @@ class ConversationFragment :
 
     if (SignalStore.rateLimit.needsRecaptcha()) {
       RecaptchaProofBottomSheetFragment.show(childFragmentManager)
+    }
+
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): on chat open always reveal the input panel and put focus into
+      // the compose text so the user can start typing immediately without an extra
+      // DPAD-down step.
+      val panel = binding.conversationInputPanel.root
+      panel.isVisible = true
+      composeText.requestFocus()
     }
   }
 
@@ -3498,20 +3509,12 @@ class ConversationFragment :
     }
   }
 
-  // Pigeon (MP02): treat the conversation as "showing input" unless the user has
-  // meaningfully scrolled into older history. Using only `isScrolledToBottom()` causes
-  // flicker right after entering a chat whose greeting/welcome is taller than the
-  // viewport, because the value transiently flips during the initial scroll-to-bottom
-  // settle and the resulting visibility change shifts the whole layout up/down.
+  // Pigeon (MP02): the input panel is hidden as soon as the user scrolls away from the
+  // newest message and shown when at the bottom or when anything inside the panel has
+  // focus. Returns true when the panel should be visible.
   private fun pigeonShouldShowInputPanel(): Boolean {
     val panel = binding.conversationInputPanel.root
-    if (panel.findFocus() != null) {
-      return true
-    }
-    if (isScrolledToBottom()) {
-      return true
-    }
-    return !isScrolledPastButtonThreshold()
+    return panel.findFocus() != null || isScrolledToBottom()
   }
 
   private fun isScrolledPastButtonThreshold(): Boolean {
@@ -3655,9 +3658,11 @@ class ConversationFragment :
       if (isPigeonVersion()) {
         // Pigeon (MP02): when items are first populated (e.g. welcome / greeting in a new
         // chat), the scroll listener does not fire because there's no actual scroll. Make
-        // sure the input panel visibility is re-evaluated so it doesn't stay hidden.
+        // sure the input panel is shown if it should be; never hide here to avoid flicker.
         val panel = binding.conversationInputPanel.root
-        panel.isVisible = pigeonShouldShowInputPanel()
+        if (pigeonShouldShowInputPanel()) {
+          panel.isVisible = true
+        }
       }
     }
 
