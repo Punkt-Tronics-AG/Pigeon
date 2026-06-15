@@ -5687,20 +5687,33 @@ class ConversationFragment :
     if (!isPigeonVersion()) return false
     if (view == null) return false
     val panel = binding.conversationInputPanel.root
-    // Only intervene when the panel is hidden (GONE) — otherwise the framework's normal
-    // focus search will move from the last list item to the compose text on its own, and
-    // we must not steal DPAD_DOWN events that should walk between messages or land on
-    // compose naturally (which would otherwise cause a double-jump).
-    if (panel.isVisible) return false
+    // If the compose text is already focused there is nothing to do — let the key event
+    // pass through normally so the user can move the cursor / send a newline / etc.
+    if (composeText.hasFocus()) return false
     val recycler = binding.conversationItemRecycler
-    val focusInsideList = recycler.findFocus() != null
-    if (!focusInsideList) return false
-    // If the list can still scroll down there are more messages below the focused item
-    // — let DPAD_DOWN walk to them instead of jumping straight to compose.
-    if (recycler.canScrollVertically(1)) return false
+    // If there is another focusable item below the currently focused one inside the
+    // recycler, let DPAD_DOWN navigate to it normally. canScrollVertically() can't be
+    // used here because a single tall list item (e.g. the welcome banner) is itself
+    // scrollable and would falsely indicate "more content below".
+    val focusedChild = recycler.focusedChild
+    if (focusedChild != null) {
+      val nextFocus = recycler.focusSearch(focusedChild, View.FOCUS_DOWN)
+      if (nextFocus != null && nextFocus !== focusedChild && pigeonIsDescendantOfRecycler(nextFocus, recycler)) {
+        return false
+      }
+    }
     panel.isVisible = true
     composeText.requestFocus()
     return true
+  }
+
+  private fun pigeonIsDescendantOfRecycler(view: View, recycler: View): Boolean {
+    var current: View? = view
+    while (current != null) {
+      if (current === recycler) return true
+      current = current.parent as? View
+    }
+    return false
   }
 
   fun onKeycodeCallPressed() {
