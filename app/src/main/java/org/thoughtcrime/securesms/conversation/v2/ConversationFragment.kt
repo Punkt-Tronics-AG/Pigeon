@@ -5675,6 +5675,34 @@ class ConversationFragment :
     requireActivity().startActivity(MediaIntentFactory.create(requireActivity(), args))
   }
 
+  /**
+   * Pigeon (MP02): bring the input panel back into view and move focus into the compose
+   * text. Used when DPAD_DOWN is pressed while focus is somewhere in the conversation
+   * list (e.g. the welcome banner) and the panel itself is hidden — in that state the
+   * GONE panel is excluded from focus search and the user would otherwise be stuck.
+   *
+   * Returns true if the event was consumed.
+   */
+  fun pigeonFocusComposeFromList(): Boolean {
+    if (!isPigeonVersion()) return false
+    if (view == null) return false
+    val panel = binding.conversationInputPanel.root
+    // Only intervene when the panel is hidden (GONE) — otherwise the framework's normal
+    // focus search will move from the last list item to the compose text on its own, and
+    // we must not steal DPAD_DOWN events that should walk between messages or land on
+    // compose naturally (which would otherwise cause a double-jump).
+    if (panel.isVisible) return false
+    val recycler = binding.conversationItemRecycler
+    val focusInsideList = recycler.findFocus() != null
+    if (!focusInsideList) return false
+    // If the list can still scroll down there are more messages below the focused item
+    // — let DPAD_DOWN walk to them instead of jumping straight to compose.
+    if (recycler.canScrollVertically(1)) return false
+    panel.isVisible = true
+    composeText.requestFocus()
+    return true
+  }
+
   fun onKeycodeCallPressed() {
     Log.d(TAG, "input type: " + composeText.inputType)
     val rawText = composeText.textTrimmed.toString()

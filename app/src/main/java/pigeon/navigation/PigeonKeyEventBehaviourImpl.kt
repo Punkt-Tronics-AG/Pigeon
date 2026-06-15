@@ -50,6 +50,12 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
           }
         }
       }
+      KeyEvent.KEYCODE_DPAD_DOWN -> {
+        if (event.action == KeyEvent.ACTION_UP) {
+          val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment } as? ConversationFragment
+          conversationFragment?.pigeonFocusComposeFromList()
+        }
+      }
     }
   }
 }
