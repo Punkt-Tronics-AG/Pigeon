@@ -110,6 +110,14 @@ class RestoreLocalBackupFragment : LoggingFragment(R.layout.fragment_restore_loc
 
     binding.cancelLocalRestoreButton.setOnClickListener {
       Log.i(TAG, "Cancel clicked.")
+      if (isPigeonVersion()) {
+        // Pigeon: RestoreActivity navigates here with popUpToInclusive=true, so the nav back stack
+        // is empty and navigateUp() is a no-op. Finish the activity to actually exit the screen.
+        if (!findNavController().navigateUp()) {
+          requireActivity().finish()
+        }
+        return@setOnClickListener
+      }
       findNavController().navigateUp()
     }
 
