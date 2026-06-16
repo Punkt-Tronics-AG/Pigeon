@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ import org.signal.core.ui.contracts.OpenDocumentContract
 import org.signal.core.ui.navigation.BottomSheetSceneStrategy
 import org.signal.core.ui.navigation.LocalBottomSheetDismiss
 import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyViewModel
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Handles the restoration flow for V2 backups. Can also launch into V1 backup flow if needed.
@@ -75,17 +77,26 @@ fun RestoreLocalBackupNavDisplay(
       sceneStrategy = bottomSheetStrategy,
       entryProvider = entryProvider {
         entry<RestoreLocalBackupNavKey.SelectLocalBackupTypeScreen> {
-          SelectLocalBackupTypeScreen(
-            onSelectBackupFolderClick = {
-              backstack.add(RestoreLocalBackupNavKey.FolderInstructionSheet)
-            },
-            onSelectBackupFileClick = {
-              backstack.add(RestoreLocalBackupNavKey.FileInstructionSheet)
-            },
-            onCancelClick = {
-              backPressedDispatcher?.onBackPressedDispatcher?.onBackPressed()
+          if (isPigeonVersion()) {
+            // Pigeon uses only on-device backup folders, so the user never has to
+            // choose between "folder" and "single file". Launch the folder picker
+            // immediately and skip the selection screen entirely.
+            LaunchedEffect(Unit) {
+              folderLauncher.launch(null)
             }
-          )
+          } else {
+            SelectLocalBackupTypeScreen(
+              onSelectBackupFolderClick = {
+                backstack.add(RestoreLocalBackupNavKey.FolderInstructionSheet)
+              },
+              onSelectBackupFileClick = {
+                backstack.add(RestoreLocalBackupNavKey.FileInstructionSheet)
+              },
+              onCancelClick = {
+                backPressedDispatcher?.onBackPressedDispatcher?.onBackPressed()
+              }
+            )
+          }
         }
 
         entry<RestoreLocalBackupNavKey.FileInstructionSheet>(

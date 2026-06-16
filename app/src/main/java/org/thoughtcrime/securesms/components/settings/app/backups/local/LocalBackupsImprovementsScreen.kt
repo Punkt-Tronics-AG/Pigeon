@@ -33,6 +33,8 @@ import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.ui.compose.horizontalGutters
 import org.thoughtcrime.securesms.R
+import pigeon.compose.PigeonLocalBackupsImprovementsScreen
+import pigeon.extensions.isPigeonVersion
 import org.signal.core.ui.R as CoreUiR
 
 /**
@@ -43,6 +45,11 @@ fun LocalBackupsImprovementsScreen(
   onNavigationClick: () -> Unit = {},
   onContinueClick: () -> Unit = {}
 ) {
+  if (isPigeonVersion()) {
+    PigeonLocalBackupsImprovementsScreen(onContinueClick = onContinueClick)
+    return
+  }
+
   Scaffolds.Settings(
     title = "",
     navigationIcon = ImageVector.vectorResource(CoreUiR.drawable.symbol_x_24),

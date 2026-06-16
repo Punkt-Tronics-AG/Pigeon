@@ -81,6 +81,29 @@ and uses the `small` qualifier.
 If a resource must be edited in place, double-check that the Signal
 build still works on phones and tablets.
 
+## Backups
+
+In Pigeon we use **only local (on-device) backups**. The remote
+Signal-cloud backup flow does not apply to MP02 hardware.
+
+Concretely, in any backup-related UI or flow:
+
+- Do **not** show the "Choose backup folder" / "I saved my backup as a
+  single file" picker. The user does not select files or folders by
+  hand on MP02.
+- The Pigeon code path must use the fixed local backup directory and
+  skip system file pickers (`ACTION_OPEN_DOCUMENT_TREE` /
+  `ACTION_OPEN_DOCUMENT`).
+- Restore flows must read the most recent local backup automatically
+  and proceed straight to the recovery-key entry step.
+- Any UI element that exists only to choose a backup destination or
+  source file must be guarded by `isSignalVersion()` so the Signal
+  build is unaffected.
+
+When in doubt, prefer wiring the Pigeon path so the user is taken
+directly from "Restore backup" to "Enter recovery key" with no folder
+or file picker in between.
+
 ## Do / Don't
 
 ✅ Do
