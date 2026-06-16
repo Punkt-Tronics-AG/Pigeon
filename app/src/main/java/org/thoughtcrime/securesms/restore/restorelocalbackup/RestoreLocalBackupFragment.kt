@@ -30,6 +30,7 @@ import org.greenrobot.eventbus.ThreadMode
 import org.signal.core.ui.logging.LoggingFragment
 import org.signal.core.util.bytes
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.BackupEvent
 import org.thoughtcrime.securesms.backup.BackupPassphrase
@@ -111,11 +112,13 @@ class RestoreLocalBackupFragment : LoggingFragment(R.layout.fragment_restore_loc
     binding.cancelLocalRestoreButton.setOnClickListener {
       Log.i(TAG, "Cancel clicked.")
       if (isPigeonVersion()) {
-        // Pigeon: RestoreActivity navigates here with popUpToInclusive=true, so the nav back stack
-        // is empty and navigateUp() is a no-op. Finish the activity to actually exit the screen.
-        if (!findNavController().navigateUp()) {
-          requireActivity().finish()
-        }
+        // Pigeon: PassphraseRequiredActivity will keep re-launching RestoreActivity as long as
+        // userCanTransferOrRestore() is true. Skip restore and reset the app to MainActivity so we
+        // actually leave this screen instead of looping back into it.
+        sharedViewModel.skipRestore()
+        val activity = requireActivity()
+        activity.startActivity(MainActivity.clearTop(activity))
+        activity.finishAffinity()
         return@setOnClickListener
       }
       findNavController().navigateUp()
