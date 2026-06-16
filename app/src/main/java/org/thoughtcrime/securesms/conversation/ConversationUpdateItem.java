@@ -284,11 +284,13 @@ public final class ConversationUpdateItem extends FrameLayout
 
   /**
    * Pigeon-only: decide whether an update row should be hidden from the conversation list.
-   * Currently hides call-log update entries (mp02 parity – they render as empty chips and would otherwise
-   * trap D-pad focus). Keep this private and only call from the Pigeon branch in bind().
+   * Currently nothing is hidden – call-log entries are kept visible (user-facing requirement) and
+   * hiding them was also causing the input panel to fail to re-appear when the visible "last" item
+   * was a date separator with a zero-height call-log row beneath it. Keep this hook in place so we
+   * can re-enable selective hiding later without restructuring bind().
    */
   private static boolean shouldHideForPigeon(@NonNull MessageRecord record) {
-    return record.isCallLog();
+    return false;
   }
 
   private static boolean shouldCollapse(@NonNull MessageRecord current, @NonNull Optional<MessageRecord> candidate)
