@@ -98,7 +98,9 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
     if (isSignalVersion()) {
       return super.dispatchKeyEvent(event)
     }
-    keyEventBehaviour.dispatchConversationKeyEvent(event, supportFragmentManager)
+    if (keyEventBehaviour.dispatchConversationKeyEvent(event, supportFragmentManager)) {
+      return true
+    }
     return super.dispatchKeyEvent(event)
   }
 

@@ -6,5 +6,5 @@ import androidx.fragment.app.FragmentManager
 
 interface KeyEventBehaviour {
   fun dispatchKeyEvent(event: KeyEvent, fragmentManager: FragmentManager, activity: Activity)
-  fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager)
+  fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager): Boolean
 }

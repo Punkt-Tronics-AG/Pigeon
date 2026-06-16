@@ -32,14 +32,14 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
     }
   }
 
-  override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager) {
+  override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager): Boolean {
     Log.w("PIGEON", "dispatchConversationKeyEvent CALLED: keyCode=${event.keyCode}, action=${event.action}, event=$event")
     when (event.keyCode) {
       KeyEvent.KEYCODE_CALL -> {
         val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }
         if (conversationFragment != null && conversationFragment is ConversationFragment && event.action == KeyEvent.ACTION_UP) {
           conversationFragment.onKeycodeCallPressed()
-          return
+          return true
         }
       }
       KeyEvent.KEYCODE_DPAD_CENTER -> {
@@ -51,11 +51,15 @@ class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
         }
       }
       KeyEvent.KEYCODE_DPAD_DOWN -> {
-        if (event.action == KeyEvent.ACTION_UP) {
-          val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment } as? ConversationFragment
-          conversationFragment?.pigeonFocusComposeFromList()
+        // Intercept on ACTION_DOWN — by ACTION_UP the framework's default focus search
+        // has already moved focus, which would defeat the purpose of this handler.
+        val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment } as? ConversationFragment
+        val handled = conversationFragment?.pigeonFocusComposeFromList() == true
+        if (handled) {
+          return true
         }
       }
     }
+    return false
   }
 }

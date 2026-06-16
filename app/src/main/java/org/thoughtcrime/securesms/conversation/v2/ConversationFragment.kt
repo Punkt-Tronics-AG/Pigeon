@@ -713,6 +713,19 @@ class ConversationFragment :
 
     disposables.bindTo(viewLifecycleOwner)
 
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): on chat open reveal the input panel and put focus into the compose
+      // text so the user can start typing immediately. Done here (once per view) instead
+      // of in onResume so we don't steal focus back every time the user returns from
+      // sleep / another screen / a sub-activity.
+      view.post {
+        if (isAdded && this@ConversationFragment.view != null) {
+          binding.conversationInputPanel.root.isVisible = true
+          composeText.requestFocus()
+        }
+      }
+    }
+
     if (requireActivity() is ConversationActivity) {
       FullscreenHelper(requireActivity()).showSystemUI()
     }
@@ -1021,15 +1034,6 @@ class ConversationFragment :
 
     if (SignalStore.rateLimit.needsRecaptcha()) {
       RecaptchaProofBottomSheetFragment.show(childFragmentManager)
-    }
-
-    if (isPigeonVersion()) {
-      // Pigeon (MP02): on chat open always reveal the input panel and put focus into
-      // the compose text so the user can start typing immediately without an extra
-      // DPAD-down step.
-      val panel = binding.conversationInputPanel.root
-      panel.isVisible = true
-      composeText.requestFocus()
     }
   }
 
@@ -5691,16 +5695,14 @@ class ConversationFragment :
     // pass through normally so the user can move the cursor / send a newline / etc.
     if (composeText.hasFocus()) return false
     val recycler = binding.conversationItemRecycler
-    // If there is another focusable item below the currently focused one inside the
-    // recycler, let DPAD_DOWN navigate to it normally. canScrollVertically() can't be
-    // used here because a single tall list item (e.g. the welcome banner) is itself
-    // scrollable and would falsely indicate "more content below".
-    val focusedChild = recycler.focusedChild
-    if (focusedChild != null) {
-      val nextFocus = recycler.focusSearch(focusedChild, View.FOCUS_DOWN)
-      if (nextFocus != null && nextFocus !== focusedChild && pigeonIsDescendantOfRecycler(nextFocus, recycler)) {
-        return false
-      }
+    // Only take over DPAD_DOWN when the user is on the last focusable position inside
+    // the conversation list (e.g. the welcome banner / last list item). If nothing in
+    // the recycler is focused, or there is still a focusable item below the current
+    // one within the recycler, let the standard focus search handle the key event.
+    val focusedChild = recycler.focusedChild ?: return false
+    val nextFocus = recycler.focusSearch(focusedChild, View.FOCUS_DOWN)
+    if (nextFocus != null && nextFocus !== focusedChild && pigeonIsDescendantOfRecycler(nextFocus, recycler)) {
+      return false
     }
     panel.isVisible = true
     composeText.requestFocus()
