@@ -5705,7 +5705,6 @@ class ConversationFragment :
       return false
     }
     panel.isVisible = true
-    composeText.requestFocus()
     return true
   }
 

@@ -95,12 +95,6 @@ open class ConversationActivity : PassphraseRequiredActivity(), VoiceNoteMediaCo
   }
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    if (isSignalVersion()) {
-      return super.dispatchKeyEvent(event)
-    }
-    if (keyEventBehaviour.dispatchConversationKeyEvent(event, supportFragmentManager)) {
-      return true
-    }
     return super.dispatchKeyEvent(event)
   }
 
