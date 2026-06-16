@@ -45,11 +45,14 @@ fun LocalBackupsImprovementsScreen(
   onNavigationClick: () -> Unit = {},
   onContinueClick: () -> Unit = {}
 ) {
+  // region Pigeon
   if (isPigeonVersion()) {
+    // Pigeon-only: MP02 navigation needs a focusable D-pad layout.
     PigeonLocalBackupsImprovementsScreen(onContinueClick = onContinueClick)
     return
   }
-
+  // endregion Pigeon
+  // Original Signal logic – DO NOT modify.
   Scaffolds.Settings(
     title = "",
     navigationIcon = ImageVector.vectorResource(CoreUiR.drawable.symbol_x_24),

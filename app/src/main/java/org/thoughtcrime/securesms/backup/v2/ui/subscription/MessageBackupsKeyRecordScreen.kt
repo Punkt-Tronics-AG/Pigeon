@@ -162,7 +162,9 @@ fun MessageBackupsKeyRecordScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
+        // region Pigeon
         if (isPigeonVersion() && mode is MessageBackupsKeyRecordMode.Next) {
+          // Pigeon-only: D-pad friendly variant of the record screen content.
           PigeonMessageBackupsKeyRecordContent(
             backupKey = backupKeyString,
             notifyKeyIsSameAsOnDeviceBackupKey = notifyKeyIsSameAsOnDeviceBackupKey,
@@ -172,6 +174,8 @@ fun MessageBackupsKeyRecordScreen(
             onNextClick = mode.onNextClick
           )
         } else {
+          // endregion Pigeon
+          // Original Signal logic – DO NOT modify.
           LazyColumn(
           horizontalAlignment = Alignment.CenterHorizontally,
           modifier = Modifier

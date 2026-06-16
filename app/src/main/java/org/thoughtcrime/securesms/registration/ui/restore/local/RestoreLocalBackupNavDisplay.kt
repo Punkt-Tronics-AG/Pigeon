@@ -31,7 +31,10 @@ import org.signal.core.ui.compose.Launchers
 import org.signal.core.ui.contracts.OpenDocumentContract
 import org.signal.core.ui.navigation.BottomSheetSceneStrategy
 import org.signal.core.ui.navigation.LocalBottomSheetDismiss
+import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyViewModel
+import org.thoughtcrime.securesms.util.BackupUtil
 import pigeon.extensions.isPigeonVersion
 
 /**
@@ -77,26 +80,37 @@ fun RestoreLocalBackupNavDisplay(
       sceneStrategy = bottomSheetStrategy,
       entryProvider = entryProvider {
         entry<RestoreLocalBackupNavKey.SelectLocalBackupTypeScreen> {
+          // region Pigeon
           if (isPigeonVersion()) {
-            // Pigeon uses only on-device backup folders, so the user never has to
-            // choose between "folder" and "single file". Launch the folder picker
-            // immediately and skip the selection screen entirely.
+            // Pigeon-only: MP02 cannot use the system folder picker and saves
+            // backups in the legacy V1 single-file format under
+            // /storage/emulated/0/Signal/Backups. Route the latest backup
+            // straight into the V1 restore flow and skip the V2 selection UI.
             LaunchedEffect(Unit) {
-              folderLauncher.launch(null)
-            }
-          } else {
-            SelectLocalBackupTypeScreen(
-              onSelectBackupFolderClick = {
-                backstack.add(RestoreLocalBackupNavKey.FolderInstructionSheet)
-              },
-              onSelectBackupFileClick = {
-                backstack.add(RestoreLocalBackupNavKey.FileInstructionSheet)
-              },
-              onCancelClick = {
-                backPressedDispatcher?.onBackPressedDispatcher?.onBackPressed()
+              val latest = runCatching { BackupUtil.getLatestBackup() }
+                .onFailure { Log.w("RestoreLocalBackupNavDisplay", "Pigeon: unable to query latest backup", it) }
+                .getOrNull()
+              if (latest != null) {
+                callback.routeToLegacyBackupRestoration(latest.uri)
+              } else {
+                callback.displaySkipRestoreWarning()
               }
-            )
+            }
+            return@entry
           }
+          // endregion Pigeon
+          // Original Signal logic – DO NOT modify.
+          SelectLocalBackupTypeScreen(
+            onSelectBackupFolderClick = {
+              backstack.add(RestoreLocalBackupNavKey.FolderInstructionSheet)
+            },
+            onSelectBackupFileClick = {
+              backstack.add(RestoreLocalBackupNavKey.FileInstructionSheet)
+            },
+            onCancelClick = {
+              backPressedDispatcher?.onBackPressedDispatcher?.onBackPressed()
+            }
+          )
         }
 
         entry<RestoreLocalBackupNavKey.FileInstructionSheet>(
