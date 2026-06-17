@@ -67,8 +67,6 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.storage.AndroidCredentialRepository
 import org.thoughtcrime.securesms.util.storage.CredentialManagerError
 import org.thoughtcrime.securesms.util.storage.CredentialManagerResult
-import pigeon.compose.PigeonMessageBackupsKeyRecordContent
-import pigeon.extensions.isPigeonVersion
 import org.signal.core.ui.R as CoreUiR
 
 private const val CLIPBOARD_TIMEOUT_SECONDS = 60
@@ -162,21 +160,7 @@ fun MessageBackupsKeyRecordScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        // region Pigeon
-        if (isPigeonVersion() && mode is MessageBackupsKeyRecordMode.Next) {
-          // Pigeon-only: D-pad friendly variant of the record screen content.
-          PigeonMessageBackupsKeyRecordContent(
-            backupKey = backupKeyString,
-            notifyKeyIsSameAsOnDeviceBackupKey = notifyKeyIsSameAsOnDeviceBackupKey,
-            canSaveToPasswordManager = AndroidCredentialRepository.isCredentialManagerSupported,
-            onCopyToClipboardClick = { onCopyToClipboardClick(backupKeyString) },
-            onSaveToPasswordManagerClick = onRequestSaveToPasswordManager,
-            onNextClick = mode.onNextClick
-          )
-        } else {
-          // endregion Pigeon
-          // Original Signal logic – DO NOT modify.
-          LazyColumn(
+        LazyColumn(
           horizontalAlignment = Alignment.CenterHorizontally,
           modifier = Modifier
             .weight(1f)
@@ -265,13 +249,12 @@ fun MessageBackupsKeyRecordScreen(
         }
 
         when (mode) {
-            is MessageBackupsKeyRecordMode.Next -> {
-              NextButton(onNextClick = mode.onNextClick)
-            }
+          is MessageBackupsKeyRecordMode.Next -> {
+            NextButton(onNextClick = mode.onNextClick)
+          }
 
-            is MessageBackupsKeyRecordMode.CreateNewKey -> {
-              CreateNewKeyButton(mode)
-            }
+          is MessageBackupsKeyRecordMode.CreateNewKey -> {
+            CreateNewKeyButton(mode)
           }
         }
       }

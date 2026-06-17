@@ -249,16 +249,23 @@ public class BackupsPreferenceFragment extends Fragment {
   }
 
   private void setUpdateState() {
-    if (SignalStore.settings().isBackupEnabled() && Environment.Backups.isNewFormatSupportedForLocalBackup()) {
-      UpgradeLocalBackupCard.bind(upgradeCard, () -> {
-        Navigation.findNavController(requireView())
-                  .navigate(BackupsPreferenceFragmentDirections.actionBackupsPreferenceFragmentToLocalBackupsFragment()
-                                                               .setTriggerUpdateFlow(true));
-        return Unit.INSTANCE;
-      });
-      upgradeCard.setVisibility(View.VISIBLE);
-    } else {
+
+    if (isPigeonVersion()) {
+      // Pigeon-only: hide the new on-device backup format upgrade banner; not used on MP02.
       upgradeCard.setVisibility(View.GONE);
+    } else {
+      // Original Signal logic – DO NOT modify.
+      if (SignalStore.settings().isBackupEnabled() && Environment.Backups.isNewFormatSupportedForLocalBackup()) {
+        UpgradeLocalBackupCard.bind(upgradeCard, () -> {
+          Navigation.findNavController(requireView())
+                    .navigate(BackupsPreferenceFragmentDirections.actionBackupsPreferenceFragmentToLocalBackupsFragment()
+                                                                 .setTriggerUpdateFlow(true));
+          return Unit.INSTANCE;
+        });
+        upgradeCard.setVisibility(View.VISIBLE);
+      } else {
+        upgradeCard.setVisibility(View.GONE);
+      }
     }
 
     if (SignalStore.backup().getNewLocalBackupsEnabled()) {
