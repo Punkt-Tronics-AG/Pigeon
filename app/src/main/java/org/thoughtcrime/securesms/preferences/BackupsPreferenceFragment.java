@@ -56,6 +56,12 @@ import java.util.Objects;
 import kotlin.Pair;
 import kotlin.Unit;
 
+import pigeon.permissions.PigeonRationaleDialog;
+
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
+
 public class BackupsPreferenceFragment extends Fragment {
 
   private static final String TAG = Log.tag(BackupsPreferenceFragment.class);
@@ -122,6 +128,13 @@ public class BackupsPreferenceFragment extends Fragment {
     });
 
     updateToggle();
+
+    if (isPigeonVersion()){
+      focusOnLeft(create);
+      focusOnLeft(folder);
+      focusOnLeft(verify);
+      focusOnLeft(timer);
+    }
   }
 
   @Override
@@ -221,23 +234,35 @@ public class BackupsPreferenceFragment extends Fragment {
 
   private void setInfo() {
     String link     = String.format("<a href=\"%s\">%s</a>", getString(R.string.backup_support_url), getString(R.string.BackupsPreferenceFragment__learn_more));
-    String infoText = getString(R.string.BackupsPreferenceFragment__to_restore_a_backup, link);
+    String infoText = "";
+    if (isSignalVersion()) {
+      infoText = getString(R.string.BackupsPreferenceFragment__to_restore_a_backup, link);
+    } else {
+      infoText = getString(R.string.BackupsPreferenceFragment__to_restore_a_backup, "");
+    }
 
     info.setText(HtmlCompat.fromHtml(infoText, 0));
     info.setMovementMethod(LinkMovementMethod.getInstance());
   }
 
   private void setUpdateState() {
-    if (SignalStore.settings().isBackupEnabled() && Environment.Backups.isNewFormatSupportedForLocalBackup()) {
-      UpgradeLocalBackupCard.bind(upgradeCard, () -> {
-        Navigation.findNavController(requireView())
-                  .navigate(BackupsPreferenceFragmentDirections.actionBackupsPreferenceFragmentToLocalBackupsFragment()
-                                                               .setTriggerUpdateFlow(true));
-        return Unit.INSTANCE;
-      });
-      upgradeCard.setVisibility(View.VISIBLE);
-    } else {
+
+    if (isPigeonVersion()) {
+      // Pigeon-only: hide the new on-device backup format upgrade banner; not used on MP02.
       upgradeCard.setVisibility(View.GONE);
+    } else {
+      // Original Signal logic – DO NOT modify.
+      if (SignalStore.settings().isBackupEnabled() && Environment.Backups.isNewFormatSupportedForLocalBackup()) {
+        UpgradeLocalBackupCard.bind(upgradeCard, () -> {
+          Navigation.findNavController(requireView())
+                    .navigate(BackupsPreferenceFragmentDirections.actionBackupsPreferenceFragmentToLocalBackupsFragment()
+                                                                 .setTriggerUpdateFlow(true));
+          return Unit.INSTANCE;
+        });
+        upgradeCard.setVisibility(View.VISIBLE);
+      } else {
+        upgradeCard.setVisibility(View.GONE);
+      }
     }
 
     if (SignalStore.backup().getNewLocalBackupsEnabled()) {
@@ -293,7 +318,9 @@ public class BackupsPreferenceFragment extends Fragment {
 
   private void pickTime() {
     int timeFormat = DateFormat.is24HourFormat(requireContext()) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H;
-    final MaterialTimePicker timePickerFragment = new MaterialTimePicker.Builder()
+    final MaterialTimePicker timePickerFragment = new MaterialTimePicker
+        .Builder()
+        .setTheme(R.style.Pigeon_TimePicker)
         .setTimeFormat(timeFormat)
         .setHour(SignalStore.settings().getBackupHour())
         .setMinute(SignalStore.settings().getBackupMinute())
@@ -345,6 +372,10 @@ public class BackupsPreferenceFragment extends Fragment {
     updateToggle();
     updateTimeLabel();
     setBackupFolderName();
+
+    if (isPigeonVersion()){
+      create.requestFocus();
+    }
   }
 
   private void setBackupsDisabled() {
@@ -355,5 +386,9 @@ public class BackupsPreferenceFragment extends Fragment {
     timer.setVisibility(View.GONE);
     updateToggle();
     AppDependencies.getJobManager().cancelAllInQueue(LocalBackupJob.QUEUE);
+
+    if (isPigeonVersion()){
+      toggle.requestFocus();
+    }
   }
 }

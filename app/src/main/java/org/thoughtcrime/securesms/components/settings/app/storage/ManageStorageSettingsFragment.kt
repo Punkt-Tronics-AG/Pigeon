@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,6 +74,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity
 import org.thoughtcrime.securesms.preferences.widgets.StorageGraphView
 import org.thoughtcrime.securesms.util.viewModel
+import pigeon.extensions.isSignalVersion
 import java.text.NumberFormat
 
 /**
@@ -291,11 +293,13 @@ private fun ManageStorageSettingsScreen(
     Column(
       modifier = Modifier
         .padding(contentPadding)
+        .background(color = SignalTheme.colors.colorTransparentInverse5, )
         .verticalScroll(rememberScrollState())
     ) {
-      Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
+      if (isSignalVersion()) {
+        Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
 
-      StorageOverview(state.breakdown, onReviewStorage)
+        StorageOverview(state.breakdown, onReviewStorage)
 
       if (state.onDeviceStorageOptimizationState > ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.FEATURE_NOT_AVAILABLE) {
         Dividers.Default()
@@ -311,6 +315,8 @@ private fun ManageStorageSettingsScreen(
       }
 
       Dividers.Default()
+
+      }
 
       Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_limit))
 
@@ -411,7 +417,7 @@ private fun SetKeepMessagesScreen(
         }
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_keep_messages_duration_warning),
             style = MaterialTheme.typography.bodyMedium,
@@ -493,7 +499,7 @@ private fun SetChatLengthLimitScreen(
       )
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_length_limit_warning),
             style = MaterialTheme.typography.bodyMedium,

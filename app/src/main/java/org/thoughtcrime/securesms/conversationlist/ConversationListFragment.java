@@ -28,6 +28,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,6 +77,7 @@ import org.signal.core.util.concurrent.LifecycleDisposable;
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.concurrent.SimpleTask;
 import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.MuteDialog;
@@ -103,6 +105,7 @@ import org.thoughtcrime.securesms.banner.banners.OutdatedBuildBanner;
 import org.thoughtcrime.securesms.banner.banners.ServiceOutageBanner;
 import org.thoughtcrime.securesms.banner.banners.UnauthorizedBanner;
 import org.thoughtcrime.securesms.banner.banners.UsernameOutOfSyncBanner;
+import org.thoughtcrime.securesms.calls.YouAreAlreadyInACallSnackbar;
 import org.thoughtcrime.securesms.components.RatingManager;
 import org.thoughtcrime.securesms.components.SignalProgressDialog;
 import org.thoughtcrime.securesms.components.menu.ActionItem;
@@ -163,6 +166,7 @@ import org.thoughtcrime.securesms.search.SearchRepository;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.util.AppStartup;
 import org.thoughtcrime.securesms.util.CachedInflater;
+import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.ConversationUtil;
 import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.thoughtcrime.securesms.util.SignalLocalMetrics;
@@ -190,6 +194,11 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import kotlin.Unit;
+import pigeon.extensions.KotilinExtensionsKt;
+
+import static android.app.Activity.RESULT_OK;
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 import static org.signal.core.ui.WindowSizeClassExtensionsKt.getWindowSizeClass;
 import static org.signal.core.ui.WindowSizeClassExtensionsKt.isSplitPane;
@@ -550,6 +559,12 @@ public class ConversationListFragment extends MainFragment implements Conversati
     initializeFilterListener();
     SpoilerAnnotation.resetRevealedSpoilers();
 
+    //PIGEON Add for MP02 Notification
+    Intent intent = new Intent();
+    intent.setAction("clear.notification.from.signal");
+    requireActivity().sendBroadcast(intent);
+
+
     if (mainToolbarViewModel.getState().getValue().getMode() != MainToolbarMode.SEARCH && list.getAdapter() != defaultAdapter) {
       setAdapter(defaultAdapter);
     }
@@ -704,6 +719,15 @@ public class ConversationListFragment extends MainFragment implements Conversati
   public void onShowArchiveClick() {
     if (viewModel.currentSelectedConversations().isEmpty()) {
       mainNavigationViewModel.onEvent(new MainNavigationEvents.GoToList(MainListRoute.Archive));
+    }
+  }
+
+  @Override public void onCallClick(@NonNull Conversation conversation) {
+    Recipient recipient = conversation.getThreadRecord().getRecipient();
+    if (recipient.isGroup()) {
+      CommunicationActions.startVideoCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
+    } else {
+      CommunicationActions.startVoiceCall(this, recipient, () -> YouAreAlreadyInACallSnackbar.show(requireView()));
     }
   }
 
@@ -1405,10 +1429,12 @@ public class ConversationListFragment extends MainFragment implements Conversati
         items.add(new ActionItem(R.drawable.symbol_chat_24, getResources().getQuantityString(R.plurals.ConversationListFragment_read_plural, 1), () -> handleMarkAsRead(id)));
       }
 
-      if (conversation.getThreadRecord().isPinned()) {
-        items.add(new ActionItem(R.drawable.symbol_pin_slash_24, getResources().getString(R.string.ConversationListFragment_unpin), () -> handleUnpin(id)));
-      } else {
-        items.add(new ActionItem(R.drawable.symbol_pin_24, getResources().getString(R.string.ConversationListFragment_pin), () -> handlePin(Collections.singleton(conversation))));
+      if (isSignalVersion()) {
+        if (conversation.getThreadRecord().isPinned()) {
+          items.add(new ActionItem(R.drawable.symbol_pin_slash_24, getResources().getString(R.string.ConversationListFragment_unpin), () -> handleUnpin(id)));
+        } else {
+          items.add(new ActionItem(R.drawable.symbol_pin_24, getResources().getString(R.string.ConversationListFragment_pin), () -> handlePin(Collections.singleton(conversation))));
+        }
       }
 
       if (conversation.getThreadRecord().getRecipient().live().get().isMuted()) {
@@ -1422,12 +1448,14 @@ public class ConversationListFragment extends MainFragment implements Conversati
       }
     }
 
-    if (!isFromSearch) {
+    if (isSignalVersion()) {
+      if (!isFromSearch) {
       items.add(new ActionItem(org.signal.core.ui.R.drawable.symbol_check_circle_24, getString(R.string.ConversationListFragment_select), () -> {
         viewModel.startSelection(conversation);
         startActionMode();
       }));
     }
+      }
 
     if (conversation.getThreadRecord().isArchived()) {
       items.add(new ActionItem(R.drawable.symbol_archive_up_24, getResources().getString(R.string.ConversationListFragment_unarchive), () -> handleUnarchive(id)));
@@ -1543,10 +1571,12 @@ public class ConversationListFragment extends MainFragment implements Conversati
       items.add(new ActionItem(R.drawable.symbol_chat_badge_24, getResources().getQuantityString(R.plurals.ConversationListFragment_unread_plural, count), () -> handleMarkAsUnread(selectionIds)));
     }
 
-    if (!isArchived() && hasUnpinned && canPin) {
-      items.add(new ActionItem(R.drawable.symbol_pin_24, getResources().getString(R.string.ConversationListFragment_pin), () -> handlePin(viewModel.currentSelectedConversations())));
-    } else if (!isArchived() && !hasUnpinned) {
-      items.add(new ActionItem(R.drawable.symbol_pin_slash_24, getResources().getString(R.string.ConversationListFragment_unpin), () -> handleUnpin(selectionIds)));
+    if (isSignalVersion()) {
+      if (!isArchived() && hasUnpinned && canPin) {
+        items.add(new ActionItem(R.drawable.symbol_pin_24, getResources().getString(R.string.ConversationListFragment_pin), () -> handlePin(viewModel.currentSelectedConversations())));
+      } else if (!isArchived() && !hasUnpinned) {
+        items.add(new ActionItem(R.drawable.symbol_pin_slash_24, getResources().getString(R.string.ConversationListFragment_unpin), () -> handleUnpin(selectionIds)));
+      }
     }
 
     if (isArchived()) {

@@ -8,7 +8,11 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,10 +26,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -39,6 +45,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -79,6 +87,11 @@ import org.thoughtcrime.securesms.util.RemoteConfig
 import org.thoughtcrime.securesms.util.SupportEmailUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.PigeonButtons.PigeonLargePrimary
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
+import java.util.Locale
+import kotlin.comparisons.then
 
 private const val PLACEHOLDER = "__ICON_PLACEHOLDER__"
 
@@ -403,28 +416,33 @@ fun DeviceListScreen(
     )
   }
 
-  Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.verticalScroll(rememberScrollState())) {
-    Icon(
-      painter = painterResource(R.drawable.ic_devices_intro),
-      contentDescription = stringResource(R.string.preferences__linked_devices),
-      tint = Color.Unspecified
-    )
-    Text(
-      text = stringResource(id = R.string.LinkDeviceFragment__use_signal_on_desktop_ipad),
-      textAlign = TextAlign.Center,
-      modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
-    )
-    ClickableText(
-      text = AnnotatedString(stringResource(id = R.string.LearnMoreTextView_learn_more)),
-      style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary)
-    ) {
-      onLearnMoreClicked()
-    }
+  val pigeonRequester = remember { FocusRequester() }
 
+  Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.verticalScroll(rememberScrollState())) {
+    if (isSignalVersion()) {
+      Icon(
+        painter = painterResource(R.drawable.ic_devices_intro),
+        contentDescription = stringResource(R.string.preferences__linked_devices),
+        tint = Color.Unspecified,
+      )
+      Text(
+        text = stringResource(id = R.string.LinkDeviceFragment__use_signal_on_desktop_ipad),
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
+      )
+      ClickableText(
+        text = AnnotatedString(stringResource(id = R.string.LearnMoreTextView_learn_more)),
+        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary)
+      ) {
+        onLearnMoreClicked()
+      }
+
+    }
     Spacer(modifier = Modifier.size(20.dp))
 
     val linkButtonColors = ButtonDefaults.filledTonalButtonColors()
-    Buttons.LargeTonal(
+//    Buttons.LargeTonal(
+    PigeonLargePrimary(
       onClick = onLinkNewDeviceClicked,
       colors = if (atDeviceLimit) {
         linkButtonColors.copy(
@@ -436,12 +454,17 @@ fun DeviceListScreen(
       },
       modifier = Modifier
         .defaultMinSize(300.dp)
+        .focusRequester(pigeonRequester)
         .padding(bottom = 8.dp)
     ) {
       Text(stringResource(id = R.string.LinkDeviceFragment__link_a_new_device))
     }
 
-    Dividers.Default()
+
+
+    if (isSignalVersion()) {
+      Dividers.Default()
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
       Text(
@@ -466,7 +489,7 @@ fun DeviceListScreen(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 96.dp)
+            .defaultMinSize(minHeight = if (isSignalVersion()) 96.dp else 32.dp)
             .wrapContentHeight(align = Alignment.CenterVertically)
         )
       } else {
@@ -512,6 +535,12 @@ fun DeviceListScreen(
       )
     }
   }
+
+  if (isPigeonVersion()) {
+    LaunchedEffect(Unit) {
+      pigeonRequester.requestFocus()
+    }
+  }
 }
 
 @Composable
@@ -520,9 +549,32 @@ fun DeviceRow(device: Device, isInternalUser: Boolean, setDeviceToRemove: (Devic
   val linkedDate = device.createdMillis?.let { DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, LocalLocale.current.platformLocale, device.createdMillis) }
   val lastActive = DateUtils.getDayPrecisionTimeSpanString(LocalContext.current, LocalLocale.current.platformLocale, device.lastSeenMillis)
   val menuController = remember { DropdownMenus.MenuController() }
+
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+
+  Log.i("PIGEON", "DeviceRow: $titleString, isFocused: $isFocused")
+
   Row(
     modifier = Modifier
       .fillMaxWidth()
+      // PIGEE CODE
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        indication = null,
+        interactionSource = interactionSource
+      ) { menuController.show() }
+      .background(
+        if (isFocused) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else Color.Transparent
+      )
+      .then(
+        if (isFocused) Modifier.border(
+          width = 1.dp,
+          color = MaterialTheme.colorScheme.primary,
+          shape = RoundedCornerShape(4.dp)
+        ) else Modifier
+      )
   ) {
     Image(
       painter = painterResource(id = CoreUiR.drawable.symbol_devices_24),
@@ -555,14 +607,15 @@ fun DeviceRow(device: Device, isInternalUser: Boolean, setDeviceToRemove: (Devic
       Text(stringResource(R.string.DeviceListItem_last_active_s, lastActive), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 
-    Box {
-      Icon(
-        painterResource(id = R.drawable.symbol_more_vertical),
-        contentDescription = null,
-        modifier = Modifier
-          .padding(top = 16.dp, end = 16.dp)
-          .clickable { menuController.show() }
-      )
+        Box {
+          Icon(
+            painterResource(id = R.drawable.symbol_more_vertical),
+            contentDescription = null,
+            modifier = Modifier
+              .padding(top = 16.dp, end = 16.dp)
+            // SIGNAL CODE
+//            .clickable { menuController.show() }
+          )
 
       DropdownMenus.Menu(controller = menuController, offsetX = 16.dp, offsetY = 4.dp) { controller ->
         DropdownMenus.Item(

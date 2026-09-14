@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true">
+
+    <org.thoughtcrime.securesms.components.NumericKeyboardView
+        android:id="@+id/keyboard_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/signal_colorSurface1"
+        android:elevation="3dp"
+        android:keyBackground="@color/signal_colorSurface1"
+        android:keyTextColor="@color/signal_colorOnSurface"
+        android:keyTextSize="30sp"
+        android:shadowColor="@color/transparent" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:indeterminate="true" />
+
+    <org.thoughtcrime.securesms.components.SquareImageView
+        android:id="@+id/success"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle_tintable"
+        android:backgroundTint="@color/green_400"
+        android:gravity="center_vertical"
+        android:src="@drawable/symbol_check_24" />
+
+    <org.thoughtcrime.securesms.components.SquareImageView
+        android:id="@+id/failure"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle_tintable"
+        android:backgroundTint="@color/green_400"
+        android:gravity="center_vertical"
+        android:src="@drawable/symbol_x_white_48" />
+
+    <org.thoughtcrime.securesms.components.SquareImageView
+        android:id="@+id/locked"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle_tintable"
+        android:backgroundTint="@color/green_400"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        android:src="@drawable/symbol_lock_white_48"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/pigeonProgress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/sim_background"
+        android:visibility="visible">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLargeInverse"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:padding="10dp" />
+    </FrameLayout>
+
+
+</merge>

@@ -17,6 +17,15 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+
+        <action
+            android:id="@+id/pigeon_action_appSettingsFragment_to_backupsPreferenceFragment"
+            app:destination="@id/backupsPreferenceFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+
         <action
             android:id="@+id/action_appSettingsFragment_to_usernameLinkSettingsFragment"
             app:destination="@id/username_link_settings"
@@ -64,6 +73,7 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+
         <action
             android:id="@+id/action_appSettingsFragment_to_paymentsActivity"
             app:destination="@id/paymentsActivity"
@@ -106,6 +116,13 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+         <action
+            android:id="@+id/action_appSettingsFragment_to_pigeonIntervalSettingsFragment"
+            app:destination="@id/pigeonIntervalSettingsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
         <action
             android:id="@+id/action_appSettingsFragment_to_manageProfileActivity"
             app:destination="@id/manageProfileActivity"
@@ -116,6 +133,13 @@
         <action
             android:id="@+id/action_appSettingsFragment_to_helpSettingsFragment"
             app:destination="@id/helpSettingsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+        <action
+            android:id="@+id/action_appSettingsFragment_to_aboutFragment"
+            app:destination="@id/aboutFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
@@ -168,6 +192,14 @@
                 app:argType="integer"
                 app:nullable="false" />
         </action>
+
+        <action
+            android:id="@+id/pigeon_action_dataAndStorageSettingsFragment_to_storagePreferenceFragment"
+            app:destination="@id/storagePreferenceFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
     </fragment>
 
     <activity
@@ -644,6 +676,13 @@
 
     <include app:graph="@navigation/privacy_settings" />
 
+    <fragment
+        android:id="@+id/pigeonIntervalSettingsFragment"
+        android:name="pigeon.fragments.IntervalSettingsFragment"
+        android:label="pigeon_interval_settings_fragment">
+    </fragment>
+
+
     <!-- region Data and Storage -->
 
     <fragment
@@ -701,6 +740,28 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@anim/fragment_close_enter"
             app:popExitAnim="@anim/fragment_close_exit" />
+
+        <!-- Pigeon Code -->
+        <action
+            android:id="@+id/action_helpSettingsFragment_to_pigeonCodeFragment"
+            app:destination="@id/pigeonCodeFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+    </fragment>
+
+    <!-- Pigeon Code -->
+    <fragment
+        android:id="@+id/pigeonCodeFragment"
+        android:name="pigeon.fragments.TermsFragment"
+        android:label="pigeon_code_fragment"/>
+
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="org.thoughtcrime.securesms.about.AboutFragment"
+        android:label="@string/preferences__about">
+
     </fragment>
 
     <fragment

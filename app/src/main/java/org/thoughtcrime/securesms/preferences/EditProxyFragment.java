@@ -36,6 +36,8 @@ import org.signal.network.config.SignalProxy;
 
 import java.util.Optional;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class EditProxyFragment extends Fragment {
 
   private SwitchCompat                   proxySwitch;
@@ -97,8 +99,13 @@ public class EditProxyFragment extends Fragment {
     proxySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> viewModel.onToggleProxy(isChecked, proxyText.getText().toString()));
 
     LearnMoreTextView description = view.findViewById(R.id.edit_proxy_switch_title_description);
-    description.setLearnMoreVisible(true);
-    description.setOnLinkClickListener(v -> CommunicationActions.openBrowserLink(requireContext(), "https://support.signal.org/hc/articles/360056052052"));
+    if (isSignalVersion()) {
+      description.setLearnMoreVisible(true);
+      description.setOnLinkClickListener(v -> CommunicationActions.openBrowserLink(requireContext(), "https://support.signal.org/hc/articles/360056052052"));
+    } else {
+      TextView proxyTitle = view.findViewById(R.id.edit_proxy_switch_title);
+      proxyTitle.setOnClickListener(v -> proxySwitch.setChecked(!proxySwitch.isChecked()));
+    }
 
     requireActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
   }

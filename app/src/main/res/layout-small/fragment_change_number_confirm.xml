@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Mp02.Signal.Background"
+    tools:viewBindingIgnore="true">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:descendantFocusability="blocksDescendants"
+        android:visibility="gone">
+
+        <include layout="@layout/dsl_settings_toolbar" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <ScrollView
+        android:id="@+id/change_number_confirm_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/pigeon_start_margin"
+            android:paddingEnd="@dimen/pigeon_start_margin">
+
+            <TextView
+                android:id="@+id/change_number_confirm_new_number_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Signal.Body1"
+                app:layout_constraintBottom_toTopOf="@+id/change_number_confirm_new_number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="@string/ChangeNumberConfirmFragment__you_are_about_to_change_your_phone_number_from_s_to_s" />
+
+            <TextView
+                android:id="@+id/change_number_confirm_new_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Signal.Title1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/change_number_confirm_new_number_message"
+                tools:text="+1 (555) 555-5555" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/change_number_confirm_edit_number"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ChangeNumberConfirmFragment__edit_number"
+                android:layout_marginTop="@dimen/pigeon_bottom_margin"
+                app:layout_constraintBottom_toTopOf="@+id/change_number_confirm_change_number"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/change_number_confirm_new_number" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/change_number_confirm_change_number"
+                style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/ChangeNumberConfirmFragment__change_number"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/change_number_confirm_edit_number" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_view"
+    style="@style/Mp02.Signal.Background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:padding="@dimen/pigeon_small_margin"
+    tools:context="pigeon.fragments.CountryCodeFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/country_code_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pigeon_big_margin"
+            android:clickable="true"
+            android:focusable="true"
+            android:descendantFocusability="blocksDescendants"
+            android:focusedByDefault="true"
+            android:nextFocusForward="@id/next_button"
+            android:nextFocusUp="@id/next_button"
+            android:nextFocusDown="@id/next_button"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="o">
+
+            <TextView
+                android:id="@+id/verify_header"
+                style="@style/Mp02.Signal.Text.CommonTextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:tag="header"
+                android:focusable="false"
+                android:text="@string/RegistrationActivity_country_code_description"
+                tools:targetApi="o" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/country_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/black"
+                android:backgroundTint="@color/black"
+                android:enabled="false"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="start"
+                app:boxBackgroundColor="@color/black"
+                app:boxStrokeColor="@color/black"
+                app:boxStrokeWidth="0dp"
+                app:errorEnabled="false"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toBottomOf="@+id/verify_header">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    style="@style/Mp02.Signal.Text.CommonTextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/black"
+                    android:clickable="false"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:singleLine="true"
+                    android:textAlignment="textStart"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/verify_header"
+                    tools:text="+121" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+            android:id="@+id/next_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/pigeon_bottom_margin"
+            android:focusable="true"
+            android:clickable="true"
+            android:nextFocusForward="@id/country_code_layout"
+            android:nextFocusDown="@id/country_code_layout"
+            android:nextFocusUp="@id/country_code_layout"
+            app:circularProgressMaterialButton__label="@string/RegistrationActivity_next"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

@@ -32,6 +32,7 @@ import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter;
 import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 import org.thoughtcrime.securesms.util.views.LearnMoreTextView;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> extends LoggingFragment {
 
@@ -178,6 +179,7 @@ public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> 
     input.addTextChangedListener(new AfterTextChanged(s -> viewModel.setUserEntry(s.toString())));
     input.setImeOptions(EditorInfo.IME_ACTION_NEXT);
     input.setOnEditorActionListener(this::handleEditorAction);
+    input.requestFocus();
     keyboardToggle.setOnClickListener(v -> viewModel.toggleAlphaNumeric());
     confirm.setOnClickListener(v -> viewModel.confirm());
   }

@@ -25,6 +25,9 @@ import org.thoughtcrime.securesms.components.settings.conversation.ConversationS
 import org.thoughtcrime.securesms.util.Material3OnScrollHelper
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isSignalVersion
+import java.lang.UnsupportedOperationException
 
 /**
  * The DSL API can be completely replaced by compose.

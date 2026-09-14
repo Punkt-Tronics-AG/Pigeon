@@ -5,9 +5,13 @@
 
 package org.thoughtcrime.securesms.registration.ui.welcome
 
+
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -30,6 +34,10 @@ import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
+
 
 /**
  * First screen that is displayed on the very first app launch.
@@ -43,6 +51,9 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
   private val sharedViewModel by activityViewModels<RegistrationViewModel>()
   private val binding: FragmentRegistrationWelcomeV3Binding by ViewBinderDelegate(FragmentRegistrationWelcomeV3Binding::bind)
 
+  //  PIGEON
+  private var extraScreenIsShowed = false
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
@@ -55,6 +66,52 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     binding.welcomeTermsButton.setOnClickListener { onTermsClicked() }
     binding.welcomeTransferOrRestore.setOnClickListener { onRestoreOrTransferClicked() }
     binding.welcomeTransferOrRestore.visible = !sharedViewModel.isReregister
+
+    if (isPigeonVersion()) {
+      binding.welcomeTermsButton.focusOnLeft()
+      binding.welcomeTransferOrRestore.focusOnLeft()
+      binding.welcomeTransferOrRestore.visible = false
+      val disclaimerButton: TextView = view.findViewById(R.id.disclaimer_button)
+      disclaimerButton.setOnClickListener { v: View? -> onDisclaimerClicked() }
+
+      val welcomeLayout: ConstraintLayout = view.findViewById(R.id.welcome_layout)
+      val extraLayout: ConstraintLayout = view.findViewById(R.id.extra_buttons)
+
+      disclaimerButton.focusOnLeft()
+
+      val titleTextView: TextView = view.findViewById(R.id.tv_welcome_title)
+      titleTextView.requestFocus()
+
+      titleTextView.setOnKeyListener { v: View?, keyCode: Int, event: KeyEvent? ->
+        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+          welcomeLayout.visibility = View.GONE
+          extraLayout.visibility = View.VISIBLE
+          binding.welcomeContinueButton.requestFocus()
+          disclaimerButton.requestFocus()
+          extraScreenIsShowed = false
+          return@setOnKeyListener true
+        }
+        false
+      }
+
+      disclaimerButton.setOnKeyListener { v: View?, keyCode: Int, event: KeyEvent ->
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.action == KeyEvent.ACTION_UP) {
+          if (!extraScreenIsShowed) {
+            extraScreenIsShowed = true
+            return@setOnKeyListener false
+          }
+          welcomeLayout.visibility = View.VISIBLE
+          extraLayout.visibility = View.GONE
+          titleTextView.requestFocus()
+          return@setOnKeyListener true
+        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+          extraScreenIsShowed = false
+        }
+        false
+      }
+
+
+    }
 
     if (BuildConfig.LINK_DEVICE_UX_ENABLED) {
       binding.image.setOnLongClickListener {
@@ -72,6 +129,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
         when (val userSelection = bundle.getSerializableCompat(RestoreWelcomeBottomSheet.REQUEST_KEY, WelcomeUserSelection::class.java)) {
           WelcomeUserSelection.RESTORE_WITH_OLD_PHONE,
           WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> afterRestoreOrTransferClicked(userSelection)
+
           else -> Unit
         }
       }
@@ -82,6 +140,7 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
         when (val userSelection = bundle.getSerializableCompat(GrantPermissionsFragment.REQUEST_KEY, WelcomeUserSelection::class.java)) {
           WelcomeUserSelection.RESTORE_WITH_OLD_PHONE,
           WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> navigateToNextScreenViaRestore(userSelection)
+
           WelcomeUserSelection.CONTINUE -> navigateToNextScreenViaContinue()
           WelcomeUserSelection.LINK -> navigateToLinkDevice()
           null -> Unit
@@ -117,15 +176,27 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
 
   private fun navigateToNextScreenViaContinue() {
     sharedViewModel.maybePrefillE164(requireContext())
-    findNavController().safeNavigate(WelcomeFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+    if (isSignalVersion()) {
+      findNavController().safeNavigate(WelcomeFragmentDirections.goToEnterPhoneNumber(EnterPhoneNumberMode.NORMAL))
+    } else {
+      findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToCountryCodeFragment(EnterPhoneNumberMode.NORMAL))
+    }
   }
 
   private fun onTermsClicked() {
-    CommunicationActions.openBrowserLink(requireContext(), TERMS_AND_CONDITIONS_URL)
+    if (isSignalVersion()) {
+      CommunicationActions.openBrowserLink(requireContext(), TERMS_AND_CONDITIONS_URL)
+    } else {
+      findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToTermsFragment())
+    }
   }
 
   private fun onRestoreOrTransferClicked() {
-    RestoreWelcomeBottomSheet().show(childFragmentManager, null)
+    if (isSignalVersion()) {
+      RestoreWelcomeBottomSheet().show(childFragmentManager, null)
+    } else {
+      navigateToNextScreenViaRestore(WelcomeUserSelection.RESTORE_WITH_NO_PHONE)
+    }
   }
 
   private fun afterRestoreOrTransferClicked(userSelection: WelcomeUserSelection) {
@@ -143,10 +214,12 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
     when (userSelection) {
       WelcomeUserSelection.LINK,
       WelcomeUserSelection.CONTINUE -> throw IllegalArgumentException()
+
       WelcomeUserSelection.RESTORE_WITH_OLD_PHONE -> {
         sharedViewModel.intendToRestore(hasOldDevice = true, fromRemote = true)
         findNavController().safeNavigate(WelcomeFragmentDirections.goToRestoreViaQr())
       }
+
       WelcomeUserSelection.RESTORE_WITH_NO_PHONE -> {
         sharedViewModel.intendToRestore(hasOldDevice = false, fromRemote = true)
         findNavController().safeNavigate(WelcomeFragmentDirections.goToSelectRestoreMethod(userSelection))
@@ -157,5 +230,10 @@ class WelcomeFragment : LoggingFragment(R.layout.fragment_registration_welcome_v
   private fun hasAllPermissions(): Boolean {
     val isUserSelectionRequired = BackupUtil.isUserSelectionRequired(requireContext())
     return WelcomePermissions.getWelcomePermissions(isUserSelectionRequired).all { ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED }
+  }
+
+  //#PIGEON
+  private fun onDisclaimerClicked() {
+    findNavController().safeNavigate(WelcomeFragmentDirections.pigeonActionWelcomeFragmentToDisclaimerFragment())
   }
 }

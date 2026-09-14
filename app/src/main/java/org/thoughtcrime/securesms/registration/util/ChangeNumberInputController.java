@@ -87,7 +87,7 @@ public final class ChangeNumberInputController {
 
   @SuppressLint("ClickableViewAccessibility")
   private void initializeSpinner(@NonNull Spinner countrySpinner) {
-    countrySpinnerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+    countrySpinnerAdapter = new ArrayAdapter<>(context, R.layout.pigeon_simple_spinner_item);
     countrySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
     setCountryDisplay(context.getString(R.string.RegistrationActivity_select_your_country));

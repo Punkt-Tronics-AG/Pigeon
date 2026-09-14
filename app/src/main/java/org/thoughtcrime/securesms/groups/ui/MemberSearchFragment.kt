@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -73,6 +74,7 @@ import org.thoughtcrime.securesms.util.adapter.mapping.MappingModel
 import org.thoughtcrime.securesms.util.adapter.mapping.compose.MappingEntryProvider
 import org.thoughtcrime.securesms.util.adapter.mapping.compose.rememberMappingEntryProvider
 import org.thoughtcrime.securesms.util.fragments.findListener
+import pigeon.extensions.withPigeonTextSize
 
 /**
  * Fragment that shows all members in a group (including self)
@@ -328,7 +330,14 @@ private fun MemberSearchContent(
 
     entry<AddMembersModel> {
       Rows.TextRow(
-        text = { Text(text = stringResource(R.string.AddMembersActivity__add_members)) },
+        // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+        text = { pigeonTextSize, pigeonTextColor ->
+          Text(
+            text = stringResource(R.string.AddMembersActivity__add_members),
+            style = LocalTextStyle.current.withPigeonTextSize(pigeonTextSize),
+            color = pigeonTextColor
+          )
+        },
         icon = {
           Icon(
             imageVector = ImageVector.vectorResource(org.signal.core.ui.R.drawable.symbol_plus_24),
@@ -346,7 +355,14 @@ private fun MemberSearchContent(
 
     entry<InviteViaModel> {
       Rows.TextRow(
-        text = { Text(text = stringResource(R.string.MemberSearchFragment__invite_via)) },
+        // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+        text = { pigeonTextSize, pigeonTextColor ->
+          Text(
+            text = stringResource(R.string.MemberSearchFragment__invite_via),
+            style = LocalTextStyle.current.withPigeonTextSize(pigeonTextSize),
+            color = pigeonTextColor
+          )
+        },
         icon = {
           Icon(
             imageVector = ImageVector.vectorResource(org.signal.core.ui.R.drawable.symbol_link_24),

@@ -26,6 +26,7 @@ import org.thoughtcrime.securesms.registration.data.QuickRegistrationRepository
 import org.thoughtcrime.securesms.registration.ui.restore.RestoreMethod
 import org.thoughtcrime.securesms.registration.ui.restore.StorageServiceRestore
 import org.thoughtcrime.securesms.util.Environment
+import pigeon.extensions.isSignalVersion
 import org.whispersystems.signalservice.api.provisioning.RestoreMethod as ApiRestoreMethod
 
 /**
@@ -66,15 +67,17 @@ class RestoreViewModel : ViewModel() {
         mutableListOf(RestoreMethod.FROM_LOCAL_BACKUP_V1)
       }
 
-      if (SignalStore.registration.isOtherDeviceAndroid && SignalStore.registration.restoreDecisionState.includeDeviceToDeviceTransfer) {
+      if (SignalStore.registration.isOtherDeviceAndroid && SignalStore.registration.restoreDecisionState.includeDeviceToDeviceTransfer && isSignalVersion()) {
         methods.add(0, RestoreMethod.FROM_OLD_DEVICE)
       }
 
-      when (SignalStore.backup.backupTier) {
-        MessageBackupTier.FREE -> methods.add(1, RestoreMethod.FROM_SIGNAL_BACKUPS)
-        MessageBackupTier.PAID -> methods.add(0, RestoreMethod.FROM_SIGNAL_BACKUPS)
-        null -> if (!SignalStore.backup.restoringViaQr) {
-          methods.add(1, RestoreMethod.FROM_SIGNAL_BACKUPS)
+      if (isSignalVersion()) {
+        when (SignalStore.backup.backupTier) {
+          MessageBackupTier.FREE -> methods.add(1, RestoreMethod.FROM_SIGNAL_BACKUPS)
+          MessageBackupTier.PAID -> methods.add(0, RestoreMethod.FROM_SIGNAL_BACKUPS)
+          null -> if (!SignalStore.backup.restoringViaQr) {
+            methods.add(1, RestoreMethod.FROM_SIGNAL_BACKUPS)
+          }
         }
       }
 

@@ -1,5 +1,6 @@
 package org.thoughtcrime.securesms.jobs
 
+import androidx.preference.PreferenceManager
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.dependencies.AppDependencies
@@ -10,6 +11,8 @@ import org.thoughtcrime.securesms.stories.Stories
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import org.whispersystems.signalservice.internal.util.StaticCredentialsProvider
+import org.whispersystems.signalservice.internal.websocket.WebSocketConnection
+import pigeon.viewmodels.IntervalSettingsViewModel
 import org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection
 import java.util.Optional
 import java.util.concurrent.TimeUnit
@@ -87,7 +90,9 @@ class CheckServiceReachabilityJob private constructor(params: Parameters) : Base
       BuildConfig.SIGNAL_AGENT,
       null,
       "",
-      Stories.isFeatureEnabled()
+      Stories.isFeatureEnabled(),
+      PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30),
+      PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120)
     )
 
     try {

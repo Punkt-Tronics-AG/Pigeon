@@ -5,14 +5,20 @@
 
 package org.signal.core.ui.compose
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
+import androidx.compose.foundation.MarqueeSpacing
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -43,13 +49,18 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import org.signal.core.ui.R
 import org.signal.core.ui.compose.Rows.TextAndLabel
+import org.signal.core.ui.compose.theme.SignalTheme
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 object Rows {
 
@@ -191,7 +202,7 @@ object Rows {
     var displayDialog by remember { mutableStateOf(false) }
 
     TextRow(
-      text = { text(selectedIndex) },
+      text = { textSize, textColor -> text(selectedIndex) },
       enabled = enabled,
       onClick = {
         displayDialog = true
@@ -377,7 +388,7 @@ object Rows {
     text: String? = null,
     label: String? = null,
     icon: Painter? = null,
-    foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
+    foregroundTint: Color = Color(0xFFFFFFFF),
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     onDisabledClick: (() -> Unit)? = null,
@@ -387,7 +398,7 @@ object Rows {
       text = remember(text) { text?.let { AnnotatedString(text) } },
       label = remember(label) { label?.let { AnnotatedString(label) } },
       icon = icon,
-      modifier = modifier,
+      modifier = modifier.padding(0.dp),
       iconModifier = iconModifier,
       foregroundTint = foregroundTint,
       onClick = onClick,
@@ -414,15 +425,18 @@ object Rows {
     enabled: Boolean = true
   ) {
     TextRow(
-      text = {
+      text = { textSize, textColor ->
         TextAndLabel(
           text = text,
           label = label,
-          textColor = foregroundTint,
-          enabled = enabled
+          textColor = textColor,
+          enabled = enabled,
+          modifier = modifier
+            .padding(0.dp),
+          pigeonTextSize = textSize
         )
       },
-      icon = if (icon != null) {
+      icon = if (icon != null && isSignalVersion()) {
         {
           Icon(
             painter = icon,
@@ -434,7 +448,7 @@ object Rows {
       } else {
         null
       },
-      modifier = modifier,
+      modifier = Modifier.padding(0.dp),
       onClick = onClick,
       onLongClick = onLongClick,
       onDisabledClick = onDisabledClick,
@@ -452,7 +466,7 @@ object Rows {
     iconModifier: Modifier = Modifier,
     text: String? = null,
     label: String? = null,
-    foregroundTint: Color = MaterialTheme.colorScheme.onSurface,
+    foregroundTint: Color = Color(0xFFFFFFFF),
     iconTint: Color = foregroundTint,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
@@ -460,12 +474,13 @@ object Rows {
     enabled: Boolean = true
   ) {
     TextRow(
-      text = {
+      text = { textSize, textColor ->
         TextAndLabel(
           text = text,
           label = label,
-          textColor = foregroundTint,
-          enabled = enabled
+          textColor = textColor,
+          enabled = enabled,
+          pigeonTextSize = textSize,
         )
       },
       icon = if (icon != null) {
@@ -494,17 +509,25 @@ object Rows {
   @OptIn(ExperimentalFoundationApi::class)
   @Composable
   fun TextRow(
-    text: @Composable RowScope.() -> Unit,
+    text: @Composable RowScope.(Dp, Color) -> Unit,
     modifier: Modifier = Modifier,
     icon: (@Composable RowScope.() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     onDisabledClick: (() -> Unit)? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    visible: Boolean = true
   ) {
     val haptics = LocalHapticFeedback.current
     val clickAction = if (enabled) onClick else onDisabledClick
     val longClickAction = if (enabled) onLongClick else null
+
+    if (!visible) return
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    var pigeonTextSize by remember { mutableStateOf(24.dp) }
+    var pigeonTextColor by remember { mutableStateOf(Color(0x80FFFFFF)) }
 
     Row(
       modifier = modifier
@@ -512,6 +535,8 @@ object Rows {
         .combinedClickable(
           enabled = clickAction != null || longClickAction != null,
           onClick = clickAction ?: {},
+          interactionSource = interactionSource,
+          indication = null,
           onLongClick = {
             if (longClickAction != null) {
               haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -519,21 +544,29 @@ object Rows {
             }
           }
         )
-        .padding(defaultPadding()),
+        .focusable(enabled)
+        .focusOnLeft(enabled, interactionSource) { hasFocus, textSize, textColor ->
+          pigeonTextSize = textSize
+          pigeonTextColor = textColor
+          Log.d("Pigeon", "TextRow: $hasFocus")
+        }
+        .padding(0.dp),
+//        .padding(defaultPadding()),
       verticalAlignment = CenterVertically
     ) {
-      if (icon != null) {
-        icon()
-        Spacer(modifier = Modifier.width(24.dp))
-      }
-      text()
+//      if (icon != null) {
+//        icon()
+//        Spacer(modifier = Modifier.width(24.dp))
+//      }
+      text(pigeonTextSize, pigeonTextColor)
     }
   }
 
   @Composable
   fun defaultPadding(): PaddingValues {
     return PaddingValues(
-      horizontal = dimensionResource(id = R.dimen.gutter),
+      //SIGNAL CODE
+//      horizontal = dimensionResource(id = R.dimen.gutter),
       vertical = 16.dp
     )
   }
@@ -548,7 +581,8 @@ object Rows {
     label: String? = null,
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    textStyle: TextStyle = MaterialTheme.typography.bodyLarge
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    pigeonTextSize: Dp = 24.dp
   ) {
     TextAndLabel(
       text = remember(text) { text?.let { AnnotatedString(it) } },
@@ -556,7 +590,8 @@ object Rows {
       modifier = modifier,
       enabled = enabled,
       textColor = textColor,
-      textStyle = textStyle
+      textStyle = textStyle,
+      pigeonTextSize = pigeonTextSize
     )
   }
 
@@ -571,7 +606,8 @@ object Rows {
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    inlineContent: Map<String, InlineTextContent> = mapOf()
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    pigeonTextSize: Dp = 24.dp
   ) {
     Column(
       modifier = modifier
@@ -581,9 +617,15 @@ object Rows {
       if (text != null) {
         Text(
           text = text,
-          style = textStyle,
+          style = textStyle.copy(fontSize = TextUnit(pigeonTextSize.value, TextUnitType.Sp)),
           color = textColor,
-          inlineContent = inlineContent
+          inlineContent = inlineContent,
+          maxLines = if (isPigeonVersion()) 1 else Int.MAX_VALUE,
+          modifier = if (isPigeonVersion()) {
+            Modifier.basicMarquee(animationMode = Immediately, spacing = MarqueeSpacing(30.dp))
+          } else {
+            Modifier
+          },
         )
       }
 
@@ -591,7 +633,7 @@ object Rows {
         Text(
           text = label,
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurface
         )
       }
     }

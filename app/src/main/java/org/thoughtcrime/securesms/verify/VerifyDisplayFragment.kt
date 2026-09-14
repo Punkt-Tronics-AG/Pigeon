@@ -82,10 +82,12 @@ class VerifyDisplayFragment : ComposeFragment() {
         viewModel.copyFingerprintToClipboard()
         true
       }
+
       R.id.menu_compare -> {
         viewModel.compareClipboardToFingerprint()
         true
       }
+
       else -> {
         super.onContextItemSelected(item)
       }

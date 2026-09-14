@@ -1,0 +1,62 @@
+package pigeon.navigation
+
+import android.app.Activity
+import android.view.KeyEvent
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.R
+import org.thoughtcrime.securesms.conversation.v2.ConversationFragment
+import org.thoughtcrime.securesms.ratelimit.RecaptchaProofActivity
+import org.thoughtcrime.securesms.registration.ui.captcha.CaptchaFragment
+
+class PigeonKeyEventBehaviourImpl : KeyEventBehaviour {
+  override fun dispatchKeyEvent(event: KeyEvent, fragmentManager: FragmentManager, activity: Activity) {
+    val navFragment: Fragment? = fragmentManager.findFragmentById(R.id.nav_host_fragment);
+    Log.w(org.thoughtcrime.securesms.longmessage.TAG, "$event")
+    Log.w(org.thoughtcrime.securesms.longmessage.TAG, "$activity")
+
+    when (event.keyCode) {
+      KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_0 -> {
+        val fragment = navFragment?.childFragmentManager?.primaryNavigationFragment
+        if (fragment is CaptchaFragment) {
+          Log.w(org.thoughtcrime.securesms.longmessage.TAG, "Dispatching key event to CaptchaFragment")
+          fragment.onKeyDown(event.keyCode, event.action)
+          return
+        } else
+          if (activity is RecaptchaProofActivity) {
+            activity.onKeyDown(event.keyCode, event.action)
+            return
+          }
+      }
+    }
+  }
+
+  override fun dispatchConversationKeyEvent(event: KeyEvent, fragmentManager: FragmentManager) {
+    Log.w("PIGEON", "dispatchConversationKeyEvent CALLED: keyCode=${event.keyCode}, action=${event.action}, event=$event")
+    when (event.keyCode) {
+      KeyEvent.KEYCODE_CALL -> {
+        val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }
+        if (conversationFragment != null && conversationFragment is ConversationFragment && event.action == KeyEvent.ACTION_UP) {
+          conversationFragment.onKeycodeCallPressed()
+          return
+        }
+      }
+      KeyEvent.KEYCODE_DPAD_CENTER -> {
+        if (event.action == KeyEvent.ACTION_UP) {
+          val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment }
+          if (conversationFragment != null && conversationFragment is ConversationFragment) {
+            conversationFragment.pigeonOpenFocusedItemPhotoIfPresent()
+          }
+        }
+      }
+      KeyEvent.KEYCODE_DPAD_DOWN -> {
+        // Intercept on ACTION_DOWN — by ACTION_UP the framework's default focus search
+        // has already moved focus, which would defeat the purpose of this handler.
+        val conversationFragment = fragmentManager.fragments.find { it is ConversationFragment } as? ConversationFragment
+        conversationFragment?.pigeonFocusComposeFromList()
+      }
+    }
+    return
+  }
+}

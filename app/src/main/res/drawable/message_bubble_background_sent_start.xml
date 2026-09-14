@@ -11,7 +11,9 @@
                 android:topRightRadius="@dimen/message_corner_radius"
                 android:bottomRightRadius="@dimen/message_corner_collapse_radius"
                 android:bottomLeftRadius="@dimen/message_corner_radius" />
-            <solid android:color="@color/white" />
+            <stroke
+                android:width="2px"
+                android:color="@color/white" />
         </shape>
     </item>
 </layer-list>

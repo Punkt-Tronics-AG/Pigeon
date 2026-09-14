@@ -63,6 +63,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static pigeon.extensions.KotilinExtensionsKt.*;
+
 public class AddGroupDetailsFragment extends LoggingFragment {
 
   private static final int   AVATAR_PLACEHOLDER_INSET_DP = 18;

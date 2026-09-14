@@ -63,6 +63,10 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
 
   private static final String TAG                         = OkHttpWebSocketConnection.class.getSimpleName();
   public static final  int    KEEPALIVE_FREQUENCY_SECONDS = 30;
+  public static        int     KEEPALIVE_TIMEOUT_SECONDS = 30;
+  public static        int     KEEPSLEEP_TIMEOUT_SECONDS = 120;
+  public static        boolean isAlive;
+  private              int     pigeonAttempts;
 
   private final LinkedList<WebSocketRequestMessage> incomingRequests = new LinkedList<>();
   private final Map<Long, OutgoingRequest>          outgoingRequests = new HashMap<>();
@@ -89,18 +93,23 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
                                    Optional<CredentialsProvider> credentialsProvider,
                                    String signalAgent,
                                    HealthMonitor healthMonitor,
-                                   boolean allowStories) {
-    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories);
+                                   boolean allowStories,
+                                   int pigeonAliveIntervalTime,
+                                   int pigeonSleepIntervalTime) {
+    this(name, serviceConfiguration, credentialsProvider, signalAgent, healthMonitor, "", allowStories, pigeonAliveIntervalTime, pigeonSleepIntervalTime);
   }
 
   public OkHttpWebSocketConnection(String name,
-                                   SignalServiceConfiguration serviceConfiguration,
-                                   Optional<CredentialsProvider> credentialsProvider,
-                                   String signalAgent,
-                                   HealthMonitor healthMonitor,
-                                   String extraPathUri,
-                                   boolean allowStories)
+                             SignalServiceConfiguration serviceConfiguration,
+                             Optional<CredentialsProvider> credentialsProvider,
+                             String signalAgent,
+                             HealthMonitor healthMonitor,
+                             String extraPathUri,
+                             boolean allowStories,
+                             int pigeonAliveIntervalTime,
+                             int pigeonSleepIntervalTime)
   {
+    setupPigeonIntervalTime(pigeonAliveIntervalTime, pigeonSleepIntervalTime);
     this.name                = "[" + name + ":" + System.identityHashCode(this) + "]";
     this.trustStore          = serviceConfiguration.getSignalServiceUrls()[0].getTrustStore();
     this.credentialsProvider = credentialsProvider;
@@ -114,6 +123,7 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
     this.serviceUrls         = serviceConfiguration.getSignalServiceUrls();
     this.extraPathUri        = extraPathUri;
     this.random              = new SecureRandom();
+    this.pigeonAttempts      = 0;
   }
 
   @Override
@@ -126,6 +136,11 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
     String           uri        = serviceUrl.getUrl().replace("https://", "wss://").replace("http://", "ws://");
 
     return new Pair<>(serviceUrl, uri + "/v1/websocket/" + extraPathUri);
+  }
+
+  void setupPigeonIntervalTime(int aliveTime, int sleepTime) {
+    KEEPALIVE_TIMEOUT_SECONDS = aliveTime;
+    KEEPSLEEP_TIMEOUT_SECONDS = sleepTime;
   }
 
   @Override
@@ -221,8 +236,12 @@ public class OkHttpWebSocketConnection extends WebSocketListener implements WebS
 
     long startTime = System.currentTimeMillis();
 
+
+    // For Pigeon
     while (client != null && incomingRequests.isEmpty() && elapsedTime(startTime) < timeoutMillis) {
-      Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+//        Util.wait(this, Math.max(1, timeoutMillis - elapsedTime(startTime)));
+      Util.wait(this, isAlive ? Math.min(++pigeonAttempts * 200, TimeUnit.SECONDS.toMillis(15)) : TimeUnit.SECONDS.toMillis(180));
+
     }
 
     if (incomingRequests.isEmpty() && client == null) {

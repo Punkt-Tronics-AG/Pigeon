@@ -5,7 +5,7 @@
     <style name="Signal.Transparent" parent="Theme.AppCompat">
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
@@ -23,6 +23,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@color/black</item>
 
         <item name="theme_type">light</item>
         <item name="colorPrimary">@color/core_ultramarine</item>
@@ -35,11 +36,11 @@
     </style>
 
     <style name="TextSecure.DarkNoActionBar.StoryViewer">
-        <item name="android:windowBackground">@color/signal_colorSurface</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="TextSecure.BaseMediaPreview" parent="@style/TextSecure.BaseDarkNoActionBar">
-        <item name="android:windowBackground">@color/signal_colorSurface</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="colorPrimaryDark">@color/media_preview_bar_background</item>
         <item name="android:textColorSecondary">@color/white</item>
     </style>
@@ -98,7 +99,7 @@
         <item name="colorAccent">@color/core_ultramarine</item>
 
         <item name="android:textColorHint">#cc000000</item>
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:textColorSecondary">@color/white</item>
     </style>
 
@@ -114,7 +115,7 @@
         <item name="colorAccent">@color/core_ultramarine_light</item>
 
         <item name="android:textColorHint">@color/white</item>
-        <item name="android:windowBackground">@color/core_grey_95</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="TextSecure.LightTheme.Popup" parent="TextSecure.LightTheme">
@@ -195,7 +196,11 @@
         <item name="actionModeStyle">@style/TextSecure.ActionModeStyle</item>
         <item name="android:textColor">@color/text_color_light_theme</item>
         <item name="android:textColorSecondary">@color/text_color_secondary_light_theme</item>
-        <item name="android:windowBackground">@color/signal_colorBackground</item>
+        <item name="colorPrimaryDark">@color/signal_colorPrimary</item>
+        <item name="colorAccent">@color/signal_colorPrimary</item>
+        <item name="colorControlActivated">@color/signal_colorPrimary</item>
+        <item name="colorControlHighlight">@color/transparent_black_10</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyleLight</item>
         <item name="android:alertDialogTheme">@style/AppCompatDialogStyleLight</item>
@@ -223,7 +228,7 @@
 
         <item name="colorControlNormal">@color/core_grey_90</item>
 
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Signal.MaterialAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Pigeon.MaterialAlertDialog</item>
         <item name="materialTimePickerTheme">@style/Signal.ThemeOverlay.TimePicker</item>
         <item name="materialTimePickerStyle">@style/Signal.Widget.TimePicker</item>
         <item name="materialCalendarStyle">@style/Signal.Widget.Calendar</item>
@@ -292,7 +297,7 @@
         <item name="android:textColor">@color/text_color_dark_theme</item>
         <item name="android:textColorSecondary">@color/text_color_secondary_dark_theme</item>
         <item name="android:colorControlHighlight" tools:ignore="NewApi">@color/transparent_white_10</item>
-        <item name="android:windowBackground">@color/signal_colorBackground</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyleDark</item>
         <item name="android:alertDialogTheme">@style/AppCompatDialogStyleDark</item>
@@ -324,7 +329,7 @@
 
         <item name="colorControlNormal">@color/core_white</item>
 
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Signal.MaterialAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Pigeon.MaterialAlertDialog</item>
         <item name="materialTimePickerTheme">@style/Signal.ThemeOverlay.TimePicker</item>
         <item name="materialTimePickerStyle">@style/Signal.Widget.TimePicker</item>
         <item name="materialCalendarStyle">@style/Signal.Widget.Calendar</item>
@@ -334,11 +339,11 @@
     </style>
 
     <style name="Theme.Signal.AlertDialog.Light.Cornered" parent="MaterialAlertDialog.Material3">
-        <item name="android:windowBackground">@drawable/dialog_corners</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="Theme.Signal.AlertDialog.Dark.Cornered" parent="MaterialAlertDialog.Material3">
-        <item name="android:windowBackground">@drawable/dialog_corners</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="TextSecure.LightRegistrationTheme" parent="TextSecure.LightNoActionBar"></style>
@@ -346,13 +351,13 @@
     <style name="TextSecure.DarkRegistrationTheme" parent="TextSecure.DarkNoActionBar"></style>
 
     <style name="TextSecure.LightNoActionBar.ConversationSettings" parent="TextSecure.LightNoActionBar">
-        <item name="android:windowBackground">@color/transparent_black_20</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="TextSecure.DarkNoActionBar.ConversationSettings" parent="TextSecure.DarkNoActionBar">
-        <item name="android:windowBackground">@color/transparent_black_20</item>
+        <item name="android:windowBackground">@color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
     </style>

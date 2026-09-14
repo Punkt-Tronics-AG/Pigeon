@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Mp02.Signal.Background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pigeon_big_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/header"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:clickable="false"
+            android:enabled="false"
+            android:focusable="false"
+            android:gravity="start"
+            android:text="@string/AddGroupDetailsFragment__group_name_required" />
+
+        <org.thoughtcrime.securesms.components.emoji.EmojiEditText
+            android:id="@+id/name"
+            style="@style/Mp02.Signal.Text.CommonTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pigeon_start_margin"
+            android:background="@null"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="24sp" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+        android:id="@+id/create"
+        style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginTop="5dp"
+        android:textAllCaps="false"
+        app:circularProgressMaterialButton__label="@string/AddGroupDetailsFragment__create_group" />
+
+    <!-- Hidden placeholders kept solely so AddGroupDetailsFragment.findViewById() succeeds on Pigeon. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/group_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/group_disappearing_messages_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/group_disappearing_messages_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/mms_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/mms_warning_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/add_later"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <org.thoughtcrime.securesms.groups.ui.GroupMemberListView
+            android:id="@+id/member_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/same_groups_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- Signal 8.26.4: header text is set from code (AddGroupDetailsFragment) -->
+            <TextView
+                android:id="@+id/same_groups_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/same_groups_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>

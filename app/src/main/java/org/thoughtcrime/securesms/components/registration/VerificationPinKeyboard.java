@@ -23,6 +23,8 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.NumericKeyboardView;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class VerificationPinKeyboard extends FrameLayout {
 
   private NumericKeyboardView keyboardView;
@@ -30,6 +32,7 @@ public class VerificationPinKeyboard extends FrameLayout {
   private ImageView           successView;
   private ImageView           failureView;
   private ImageView           lockedView;
+  private FrameLayout         pigeonProgressBar;
 
   private OnKeyPressListener listener;
 
@@ -63,9 +66,13 @@ public class VerificationPinKeyboard extends FrameLayout {
     this.failureView  = findViewById(R.id.failure);
     this.lockedView   = findViewById(R.id.locked);
 
-    keyboardView.setListener(keyCode -> {
-      if (listener != null) listener.onKeyPress(keyCode);
-    });
+    this.pigeonProgressBar = findViewById(R.id.pigeonProgress);
+
+    if (isSignalVersion()) {
+      keyboardView.setListener(keyCode -> {
+        if (listener != null) listener.onKeyPress(keyCode);
+      });
+    }
 
     displayKeyboard();
   }
@@ -80,6 +87,7 @@ public class VerificationPinKeyboard extends FrameLayout {
     this.successView.setVisibility(View.GONE);
     this.failureView.setVisibility(View.GONE);
     this.lockedView.setVisibility(View.GONE);
+    this.pigeonProgressBar.setVisibility(View.GONE);
   }
 
   public void displayProgress() {
@@ -88,11 +96,13 @@ public class VerificationPinKeyboard extends FrameLayout {
     this.successView.setVisibility(View.GONE);
     this.failureView.setVisibility(View.GONE);
     this.lockedView.setVisibility(View.GONE);
+    this.pigeonProgressBar.setVisibility(View.VISIBLE);
   }
 
   public ListenableFuture<Boolean> displaySuccess() {
     SettableFuture<Boolean> result = new SettableFuture<>();
 
+    this.pigeonProgressBar.setVisibility(View.GONE);
     this.keyboardView.setVisibility(View.INVISIBLE);
     this.progressBar.setVisibility(View.GONE);
     this.failureView.setVisibility(View.GONE);
@@ -120,11 +130,13 @@ public class VerificationPinKeyboard extends FrameLayout {
 
     ViewUtil.animateIn(this.successView, scaleAnimation);
     return result;
+
   }
 
   public ListenableFuture<Boolean> displayFailure() {
     SettableFuture<Boolean> result = new SettableFuture<>();
 
+    this.pigeonProgressBar.setVisibility(View.GONE);
     this.keyboardView.setVisibility(View.INVISIBLE);
     this.progressBar.setVisibility(View.GONE);
     this.failureView.setVisibility(View.GONE);
@@ -157,6 +169,7 @@ public class VerificationPinKeyboard extends FrameLayout {
   public ListenableFuture<Boolean> displayLocked() {
     SettableFuture<Boolean> result = new SettableFuture<>();
 
+    this.pigeonProgressBar.setVisibility(View.GONE);
     this.keyboardView.setVisibility(View.INVISIBLE);
     this.progressBar.setVisibility(View.GONE);
     this.failureView.setVisibility(View.GONE);

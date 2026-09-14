@@ -68,6 +68,7 @@ import org.thoughtcrime.securesms.groups.memberlabel.MemberLabelPill
 import org.thoughtcrime.securesms.groups.memberlabel.StyledMemberLabel
 import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.recipients.Recipient
+import pigeon.extensions.withPigeonTextSize
 import org.signal.core.ui.R as CoreUiR
 
 /**
@@ -558,11 +559,13 @@ private fun MemberRow(
   val about = recipient.combinedAboutAndEmoji
 
   Rows.TextRow(
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       Column(modifier = Modifier.weight(1f)) {
         EmojiText(
           text = if (recipient.isSelf) stringResource(R.string.Recipient_you) else recipient.getDisplayName(context),
-          style = MaterialTheme.typography.bodyLarge
+          style = MaterialTheme.typography.bodyLarge.withPigeonTextSize(pigeonTextSize),
+          color = pigeonTextColor
         )
 
         when {

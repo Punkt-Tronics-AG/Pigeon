@@ -30,6 +30,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.avatar.AvatarImage
 import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.recipients.Recipient
+import pigeon.extensions.withPigeonTextSize
 import org.signal.core.ui.R as CoreUiR
 
 private val LARGE_ICON_SIZE = 40.dp
@@ -46,7 +47,10 @@ fun LargeIconRow(
   enabled: Boolean = true
 ) {
   Rows.TextRow(
-    text = { TextAndLabel(text = text, enabled = enabled) },
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
+      TextAndLabel(text = text, enabled = enabled, textColor = pigeonTextColor, pigeonTextSize = pigeonTextSize)
+    },
     icon = {
       Box(
         contentAlignment = Alignment.Center,
@@ -79,11 +83,13 @@ fun RecipientRow(
   val about = recipient.combinedAboutAndEmoji
 
   Rows.TextRow(
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       Column(modifier = Modifier.weight(1f)) {
         EmojiText(
           text = recipient.getDisplayName(context),
-          style = MaterialTheme.typography.bodyLarge
+          style = MaterialTheme.typography.bodyLarge.withPigeonTextSize(pigeonTextSize),
+          color = pigeonTextColor
         )
 
         if (!about.isNullOrBlank()) {

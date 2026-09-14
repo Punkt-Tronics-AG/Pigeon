@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.registration.ui.phonenumber
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -61,6 +62,7 @@ import org.thoughtcrime.securesms.registration.ui.RegistrationState
 import org.thoughtcrime.securesms.registration.ui.RegistrationViewModel
 import org.thoughtcrime.securesms.registration.ui.countrycode.Country
 import org.thoughtcrime.securesms.registration.ui.countrycode.CountryCodeFragment
+import org.thoughtcrime.securesms.registration.ui.countrycode.CountryUtils
 import org.thoughtcrime.securesms.registration.ui.toE164
 import org.thoughtcrime.securesms.registration.util.CountryPrefix
 import org.thoughtcrime.securesms.util.CommunicationActions
@@ -73,6 +75,8 @@ import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.livedata.LiveDataObserverCallback
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -101,6 +105,9 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     SystemWindowInsetsSetter.attach(view, viewLifecycleOwner, SystemWindowInsetsSetter.SAFE_AREA_WITH_KEYBOARD)
+
+    Log.d("PIGEON", "EnterPhoneNumberMode: $enterPhoneNumberMode")
+
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
     requireActivity().onBackPressedDispatcher.addCallback(
       viewLifecycleOwner,
@@ -125,6 +132,12 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       val country: Country = bundle.getParcelableCompat(CountryCodeFragment.RESULT_COUNTRY, Country::class.java)!!
       fragmentViewModel.setCountry(country.countryCode, country)
     }
+
+    // PIGEON CODE
+    binding.countryCode.isEnabled = false
+    val country = CountryUtils.getCountries().find { it.countryCode == sharedViewModel.uiState.value?.pigeonCountryCode }
+    Log.i("PIGEON CODE", "Country: $country")
+    fragmentViewModel.setCountry(country?.countryCode ?: -1, country)
 
     spinnerAdapter = ArrayAdapter<CountryPrefix>(
       requireContext(),
@@ -188,6 +201,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       .map { it.phoneNumberRegionCode }
       .distinctUntilChanged()
       .observe(viewLifecycleOwner) { regionCode ->
+        Log.d(TAG, "Region code changed: $regionCode")
         if (regionCode.isNotNullOrBlank()) {
           currentPhoneNumberFormatter = PhoneNumberUtil.getInstance().getAsYouTypeFormatter(regionCode)
           reformatText(phoneNumberInputLayout.text)
@@ -216,12 +230,16 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
     val existingNationalNumber = sharedViewModel.nationalNumber
     if (existingPhoneNumber != null) {
       fragmentViewModel.restoreState(existingPhoneNumber)
-      spinnerView.setText(existingPhoneNumber.countryCode.toString())
+      spinnerView.setText("+${existingPhoneNumber.countryCode.toString()}")
       phoneNumberInputLayout.setText(existingPhoneNumber.nationalNumber.toString())
-    } else if (spinnerView.text?.isEmpty() == true) {
-      spinnerView.setText(fragmentViewModel.getDefaultCountryCode(requireContext()).toString())
+    } else if (spinnerView.text?.isEmpty() == true && isSignalVersion()) {
+      spinnerView.setText("+${fragmentViewModel.getDefaultCountryCode(requireContext()).toString()}")
       phoneNumberInputLayout.setText(existingNationalNumber)
     } else {
+      if (isPigeonVersion()){
+        fragmentViewModel.setCountry(country?.countryCode ?: -1, country)
+        spinnerView.setText("+${sharedViewModel.uiState.value?.pigeonCountryCode.toString()}")
+      }
       phoneNumberInputLayout.setText(existingNationalNumber)
     }
 
@@ -239,7 +257,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
       binding.countryEmoji.text = country.emoji
       binding.country.text = country.name
       if (spinnerView.text.toString() != country.countryCode.toString()) {
-        spinnerView.setText(country.countryCode.toString())
+        spinnerView.setText("+${country.countryCode}")
       }
     } else {
       binding.countryEmoji.visible = false
@@ -271,7 +289,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   private fun handleChallenges(remainingChallenges: List<Challenge>) {
     when (remainingChallenges.first()) {
       Challenge.CAPTCHA -> moveToCaptcha()
-      Challenge.PUSH -> performPushChallenge()
+      Challenge.PUSH -> if (isSignalVersion()) performPushChallenge() else moveToCaptcha()
     }
   }
 
@@ -329,10 +347,11 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun presentLocalError(state: EnterPhoneNumberState) {
-    when (state.error) {
-      EnterPhoneNumberState.Error.NONE -> Unit
-
-      EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER -> {
+    if (isPigeonVersion()) {
+      Log.e(TAG, "Local error: ${state.error.name}")
+      if (state.error != EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER) {
+        Unit
+      } else {
         MaterialAlertDialogBuilder(requireContext()).apply {
           setTitle(R.string.RegistrationActivity_invalid_number)
           setMessage(
@@ -347,23 +366,43 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
           show()
         }
       }
+    } else {
+      when (state.error) {
+        EnterPhoneNumberState.Error.NONE -> Unit
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_MISSING -> {
-        handlePromptForNoPlayServices()
-      }
+        EnterPhoneNumberState.Error.INVALID_PHONE_NUMBER -> {
+          MaterialAlertDialogBuilder(requireContext()).apply {
+            setTitle(R.string.RegistrationActivity_invalid_number)
+            setMessage(
+              String.format(
+                getString(R.string.RegistrationActivity_the_number_you_specified_s_is_invalid),
+                state.phoneNumber
+              )
+            )
+            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
+            setOnCancelListener { fragmentViewModel.clearError() }
+            setOnDismissListener { fragmentViewModel.clearError() }
+            show()
+          }
+        }
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_NEEDS_UPDATE -> {
-        GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, 0)?.show()
-      }
+        EnterPhoneNumberState.Error.PLAY_SERVICES_MISSING -> {
+          handlePromptForNoPlayServices()
+        }
 
-      EnterPhoneNumberState.Error.PLAY_SERVICES_TRANSIENT -> {
-        MaterialAlertDialogBuilder(requireContext()).apply {
-          setTitle(R.string.RegistrationActivity_play_services_error)
-          setMessage(R.string.RegistrationActivity_google_play_services_is_updating_or_unavailable)
-          setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
-          setOnCancelListener { fragmentViewModel.clearError() }
-          setOnDismissListener { fragmentViewModel.clearError() }
-          show()
+        EnterPhoneNumberState.Error.PLAY_SERVICES_NEEDS_UPDATE -> {
+          GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, 0)?.show()
+        }
+
+        EnterPhoneNumberState.Error.PLAY_SERVICES_TRANSIENT -> {
+          MaterialAlertDialogBuilder(requireContext()).apply {
+            setTitle(R.string.RegistrationActivity_play_services_error)
+            setMessage(R.string.RegistrationActivity_google_play_services_is_updating_or_unavailable)
+            setPositiveButton(android.R.string.ok) { _, _ -> fragmentViewModel.clearError() }
+            setOnCancelListener { fragmentViewModel.clearError() }
+            setOnDismissListener { fragmentViewModel.clearError() }
+            show()
+          }
         }
       }
     }
@@ -569,9 +608,10 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun startNormalRegistration() {
+    Log.i("TAG", "onRegistrationButtonClicked")
     ViewUtil.hideKeyboard(requireContext(), phoneNumberInputLayout)
     sharedViewModel.setInProgress(true)
-    val hasFcm = validateFcmStatus(requireContext())
+    val hasFcm = if (isSignalVersion()) validateFcmStatus(requireContext()) else false
     if (hasFcm) {
       sharedViewModel.uiState.observe(viewLifecycleOwner, FcmTokenRetrievedObserver())
       sharedViewModel.fetchFcmToken(requireContext())
@@ -584,7 +624,11 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
         } else if (now < value.nextSmsTimestamp) {
           moveToVerificationEntryScreen()
         } else {
-          presentConfirmNumberDialog(value.phoneNumber, value.isReRegister, value.canSkipSms, missingFcmConsentRequired = true)
+          if (isSignalVersion()) {
+            presentConfirmNumberDialog(value.phoneNumber, value.isReRegister, value.canSkipSms, missingFcmConsentRequired = true)
+          } else {
+            sharedViewModel.onUserConfirmedPhoneNumber(requireContext())
+          }
         }
       }
     }
@@ -705,7 +749,7 @@ class EnterPhoneNumberFragment : LoggingFragment(R.layout.fragment_registration_
   }
 
   private fun moveToCountryPickerScreen() {
-    findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionCountryPicker(fragmentViewModel.country))
+    findNavController().safeNavigate(EnterPhoneNumberFragmentDirections.actionCountryPicker(fragmentViewModel.country, enterPhoneNumberMode))
   }
 
   private fun popBackStack() {
