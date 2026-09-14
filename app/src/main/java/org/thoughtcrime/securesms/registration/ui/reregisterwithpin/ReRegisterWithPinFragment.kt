@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -31,6 +32,8 @@ import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration_pin_restore_entry_v2) {
   companion object {
@@ -54,6 +57,7 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
     binding.pinRestoreForgotPin.setOnClickListener { onNeedHelpClicked() }
 
     binding.pinRestoreSkipButton.setOnClickListener { onSkipClicked() }
+    binding.pinRestoreSkipButton.requestFocus()
 
     binding.pinRestorePinInput.imeOptions = EditorInfo.IME_ACTION_DONE
     binding.pinRestorePinInput.setOnEditorActionListener { v, actionId, _ ->
@@ -109,9 +113,15 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
       ViewUtil.hideKeyboard(requireContext(), binding.pinRestorePinInput)
       binding.pinRestorePinInput.isEnabled = false
       binding.pinRestorePinContinue.setSpinning()
+      if (isPigeonVersion()){
+        binding.progressBar?.isVisible = true
+      }
     } else {
       binding.pinRestorePinInput.isEnabled = true
       binding.pinRestorePinContinue.cancelSpinning()
+      if (isPigeonVersion()) {
+        binding.progressBar?.isVisible = false
+      }
     }
   }
 
@@ -265,6 +275,7 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
 
       is RegisterAccountResult.IncorrectRecoveryPassword -> {
         registrationViewModel.setUserSkippedReRegisterFlow(true)
+        Log.d("PIGEON", "User's recovery password was incorrect, navigating to phone number entry.")
         findNavController().safeNavigate(ReRegisterWithPinFragmentDirections.actionReRegisterWithPinFragmentToEnterPhoneNumberFragment(EnterPhoneNumberMode.NORMAL))
       }
 

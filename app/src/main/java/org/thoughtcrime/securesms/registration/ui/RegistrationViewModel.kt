@@ -183,6 +183,14 @@ class RegistrationViewModel : ViewModel() {
     }
   }
 
+  // PIGEON CODE
+  fun setNewCountry(countryCode: Int) {
+    Log.v(TAG, "setNewCountry() code: $countryCode")
+    store.update {
+      it.copy(pigeonCountryCode = countryCode)
+    }
+  }
+
   fun setPhoneNumber(phoneNumber: Phonenumber.PhoneNumber?) {
     store.update {
       it.copy(
@@ -274,6 +282,8 @@ class RegistrationViewModel : ViewModel() {
 
     val e164 = state.phoneNumber?.toE164() ?: return bail { Log.i(TAG, "Phone number was null after confirmation.") }
 
+    Log.d(TAG,  "PIGEON: onUserConfirmedPhoneNumber(): $e164")
+
     if (!state.userSkippedReregistration) {
       if (hasRecoveryPassword() && matchesSavedE164(e164)) {
         // Re-registration when the local database is intact.
@@ -319,6 +329,8 @@ class RegistrationViewModel : ViewModel() {
 
       val validSession = getOrCreateValidSession(context) ?: return@launch bail { Log.i(TAG, "Could not create valid session for confirming the entered E164.") }
 
+      Log.d(TAG, "PIGEON: Session is already verified: ${validSession.verified}")
+
       if (validSession.verified) {
         Log.i(TAG, "Session is already verified, registering account.")
         registerVerifiedSession(context, validSession.sessionId)
@@ -330,6 +342,8 @@ class RegistrationViewModel : ViewModel() {
         handleSessionStateResult(context, ChallengeRequired(validSession.challengesRequested))
         return@launch
       }
+
+      Log.d(TAG, "PIGEON: Requesting SMS code…")
 
       requestSmsCodeInternal(context, validSession.sessionId, e164)
     }
@@ -422,6 +436,8 @@ class RegistrationViewModel : ViewModel() {
     Log.v(TAG, "getOrCreateValidSession()")
     val e164 = getCurrentE164() ?: throw IllegalStateException("E164 required to create session!")
     val mccMncProducer = MccMncProducer(context)
+
+    Log.d(TAG, "PIGEON: Creating session…")
 
     val existingSessionId = store.value.sessionId
     return getOrCreateValidSession(

@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.signal.emoji.EmojiFilter;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 
 public class EmojiEditText extends AppCompatEditText {
 
@@ -47,7 +49,9 @@ public class EmojiEditText extends AppCompatEditText {
     a.recycle();
 
     if (!isInEditMode() && !SignalStore.settings().isPreferSystemEmoji()) {
-      setFilters(appendEmojiFilter(this.getFilters(), jumboEmoji));
+      if (isSignalVersion()) {
+        setFilters(appendEmojiFilter(this.getFilters(), jumboEmoji));
+      }
       setEmojiCompatEnabled(false);
     }
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.compose.theme.SignalTheme
+import pigeon.extensions.isPigeonVersion
 
 @OptIn(ExperimentalMaterial3Api::class)
 object Scaffolds {
@@ -101,15 +102,17 @@ object Scaffolds {
     Scaffold(
       snackbarHost = snackbarHost,
       topBar = {
-        DefaultTopAppBar(
-          title = title,
-          titleContent = titleContent,
-          onNavigationClick = onNavigationClick,
-          navigationIcon = navigationIcon,
-          navigationContentDescription = navigationContentDescription,
-          actions = actions,
-          scrollBehavior = scrollBehavior
-        )
+        if (isPigeonVersion()) {
+          DefaultTopAppBar(
+            title = title,
+            titleContent = titleContent,
+            onNavigationClick = onNavigationClick,
+            navigationIcon = navigationIcon,
+            navigationContentDescription = navigationContentDescription,
+            actions = actions,
+            scrollBehavior = scrollBehavior
+          )
+        }
       },
       bottomBar = bottomBar,
       modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

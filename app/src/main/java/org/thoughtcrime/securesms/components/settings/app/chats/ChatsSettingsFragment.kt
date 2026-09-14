@@ -30,6 +30,8 @@ import org.thoughtcrime.securesms.backup.v2.ui.status.BackupCreationProgressRow
 import org.thoughtcrime.securesms.components.compose.rememberBiometricsAuthentication
 import org.thoughtcrime.securesms.keyvalue.protos.LocalBackupCreationProgress
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * Displays a list of chats settings options to the user, including

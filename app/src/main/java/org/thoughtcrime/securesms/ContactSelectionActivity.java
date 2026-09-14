@@ -27,6 +27,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.signal.core.util.DimensionUnit;
+import com.google.android.material.button.MaterialButton;
+
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.components.ContactFilterView;
 import org.thoughtcrime.securesms.contacts.ContactSelectionDisplayMode;
@@ -42,6 +44,8 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import pigeon.extensions.KotilinExtensionsKt;
 
 /**
  * Base activity container for selecting a list of contacts.
@@ -63,6 +67,7 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
 
   private Toolbar           toolbar;
   private ContactFilterView contactFilterView;
+  private MaterialButton    refresh;
 
   @Override
   protected void onPreCreate() {

@@ -30,8 +30,9 @@ plugins {
 val staticIps = Properties().apply { file("static-ips.properties").reader().use { load(it) } }
 staticIps.stringPropertyNames().forEach { rootProject.extra[it] = staticIps.getProperty(it) }
 
+val pigeonVersionCode = 127547
 val canonicalVersionCode = 1748
-val canonicalVersionName = "8.26.4"
+val canonicalVersionName = "Pigeon 2.0.0034 upon Signal 8.26.4"
 val currentHotfixVersion = 0
 val maxHotfixVersions = 100
 
@@ -243,7 +244,8 @@ android {
     if (currentHotfixVersion >= maxHotfixVersions) {
       throw AssertionError("Hotfix version offset is too large!")
     }
-    versionCode = (canonicalVersionCode * maxHotfixVersions) + possibleHotfixVersions[currentHotfixVersion]
+//    versionCode = (canonicalVersionCode * maxHotfixVersions) + possibleHotfixVersions[currentHotfixVersion]
+    versionCode = pigeonVersionCode
     versionName = canonicalVersionName
 
     if (isInstrumentationTestRun) {
@@ -307,6 +309,9 @@ android {
     buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"pk_live_6cmGZopuTsV8novGgJJW9JpC00vLIgtQ1D\"")
     buildConfigField("boolean", "TRACING_ENABLED", "false")
     buildConfigField("boolean", "LINK_DEVICE_UX_ENABLED", "false")
+
+    buildConfigField("boolean", "IS_SIGNAL", "false")
+
 
     ndk {
       abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
@@ -683,6 +688,9 @@ dependencies {
   ktlintRuleset(libs.ktlint.twitter.compose)
   coreLibraryDesugaring(libs.android.tools.desugar)
 
+  // for Pigeon
+  implementation(files("libs/ringrtc-android-2.71.0.aar"))
+
   implementation(project(":core:models"))
   implementation(project(":core:models-jvm"))
   implementation(project(":core:serialization"))
@@ -771,7 +779,8 @@ dependencies {
   implementation(libs.signal.aesgcmprovider)
   implementation(libs.libsignal.android)
   implementation(libs.mobilecoin)
-  implementation(libs.signal.ringrtc)
+  // Pigeon used local modified library
+  // implementation(libs.signal.ringrtc)
   implementation(libs.leolin.shortcutbadger)
   implementation(libs.glide.glide)
   implementation(libs.roundedimageview)

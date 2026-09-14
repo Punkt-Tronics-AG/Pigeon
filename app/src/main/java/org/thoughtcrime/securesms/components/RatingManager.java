@@ -14,6 +14,8 @@ import org.thoughtcrime.securesms.util.VersionTracker;
 
 import java.util.concurrent.TimeUnit;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class RatingManager {
 
   private static final int DAYS_SINCE_INSTALL_THRESHOLD  = 7;
@@ -30,7 +32,9 @@ public class RatingManager {
     if (daysSinceInstall >= DAYS_SINCE_INSTALL_THRESHOLD &&
         System.currentTimeMillis() >= laterTimestamp)
     {
-      showRatingDialog(context);
+      if (isSignalVersion()) {
+        showRatingDialog(context);
+      }
     }
   }
 

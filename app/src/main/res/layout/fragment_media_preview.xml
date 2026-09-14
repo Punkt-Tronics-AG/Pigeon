@@ -50,6 +50,20 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/pigeon_volume_indicator"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:alpha="0"
+        android:background="@drawable/bg_pigeon_volume_indicator"
+        android:gravity="center"
+        android:textColor="@color/core_white"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        tools:alpha="1"
+        tools:text="7" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbar_layout"
         android:layout_width="match_parent"

@@ -8,6 +8,8 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
+import kotlinx.collections.immutable.toImmutableSet
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -56,6 +58,7 @@ import org.whispersystems.signalservice.api.websocket.SignalWebSocket
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import org.whispersystems.signalservice.api.websocket.WebSocketUnavailableException
 import org.whispersystems.signalservice.internal.push.Envelope
+import pigeon.viewmodels.IntervalSettingsViewModel
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -85,8 +88,10 @@ class IncomingMessageObserver(
     private const val WEB_SOCKET_KEEP_ALIVE_TOKEN = "MessageRetrieval"
 
     /** How long we wait for the websocket to time out before we try to connect again. */
-    private val websocketReadTimeout: Long
-      get() = if (censored) 30.seconds.inWholeMilliseconds else 1.minutes.inWholeMilliseconds
+    private var websocketReadTimeout: Long = 60
+      //      get() = if (censored) 30.seconds.inWholeMilliseconds else 1.minutes.inWholeMilliseconds
+      // For pigeon
+
 
     /** How long the websocket is allowed to keep running after the user backgrounds the app. Higher numbers allow us to rely on FCM less. */
     private val maxBackgroundTime: Long
@@ -155,6 +160,8 @@ class IncomingMessageObserver(
     private set
 
   init {
+    websocketReadTimeout = PreferenceManager.getDefaultSharedPreferences(context).getInt(IntervalSettingsViewModel.INCOMING_MESSAGE_TIME_PREF, 60).seconds.inWholeMilliseconds
+
     if (INSTANCE_COUNT.incrementAndGet() != 1) {
       throw AssertionError("Multiple observers!")
     }

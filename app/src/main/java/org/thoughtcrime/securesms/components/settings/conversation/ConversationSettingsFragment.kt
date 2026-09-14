@@ -84,6 +84,7 @@ import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.thoughtcrime.securesms.verify.VerifyIdentityActivity
 import org.thoughtcrime.securesms.wallpaper.ChatWallpaperActivity
+import pigeon.extensions.isSignalVersion
 
 private val TAG = Log.tag(ConversationSettingsFragment::class)
 

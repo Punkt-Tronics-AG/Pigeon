@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true">
+
+    <LinearLayout
+        android:id="@+id/background_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        tools:background="@color/sim_background">
+
+        <LinearLayout
+            android:id="@+id/toggle_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/search_view"
+                style="@style/Mp02.Signal.Text.CommonTextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/pigeon_start_margin"
+                android:layout_marginTop="@dimen/pigeon_small_margin"
+                android:backgroundTint="@color/transparent"
+                android:hint="@string/pigeon_ContactFilterView__search_name_or_number"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textCapWords|textVisiblePassword|textNoSuggestions"
+                android:paddingStart="@dimen/pigeon_cursor_padding"
+                android:paddingTop="8dp"
+                android:textAlignment="textStart"
+                android:textColor="@color/white_focus"
+                android:textColorHint="@color/signal_text_hint"
+                android:textCursorDrawable="@drawable/mp02_cursor_style" />
+
+            <org.thoughtcrime.securesms.components.AnimatingToggle
+                android:id="@+id/button_toggle"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:layout_gravity="center">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/search_dialpad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="?actionBarItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="@string/contact_filter_toolbar__show_dial_pad_description"
+                    android:focusable="true"
+                    android:tint="@color/signal_icon_tint_primary"
+                    app:srcCompat="@drawable/ic_number_pad_conversation_filter_24" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/search_keyboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="?actionBarItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="@string/contact_filter_toolbar__show_keyboard_description"
+                    android:focusable="true"
+                    android:tint="@color/signal_icon_tint_primary"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_keyboard_24" />
+
+                <ImageView
+                    android:id="@+id/search_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="?actionBarItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="@string/contact_filter_toolbar__clear_entered_text_description"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_x_conversation_filter_24" />
+            </org.thoughtcrime.securesms.components.AnimatingToggle>
+        </LinearLayout>
+    </LinearLayout>
+</merge>

@@ -19,6 +19,9 @@ import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.padding
 import org.thoughtcrime.securesms.util.views.LearnMoreTextView
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * View shown in a conversation during a message request state or related state (e.g., blocked).
@@ -49,7 +52,18 @@ class MessageRequestsBottomView @JvmOverloads constructor(context: Context, attr
     busyIndicator = findViewById(R.id.message_request_busy_indicator)
     buttonBar = findViewById(R.id.message_request_button_layout)
 
-    setWallpaperEnabled(false)
+    if (isSignalVersion()) {
+      setWallpaperEnabled(false)
+    }
+
+    if (isPigeonVersion()) {
+      accept.focusOnLeft()
+      block.focusOnLeft()
+      unblock.focusOnLeft()
+      delete.focusOnLeft()
+      report.focusOnLeft()
+      accept.requestFocus()
+    }
   }
 
   fun setMessageRequestData(recipient: Recipient, messageRequestState: MessageRequestState) {
@@ -112,7 +126,7 @@ class MessageRequestsBottomView @JvmOverloads constructor(context: Context, attr
     accept.visible = !messageState.isBlocked
     block.visible = !messageState.isBlocked
     unblock.visible = messageState.isBlocked
-    delete.visible = messageState.reportedAsSpam || messageState.isBlocked
+    delete.visible = if (isSignalVersion())messageState.reportedAsSpam || messageState.isBlocked else true
     report.visible = !messageState.reportedAsSpam
   }
 

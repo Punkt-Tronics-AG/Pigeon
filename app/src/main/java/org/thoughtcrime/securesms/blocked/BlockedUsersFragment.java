@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +17,8 @@ import org.thoughtcrime.securesms.BlockUnblockDialog;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.signal.core.util.concurrent.LifecycleDisposable;
+
+import static pigeon.extensions.KotilinExtensionsKt.focusOnRight;
 
 public class BlockedUsersFragment extends Fragment {
 
@@ -49,10 +52,13 @@ public class BlockedUsersFragment extends Fragment {
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    View                addUser  = view.findViewById(R.id.add_blocked_user_touch_target);
-    RecyclerView        recycler = view.findViewById(R.id.blocked_users_recycler);
-    View                empty    = view.findViewById(R.id.no_blocked_users);
-    BlockedUsersAdapter adapter  = new BlockedUsersAdapter(this::handleRecipientClicked);
+    View                addUser     = view.findViewById(R.id.add_blocked_user_touch_target);
+    RecyclerView        recycler    = view.findViewById(R.id.blocked_users_recycler);
+    View                empty       = view.findViewById(R.id.no_blocked_users);
+    BlockedUsersAdapter adapter     = new BlockedUsersAdapter(this::handleRecipientClicked);
+    ConstraintLayout    touchLayout = view.findViewById(R.id.touch_layout);
+
+    focusOnRight(touchLayout);
 
     recycler.setAdapter(adapter);
 
@@ -61,6 +67,8 @@ public class BlockedUsersFragment extends Fragment {
         listener.handleAddUserToBlockedList();
       }
     });
+
+    touchLayout.setOnClickListener(v -> addUser.performClick());
 
     lifecycleDisposable.bindTo(getViewLifecycleOwner());
     viewModel = new ViewModelProvider(requireActivity()).get(BlockedUsersViewModel.class);

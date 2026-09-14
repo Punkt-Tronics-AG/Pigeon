@@ -82,6 +82,9 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.ringrtc.CameraState
 import org.thoughtcrime.securesms.service.webrtc.PendingParticipantCollection
 import org.thoughtcrime.securesms.util.RemoteConfig
+import pigeon.compose.PigeonCallScreen
+import pigeon.compose.PigeonIncomingCallScreen
+import pigeon.extensions.isPigeonVersion
 import kotlin.math.max
 import kotlin.math.round
 import kotlin.time.Duration.Companion.milliseconds
@@ -141,6 +144,25 @@ fun CallScreen(
   onViewSafetyNumber: (CallParticipant) -> Unit = {},
   onGoToChat: (CallParticipant) -> Unit = {}
 ) {
+  if (isPigeonVersion()) {
+    if (webRtcCallState == WebRtcViewModel.State.CALL_INCOMING) {
+      PigeonIncomingCallScreen(
+        callRecipient = callRecipient,
+        callStatus = callScreenState.callStatus,
+        isVideoCall = isRemoteVideoOffer,
+        callScreenControlsListener = callScreenControlsListener
+      )
+    } else {
+      PigeonCallScreen(
+        callRecipient = callRecipient,
+        callStatus = callScreenState.callStatus,
+        callControlsState = callControlsState,
+        callScreenControlsListener = callScreenControlsListener
+      )
+    }
+    return
+  }
+
   if (webRtcCallState == WebRtcViewModel.State.CALL_INCOMING) {
     IncomingCallScreen(
       callRecipient = callRecipient,

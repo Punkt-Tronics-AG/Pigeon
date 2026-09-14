@@ -212,10 +212,13 @@ private fun TotpAppRow(
         tint = MaterialTheme.colorScheme.onSurface
       )
     },
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       TextAndLabel(
         text = app.name,
-        label = stringResource(R.string.TotpAppListScreen__added_s, addedTime)
+        label = stringResource(R.string.TotpAppListScreen__added_s, addedTime),
+        textColor = pigeonTextColor,
+        pigeonTextSize = pigeonTextSize
       )
 
       TotpAppMenuButton(
