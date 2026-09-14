@@ -103,7 +103,7 @@ internal fun LocalBackupsSettingsScreen(
       if (!state.backupsEnabled) {
         item {
           Rows.TextRow(
-            text = {
+            text = { _, _ ->
               Column {
                 Text(
                   text = stringResource(id = R.string.BackupsPreferenceFragment__backups_are_encrypted_with_a_passphrase),
@@ -141,7 +141,7 @@ internal fun LocalBackupsSettingsScreen(
         } else {
           item {
             Rows.TextRow(
-              text = {
+              text = { _, _ ->
                 Column {
                   Text(
                     text = stringResource(id = R.string.BackupsPreferenceFragment__create_backup),

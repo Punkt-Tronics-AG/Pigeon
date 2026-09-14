@@ -6,8 +6,12 @@
 package org.signal.core.ui.compose
 
 import android.R
+import android.view.KeyEvent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,9 +49,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import pigeon.extensions.isPigeonVersion
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
@@ -202,6 +214,39 @@ object Dialogs {
     dismissColor: Color = Color.Unspecified,
     properties: DialogProperties = DialogProperties()
   ) {
+    val pigeonFocusRequester = remember { FocusRequester() }
+    val pigeonDismissFocusRequester = remember { FocusRequester() }
+    // PIGEON-UI: Make buttons focusable and allow DPAD navigation between them
+    val pigeonConfirmModifier = if (isPigeonVersion()) {
+      Modifier
+        .focusable(true)
+        .focusRequester(pigeonFocusRequester)
+        .onKeyEvent { event ->
+          if ((event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) && event.type == KeyEventType.KeyUp) {
+            pigeonDismissFocusRequester.requestFocus()
+            true
+          } else {
+            false
+          }
+        }
+    } else {
+      Modifier
+    }
+    val pigeonDismissModifier = if (isPigeonVersion()) {
+      Modifier
+        .focusable(true)
+        .focusRequester(pigeonDismissFocusRequester)
+        .onKeyEvent { event ->
+          if ((event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_UP || event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN) && event.type == KeyEventType.KeyUp) {
+            pigeonFocusRequester.requestFocus()
+            true
+          } else {
+            false
+          }
+        }
+    } else {
+      Modifier
+    }
     BaseAlertDialog(
       onDismissRequest = onDismissRequest,
       title = if (title.isNotEmpty()) {
@@ -218,7 +263,7 @@ object Dialogs {
             onDismiss()
             onConfirm()
           },
-          modifier = Modifier.testTag(TEST_TAG_ALERT_DIALOG_CONFIRM_BUTTON)
+          modifier = Modifier.testTag(TEST_TAG_ALERT_DIALOG_CONFIRM_BUTTON).then(pigeonConfirmModifier)
         ) {
           Text(text = confirm, color = confirmColor)
         }
@@ -226,12 +271,11 @@ object Dialogs {
       dismissButton = if (dismiss.isNotEmpty()) {
         {
           TextButton(
-            onClick =
-            {
+            onClick = {
               onDismiss()
               onDeny()
             },
-            modifier = Modifier.testTag(TEST_TAG_ALERT_DIALOG_DISMISS_BUTTON)
+            modifier = Modifier.testTag(TEST_TAG_ALERT_DIALOG_DISMISS_BUTTON).then(pigeonDismissModifier)
           ) {
             Text(text = dismiss, color = dismissColor)
           }
@@ -242,6 +286,13 @@ object Dialogs {
       modifier = modifier,
       properties = properties
     )
+
+    LaunchedEffect(Unit) {
+      // PIGEON-UI: Request focus on the confirm button so that it can be activated with the enter key
+      if (isPigeonVersion()) {
+        pigeonFocusRequester.requestFocus()
+      }
+    }
   }
 
   /**
@@ -394,7 +445,7 @@ object Dialogs {
         Column(
           verticalArrangement = Arrangement.Center,
           horizontalAlignment = Alignment.CenterHorizontally,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth().fillMaxHeight()
         ) {
           Spacer(modifier = Modifier.size(32.dp))
           CircularProgressIndicator()
@@ -416,7 +467,7 @@ object Dialogs {
           }
         }
       },
-      modifier = Modifier.width(200.dp)
+      modifier = Modifier.size(200.dp, 270.dp)
     )
   }
 
@@ -559,7 +610,14 @@ object Dialogs {
     ) {
       Surface(
         modifier = Modifier
-          .heightIn(min = 0.dp, max = getScreenHeight() - 200.dp)
+          .then(
+            if (isPigeonVersion()) {
+              Modifier.heightIn(max = getScreenHeight() - 32.dp)
+            } else {
+              Modifier
+            }
+          )
+          .padding(vertical = if (isPigeonVersion()) 16.dp else 100.dp)
           .background(
             color = SignalTheme.colors.colorSurface2,
             shape = AlertDialogDefaults.shape
@@ -576,7 +634,7 @@ object Dialogs {
           )
 
           LazyColumn(
-            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp),
+            modifier = Modifier.padding(top = if (isPigeonVersion()) 8.dp else 24.dp, bottom = 16.dp),
             state = rememberLazyListState(
               initialFirstVisibleItemIndex = max(selectedIndex, 0)
             )
@@ -585,28 +643,40 @@ object Dialogs {
               count = values.size,
               key = { values[it] }
             ) { index ->
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .defaultMinSize(minHeight = 48.dp)
-                  .clickable(
-                    enabled = true,
-                    onClick = {
-                      onSelected(index)
-                      onDismissRequest()
-                    }
-                  )
-                  .horizontalGutters()
-              ) {
-                RadioButton(
-                  enabled = true,
+              if (isPigeonVersion()) {
+                PigeonRadioListDialogItem(
+                  label = labels[index],
                   selected = index == selectedIndex,
-                  onClick = null,
-                  modifier = Modifier.padding(end = 24.dp)
+                  isInitiallyFocused = index == max(selectedIndex, 0),
+                  onClick = {
+                    onSelected(index)
+                    onDismissRequest()
+                  }
                 )
+              } else {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
+                    .clickable(
+                      enabled = true,
+                      onClick = {
+                        onSelected(index)
+                        onDismissRequest()
+                      }
+                    )
+                    .horizontalGutters()
+                ) {
+                  RadioButton(
+                    enabled = true,
+                    selected = index == selectedIndex,
+                    onClick = null,
+                    modifier = Modifier.padding(end = 24.dp)
+                  )
 
-                Text(text = labels[index])
+                  Text(text = labels[index])
+                }
               }
             }
           }
@@ -936,6 +1006,73 @@ private fun RadioListDialogPreview() {
       values = arrayOf(),
       selectedIndex = -1,
       onSelected = {}
+    )
+  }
+}
+
+@Composable
+private fun PigeonRadioListDialogItem(
+  label: String,
+  selected: Boolean,
+  isInitiallyFocused: Boolean,
+  onClick: () -> Unit
+) {
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+  val focusRequester = remember { FocusRequester() }
+
+  if (isInitiallyFocused) {
+    LaunchedEffect(Unit) {
+      runCatching { focusRequester.requestFocus() }
+    }
+  }
+
+  val backgroundColor = if (isFocused) {
+    MaterialTheme.colorScheme.primary
+  } else {
+    Color.Transparent
+  }
+  val contentColor = if (isFocused) {
+    MaterialTheme.colorScheme.onPrimary
+  } else {
+    MaterialTheme.colorScheme.onSurface
+  }
+  val textStyle = if (isFocused) {
+    MaterialTheme.typography.titleLarge
+  } else {
+    MaterialTheme.typography.bodyLarge
+  }
+
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .fillMaxWidth()
+      .focusRequester(focusRequester)
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        interactionSource = interactionSource,
+        indication = null,
+        onClick = onClick
+      )
+      .background(backgroundColor)
+      .defaultMinSize(minHeight = 56.dp)
+      .horizontalGutters()
+  ) {
+    RadioButton(
+      enabled = true,
+      selected = selected,
+      onClick = null,
+      colors = androidx.compose.material3.RadioButtonDefaults.colors(
+        selectedColor = contentColor,
+        unselectedColor = contentColor
+      ),
+      modifier = Modifier.padding(end = 16.dp)
+    )
+
+    Text(
+      text = label,
+      style = textStyle,
+      color = contentColor
     )
   }
 }

@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import org.thoughtcrime.securesms.R;
+import static pigeon.extensions.BuildExtensionsKt.*;
 
 /**
  * It seems to be impossible to tint the overflow icon in an ActionMode independently from the
@@ -33,7 +34,11 @@ public class DarkOverflowToolbar extends Toolbar {
 
   private void init() {
     if (getOverflowIcon() != null) {
-      getOverflowIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.signal_icon_tint_primary), PorterDuff.Mode.SRC_ATOP);
+      if (isSignalVersion()) {
+        getOverflowIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.signal_icon_tint_primary), PorterDuff.Mode.SRC_ATOP);
+      } else {
+        getOverflowIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_ATOP);
+      }
     }
   }
 }

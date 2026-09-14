@@ -173,6 +173,9 @@ import java.util.concurrent.TimeUnit;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 /**
  * A view that displays an individual conversation item within a conversation
  * thread.  Used by ComposeMessageActivity's ListActivity via a ConversationAdapter.
@@ -818,6 +821,10 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   }
 
   private @ColorInt int getDefaultBubbleColor(boolean hasWallpaper) {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white);
+    }
+
     if (isReleaseNotes) {
       return ContextCompat.getColor(context, R.color.release_notes_bubble);
     }
@@ -944,12 +951,16 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
   private void setBubbleState(MessageRecord messageRecord, @NonNull Recipient recipient, boolean hasWallpaper, @NonNull Colorizer colorizer) {
     this.hasWallpaper = hasWallpaper;
 
-    ViewUtil.updateLayoutParams(bodyBubble, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    if (isSignalVersion()) {
+      ViewUtil.updateLayoutParams(bodyBubble, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    }
     bodyText.setTextColor(colorizer.getIncomingBodyTextColor(context, hasWallpaper));
     bodyText.setLinkTextColor(colorizer.getIncomingBodyTextColor(context, hasWallpaper));
 
     if (messageRecord.isOutgoing() && !messageRecord.isRemoteDelete()) {
-      bodyBubble.getBackground().setColorFilter(recipient.getChatColors().getChatBubbleColorFilter());
+      if(isSignalVersion()){
+        bodyBubble.getBackground().setColorFilter(recipient.getChatColors().getChatBubbleColorFilter());
+      }
       bodyText.setTextColor(colorizer.getOutgoingBodyTextColor(context));
       bodyText.setLinkTextColor(colorizer.getOutgoingBodyTextColor(context));
       footer.setTextColor(colorizer.getOutgoingFooterTextColor(context));
@@ -958,12 +969,16 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       footer.setOnlyShowSendingStatus(false, messageRecord);
     } else if (messageRecord.isRemoteDelete()) {
       if (messageRecord.isOutgoing() && hasWallpaper) {
-        bodyBubble.getBackground().setColorFilter(recipient.getChatColors().getChatBubbleColorFilter());
+        if(isSignalVersion()) {
+          bodyBubble.getBackground().setColorFilter(recipient.getChatColors().getChatBubbleColorFilter());
+        }
         footer.setTextColor(colorizer.getOutgoingFooterTextColor(context));
         footer.setIconColor(colorizer.getOutgoingFooterIconColor(context));
         footer.setRevealDotColor(colorizer.getOutgoingFooterIconColor(context));
       } else if (hasWallpaper) {
-        bodyBubble.getBackground().setColorFilter(getDefaultBubbleColor(true), PorterDuff.Mode.SRC_IN);
+        if(isSignalVersion()) {
+          bodyBubble.getBackground().setColorFilter(getDefaultBubbleColor(true), PorterDuff.Mode.SRC_IN);
+        }
         footer.setTextColor(ContextCompat.getColor(context, R.color.signal_text_secondary));
         footer.setIconColor(ContextCompat.getColor(context, org.signal.core.ui.R.color.signal_colorNeutralVariantInverse));
         footer.setRevealDotColor(ContextCompat.getColor(context, org.signal.core.ui.R.color.signal_colorNeutralVariantInverse));
@@ -975,7 +990,9 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       }
       footer.setOnlyShowSendingStatus(messageRecord.isRemoteDelete(), messageRecord);
     } else {
-      bodyBubble.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.SRC_IN);
+      if (isSignalVersion()) {
+        bodyBubble.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.SRC_IN);
+        }
       if (isReleaseNotes) {
         int releaseNotesTextColor = ContextCompat.getColor(context, R.color.release_notes_bubble_text);
         bodyText.setTextColor(releaseNotesTextColor);
@@ -1075,6 +1092,9 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
    * Today this is only {@link org.thoughtcrime.securesms.conversation.quotes.MessageQuotesBottomSheet}.
    */
   private boolean isCondensedMode() {
+    if(isPigeonVersion()){
+      return true;
+    }
     return displayMode instanceof ConversationItemDisplayMode.Condensed;
   }
 
@@ -1083,6 +1103,9 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
    * Today, we only want to do this for the first message when we're in condensed mode.
    */
   private boolean isContentCondensed() {
+    if(isPigeonVersion()){
+      return true;
+    }
     return isCondensedMode() && !previousMessage.isPresent();
   }
 
@@ -1220,10 +1243,12 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       italics.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), 0, deletedMessage.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       int textColor = messageRecord.isOutgoing() && hasWallpaper ? colorizer.getOutgoingDeleteTextColor(context)
                                                                  : ContextCompat.getColor(context, R.color.signal_text_primary);
-      italics.setSpan(new ForegroundColorSpan(textColor),
-                      0,
-                      deletedMessage.length(),
-                      Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      if(isSignalVersion()){
+        italics.setSpan(new ForegroundColorSpan(textColor),
+                        0,
+                        deletedMessage.length(),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
 
       bodyText.setText(italics);
       bodyText.setVisibility(View.VISIBLE);
@@ -1263,6 +1288,12 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
       }
 
       bodyText.setTextAsync(StringUtil.trim(styledText));
+
+      if (isPigeonVersion()  && bodyText.getLineCount() >= CONDENSED_MODE_MAX_LINES) {
+        Log.d(TAG, "PIGEON READ ME");
+        bodyText.setOverflowText(getLongMessageSpan(messageRecord));
+      }
+
       bodyText.setVisibility(View.VISIBLE);
 
       if (conversationMessage.getBottomButton() != null) {
@@ -2165,7 +2196,9 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
         if (hasWallpaper && hasNoBubble(current)) {
           groupSenderHolder.setBackgroundResource(R.drawable.wallpaper_bubble_background_tintable_11);
-          groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
+          if (isSignalVersion()) {
+            groupSenderHolder.getBackground().setColorFilter(getDefaultBubbleColor(hasWallpaper), PorterDuff.Mode.MULTIPLY);
+          }
         } else {
           groupSenderHolder.setBackground(null);
         }
@@ -2956,6 +2989,7 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
 
   private class ThumbnailClickListener implements SlideClickListener {
     public void onClick(final View v, final Slide slide) {
+      Log.d("PIGEON", "Thumbnail click");
       if (shouldInterceptClicks(messageRecord) || !batchSelected.isEmpty() || (isSuppressedInteractionMode() && (!slide.hasDocument() || (slide.hasDocument() && !MessageRecordUtil.isScheduled(messageRecord))))) {
         performClick();
       } else if (!canPlayContent && mediaItem != null && eventListener != null) {
@@ -3083,6 +3117,44 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     }
 
     public void onClick(View v) {
+
+      Log.d(TAG, "Item click");
+
+      if (isPigeonVersion()) {
+        // Pigeon (MP02 – no touch): when DPAD-OK is pressed on a focused message bubble that
+        // contains a media slide, open the media preview directly. We must NOT route through
+        // ThumbnailClickListener because on Pigeon isSuppressedInteractionMode() is true
+        // (condensed mode is forced) and ThumbnailClickListener would call performClick() →
+        // infinite recursion back into this listener.
+        if (messageRecord instanceof MmsMessageRecord && !shouldInterceptClicks(messageRecord) && batchSelected.isEmpty()) {
+          SlideDeck slideDeck = ((MmsMessageRecord) messageRecord).getSlideDeck();
+          Slide     slide     = slideDeck.getThumbnailSlide();
+          if (slide == null && !slideDeck.getThumbnailSlides().isEmpty()) {
+            slide = slideDeck.getThumbnailSlides().get(0);
+          }
+          if (slide != null) {
+            if (!canPlayContent && mediaItem != null && eventListener != null) {
+              eventListener.onPlayInlineContent(conversationMessage);
+              return;
+            }
+            if (MediaPreviewFragment.isContentTypeSupported(slide.getContentType()) && slide.getDisplayUri() != null) {
+              AttachmentDownloadJob.downloadAttachmentIfNeeded((DatabaseAttachment) slide.asAttachment());
+              launchMediaPreview(v, slide);
+              return;
+            }
+            // Otherwise (e.g. not yet downloaded) fall through to the regular handling below.
+          }
+        }
+      }
+
+      if (eventListener != null && bodyText.getText().toString().contains(getResources().getString(R.string.ConversationItem_read_more))) {
+        eventListener.onMoreTextClicked(conversationRecipient.getId(), messageRecord.getId(), messageRecord.isMms());
+      }
+
+      if (audioViewStub.resolved()) {
+        audioViewStub.get().play();
+      }
+
       if (!shouldInterceptClicks(messageRecord) && parent != null) {
         parent.onClick(v);
       } else if (messageRecord.isFailed()) {

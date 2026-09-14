@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.getSpans
 import org.signal.core.ui.R
+import org.signal.core.ui.compose.theme.SignalTheme
+import pigeon.extensions.isPigeonVersion
 
 object Texts {
   /**
@@ -33,6 +35,7 @@ object Texts {
     modifier: Modifier = Modifier
   ) {
     Text(
+      color = if (isPigeonVersion()) MaterialTheme.colorScheme.primary else SignalTheme.colors.colorNeutral,
       text = text,
       style = MaterialTheme.typography.titleSmall,
       modifier = modifier

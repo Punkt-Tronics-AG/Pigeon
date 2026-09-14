@@ -38,6 +38,10 @@ interface CallScreenControlsListener {
   fun onAudioPermissionsRequested(onGranted: Runnable?)
   fun onScreenShareChanged(sharing: Boolean)
 
+  // PIGEON Code
+  fun onVolumePressed()
+  fun pigeonDialogClosed()
+
   object Empty : CallScreenControlsListener {
     override fun onStartCall(isVideoCall: Boolean) = Unit
     override fun onCancelStartCall() = Unit
@@ -60,5 +64,9 @@ interface CallScreenControlsListener {
     override fun toggleControls() = Unit
     override fun onAudioPermissionsRequested(onGranted: Runnable?) = Unit
     override fun onScreenShareChanged(sharing: Boolean) = Unit
+
+    // PIGEON Code
+    override fun onVolumePressed() = Unit
+    override fun pigeonDialogClosed() = Unit
   }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Speichern</string>
+    <string name="Pigeon.Options">Optionen</string>
+    <string name="Pigeon.Close">Schließen</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Telefonnummer</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon Haftungsausschluss</string>
+    <string name="Pigeon_HomePage_new_message">Neue Nachricht</string>
+    <string name="Pigeon_HomePage_new_group">Neue Gruppe</string>
+    <string name="Pigeon_HomePage_mark_all_read">Alle gelesen</string>
+    <string name="Pigeon_HomePage_settings">Optionen</string>
+    <string name="Pigeon_HomePage_search">Suchen</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Suchen</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Erstellen</string>
+    <string name="Pigeon_Settings_switch_on">EIN</string>
+    <string name="Pigeon_Settings_switch_off">AUS</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profil</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon-Nachricht</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Mit Pigeon können Sie Signal auf dem MP02 verwenden.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal Nutzungsbedingungen und Datenschutzerklärung</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon benötigt Zugriff auf deine Kontakte und Medien, um dir das Kontaktieren deiner Freunde und das Senden von Nachrichten zu erleichtern. Deine Kontakte werden mit Signals privater Kontaktfindung auf die Signal-Server hochgeladen. Das heißt, sie sind Ende-zu-Ende verschlüsselt und somit zu keiner Zeit dem Signal- und Pigeon-Dienst bekannt.</string>
+    <string name="no_options_available">Keine Optionen verfügbar</string>
+    <string name="conversation_context__menu_reply_to_message">Antwort auf Nachricht</string>
+    <string name="conversation_context__menu_forward_message">Nachricht weiterleiten</string>
+    <string name="conversation_context__menu_react_to_message">Auf Nachricht reagieren</string>
+    <string name="conversation_context__menu_take_back_message">Nachricht zurücknehmen</string>
+</resources>

@@ -5,6 +5,7 @@
 
 package org.thoughtcrime.securesms.conversation
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -39,6 +45,7 @@ import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.SignalIcons
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.KeyboardType
+import pigeon.extensions.isSignalVersion
 
 /**
  * A search input field for finding recipients.
@@ -54,13 +61,21 @@ fun RecipientSearchBar(
   onSearch: (String) -> Unit,
   modifier: Modifier = Modifier,
   enabledKeyboardTypes: List<KeyboardType> = listOf(KeyboardType.Text, KeyboardType.Phone),
-  onFocusChanged: (Boolean) -> Unit = {}
+  onFocusChanged: (Boolean) -> Unit = {},
+  onPigeonDownArrow: (() -> Unit)? = null,
+  onPigeonUpArrow: (() -> Unit)? = null
 ) {
   val state = rememberSearchBarState()
   var keyboardType by remember(enabledKeyboardTypes) { mutableStateOf(enabledKeyboardTypes.first()) }
   val keyboardOptions = remember(keyboardType) {
     KeyboardOptions(
-      keyboardType = keyboardType.wrappedType,
+      keyboardType = when {
+        isSignalVersion() -> androidx.compose.ui.text.input.KeyboardType.Text
+        keyboardType == KeyboardType.Text -> androidx.compose.ui.text.input.KeyboardType.Password
+        else -> keyboardType.wrappedType
+      },
+      // PIGEON: This is a workaround to prevent the "Search" action from being shown in the keyboard, which is confusing since we trigger search on every query change. We should ideally be able to just set imeAction to None, but that causes the keyboard to not show up at all for some reason.
+      autoCorrectEnabled = false,
       imeAction = ImeAction.Search
     )
   }
@@ -71,7 +86,25 @@ fun RecipientSearchBar(
       TextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = Modifier.onFocusChanged { onFocusChanged(it.isFocused) },
+        modifier = Modifier
+          .onFocusChanged { onFocusChanged(it.isFocused) }
+          // PIGEON: DPAD up/down moves focus out of the search field into the list
+          .onPreviewKeyEvent { keyEvent ->
+            if (keyEvent.type == KeyEventType.KeyDown) {
+              Log.d("RecipientSearchBar", "onPreviewKeyEvent KeyDown: $keyEvent")
+              when (keyEvent.key) {
+                Key.DirectionDown if onPigeonDownArrow != null -> {
+                  onPigeonDownArrow()
+                  return@onPreviewKeyEvent true
+                }
+                Key.DirectionUp if onPigeonUpArrow != null -> {
+                  onPigeonUpArrow()
+                  return@onPreviewKeyEvent true
+                }
+              }
+            }
+            false
+          },
         placeholder = { Text(hint, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         singleLine = true,
         textStyle = TextStyle(textDirection = TextDirection.ContentOrLtr),
@@ -88,22 +121,24 @@ fun RecipientSearchBar(
         keyboardActions = KeyboardActions(
           onSearch = { onSearch(query) }
         ),
-        trailingIcon = {
-          val modifier = Modifier.padding(end = 4.dp)
-          if (query.isNotEmpty()) {
-            ClearQueryButton(
-              onClearQuery = { onQueryChange("") },
-              modifier = modifier
-            )
-          } else if (enabledKeyboardTypes.size > 1) {
-            KeyboardToggleButton(
-              keyboardType = keyboardType,
-              enabledKeyboardTypes = enabledKeyboardTypes,
-              onKeyboardTypeChange = { keyboardType = it },
-              modifier = modifier
-            )
+        trailingIcon = if (isSignalVersion()) {
+          {
+            val modifier = Modifier.padding(end = 4.dp)
+            if (query.isNotEmpty()) {
+              ClearQueryButton(
+                onClearQuery = { onQueryChange("") },
+                modifier = modifier
+              )
+            } else if (enabledKeyboardTypes.size > 1) {
+              KeyboardToggleButton(
+                keyboardType = keyboardType,
+                enabledKeyboardTypes = enabledKeyboardTypes,
+                onKeyboardTypeChange = { keyboardType = it },
+                modifier = modifier
+              )
+            }
           }
-        }
+        } else null
       )
     },
     modifier = modifier

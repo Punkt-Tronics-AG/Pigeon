@@ -28,6 +28,7 @@ import org.thoughtcrime.securesms.conversation.ConversationAdapter.ItemClickList
 import org.thoughtcrime.securesms.conversation.ConversationAdapterBridge
 import org.thoughtcrime.securesms.conversation.ConversationHeaderCallbacks
 import org.thoughtcrime.securesms.conversation.ConversationHeaderView
+import pigeon.extensions.isPigeonVersion
 import org.thoughtcrime.securesms.conversation.ConversationItemDisplayMode
 import org.thoughtcrime.securesms.conversation.ConversationMessage
 import org.thoughtcrime.securesms.conversation.colors.Colorizable
@@ -567,6 +568,19 @@ class ConversationAdapterV2(
     private val conversationBanner: ConversationHeaderView = itemView as ConversationHeaderView
 
     init {
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): make the welcome/thread header reachable by DPAD navigation so
+        // the user can scroll up to it and still come back down to the input panel via
+        // normal focus search. Clicks/long-clicks are suppressed because the banner has
+        // no meaningful tap action for Pigeon and we don't want the centered DPAD button
+        // to trigger anything when this item is focused.
+        conversationBanner.isFocusable = true
+        conversationBanner.isFocusableInTouchMode = false
+        conversationBanner.isClickable = false
+        conversationBanner.isLongClickable = false
+        conversationBanner.setOnClickListener(null)
+        conversationBanner.setOnLongClickListener { true }
+      }
       conversationBanner.callbacks = object : ConversationHeaderCallbacks {
         override fun onSafetyTipsClicked(forGroup: Boolean) = clickListener.onShowSafetyTips(forGroup)
 

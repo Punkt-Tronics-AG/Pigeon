@@ -73,6 +73,8 @@ import org.thoughtcrime.securesms.util.adapter.mapping.MappingViewHolder
 import org.thoughtcrime.securesms.util.adapter.mapping.compose.MappingEntryProvider
 import org.thoughtcrime.securesms.util.adapter.mapping.compose.MappingEntryProviderBuilder
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isPigeonVersion
 import java.util.Locale
 import org.signal.core.ui.R as CoreUiR
 
@@ -364,6 +366,9 @@ object ContactSearchModels {
       if (model.story.recipient.isMyStory && !model.hasBeenNotified) {
         number.setText(R.string.ContactSearchItems__tap_to_choose_your_viewers)
         number.setSingleLine(false)
+        if (isPigeonVersion()) {
+          itemView.visible = false
+        }
       } else {
         number.setSingleLine(true)
         number.text = when {
@@ -698,6 +703,7 @@ object ContactSearchModels {
         return
       }
 
+      itemView.focusOnLeft() // Pigeon (MP02): focus-driven row styling for DPAD navigation
       val recipient = getRecipient(model)
       val suffix: CharSequence? = if (recipient.isSystemContact && !recipient.showVerified) {
         SpannableStringBuilder().apply {

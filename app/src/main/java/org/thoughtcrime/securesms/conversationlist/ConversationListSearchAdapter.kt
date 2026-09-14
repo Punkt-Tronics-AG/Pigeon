@@ -14,6 +14,7 @@ import org.thoughtcrime.securesms.conversationlist.ConversationListSearchModels.
 import org.thoughtcrime.securesms.conversationlist.ConversationListSearchModels.ChatFilterMappingModel
 import org.thoughtcrime.securesms.conversationlist.ConversationListSearchModels.ChatFilterOptions
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModel
+import pigeon.extensions.focusOnLeft
 
 /**
  * Adapter for ConversationList search. Adds factories to render ThreadModel and MessageModel using ConversationListItem,

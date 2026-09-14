@@ -13,6 +13,7 @@ import org.signal.core.util.toInt
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.ConversationTypingView
 import org.thoughtcrime.securesms.recipients.Recipient
+import pigeon.extensions.isSignalVersion
 
 class ConversationTypingIndicatorAdapter(
   private val requestManager: RequestManager
@@ -27,11 +28,13 @@ class ConversationTypingIndicatorAdapter(
 
     this.state = state
 
-    when {
-      isInsert -> notifyItemInserted(0)
-      isRemoval -> notifyItemRemoved(0)
-      isChange -> notifyItemChanged(0)
-      else -> Unit
+    if (isSignalVersion()) {
+      when {
+        isInsert -> notifyItemInserted(0)
+        isRemoval -> notifyItemRemoved(0)
+        isChange -> notifyItemChanged(0)
+        else -> Unit
+      }
     }
   }
 

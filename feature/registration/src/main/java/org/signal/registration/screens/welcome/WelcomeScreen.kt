@@ -26,7 +26,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -56,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.CoroutineScope
 import org.signal.core.ui.WindowBreakpoint
@@ -63,6 +70,7 @@ import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.BottomSheets
 import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.Previews
+import org.signal.core.ui.compose.Rows
 import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.TabletPortraitDayPreview
 import org.signal.core.ui.compose.dismissWithAnimation
@@ -74,6 +82,8 @@ import org.signal.registration.R
 import org.signal.registration.screens.RegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.compose.PigeonRequestFocus
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -87,6 +97,15 @@ fun WelcomeScreen(
   onEvent: (WelcomeScreenEvents) -> Unit,
   modifier: Modifier = Modifier
 ) {
+  if (isPigeonVersion()) {
+    PigeonLayout(
+      state = state,
+      onEvent = onEvent,
+      modifier = modifier
+    )
+    return
+  }
+
   var showBottomSheet by remember { mutableStateOf(false) }
   val windowBreakpoint = rememberWindowBreakpoint()
   val onRestoreOrTransferClick = { showBottomSheet = true }
@@ -557,6 +576,67 @@ private fun rememberDisplayLinkAndSyncAsPrimaryPath(isLinkAndSyncAvailable: Bool
 
   // A hinge means a foldable, which counts as a phone rather than a tablet.
   return rememberUpdatedState(isLinkAndSyncAvailable && (!supportsTelephony || (isLargeDevice && !hasHinge)))
+}
+
+/**
+ * PIGEON: D-pad friendly welcome layout for the MP02 (320x240). Disclaimer and terms open as
+ * in-app text pages; restore/transfer skips the bottom sheet and goes straight to the manual restore path.
+ */
+@Composable
+private fun PigeonLayout(
+  state: WelcomeScreenState,
+  onEvent: (WelcomeScreenEvents) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  val focusRequester = remember { FocusRequester() }
+
+  PigeonRequestFocus(focusRequester)
+
+  Column(
+    modifier = modifier
+      .fillMaxSize()
+      .background(MaterialTheme.colorScheme.background)
+      .verticalScroll(rememberScrollState())
+      .testTag(TestTags.WELCOME_SCREEN)
+  ) {
+    Text(
+      text = stringResource(R.string.Pigeon_WelcomeScreen__pigeon_enables_you_to_use_signal),
+      fontSize = 24.sp,
+      color = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = 10.dp, top = 20.dp, end = 10.dp, bottom = 20.dp)
+        .testTag(TestTags.WELCOME_HEADLINE)
+        // Debug-log helper is clickable; keep it reachable by touch but never by D-pad.
+        .focusProperties { canFocus = false }
+        .attachDebugLogHelper()
+    )
+
+    Rows.TextRow(
+      text = stringResource(R.string.Pigeon_WelcomeScreen__disclaimer),
+      onClick = { onEvent(WelcomeScreenEvents.PigeonViewDisclaimer) },
+      modifier = Modifier.focusRequester(focusRequester)
+    )
+
+    Rows.TextRow(
+      text = stringResource(R.string.Pigeon_WelcomeScreen__terms_and_privacy),
+      onClick = { onEvent(WelcomeScreenEvents.PigeonViewTerms) }
+    )
+
+    Rows.TextRow(
+      text = stringResource(R.string.RegistrationActivity_continue),
+      onClick = { onEvent(WelcomeScreenEvents.Continue) },
+      modifier = Modifier.testTag(TestTags.WELCOME_GET_STARTED_BUTTON)
+    )
+
+    if (state.showRestoreOrTransfer) {
+      Rows.TextRow(
+        text = stringResource(R.string.registration_activity__restore_or_transfer),
+        onClick = { onEvent(WelcomeScreenEvents.DoesNotHaveOldPhone) },
+        modifier = Modifier.testTag(TestTags.WELCOME_RESTORE_OR_TRANSFER_BUTTON)
+      )
+    }
+  }
 }
 
 @AllDevicePreviews

@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public final class SafetyNumberChangeDialog extends DialogFragment implements SafetyNumberChangeAdapter.Callbacks {
 
   private static final String TAG = Log.tag(SafetyNumberChangeDialog.class);
@@ -135,10 +137,16 @@ public final class SafetyNumberChangeDialog extends DialogFragment implements Sa
 
     configureView(dialogView);
 
-    builder.setTitle(R.string.safety_number_change_dialog__safety_number_changes)
-           .setView(dialogView)
-           .setPositiveButton(continueText, this::handleSendAnyway)
-           .setNegativeButton(cancelText, this::handleCancel);
+    if (isSignalVersion()) {
+      builder.setTitle(R.string.safety_number_change_dialog__safety_number_changes)
+             .setView(dialogView)
+             .setPositiveButton(continueText, this::handleSendAnyway)
+             .setNegativeButton(cancelText, this::handleCancel);
+    } else {
+      builder.setTitle(R.string.safety_number_change_dialog__safety_number_changes)
+             .setPositiveButton(continueText, this::handleSendAnyway)
+             .setNegativeButton(cancelText, this::handleCancel);
+    }
 
     setCancelable(false);
 

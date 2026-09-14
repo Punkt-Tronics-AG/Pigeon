@@ -18,6 +18,7 @@ import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.util.Rational
 import android.view.Surface
 import android.view.ViewGroup
@@ -90,6 +91,9 @@ import org.thoughtcrime.securesms.webrtc.CallParticipantsViewState
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager
 import org.thoughtcrime.securesms.webrtc.audio.SignalAudioManager.ChosenAudioDeviceIdentifier
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage
+import pigeon.activity.WebRtcCallVolumeActivity
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import kotlin.time.Duration.Companion.seconds
 
 /** Conversion */
@@ -131,6 +135,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
       AppDependencies.signalCallManager.startScreenShare(result.data!!)
     }
   }
+  private var isLaunchingSubActivity: Boolean = false
 
   override fun attachBaseContext(newBase: Context) {
     delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
@@ -255,6 +260,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
   override fun onResume() {
     Log.i(TAG, "onResume()")
     super.onResume()
+    isLaunchingSubActivity = false
 
     initializeScreenshotSecurity()
 
@@ -327,6 +333,18 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     ephemeralStateDisposable.dispose()
 
     if (!isInPipMode() || isFinishing) {
+      // PIGEON code: end/deny call when user leaves the screen (e.g. swipes app away)
+      if (!isLaunchingSubActivity) {
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (powerManager.isInteractive) {
+          val state = viewModel.callParticipantsStateSnapshot
+          when {
+            state.callState == WebRtcViewModel.State.CALL_INCOMING -> handleDenyCall()
+            state.callState.inOngoingCall -> handleEndCall()
+          }
+        }
+      }
+      // End PIGEON code
       EventBus.getDefault().unregister(eventBusSubscriber)
       requestNewSizesThrottle.clear()
     }
@@ -1051,7 +1069,7 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     when (inCallStatus) {
       is InCallStatus.ElapsedTime -> {
         val formatter: EllapsedTimeFormatter = EllapsedTimeFormatter.fromDurationMillis(inCallStatus.elapsedTime) ?: return
-        callScreen.setStatus(getString(R.string.WebRtcCallActivity__signal_s, formatter.toString()))
+        callScreen.setStatus(getString(if (isPigeonVersion()) R.string.Pigeon_WebRtcCallActivity__signal_s else R.string.WebRtcCallActivity__signal_s, formatter.toString()))
       }
 
       is InCallStatus.PendingCallLinkUsers -> {
@@ -1365,8 +1383,12 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
     }
 
     override fun onAcceptCallPressed() {
-      if (viewModel.isAnswerWithVideoAvailable()) {
-        handleAnswerWithVideo()
+      if (isSignalVersion()) {
+        if (viewModel.isAnswerWithVideoAvailable()) {
+          handleAnswerWithVideo()
+        } else {
+          handleAnswerWithAudio()
+        }
       } else {
         handleAnswerWithAudio()
       }
@@ -1423,6 +1445,20 @@ class WebRtcCallActivity : BaseActivity(), SafetyNumberChangeDialog.Callback, Re
         AppDependencies.signalCallManager.stopScreenShare()
       }
     }
+
+    override fun onVolumePressed() {
+      handleVolumePressed()
+    }
+
+    override fun pigeonDialogClosed() {
+      callScreen.toggleControls()
+    }
+  }
+
+  // PIGEON code
+  private fun handleVolumePressed() {
+    isLaunchingSubActivity = true
+    startActivity(Intent(this, WebRtcCallVolumeActivity::class.java))
   }
 
   private inner class PendingParticipantsViewListener : PendingParticipantsListener {

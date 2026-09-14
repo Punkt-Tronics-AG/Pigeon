@@ -11,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -58,8 +60,10 @@ public class LabeledEditText extends FrameLayout implements View.OnFocusChangeLi
 
     inflate(getContext(), textLayout, textContainer);
     input = findViewById(R.id.input);
+    input.setTextColor(ContextCompat.getColorStateList(getContext(), R.color.white));
 
     label.setText(labelText);
+    label.setTextColor(ContextCompat.getColorStateList(getContext(), R.color.white));
     label.setBackgroundColor(backgroundColor);
 
     if (TextUtils.isEmpty(labelText)) {
@@ -83,8 +87,13 @@ public class LabeledEditText extends FrameLayout implements View.OnFocusChangeLi
 
   @Override
   public void onFocusChange(View v, boolean hasFocus) {
-    border.setBackgroundResource(hasFocus ? R.drawable.labeled_edit_text_background_active
-                                          : R.drawable.labeled_edit_text_background_inactive);
+    if (!isSignalVersion()) {
+      border.setBackgroundResource(hasFocus ? R.drawable.labeled_edit_text_background_white
+                                            : R.drawable.labeled_edit_text_background_inactive);
+    } else  {
+      border.setBackgroundResource(hasFocus ? R.drawable.labeled_edit_text_background_active
+                                            : R.drawable.labeled_edit_text_background_inactive);
+    }
   }
 
   @Override

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:clickable="false"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    tools:background="@color/black"
+    android:descendantFocusability="blocksDescendants"
+    tools:viewBindingIgnore="true">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/section_header"
+        style="@style/Mp02.Signal.Text.MaterialTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dsl_settings_gutter"
+        android:text="@string/contact_selection_activity__invite_to_signal"
+        android:layout_marginStart="@dimen/pigeon_small_margin"
+        android:focusable="false"
+        android:clickable="false"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Section Header" />
+
+    <!-- Signal 8.26.4: SectionHeaderPreferenceViewHolder looks this view up (non-null) -->
+    <ImageView
+        android:id="@+id/icon_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

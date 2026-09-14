@@ -15,6 +15,8 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.setIncognitoKeyboardEnabled
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isSignalVersion
 
 /**
  * Search Toolbar following the Signal Material3 design spec.
@@ -34,6 +36,7 @@ class Material3SearchToolbar @JvmOverloads constructor(
     inflate(context, R.layout.material3_serarch_toolbar, this)
 
     input = findViewById(R.id.search_input)
+    input.focusOnLeft()
 
     val close = findViewById<View>(R.id.search_close)
     val clear = findViewById<View>(R.id.search_clear)
@@ -41,7 +44,9 @@ class Material3SearchToolbar @JvmOverloads constructor(
     close.setOnClickListener { collapse() }
     clear.setOnClickListener { input.setText("") }
 
-    input.setIncognitoKeyboardEnabled(TextSecurePreferences.isIncognitoKeyboardEnabled(context))
+    if (isSignalVersion()) {
+      input.setIncognitoKeyboardEnabled(TextSecurePreferences.isIncognitoKeyboardEnabled(context))
+    }
 
     input.addTextChangedListener(afterTextChanged = {
       clear.visible = !it.isNullOrBlank()
@@ -50,23 +55,35 @@ class Material3SearchToolbar @JvmOverloads constructor(
   }
 
   fun setSearchInputHint(@StringRes hintStringRes: Int) {
+    if (!isSignalVersion()) {
+      return
+    }
+
     input.setHint(hintStringRes)
   }
 
   fun display(x: Float, y: Float) {
-    if (!visible) {
-      circularRevealPoint.set(x, y)
+    if (!isSignalVersion()) {
+      return
+    }
 
-      val animator = ViewAnimationUtils.createCircularReveal(this, x.toInt(), y.toInt(), 0f, width.toFloat())
-      animator.duration = 400
+      if (!visible) {
+        circularRevealPoint.set(x, y)
 
-      visibility = VISIBLE
-      ViewUtil.focusAndShowKeyboard(input)
-      animator.start()
+        val animator = ViewAnimationUtils.createCircularReveal(this, x.toInt(), y.toInt(), 0f, width.toFloat())
+        animator.duration = 400
+
+        visibility = VISIBLE
+        ViewUtil.focusAndShowKeyboard(input)
+        animator.start()
     }
   }
 
   fun collapse() {
+    if (!isSignalVersion()) {
+      return
+    }
+
     if (visibility == VISIBLE) {
       listener?.onSearchClosed()
       ViewUtil.hideKeyboard(context, input)

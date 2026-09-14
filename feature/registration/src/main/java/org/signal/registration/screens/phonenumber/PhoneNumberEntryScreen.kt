@@ -92,6 +92,8 @@ import org.signal.registration.screens.shared.AccountIdErrorText
 import org.signal.registration.screens.shared.AccountIdVisualTransformation
 import org.signal.registration.screens.shared.accountIdTextStyle
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import org.signal.core.ui.R as CoreR
 
 private const val TAG = "PhoneNumberScreen"
@@ -175,7 +177,12 @@ fun PhoneNumberScreen(
     }
   }
 
-  if (state.dialogs.confirmNumber) {
+  if (isPigeonVersion() && state.dialogs.confirmNumber) {
+    // PIGEON: no "is this number correct?" dialog on the MP02, request the code straight away
+    LaunchedEffect(Unit) { onEvent(PhoneNumberEntryScreenEvents.PhoneNumberConfirmed) }
+  }
+
+  if (state.dialogs.confirmNumber && isSignalVersion()) {
     Dialogs.SimpleAlertDialog(
       title = stringResource(R.string.RegistrationActivity_is_the_phone_number),
       body = "+${state.countryCode} ${state.formattedNumber}\n\n${stringResource(R.string.RegistrationActivity_a_verification_code)}",
@@ -217,6 +224,11 @@ fun PhoneNumberScreen(
       dismiss = stringResource(android.R.string.ok),
       onDismiss = { onEvent(PhoneNumberEntryScreenEvents.InvalidPhoneNumberDialogDismissed) }
     )
+  }
+
+  if (isPigeonVersion()) {
+    PigeonPhoneNumberLayout(state = state, onEvent = onEvent, modifier = modifier)
+    return
   }
 
   Box(

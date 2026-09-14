@@ -143,6 +143,9 @@ import org.signal.registration.util.AccountEntropyPoolParceler
 import org.signal.registration.util.SessionMetadataParceler
 import org.signal.registration.util.SvrCredentialsParceler
 import org.signal.signallogin.pdf.SignalLoginPdfRenderer
+import pigeon.compose.PigeonScrollableText
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.PigeonTexts
 import org.signal.signallogin.viewdetails.SignalLoginViewDetailsScreen
 
 /**
@@ -166,6 +169,13 @@ sealed interface RegistrationRoute : NavKey, Parcelable {
 
   @Serializable
   data object MessageSync : RegistrationRoute
+
+  // PIGEON: in-app disclaimer / terms text pages reachable from the welcome screen
+  @Serializable
+  data object PigeonDisclaimer : RegistrationRoute
+
+  @Serializable
+  data object PigeonTerms : RegistrationRoute
 
   @Serializable
   data object PhoneNumberEntry : RegistrationRoute
@@ -574,6 +584,15 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
     )
   }
 
+  // --- PIGEON: Disclaimer / Terms text pages
+  entry<RegistrationRoute.PigeonDisclaimer> {
+    PigeonScrollableText(parts = PigeonTexts.DISCLAIMER)
+  }
+
+  entry<RegistrationRoute.PigeonTerms> {
+    PigeonScrollableText(parts = PigeonTexts.TERMS)
+  }
+
   // --- Message Sync Screen
   entry<RegistrationRoute.MessageSync> {
     val viewModel: MessageSyncViewModel = viewModel(
@@ -956,9 +975,15 @@ private fun EntryProviderScope<NavKey>.navigationEntries(
 
   // -- Archive Restore Selection for Quick Restore Screen
   entry<RegistrationRoute.ArchiveRestoreSelection> { key ->
+    // PIGEON: no cloud backups and no device transfer on the MP02 – only on-device backup (or skip)
+    val restoreOptions = if (isPigeonVersion()) {
+      key.restoreOptions.filter { it == ArchiveRestoreOption.LocalBackup || it == ArchiveRestoreOption.None }
+    } else {
+      key.restoreOptions
+    }
     val viewModel: ArchiveRestoreSelectionViewModel = viewModel(
       factory = ArchiveRestoreSelectionViewModel.Factory(
-        restoreOptions = key.restoreOptions,
+        restoreOptions = restoreOptions,
         registeredState = key.registeredState,
         knownAep = key.aep,
         repository = registrationRepository,

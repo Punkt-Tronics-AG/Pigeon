@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Save</string>
+    <string name="Pigeon.Options">Options</string>
+    <string name="Pigeon.Close">Close</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Mobile phone</string>
+    <string name="Pigeon_HomePage_new_message">New message</string>
+    <string name="Pigeon_HomePage_new_group">New group</string>
+    <string name="Pigeon_HomePage_mark_all_read">Mark all read</string>
+    <string name="Pigeon_HomePage_settings">Settings</string>
+    <string name="Pigeon_HomePage_search">Search</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Search</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Create</string>
+    <string name="Pigeon_Settings_switch_on">ON</string>
+    <string name="Pigeon_Settings_switch_off">OFF</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profile</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon message</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon needs the contacts and media permissions to help you connect with friends and send messages. Your contacts are uploaded using Signal\'s private contact discovery, which means they are end-to-end encrypted and never visible to the Signal and Pigeon service.</string>
+    <string name="no_options_available">No options available</string>
+    <string name="conversation_context__menu_reply_to_message">Reply message</string>
+    <string name="conversation_context__menu_forward_message">Forward message</string>
+    <string name="conversation_context__menu_react_to_message">React to message</string>
+    <string name="conversation_context__menu_take_back_message">Take back message</string>
+    <string name="conversation__menu_voice_message">Start voice message</string>
+    <string name="conversation__menu_voice_message_send">Send voice message</string>
+    <string name="conversation__menu_edit_group">Edit group</string>
+    <string name="ExpirationDialog_disappearing_messages">Disappearing messages</string>
+    <string name="conversation_secure_verified__menu_reset_secure_session">Reset secure session</string>
+    <string name="ConversationActivity_reset_secure_session_question">Reset secure session?</string>
+    <string name="ConversationActivity_this_may_help_if_youre_having_encryption_problems">This may help if you\'re having encryption problems in this conversation. Your messages will be kept.</string>
+    <string name="ConversationActivity_reset">Reset</string>
+    <string name="preferences__about">About</string>
+    <string name="turn_speaker_on">Turn speaker on</string>
+    <string name="turn_speaker_off">Turn speaker off</string>
+    <string name="WebRtcCallControls_volume_button_description">Volume</string>
+    <string name="mute">Mute</string>
+    <string name="unmute">Unmute</string>
+    <string name="Pigeon_WebRtcCallView__signal_call">Pigeon Call</string>
+    <string name="Pigeon_WebRtcCallView__signal_video_call">Pigeon Call</string>
+    <string name="Pigeon_WebRtcCallActivity__signal_s">Calling time: %1$s</string>
+
+    <string name="RedPhone_connected">Connected</string>
+    <string name="RedPhone_connecting">Connecting...</string>
+    <string name="Pigeon_WebRtcCallView__ring">Ring</string>
+
+    <string name="PIN_screen_lock">To use the function, set a pin code in the PUNKT settings</string>
+    <string name="PIN_screen_lock_timeout">To use the function, set a pin code in the PUNKT settings and turn on screen lock</string>
+
+    <string name="Pigeon_GroupLinkBottomSheet_share_via_signal">Share via Pigeon</string>
+    <string name="Pigeon_Storage">Storage</string>
+    <string name="Pigeon_Attachments">Attachments</string>
+    <string name="Pigeon_preferences_only_use_a_proxy_if">Only use a proxy if you\'re not able to connect to Pigeon on mobile data or Wi-Fi.</string>
+    <string name="Pigeon_Interval">Interval</string>
+    <string name="Pigeon_Setup_Interval">Setup intervals</string>
+    <string name="Pigeon_Setup_Alive_Interval">Keep alive timeout seconds</string>
+    <string name="Pigeon_Setup_Sleep_Interval">Keep sleep timeout seconds</string>
+    <string name="Pigeon_Setup_Incoming_Message_Interval">Incoming message interval timeout seconds</string>
+    <string name="Pigeon_uuid">UUID</string>
+    <string name="Pigeon_link_full_url">Paste full link URL</string>
+    <string name="Pigeon_ok">Ok</string>
+    <string name="Pigeon_group_call">Group call</string>
+    <string name="Pigeon_ManageProfileFragment_write_a_few_words_about_yourself">Write a few words about yourself</string>
+    <string name="Pigeon_ManageProfileFragment_your_name">Your name</string>
+    <string name="Pigeon_ManageProfileFragment_your_username">Your username</string>
+    <string name="Pigeon_ExpiredBuildReminder_this_version_of_signal_has_expired">Your version of Pigeon has expired. Please update to continue using Pigeon</string>
+    <string name="Pigeon_OutdatedBuildReminder_your_version_of_signal_will_expire_today">This version of Pigeon will expire today. Update to the most recent version.</string>
+    <string name="registration_no_backups_available">No backups available at the moment\n</string>
+    <plurals name="Pigeon_OutdatedBuildReminder_your_version_of_signal_will_expire_in_n_days">
+        <item quantity="one">This version of Pigeon will expire tomorrow. Update to the most recent version.</item>
+        <item quantity="other">This version of Pigeon will expire in %d days. Update to the most recent version.</item>
+    </plurals>
+
+
+
+</resources>

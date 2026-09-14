@@ -100,6 +100,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import kotlin.Pair;
 
 import static org.thoughtcrime.securesms.database.model.LiveUpdateMessage.recipientToStringAsync;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+import static pigeon.extensions.KotilinExtensionsKt.focusOnLeft;
 
 public final class ConversationListItem extends ConstraintLayout implements BindableConversationListItem, Unbindable {
   @SuppressWarnings("unused")
@@ -174,9 +176,15 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
     this.unreadMentions          = findViewById(R.id.conversation_list_item_unread_mentions_indicator);
     this.thumbSize               = (int) DimensionUnit.SP.toPixels(16f);
     this.thumbTarget             = new GlideLiveDataTarget(thumbSize, thumbSize);
-    this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_colorOnSurface)), SpanUtil.getBoldSpan() };
+    if (isSignalVersion()) {
+      this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_colorOnSurface)), SpanUtil.getBoldSpan() };
+      } else  {
+      this.searchStyleFactory      = () -> new CharacterStyle[] { new ForegroundColorSpan(ContextCompat.getColor(getContext(), org.signal.core.ui.R.color.signal_colorOnSurface)), SpanUtil.getNormalSpan() };
+    }
 
-    getLayoutTransition().setDuration(150);
+    if (isSignalVersion()) {
+      getLayoutTransition().setDuration(150);
+    }
   }
 
   /**
@@ -216,6 +224,7 @@ public final class ConversationListItem extends ConstraintLayout implements Bind
                    @NonNull ConversationSet selectedConversations,
                    @Nullable RecipientId activeRecipientId)
   {
+    focusOnLeft(this);
     bindThread(lifecycleOwner, thread, glideRequests, locale, typingThreads, selectedConversations, null, false, true, activeRecipientId);
   }
 

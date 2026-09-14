@@ -87,6 +87,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.rememberRecipientField
 import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.isSignalVersion
 
 interface MainToolbarCallback {
   fun onNewGroupClick()
@@ -257,7 +258,8 @@ private fun ActionModeToolbar(
 }
 
 @Composable
-private fun SearchToolbar(
+// FOR PIGEON FUNCTION NOT - PRIVATE
+fun SearchToolbar(
   state: MainToolbarState,
   callback: MainToolbarCallback,
   modifier: Modifier = Modifier
@@ -269,17 +271,20 @@ private fun SearchToolbar(
       value = state.searchQuery,
       onValueChange = callback::onSearchQueryUpdated,
       leadingIcon = {
-        IconButtons.IconButton(
+        if (isSignalVersion()) {
+          IconButtons.IconButton(
           onClick = callback::onCloseSearchClick
         ) {
           Icon(
             imageVector = SignalIcons.ArrowStart.imageVector,
             contentDescription = stringResource(R.string.MainToolbar__close_search_content_description)
           )
+            }
         }
       },
       trailingIcon = {
-        Row {
+        if (isSignalVersion()) {
+          Row {
           if (SignalStore.labs.betterSearch) {
             Box(contentAlignment = Alignment.TopEnd) {
               IconButtons.IconButton(
@@ -313,6 +318,7 @@ private fun SearchToolbar(
             }
           }
         }
+          }
       },
       contentPadding = PaddingValues(0.dp),
       colors = TextFieldDefaults.colors(

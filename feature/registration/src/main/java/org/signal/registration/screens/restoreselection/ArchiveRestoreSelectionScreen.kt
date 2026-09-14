@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,6 +43,8 @@ import org.signal.registration.screens.RegistrationScaffold
 import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 @Composable
 fun ArchiveRestoreSelectionScreen(
@@ -49,7 +52,12 @@ fun ArchiveRestoreSelectionScreen(
   onEvent: (ArchiveRestoreSelectionScreenEvents) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  if (state.showSkipWarningDialog) {
+  if (isPigeonVersion() && state.showSkipWarningDialog) {
+    // PIGEON: no cloud backups on the MP02, so there is nothing to warn about – skip straight away
+    LaunchedEffect(Unit) { onEvent(ArchiveRestoreSelectionScreenEvents.ConfirmSkip) }
+  }
+
+  if (state.showSkipWarningDialog && isSignalVersion()) {
     Dialogs.SimpleAlertDialog(
       title = stringResource(R.string.ArchiveRestoreSelectionScreen__skip_restore_dialog_title),
       body = stringResource(R.string.ArchiveRestoreSelectionScreen__skip_restore_dialog_warning),
@@ -60,6 +68,11 @@ fun ArchiveRestoreSelectionScreen(
       confirmColor = MaterialTheme.colorScheme.error,
       properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     )
+  }
+
+  if (isPigeonVersion()) {
+    PigeonArchiveRestoreSelectionLayout(state = state, onEvent = onEvent, modifier = modifier)
+    return
   }
 
   when (val layoutParams = RegistrationScaffold.rememberLayoutParams()) {

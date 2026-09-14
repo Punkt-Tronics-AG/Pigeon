@@ -267,7 +267,11 @@ public class ComposeText extends EmojiEditText {
     else               setImeActionLabel(null, 0);
 
     setImeOptions(imeOptions);
-    setHint(getContext().getString(messageSendType.getComposeHintRes()));
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion() && messageSendType.getComposeHintRes() == R.string.conversation_activity__type_message_push) {
+      setHint(getContext().getString(R.string.Pigeon_conversation_activity__type_message_push));
+    } else {
+      setHint(getContext().getString(messageSendType.getComposeHintRes()));
+    }
     setInputType(inputType);
   }
 
@@ -334,6 +338,13 @@ public class ComposeText extends EmojiEditText {
   private void initialize() {
     if (Build.VERSION.SDK_INT >= 26) {
       setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+    }
+
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon: MP02 has a hardware keyboard – disable the soft input so the
+      // system does not pop up the IME indicator ("English (US)") on every
+      // focus change of this EditText.
+      setShowSoftInputOnFocus(false);
     }
 
     if (TextSecurePreferences.isIncognitoKeyboardEnabled(getContext())) {

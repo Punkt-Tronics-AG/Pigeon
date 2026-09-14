@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:viewBindingIgnore="true"
+    android:background="@color/black"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/full_screen_dialog_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/signal_m3_toolbar_height"
+        android:background="@color/black"
+        android:minHeight="@dimen/signal_m3_toolbar_height"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/ic_arrow_left_white_24"
+        app:titleTextAppearance="@style/Signal.Text.TitleLarge"
+        tools:title="Dialog Title" />
+
+    <FrameLayout
+        android:id="@+id/full_screen_dialog_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

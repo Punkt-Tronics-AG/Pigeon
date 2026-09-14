@@ -11,6 +11,7 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.navigation.fragment.findNavController
+import org.signal.core.util.logging.Log
 import org.signal.core.ui.logging.LoggingFragment
 import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.R
@@ -19,9 +20,15 @@ import org.thoughtcrime.securesms.databinding.FragmentRegistrationCaptchaBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationConstants
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 
+import pigeon.navigation.captcha.CaptchaCursorHandler
+
+
 abstract class CaptchaFragment : LoggingFragment(R.layout.fragment_registration_captcha) {
 
   private val binding: FragmentRegistrationCaptchaBinding by ViewBinderDelegate(FragmentRegistrationCaptchaBinding::bind)
+
+  private var cursorHandler: CaptchaCursorHandler? = null
+
 
   @SuppressLint("SetJavaScriptEnabled")
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,7 +50,17 @@ abstract class CaptchaFragment : LoggingFragment(R.layout.fragment_registration_
       }
     }
     binding.registrationCaptchaWebView.loadUrl(BuildConfig.SIGNAL_CAPTCHA_URL)
+
+    // PIGEON Code
+    val cursor: View = view.findViewById(R.id.mouse_cursor)
+    cursorHandler = CaptchaCursorHandler(binding.registrationCaptchaWebView, cursor)
   }
+
+  // PIGEON Code
+  fun onKeyDown(keyCode: Int, action: Int) {
+    cursorHandler?.onKeyDown(keyCode, action)
+  }
+
 
   abstract fun handleCaptchaToken(token: String)
 }

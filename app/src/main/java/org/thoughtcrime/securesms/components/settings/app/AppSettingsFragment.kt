@@ -21,15 +21,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +45,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -83,6 +88,9 @@ import org.thoughtcrime.securesms.util.SignalE164Util
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import org.signal.appsettings.R as AppSettingsR
 import org.signal.core.ui.R as CoreUiR
+
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 class AppSettingsFragment : ComposeFragment(), Callbacks {
 
@@ -207,6 +215,7 @@ private fun AppSettingsContent(
   callbacks: Callbacks
 ) {
   val isRegisteredAndUpToDate by rememberUpdatedState(state.isRegisteredAndUpToDate())
+  val view = LocalView.current
 
   Scaffolds.Settings(
     title = stringResource(R.string.text_secure_normal__menu_settings),
@@ -215,7 +224,8 @@ private fun AppSettingsContent(
     onNavigationClick = callbacks::onNavigationClick
   ) { contentPadding ->
     Column(
-      modifier = Modifier.padding(contentPadding)
+      modifier = Modifier
+        .padding(0.dp)
     ) {
       bannerManager.Banner()
 
@@ -226,73 +236,74 @@ private fun AppSettingsContent(
             callbacks = callbacks
           )
         }
+        if (isSignalVersion()) {
+          when (state.backupFailureState) {
+            BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
+              item {
+                Dividers.Default()
 
-        when (state.backupFailureState) {
-          BackupFailureState.SUBSCRIPTION_STATE_MISMATCH -> {
-            item {
-              Dividers.Default()
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
+                  onClick = {
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
+                  }
+                )
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__renew_your_signal_backups_subscription),
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
-                }
-              )
-
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.BACKUP_FAILED, BackupFailureState.COULD_NOT_COMPLETE_BACKUP -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
-                onClick = {
-                  BackupRepository.markBackupFailedIndicatorClicked()
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_complete_backup),
+                  onClick = {
+                    BackupRepository.markBackupFailedIndicatorClicked()
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.ALREADY_REDEEMED -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.ALREADY_REDEEMED -> {
+              item {
+                Dividers.Default()
 
-              BackupsWarningRow(
-                text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
-                onClick = {
-                  BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
-                }
-              )
+                BackupsWarningRow(
+                  text = stringResource(R.string.AppSettingsFragment__couldnt_redeem_your_backups_subscription),
+                  onClick = {
+                    BackupRepository.markBackupAlreadyRedeemedIndicatorClicked()
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.OUT_OF_STORAGE_SPACE -> {
-            item {
-              Dividers.Default()
+            BackupFailureState.OUT_OF_STORAGE_SPACE -> {
+              item {
+                Dividers.Default()
 
-              Rows.TextRow(
-                text = stringResource(R.string.AppSettingsFragment__backup_storage_limit_reached),
-                icon = SignalIcons.ErrorCircle.imageVector,
-                iconTint = MaterialTheme.colorScheme.error,
-                onClick = {
-                  callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
-                }
-              )
+                Rows.TextRow(
+                  text = stringResource(R.string.AppSettingsFragment__backup_storage_limit_reached),
+                  icon = SignalIcons.ErrorCircle.imageVector,
+                  iconTint = MaterialTheme.colorScheme.error,
+                  onClick = {
+                    callbacks.navigate(AppSettingsRoute.BackupsRoute.Remote())
+                  }
+                )
 
-              Dividers.Default()
+                Dividers.Default()
+              }
             }
-          }
 
-          BackupFailureState.NONE -> Unit
+            BackupFailureState.NONE -> Unit
+          }
         }
 
         item {
@@ -305,16 +316,18 @@ private fun AppSettingsContent(
           )
         }
 
-        if (state.isPrimaryDevice) {
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__linked_devices),
-              icon = painterResource(CoreUiR.drawable.symbol_devices_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.LinkDeviceRoute.LinkDevice)
-              },
-              enabled = isRegisteredAndUpToDate
-            )
+        if (isSignalVersion()) {
+          if (state.isPrimaryDevice) {
+            item {
+              Rows.TextRow(
+                text = stringResource(R.string.preferences__linked_devices),
+                icon = painterResource(CoreUiR.drawable.symbol_devices_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.LinkDeviceRoute.LinkDevice)
+                },
+                enabled = isRegisteredAndUpToDate
+              )
+            }
           }
         }
 
@@ -323,7 +336,9 @@ private fun AppSettingsContent(
           val donateUrl = stringResource(R.string.donate_url)
 
           Rows.TextRow(
-            text = {
+            visible = isSignalVersion(),
+
+            text = { _, _ ->
               Text(
                 text = stringResource(R.string.preferences__donate_to_signal),
                 modifier = Modifier.weight(1f)
@@ -357,18 +372,22 @@ private fun AppSettingsContent(
           )
         }
 
-        item {
-          Dividers.Default()
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__appearance),
-            icon = painterResource(R.drawable.symbol_appearance_24),
-            onClick = {
-              callbacks.navigate(AppSettingsRoute.AppearanceRoute.Appearance)
-            }
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__appearance),
+              icon = painterResource(R.drawable.symbol_appearance_24),
+              onClick = {
+                callbacks.navigate(AppSettingsRoute.AppearanceRoute.Appearance)
+              }
+            )
+          }
         }
 
         item {
@@ -381,16 +400,17 @@ private fun AppSettingsContent(
             enabled = isRegisteredAndUpToDate
           )
         }
-
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__stories),
-            icon = painterResource(R.drawable.symbol_stories_24),
-            onClick = {
-              callbacks.navigate(AppSettingsRoute.StoriesRoute.Privacy(titleId = R.string.preferences__stories))
-            },
-            enabled = isRegisteredAndUpToDate
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__stories),
+              icon = painterResource(R.drawable.symbol_stories_24),
+              onClick = {
+                callbacks.navigate(AppSettingsRoute.StoriesRoute.Privacy(titleId = R.string.preferences__stories))
+              },
+              enabled = isRegisteredAndUpToDate
+            )
+          }
         }
 
         item {
@@ -417,16 +437,20 @@ private fun AppSettingsContent(
 
         item {
           Rows.TextRow(
-            icon = SignalIcons.Backup.imageVector,
+//            icon = SignalIcons.Backup.imageVector,
             text = stringResource(R.string.preferences_chats__backups),
             onClick = {
-              callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups())
+              if (isSignalVersion()) {
+                callbacks.navigate(AppSettingsRoute.BackupsRoute.Backups())
+              } else {
+                findNavController(view).safeNavigate(R.id.pigeon_action_appSettingsFragment_to_backupsPreferenceFragment)
+              }
             },
-            onLongClick = if (state.isPrimaryDevice) {
-              { callbacks.copyRemoteBackupsSubscriberIdToClipboard() }
-            } else {
-              null
-            },
+//            onLongClick = if (state.isPrimaryDevice) {
+//              { callbacks.copyRemoteBackupsSubscriberIdToClipboard() }
+//            } else {
+//              null
+//            },
             enabled = isRegisteredAndUpToDate
           )
         }
@@ -441,26 +465,29 @@ private fun AppSettingsContent(
           )
         }
 
-        if (state.showAppUpdates) {
-          item {
-            Rows.TextRow(
-              text = "App updates",
-              icon = painterResource(R.drawable.symbol_calendar_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.AppUpdates)
-              }
-            )
+        if (isSignalVersion()) {
+
+          if (state.showAppUpdates) {
+            item {
+              Rows.TextRow(
+                text = "App updates",
+                icon = painterResource(R.drawable.symbol_calendar_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.AppUpdates)
+                }
+              )
+            }
           }
         }
 
-        if (state.isPrimaryDevice && state.showPayments) {
+        if (state.isPrimaryDevice && state.showPayments && isSignalVersion()) {
           item {
             Dividers.Default()
           }
 
           item {
             Rows.TextRow(
-              text = {
+              text = { _, _ ->
                 Text(
                   text = stringResource(R.string.preferences__payments),
                   modifier = Modifier.weight(1f)
@@ -496,8 +523,10 @@ private fun AppSettingsContent(
           }
         }
 
-        item {
-          Dividers.Default()
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
         }
 
         item {
@@ -510,39 +539,43 @@ private fun AppSettingsContent(
           )
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-            icon = painterResource(R.drawable.symbol_invite_24),
-            onClick = {
-              callbacks.navigate(AppSettingsRoute.Invite)
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = painterResource(R.drawable.symbol_invite_24),
+              onClick = {
+                callbacks.navigate(AppSettingsRoute.Invite)
+              }
+            )
+          }
+
+          if (state.showInternalPreferences) {
+            if (isSignalVersion()) {
+              item {
+                Dividers.Default()
+              }
             }
-          )
-        }
 
-        if (state.showInternalPreferences) {
-          item {
-            Dividers.Default()
-          }
+            item {
+              Rows.TextRow(
+                text = "Labs",
+                icon = painterResource(R.drawable.symbol_flash_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.LabsRoute.Labs)
+                }
+              )
+            }
 
-          item {
-            Rows.TextRow(
-              text = "Labs",
-              icon = painterResource(R.drawable.symbol_flash_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.LabsRoute.Labs)
-              }
-            )
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences),
-              icon = painterResource(R.drawable.symbol_key_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
-              }
-            )
+            item {
+              Rows.TextRow(
+                text = stringResource(R.string.preferences__internal_preferences),
+                icon = painterResource(R.drawable.symbol_key_24),
+                onClick = {
+                  callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
+                }
+              )
+            }
           }
         }
       }
@@ -556,7 +589,7 @@ private fun BackupsWarningRow(
   onClick: () -> Unit
 ) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Text(text = text)
     },
     icon = {
@@ -587,23 +620,27 @@ private fun BioRow(
 ) {
   val hasUsername by rememberUpdatedState(self.username.isNotBlank())
 
+  val pigeonRequester = remember { FocusRequester() }
+
   Row(
-    verticalAlignment = Alignment.CenterVertically,
-    modifier = Modifier
+    verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+      .padding(0.dp)
+      .focusRequester(pigeonRequester)
       .clickable(
         onClick = {
           callbacks.navigate(AppSettingsRoute.AccountRoute.ManageProfile)
         }
       )
-      .horizontalGutters()
+      .horizontalGutters(0.dp)
   ) {
     Box {
-      AvatarImage(
-        recipient = self.recipient,
-        modifier = Modifier
-          .padding(vertical = 24.dp)
-          .size(80.dp)
-      )
+      if (isSignalVersion()) {
+        AvatarImage(
+          recipient = self.recipient, modifier = Modifier
+            .padding(vertical = 24.dp)
+            .size(80.dp)
+        )
+      }
 
       if (self.featuredBadge != null) {
         BadgeImageMedium(
@@ -666,7 +703,7 @@ private fun BioRow(
       }
     }
 
-    if (hasUsername) {
+    if (hasUsername && isSignalVersion()) {
       IconButtons.IconButton(
         onClick = {
           callbacks.navigate(AppSettingsRoute.UsernameLinkRoute.UsernameLink)
@@ -682,6 +719,11 @@ private fun BioRow(
           modifier = Modifier.size(20.dp)
         )
       }
+    }
+  }
+  if (isPigeonVersion()) {
+    LaunchedEffect(Unit) {
+      pigeonRequester.requestFocus()
     }
   }
 }

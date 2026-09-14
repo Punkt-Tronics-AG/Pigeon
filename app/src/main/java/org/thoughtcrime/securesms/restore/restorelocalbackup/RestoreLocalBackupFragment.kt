@@ -30,6 +30,7 @@ import org.greenrobot.eventbus.ThreadMode
 import org.signal.core.ui.logging.LoggingFragment
 import org.signal.core.util.bytes
 import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.MainActivity
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.backup.BackupEvent
 import org.thoughtcrime.securesms.backup.BackupPassphrase
@@ -47,6 +48,7 @@ import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.ViewModelFactory
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 import java.util.Locale
 
 /**
@@ -93,6 +95,11 @@ class RestoreLocalBackupFragment : LoggingFragment(R.layout.fragment_restore_loc
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     SystemWindowInsetsSetter.attach(view, viewLifecycleOwner)
+
+    if (isPigeonVersion()) {
+      sharedViewModel.setBackupFileUri(BackupUtil.getLatestBackup()!!.uri)
+    }
+
     setDebugLogSubmitMultiTapView(binding.verifyHeader)
     Log.i(TAG, "Backup restore.")
 
@@ -106,6 +113,16 @@ class RestoreLocalBackupFragment : LoggingFragment(R.layout.fragment_restore_loc
 
     binding.cancelLocalRestoreButton.setOnClickListener {
       Log.i(TAG, "Cancel clicked.")
+      if (isPigeonVersion()) {
+        // Pigeon: PassphraseRequiredActivity will keep re-launching RestoreActivity as long as
+        // userCanTransferOrRestore() is true. Skip restore and reset the app to MainActivity so we
+        // actually leave this screen instead of looping back into it.
+        sharedViewModel.skipRestore()
+        val activity = requireActivity()
+        activity.startActivity(MainActivity.clearTop(activity))
+        activity.finishAffinity()
+        return@setOnClickListener
+      }
       findNavController().navigateUp()
     }
 

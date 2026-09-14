@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Mp02.Signal.Background"
+    android:id="@+id/callee_must_accept_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="false"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="false"
+        android:visibility="gone">
+
+        <org.thoughtcrime.securesms.components.AvatarImageView
+            android:id="@+id/avatar"
+            android:layout_width="112dp"
+            android:layout_height="112dp" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/description"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:lineHeight="22sp"
+        tools:text="+1234567890 will get a message request from you. You can call once your message request is accepted." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/okay"
+        style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginTop="20dp"
+        android:text="@android:string/ok" />
+
+</LinearLayout>

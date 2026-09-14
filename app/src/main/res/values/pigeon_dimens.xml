@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="focus_item_padding_x">5px</dimen>
+    <dimen name="item_height">32px</dimen>
+    <dimen name="item_padding_x">30px</dimen>
+    <dimen name="item_textsize">24px</dimen>
+    <dimen name="focus_item_textsize">40px</dimen>
+    <dimen name="focus_item_height">56px</dimen>
+    <dimen name="focus_small_height">32px</dimen>
+    <dimen name="small_height">22px</dimen>
+    <dimen name="focus_small_textsize">24px</dimen>
+    <dimen name="small_textsize">14px</dimen>
+    <dimen name="unread_count_bubble_diameter">26sp</dimen>
+</resources>

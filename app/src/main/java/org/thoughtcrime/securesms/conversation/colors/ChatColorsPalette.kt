@@ -1,5 +1,7 @@
 package org.thoughtcrime.securesms.conversation.colors
 
+import pigeon.extensions.isSignalVersion
+
 /**
  * Namespaced collection of supported bubble colors and name colors.
  */
@@ -12,6 +14,12 @@ object ChatColorsPalette {
     val ULTRAMARINE = ChatColors.forColor(
       ChatColors.Id.BuiltIn,
       0xFF315FF4.toInt()
+    )
+
+    @JvmField
+    val TRANSPARENT = ChatColors.forColor(
+      ChatColors.Id.BuiltIn,
+      0xFF000000.toInt()
     )
 
     // endregion
@@ -160,7 +168,9 @@ object ChatColorsPalette {
     // endregion
 
     @JvmStatic
-    val default = ULTRAMARINE
+    val default = if (isSignalVersion()) {
+      ULTRAMARINE
+    } else TRANSPARENT
 
     /*
      * If updating this list of colors, make sure to update the backup import/export colors as well.

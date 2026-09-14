@@ -63,6 +63,7 @@ import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.screens.shared.ContactSupportDialog
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -135,6 +136,16 @@ fun VerificationCodeScreen(
       filter = R.string.VerificationCodeScreen__contact_support_email_filter,
       onDismiss = { onEvent(VerificationCodeScreenEvents.DismissContactSupportDialog) }
     )
+  }
+
+  if (isPigeonVersion()) {
+    Scaffold(
+      snackbarHost = { SnackbarHost(snackbarHostState) },
+      modifier = modifier
+    ) { innerPadding ->
+      PigeonVerificationCodeLayout(state = state, onEvent = onEvent, modifier = Modifier.padding(innerPadding))
+    }
+    return
   }
 
   Scaffold(

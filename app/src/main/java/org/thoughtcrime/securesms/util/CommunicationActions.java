@@ -64,6 +64,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class CommunicationActions {
 
   private static final String TAG = Log.tag(CommunicationActions.class);
@@ -103,12 +105,16 @@ public class CommunicationActions {
               onUserAlreadyInAnotherCall.onUserAlreadyInAnotherCall();
             }
           } else {
-            new MaterialAlertDialogBuilder(callContext.getContext())
+            if (isSignalVersion()) {
+              new MaterialAlertDialogBuilder(callContext.getContext())
                 .setMessage(R.string.CommunicationActions_start_voice_call)
                 .setPositiveButton(R.string.CommunicationActions_call, (d, w) -> startCallInternal(callContext, recipient, false, false))
                 .setNegativeButton(R.string.CommunicationActions_cancel, (d, w) -> d.dismiss())
                 .setCancelable(true)
                 .show();
+            } else {
+              startCallInternal(callContext, recipient, false, false);
+            }
           }
         }
       });

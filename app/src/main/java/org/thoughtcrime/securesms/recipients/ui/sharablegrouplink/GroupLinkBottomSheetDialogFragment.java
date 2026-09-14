@@ -1,10 +1,14 @@
 package org.thoughtcrime.securesms.recipients.ui.sharablegrouplink;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +18,8 @@ import androidx.core.app.ShareCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.thoughtcrime.securesms.R;
@@ -31,6 +37,8 @@ import org.thoughtcrime.securesms.util.WindowUtil;
 import java.util.Collections;
 import java.util.Objects;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+
 public final class GroupLinkBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
   public static final String ARG_GROUP_ID = "group_id";
@@ -43,6 +51,36 @@ public final class GroupLinkBottomSheetDialogFragment extends BottomSheetDialogF
 
     fragment.setArguments(args);
     fragment.show(manager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
+  }
+
+  @NonNull @Override public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    Dialog dialog = super.onCreateDialog(savedInstanceState);
+    dialog.setOnShowListener(dialogInterface -> {
+      BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+      setupFullHeight(bottomSheetDialog);
+    });
+    return dialog;
+  }
+
+  private void setupFullHeight(BottomSheetDialog bottomSheetDialog) {
+    FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+    assert bottomSheet != null;
+    BottomSheetBehavior<FrameLayout> behavior     = BottomSheetBehavior.from(bottomSheet);
+    ViewGroup.LayoutParams           layoutParams = bottomSheet.getLayoutParams();
+
+    int windowHeight = getWindowHeight();
+    if (layoutParams != null) {
+      layoutParams.height = windowHeight;
+    }
+    bottomSheet.setLayoutParams(layoutParams);
+    behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+  }
+
+  private int getWindowHeight() {
+    // Calculate window height for fullscreen use
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+    return displayMetrics.heightPixels;
   }
 
   @Override
@@ -63,6 +101,12 @@ public final class GroupLinkBottomSheetDialogFragment extends BottomSheetDialogF
     View     viewQrButton         = view.findViewById(R.id.group_link_bottom_sheet_qr_code_button);
     View     shareBySystemButton  = view.findViewById(R.id.group_link_bottom_sheet_share_via_system_button);
     TextView hint                 = view.findViewById(R.id.group_link_bottom_sheet_hint);
+
+    if (isPigeonVersion()){
+      ((TextView)shareViaSignalButton).setText(getString(R.string.Pigeon_GroupLinkBottomSheet_share_via_signal));
+      viewQrButton.setVisibility(View.GONE);
+      shareBySystemButton.setVisibility(View.GONE);
+    }
 
     GroupId.V2 groupId = GroupId.parseOrThrow(Objects.requireNonNull(requireArguments().getString(ARG_GROUP_ID))).requireV2();
 

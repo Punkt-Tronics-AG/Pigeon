@@ -215,7 +215,7 @@ private fun RecipientRow(recipientId: RecipientId, onClick: (RecipientId, String
   val callback = remember(displayName) { { onClick(recipientId, displayName) } }
 
   Rows.TextRow(
-    text = {
+    text = {  _, _ ->
       Text(text = displayName)
     },
     icon = {

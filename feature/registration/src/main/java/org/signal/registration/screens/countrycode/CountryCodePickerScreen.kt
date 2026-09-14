@@ -70,6 +70,7 @@ import org.signal.registration.screens.RegistrationScaffold
 import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Screen that allows someone to search and select a country code from a supported list of countries.
@@ -80,6 +81,11 @@ fun CountryCodePickerScreen(
   state: CountryCodeState,
   onEvent: (CountryCodePickerScreenEvents) -> Unit
 ) {
+  if (isPigeonVersion()) {
+    PigeonCountryCodePickerLayout(state = state, onEvent = onEvent)
+    return
+  }
+
   when (val layoutParams = RegistrationScaffold.rememberLayoutParams()) {
     is RegistrationScaffold.Params.OnePane -> OnePaneLayout(layoutParams, state, onEvent)
     is RegistrationScaffold.Params.TwoPane -> TwoPaneLayout(layoutParams, state, onEvent)

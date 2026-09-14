@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,11 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 
+import pigeon.extensions.BuildExtensionsKt;
+
+import static pigeon.extensions.BuildExtensionsKt.*;
+import static pigeon.extensions.KotilinExtensionsKt.focusOnRight;
+
 /**
  * Simple fragment to edit your profile name.
  */
@@ -38,6 +44,7 @@ public class EditProfileNameFragment extends Fragment {
   private EditText                       familyName;
   private CircularProgressMaterialButton saveButton;
   private EditProfileNameViewModel       viewModel;
+  private TextView                       managePhoneNumber;
 
   @Override
   public @NonNull View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,6 +58,12 @@ public class EditProfileNameFragment extends Fragment {
     this.givenName  = view.findViewById(R.id.edit_profile_name_given_name);
     this.familyName = view.findViewById(R.id.edit_profile_name_family_name);
     this.saveButton = view.findViewById(R.id.edit_profile_name_save);
+
+    this.managePhoneNumber = view.findViewById(R.id.manage_phone_number);
+
+    if (BuildExtensionsKt.isPigeonVersion()) {
+      focusOnRight(managePhoneNumber);
+    }
 
     initializeViewModel();
 
@@ -77,6 +90,8 @@ public class EditProfileNameFragment extends Fragment {
                                                                familyName.getText().toString()));
 
     ViewUtil.focusAndMoveCursorToEndAndOpenKeyboard(this.givenName);
+
+    viewModel.getPigeonNumber().observe(getViewLifecycleOwner(), this::presentPigeonNumber);
   }
 
   private void initializeViewModel() {
@@ -124,6 +139,14 @@ public class EditProfileNameFragment extends Fragment {
     }
   }
 
+  private void presentPigeonNumber(@Nullable String number) {
+    if (number == null || number.isEmpty()) {
+      managePhoneNumber.setText(R.string.ConversationSettingsFragment__phone_number);
+    } else {
+      managePhoneNumber.setText(number);
+    }
+  }
+
   public static void trimFieldToMaxByteLength(Editable s) {
     trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
   }
@@ -139,11 +162,13 @@ public class EditProfileNameFragment extends Fragment {
   private static void setEditTextEnabled(@NonNull EditText text, boolean enabled) {
     text.setEnabled(enabled);
     text.setFocusable(enabled);
-    if (enabled) {
-      text.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-    } else {
-      text.clearFocus();
-      text.setInputType(EditorInfo.TYPE_NULL);
+    if (isSignalVersion()) {
+      if (enabled) {
+        text.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+      } else {
+        text.clearFocus();
+        text.setInputType(EditorInfo.TYPE_NULL);
+      }
     }
   }
 }

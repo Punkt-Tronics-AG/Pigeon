@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -30,7 +31,11 @@ import org.signal.core.ui.compose.Launchers
 import org.signal.core.ui.contracts.OpenDocumentContract
 import org.signal.core.ui.navigation.BottomSheetSceneStrategy
 import org.signal.core.ui.navigation.LocalBottomSheetDismiss
+import org.signal.core.util.logging.Log
+import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.ui.restore.EnterBackupKeyViewModel
+import org.thoughtcrime.securesms.util.BackupUtil
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Handles the restoration flow for V2 backups. Can also launch into V1 backup flow if needed.
@@ -75,6 +80,26 @@ fun RestoreLocalBackupNavDisplay(
       sceneStrategies = listOf(bottomSheetStrategy),
       entryProvider = entryProvider {
         entry<RestoreLocalBackupNavKey.SelectLocalBackupTypeScreen> {
+          // region Pigeon
+          if (isPigeonVersion()) {
+            // Pigeon-only: MP02 cannot use the system folder picker and saves
+            // backups in the legacy V1 single-file format under
+            // /storage/emulated/0/Signal/Backups. Route the latest backup
+            // straight into the V1 restore flow and skip the V2 selection UI.
+            LaunchedEffect(Unit) {
+              val latest = runCatching { BackupUtil.getLatestBackup() }
+                .onFailure { Log.w("RestoreLocalBackupNavDisplay", "Pigeon: unable to query latest backup", it) }
+                .getOrNull()
+              if (latest != null) {
+                callback.routeToLegacyBackupRestoration(latest.uri)
+              } else {
+                callback.displaySkipRestoreWarning()
+              }
+            }
+            return@entry
+          }
+          // endregion Pigeon
+          // Original Signal logic – DO NOT modify.
           SelectLocalBackupTypeScreen(
             onSelectBackupFolderClick = {
               backstack.add(RestoreLocalBackupNavKey.FolderInstructionSheet)

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.signal.core.ui.compose.theme.SignalTheme
+import pigeon.extensions.isSignalVersion
 
 @OptIn(ExperimentalMaterial3Api::class)
 object Scaffolds {
@@ -101,15 +102,18 @@ object Scaffolds {
     Scaffold(
       snackbarHost = snackbarHost,
       topBar = {
-        DefaultTopAppBar(
-          title = title,
-          titleContent = titleContent,
-          onNavigationClick = onNavigationClick,
-          navigationIcon = navigationIcon,
-          navigationContentDescription = navigationContentDescription,
-          actions = actions,
-          scrollBehavior = scrollBehavior
-        )
+        // Pigeon (MP02): no toolbar – screens are navigated with hardware keys and the 240px display has no room for it.
+        if (isSignalVersion()) {
+          DefaultTopAppBar(
+            title = title,
+            titleContent = titleContent,
+            onNavigationClick = onNavigationClick,
+            navigationIcon = navigationIcon,
+            navigationContentDescription = navigationContentDescription,
+            actions = actions,
+            scrollBehavior = scrollBehavior
+          )
+        }
       },
       bottomBar = bottomBar,
       modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

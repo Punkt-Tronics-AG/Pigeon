@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Gem</string>
+    <string name="Pigeon.Options">Options</string>
+    <string name="Pigeon.Close">Luk</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Telefonnummer</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon disclaimer</string>
+    <string name="Pigeon_HomePage_new_message">Ny besked</string>
+    <string name="Pigeon_HomePage_new_group">Ny gruppe</string>
+    <string name="Pigeon_HomePage_mark_all_read">Markér alle som læst</string>
+    <string name="Pigeon_HomePage_settings">Indstillinger</string>
+    <string name="Pigeon_HomePage_search">Søg</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Søg</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Opret</string>
+    <string name="Pigeon_Settings_switch_on">På</string>
+    <string name="Pigeon_Settings_switch_off">Av</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profil</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon besked</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon giver dig mulighed for at bruge Signal på MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal Terms &amp; Privacy Policy</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon har brug for tilladelse til at tilgå kontakter og lagerplads for at du kan oprette forbindelse til venner og sende beskeder. Dine kontakter uploades ved hjælp af Signals private kontaktopdagelse, hvilket betyder, at de er end-to-end-krypteret og aldrig synlige for Signal- og Pigeon-tjenesten.</string>
+    <string name="no_options_available">Ingen valgmuligheder</string>
+    <string name="conversation_context__menu_reply_to_message">Svar til besked</string>
+    <string name="conversation_context__menu_forward_message">Videresende besked</string>
+    <string name="conversation_context__menu_react_to_message">Reager på besked</string>
+    <string name="conversation_context__menu_take_back_message">Tag besked tilbage</string>
+</resources>

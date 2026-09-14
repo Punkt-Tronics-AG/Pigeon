@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -47,6 +48,7 @@ import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.screens.util.MockMultiplePermissionsState
 import org.signal.registration.screens.util.MockPermissionsState
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Permissions screen for the registration flow.
@@ -62,6 +64,19 @@ fun PermissionsScreen(
   modifier: Modifier = Modifier,
   onProceed: () -> Unit = {}
 ) {
+  if (isPigeonVersion()) {
+    // PIGEON: no rationale screen on the MP02, ask the system right away (result is handled by the caller).
+    LaunchedEffect(Unit) {
+      if (permissionsState.allPermissionsGranted) {
+        onProceed()
+      } else {
+        permissionsState.launchMultiplePermissionRequest()
+      }
+    }
+    Surface(modifier = modifier.fillMaxSize().testTag(TestTags.PERMISSIONS_SCREEN)) {}
+    return
+  }
+
   val layoutParams = RegistrationScaffold.rememberLayoutParams()
   val permissions = permissionsState.permissions.map { it.permission }
 
