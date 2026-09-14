@@ -27,7 +27,7 @@ plugins {
 val staticIps = Properties().apply { file("static-ips.properties").reader().use { load(it) } }
 staticIps.stringPropertyNames().forEach { rootProject.extra[it] = staticIps.getProperty(it) }
 
-val pigeonVersionCode = 127545
+val pigeonVersionCode = 127546
 val canonicalVersionCode = 1691
 val canonicalVersionName = "Pigeon 2.0.0033 upon Signal 8.11.3"
 val currentHotfixVersion = 0
