@@ -1,0 +1,8 @@
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/conversation_item_call_to_action"
+    style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:text="Click me"
+    tools:viewBindingIgnore="true" />

@@ -24,6 +24,8 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.registration.data.RegistrationRepository
 import org.thoughtcrime.securesms.registration.util.RegistrationUtil
 import org.thoughtcrime.securesms.restore.RestoreRepository
+import org.thoughtcrime.securesms.util.BackupUtil
+import pigeon.extensions.isPigeonVersion
 
 /**
  * ViewModel for [RestoreLocalBackupFragment]
@@ -37,25 +39,35 @@ class RestoreLocalBackupViewModel(fileBackupUri: Uri) : ViewModel() {
   val importResult = store.map { it.backupImportResult }.asLiveData()
 
   fun prepareRestore(context: Context) {
-    val backupFileUri = store.value.uri
-    viewModelScope.launch {
-      val result: RestoreRepository.BackupInfoResult = RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
-
-      if (result.failure && result.failureCause != null) {
-        store.update {
-          it.copy(
-            backupFileStateError = result.failureCause.state
-          )
-        }
-      } else if (result.backupInfo == null) {
-        abort()
-        return@launch
-      }
-
+    if (isPigeonVersion()) {
       store.update {
         it.copy(
-          backupInfo = result.backupInfo
+          uri = BackupUtil.getLatestBackup()!!.uri,
+          backupInfo = BackupUtil.getLatestBackup()
         )
+      }
+    } else {
+      val backupFileUri = store.value.uri
+      viewModelScope.launch {
+        val result: RestoreRepository.BackupInfoResult =
+          RestoreRepository.getLocalBackupFromUri(context, backupFileUri)
+
+        if (result.failure && result.failureCause != null) {
+          store.update {
+            it.copy(
+              backupFileStateError = result.failureCause.state
+            )
+          }
+        } else if (result.backupInfo == null) {
+          abort()
+          return@launch
+        }
+
+        store.update {
+          it.copy(
+            backupInfo = result.backupInfo
+          )
+        }
       }
     }
   }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Guardar</string>
+    <string name="Pigeon.Options">Opciones</string>
+    <string name="Pigeon.Close">Cerrar</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Número de teléfono</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon descargo de responsabilidad</string>
+    <string name="Pigeon_HomePage_new_message">Nuevo mensaje</string>
+    <string name="Pigeon_HomePage_new_group">Nuevo grupo</string>
+    <string name="Pigeon_HomePage_mark_all_read">Marcar todos como leídos</string>
+    <string name="Pigeon_HomePage_settings">Opciones</string>
+    <string name="Pigeon_HomePage_search">Buscar</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Buscar</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Crear</string>
+    <string name="Pigeon_Settings_switch_on">ON</string>
+    <string name="Pigeon_Settings_switch_off">OFF</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Perfil</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Mensaje de Pigeon</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon le habilita a usar la señal en el MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal términos y política de privacidad</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon necesita los permisos de acceso a tus contactos y medios para chatear y contactar con tus amistades. Tu lista de contactos se cifra en tu teléfono y se trasmite al servicio de Signal para descubrir contactos. Como la lista está cifrada, ni Signal y Pigeon ni nadie tienen acceso.</string>
+    <string name="no_options_available">No hay opciones disponibles</string>
+    <string name="conversation_context__menu_reply_to_message">Responder al mensaje</string>
+    <string name="conversation_context__menu_forward_message">Reenviar mensaje</string>
+    <string name="conversation_context__menu_react_to_message">Reaccionar al mensaje</string>
+    <string name="conversation_context__menu_take_back_message">Retirar mensaje</string>
+</resources>

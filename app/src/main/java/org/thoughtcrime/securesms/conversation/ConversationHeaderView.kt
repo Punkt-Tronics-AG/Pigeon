@@ -85,6 +85,7 @@ import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.util.LongClickMovementMethod
 import org.thoughtcrime.securesms.util.SignalE164Util
 import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.isPigeonVersion
 
 private val AvatarSize = 74.dp
 private val AvatarOverlapAbove = 16.dp
@@ -204,10 +205,11 @@ private fun ConversationHeaderContent(
     modifier = Modifier.fillMaxWidth(),
     contentAlignment = Alignment.TopCenter
   ) {
+    val pigeonHideAvatar = isPigeonVersion()
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-        .padding(top = AvatarOverlapAbove)
+        .padding(top = if (pigeonHideAvatar) 0.dp else AvatarOverlapAbove)
         .width(277.dp)
         .then(
           if (isReleaseNotes) {
@@ -223,7 +225,12 @@ private fun ConversationHeaderContent(
             Modifier.border(width = 2.5.dp, color = SignalTheme.colors.colorSurface3, shape = BorderShape)
           }
         )
-        .padding(top = AvatarOverlapBelow + 12.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)
+        .padding(
+          top = if (pigeonHideAvatar) 12.dp else AvatarOverlapBelow + 12.dp,
+          bottom = 24.dp,
+          start = 24.dp,
+          end = 24.dp
+        )
     ) {
       HeadlineDisplayName(
         displayName = displayName,
@@ -308,14 +315,16 @@ private fun ConversationHeaderContent(
       }
     }
 
-    AvatarWithBadge(
-      recipientId = recipientId,
-      badge = badge,
-      useProfile = !isSelf,
-      avatarDownloadState = avatarDownloadState,
-      shouldBlurAvatar = shouldBlurAvatar,
-      onTapToView = callbacks::onAvatarTapToViewClicked
-    )
+    if (!pigeonHideAvatar) {
+      AvatarWithBadge(
+        recipientId = recipientId,
+        badge = badge,
+        useProfile = !isSelf,
+        avatarDownloadState = avatarDownloadState,
+        shouldBlurAvatar = shouldBlurAvatar,
+        onTapToView = callbacks::onAvatarTapToViewClicked
+      )
+    }
   }
 }
 

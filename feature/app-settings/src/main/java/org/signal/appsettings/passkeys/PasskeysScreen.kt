@@ -236,10 +236,13 @@ private fun PasskeyRow(
         tint = MaterialTheme.colorScheme.onSurface
       )
     },
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       TextAndLabel(
         text = passkey.name,
-        label = stringResource(R.string.PasskeysScreen__added_s, addedTime)
+        label = stringResource(R.string.PasskeysScreen__added_s, addedTime),
+        textColor = pigeonTextColor,
+        pigeonTextSize = pigeonTextSize
       )
 
       PasskeyMenuButton(

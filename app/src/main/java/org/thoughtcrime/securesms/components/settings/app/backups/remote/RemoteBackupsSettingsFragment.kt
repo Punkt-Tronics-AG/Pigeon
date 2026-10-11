@@ -894,7 +894,7 @@ private fun LazyListScope.appendBackupDetailsItems(
     }
 
     Rows.TextRow(
-      text = {
+      text = { _, _ ->
         Column {
           Text(
             text = stringResource(id = R.string.RemoteBackupsSettingsFragment__backup_size),

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <PreferenceCategory
+        android:title="@string/preferences_storage__storage_usage"
+        app:isPreferenceVisible="false" />
+
+    <org.thoughtcrime.securesms.preferences.widgets.StoragePreferenceCategory
+        android:key="pref_storage_category"
+        app:isPreferenceVisible="false" />
+
+    <PreferenceCategory
+        android:key="storage_limits">
+
+        <pigeon.widget.MyPreference
+            android:key="settings.keep_messages_duration"
+            android:layout="@layout/preference_material_mp02"
+            android:title="@string/preferences__keep_messages"
+            tools:summary="@string/preferences_storage__forever" />
+
+        <pigeon.widget.MyPreference
+            android:inputType="number"
+            android:key="pref_trim_length"
+            android:layout="@layout/preference_material_mp02"
+            android:title="@string/preferences__conversation_length_limit"
+            tools:summary="None" />
+
+        <pigeon.widget.MyPreference
+            android:key="pref_storage_clear_message_history"
+            android:layout="@layout/preference_material_mp02_end"
+            app:allowDividerBelow="true"
+            android:title="@string/preferences__clear_message_history" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        android:layout="@layout/pigeon_preference_divider" />
+
+</PreferenceScreen>

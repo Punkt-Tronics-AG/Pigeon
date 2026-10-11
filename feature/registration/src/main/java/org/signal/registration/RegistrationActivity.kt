@@ -2,6 +2,7 @@ package org.signal.registration
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import org.signal.core.ui.compose.theme.SignalTheme
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Activity entry point for the registration flow.
@@ -65,6 +67,10 @@ class RegistrationActivity : ComponentActivity() {
 
   @OptIn(ExperimentalPermissionsApi::class)
   override fun onCreate(savedInstanceState: Bundle?) {
+    if (isPigeonVersion()) {
+      // PIGEON: MP02 has a fixed horizontal display, never rotate (same as BaseActivity in the app module)
+      requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    }
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
 

@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import pigeon.extensions.BuildExtensionsKt;
+
 public final class GroupInviteSentDialog extends DialogFragment {
   private static final String FRAGMENT_TAG     = "GroupInviteSentDialog";
   public static final  String RESULT_DISMISSED = "GroupInviteSentDialog.result_dismissed";
 
   private static final String ARG_RECIPIENT_IDS = "recipient_ids";
-
 
   public static void show(@NonNull FragmentManager fragmentManager, @NonNull List<Recipient> recipients) {
     ArrayList<RecipientId> recipientIds = new ArrayList<>(recipients.size());
@@ -54,8 +55,8 @@ public final class GroupInviteSentDialog extends DialogFragment {
       Recipient recipient = Recipient.live(recipientIds.get(0)).get();
       builder.setMessage(getString(R.string.GroupManagement_invite_single_user, recipient.getDisplayName(requireContext())));
     } else {
-      builder.setMessage(R.string.GroupManagement_invite_multiple_users)
-             .setView(R.layout.dialog_multiple_group_invites_sent);
+      builder.setMessage(R.string.GroupManagement_invite_multiple_users);
+//             .setView(R.layout.dialog_multiple_group_invites_sent);
     }
 
     return builder.create();

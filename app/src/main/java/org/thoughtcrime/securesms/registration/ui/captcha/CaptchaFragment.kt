@@ -19,6 +19,7 @@ import org.thoughtcrime.securesms.databinding.FragmentRegistrationCaptchaBinding
 import org.thoughtcrime.securesms.registration.fragments.RegistrationConstants
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 
+
 abstract class CaptchaFragment : LoggingFragment(R.layout.fragment_registration_captcha) {
 
   private val binding: FragmentRegistrationCaptchaBinding by ViewBinderDelegate(FragmentRegistrationCaptchaBinding::bind)
@@ -44,6 +45,7 @@ abstract class CaptchaFragment : LoggingFragment(R.layout.fragment_registration_
     }
     binding.registrationCaptchaWebView.loadUrl(BuildConfig.SIGNAL_CAPTCHA_URL)
   }
+
 
   abstract fun handleCaptchaToken(token: String)
 }

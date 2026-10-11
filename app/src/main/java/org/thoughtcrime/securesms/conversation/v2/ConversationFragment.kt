@@ -30,6 +30,7 @@ import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -328,6 +329,7 @@ import org.thoughtcrime.securesms.mms.VideoSlide
 import org.thoughtcrime.securesms.nicknames.NicknameActivity
 import org.thoughtcrime.securesms.notifications.v2.ConversationId
 import org.thoughtcrime.securesms.payments.preferences.PaymentsActivity
+import org.thoughtcrime.securesms.pigeon.activity.ConversationSubMenuActivity
 import org.thoughtcrime.securesms.polls.Poll
 import org.thoughtcrime.securesms.polls.PollOption
 import org.thoughtcrime.securesms.polls.PollRecord
@@ -406,6 +408,11 @@ import java.util.concurrent.ExecutionException
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import org.signal.core.ui.R as CoreUiR
+
+import pigeon.components.PigeonConversationInputPanel
+import pigeon.conversation.PigeonConversationActions
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * A single unified fragment for Conversations.
@@ -562,6 +569,8 @@ class ConversationFragment :
     VoiceNotePlayerViewListener()
   }
 
+  private var selectedConversationMessage: ConversationMessage? = null
+
   private val conversationTooltips = ConversationTooltips(this)
   private val colorizer = ColorizerV2()
   private val textDraftSaveDebouncer = Debouncer(500)
@@ -614,6 +623,11 @@ class ConversationFragment :
   private var releaseNotesWallpaperApplied: Boolean = false
 
   private var applyToolbarPaddingRunnable: Runnable? = null
+
+  //PIGEON
+  private var pigeonInputPanel: PigeonConversationInputPanel? = null
+  private var pigeonAutoAcceptedRecipient: RecipientId? = null
+  //END PIGEON
 
   private val jumpAndPulseScrollStrategy = object : ScrollToPositionDelegate.ScrollStrategy {
     override fun performScroll(recyclerView: RecyclerView, layoutManager: LinearLayoutManager, position: Int, smooth: Boolean) {
@@ -756,6 +770,19 @@ class ConversationFragment :
     binding.toolbar.isBackInvokedCallbackEnabled = false
     disposables.bindTo(viewLifecycleOwner)
 
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): on chat open reveal the input panel and put focus into the compose
+      // text so the user can start typing immediately. Done here (once per view) instead
+      // of in onResume so we don't steal focus back every time the user returns from
+      // sleep / another screen / a sub-activity.
+      view.post {
+        if (isAdded && this@ConversationFragment.view != null) {
+          binding.conversationInputPanel.root.isVisible = true
+          composeText.requestFocus()
+        }
+      }
+    }
+
     if (requireActivity() is ConversationActivity) {
       FullscreenHelper(requireActivity()).showSystemUI()
     }
@@ -838,6 +865,45 @@ class ConversationFragment :
 
     binding.conversationItemRecycler.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
       viewModel.onChatBoundsChanged(Rect(left, top, right, bottom))
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): only show on layout changes (never hide here). Hiding is driven
+        // by actual scroll events; otherwise transient layout passes during initial
+        // scroll-to-bottom would cause the panel to flicker and shift the screen.
+        val panel = binding.conversationInputPanel.root
+        if (pigeonShouldShowInputPanel()) {
+          panel.isVisible = true
+        }
+      }
+    }
+
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): keep the input panel visible whenever ANY of its descendants holds
+      // focus (ComposeText, send button, voice, attachment-toggle, the whole primary/extra
+      // sub-screen with send2/sendText/etc). Using a global focus listener ensures that
+      // when the user navigates DPAD-right from ComposeText to send, the panel does not
+      // get hidden by a stale scroll listener mid-traversal.
+      val globalFocusListener = ViewTreeObserver.OnGlobalFocusChangeListener { _, newFocus ->
+        // The observer may outlive the fragment view (it gets merged into the window's
+        // observer on attach), so bail out once the view is gone.
+        if (this@ConversationFragment.view == null) return@OnGlobalFocusChangeListener
+        val panel = binding.conversationInputPanel.root
+        val newFocusInsidePanel = newFocus != null && panel.findFocus() === newFocus
+        if (newFocusInsidePanel) {
+          panel.isVisible = true
+        } else if (!pigeonShouldShowInputPanel()) {
+          panel.isVisible = false
+        }
+      }
+      val registeredObserver = view.viewTreeObserver
+      registeredObserver.addOnGlobalFocusChangeListener(globalFocusListener)
+      viewLifecycleOwner.lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
+        override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
+          if (registeredObserver.isAlive) {
+            registeredObserver.removeOnGlobalFocusChangeListener(globalFocusListener)
+          }
+          view.viewTreeObserver.removeOnGlobalFocusChangeListener(globalFocusListener)
+        }
+      })
     }
 
     binding.toolbar.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
@@ -863,6 +929,50 @@ class ConversationFragment :
     }
 
     binding.conversationItemRecycler.addItemDecoration(ChatColorsDrawable.ChatColorsItemDecoration)
+
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): views must be looked up in conversationContent – the fragment's root
+      // is a ComposeView and the content is attached to it asynchronously, so `view.findViewById`
+      // would return null here.
+      pigeonInputPanel = PigeonConversationInputPanel(
+        root = conversationContent,
+        inputPanel = inputPanel,
+        composeText = composeText,
+        sendButton = sendButton,
+        callbacks = object : PigeonConversationInputPanel.Callbacks {
+          override fun onDial() = optionsMenuCallback.handleDial()
+          override fun onVideoCall() = optionsMenuCallback.handleVideo()
+          override fun onConversationSettings() = optionsMenuCallback.handleConversationSettings()
+          override fun onResetSecureSession() = handleResetSecureSession()
+        }
+      )
+      inputPanel.clearQuote()
+    }
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    Log.w("PIGEON", "$requestCode | $resultCode")
+    if (selectedConversationMessage == null || requestCode != ConversationSubMenuActivity.Companion.HANDLE_SUBMENU) {
+      return
+    }
+    if (resultCode == ConversationSubMenuActivity.HANDLE_REPLY_MESSAGE) {
+      handleReplyToMessage(selectedConversationMessage!!)
+    } else if (resultCode == ConversationSubMenuActivity.Companion.HANDLE_FORWARD) {
+      handleForwardMessageParts(selectedConversationMessage!!.getMultiselectCollection().toSet())
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_TAKE_BACK_MESSAGE) {
+      handleDeleteMessagesAsPigeonApplication(selectedConversationMessage!!.getMultiselectCollection().toSet())
+    } else if (resultCode == ConversationSubMenuActivity.HANDLE_REACT) {
+      //todo
+    }
+  }
+
+  private fun handleDeleteMessagesAsPigeonApplication(multiselectParts: Set<MultiselectPart>) {
+    PigeonConversationActions.deleteForEveryone(multiselectParts)
+  }
+
+  private fun handleResetSecureSession() {
+    PigeonConversationActions.resetSecureSession(requireContext(), viewModel.recipientSnapshot)
   }
 
   override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -1059,6 +1169,7 @@ class ConversationFragment :
   }
 
   override fun onKeyEvent(keyEvent: KeyEvent?) {
+    Log.d(TAG, "Pigeon onKeyEvent: $keyEvent")
     if (keyEvent != null) {
       inputPanel.onKeyEvent(keyEvent)
     }
@@ -1424,6 +1535,9 @@ class ConversationFragment :
     val conversationBannerListener = ConversationBannerListener()
     binding.conversationBanner.listener = conversationBannerListener
 
+// If is Active - In Pigeon don;t working navigation correctly
+    if (isSignalVersion()) {
+      // FIXME: If dialog is opened - navigation in fragment is broken in Pigeon
     lifecycleScope.launch {
       viewModel
         .getBannerFlows(
@@ -1443,6 +1557,7 @@ class ConversationFragment :
         .collect {
           binding.conversationBanner.collectAndShowBanners(it)
         }
+    }
     }
 
     lifecycleScope.launch {
@@ -1633,7 +1748,7 @@ class ConversationFragment :
       typingIndicatorAdapter.setState(
         ConversationTypingIndicatorAdapter.State(
           typists = it.typists,
-          isGroupThread = recipient.isGroup,
+          isGroupThread = recipient.isGroup && isSignalVersion(),
           hasWallpaper = recipient.hasWallpaper,
           isReplacedByIncomingMessage = it.isReplacedByIncomingMessage
         )
@@ -1667,6 +1782,17 @@ class ConversationFragment :
     val isReleaseNotes = inputReadyState.conversationRecipient.isReleaseNotes
     if (isReleaseNotes) {
       applyReleaseNotesLayout()
+    }
+
+    if (isPigeonVersion() && PigeonConversationActions.shouldAutoAcceptMessageRequest(inputReadyState.messageRequestState)) {
+      // Pigeon (MP02): no "review request" screens – accept incoming message requests / group adds right away.
+      // The accepted state arrives through inputReadyState and takes the normal path below.
+      if (pigeonAutoAcceptedRecipient != inputReadyState.conversationRecipient.id) {
+        pigeonAutoAcceptedRecipient = inputReadyState.conversationRecipient.id
+        onMessageRequestAccept()
+      }
+      inputPanel.setHideForMessageRequestState(true)
+      return
     }
 
     var inputDisabled = true
@@ -2076,13 +2202,24 @@ class ConversationFragment :
     Log.d(TAG, "Update scroll state $scrollButtonState")
     binding.scrollToBottom.setUnreadCount(scrollButtonState.unreadCount)
     binding.scrollToMention.setUnreadCount(0)
-    binding.scrollToMention.isShown = scrollButtonState.hasMentions && scrollButtonState.showScrollButtons
-    binding.scrollToBottom.isShown = scrollButtonState.showScrollButtons
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): no touch – the floating scroll-to-bottom / scroll-to-mention
+      // buttons are unreachable and only steal screen space, so always hide them.
+      binding.scrollToBottom.isShown = false
+      binding.scrollToMention.isShown = false
+    } else {
+      binding.scrollToMention.isShown = scrollButtonState.hasMentions && scrollButtonState.showScrollButtons
+      binding.scrollToBottom.isShown = scrollButtonState.showScrollButtons
+    }
   }
 
   private fun presentGroupCallJoinButton() {
     binding.conversationGroupCallJoin.setOnClickListener {
       handleVideoCall()
+    }
+
+    viewModel.recipient.subscribeBy {
+      pigeonInputPanel?.bindRecipient(it)
     }
 
     disposables += groupCallViewModel
@@ -2092,6 +2229,7 @@ class ConversationFragment :
         binding.conversationGroupCallJoin.visible = it.ongoingCall
         binding.conversationGroupCallJoin.setText(if (it.hasCapacity) R.string.ConversationActivity_join else R.string.ConversationActivity_full)
         invalidateOptionsMenu()
+        it.activeV2Group
       }
   }
 
@@ -3123,6 +3261,11 @@ class ConversationFragment :
     val (slideDeck, body) = viewModel.getSlideDeckAndBodyForReply(requireContext(), conversationMessage)
     val author = conversationMessage.messageRecord.fromRecipient
 
+    if (isPigeonVersion()) {
+    composeText.requestFocus()
+    }
+
+
     inputPanel.setQuote(
       Glide.with(this),
       conversationMessage.messageRecord.dateSent,
@@ -3133,6 +3276,10 @@ class ConversationFragment :
     )
 
     inputPanel.clickOnComposeInput()
+    if (isPigeonVersion()) {
+      scrollListener?.onScrolled(binding.conversationItemRecycler, 0, 0)
+      binding.conversationInputPanel.root.isVisible = true
+    }
   }
 
   private fun handleEditMessage(conversationMessage: ConversationMessage) {
@@ -3416,6 +3563,13 @@ class ConversationFragment :
     }
   }
 
+  // Pigeon (MP02): the input panel is hidden as soon as the user scrolls away from the
+  // newest message and shown when at the bottom or when anything inside the panel has
+  // focus. Returns true when the panel should be visible.
+  private fun pigeonShouldShowInputPanel(): Boolean {
+    return PigeonConversationActions.shouldShowInputPanel(binding.conversationInputPanel.root, isScrolledToBottom())
+  }
+
   private fun isScrolledPastButtonThreshold(): Boolean {
     return layoutManager.findFirstVisibleItemPosition() > 4
   }
@@ -3524,6 +3678,14 @@ class ConversationFragment :
 
       val timestamp = MarkReadHelper.getLatestTimestamp(adapter, layoutManager)
       timestamp.ifPresent(markReadHelper::onViewsRevealed)
+
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): show panel when scrolled to newest OR when something inside the
+        // panel has focus (otherwise scroll updates would steal visibility mid-DPAD-traversal
+        // between ComposeText and the send / voice / attachment buttons).
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = pigeonShouldShowInputPanel()
+      }
     }
 
     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -3531,6 +3693,11 @@ class ConversationFragment :
         scrollDateHeaderHelper.show()
       } else {
         scrollDateHeaderHelper.hide()
+      }
+
+      if (isPigeonVersion()) {
+        val panel = binding.conversationInputPanel.root
+        panel.isVisible = pigeonShouldShowInputPanel()
       }
     }
 
@@ -3551,6 +3718,15 @@ class ConversationFragment :
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
       if (positionStart == 0 && shouldScrollToBottom()) {
         scrollToBottom()
+      }
+      if (isPigeonVersion()) {
+        // Pigeon (MP02): when items are first populated (e.g. welcome / greeting in a new
+        // chat), the scroll listener does not fire because there's no actual scroll. Make
+        // sure the input panel is shown if it should be; never hide here to avoid flicker.
+        val panel = binding.conversationInputPanel.root
+        if (pigeonShouldShowInputPanel()) {
+          panel.isVisible = true
+        }
       }
     }
 
@@ -4132,12 +4308,66 @@ class ConversationFragment :
       if (isActionModeStarted()) {
         return
       }
+      val messageRecord: MessageRecord = item.getMessageRecord()
+
+      if (isPigeonVersion()) {
+        val cm = item.conversationMessage
+        val body = messageRecord.body
+        val bodyPreview = if (body.length > 80) body.substring(0, 80) + "…" else body
+        Log.d(
+          TAG,
+          "onItemLongClick[Pigeon] itemViewClass=${itemView.javaClass.simpleName} " +
+            "multiselectPartClass=${item.javaClass.simpleName} " +
+            "messageRecordClass=${messageRecord.javaClass.simpleName} " +
+            "id=${messageRecord.id} " +
+            "type=${messageRecord.type} " +
+            "dateSent=${messageRecord.dateSent} " +
+            "dateReceived=${messageRecord.dateReceived} " +
+            "fromRecipientId=${messageRecord.fromRecipient.id} " +
+            "toRecipientId=${messageRecord.toRecipient.id} " +
+            "threadId=${messageRecord.threadId} " +
+            "isMms=${messageRecord.isMms} " +
+            "isSecure=${messageRecord.isSecure} " +
+            "isUpdate=${messageRecord.isUpdate} " +
+            "isRemoteDelete=${messageRecord.isRemoteDelete} " +
+            "isInMemory=${messageRecord.isInMemoryMessageRecord} " +
+            "isOutgoing=${messageRecord.isOutgoing} " +
+            "isViewOnce=${messageRecord.isViewOnce} " +
+            "isPaymentNotification=${messageRecord.isPaymentNotification} " +
+            "isPaymentsRequestToActivate=${messageRecord.isPaymentsRequestToActivate} " +
+            "isCallLog=${messageRecord.isCallLog} " +
+            "hasAttachments=${(messageRecord as? org.thoughtcrime.securesms.database.model.MmsMessageRecord)?.slideDeck?.slides?.size ?: 0} " +
+            "bodyLength=${body.length} " +
+            "bodyPreview='$bodyPreview' " +
+            "multiselectCollectionSize=${cm.multiselectCollection.size} " +
+            "recipientIsBlocked=${viewModel.recipientSnapshot?.isBlocked} " +
+            "recipientIsGroup=${viewModel.recipientSnapshot?.isGroup} " +
+            "recipientIsActiveGroup=${viewModel.recipientSnapshot?.isActiveGroup} " +
+            "selectedItemsEmpty=${adapter.selectedItems.isEmpty()}"
+        )
+
+        if (messageRecord.isSecure &&
+          !messageRecord.isRemoteDelete &&
+          !messageRecord.isUpdate &&
+          viewModel.recipientSnapshot?.isBlocked == false &&
+          (viewModel.recipientSnapshot?.isGroup == false || viewModel.recipientSnapshot?.isActiveGroup == true) &&
+          adapter.selectedItems.isEmpty()
+        ) {
+          Log.d(TAG, "onItemLongClick[Pigeon] opening ConversationSubMenuActivity for messageId=${messageRecord.id}")
+          val intent = Intent(requireContext(), ConversationSubMenuActivity::class.java)
+          startActivityForResult(intent, ConversationSubMenuActivity.HANDLE_SUBMENU)
+          selectedConversationMessage = item.conversationMessage
+          clearFocusedItem()
+        } else {
+          Log.d(TAG, "onItemLongClick[Pigeon] submenu NOT opened (conditions not met)")
+        }
+        return
+      }
 
       if (item.getMessageRecord().isInMemoryMessageRecord) {
         return
       }
 
-      val messageRecord = item.getMessageRecord()
       val recipient = viewModel.recipientSnapshot ?: return
 
       if (isUnopenedGift(itemView, messageRecord)) {
@@ -5011,6 +5241,7 @@ class ConversationFragment :
     var typingStatusEnabled = true
 
     override fun onKey(v: View, keyCode: Int, event: KeyEvent): Boolean {
+      Log.d(TAG, "onKey: keyCode=$keyCode, event=$event")
       if (event.action == KeyEvent.ACTION_DOWN) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
           if (SignalStore.settings.isEnterKeySends || event.isCtrlPressed) {
@@ -5509,4 +5740,54 @@ class ConversationFragment :
    * Tracks the scroll position so that after collapsing/expanding, we can restore it properly
    */
   private data class CollapsibleEventScrollPosition(val position: Int, val top: Int, val height: Int)
+
+// PIGEON CODE
+  fun pigeonOpenFocusedItemPhotoIfPresent() {
+    if (!isPigeonVersion()) return
+    val threadRecipient = viewModel.recipientSnapshot ?: return
+    val args = PigeonConversationActions.focusedItemMediaPreviewArgs(binding.conversationItemRecycler, threadRecipient) ?: return
+
+    container.hideAll(composeText)
+    requireActivity().startActivity(MediaIntentFactory.create(requireActivity(), args))
+  }
+
+  /**
+   * Pigeon (MP02): bring the input panel back into view and move focus into the compose
+   * text. Used when DPAD_DOWN is pressed while focus is somewhere in the conversation
+   * list (e.g. the welcome banner) and the panel itself is hidden — in that state the
+   * GONE panel is excluded from focus search and the user would otherwise be stuck.
+   *
+   * Returns true if the event was consumed.
+   */
+  fun pigeonFocusComposeFromList(): Boolean {
+    if (!isPigeonVersion()) return false
+    if (view == null) return false
+    // If the compose text is already focused there is nothing to do — let the key event
+    // pass through normally so the user can move the cursor / send a newline / etc.
+    if (composeText.hasFocus()) return false
+    if (!PigeonConversationActions.isFocusAtBottomOfList(binding.conversationItemRecycler)) return false
+    binding.conversationInputPanel.root.isVisible = true
+    return true
+  }
+
+  fun onKeycodeCallPressed() {
+    Log.d(TAG, "input type: " + composeText.inputType)
+    val rawText = composeText.textTrimmed.toString()
+    if (rawText.isEmpty() && !attachmentManager.isAttachmentPresent) {
+      if (pigeonInputPanel?.isGroupCallVisible == true) {
+        optionsMenuCallback.handleVideo()
+        return
+      }
+      if (pigeonInputPanel?.isCallVisible == true) {
+        optionsMenuCallback.handleDial()
+        return
+      }
+    }
+    sendButton.performClick()
+    composeText.inputType = InputType.TYPE_CLASS_TEXT
+    composeText.requestFocus()
+    inputPanel.postDelayed({ inputPanel.visibility = View.VISIBLE }, 500L)
+  }
+
+  // END PIGEON CODE
 }

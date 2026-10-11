@@ -11,6 +11,7 @@ import org.thoughtcrime.securesms.components.settings.models.Space
 import org.thoughtcrime.securesms.components.settings.models.Text
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModel
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingModelList
+import pigeon.extensions.isSignalVersion
 
 @Discouraged("The DSL API can be completely replaced by compose. See ComposeFragment or ComposeBottomSheetFragment for an alternative to this API")
 fun configure(init: DSLConfiguration.() -> Unit): DSLConfiguration {
@@ -61,6 +62,15 @@ class DSLConfiguration {
     onSelected: (BooleanArray) -> Unit
   ) {
     val preference = MultiSelectListPreference(title, isEnabled, listItems, selected, onSelected)
+    children.add(preference)
+  }
+
+  fun pigeonEditTextPref(
+    title: DSLSettingsText,
+    summary: DSLSettingsText?,
+    onSelected: (Int) -> Unit
+  ) {
+    val preference = PigeonEditTextPreference(title, summary, onSelected)
     children.add(preference)
   }
 
@@ -133,8 +143,10 @@ class DSLConfiguration {
   }
 
   fun dividerPref() {
-    val preference = DividerPreference()
-    children.add(preference)
+    if (isSignalVersion()) {
+      val preference = DividerPreference()
+      children.add(preference)
+    }
   }
 
   fun sectionHeaderPref(
@@ -307,6 +319,16 @@ class MultiSelectListPreference(
     return super.areContentsTheSame(newItem) &&
       listItems.contentEquals(newItem.listItems) &&
       selected.contentEquals(newItem.selected)
+  }
+}
+
+class PigeonEditTextPreference(
+  override val title: DSLSettingsText,
+  override val summary: DSLSettingsText?,
+  val onSelected: (Int) -> Unit
+) : PreferenceModel<PigeonEditTextPreference>(title = title, summary = summary) {
+  override fun areContentsTheSame(newItem: PigeonEditTextPreference): Boolean {
+    return super.areContentsTheSame(newItem)
   }
 }
 

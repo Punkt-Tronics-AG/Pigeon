@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Tallenna</string>
+    <string name="Pigeon.Options">Asetukset</string>
+    <string name="Pigeon.Close">Sulje</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Puhelinnumero</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon vastuuvapauslauseke</string>
+    <string name="Pigeon_HomePage_new_message">Uusi viesti</string>
+    <string name="Pigeon_HomePage_new_group">Uusi ryhmä</string>
+    <string name="Pigeon_HomePage_mark_all_read">Merkitse kaikki luetuiksi</string>
+    <string name="Pigeon_HomePage_settings">Asetukset</string>
+    <string name="Pigeon_HomePage_search">Etsi</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Etsi</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Luo</string>
+    <string name="Pigeon_Settings_switch_on">Käytössä</string>
+    <string name="Pigeon_Settings_switch_off">Pois Käytössä</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profiili</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon-viesti</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon antaa sinun käyttää Signal MP02: lla.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal käyttöehdot ja yksityisyydensuoja</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon tarvitsee yhteystietojen ja median käyttöoikeuden helpottaakseen kavereihin yhdistämistä ja viestien lähetykseen. Yhteystietosi lähetetään käyttäen Signalin yksityistä yhteystietohakua, eli ne on suojattu päästä päähän -salauksella, eivätkä missään vaiheessa paljasti Signal- ja Pigeon-palvelulle.</string>
+    <string name="no_options_available">Ei käytettävissä olevia vaihtoehtoja</string>
+    <string name="conversation_context__menu_reply_to_message">Vastaa viestiin</string>
+    <string name="conversation_context__menu_forward_message">Lähetä viesti eteenpäin</string>
+    <string name="conversation_context__menu_react_to_message">Reagoi viestiin</string>
+    <string name="conversation_context__menu_take_back_message">Ota viesti takaisin</string>
+</resources>

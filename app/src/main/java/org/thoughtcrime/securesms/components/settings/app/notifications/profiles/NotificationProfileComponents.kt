@@ -59,7 +59,7 @@ fun NotificationProfileAddMembers(
           .padding(8.dp)
       )
     },
-    text = {
+    text = { _, _ ->
       Text(
         text = stringResource(R.string.AddAllowedMembers__add_people_or_groups),
         style = MaterialTheme.typography.bodyLarge

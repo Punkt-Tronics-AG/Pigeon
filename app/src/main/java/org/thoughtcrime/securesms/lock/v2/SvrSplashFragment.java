@@ -25,6 +25,8 @@ import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+
 public final class SvrSplashFragment extends Fragment {
 
   private TextView title;
@@ -58,6 +60,10 @@ public final class SvrSplashFragment extends Fragment {
     primaryAction.setOnClickListener(v -> onCreatePin());
     secondaryAction.setOnClickListener(v -> onLearnMore());
 
+    if (isPigeonVersion()) {
+      secondaryAction.setVisibility(View.GONE);
+    }
+
     if (SignalStore.svr().isRegistrationLockEnabled()) {
       setUpRegLockEnabled();
     } else {
@@ -83,6 +89,16 @@ public final class SvrSplashFragment extends Fragment {
 
   @Override
   public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    if (isPigeonVersion()) {
+      if (SignalStore.svr().isRegistrationLockEnabled()) {
+        menu.clear();
+      } else {
+        menu.removeItem(R.id.menu_pin_learn_more);
+      }
+
+      return;
+    }
+
     if (SignalStore.svr().isRegistrationLockEnabled()) {
       menu.clear();
     }

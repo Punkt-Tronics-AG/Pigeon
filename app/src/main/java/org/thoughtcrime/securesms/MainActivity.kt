@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewTreeObserver
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -58,11 +59,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.compose.AndroidFragment
+import androidx.fragment.compose.rememberFragmentState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,6 +81,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
@@ -183,6 +192,10 @@ import org.thoughtcrime.securesms.util.viewModel
 import org.whispersystems.signalservice.api.websocket.WebSocketConnectionState
 import kotlin.time.Duration.Companion.minutes
 import org.signal.core.ui.R as CoreUiR
+import pigeon.compose.PreLoader
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
+import pigeon.fragments.HomePageFragment
 
 class MainActivity :
   PassphraseRequiredActivity(),
@@ -204,6 +217,11 @@ class MainActivity :
 
     /** Width the navigation rail occupies inside the list pane. */
     private val RAIL_WIDTH = 80.dp
+
+    // PIGEON-ONLY: home page / conversation list visibility state
+    private val _pigeonShowConversation = MutableStateFlow(false)
+    private var _pigeonHomePageFragment: HomePageFragment? = null
+    private val _pigeonShowSearch = MutableStateFlow(false)
 
     @JvmStatic
     fun clearTop(context: Context): Intent {
@@ -262,6 +280,7 @@ class MainActivity :
 
   private var onFirstRender = false
   private var previousTopToastPopup: TopToastPopup? = null
+  private val pigeonShowSplashScreen: MutableStateFlow<Boolean> = MutableStateFlow(true) // PIGEON-ONLY
 
   private val mainBottomChromeCallback = BottomChromeCallback()
   private val megaphoneActionController = MainMegaphoneActionController()
@@ -381,7 +400,23 @@ class MainActivity :
       }
     }
 
+    if (isPigeonVersion()) {
+      lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.CREATED) {
+          delay(5000)
+          pigeonShowSplashScreen.emit(false)
+        }
+      }
+    }
+
     setContent {
+      // PIGEON-ONLY: show the pre-loader until the splash delay elapses
+      val pigeonSplashVisible by pigeonShowSplashScreen.collectAsStateWithLifecycle()
+      if (isPigeonVersion() && pigeonSplashVisible) {
+        PreLoader()
+        return@setContent
+      }
+
       val mainToolbarState by toolbarViewModel.state.collectAsStateWithLifecycle()
       val mainNavigationState by mainNavigationViewModel.mainNavigationBarState.collectAsStateWithLifecycle()
 
@@ -504,18 +539,20 @@ class MainActivity :
       }
     }
 
-    val content: View = findViewById(android.R.id.content)
-    content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-      override fun onPreDraw(): Boolean {
-        // Use pre draw listener to delay drawing frames till conversation list is ready
-        return if (onFirstRender) {
-          content.viewTreeObserver.removeOnPreDrawListener(this)
-          true
-        } else {
-          false
+    if (isSignalVersion()) {
+      val content: View = findViewById(android.R.id.content)
+      content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        override fun onPreDraw(): Boolean {
+          // Use pre draw listener to delay drawing frames till conversation list is ready
+          return if (onFirstRender) {
+            content.viewTreeObserver.removeOnPreDrawListener(this)
+            true
+          } else {
+            false
+          }
         }
-      }
-    })
+      })
+    }
 
     lifecycleDisposable.bindTo(this)
 
@@ -525,6 +562,72 @@ class MainActivity :
     CachedInflater.from(this).clear()
 
     lifecycleDisposable += vitalsViewModel.vitalsState.subscribe(this::presentVitalsState)
+
+    if (isPigeonVersion()) {
+      collapseHomePage() // PIGEON-ONLY: Collapse the home page to show the conversation list
+    }
+  }
+
+  /**
+   * PIGEON-ONLY: List pane chrome for the MP02. Renders the home page above the list inside a
+   * [NestedScrollView] so the whole page can be scrolled with the DPAD. No toolbar, rail, bar or
+   * bottom chrome is shown.
+   */
+  @Composable
+  private fun PigeonListPaneChrome(
+    listContainerColor: Color,
+    contentLayoutData: ListDetailPaneMetrics,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+  ) {
+    val listHostState = rememberFragmentState()
+    val pigeonShowConversation by _pigeonShowConversation.collectAsStateWithLifecycle()
+
+    val listContent: @Composable () -> Unit = {
+      AndroidFragment(
+        clazz = HomePageFragment::class.java,
+        fragmentState = listHostState,
+        modifier = Modifier.fillMaxSize(),
+        onUpdate = {
+          // Store the fragment instance for later use PIGEON-ONLY
+          _pigeonHomePageFragment = it
+        }
+      )
+
+      if (pigeonShowConversation) {
+        content()
+      }
+    }
+
+    AndroidView(
+      modifier = modifier
+        .padding(start = contentLayoutData.listPaddingStart)
+        .fillMaxSize(),
+      factory = { context ->
+        NestedScrollView(context).apply {
+          isFillViewport = true
+          // PIGEON-ONLY: Prevent NestedScrollView from grabbing focus on DPAD_DOWN past last list item,
+          // which would leave focus in an empty area the user can't escape from.
+          isFocusable = false
+          descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+          layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+          addView(
+            ComposeView(context).apply {
+              setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+              setContent {
+                Column(
+                  modifier = Modifier
+                    .background(listContainerColor, contentLayoutData.shape)
+                    .clip(contentLayoutData.shape)
+                ) {
+                  listContent()
+                }
+              }
+            }
+          )
+        }
+      }
+    )
   }
 
   /**
@@ -589,6 +692,16 @@ class MainActivity :
       SignalTheme.colors.colorSurface1
     } else {
       MaterialTheme.colorScheme.surface
+    }
+
+    if (isPigeonVersion()) {
+      PigeonListPaneChrome(
+        listContainerColor = listContainerColor,
+        contentLayoutData = contentLayoutData,
+        modifier = modifier,
+        content = content
+      )
+      return
     }
 
     Row(modifier = modifier.fillMaxSize()) {
@@ -793,6 +906,20 @@ class MainActivity :
     }
   }
 
+  @Deprecated("Deprecated in Java, Using for Pigeon version only")
+  override fun onBackPressed() {
+    if (isPigeonVersion() && _pigeonShowConversation.value) {
+      this.finishAffinity()
+      return
+    }
+    if (isPigeonVersion() && isTaskRoot && !_pigeonShowConversation.value) {
+      expandHomePage()
+      hideArchivedConversations()
+      return
+    }
+    super.onBackPressed()
+  }
+
   override fun onFirstRender() {
     onFirstRender = true
   }
@@ -802,6 +929,7 @@ class MainActivity :
   }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner) {
+    if (isPigeonVersion()) return
     Material3OnScrollHelper(
       activity = this,
       views = listOf(),
@@ -814,6 +942,7 @@ class MainActivity :
   }
 
   override fun bindScrollHelper(recyclerView: RecyclerView, lifecycleOwner: LifecycleOwner, chatFolders: RecyclerView, setChatFolder: (Int) -> Unit) {
+    if (isPigeonVersion()) return
     Material3OnScrollHelper(
       activity = this,
       views = listOf(chatFolders),
@@ -1160,4 +1289,25 @@ class MainActivity :
   }
 
   override fun onEvent(event: MainNavigationEvents) = mainNavigationViewModel.onEvent(event)
+
+  // PIGEON CODE
+  private fun hideArchivedConversations() {
+    // Hide the archived conversations and show the home page fragment PIGEON-ONLY
+    expandHomePage()
+    _pigeonShowConversation.tryEmit(false)
+  }
+
+  private fun expandHomePage() {
+    // Hide the search bar and show the home page fragment PIGEON-ONLY
+    _pigeonShowConversation.tryEmit(false)
+    _pigeonShowSearch.tryEmit(false)
+    _pigeonHomePageFragment?.setupSearchButtonState(true)
+  }
+
+  fun collapseHomePage() {
+    // Hide the home page fragment and show the search bar PIGEON-ONLY
+    _pigeonShowConversation.tryEmit(true)
+    _pigeonShowSearch.tryEmit(true)
+    _pigeonHomePageFragment?.setupSearchButtonState(false)
+  }
 }

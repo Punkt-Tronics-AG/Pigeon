@@ -186,7 +186,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { _, _ ->
             Text(
               text = stringResource(
                 R.string.DataAndStorageSettingsFragment__voice_messages_and_stickers_under_size_are_always_auto_downloaded,
@@ -222,7 +222,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { textSize, textColor ->
             Text(
               text = stringResource(R.string.DataAndStorageSettingsFragment__sending_high_quality_media_will_use_more_data),
               style = MaterialTheme.typography.bodyMedium,
@@ -252,7 +252,7 @@ private fun DataAndStorageSettingsScreen(
 
       item {
         Rows.TextRow(
-          text = {
+          text = { textSize, textColor ->
             Text(
               text = stringResource(R.string.preference_data_and_storage__using_less_data_may_improve_calls_on_bad_networks),
               style = MaterialTheme.typography.bodyMedium,

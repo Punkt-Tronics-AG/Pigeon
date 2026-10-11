@@ -208,13 +208,16 @@ fun SignalTheme(
   incognitoKeyboardEnabled: Boolean = CoreUiDependencies.isIncognitoKeyboardEnabled,
   content: @Composable () -> Unit
 ) {
-  val extendedColors = if (isDarkMode) darkExtendedColors else lightExtendedColors
-  val snackbarColors = if (isDarkMode) darkSnackbarColors else lightSnackbarColors
+
+  // Pigeon Code
+
+  val extendedColors = if (isDarkMode || true) darkExtendedColors else lightExtendedColors
+  val snackbarColors = if (isDarkMode || true) darkSnackbarColors else lightSnackbarColors
 
   ProvideIncognitoKeyboard(enabled = incognitoKeyboardEnabled) {
     CompositionLocalProvider(LocalExtendedColors provides extendedColors, LocalSnackbarColors provides snackbarColors) {
       MaterialTheme(
-        colorScheme = if (isDarkMode) darkColorScheme else lightColorScheme,
+        colorScheme = if (isDarkMode || true) darkColorScheme else lightColorScheme,
         typography = typography,
         content = content
       )

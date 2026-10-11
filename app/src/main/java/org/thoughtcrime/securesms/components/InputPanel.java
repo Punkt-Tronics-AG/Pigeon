@@ -80,6 +80,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class InputPanel extends ConstraintLayout
     implements AudioRecordingHandler,
                KeyboardAwareLinearLayout.OnKeyboardShownListener,
@@ -176,7 +178,9 @@ public class InputPanel extends ConstraintLayout
     this.editMessageTitle       = findViewById(R.id.edit_message_title);
     this.editMessageThumbnail   = findViewById(R.id.edit_message_thumbnail);
 
+    if (isSignalVersion()) {
     this.recordLockCancel.setOnClickListener(v -> microphoneRecorderView.cancelAction(true));
+    }
 
     mediaKeyboard.setVisibility(View.VISIBLE);
     emojiVisible = true;
@@ -432,11 +436,13 @@ public class InputPanel extends ConstraintLayout
     mediaKeyboard.setColorFilter(iconTint);
     quickAudioToggle.setColorFilter(iconTint);
     quickCameraToggle.setColorFilter(iconTint);
-    composeText.setTextColor(textColor);
-    composeText.setHintTextColor(textHintColor);
-    wallpaperEnabled = enabled;
-    if (quoteViewStub.resolved()) {
-      quoteViewStub.get().setWallpaperEnabled(enabled);
+    if (isSignalVersion()) {
+      composeText.setTextColor(textColor);
+      composeText.setHintTextColor(textHintColor);
+      wallpaperEnabled = enabled;
+      if (quoteViewStub.resolved()) {
+        quoteViewStub.get().setWallpaperEnabled(enabled);
+      }
     }
   }
 
@@ -662,7 +668,9 @@ public class InputPanel extends ConstraintLayout
   @Override
   public void onRecordLocked() {
     slideToCancel.hide();
-    recordLockCancel.setVisibility(View.VISIBLE);
+      if (isSignalVersion()) {
+        recordLockCancel.setVisibility(View.VISIBLE);
+      }
     fadeIn(buttonToggle);
     if (listener != null) listener.onRecorderLocked();
   }
@@ -694,7 +702,9 @@ public class InputPanel extends ConstraintLayout
   }
 
   private long onRecordHideEvent() {
-    recordLockCancel.setVisibility(View.GONE);
+      if (isSignalVersion()) {
+        recordLockCancel.setVisibility(View.GONE);
+      }
 
     ListenableFuture<Void> future      = slideToCancel.hide();
     long                   elapsedTime = recordTime.hide();

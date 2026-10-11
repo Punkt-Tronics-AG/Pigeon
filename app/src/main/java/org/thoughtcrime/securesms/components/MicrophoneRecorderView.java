@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -63,6 +64,7 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
 
     View recordButton = findViewById(R.id.quick_audio_toggle);
     recordButton.setOnTouchListener(this);
+
   }
 
   public void cancelAction(boolean byUser) {

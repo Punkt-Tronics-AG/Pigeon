@@ -6,6 +6,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.TextView;
 
+import static pigeon.extensions.CoreBuildExtensionsKt.isSignalVersion;
+
 public class EmojiFilter implements InputFilter {
   private TextView view;
   private boolean  jumboEmoji;
@@ -23,7 +25,7 @@ public class EmojiFilter implements InputFilter {
 
     Spannable emojified = EmojiProvider.emojify(new String(v), view, jumboEmoji);
 
-    if (source instanceof Spanned && emojified != null) {
+    if (isSignalVersion() && source instanceof Spanned && emojified != null) {
       TextUtils.copySpansFrom((Spanned) source, start, end, null, emojified, 0);
     }
 

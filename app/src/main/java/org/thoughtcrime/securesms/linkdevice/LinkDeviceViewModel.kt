@@ -171,6 +171,7 @@ class LinkDeviceViewModel : ViewModel() {
 
     val uri = Uri.parse(url)
     if (LinkDeviceRepository.isValidQr(uri)) {
+      Log.i(TAG, "Valid QR code scanned: $uri")
       val capabilities = uri.getCapabilities()
       val qrCodeState = when {
         Capability.Numberless !in capabilities && SignalStore.account.pni == null -> QrCodeState.OUTDATED_DEVICE
@@ -184,6 +185,7 @@ class LinkDeviceViewModel : ViewModel() {
         )
       }
     } else {
+      Log.w(TAG, "Invalid QR code scanned: $uri")
       _state.update {
         it.copy(
           qrCodeState = QrCodeState.INVALID,
@@ -554,4 +556,42 @@ class LinkDeviceViewModel : ViewModel() {
       }
     }
   }
+
+  // Pigeon manual linking state
+  private val _uuid = MutableStateFlow("")
+  val uuid = _uuid.asStateFlow()
+
+  private val _pubKey = MutableStateFlow("")
+  val pubKey = _pubKey.asStateFlow()
+
+  private val _fullUrl = MutableStateFlow("")
+  val fullUrl = _fullUrl.asStateFlow()
+
+  private val _isLinking = MutableStateFlow(false)
+  val isLinking = _isLinking.asStateFlow()
+
+
+  fun onFullUrlChanged(value: String) {
+    _fullUrl.value = value
+    if (value.startsWith("sgnl://linkdevice?")) {
+      try {
+        val uri = Uri.parse(value)
+        val parsedUuid = uri.getQueryParameter("uuid")
+        val parsedPubKey = uri.getQueryParameter("pub_key")
+        if (!parsedUuid.isNullOrEmpty()) _uuid.value = parsedUuid
+        if (!parsedPubKey.isNullOrEmpty()) _pubKey.value = parsedPubKey
+        Log.d(TAG, "Parsed link device URL: uuid=$parsedUuid, pub_key present=${!parsedPubKey.isNullOrEmpty()}")
+      } catch (e: Exception) {
+        Log.w(TAG, "Failed to parse link device URL", e)
+      }
+    }
+  }
+
+  fun linkDeviceManually(url: String) {
+    _isLinking.value = true
+      onQrCodeScanned(url)
+    _isLinking.value = false
+  }
+
+  // End of Pigeon manual linking state
 }

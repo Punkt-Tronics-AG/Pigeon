@@ -224,6 +224,16 @@
     <dimen name="media_rail_item_size">46dp</dimen>
     <dimen name="media_rail_thumbnail_size">44dp</dimen>
     <dimen name="registrationactivity_text_view_padding">32dp</dimen>
+    <dimen name="pigeon_text_toolbar_margin">50dp</dimen>
+    <dimen name="pigeon_big_margin">40dp</dimen>
+    <dimen name="pigeon_normal_margin">25dp</dimen>
+    <dimen name="pigeon_small_margin">5dp</dimen>
+    <dimen name="pigeon_top_margin">64dp</dimen>
+    <dimen name="pigeon_start_margin">30dp</dimen>
+    <dimen name="pigeon_bottom_margin">10dp</dimen>
+    <dimen name="pigeon_cursor_padding">6dp</dimen>
+    <dimen name="pigeon_thumbnails_size_width">100dp</dimen>
+
 
     <dimen name="safety_number_qr_peek">24dp</dimen>
 

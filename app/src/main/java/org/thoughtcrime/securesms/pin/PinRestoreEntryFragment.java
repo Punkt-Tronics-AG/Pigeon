@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,8 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.navigation.SafeNavigation;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 
+import static pigeon.extensions.BuildExtensionsKt.*;
+
 public class PinRestoreEntryFragment extends LoggingFragment {
   private static final String TAG = Log.tag(PinRestoreActivity.class);
 
@@ -54,6 +57,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   private TextView                       errorLabel;
   private MaterialButton                 keyboardToggle;
   private PinRestoreViewModel            viewModel;
+  private ProgressBar                    pigeonProgressBar;
 
   @Override
   public @Nullable View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -75,6 +79,8 @@ public class PinRestoreEntryFragment extends LoggingFragment {
     keyboardToggle = root.findViewById(R.id.pin_restore_keyboard_toggle);
     helpButton     = root.findViewById(R.id.pin_restore_forgot_pin);
     skipButton     = root.findViewById(R.id.pin_restore_skip_button);
+
+    pigeonProgressBar     = root.findViewById(R.id.pigeon_progress_bar);
 
     helpButton.setVisibility(View.GONE);
     helpButton.setOnClickListener(v -> onNeedHelpClicked());
@@ -148,17 +154,20 @@ public class PinRestoreEntryFragment extends LoggingFragment {
         pinButton.cancelSpinning();
         pinEntry.getText().clear();
         enableAndFocusPinEntry();
+        pigeonProgressBar.setVisibility(View.GONE);
         break;
       case PIN_TOO_SHORT:
         Toast.makeText(requireContext(), getString(R.string.RegistrationActivity_your_pin_has_at_least_d_digits_or_characters, MINIMUM_PIN_LENGTH), Toast.LENGTH_LONG).show();
         pinButton.cancelSpinning();
         pinEntry.getText().clear();
         enableAndFocusPinEntry();
+        pigeonProgressBar.setVisibility(View.GONE);
         break;
       case PIN_INCORRECT:
         pinButton.cancelSpinning();
         pinEntry.getText().clear();
         enableAndFocusPinEntry();
+        pigeonProgressBar.setVisibility(View.GONE);
         break;
       case PIN_LOCKED:
         onAccountLocked();
@@ -168,6 +177,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
         pinButton.cancelSpinning();
         pinEntry.setEnabled(true);
         enableAndFocusPinEntry();
+        pigeonProgressBar.setVisibility(View.GONE);
         break;
     }
   }
@@ -176,6 +186,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
     pinEntry.setEnabled(false);
     viewModel.onPinSubmitted(pinEntry.getText().toString());
     pinButton.setSpinning();
+    pigeonProgressBar.setVisibility(View.VISIBLE);
   }
 
   private void onNeedHelpClicked() {
@@ -218,6 +229,7 @@ public class PinRestoreEntryFragment extends LoggingFragment {
   }
 
   private void handleSuccess() {
+    pigeonProgressBar.setVisibility(View.GONE);
     pinButton.cancelSpinning();
     SignalStore.onboarding().clearAll();
 

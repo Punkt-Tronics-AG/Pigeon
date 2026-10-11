@@ -18,6 +18,8 @@ import org.thoughtcrime.securesms.util.RemoteConfig;
 import org.thoughtcrime.securesms.util.SpanUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class FromTextView extends SimpleEmojiTextView {
 
   public FromTextView(Context context) {
@@ -63,7 +65,7 @@ public class FromTextView extends SimpleEmojiTextView {
       builder.append(suffix);
     }
 
-    if (asThread && recipient.getShowVerified() && !showSelfAsYou) {
+    if (asThread && recipient.getShowVerified() && !showSelfAsYou && isSignalVersion()) {
       Drawable official = ContextUtil.requireDrawable(getContext(), R.drawable.ic_official_20);
       official.setBounds(0, 0, ViewUtil.dpToPx(20), ViewUtil.dpToPx(20));
 

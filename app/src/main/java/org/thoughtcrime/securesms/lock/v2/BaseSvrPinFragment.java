@@ -32,6 +32,7 @@ import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter;
 import org.thoughtcrime.securesms.util.text.AfterTextChanged;
 import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton;
 import org.thoughtcrime.securesms.util.views.LearnMoreTextView;
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 
 public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> extends LoggingFragment {
 
@@ -101,6 +102,19 @@ public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> 
 
   @Override
   public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    if (isPigeonVersion()) {
+      if (SignalStore.svr().isRegistrationLockEnabled() ||
+          SignalStore.svr().hasPin() ||
+          SignalStore.svr().hasOptedOut())
+      {
+        menu.clear();
+      } else {
+        menu.removeItem(R.id.menu_pin_learn_more);
+      }
+
+      return;
+    }
+
     if (SignalStore.svr().isRegistrationLockEnabled() ||
         SignalStore.svr().hasPin() ||
         SignalStore.svr().hasOptedOut())
@@ -178,6 +192,7 @@ public abstract class BaseSvrPinFragment<ViewModel extends BaseSvrPinViewModel> 
     input.addTextChangedListener(new AfterTextChanged(s -> viewModel.setUserEntry(s.toString())));
     input.setImeOptions(EditorInfo.IME_ACTION_NEXT);
     input.setOnEditorActionListener(this::handleEditorAction);
+    input.requestFocus();
     keyboardToggle.setOnClickListener(v -> viewModel.toggleAlphaNumeric());
     confirm.setOnClickListener(v -> viewModel.confirm());
   }

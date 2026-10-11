@@ -37,6 +37,8 @@ import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.Previews
 import org.signal.registration.R
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.screens.captcha.PigeonCaptchaLayout
 
 /**
  * Screen to display a captcha verification using a WebView.
@@ -50,6 +52,11 @@ fun CaptchaScreen(
   onEvent: (CaptchaScreenEvents) -> Unit,
   modifier: Modifier = Modifier
 ) {
+  if (isPigeonVersion()) {
+    PigeonCaptchaLayout(state = state, onEvent = onEvent, modifier = modifier)
+    return
+  }
+
   var loadState by remember { mutableStateOf(state.loadState) }
 
   Column(

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.widget.ImageView
@@ -26,6 +27,8 @@ import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController
 import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaControllerOwner
 import org.thoughtcrime.securesms.util.WindowUtil
 import java.util.concurrent.TimeUnit
+import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.isPigeonVersion
 
 class MediaPreviewActivity : PassphraseRequiredActivity(), VoiceNoteMediaControllerOwner {
 
@@ -172,6 +175,27 @@ class MediaPreviewActivity : PassphraseRequiredActivity(), VoiceNoteMediaControl
     isWindowStarted = false
     applyWindowColorMode(false)
     super.onStop()
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    if (isPigeonVersion() && event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER && event.action == KeyEvent.ACTION_UP) {
+      val previewFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? MediaPreviewFragment
+      if (previewFragment?.pigeonToggleCurrentVideoPlayPause() == true) {
+        return true
+      }
+    }
+    if (isPigeonVersion() && event.action == KeyEvent.ACTION_DOWN) {
+      val previewFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? MediaPreviewFragment
+      when (event.keyCode) {
+        KeyEvent.KEYCODE_DPAD_UP -> {
+          if (previewFragment?.pigeonAdjustVolume(increase = true) == true) return true
+        }
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+          if (previewFragment?.pigeonAdjustVolume(increase = false) == true) return true
+        }
+      }
+    }
+    return super.dispatchKeyEvent(event)
   }
 
   override fun onPause() {

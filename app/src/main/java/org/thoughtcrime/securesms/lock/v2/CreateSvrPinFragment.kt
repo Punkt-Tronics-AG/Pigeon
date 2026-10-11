@@ -15,6 +15,7 @@ import org.thoughtcrime.securesms.lock.v2.CreateSvrPinViewModel.NavigationEvent
 import org.thoughtcrime.securesms.lock.v2.CreateSvrPinViewModel.PinErrorEvent
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 class CreateSvrPinFragment : BaseSvrPinFragment<CreateSvrPinViewModel?>() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,13 +38,13 @@ class CreateSvrPinFragment : BaseSvrPinFragment<CreateSvrPinViewModel?>() {
   private fun initializeViewStatesForPinChange() {
     title.setText(R.string.CreateKbsPinFragment__create_a_new_pin)
     description.setText(R.string.CreateKbsPinFragment__you_can_choose_a_new_pin_as_long_as_this_device_is_registered)
-    description.setLearnMoreVisible(true)
+    description.setLearnMoreVisible(!isPigeonVersion())
   }
 
   private fun initializeViewStatesForPinCreate() {
     title.setText(R.string.CreateKbsPinFragment__create_your_pin)
     description.setText(R.string.CreateKbsPinFragment__pins_can_help_you_restore_your_account)
-    description.setLearnMoreVisible(true)
+    description.setLearnMoreVisible(!isPigeonVersion())
   }
 
   override fun initializeViewModel(): CreateSvrPinViewModel {

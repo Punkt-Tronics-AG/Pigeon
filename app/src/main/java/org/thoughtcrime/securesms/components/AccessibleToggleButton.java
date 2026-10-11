@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatToggleButton;
 
+import org.thoughtcrime.securesms.R;
+
 public class AccessibleToggleButton extends AppCompatToggleButton {
 
   private OnCheckedChangeListener listener;

@@ -148,6 +148,15 @@ object NotificationFactory {
     return threadsThatNewlyAlerted
   }
 
+  // PIGEON CODE
+  private fun notifylauncher3(context: Context, state: NotificationState) {
+    val intent = Intent()
+    intent.action = "new.msg.from.signal"
+    intent.putExtra("thread_count", state.threadCount)
+    intent.putExtra("msg_count", state.messageCount)
+    context.sendBroadcast(intent)
+  }
+
   @WorkerThread
   @TargetApi(24)
   private fun notify24(
@@ -177,6 +186,9 @@ object NotificationFactory {
         }
 
         try {
+          // PIGEON CODE
+          notifylauncher3(context = context, state = state.copy(conversations = state.getNonVisibleConversation(visibleThread)))
+          // END
           val shouldAlert = shouldAlert(
             conversation = conversation,
             lastNotificationTimestamp = lastThreadNotification.getOrDefault(conversation.thread, 0),

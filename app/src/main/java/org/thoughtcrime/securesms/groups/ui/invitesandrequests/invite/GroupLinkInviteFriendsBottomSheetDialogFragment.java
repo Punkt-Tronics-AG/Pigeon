@@ -29,6 +29,8 @@ import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 
 import java.util.Objects;
 
+import pigeon.extensions.BuildExtensionsKt;
+
 public final class GroupLinkInviteFriendsBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
   private static final String TAG = Log.tag(GroupLinkInviteFriendsBottomSheetDialogFragment.class);
@@ -46,6 +48,7 @@ public final class GroupLinkInviteFriendsBottomSheetDialogFragment extends Botto
   public static void show(@NonNull FragmentManager manager,
                           @NonNull GroupId.V2 groupId)
   {
+    if (BuildExtensionsKt.isSignalVersion()) {
     GroupLinkInviteFriendsBottomSheetDialogFragment fragment = new GroupLinkInviteFriendsBottomSheetDialogFragment();
 
     Bundle args = new Bundle();
@@ -53,6 +56,7 @@ public final class GroupLinkInviteFriendsBottomSheetDialogFragment extends Botto
     fragment.setArguments(args);
 
     fragment.show(manager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
+  }
   }
 
   @Override

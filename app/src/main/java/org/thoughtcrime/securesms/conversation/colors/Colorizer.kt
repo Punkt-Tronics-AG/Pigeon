@@ -10,6 +10,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.isSignalVersion
 
 /**
  * Provides conversation bubble and sender name colors.
@@ -19,21 +20,33 @@ import org.signal.core.ui.R as CoreUiR
 interface Colorizer {
   @ColorInt
   fun getOutgoingBodyTextColor(context: Context): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return ContextCompat.getColor(context, R.color.conversation_outgoing_body_color)
   }
 
   @ColorInt
   fun getOutgoingFooterTextColor(context: Context): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return ContextCompat.getColor(context, R.color.conversation_outgoing_footer_color)
   }
 
   @ColorInt
   fun getOutgoingFooterIconColor(context: Context): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return ContextCompat.getColor(context, R.color.conversation_outgoing_footer_color)
   }
 
   @ColorInt
   fun getIncomingBodyTextColor(context: Context, hasWallpaper: Boolean): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return if (hasWallpaper) {
       ContextCompat.getColor(context, CoreUiR.color.signal_colorNeutralInverse)
     } else {
@@ -43,6 +56,9 @@ interface Colorizer {
 
   @ColorInt
   fun getIncomingFooterTextColor(context: Context, hasWallpaper: Boolean): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return if (hasWallpaper) {
       ContextCompat.getColor(context, CoreUiR.color.signal_colorNeutralVariantInverse)
     } else {
@@ -52,6 +68,9 @@ interface Colorizer {
 
   @ColorInt
   fun getIncomingFooterIconColor(context: Context, hasWallpaper: Boolean): Int {
+    if (!isSignalVersion()) {
+      return ContextCompat.getColor(context, R.color.white)
+    }
     return if (hasWallpaper) {
       ContextCompat.getColor(context, CoreUiR.color.signal_colorNeutralVariantInverse)
     } else {

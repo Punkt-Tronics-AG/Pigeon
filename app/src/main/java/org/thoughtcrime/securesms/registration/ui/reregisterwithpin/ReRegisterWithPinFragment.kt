@@ -31,6 +31,7 @@ import org.thoughtcrime.securesms.util.SystemWindowInsetsSetter
 import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration_pin_restore_entry_v2) {
   companion object {
@@ -180,13 +181,22 @@ class ReRegisterWithPinFragment : LoggingFragment(R.layout.fragment_registration
     Log.d(TAG, "Showing Incorrect PIN dialog. Is local verification: ${reRegisterViewModel.isLocalVerification}")
     val message = if (reRegisterViewModel.isLocalVerification) R.string.ReRegisterWithPinFragment_out_of_guesses_local else R.string.PinRestoreLockedFragment_youve_run_out_of_pin_guesses
 
-    MaterialAlertDialogBuilder(requireContext())
-      .setTitle(R.string.PinRestoreEntryFragment_incorrect_pin)
-      .setMessage(message)
-      .setCancelable(false)
-      .setPositiveButton(R.string.ReRegisterWithPinFragment_send_sms_code) { _, _ -> onSkipPinEntry() }
-      .setNegativeButton(R.string.AccountLockedFragment__learn_more) { _, _ -> CommunicationActions.openBrowserLink(requireContext(), getString(R.string.PinRestoreLockedFragment_learn_more_url)) }
-      .show()
+    if (isPigeonVersion()) {
+      MaterialAlertDialogBuilder(requireContext())
+        .setTitle(R.string.PinRestoreEntryFragment_incorrect_pin)
+        .setMessage(message)
+        .setCancelable(false)
+        .setPositiveButton(R.string.ReRegisterWithPinFragment_send_sms_code) { _, _ -> onSkipPinEntry() }
+        .show()
+    } else {
+      MaterialAlertDialogBuilder(requireContext())
+        .setTitle(R.string.PinRestoreEntryFragment_incorrect_pin)
+        .setMessage(message)
+        .setCancelable(false)
+        .setPositiveButton(R.string.ReRegisterWithPinFragment_send_sms_code) { _, _ -> onSkipPinEntry() }
+        .setNegativeButton(R.string.AccountLockedFragment__learn_more) { _, _ -> CommunicationActions.openBrowserLink(requireContext(), getString(R.string.PinRestoreLockedFragment_learn_more_url)) }
+        .show()
+    }
   }
 
   private fun enableAndFocusPinEntry() {

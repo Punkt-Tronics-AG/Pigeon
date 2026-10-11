@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Lagre</string>
+    <string name="Pigeon.Options">-Innstillinger</string>
+    <string name="Pigeon.Close">Lukk</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">Telefonnunmmer</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon disclaimer</string>
+    <string name="Pigeon_HomePage_new_message">Ny melding</string>
+    <string name="Pigeon_HomePage_new_group">Ny gruppe</string>
+    <string name="Pigeon_HomePage_mark_all_read">Marker alle som lest</string>
+    <string name="Pigeon_HomePage_settings">Innstillinger</string>
+    <string name="Pigeon_HomePage_search">Søk</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Søk</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Lage</string>
+    <string name="Pigeon_Settings_switch_on">PÅ</string>
+    <string name="Pigeon_Settings_switch_off">AV</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profil</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon melding</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon lar deg bruke Signal på MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal vilkår og personvernerklæring</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon trenger kontaktene og medietillatelsene for å hjelpe deg med å få kontakt med venner og sende meldinger. Kontaktene dine lastes opp ved hjelp av Signal private kontaktoppdagelse, noe som betyr at de er ende-til-ende-krypterte og aldri synlige for Signal- og Pigeon-tjenesten.</string>
+    <string name="no_options_available">Ingen alternativ tilgjenglig</string>
+    <string name="conversation_context__menu_reply_to_message">Svar på meldingen</string>
+    <string name="conversation_context__menu_forward_message">Videresend meldingen</string>
+    <string name="conversation_context__menu_react_to_message">Reager på meldingen</string>
+    <string name="conversation_context__menu_take_back_message">Ta tilbake meldingen</string>
+</resources>

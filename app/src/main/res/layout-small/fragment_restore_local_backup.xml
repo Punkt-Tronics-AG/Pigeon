@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:viewBindingIgnore="true"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Mp02.Signal.Background"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel_local_restore_button"
+            style="@style/Mp02.Signal.Text.MaterialTextButtonFocusable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="20dp"
+            android:text="@string/RegistrationActivity_cancel"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/restore_button" />
+
+        <TextView
+            android:id="@+id/verify_subheader"
+            style="@style/Signal.Text.Body.Registration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="32dp"
+            android:gravity="center"
+            android:textColor="@color/white_not_focus"
+            android:text="@string/RegistrationActivity_restore_your_messages_and_media_from_a_local_backup"
+            app:layout_constraintTop_toBottomOf="@+id/verify_header"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <TextView
+            android:id="@+id/backup_created_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/white_not_focus"
+            app:layout_constraintStart_toStartOf="@+id/verify_subheader"
+            app:layout_constraintTop_toBottomOf="@+id/verify_subheader"
+            tools:text="Backup created: 1 min ago" />
+
+        <TextView
+            android:id="@+id/backup_size_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:visibility="visible"
+            android:textColor="@color/white_not_focus"
+            app:layout_constraintStart_toStartOf="@+id/backup_created_text"
+            app:layout_constraintTop_toBottomOf="@+id/backup_created_text"
+            tools:text="Backup size: 899 KB" />
+
+        <TextView
+            android:id="@+id/backup_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white_focus"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/backup_size_text"
+            tools:text="100 messages so far..." />
+
+        <TextView
+            android:id="@+id/verify_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:textColor="@color/white"
+            android:text="@string/RegistrationActivity_restore_from_backup"
+            android:textAppearance="@style/Signal.Text.HeadlineMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+            android:id="@+id/restore_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            app:circularProgressMaterialButton__label="@string/registration_activity__restore_backup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/backup_progress_text" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

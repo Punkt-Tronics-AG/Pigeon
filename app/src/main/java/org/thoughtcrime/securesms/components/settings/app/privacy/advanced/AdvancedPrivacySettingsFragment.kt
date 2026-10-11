@@ -45,6 +45,8 @@ import org.signal.core.ui.compose.Texts
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.viewModel
+import pigeon.extensions.isSignalVersion
+
 
 /**
  * Displays advanced privacy controls such as call relaying and

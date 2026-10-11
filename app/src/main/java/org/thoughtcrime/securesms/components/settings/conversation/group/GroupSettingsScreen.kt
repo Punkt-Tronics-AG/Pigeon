@@ -68,6 +68,9 @@ import org.thoughtcrime.securesms.groups.memberlabel.MemberLabelPill
 import org.thoughtcrime.securesms.groups.memberlabel.StyledMemberLabel
 import org.thoughtcrime.securesms.profiles.ProfileName
 import org.thoughtcrime.securesms.recipients.Recipient
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
+import pigeon.extensions.withPigeonTextSize
 import org.signal.core.ui.R as CoreUiR
 
 /**
@@ -101,24 +104,40 @@ fun GroupSettingsScreen(
       return@ConversationSettingsScaffold
     }
 
-    item {
-      ConversationHeader(
-        recipient = state.recipient,
-        name = state.title,
-        storyViewState = state.storyViewState,
-        subhead = if (state.showMembershipCountAsSubhead) membershipSubhead(state) else null,
-        onAvatarClick = { onEvent(GroupSettingsEvent.AvatarClicked) },
-        onAvatarViewCreated = onAvatarViewCreated
-      ) {
-        if (state.isTerminated) {
-          Text(
-            text = stringResource(R.string.ConversationSettingsFragment__this_group_was_ended),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-              .padding(top = 8.dp)
-              .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(percent = 50))
-              .padding(horizontal = 12.dp, vertical = 6.dp)
+    if (isPigeonVersion()) {
+      // Pigeon (MP02): no avatar header / toolbar actions – a plain title plus an "edit group" row instead.
+      item { Texts.SectionHeader(text = state.title) }
+      if (state.isTerminated) {
+        item { Texts.SectionHeader(text = stringResource(R.string.ConversationSettingsFragment__this_group_was_ended)) }
+      }
+      if (state.canEditGroupAttributes) {
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.ManageGroupActivity_edit_name_and_picture),
+            onClick = { onEvent(GroupSettingsEvent.EditGroupClicked) }
           )
+        }
+      }
+    } else {
+      item {
+        ConversationHeader(
+          recipient = state.recipient,
+          name = state.title,
+          storyViewState = state.storyViewState,
+          subhead = if (state.showMembershipCountAsSubhead) membershipSubhead(state) else null,
+          onAvatarClick = { onEvent(GroupSettingsEvent.AvatarClicked) },
+          onAvatarViewCreated = onAvatarViewCreated
+        ) {
+          if (state.isTerminated) {
+            Text(
+              text = stringResource(R.string.ConversationSettingsFragment__this_group_was_ended),
+              style = MaterialTheme.typography.bodyMedium,
+              modifier = Modifier
+                .padding(top = 8.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(percent = 50))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+            )
+          }
         }
       }
     }
@@ -148,21 +167,24 @@ fun GroupSettingsScreen(
       }
     }
 
-    item {
-      CallBar(
-        state = state.callBar,
-        enabled = !state.isDeprecatedOrUnregistered,
-        isMuteMenuShown = state.dialog == Dialog.MuteMenu,
-        onAddToStoryClick = { onEvent(GroupSettingsEvent.AddToStoryClicked) },
-        onMessageClick = { onEvent(GroupSettingsEvent.MessageClicked) },
-        onVideoCallClick = { onEvent(GroupSettingsEvent.VideoCallClicked) },
-        onAudioCallClick = {},
-        onMuteClick = { onEvent(GroupSettingsEvent.MuteClicked) },
-        onMuteDurationSelected = { onEvent(GroupSettingsEvent.MuteDurationSelected(it)) },
-        onMuteUntilCustomTimeClick = { onEvent(GroupSettingsEvent.MuteUntilCustomTimeClicked) },
-        onMuteMenuDismissed = { onEvent(GroupSettingsEvent.DialogDismissed) },
-        onSearchClick = { onEvent(GroupSettingsEvent.SearchClicked) }
-      )
+    // Pigeon (MP02): the call bar is touch-only; calls are started from the conversation screen.
+    if (isSignalVersion()) {
+      item {
+        CallBar(
+          state = state.callBar,
+          enabled = !state.isDeprecatedOrUnregistered,
+          isMuteMenuShown = state.dialog == Dialog.MuteMenu,
+          onAddToStoryClick = { onEvent(GroupSettingsEvent.AddToStoryClicked) },
+          onMessageClick = { onEvent(GroupSettingsEvent.MessageClicked) },
+          onVideoCallClick = { onEvent(GroupSettingsEvent.VideoCallClicked) },
+          onAudioCallClick = {},
+          onMuteClick = { onEvent(GroupSettingsEvent.MuteClicked) },
+          onMuteDurationSelected = { onEvent(GroupSettingsEvent.MuteDurationSelected(it)) },
+          onMuteUntilCustomTimeClick = { onEvent(GroupSettingsEvent.MuteUntilCustomTimeClicked) },
+          onMuteMenuDismissed = { onEvent(GroupSettingsEvent.DialogDismissed) },
+          onSearchClick = { onEvent(GroupSettingsEvent.SearchClicked) }
+        )
+      }
     }
 
     item { Dividers.Default() }
@@ -179,8 +201,11 @@ fun GroupSettingsScreen(
       }
     }
 
-    item {
-      ChatColorAndWallpaperRow(onClick = { onEvent(GroupSettingsEvent.ChatColorAndWallpaperClicked) })
+    if (isSignalVersion()) {
+      // Pigeon (MP02): no chat colors / wallpapers.
+      item {
+        ChatColorAndWallpaperRow(onClick = { onEvent(GroupSettingsEvent.ChatColorAndWallpaperClicked) })
+      }
     }
 
     item {
@@ -196,10 +221,13 @@ fun GroupSettingsScreen(
       }
     }
 
-    sharedMediaSection(
-      state = state.mediaRail,
-      onEvent = { onEvent(GroupSettingsEvent.MediaRailEvent(it)) }
-    )
+    if (isSignalVersion()) {
+      // Pigeon (MP02): the media rail is touch-only.
+      sharedMediaSection(
+        state = state.mediaRail,
+        onEvent = { onEvent(GroupSettingsEvent.MediaRailEvent(it)) }
+      )
+    }
 
     membershipSection(state, onEvent)
     managementSection(state, onEvent)
@@ -558,11 +586,13 @@ private fun MemberRow(
   val about = recipient.combinedAboutAndEmoji
 
   Rows.TextRow(
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       Column(modifier = Modifier.weight(1f)) {
         EmojiText(
           text = if (recipient.isSelf) stringResource(R.string.Recipient_you) else recipient.getDisplayName(context),
-          style = MaterialTheme.typography.bodyLarge
+          style = MaterialTheme.typography.bodyLarge.withPigeonTextSize(pigeonTextSize),
+          color = pigeonTextColor
         )
 
         when {

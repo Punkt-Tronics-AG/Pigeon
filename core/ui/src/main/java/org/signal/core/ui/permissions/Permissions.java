@@ -2,6 +2,7 @@ package org.signal.core.ui.permissions;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,6 +34,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import pigeon.permissions.PigeonRationaleDialog;
+import static pigeon.extensions.CoreBuildExtensionsKt.isSignalVersion;
 
 public class Permissions {
 
@@ -179,7 +183,11 @@ public class Permissions {
         executePreGrantedPermissionsRequest(request);
       } else if ((rationaleDialogMessage != null || (rationaleDialogTitle != null && rationaleDialogDetails != null))
                  && rationalDialogHeader != null) {
-        executePermissionsRequestWithRationale(request);
+        if (isSignalVersion()) {
+          executePermissionsRequestWithRationale(request);
+        } else {
+          executePigeonPermissionsRequestWithRationale(request);
+        }
       } else {
         executePermissionsRequest(request);
       }
@@ -208,6 +216,19 @@ public class Permissions {
         builder.show();
       }
     }
+
+    private void executePigeonPermissionsRequestWithRationale(PermissionsRequest request) {
+      AlertDialog dialog = PigeonRationaleDialog.createNonMsgDialog(permissionObject.getContext(),
+                                                                    rationaleDialogMessage,
+                                                                    R.string.Permissions_continue,
+                                                                    R.string.Permissions_not_now,
+                                                                    () -> executePermissionsRequest(request),
+                                                                    () -> executeNoPermissionsRequest(request),
+                                                                    null);
+      dialog.setCancelable(rationaleDialogCancelable);
+      dialog.show();
+    }
+
 
     private void executePermissionsRequest(PermissionsRequest request) {
       int requestCode = new SecureRandom().nextInt(65434) + 100;

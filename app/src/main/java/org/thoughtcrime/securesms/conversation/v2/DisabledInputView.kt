@@ -25,6 +25,8 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.util.SpanUtil
 import org.thoughtcrime.securesms.util.visible
 import org.signal.core.ui.R as CoreUiR
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * A one-stop-view for all your conversation input disabled needs.
@@ -63,6 +65,9 @@ class DisabledInputView @JvmOverloads constructor(
   var listener: Listener? = null
 
   fun showAsExpiredOrUnauthorized(clientExpired: Boolean, unauthorized: Boolean) {
+    if (isPigeonVersion() && clientExpired) {
+      return
+    }
     expiredOrUnauthorized = show(
       existingView = expiredOrUnauthorized,
       create = { inflater.inflate(R.layout.conversation_activity_logged_out_stub, this, false) },
@@ -106,7 +111,9 @@ class DisabledInputView @JvmOverloads constructor(
       create = { MessageRequestsBottomView(context) },
       bind = {
         setMessageRequestData(recipient, messageRequestState)
-        setWallpaperEnabled(recipient.hasWallpaper)
+        if (isSignalVersion()) {
+          setWallpaperEnabled(recipient.hasWallpaper)
+        }
 
         setAcceptOnClickListener {
           Log.i(TAG, "[message-request] Accept tapped. isIndividual: ${messageRequestState.isIndividual}, isGroupV2Add: ${messageRequestState.isGroupV2Add}, listener present: ${listener != null}")

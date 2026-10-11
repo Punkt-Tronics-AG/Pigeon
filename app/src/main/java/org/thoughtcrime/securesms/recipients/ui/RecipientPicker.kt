@@ -5,10 +5,12 @@
 
 package org.thoughtcrime.securesms.recipients.ui
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -56,6 +59,9 @@ import org.thoughtcrime.securesms.recipients.Recipient
 import org.thoughtcrime.securesms.recipients.RecipientId
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.DisplayMode.Companion.flag
 import org.thoughtcrime.securesms.recipients.ui.RecipientPicker.KeyboardType
+import pigeon.compose.HomePageButton
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import java.util.Optional
 import java.util.function.Consumer
 import org.signal.core.ui.R as CoreUiR
@@ -83,23 +89,33 @@ fun RecipientPicker(
   listBottomPadding: Dp? = null,
   clipListToPadding: Boolean = ContactSelectionArguments.Defaults.RECYCLER_CHILD_CLIPPING,
   callbacks: RecipientPickerCallbacks,
+  onPigeonUpArrow: (() -> Unit)? = null,
   modifier: Modifier = Modifier
 ) {
   Column(
     modifier = modifier
   ) {
-    val focusRequester = remember { FocusRequester() }
+    val searchFocusRequester = remember { FocusRequester() }
+    val refreshFocusRequester = remember { FocusRequester() }
+    val listFocusRequester = remember { FocusRequester() }
     var shouldRequestFocus by rememberSaveable { mutableStateOf(focusAndShowKeyboard) }
 
-    LaunchedEffect(Unit) {
-      if (shouldRequestFocus) {
-        focusRequester.requestFocus()
+    if (isSignalVersion()) {
+      LaunchedEffect(Unit) {
+        if (shouldRequestFocus) {
+          searchFocusRequester.requestFocus()
+        }
       }
-    }
 
-    val isImeVisible = WindowInsets.isImeVisible
-    LaunchedEffect(isImeVisible) {
-      shouldRequestFocus = isImeVisible
+      val isImeVisible = WindowInsets.isImeVisible
+      LaunchedEffect(isImeVisible) {
+        shouldRequestFocus = isImeVisible
+      }
+
+    } else {
+      LaunchedEffect(Unit) {
+        searchFocusRequester.requestFocus()
+      }
     }
 
     RecipientSearchBar(
@@ -108,11 +124,36 @@ fun RecipientPicker(
       onQueryChange = { filter -> callbacks.listActions.onSearchQueryChanged(query = filter) },
       onSearch = {},
       enabledKeyboardTypes = enabledKeyboardTypes,
+      onPigeonUpArrow = onPigeonUpArrow,
+      onPigeonDownArrow = {
+        if (isPigeonVersion()) {
+          Log.d("RecipientPicker", "Down arrow pressed in search bar, moving focus to refresh button")
+          refreshFocusRequester.requestFocus()
+        }
+      },
       modifier = Modifier
-        .focusRequester(focusRequester)
+        .focusRequester(searchFocusRequester)
         .fillMaxWidth()
-        .padding(horizontal = 16.dp)
+        .then(if (isPigeonVersion()) Modifier else Modifier.padding(horizontal = 16.dp))
     )
+
+    if (isPigeonVersion()) {
+
+      Spacer(Modifier.padding(top = 8.dp))
+
+      HomePageButton(
+        text = stringResource(R.string.new_conversation_activity__refresh),
+        nestedScrollView = null,
+        onClick = { callbacks.refresh?.onRefresh() },
+        modifier = Modifier
+          .focusRequester(refreshFocusRequester)
+          .focusProperties {
+            up = searchFocusRequester
+            down = listFocusRequester
+          }
+      )
+
+    }
 
     RecipientSearchResultsList(
       displayModes = displayModes,
@@ -127,6 +168,7 @@ fun RecipientPicker(
       clipListToPadding = clipListToPadding,
       callbacks = callbacks,
       modifier = Modifier
+        .focusRequester(listFocusRequester)
         .fillMaxSize()
         .padding(top = 8.dp)
     )

@@ -49,6 +49,8 @@ import org.thoughtcrime.securesms.util.ViewUtil
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.fragments.requireListener
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isSignalVersion
+import java.util.concurrent.TimeUnit
 
 /**
  * The "landing page" for Stories.

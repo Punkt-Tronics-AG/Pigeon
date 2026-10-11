@@ -47,6 +47,7 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.thoughtcrime.securesms.util.adapter.mapping.LayoutFactory
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isSignalVersion
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -270,52 +271,58 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
         )
       }
 
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__screen_security),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
-        isChecked = state.screenSecurity,
-        onClick = {
-          viewModel.setScreenSecurityEnabled(!state.screenSecurity)
+      if (isSignalVersion()) {
+        switchPref(
+          title = DSLSettingsText.from(R.string.preferences__screen_security),
+          summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
+          isChecked = state.screenSecurity,
+          onClick = {
+            viewModel.setScreenSecurityEnabled(!state.screenSecurity)
 
-          if (TextSecurePreferences.isScreenSecurityEnabled(requireContext())) {
-            requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-          } else {
-            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            if (TextSecurePreferences.isScreenSecurityEnabled(requireContext())) {
+              requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            } else {
+              requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
           }
-        }
-      )
+        )
 
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__incognito_keyboard),
-        summary = DSLSettingsText.from(R.string.preferences__request_keyboard_to_disable),
-        isChecked = state.incognitoKeyboard,
-        onClick = {
-          viewModel.setIncognitoKeyboard(!state.incognitoKeyboard)
-        }
-      )
-
-      textPref(
-        summary = DSLSettingsText.from(incognitoSummary)
-      )
-
-      dividerPref()
-
-      sectionHeaderPref(R.string.preferences_app_protection__payments)
-
-      switchPref(
-        title = DSLSettingsText.from(R.string.preferences__payment_lock),
-        summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__payment_lock_require_lock),
-        isChecked = state.paymentLock && ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure,
-        onClick = {
-          if (!ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure) {
-            showGoToPhoneSettings()
-          } else if (state.paymentLock) {
-            biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.BiometricDeviceAuthentication__signal)) }
-          } else {
-            viewModel.togglePaymentLock(true)
+        switchPref(
+          title = DSLSettingsText.from(R.string.preferences__incognito_keyboard),
+          summary = DSLSettingsText.from(R.string.preferences__request_keyboard_to_disable),
+          isChecked = state.incognitoKeyboard,
+          onClick = {
+            viewModel.setIncognitoKeyboard(!state.incognitoKeyboard)
           }
-        }
-      )
+        )
+
+        textPref(
+          summary = DSLSettingsText.from(incognitoSummary)
+        )
+
+      }
+
+      if (isSignalVersion()) {
+
+        dividerPref()
+
+        sectionHeaderPref(R.string.preferences_app_protection__payments)
+
+        switchPref(
+          title = DSLSettingsText.from(R.string.preferences__payment_lock),
+          summary = DSLSettingsText.from(R.string.PrivacySettingsFragment__payment_lock_require_lock),
+          isChecked = state.paymentLock && ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure,
+          onClick = {
+            if (!ServiceUtil.getKeyguardManager(requireContext()).isKeyguardSecure) {
+              showGoToPhoneSettings()
+            } else if (state.paymentLock) {
+              biometricAuth.authenticate(requireContext(), true) { biometricDeviceLockLauncher.launch(getString(R.string.BiometricDeviceAuthentication__signal)) }
+            } else {
+              viewModel.togglePaymentLock(true)
+            }
+          }
+        )
+      }
 
       dividerPref()
 
@@ -328,6 +335,7 @@ class PrivacySettingsFragment : DSLSettingsFragment(R.string.preferences__privac
       )
     }
   }
+
 
   private fun showGoToPhoneSettings() {
     MaterialAlertDialogBuilder(requireContext()).apply {

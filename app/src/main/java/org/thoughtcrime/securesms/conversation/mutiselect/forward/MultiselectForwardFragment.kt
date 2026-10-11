@@ -91,6 +91,7 @@ import org.thoughtcrime.securesms.util.fragments.requireListener
 import org.thoughtcrime.securesms.util.viewModel
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Allows selection and optional sending to one or more users.
