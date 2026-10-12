@@ -57,6 +57,8 @@ import org.signal.registration.screens.RegistrationScaffold
 import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.screens.localbackuprestore.PigeonEnterLocalBackupV1PassphraseLayout
 
 private const val PASSPHRASE_LENGTH = 30
 private const val CHUNK_SIZE = 5
@@ -67,6 +69,11 @@ fun EnterLocalBackupV1PassphaseScreen(
   onCancel: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  if (isPigeonVersion()) {
+    PigeonEnterLocalBackupV1PassphraseLayout(onSubmit = onSubmit, onCancel = onCancel, modifier = modifier)
+    return
+  }
+
   var passphrase by rememberSaveable { mutableStateOf("") }
   val isValid = passphrase.length == PASSPHRASE_LENGTH
   val isTooLong = passphrase.length > PASSPHRASE_LENGTH

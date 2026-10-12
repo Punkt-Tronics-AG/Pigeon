@@ -47,6 +47,7 @@ import org.thoughtcrime.securesms.util.BackupUtil;
 import org.thoughtcrime.securesms.util.Environment;
 import org.thoughtcrime.securesms.util.JavaTimeExtensionsKt;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import pigeon.dialogs.PigeonBackupTimePickerDialog;
 
 import java.text.NumberFormat;
 import java.time.LocalTime;
@@ -55,8 +56,6 @@ import java.util.Objects;
 
 import kotlin.Pair;
 import kotlin.Unit;
-
-import pigeon.permissions.PigeonRationaleDialog;
 
 import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
 import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
@@ -317,6 +316,22 @@ public class BackupsPreferenceFragment extends Fragment {
   }
 
   private void pickTime() {
+    if (isPigeonVersion()) {
+      PigeonBackupTimePickerDialog.show(
+          getChildFragmentManager(),
+          getViewLifecycleOwner(),
+          SignalStore.settings().getBackupHour(),
+          SignalStore.settings().getBackupMinute(),
+          (hour, minute) -> {
+            SignalStore.settings().setBackupSchedule(hour, minute);
+            updateTimeLabel();
+            TextSecurePreferences.setNextBackupTime(requireContext(), 0);
+            LocalBackupListener.schedule(requireContext());
+          }
+      );
+      return;
+    }
+
     int timeFormat = DateFormat.is24HourFormat(requireContext()) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H;
     final MaterialTimePicker timePickerFragment = new MaterialTimePicker
         .Builder()

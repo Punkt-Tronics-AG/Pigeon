@@ -127,9 +127,11 @@ replacement resource, etc.).
 ## Pigeon main screen (home page menu)
 
 The MP02 has no touch screen – everything is driven by a DPAD and a
-small 240×320 display. Pigeon therefore replaces Signal's main screen
-chrome (toolbar, navigation rail/bar, FABs, megaphones) with a simple
-vertical text menu, followed by the conversation list.
+small 240×320 display. There are no left/right hardware navigation
+buttons, so navigation is limited to vertical DPAD movement and button
+presses. Pigeon therefore replaces Signal's main screen chrome
+(toolbar, navigation rail/bar, FABs, megaphones) with a simple vertical
+text menu, followed by the conversation list.
 
 Structure (`MainActivity.kt`):
 
@@ -186,6 +188,8 @@ Signal-cloud backup flow does not apply to MP02 hardware.
 
 Concretely, in any backup-related UI or flow:
 
+- Pigeon must **not** use system pickers. MP02 has no touch input, so
+  any picker or selector must be built inside the app.
 - Do **not** show the "Choose backup folder" / "I saved my backup as a
   single file" picker. The user does not select files or folders by
   hand on MP02.

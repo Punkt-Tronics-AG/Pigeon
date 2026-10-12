@@ -103,6 +103,7 @@ import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.whispersystems.signalservice.api.link.TransferArchiveResponse
 import org.whispersystems.signalservice.api.push.UsernameLinkComponents
+import pigeon.extensions.isPigeonVersion
 import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
@@ -499,6 +500,10 @@ class AppRegistrationStorageController(private val context: Context) : StorageCo
   }
 
   override suspend fun scanLocalBackupFolder(folderUri: Uri): List<LocalBackupInfo> = withContext(Dispatchers.IO) {
+    if (isPigeonVersion() && folderUri.scheme == "file") {
+      return@withContext pigeonScanBackupDirectory(folderUri)
+    }
+
     // Persist access immediately, while the picker's transient grant is still alive. Restore jobs read from this
     // folder long after the registration activity (and its grant) are gone.
     try {
@@ -573,6 +578,40 @@ class AppRegistrationStorageController(private val context: Context) : StorageCo
     }
 
     backups.sortedByDescending { it.date }
+  }
+
+  /**
+   * PIGEON: the MP02 has no SAF picker – backups live in a fixed on-device directory addressed by a `file://` URI.
+   * Only legacy `signal-yyyy-MM-dd-HH-mm-ss.backup` files are produced on Pigeon, so that is all we look for here.
+   */
+  private fun pigeonScanBackupDirectory(folderUri: Uri): List<LocalBackupInfo> {
+    val directory = File(folderUri.path ?: return emptyList())
+    if (!directory.isDirectory) {
+      Log.w(TAG, "Pigeon backup directory does not exist: $directory")
+      return emptyList()
+    }
+
+    val files = directory.listFiles() ?: return emptyList()
+
+    return files
+      .filter { it.isFile }
+      .mapNotNull { file ->
+        val match = LEGACY_BACKUP_PATTERN.matchEntire(file.name) ?: return@mapNotNull null
+        val (year, month, day, hour, minute, second) = match.destructured
+        try {
+          LocalBackupInfo(
+            type = LocalBackupInfo.BackupType.V1,
+            date = LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), hour.toInt(), minute.toInt(), second.toInt()),
+            name = file.name,
+            uri = Uri.fromFile(file),
+            sizeBytes = file.length()
+          )
+        } catch (e: Exception) {
+          Log.w(TAG, "Pigeon: failed to parse date from backup name: ${file.name}", e)
+          null
+        }
+      }
+      .sortedByDescending { it.date }
   }
 
   override fun restoreRemoteBackup(aep: AccountEntropyPool): Flow<RemoteBackupRestoreProgress> = callbackFlow {
@@ -887,6 +926,18 @@ class AppRegistrationStorageController(private val context: Context) : StorageCo
   private fun reenableLegacyLocalBackups(rootUri: Uri, passphrase: String) {
     try {
       BackupPassphrase.set(context, passphrase)
+
+      if (isPigeonVersion() && rootUri.scheme == "file") {
+        // PIGEON: the fixed on-device directory needs no SAF grant and is not stored as a tree URI.
+        if (BackupUtil.canUserAccessBackupDirectory(context)) {
+          LocalBackupListener.setNextBackupTimeToIntervalFromNow(context)
+          SignalStore.settings.isBackupEnabled = true
+          LocalBackupListener.schedule(context)
+        } else {
+          Log.w(TAG, "Pigeon: can't access the on-device backup directory; not re-enabling local backups.")
+        }
+        return
+      }
 
       val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
       context.contentResolver.takePersistableUriPermission(rootUri, takeFlags)

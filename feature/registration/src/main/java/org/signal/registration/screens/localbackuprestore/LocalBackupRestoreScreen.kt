@@ -59,6 +59,9 @@ import org.signal.registration.R
 import org.signal.registration.screens.shared.RestoreProgress
 import org.signal.registration.screens.shared.RestoreProgressDialog
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupFoundLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupNotFoundLayout
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -96,10 +99,18 @@ fun LocalBackupRestoreScreen(
       ScanningContent(modifier = modifier)
     }
     LocalBackupRestoreState.RestorePhase.BackupFound -> {
-      BackupFoundContent(backupInfo = state.backupInfo!!, allBackups = state.allBackups, onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupFoundLayout(backups = state.allBackups, selectedBackup = state.backupInfo!!, onEvent = onEvent, modifier = modifier)
+      } else {
+        BackupFoundContent(backupInfo = state.backupInfo!!, allBackups = state.allBackups, onEvent = onEvent, modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.NoBackupFound -> {
-      NoBackupFoundContent(onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupNotFoundLayout(onEvent = onEvent, modifier = modifier)
+      } else {
+        NoBackupFoundContent(onEvent = onEvent, modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.Preparing -> {
       if (state.backupInfo?.type == LocalBackupInfo.BackupType.V2) {

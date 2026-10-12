@@ -23,6 +23,8 @@ import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.TextSecurePreferences
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.dialogs.PigeonBackupTimePickerDialog
+import pigeon.extensions.isPigeonVersion
 
 sealed interface LocalBackupsSettingsCallback {
   fun onNavigationClick()
@@ -72,6 +74,21 @@ class DefaultLocalBackupsSettingsCallback(
   }
 
   override fun onPickTimeClick() {
+    if (isPigeonVersion()) {
+      PigeonBackupTimePickerDialog.show(
+        fragment.childFragmentManager,
+        fragment.viewLifecycleOwner,
+        SignalStore.settings.backupHour,
+        SignalStore.settings.backupMinute
+      ) { hour, minute ->
+        SignalStore.settings.setBackupSchedule(hour, minute)
+        TextSecurePreferences.setNextBackupTime(fragment.requireContext(), 0)
+        LocalBackupListener.schedule(fragment.requireContext())
+        viewModel.refreshSettingsState()
+      }
+      return
+    }
+
     val timeFormat = if (DateFormat.is24HourFormat(fragment.requireContext())) {
       TimeFormat.CLOCK_24H
     } else {

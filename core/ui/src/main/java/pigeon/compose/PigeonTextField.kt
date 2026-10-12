@@ -40,7 +40,9 @@ fun PigeonTextField(
   upFocus: FocusRequester? = null,
   downFocus: FocusRequester? = null,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-  keyboardActions: KeyboardActions = KeyboardActions.Default
+  keyboardActions: KeyboardActions = KeyboardActions.Default,
+  singleLine: Boolean = true,
+  minLines: Int = 1
 ) {
   // Keep the cursor at the end whenever the text is replaced from outside (e.g. re-formatted by a view model).
   var fieldValue by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
@@ -60,7 +62,9 @@ fun PigeonTextField(
     upFocus = upFocus,
     downFocus = downFocus,
     keyboardOptions = keyboardOptions,
-    keyboardActions = keyboardActions
+    keyboardActions = keyboardActions,
+    singleLine = singleLine,
+    minLines = minLines
   )
 }
 
@@ -74,13 +78,16 @@ fun PigeonTextField(
   upFocus: FocusRequester? = null,
   downFocus: FocusRequester? = null,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-  keyboardActions: KeyboardActions = KeyboardActions.Default
+  keyboardActions: KeyboardActions = KeyboardActions.Default,
+  singleLine: Boolean = true,
+  minLines: Int = 1
 ) {
   OutlinedTextField(
     value = value,
     onValueChange = onValueChange,
     enabled = enabled,
-    singleLine = true,
+    singleLine = singleLine,
+    minLines = minLines,
     placeholder = placeholder?.let { { Text(text = it, color = Color.Gray, fontSize = 20.sp) } },
     keyboardOptions = keyboardOptions,
     keyboardActions = keyboardActions,

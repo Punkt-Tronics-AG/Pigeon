@@ -56,6 +56,13 @@ fun View.focusOnLeft() {
       }
     }
     this.onFocusChangeListener = focus
+
+    // Rows start out with their XML colors (usually fully white) and only get the dimmed
+    // "unfocused" look once they lose focus for the first time. Apply the unfocused colors
+    // up front so a row that has never been focused does not look like a second focused row.
+    if (!this.isFocused) {
+      this.getAllChildren().forEach { it.setupEllipsize(false) }
+    }
   }
 }
 
@@ -171,6 +178,7 @@ fun View.setupEllipsize(hasFocus: Boolean) {
   } else {
     if (this is TextView) {
       this.ellipsize = TextUtils.TruncateAt.END
+      this.isSelected = false
     }
   }
 }

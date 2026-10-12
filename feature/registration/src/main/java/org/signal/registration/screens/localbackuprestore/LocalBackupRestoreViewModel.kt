@@ -21,6 +21,7 @@ import org.signal.archive.LocalBackupRestoreProgress
 import org.signal.core.models.AccountEntropyPool
 import org.signal.core.ui.compose.EventDrivenViewModel
 import org.signal.core.ui.navigation.ResultEventBus
+import org.signal.core.ui.util.StorageUtil
 import org.signal.core.util.logging.Log
 import org.signal.core.util.throttleLatest
 import org.signal.registration.RegistrationFlowEvent
@@ -31,6 +32,7 @@ import org.signal.registration.RestoreDecision
 import org.signal.registration.screens.shared.RestoreProgress
 import org.signal.registration.screens.util.navigateBack
 import org.signal.registration.screens.util.navigateTo
+import pigeon.extensions.isPigeonVersion
 import kotlin.time.Duration.Companion.seconds
 
 class LocalBackupRestoreViewModel(
@@ -61,6 +63,12 @@ class LocalBackupRestoreViewModel(
     parentState
       .onEach { onEvent(LocalBackupRestoreEvents.ParentStateChanged(it)) }
       .launchIn(viewModelScope)
+
+    // PIGEON: the MP02 has no touch screen, so the system folder picker is unusable. Backups always live in the
+    // fixed on-device directory – scan it straight away instead of asking the user to choose a folder.
+    if (isPigeonVersion()) {
+      pigeonBackupFolderUri()?.let { onEvent(LocalBackupRestoreEvents.BackupFolderSelected(it)) }
+    }
   }
 
   override suspend fun processEvent(event: LocalBackupRestoreEvents) {
@@ -74,6 +82,16 @@ class LocalBackupRestoreViewModel(
         stateEmitter(state.copy(storageCapable = event.state.storageCapable))
       }
       is LocalBackupRestoreEvents.PickBackupFolder -> {
+        if (isPigeonVersion()) {
+          // PIGEON: "try again" / "different folder" simply re-scan the fixed directory.
+          val folder = pigeonBackupFolderUri()
+          if (folder != null) {
+            stateEmitter(applyBackupFolderSelected(state, folder))
+          } else {
+            stateEmitter(state.copy(restorePhase = LocalBackupRestoreState.RestorePhase.NoBackupFound, launchFolderPicker = false))
+          }
+          return
+        }
         stateEmitter(state.copy(launchFolderPicker = true))
       }
       is LocalBackupRestoreEvents.BackupFolderSelected -> {
@@ -90,6 +108,10 @@ class LocalBackupRestoreViewModel(
         parentEventEmitter.navigateBack()
       }
       is LocalBackupRestoreEvents.ChooseDifferentFolder -> {
+        if (isPigeonVersion()) {
+          applyEvent(state, LocalBackupRestoreEvents.PickBackupFolder, stateEmitter)
+          return
+        }
         stateEmitter(LocalBackupRestoreState(launchFolderPicker = true, storageCapable = state.storageCapable))
       }
       is LocalBackupRestoreEvents.BackupSelected -> {
@@ -188,6 +210,13 @@ class LocalBackupRestoreViewModel(
       resultBus.sendResult(resultKey, LocalBackupRestoreResult.Canceled)
     }
     parentEventEmitter(RegistrationFlowEvent.NavigateBack)
+  }
+
+  /** PIGEON: file:// URI of the fixed on-device backup directory, or null if external storage is unavailable. */
+  private fun pigeonBackupFolderUri(): Uri? {
+    return runCatching { Uri.fromFile(StorageUtil.getBackupDirectory()) }
+      .onFailure { Log.w(TAG, "Pigeon: unable to resolve the on-device backup directory", it) }
+      .getOrNull()
   }
 
   private fun scanFolder(uri: Uri) {
