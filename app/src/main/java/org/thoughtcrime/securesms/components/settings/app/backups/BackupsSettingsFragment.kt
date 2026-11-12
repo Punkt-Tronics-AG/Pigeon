@@ -296,7 +296,7 @@ private fun NeverEnabledBackupsRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -350,7 +350,7 @@ private fun BackupsOffLinkedDeviceRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -370,7 +370,7 @@ private fun BackupsOffLinkedDeviceRow(
 @Composable
 private fun WaitingForNetworkRow(onBackupsRowClick: () -> Unit = {}) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Column {
         Text(text = stringResource(R.string.RemoteBackupsSettingsFragment__waiting_for_network))
         ViewSettingsButton(onBackupsRowClick)
@@ -387,7 +387,7 @@ private fun InactiveBackupsRow(
   onBackupsRowClick: () -> Unit = {}
 ) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -433,7 +433,7 @@ private fun NotFoundBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -468,7 +468,7 @@ private fun PendingBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -519,7 +519,7 @@ private fun LocalStoreBackupRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),
@@ -564,7 +564,7 @@ private fun ActiveBackupsRow(
         )
       }
     },
-    text = {
+    text = { _, _ ->
       Column {
         Text(
           text = stringResource(R.string.RemoteBackupsSettingsFragment__signal_backups),

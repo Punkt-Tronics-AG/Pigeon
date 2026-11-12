@@ -64,6 +64,7 @@ import org.signal.core.ui.detailPaneMaxContentWidth
 import org.signal.core.ui.horizontalPartitionDefaultSpacerSize
 import org.signal.core.ui.listPaneDefaultPreferredWidth
 import org.signal.core.ui.rememberIsSplitPane
+import pigeon.extensions.isSignalVersion
 import kotlin.math.roundToInt
 
 /**
@@ -187,7 +188,10 @@ object Scaffolds {
     Scaffold(
       snackbarHost = snackbarHost,
       topBar = {
-        if (isCollapsing) {
+        // Pigeon (MP02): no toolbar – screens are navigated with hardware keys and the 240px display has no room for it.
+        if (!isSignalVersion()) {
+          // no-op
+        } else if (isCollapsing) {
           CollapsingTopAppBar(
             title = title,
             onNavigationClick = onNavigationClick,
@@ -339,14 +343,16 @@ object Scaffolds {
       containerColor = Color.Transparent,
       contentWindowInsets = WindowInsets.systemBars,
       topBar = {
-        DefaultTopAppBar(
-          title = if (!isSplitPane) title else "",
-          titleContent = { _, titleText -> Text(text = titleText, style = MaterialTheme.typography.titleLarge) },
-          navigationIcon = SignalIcons.ArrowStart.imageVector,
-          navigationContentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description),
-          onNavigationClick = onNavigateUpClick,
-          actions = { topAppBarActions() }
-        )
+        if (isSignalVersion()) {
+          DefaultTopAppBar(
+            title = if (!isSplitPane) title else "",
+            titleContent = { _, titleText -> Text(text = titleText, style = MaterialTheme.typography.titleLarge) },
+            navigationIcon = SignalIcons.ArrowStart.imageVector,
+            navigationContentDescription = stringResource(R.string.DefaultTopAppBar__navigate_up_content_description),
+            onNavigationClick = onNavigateUpClick,
+            actions = { topAppBarActions() }
+          )
+        }
       },
       snackbarHost = {
         SnackbarHost(snackbarHostState)

@@ -55,6 +55,29 @@ class ExpireTimerSettingsViewModel(val config: Config, private val repository: E
     store.update { it.copy(saveState = ProcessState.Idle()) }
   }
 
+  // PIGEON CODE
+  fun pigeonSelectAndSave(time: Int) {
+    store.update { it.copy(userSetTimer = time) }
+
+    if (time == store.state.initialTimer) {
+      store.update { it.copy(saveState = ProcessState.Success(time)) }
+      return
+    }
+
+    store.update { it.copy(saveState = ProcessState.Working()) }
+    if (recipientId != null) {
+      repository.setExpiration(recipientId, time) { result ->
+        store.update { it.copy(saveState = ProcessState.fromResult(result)) }
+      }
+    } else if (config.forResultMode) {
+      store.update { it.copy(saveState = ProcessState.Success(time)) }
+    } else {
+      repository.setUniversalExpireTimerSeconds(time) {
+        store.update { it.copy(saveState = ProcessState.Success(time)) }
+      }
+    }
+  }
+
   class Factory(context: Context, private val config: Config) : ViewModelProvider.Factory {
     val repository = ExpireTimerSettingsRepository(context.applicationContext)
 

@@ -111,7 +111,7 @@ private fun ProfileList(
 
     item {
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(text = stringResource(R.string.NotificationProfilesFragment__new_profile))
         },
         icon = {

@@ -57,6 +57,10 @@ import static org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity.NEX
 import static org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity.NEXT_INTENT;
 import static org.thoughtcrime.securesms.profiles.edit.CreateProfileActivity.SHOW_TOOLBAR;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+import static pigeon.extensions.KotilinExtensionsKt.animateGroup;
+
 /**
  * Used for profile creation during registration.
  */
@@ -101,6 +105,16 @@ public class CreateProfileFragment extends LoggingFragment {
     initializeResources(groupId);
     initializeProfileAvatar();
     initializeProfileName();
+
+    if (isPigeonVersion()) {
+      binding.finishButton.setupAnimation();
+      if (groupId == null){
+        binding.pigeonGivenNameWrapper.setTextSize(36f);
+        binding.pigeonGivenName.setTextSize(36f);
+      }
+      animateGroup(binding.pigeonGivenName, binding.pigeonGivenNameWrapper);
+      animateGroup(binding.pigeonFamilyName, binding.pigeonFamilyNameWrapper);
+    }
 
     getParentFragmentManager().setFragmentResultListener(AvatarPickerFragment.REQUEST_KEY_SELECT_AVATAR, getViewLifecycleOwner(), (key, bundle) -> {
       if (bundle.getBoolean(AvatarPickerFragment.SELECT_AVATAR_CLEAR)) {
@@ -177,6 +191,7 @@ public class CreateProfileFragment extends LoggingFragment {
       binding.whoCanFindMeContainer.setVisibility(View.GONE);
       binding.givenName.addTextChangedListener(new AfterTextChanged(s -> viewModel.setGivenName(s.toString())));
       binding.givenNameWrapper.setHint(R.string.EditProfileFragment__group_name);
+      binding.pigeonGivenNameWrapper.setText(R.string.EditProfileFragment__group_name);
       if (!isDescriptionFocused) {
         binding.givenName.requestFocus();
       }
@@ -190,6 +205,7 @@ public class CreateProfileFragment extends LoggingFragment {
           viewModel.setFamilyName(s.toString());
         }));
         binding.familyNameWrapper.setHint(R.string.EditProfileFragment__group_description);
+        binding.pigeonFamilyNameWrapper.setText(R.string.EditProfileFragment__group_description);
         if (isDescriptionFocused) {
           binding.familyName.requestFocus();
         }
@@ -207,14 +223,25 @@ public class CreateProfileFragment extends LoggingFragment {
     } else {
       EditTextUtil.addGraphemeClusterLimitFilter(binding.givenName, NAME_MAX_GLYPHS);
       EditTextUtil.addGraphemeClusterLimitFilter(binding.familyName, NAME_MAX_GLYPHS);
-      binding.givenName.addTextChangedListener(new AfterTextChanged(s -> {
-                                                                        trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
-                                                                        viewModel.setGivenName(s.toString());
-                                                                      }));
-      binding.familyName.addTextChangedListener(new AfterTextChanged(s -> {
-                                                                         trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
-                                                                         viewModel.setFamilyName(s.toString());
-                                                                       }));
+      if (isSignalVersion()) {
+        binding.givenName.addTextChangedListener(new AfterTextChanged(s -> {
+                                                                          trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
+                                                                          viewModel.setGivenName(s.toString());
+                                                                        }));
+        binding.familyName.addTextChangedListener(new AfterTextChanged(s -> {
+                                                                           trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
+                                                                           viewModel.setFamilyName(s.toString());
+                                                                         }));
+      } else {
+        binding.pigeonGivenName.addTextChangedListener(new AfterTextChanged(s -> {
+          trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
+          viewModel.setGivenName(s.toString());
+        }));
+        binding.pigeonFamilyName.addTextChangedListener(new AfterTextChanged(s -> {
+          trimFieldToMaxByteLength(s, ProfileName.MAX_PART_LENGTH);
+          viewModel.setFamilyName(s.toString());
+        }));
+      }
       binding.groupDescriptionText.setVisibility(View.GONE);
       binding.profileDescriptionText.setLearnMoreVisible(true);
       binding.profileDescriptionText.setLinkColor(ContextCompat.getColor(requireContext(), org.signal.core.ui.R.color.signal_colorPrimary));
@@ -240,7 +267,9 @@ public class CreateProfileFragment extends LoggingFragment {
       handleUpload();
     });
 
-    binding.finishButton.setText(arguments.getInt(NEXT_BUTTON_TEXT, R.string.CreateProfileActivity_next));
+    if (isSignalVersion()) {
+      binding.finishButton.setText(arguments.getInt(NEXT_BUTTON_TEXT, R.string.CreateProfileActivity_next));
+    }
 
     if (arguments.getBoolean(SHOW_TOOLBAR, true)) {
       binding.toolbar.setVisibility(View.VISIBLE);
@@ -255,9 +284,13 @@ public class CreateProfileFragment extends LoggingFragment {
       binding.finishButton.setAlpha(isValid ? 1f : 0.5f);
     });
 
-    viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.givenName, givenName));
-
-    viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.familyName, familyName));
+    if (isSignalVersion()) {
+      viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.givenName, givenName));
+      viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.familyName, familyName));
+    } else  {
+      viewModel.givenName().observe(getViewLifecycleOwner(), givenName -> updateFieldIfNeeded(binding.pigeonGivenName, givenName));
+      viewModel.familyName().observe(getViewLifecycleOwner(), familyName -> updateFieldIfNeeded(binding.pigeonFamilyName, familyName));
+    }
 
     viewModel.profileName().observe(getViewLifecycleOwner(), profileName -> binding.namePreview.setText(profileName.toString()));
   }

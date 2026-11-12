@@ -13,6 +13,8 @@ import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.util.collectFlowOnViewLifecycle
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * Fragment host for [ChatsSettingsEntry] until app settings moves to Nav3. Only translates routes into the nav graph.

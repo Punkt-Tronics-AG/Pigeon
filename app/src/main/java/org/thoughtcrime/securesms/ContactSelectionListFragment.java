@@ -27,6 +27,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,6 +100,8 @@ import java.util.stream.Collectors;
 import io.reactivex.rxjava3.disposables.Disposable;
 import kotlin.Unit;
 
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 /**
  * Fragment for selecting one or more contacts from a list.
  *
@@ -127,6 +131,8 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   private LifecycleDisposable             lifecycleDisposable;
   private HeaderActionProvider            headerActionProvider;
   private ContactSearchViewModel          contactSearchViewModel;
+
+  private ProgressBar                     pigeonProgressBar;
 
   @Nullable private NewConversationCallback newConversationCallback;
   @Nullable private FindByCallback          findByCallback;
@@ -239,6 +245,8 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     chipRecycler     = view.findViewById(R.id.chipRecycler);
     constraintLayout = view.findViewById(R.id.container);
 
+    pigeonProgressBar       = view.findViewById(R.id.pigeon_progress_bar);
+
     contactChipViewModel = new ViewModelProvider(this).get(ContactChipViewModel.class);
     contactChipAdapter   = new MappingAdapter();
     lifecycleDisposable  = new LifecycleDisposable();
@@ -335,6 +343,9 @@ public final class ContactSelectionListFragment extends LoggingFragment {
                 if (onRefreshListener != null && !isRefreshing()) {
                   setRefreshing(true);
                   onRefreshListener.onRefresh();
+                  if (pigeonProgressBar != null) {
+                    pigeonProgressBar.setVisibility(View.VISIBLE);
+                  }
                 }
               }
 
@@ -462,6 +473,9 @@ public final class ContactSelectionListFragment extends LoggingFragment {
   }
 
   private boolean hideLetterHeaders() {
+    if (!isSignalVersion()) {
+      return true;
+    }
     return hasQueryFilter() || shouldDisplayRecents();
   }
 
@@ -485,6 +499,9 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     this.resetPositionOnCommit = true;
     swipeRefresh.setRefreshing(false);
     contactSearchViewModel.refresh();
+    if (pigeonProgressBar != null) {
+      pigeonProgressBar.setVisibility(View.GONE);
+    }
   }
 
   public boolean hasQueryFilter() {
@@ -809,6 +826,16 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     this.swipeRefresh.setOnRefreshListener(onRefreshListener);
   }
 
+  public void handleSwipe() {
+    swipeRefresh.post(() -> {
+      if (pigeonProgressBar != null) {
+        pigeonProgressBar.setVisibility(View.VISIBLE);
+      }
+      swipeRefresh.setRefreshing(true);
+      ((ContactSelectionActivity) requireActivity()).onRefresh();
+    });
+  }
+
   private void smoothScrollChipsToEnd() {
     int x = ViewUtil.isLtr(chipRecycler) ? chipRecycler.getWidth() : 0;
     chipRecycler.smoothScrollBy(x, 0);
@@ -839,7 +866,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
     return ContactSearchConfiguration.build(builder -> {
       builder.setQuery(contactSearchState.getQuery());
 
-      if ((newConversationCallback != null || findByCallback != null) &&
+      if (isSignalVersion() && (newConversationCallback != null || findByCallback != null) &&
           !hasContactsPermissions(requireContext()) &&
           !SignalStore.uiHints().getDismissedContactsPermissionBanner() &&
           !hasQuery)
@@ -847,7 +874,7 @@ public final class ContactSelectionListFragment extends LoggingFragment {
         builder.arbitrary(ContactSelectionListModels.ArbitraryRow.FIND_CONTACTS_BANNER.getCode());
       }
 
-      if (fragmentArgs.getEnableCreateNewGroup() && !hasQuery) {
+      if (isSignalVersion() && fragmentArgs.getEnableCreateNewGroup() && !hasQuery) {
         builder.arbitrary(ContactSelectionListModels.ArbitraryRow.NEW_GROUP.getCode());
       }
 

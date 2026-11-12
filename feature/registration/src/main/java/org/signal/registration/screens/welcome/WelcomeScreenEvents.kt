@@ -20,4 +20,9 @@ sealed class WelcomeScreenEvents {
   data object DoesNotHaveOldPhone : WelcomeScreenEvents()
 
   data object ViewTermsAndPrivacy : WelcomeScreenEvents()
+
+  // PIGEON
+  data object PigeonViewDisclaimer : WelcomeScreenEvents()
+
+  data object PigeonViewTerms : WelcomeScreenEvents()
 }

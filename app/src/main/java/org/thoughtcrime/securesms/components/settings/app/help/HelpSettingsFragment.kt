@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.BuildConfig
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.util.CommunicationActions
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 import org.signal.appsettings.R as AppSettingsR
 
 class HelpSettingsFragment : ComposeFragment() {
@@ -50,7 +51,11 @@ class HelpSettingsFragment : ComposeFragment() {
       }
       HelpSettingsAction.NavigateToDebugLog -> findNavController().safeNavigate(R.id.action_helpSettingsFragment_to_submitDebugLogActivity)
       HelpSettingsAction.NavigateToLicenses -> findNavController().safeNavigate(R.id.action_helpSettingsFragment_to_licenseFragment)
-      HelpSettingsAction.OpenTermsAndPrivacyPolicy -> CommunicationActions.openBrowserLink(requireContext(), getString(R.string.terms_and_privacy_policy_url))
+      HelpSettingsAction.OpenTermsAndPrivacyPolicy -> if (isPigeonVersion()) {
+        findNavController().safeNavigate(R.id.action_helpSettingsFragment_to_pigeonCodeFragment)
+      } else {
+        CommunicationActions.openBrowserLink(requireContext(), getString(R.string.terms_and_privacy_policy_url))
+      }
     }
   }
 }

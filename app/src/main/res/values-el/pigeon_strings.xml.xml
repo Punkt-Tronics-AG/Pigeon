@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Αποθήκευση</string>
+    <string name="Pigeon.Options">Επιλογές</string>
+    <string name="Pigeon.Close">Κλείσιμο</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">τηλεφωνικό νούμερο</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon αποποίηση ευθυνών</string>
+    <string name="Pigeon_HomePage_new_message">Νέο μήνυμα</string>
+    <string name="Pigeon_HomePage_new_group">Νέα ομάδα</string>
+    <string name="Pigeon_HomePage_mark_all_read">Σημείωση όλων ως αναγνωσμένα</string>
+    <string name="Pigeon_HomePage_settings">Ρυθμίσεις</string>
+    <string name="Pigeon_HomePage_search">Αναζήτηση</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Αναζήτηση</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Δημιουργία</string>
+    <string name="Pigeon_Settings_switch_on">Ενεργοποίηση</string>
+    <string name="Pigeon_Settings_switch_off">Απενεργοποίηση</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Προφίλ</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Μήνυμα Pigeon</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Το Pigeon σάς επιτρέπει να χρησιμοποιείτε το Signal στο MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal Όροι &amp; Πολιτική Απορρήτου</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Το Pigeon χρειάζεται τα δικαιώματα επαφών και πολυμέσων για να σας βοηθήσει να συνδεθείτε με φίλους και να στείλετε μηνύματα. Οι επαφές σας μεταφορτώνονται χρησιμοποιώντας τον ιδιωτικό εντοπισμό επαφών του Signal, πράγμα που σημαίνει ότι είναι κρυπτογραφημένες end-to-end και ποτέ ορατές από την υπηρεσία Signal και Pigeon.</string>
+    <string name="no_options_available">Δεν υπάρχουν διαθέσιμες επιλογές</string>
+    <string name="conversation_context__menu_reply_to_message">Απάντηση στο μήνυμα</string>
+    <string name="conversation_context__menu_forward_message">Προώθηση μηνύματος</string>
+    <string name="conversation_context__menu_react_to_message">Αντιδράστε στο μήνυμα</string>
+    <string name="conversation_context__menu_take_back_message">Ανάληψη μηνύματος</string>
+</resources>

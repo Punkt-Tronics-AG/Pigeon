@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
@@ -34,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.getSpans
 import org.signal.core.ui.R
+import pigeon.extensions.isPigeonVersion
 
 object Texts {
   /**
@@ -57,6 +59,7 @@ object Texts {
         .padding(top = 16.dp, bottom = 12.dp)
     ) {
       Text(
+        color = if (isPigeonVersion()) MaterialTheme.colorScheme.primary else Color.Unspecified,
         text = text,
         style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.weight(1f, fill = false)

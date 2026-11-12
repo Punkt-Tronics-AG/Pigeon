@@ -50,6 +50,8 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.Disposable;
 
+import static pigeon.extensions.CoreBuildExtensionsKt.isPigeonVersion;
+
 public final class AudioView extends FrameLayout {
 
   private static final String TAG = Log.tag(AudioView.class);
@@ -114,6 +116,8 @@ public final class AudioView extends FrameLayout {
       smallView  = mode == MODE_SMALL;
       autoRewind = typedArray.getBoolean(R.styleable.AudioView_autoRewind, false);
 
+      Log.i(TAG, "PIGEON Creating AudioView in mode " + mode + " (smallView=" + smallView + ", autoRewind=" + autoRewind + ")");
+
       switch (mode) {
         case MODE_NORMAL:
           inflate(context, R.layout.audio_view, this);
@@ -138,10 +142,15 @@ public final class AudioView extends FrameLayout {
       this.duration          = findViewById(R.id.duration);
       this.fileName          = findViewById(R.id.file_name);
 
+
       lottieDirection = REVERSE;
       this.playPauseButton.setOnClickListener(new PlayPauseClickedListener());
       this.playPauseButton.setOnLongClickListener(v -> performLongClick());
       this.seekBar.setOnSeekBarChangeListener(new SeekBarModifiedListener());
+
+      if (isPigeonVersion()) {
+        this.setOnClickListener(v -> playPauseButton.performClick());
+      }
 
       setTint(typedArray.getColor(R.styleable.AudioView_foregroundTintColor, Color.WHITE));
 
@@ -160,6 +169,15 @@ public final class AudioView extends FrameLayout {
         typedArray.recycle();
       }
     }
+    playVoiceListener();
+  }
+
+  public void play(){
+    this.playPauseButton.performClick();
+  }
+
+  public void playVoiceListener(){
+    this.setOnClickListener(v -> playPauseButton.performClick());
   }
 
   @Override

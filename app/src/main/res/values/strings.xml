@@ -2803,7 +2803,7 @@
     <string name="ThreadRecord_group_updated">Group updated</string>
     <!-- Text shown you have left a group -->
     <string name="ThreadRecord_left_the_group">Left the group</string>
-    <string name="ThreadRecord_secure_session_reset">Secure session reset.</string>
+    <string name="ThreadRecord_secure_session_reset">Secure session reset</string>
     <string name="ThreadRecord_draft">Draft:</string>
     <string name="ThreadRecord_media_message">Media message</string>
     <string name="ThreadRecord_sticker">Sticker</string>
@@ -7015,6 +7015,7 @@
 
     <!-- Body of a dialog that is displayed when the username we looked up could not be found and we also could not parse the username. -->
     <string name="UsernameLinkSettings_qr_result_not_found_no_username">This user could not be found.</string>
+    <string name="Pigeon_pubkey">Pub Key</string>
     <!-- Shown on the generated username qr code image to explain how to use it. -->
     <string name="UsernameLinkSettings_scan_this_qr_code">Scan this QR code with your phone to chat with me on Signal.</string>
 

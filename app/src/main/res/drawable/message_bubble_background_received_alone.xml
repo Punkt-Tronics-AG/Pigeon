@@ -5,7 +5,9 @@
         android:top="2px">
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/message_corner_radius" />
-            <solid android:color="@color/white" />
+            <stroke
+                android:width="2px"
+                android:color="@color/white" />
         </shape>
     </item>
 </layer-list>

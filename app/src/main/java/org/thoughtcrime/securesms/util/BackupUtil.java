@@ -221,6 +221,7 @@ public class BackupUtil {
 
   @VisibleForTesting
   static @Nullable BackupInfo getBackupInfoFromSingleDocumentFile(@NonNull DocumentFile documentFile) throws BackupFileException {
+
     BackupFileState backupFileState = getBackupFileState(documentFile);
 
     if (backupFileState.isSuccess()) {
@@ -314,6 +315,7 @@ public class BackupUtil {
   }
 
   private static BackupFileState getBackupFileState(@NonNull DocumentFile documentFile) {
+    Log.d("PIGEON", "getBackupFileState: " + documentFile.getUri());
     if (!documentFile.exists()) {
       return BackupFileState.NOT_FOUND;
     } else if (!documentFile.canRead()) {

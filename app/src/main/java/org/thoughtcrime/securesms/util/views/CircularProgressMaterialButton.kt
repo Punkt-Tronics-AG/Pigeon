@@ -17,6 +17,9 @@ import com.google.android.material.theme.overlay.MaterialThemeOverlay
 import org.signal.core.util.getParcelableCompat
 import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.util.visible
+import pigeon.extensions.focusColor
+import pigeon.extensions.focusOnLeft
+import pigeon.extensions.isSignalVersion
 import kotlin.math.max
 
 /**
@@ -49,7 +52,15 @@ class CircularProgressMaterialButton @JvmOverloads constructor(
       val label = getString(R.styleable.CircularProgressMaterialButton_circularProgressMaterialButton__label)
 
       materialButton.text = label
+
+      this@CircularProgressMaterialButton.isFocusable = true
+      this@CircularProgressMaterialButton.isClickable = true
+      this@CircularProgressMaterialButton.focusColor(materialButton)
     }
+  }
+
+  fun setupAnimation() {
+    this.focusOnLeft()
   }
 
   fun setText(@StringRes resId: Int) {
@@ -59,13 +70,17 @@ class CircularProgressMaterialButton @JvmOverloads constructor(
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)
     materialButton.isEnabled = enabled
-    progressIndicator.visible = enabled
+    if (isSignalVersion()) {
+      progressIndicator.visible = enabled
+    }
   }
 
   override fun setClickable(clickable: Boolean) {
     super.setClickable(clickable)
-    materialButton.isClickable = clickable
-    progressIndicator.visible = clickable
+    if (isSignalVersion()) {
+      materialButton.isClickable = clickable
+      progressIndicator.visible = clickable
+    }
   }
 
   override fun onSaveInstanceState(): Parcelable {
@@ -86,7 +101,11 @@ class CircularProgressMaterialButton @JvmOverloads constructor(
   }
 
   override fun setOnClickListener(onClickListener: OnClickListener?) {
-    materialButton.setOnClickListener(onClickListener)
+    if (isSignalVersion()) {
+      materialButton.setOnClickListener(onClickListener)
+    } else {
+      super.setOnClickListener(onClickListener)
+    }
   }
 
   @VisibleForTesting
@@ -95,11 +114,15 @@ class CircularProgressMaterialButton @JvmOverloads constructor(
   }
 
   fun setSpinning() {
-    transformTo(State.PROGRESS, true)
+    if (isSignalVersion()) {
+      transformTo(State.PROGRESS, true)
+    }
   }
 
   fun cancelSpinning() {
-    transformTo(State.BUTTON, true)
+    if (isSignalVersion()) {
+      transformTo(State.BUTTON, true)
+    }
   }
 
   private fun transformTo(state: State, animate: Boolean) {

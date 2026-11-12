@@ -275,7 +275,7 @@ private fun ProfileRow(
   errorTestTag: String = ""
 ) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       EmojiText(
         text = text,
         style = MaterialTheme.typography.bodyLarge,

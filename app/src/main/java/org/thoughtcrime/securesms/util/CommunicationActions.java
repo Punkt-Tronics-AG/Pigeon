@@ -67,6 +67,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+import static pigeon.extensions.BuildExtensionsKt.isSignalVersion;
+
 public class CommunicationActions {
 
   private static final String TAG = Log.tag(CommunicationActions.class);
@@ -104,6 +107,11 @@ public class CommunicationActions {
             }
           } else {
             if (showToastIfPstnLineBusy(callContext)) {
+              return;
+            }
+
+            if (isPigeonVersion()) {
+              startCallInternal(callContext, recipient, false, false);
               return;
             }
 

@@ -26,6 +26,8 @@ import org.signal.core.util.DimensionUnit;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 
+import static pigeon.extensions.BuildExtensionsKt.isPigeonVersion;
+
 /**
  * Class for creating simple tooltips to show throughout the app. Utilizes a popup window so you
  * don't have to worry about view hierarchies or anything.
@@ -114,6 +116,9 @@ public class TooltipPopup extends PopupWindow {
   }
 
   private void show() {
+    if (isPigeonVersion()) {
+      return;
+    }
     if (anchor.getWidth() == 0 && anchor.getHeight() == 0) {
       anchor.post(this::show);
       return;

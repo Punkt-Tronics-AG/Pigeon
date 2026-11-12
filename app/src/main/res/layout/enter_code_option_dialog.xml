@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    style="@style/Mp02.Signal.Background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/option_button1"
+        style="@style/Mp02.Signal.Text.CommonTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginBottom="@dimen/pigeon_bottom_margin"
+        android:layout_marginTop="@dimen/pigeon_start_margin"
+        tools:text="@string/Pigeon.Options" />
+
+
+    <TextView
+        android:id="@+id/option_button2"
+        style="@style/Mp02.Signal.Text.CommonTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginBottom="@dimen/pigeon_bottom_margin"
+        tools:text="@string/Pigeon.Options" />
+
+    <TextView
+        android:id="@+id/closeButton"
+        style="@style/Mp02.Signal.Text.CommonTextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginBottom="@dimen/pigeon_bottom_margin"
+        android:text="@string/Pigeon.Close" />
+
+</LinearLayout>

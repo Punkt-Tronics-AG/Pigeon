@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Sauvegarder</string>
+    <string name="Pigeon.Options">Réglages</string>
+    <string name="Pigeon.Close">Fermer</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">N° de téléphone</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon clause de non-responsabilité</string>
+    <string name="Pigeon_HomePage_new_message">Nouveau message</string>
+    <string name="Pigeon_HomePage_new_group">Nouveau groupe</string>
+    <string name="Pigeon_HomePage_mark_all_read">Tout marquer comme lu</string>
+    <string name="Pigeon_HomePage_settings">Réglages</string>
+    <string name="Pigeon_HomePage_search">Rechercher</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Rechercher</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Créer</string>
+    <string name="Pigeon_Settings_switch_on">ACTIVÉ</string>
+    <string name="Pigeon_Settings_switch_off">DÉSACTIVÉ</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profil</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Message Pigeon</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon vous permet d\'utiliser Signal sur le MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal conditions générales et politique de confidentialité</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon a besoin des autorisations Contacts et Médias pour vous aider à vous connecter avec vos amis et à envoyer des messages. Vos contacts sont téléversés en utilisant la découverte confidentielle des contacts de Signal, ce qui signifie qu’ils sont chiffrés de bout en bout et ne sont jamais visibles par le service Signal et Pigeon.</string>
+    <string name="no_options_available">Aucune option disponible</string>
+    <string name="conversation_context__menu_reply_to_message">Répondre au message</string>
+    <string name="conversation_context__menu_forward_message">Transmettre le message</string>
+    <string name="conversation_context__menu_react_to_message">Réagir au message</string>
+    <string name="conversation_context__menu_take_back_message">Reprendre le message</string>
+</resources>

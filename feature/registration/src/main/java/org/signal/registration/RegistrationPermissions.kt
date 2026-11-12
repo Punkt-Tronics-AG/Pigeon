@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Computes the runtime permissions requested during registration, branching on API level and
@@ -37,6 +38,12 @@ object RegistrationPermissions {
       }
 
       add(Manifest.permission.READ_PHONE_STATE)
+
+      if (isPigeonVersion()) {
+        // PIGEON: verification SMS is read straight from the inbox (no Play Services), calls need the mic
+        add(Manifest.permission.READ_SMS)
+        add(Manifest.permission.RECORD_AUDIO)
+      }
       if (Build.VERSION.SDK_INT >= 26) {
         add(Manifest.permission.READ_PHONE_NUMBERS)
       }

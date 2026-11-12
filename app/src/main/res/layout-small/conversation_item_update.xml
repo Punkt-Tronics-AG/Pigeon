@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.thoughtcrime.securesms.conversation.ConversationUpdateItem xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/conversation_update_item"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/light_selectable_list_item_background"
+    android:descendantFocusability="blocksDescendants"
+    android:focusable="true"
+    android:nextFocusRight="@+id/embedded_text_editor"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp"
+    android:visibility="visible"
+    tools:background="@color/black"
+    tools:viewBindingIgnore="true">
+
+    <LinearLayout
+        android:id="@+id/conversation_update_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/conversation_update_vertical_margin"
+        android:layout_marginBottom="@dimen/conversation_update_vertical_margin"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/conversation_update_collapsed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="12 group updates" />
+
+        <!-- Signal 8.26.4: ConversationUpdateItem sets padding/background on this container -->
+        <LinearLayout
+            android:id="@+id/conversation_update_body_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <org.thoughtcrime.securesms.components.emoji.EmojiTextView
+                android:id="@+id/conversation_update_body"
+                style="@style/Signal.Text.BodySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/conversation_item_update_text_color"
+                tools:text="Gwen Stacy set the disappearing message timer to 1 hour" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/conversation_update_action"
+                style="@style/Mp02.Signal.Text.MaterialTextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:visibility="gone"
+                tools:text="Learn more"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</org.thoughtcrime.securesms.conversation.ConversationUpdateItem>

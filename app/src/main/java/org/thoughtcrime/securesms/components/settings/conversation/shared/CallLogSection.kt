@@ -61,10 +61,13 @@ private fun CallRow(
   val context = LocalContext.current
 
   Rows.TextRow(
-    text = {
+    // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+    text = { pigeonTextSize, pigeonTextColor ->
       TextAndLabel(
         text = stringResource(CallRowResources.typeStringRes(entry.call)),
-        label = DateUtils.getOnlyTimeString(context, entry.record.timestamp)
+        label = DateUtils.getOnlyTimeString(context, entry.record.timestamp),
+        textColor = pigeonTextColor,
+        pigeonTextSize = pigeonTextSize
       )
     },
     icon = {

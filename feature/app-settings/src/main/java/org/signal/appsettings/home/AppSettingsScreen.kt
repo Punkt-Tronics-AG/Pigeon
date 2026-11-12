@@ -22,12 +22,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -53,6 +58,8 @@ import org.signal.core.ui.compose.rememberIsSplitPaneSettings
 import org.signal.core.ui.compose.selectionHighlight
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.emoji.Emojifier
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 import org.signal.core.ui.R as CoreUiR
 
 @VisibleForTesting
@@ -122,7 +129,7 @@ fun AppSettingsScreen(
     modifier = modifier
   ) { contentPadding ->
     Column(
-      modifier = Modifier.padding(contentPadding)
+      modifier = if (isPigeonVersion()) Modifier.padding(0.dp) else Modifier.padding(contentPadding)
     ) {
       Box(modifier = Modifier.appSettingsScreen()) {
         banner()
@@ -142,7 +149,7 @@ fun AppSettingsScreen(
           }
         }
 
-        if (state.backupFailureState != BackupFailureState.NONE) {
+        if (isSignalVersion() && state.backupFailureState != BackupFailureState.NONE) {
           item {
             Dividers.Default()
 
@@ -166,7 +173,7 @@ fun AppSettingsScreen(
           )
         }
 
-        if (state.isPrimaryDevice) {
+        if (isSignalVersion() && state.isPrimaryDevice) {
           item {
             Rows.TextRow(
               text = stringResource(R.string.AppSettingsScreen__linked_devices),
@@ -182,7 +189,8 @@ fun AppSettingsScreen(
 
         item {
           Rows.TextRow(
-            text = {
+            visible = isSignalVersion(),
+            text = { _, _ ->
               Text(
                 text = stringResource(R.string.AppSettingsScreen__donate_to_signal),
                 modifier = Modifier.weight(1f)
@@ -211,19 +219,23 @@ fun AppSettingsScreen(
           )
         }
 
-        item {
-          Dividers.Default()
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__appearance),
-            icon = SignalIcons.Appearance.painter,
-            onClick = { onEvent(AppSettingsEvent.AppearanceClicked) },
-            modifier = Modifier
-              .selectionHighlight(selectedRoute is AppSettingsRoute.AppearanceRoute)
-              .testTag(AppSettingsTestTags.ROW_APPEARANCE)
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.preferences__appearance),
+              icon = SignalIcons.Appearance.painter,
+              onClick = { onEvent(AppSettingsEvent.AppearanceClicked) },
+              modifier = Modifier
+                .selectionHighlight(selectedRoute is AppSettingsRoute.AppearanceRoute)
+                .testTag(AppSettingsTestTags.ROW_APPEARANCE)
+            )
+          }
         }
 
         item {
@@ -238,16 +250,18 @@ fun AppSettingsScreen(
           )
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.AppSettingsScreen__stories),
-            icon = SignalIcons.Stories.painter,
-            onClick = { onEvent(AppSettingsEvent.StoriesClicked) },
-            enabled = state.isRegisteredAndUpToDate,
-            modifier = Modifier
-              .selectionHighlight(selectedRoute is AppSettingsRoute.StoriesRoute)
-              .testTag(AppSettingsTestTags.ROW_STORIES)
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.AppSettingsScreen__stories),
+              icon = SignalIcons.Stories.painter,
+              onClick = { onEvent(AppSettingsEvent.StoriesClicked) },
+              enabled = state.isRegisteredAndUpToDate,
+              modifier = Modifier
+                .selectionHighlight(selectedRoute is AppSettingsRoute.StoriesRoute)
+                .testTag(AppSettingsTestTags.ROW_STORIES)
+            )
+          }
         }
 
         item {
@@ -279,7 +293,11 @@ fun AppSettingsScreen(
             icon = SignalIcons.Backup.imageVector,
             text = stringResource(R.string.AppSettingsScreen__backups),
             onClick = { onEvent(AppSettingsEvent.BackupsClicked) },
-            onLongClick = { onEvent(AppSettingsEvent.BackupsLongClicked) },
+            onLongClick = if (isSignalVersion()) {
+              { onEvent(AppSettingsEvent.BackupsLongClicked) }
+            } else {
+              null
+            },
             enabled = state.isRegisteredAndUpToDate,
             modifier = Modifier
               .selectionHighlight(selectedRoute is AppSettingsRoute.BackupsRoute)
@@ -298,7 +316,7 @@ fun AppSettingsScreen(
           )
         }
 
-        if (state.showAppUpdates) {
+        if (isSignalVersion() && state.showAppUpdates) {
           item {
             Rows.TextRow(
               text = "App updates",
@@ -311,7 +329,7 @@ fun AppSettingsScreen(
           }
         }
 
-        if (state.isPrimaryDevice && state.showPayments) {
+        if (isSignalVersion() && state.isPrimaryDevice && state.showPayments) {
           item {
             Dividers.Default()
           }
@@ -325,8 +343,10 @@ fun AppSettingsScreen(
           }
         }
 
-        item {
-          Dividers.Default()
+        if (isSignalVersion()) {
+          item {
+            Dividers.Default()
+          }
         }
 
         item {
@@ -340,20 +360,24 @@ fun AppSettingsScreen(
           )
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-            icon = SignalIcons.Invite.painter,
-            onClick = { onEvent(AppSettingsEvent.InviteClicked) },
-            modifier = Modifier
-              .selectionHighlight(selectedRoute == AppSettingsRoute.Invite)
-              .testTag(AppSettingsTestTags.ROW_INVITE)
-          )
+        if (isSignalVersion()) {
+          item {
+            Rows.TextRow(
+              text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
+              icon = SignalIcons.Invite.painter,
+              onClick = { onEvent(AppSettingsEvent.InviteClicked) },
+              modifier = Modifier
+                .selectionHighlight(selectedRoute == AppSettingsRoute.Invite)
+                .testTag(AppSettingsTestTags.ROW_INVITE)
+            )
+          }
         }
 
         if (state.showInternalPreferences) {
-          item {
-            Dividers.Default()
+          if (isSignalVersion()) {
+            item {
+              Dividers.Default()
+            }
           }
 
           item {
@@ -417,7 +441,7 @@ private fun BackupWarningRow(
   }
 
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Text(text = text)
     },
     icon = {
@@ -449,7 +473,7 @@ private fun PaymentsRow(
   modifier: Modifier = Modifier
 ) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Text(
         text = stringResource(R.string.AppSettingsScreen__payments),
         modifier = Modifier.weight(1f)
@@ -492,19 +516,24 @@ private fun ProfileRow(
 ) {
   val hasUsername = profile.username.isNotBlank()
 
+  val pigeonRequester = remember { FocusRequester() }
+
   Row(
     verticalAlignment = Alignment.CenterVertically,
     modifier = modifier
+      .focusRequester(pigeonRequester)
       .clickable(onClick = { onEvent(AppSettingsEvent.ProfileClicked) })
-      .horizontalGutters()
+      .horizontalGutters(if (isPigeonVersion()) 0.dp else dimensionResource(CoreUiR.dimen.gutter))
       .testTag(AppSettingsTestTags.ROW_PROFILE)
   ) {
-    Box(
-      modifier = Modifier
-        .padding(vertical = 24.dp)
-        .size(80.dp)
-    ) {
-      avatar()
+    if (isSignalVersion()) {
+      Box(
+        modifier = Modifier
+          .padding(vertical = 24.dp)
+          .size(80.dp)
+      ) {
+        avatar()
+      }
     }
 
     Column(
@@ -555,7 +584,7 @@ private fun ProfileRow(
       }
     }
 
-    if (hasUsername) {
+    if (hasUsername && isSignalVersion()) {
       IconButtons.IconButton(
         onClick = { onEvent(AppSettingsEvent.UsernameLinkClicked) },
         size = 36.dp,
@@ -570,6 +599,12 @@ private fun ProfileRow(
           modifier = Modifier.size(20.dp)
         )
       }
+    }
+  }
+
+  if (isPigeonVersion()) {
+    LaunchedEffect(Unit) {
+      pigeonRequester.requestFocus()
     }
   }
 }

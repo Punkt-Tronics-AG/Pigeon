@@ -102,6 +102,7 @@ import org.thoughtcrime.securesms.keyvalue.PlainTextKeyValueStore;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger;
 import org.thoughtcrime.securesms.logging.PersistentLogger;
+import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
 import org.thoughtcrime.securesms.logsubmit.SubmitDebugLogActivity;
 import org.thoughtcrime.securesms.messageprocessingalarm.RoutineMessageFetchReceiver;
 import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
@@ -137,6 +138,8 @@ import org.thoughtcrime.securesms.util.SignalUncaughtExceptionHandler;
 import org.thoughtcrime.securesms.util.SqlCipherLogTarget;
 import org.thoughtcrime.securesms.util.VersionTracker;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
+import org.whispersystems.signalservice.internal.websocket.OkHttpWebSocketConnection;
+import org.whispersystems.signalservice.internal.websocket.WebSocketConnection;
 import org.whispersystems.signalservice.api.websocket.SignalWebSocket;
 
 import java.io.InterruptedIOException;
@@ -150,6 +153,7 @@ import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException;
 import io.reactivex.rxjava3.exceptions.UndeliverableException;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pigeon.service.ScreenListener;
 import kotlin.Unit;
 import rxdogtag2.RxDogTag;
 
@@ -270,6 +274,25 @@ public class ApplicationContext extends Application implements AppForegroundObse
     Log.d(TAG, "onCreate() took " + (System.currentTimeMillis() - startTime) + " ms");
     SignalLocalMetrics.ColdStart.onApplicationCreateFinished();
     Tracer.getInstance().end("Application#onCreate()");
+
+    ScreenListener screenListener = new ScreenListener(this);
+    screenListener.begin(new ScreenListener.ScreenStateListener() {
+      @Override
+      public void onScreenOn() {
+        OkHttpWebSocketConnection.isAlive = true;
+      }
+
+      @Override
+      public void onScreenOff() {
+        OkHttpWebSocketConnection.isAlive = false;
+      }
+
+      @Override
+      public void onUserPresent() {
+
+      }
+    });
+
   }
 
   @Override
@@ -353,6 +376,15 @@ public class ApplicationContext extends Application implements AppForegroundObse
    * This is so we can capture ANR's that happen on boot before the foreground event.
    */
   private void startAnrDetector() {
+    if (pigeon.extensions.BuildExtensionsKt.isPigeonVersion()) {
+      // Pigeon: MP02 is slow during initial setup, use a more permissive threshold
+      // and never crash on detected ANRs.
+      AnrDetector.start(TimeUnit.SECONDS.toMillis(30), () -> false, (dumps) -> {
+        LogDatabase.getInstance(this).anrs().save(System.currentTimeMillis(), dumps);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
     AnrDetector.start(TimeUnit.SECONDS.toMillis(5), () -> RemoteConfig.internalUser() && SignalStore.internal().getAnrDetectionCrashes(), (dumps) -> {
       LogDatabase.getInstance(this).anrs().save(System.currentTimeMillis(), dumps);
       return Unit.INSTANCE;

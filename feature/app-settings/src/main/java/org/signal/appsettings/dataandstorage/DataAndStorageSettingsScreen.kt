@@ -216,7 +216,7 @@ private fun AutoDownloadRow(
 @Composable
 private fun Description(text: String) {
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,

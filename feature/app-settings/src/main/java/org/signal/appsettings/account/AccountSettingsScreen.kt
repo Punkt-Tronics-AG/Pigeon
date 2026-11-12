@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,6 +70,7 @@ import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.Texts
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.signallogin.beta.SignalLoginBetaTag
+import pigeon.extensions.withPigeonTextSize
 import org.signal.core.ui.R as CoreUiR
 
 @VisibleForTesting
@@ -322,10 +324,11 @@ fun AccountSettingsScreen(
 
         item {
           Rows.TextRow(
-            text = {
+            // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+            text = { pigeonTextSize, _ ->
               Text(
                 text = stringResource(R.string.preferences_account_delete_all_data),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.withPigeonTextSize(pigeonTextSize),
                 color = SignalTheme.colors.colorAlert
               )
             },
@@ -343,9 +346,11 @@ fun AccountSettingsScreen(
         }
 
         Rows.TextRow(
-          text = {
+          // PIGEON-UI: TextRow's text lambda exposes focus-driven text size and color
+          text = { pigeonTextSize, _ ->
             Text(
               text = stringResource(R.string.preferences__delete_account),
+              style = LocalTextStyle.current.withPigeonTextSize(pigeonTextSize),
               color = textColor
             )
           },
@@ -395,7 +400,7 @@ private fun SetUpTwoFactorRow(
   Box(modifier = modifier) {
     Rows.TextRow(
       icon = { TwoFactorRowIcon(icon = SignalIcons.Plus) },
-      text = {
+      text = { _, _ ->
         TextAndLabel(text = stringResource(R.string.AccountSettingsFragment__set_up))
       },
       onClick = menuController::show,
@@ -477,7 +482,7 @@ private fun TwoFactorMethodRow(
 
   Rows.TextRow(
     icon = { TwoFactorRowIcon(icon = icon) },
-    text = {
+    text = { _, _ ->
       TextAndLabel(
         text = method.name ?: stringResource(R.string.AccountSettingsFragment__unknown),
         label = if (addedTime != null) {

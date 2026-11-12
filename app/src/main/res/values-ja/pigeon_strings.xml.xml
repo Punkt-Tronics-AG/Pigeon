@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+    <string name="Pigeon.Save">保存</string>
+    <string name="Pigeon.Options">オプション</string>
+    <string name="Pigeon.Close">閉じる</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">電話番号</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon disclaimer</string>
+    <string name="Pigeon_HomePage_new_message">新規メッセージ</string>
+    <string name="Pigeon_HomePage_new_group">新規グループ</string>
+    <string name="Pigeon_HomePage_mark_all_read">すべて既読にする</string>
+    <string name="Pigeon_HomePage_settings">設定</string>
+    <string name="Pigeon_HomePage_search">検索</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">検索</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">作成</string>
+    <string name="Pigeon_Settings_switch_on">オン</string>
+    <string name="Pigeon_Settings_switch_off">オフ</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">プロフィール</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeonメッセージ</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">PigeonでMP02からSignalが使えます。</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal Terms &amp; Privacy Policy</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeonは、ご友人とのつながりやメッセージ送信をサポートするため、連絡先とメディアへのアクセス許可が必要です。連絡先はエンドツーエンドで暗号化し、Signalプライベートコンタクトディスカバリーを使用してアップロードされるため、SignalとPigeonのサービス管理者は閲覧できません。</string>
+    <string name="no_options_available">オプションはありません</string>
+    <string name="conversation_context__menu_reply_to_message">メッセージの返信</string>
+    <string name="conversation_context__menu_forward_message">フォワードメッセージ</string>
+    <string name="conversation_context__menu_react_to_message">メッセージに反応する</string>
+    <string name="conversation_context__menu_take_back_message">テイクバックメッセージ</string>
+</resources>

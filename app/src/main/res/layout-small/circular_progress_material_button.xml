@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:focusedByDefault="true"
+    android:clickable="true"
+    tools:parentTag="org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton"
+    tools:viewBindingIgnore="true"
+    tools:targetApi="o">
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        style="?circularProgressIndicatorStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        style="@style/Mp02.Signal.Text.MaterialTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:clickable="false"
+        tools:text="Material Button"
+        tools:textColor="@color/focused_text_color"
+        tools:visibility="visible" />
+
+</merge>

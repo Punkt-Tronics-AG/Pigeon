@@ -5,11 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,6 +57,9 @@ import org.thoughtcrime.securesms.util.livedata.ProcessState
 import org.thoughtcrime.securesms.util.livedata.distinctUntilChanged
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
 import kotlin.time.Duration.Companion.seconds
+import org.thoughtcrime.securesms.util.views.CircularProgressMaterialButton
+import pigeon.extensions.isPigeonVersion
+import pigeon.extensions.isSignalVersion
 
 /**
  * Depending on the arguments, can be used to set the universal expire timer, set expire timer
@@ -114,6 +130,11 @@ class ExpireTimerSettingsFragment : ComposeFragment() {
     override fun onSaveClick() {
       viewModel.save()
     }
+
+    // PIGEON CODE
+    override fun onPigeonTimerSelectedAndSave(seconds: Int) {
+      viewModel.pigeonSelectAndSave(seconds)
+    }
   }
 
   companion object {
@@ -157,12 +178,24 @@ fun ExpireTimerSettingsScreen(
           val label = labels[index]
           val seconds = values[index]
 
-          Rows.RadioRow(
-            selected = state.currentTimer == seconds,
-            text = label,
-            modifier = Modifier.clickable { callback.onTimerSelected(seconds) },
-            enabled = true
-          )
+          if (isPigeonVersion()) {
+            // PIGEON CODE
+            PigeonExpireTimerRow(
+              selected = state.currentTimer == seconds,
+              text = label,
+              isInitiallyFocused = index == 0,
+              onClick = {
+                callback.onPigeonTimerSelectedAndSave(seconds)
+              }
+            )
+          } else {
+            Rows.RadioRow(
+              selected = state.currentTimer == seconds,
+              text = label,
+              modifier = Modifier.clickable { callback.onTimerSelected(seconds) },
+              enabled = true
+            )
+          }
         }
 
         item {
@@ -173,31 +206,98 @@ fun ExpireTimerSettingsScreen(
             null
           }
 
-          Rows.RadioRow(
-            selected = hasCustomValue,
-            text = stringResource(R.string.ExpireTimerSettingsFragment__custom_time),
-            label = customSummary,
-            modifier = Modifier.clickable { callback.onCustomTimerClick() },
-            enabled = true
-          )
+          if (isSignalVersion()) {
+            Rows.RadioRow(
+              selected = hasCustomValue,
+              text = stringResource(R.string.ExpireTimerSettingsFragment__custom_time),
+              label = customSummary,
+              modifier = Modifier.clickable { callback.onCustomTimerClick() },
+              enabled = true
+            )
+          }
         }
       }
 
-      CircularProgressWrapper(
-        isLoading = state.saveState is ProcessState.Working,
-        modifier = Modifier
-          .align(Alignment.BottomEnd)
-          .horizontalGutters()
-          .padding(bottom = 16.dp)
-      ) {
-        Buttons.LargeTonal(
-          onClick = callback::onSaveClick,
-          enabled = state.saveState is ProcessState.Idle
+      if (isSignalVersion()) {
+        CircularProgressWrapper(
+          isLoading = state.saveState is ProcessState.Working,
+          modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .horizontalGutters()
+            .padding(bottom = 16.dp)
         ) {
-          Text(text = stringResource(R.string.ExpireTimerSettingsFragment__save))
+          Buttons.LargeTonal(
+            onClick = callback::onSaveClick,
+            enabled = state.saveState is ProcessState.Idle
+          ) {
+            Text(text = stringResource(R.string.ExpireTimerSettingsFragment__save))
+          }
         }
       }
     }
+  }
+}
+
+// PIGEON CODE
+@Composable
+private fun PigeonExpireTimerRow(
+  selected: Boolean,
+  text: String,
+  isInitiallyFocused: Boolean,
+  onClick: () -> Unit
+) {
+  val interactionSource = remember { MutableInteractionSource() }
+  val isFocused by interactionSource.collectIsFocusedAsState()
+  val focusRequester = remember { FocusRequester() }
+
+  if (isInitiallyFocused) {
+    LaunchedEffect(Unit) {
+      runCatching { focusRequester.requestFocus() }
+    }
+  }
+
+  val backgroundColor = if (isFocused) {
+    MaterialTheme.colorScheme.primary
+  } else {
+    Color.Transparent
+  }
+  val contentColor = if (isFocused) {
+    MaterialTheme.colorScheme.onPrimary
+  } else {
+    MaterialTheme.colorScheme.onSurface
+  }
+
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .fillMaxWidth()
+      .focusRequester(focusRequester)
+      .focusable(true, interactionSource = interactionSource)
+      .clickable(
+        interactionSource = interactionSource,
+        indication = null,
+        onClick = onClick
+      )
+      .background(backgroundColor)
+      .defaultMinSize(minHeight = 56.dp)
+      .padding(horizontal = 24.dp, vertical = 12.dp)
+  ) {
+    RadioButton(
+      enabled = true,
+      selected = selected,
+      onClick = null,
+      colors = RadioButtonDefaults.colors(
+        selectedColor = contentColor,
+        unselectedColor = contentColor
+      ),
+      modifier = Modifier.padding(end = 16.dp)
+    )
+
+    Text(
+      text = text,
+      style = MaterialTheme.typography.titleLarge,
+      color = contentColor
+    )
   }
 }
 
@@ -245,6 +345,9 @@ interface ExpireTimerSettingsScreenCallback {
   fun onTimerSelected(seconds: Int)
   fun onCustomTimerClick()
   fun onSaveClick()
+
+  // PIGEON CODE
+  fun onPigeonTimerSelectedAndSave(seconds: Int) = Unit
 }
 
 private fun Bundle?.toConfig(): ExpireTimerSettingsViewModel.Config {

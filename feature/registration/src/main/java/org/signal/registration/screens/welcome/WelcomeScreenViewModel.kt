@@ -74,6 +74,8 @@ class WelcomeScreenViewModel(
         }
       }
       WelcomeScreenEvents.ViewTermsAndPrivacy -> _actions.trySend(WelcomeScreenActions.ViewTermsAndPrivacy)
+      WelcomeScreenEvents.PigeonViewDisclaimer -> parentEventEmitter.navigateTo(RegistrationRoute.PigeonDisclaimer)
+      WelcomeScreenEvents.PigeonViewTerms -> parentEventEmitter.navigateTo(RegistrationRoute.PigeonTerms)
     }
   }
 

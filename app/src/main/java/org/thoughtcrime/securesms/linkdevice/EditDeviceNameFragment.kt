@@ -1,5 +1,7 @@
 package org.thoughtcrime.securesms.linkdevice
 
+import android.view.KeyEvent
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -22,6 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -108,6 +117,10 @@ private fun EditNameScreen(
   val name = state.deviceToEdit!!.name ?: ""
   var deviceName by remember { mutableStateOf(TextFieldValue(name, TextRange(name.length))) }
 
+  //PIGEON
+  val buttonFocusRequester = remember { FocusRequester() }
+
+
   Box(
     modifier = modifier.fillMaxHeight()
   ) {
@@ -128,6 +141,15 @@ private fun EditNameScreen(
         .fillMaxWidth()
         .focusRequester(focusRequester)
         .padding(top = 16.dp, bottom = 12.dp, start = 20.dp, end = 28.dp)
+        .onKeyEvent { event ->
+          // Handle DPAD navigation keys to focus the save button PIGEON
+          if (event.key.nativeKeyCode == KeyEvent.KEYCODE_DPAD_DOWN && event.type == KeyEventType.KeyUp) {
+            buttonFocusRequester.requestFocus()
+            true
+          } else {
+            false
+          }
+        }
     )
     Buttons.MediumTonal(
       enabled = deviceName.text.isNotNullOrBlank() && (deviceName.text != name),
@@ -135,6 +157,9 @@ private fun EditNameScreen(
       modifier = Modifier
         .align(Alignment.BottomEnd)
         .padding(end = 24.dp, bottom = 16.dp)
+        // PIGEON: FocusRequester for button to allow keyboard navigation
+        .focusRequester(buttonFocusRequester)
+        .focusable()
     ) {
       Text(text = stringResource(R.string.EditDeviceNameFragment__save))
     }

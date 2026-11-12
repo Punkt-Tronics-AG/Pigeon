@@ -79,7 +79,10 @@ public class ConversationItemBodyBubble extends LinearLayout {
     }
 
     this.quoteViewProjection = quoteViewProjection;
-    clipProjectionDrawable.setProjections(getProjections());
+
+    if (clipProjectionDrawable != null) {
+      clipProjectionDrawable.setProjections(getProjections());
+    }
   }
 
   public @NonNull Set<Projection> getProjections() {

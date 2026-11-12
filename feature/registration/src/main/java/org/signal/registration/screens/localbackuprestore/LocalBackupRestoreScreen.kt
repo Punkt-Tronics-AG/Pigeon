@@ -60,6 +60,13 @@ import org.signal.registration.R
 import org.signal.registration.screens.shared.RestoreProgress
 import org.signal.registration.screens.shared.RestoreProgressDialog
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupFoundLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupIncorrectCredentialLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupNotFoundLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupRestoreErrorLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupRestoreProgressLayout
+import pigeon.registration.screens.localbackuprestore.PigeonLocalBackupScanningLayout
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
@@ -95,33 +102,57 @@ fun LocalBackupRestoreScreen(
       SelectFolderContent(onEvent = onEvent, modifier = modifier)
     }
     LocalBackupRestoreState.RestorePhase.Scanning -> {
-      ScanningContent(modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupScanningLayout(modifier = modifier)
+      } else {
+        ScanningContent(modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.BackupFound -> {
-      BackupFoundContent(backupInfo = state.backupInfo!!, allBackups = state.allBackups, onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupFoundLayout(backups = state.allBackups, selectedBackup = state.backupInfo!!, onEvent = onEvent, modifier = modifier)
+      } else {
+        BackupFoundContent(backupInfo = state.backupInfo!!, allBackups = state.allBackups, onEvent = onEvent, modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.NoBackupFound -> {
-      NoBackupFoundContent(onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupNotFoundLayout(onEvent = onEvent, modifier = modifier)
+      } else {
+        NoBackupFoundContent(onEvent = onEvent, modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.Preparing -> {
-      if (state.backupInfo?.type == LocalBackupInfo.BackupType.V2) {
+      if (isPigeonVersion()) {
+        PigeonLocalBackupRestoreProgressLayout(state = state, modifier = modifier)
+      } else if (state.backupInfo?.type == LocalBackupInfo.BackupType.V2) {
         V2RestoreInProgressContent(state = state, onEvent = onEvent, modifier = modifier)
       } else {
         V1PreparingContent(modifier = modifier)
       }
     }
     LocalBackupRestoreState.RestorePhase.InProgress -> {
-      if (state.backupInfo?.type == LocalBackupInfo.BackupType.V2) {
+      if (isPigeonVersion()) {
+        PigeonLocalBackupRestoreProgressLayout(state = state, modifier = modifier)
+      } else if (state.backupInfo?.type == LocalBackupInfo.BackupType.V2) {
         V2RestoreInProgressContent(state = state, onEvent = onEvent, modifier = modifier)
       } else {
         V1InProgressContent(progressFraction = state.progressFraction, onEvent = onEvent, modifier = modifier)
       }
     }
     LocalBackupRestoreState.RestorePhase.IncorrectCredential -> {
-      IncorrectCredentialContent(backupType = state.backupInfo?.type, onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupIncorrectCredentialLayout(backupType = state.backupInfo?.type, onEvent = onEvent, modifier = modifier)
+      } else {
+        IncorrectCredentialContent(backupType = state.backupInfo?.type, onEvent = onEvent, modifier = modifier)
+      }
     }
     LocalBackupRestoreState.RestorePhase.Error -> {
-      ErrorContent(errorMessage = state.errorMessage, onEvent = onEvent, modifier = modifier)
+      if (isPigeonVersion()) {
+        PigeonLocalBackupRestoreErrorLayout(errorMessage = state.errorMessage, onEvent = onEvent, modifier = modifier)
+      } else {
+        ErrorContent(errorMessage = state.errorMessage, onEvent = onEvent, modifier = modifier)
+      }
     }
   }
 }

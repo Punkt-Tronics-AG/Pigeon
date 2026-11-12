@@ -8,6 +8,7 @@ import android.os.HandlerThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.preference.PreferenceManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.signal.billing.BillingFactory;
@@ -170,6 +171,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
+import pigeon.viewmodels.IntervalSettingsViewModel;
 
 /**
  * Implementation of {@link AppDependencies.Provider} that provides real app dependencies.
@@ -434,6 +436,9 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   public @NonNull SignalWebSocket.AuthenticatedWebSocket provideAuthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
     SleepTimer                   sleepTimer    = new AdaptiveSleepTimer(context);
     SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer, true);
+    int                          pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+    int                          pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
+    //todo PIGEON BATTERY SAVER
 
     WebSocketFactory authFactory = () -> {
       DynamicCredentialsProvider credentialsProvider = new DynamicCredentialsProvider();
@@ -467,6 +472,10 @@ public class ApplicationDependencyProvider implements AppDependencies.Provider {
   public @NonNull SignalWebSocket.UnauthenticatedWebSocket provideUnauthWebSocket(@NonNull Supplier<SignalServiceConfiguration> signalServiceConfigurationSupplier, @NonNull Supplier<Network> libSignalNetworkSupplier) {
     SleepTimer                   sleepTimer    = new AdaptiveSleepTimer(context);
     SignalWebSocketHealthMonitor healthMonitor = new SignalWebSocketHealthMonitor(sleepTimer, false);
+
+    int pigeonAliveIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_ALIVE_TIME_PREF, 30);
+    int pigeonSleepIntervalTime = PreferenceManager.getDefaultSharedPreferences(this.context).getInt(IntervalSettingsViewModel.KEEP_SLEEP_TIME_PREF, 120);
+    //todo PIGEON BATTERY SAVER
 
     WebSocketFactory unauthFactory = () -> {
       Network network = libSignalNetworkSupplier.get();

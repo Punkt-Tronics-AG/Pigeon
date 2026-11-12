@@ -7,6 +7,7 @@ package org.thoughtcrime.securesms.components.settings.app.storage
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -65,6 +66,7 @@ import org.thoughtcrime.securesms.billing.upgrade.UpgradeToPaidTierBottomSheet
 import org.thoughtcrime.securesms.keyvalue.KeepMessagesDuration
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity
+import pigeon.extensions.isSignalVersion
 import java.text.NumberFormat
 
 /**
@@ -283,29 +285,32 @@ private fun ManageStorageSettingsScreen(
     Column(
       modifier = Modifier
         .padding(contentPadding)
+        .background(color = SignalTheme.colors.colorTransparentInverse5)
         .verticalScroll(rememberScrollState())
     ) {
-      Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
+      if (isSignalVersion()) {
+        Texts.SectionHeader(text = stringResource(id = R.string.preferences_storage__storage_usage))
 
-      StorageUsageOverview(
-        usage = state.storageUsage,
-        onReviewStorage = onReviewStorage
-      )
-
-      if (state.onDeviceStorageOptimizationState > ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.FEATURE_NOT_AVAILABLE) {
-        Dividers.Default()
-
-        Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment__on_device_storage))
-
-        Rows.ToggleRow(
-          checked = state.onDeviceStorageOptimizationState == ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.ENABLED,
-          text = stringResource(id = R.string.ManageStorageSettingsFragment__optimize_on_device_storage),
-          label = stringResource(id = R.string.ManageStorageSettingsFragment__unused_media_will_be_offloaded),
-          onCheckChanged = onToggleOnDeviceStorageOptimization
+        StorageUsageOverview(
+          usage = state.storageUsage,
+          onReviewStorage = onReviewStorage
         )
-      }
 
-      Dividers.Default()
+        if (state.onDeviceStorageOptimizationState > ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.FEATURE_NOT_AVAILABLE) {
+          Dividers.Default()
+
+          Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment__on_device_storage))
+
+          Rows.ToggleRow(
+            checked = state.onDeviceStorageOptimizationState == ManageStorageSettingsViewModel.OnDeviceStorageOptimizationState.ENABLED,
+            text = stringResource(id = R.string.ManageStorageSettingsFragment__optimize_on_device_storage),
+            label = stringResource(id = R.string.ManageStorageSettingsFragment__unused_media_will_be_offloaded),
+            onCheckChanged = onToggleOnDeviceStorageOptimization
+          )
+        }
+
+        Dividers.Default()
+      }
 
       Texts.SectionHeader(text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_limit))
 
@@ -375,7 +380,7 @@ private fun SetKeepMessagesScreen(
         }
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_keep_messages_duration_warning),
             style = MaterialTheme.typography.bodyMedium,
@@ -457,7 +462,7 @@ private fun SetChatLengthLimitScreen(
       )
 
       Rows.TextRow(
-        text = {
+        text = { _, _ ->
           Text(
             text = stringResource(id = R.string.ManageStorageSettingsFragment_chat_length_limit_warning),
             style = MaterialTheme.typography.bodyMedium,

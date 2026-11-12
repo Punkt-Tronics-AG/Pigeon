@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import pigeon.extensions.isPigeonVersion
 import org.signal.core.ui.R
 
 /**
@@ -139,6 +140,11 @@ private val SelectionHighlightShape: Shape = InsetRoundedShape(horizontalInset =
  */
 @Composable
 fun Modifier.selectionHighlight(selected: Boolean): Modifier {
+  if (isPigeonVersion()) {
+    // PIGEON: the inset clip shape would cut the first glyph of the focused row (5 dp start padding vs 10 dp inset);
+    // list/detail selection highlighting is not used on the MP02 anyway.
+    return this.then(if (selected) Modifier.semantics { this.selected = true } else Modifier)
+  }
   return this
     .then(if (selected) Modifier.semantics { this.selected = true } else Modifier)
     .heightIn(min = 56.dp)

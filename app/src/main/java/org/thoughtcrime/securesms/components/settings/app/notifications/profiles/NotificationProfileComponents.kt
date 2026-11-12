@@ -88,7 +88,7 @@ fun NotificationProfileCircleIconRow(
           .padding(8.dp)
       )
     },
-    text = {
+    text = { _, _ ->
       Text(
         text = text,
         style = MaterialTheme.typography.bodyLarge

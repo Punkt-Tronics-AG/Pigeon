@@ -15,6 +15,7 @@ import org.thoughtcrime.securesms.R
 import org.thoughtcrime.securesms.components.settings.app.subscription.completed.InAppPaymentsBottomSheetDelegate
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.navigation.safeNavigate
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Fragment host for [AppSettingsEntry] until app settings moves to Nav3. Only translates routes into the nav graph.
@@ -55,7 +56,12 @@ class AppSettingsFragment : ComposeFragment() {
       is AppSettingsRoute.StoriesRoute.Privacy -> findNavController().safeNavigate(AppSettingsFragmentDirections.actionAppSettingsFragmentToStoryPrivacySettings(route.titleId))
       is AppSettingsRoute.NotificationsRoute.Notifications -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_notificationsSettingsFragment)
       is AppSettingsRoute.PrivacyRoute.Privacy -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_privacySettingsFragment)
-      is AppSettingsRoute.BackupsRoute.Backups -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+      is AppSettingsRoute.BackupsRoute.Backups -> if (isPigeonVersion()) {
+        // Pigeon: only local backups, handled by the legacy BackupsPreferenceFragment.
+        findNavController().safeNavigate(R.id.pigeon_action_appSettingsFragment_to_backupsPreferenceFragment)
+      } else {
+        findNavController().safeNavigate(R.id.action_appSettingsFragment_to_backupsSettingsFragment)
+      }
       is AppSettingsRoute.DataAndStorageRoute.DataAndStorage -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_dataAndStorageSettingsFragment)
       is AppSettingsRoute.AppUpdates -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_appUpdatesSettingsFragment)
       is AppSettingsRoute.Payments -> findNavController().safeNavigate(R.id.action_appSettingsFragment_to_paymentsActivity)

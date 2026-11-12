@@ -77,6 +77,8 @@ import org.signal.registration.screens.RegistrationScaffold
 import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
+import pigeon.registration.screens.pincreation.PinCreationPigeonLayout
 import org.signal.core.ui.R as CoreR
 
 private const val STEP_TRANSITION_DURATION = 250
@@ -118,6 +120,15 @@ fun PinCreationScreen(
       dismiss = stringResource(android.R.string.ok),
       onDismiss = { onEvent(dismissedEvent) }
     )
+  }
+
+  if (isPigeonVersion()) {
+    PinCreationPigeonLayout(
+      state = state,
+      onEvent = onEvent,
+      modifier = modifier
+    )
+    return
   }
 
   when (val params = RegistrationScaffold.rememberLayoutParams()) {

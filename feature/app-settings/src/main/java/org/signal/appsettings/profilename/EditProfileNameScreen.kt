@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import org.signal.core.ui.compose.Snackbars
 import org.signal.core.ui.compose.TextFields
 import org.signal.core.ui.compose.requestFocusWhenReady
 import org.signal.emoji.EmojiTextField
+import pigeon.extensions.isPigeonVersion
 
 @VisibleForTesting
 object EditProfileNameTestTags {
@@ -91,6 +94,14 @@ fun EditProfileNameScreen(
           .verticalScroll(rememberScrollState())
           .testTag(EditProfileNameTestTags.SCROLLER)
       ) {
+        if (isPigeonVersion() && !state.pigeonPhoneNumber.isNullOrEmpty()) {
+          Text(
+            text = state.pigeonPhoneNumber,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+          )
+        }
+
         NameField(
           value = state.givenName,
           label = stringResource(R.string.EditProfileNameFragment_first_name),

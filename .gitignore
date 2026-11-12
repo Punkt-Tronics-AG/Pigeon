@@ -34,3 +34,9 @@ kls_database.db
 .kotlin
 lefthook-local.yml
 sample-videos/
+
+# --- Pigeon-only ---
+# Signing keystore and password
+/key/*
+# APK output directory produced by the release build
+app/playProd/

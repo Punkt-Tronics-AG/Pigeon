@@ -60,6 +60,7 @@ import org.signal.registration.screens.TwoPaneRegistrationScaffold
 import org.signal.registration.screens.attachDebugLogHelper
 import org.signal.registration.screens.shared.ContactSupportDialog
 import org.signal.registration.test.TestTags
+import pigeon.extensions.isPigeonVersion
 
 /**
  * PIN entry screen for the registration flow.
@@ -77,9 +78,8 @@ fun PinEntryScreen(
   val canSubmitPin = pin.isNotEmpty()
   val onContactSupport: () -> Unit = { onEvent(PinEntryScreenEvents.ContactSupport) }
 
-  when (val params = RegistrationScaffold.rememberLayoutParams()) {
-    is RegistrationScaffold.Params.OnePane -> OnePaneLayout(
-      params = params,
+  if (isPigeonVersion()) {
+    PinEntryPigeonLayout(
       state = state,
       pin = pin,
       canSubmitPin = canSubmitPin,
@@ -90,19 +90,34 @@ fun PinEntryScreen(
       onEvent = onEvent,
       modifier = modifier
     )
+  } else {
+    when (val params = RegistrationScaffold.rememberLayoutParams()) {
+      is RegistrationScaffold.Params.OnePane -> OnePaneLayout(
+        params = params,
+        state = state,
+        pin = pin,
+        canSubmitPin = canSubmitPin,
+        focusRequester = focusRequester,
+        onPinChanged = { pin = it },
+        onSkip = { showSkipDialog = true },
+        onContactSupport = onContactSupport,
+        onEvent = onEvent,
+        modifier = modifier
+      )
 
-    is RegistrationScaffold.Params.TwoPane -> TwoPaneLayout(
-      params = params,
-      state = state,
-      pin = pin,
-      canSubmitPin = canSubmitPin,
-      focusRequester = focusRequester,
-      onPinChanged = { pin = it },
-      onSkip = { showSkipDialog = true },
-      onContactSupport = onContactSupport,
-      onEvent = onEvent,
-      modifier = modifier
-    )
+      is RegistrationScaffold.Params.TwoPane -> TwoPaneLayout(
+        params = params,
+        state = state,
+        pin = pin,
+        canSubmitPin = canSubmitPin,
+        focusRequester = focusRequester,
+        onPinChanged = { pin = it },
+        onSkip = { showSkipDialog = true },
+        onContactSupport = onContactSupport,
+        onEvent = onEvent,
+        modifier = modifier
+      )
+    }
   }
 
   if (showSkipDialog) {

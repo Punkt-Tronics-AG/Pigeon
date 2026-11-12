@@ -287,7 +287,7 @@ private fun MemberRow(
   val about = member.combinedAboutAndEmoji
 
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       Column(modifier = Modifier.weight(1f)) {
         EmojiText(
           text = member.getDisplayName(context),

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="pigeon_app_name" translatable="false">Pigeon</string>
+
+    <string name="Pigeon.Save">Opslaan</string>
+    <string name="Pigeon.Options">Opties</string>
+    <string name="Pigeon.Close">Afsluiten</string>
+    <string name="RegistrationActivity_pigeon_captcha_mouse_cursor">➤</string>
+    <string name="Pigeon_RegistrationActivity_enter_your_phone_number">telefoonnummer</string>
+    <string name="Pigeon_RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Pigeon disclaimer</string>
+    <string name="Pigeon_HomePage_new_message">Nieuw bericht</string>
+    <string name="Pigeon_HomePage_new_group">Nieuwe groep</string>
+    <string name="Pigeon_HomePage_mark_all_read">Alles markeren als gelezen</string>
+    <string name="Pigeon_HomePage_settings">Instellingen</string>
+    <string name="Pigeon_HomePage_search">Zoeken</string>
+    <string name="pigeon_ContactFilterView__search_name_or_number">Zoeken</string>
+    <string name="Pigeon_KbsSplashFragment__create_your_pin">Maak</string>
+    <string name="Pigeon_Settings_switch_on">OP</string>
+    <string name="Pigeon_Settings_switch_off">UIT</string>
+    <string name="Pigeon_Settings_switch_all">%s: %s</string>
+    <string name="Pigeon_Settings_profile">Profiel</string>
+    <string name="Pigeon_conversation_activity__type_message_push">Pigeon bericht</string>
+    <string name="RegistrationActivity_pigeon_enables_you_to_use_signal">Pigeon stelt u in staat om Signal te gebruiken op de MP02.</string>
+    <string name="RegistrationActivity_pigeon_terms_and_privacy">Signal gebruiksvoorwaarden &amp; privacybeleid</string>
+    <string name="RegistrationActivity_pigeon_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Pigeon zal een aantal toestemmingen vragen:
++1. Je contactenlijst lezen om personen weer te geven naar wie je berichten kunt verzenden. Je contactenlijst blijft altijd onleesbaar voor Signal\'s servers.
++2. Bestanden lezen van en schrijven naar de externe opslag, om bestanden bij te voegen als bijlagen en om ontvangen bijlagen op te kunnen slaan.
++3. De telefoonstatus lezen om te voorkomen dat Signal-oproepen je andere oproepen verstoren.</string>
+    <string name="no_options_available">Geen opties beschikbaar</string>
+    <string name="conversation_context__menu_reply_to_message">Bericht beantwoorden</string>
+    <string name="conversation_context__menu_forward_message">Bericht doorsturen</string>
+    <string name="conversation_context__menu_react_to_message">Reageer op bericht</string>
+    <string name="conversation_context__menu_take_back_message">Bericht terugnemen</string>
+</resources>

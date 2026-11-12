@@ -18,6 +18,9 @@ import org.signal.core.ui.compose.EventDrivenViewModel
 import org.signal.core.util.StringUtil
 import org.signal.core.util.logging.Log
 import org.thoughtcrime.securesms.profiles.ProfileName
+import org.thoughtcrime.securesms.recipients.Recipient
+import org.thoughtcrime.securesms.util.SignalE164Util
+import pigeon.extensions.isPigeonVersion
 
 /**
  * Edits the name on the user's own profile, leaving once the new name is saved. Unsaved edits are kept in
@@ -42,7 +45,8 @@ class EditProfileNameViewModel(
     EditProfileNameRepository.getProfileName().let {
       EditProfileNameState(
         givenName = savedStateHandle[KEY_GIVEN_NAME] ?: StringUtil.trimToFit(it.givenName, NAME_MAX_GRAPHEMES, ProfileName.MAX_PART_LENGTH),
-        familyName = savedStateHandle[KEY_FAMILY_NAME] ?: StringUtil.trimToFit(it.familyName, NAME_MAX_GRAPHEMES, ProfileName.MAX_PART_LENGTH)
+        familyName = savedStateHandle[KEY_FAMILY_NAME] ?: StringUtil.trimToFit(it.familyName, NAME_MAX_GRAPHEMES, ProfileName.MAX_PART_LENGTH),
+        pigeonPhoneNumber = if (isPigeonVersion()) Recipient.self().e164.map { e164 -> SignalE164Util.prettyPrint(e164) }.orElse(null) else null
       )
     }
   )

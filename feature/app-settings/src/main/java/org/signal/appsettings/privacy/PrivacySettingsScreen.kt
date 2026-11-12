@@ -51,6 +51,7 @@ import org.signal.core.ui.compose.SignalPreviewWrapper
 import org.signal.core.ui.compose.Snackbars
 import org.signal.core.ui.compose.Texts
 import org.signal.core.ui.util.ExpirationUtil
+import pigeon.extensions.isSignalVersion
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -212,40 +213,44 @@ fun PrivacySettingsScreen(
         }
       }
 
-      item {
-        Rows.ToggleRow(
-          checked = state.screenSecurity,
-          text = stringResource(R.string.preferences__screen_security),
-          label = stringResource(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
-          onCheckChanged = { onEvent(PrivacySettingsEvent.ScreenSecurityToggled(it)) },
-          modifier = Modifier.testTag(PrivacySettingsTestTags.ROW_SCREEN_SECURITY)
-        )
+      if (isSignalVersion()) {
+        item {
+          Rows.ToggleRow(
+            checked = state.screenSecurity,
+            text = stringResource(R.string.preferences__screen_security),
+            label = stringResource(R.string.PrivacySettingsFragment__block_screenshots_in_the_recents_list_and_inside_the_app),
+            onCheckChanged = { onEvent(PrivacySettingsEvent.ScreenSecurityToggled(it)) },
+            modifier = Modifier.testTag(PrivacySettingsTestTags.ROW_SCREEN_SECURITY)
+          )
+        }
+
+        item {
+          Rows.ToggleRow(
+            checked = state.incognitoKeyboard,
+            text = stringResource(R.string.preferences__incognito_keyboard),
+            label = stringResource(R.string.preferences__request_keyboard_to_disable),
+            onCheckChanged = { onEvent(PrivacySettingsEvent.IncognitoKeyboardToggled(it)) },
+            modifier = Modifier.testTag(PrivacySettingsTestTags.ROW_INCOGNITO_KEYBOARD)
+          )
+        }
+
+        item {
+          IncognitoKeyboardDisclaimer(onEvent = onEvent)
+        }
       }
 
-      item {
-        Rows.ToggleRow(
-          checked = state.incognitoKeyboard,
-          text = stringResource(R.string.preferences__incognito_keyboard),
-          label = stringResource(R.string.preferences__request_keyboard_to_disable),
-          onCheckChanged = { onEvent(PrivacySettingsEvent.IncognitoKeyboardToggled(it)) },
-          modifier = Modifier.testTag(PrivacySettingsTestTags.ROW_INCOGNITO_KEYBOARD)
-        )
-      }
+      if (isSignalVersion()) {
+        item {
+          Dividers.Default()
+        }
 
-      item {
-        IncognitoKeyboardDisclaimer(onEvent = onEvent)
-      }
+        item {
+          Texts.SectionHeader(text = stringResource(R.string.preferences_app_protection__payments))
+        }
 
-      item {
-        Dividers.Default()
-      }
-
-      item {
-        Texts.SectionHeader(text = stringResource(R.string.preferences_app_protection__payments))
-      }
-
-      item {
-        PaymentLockRow(state = state, onEvent = onEvent)
+        item {
+          PaymentLockRow(state = state, onEvent = onEvent)
+        }
       }
 
       item {
@@ -367,7 +372,7 @@ private fun DefaultTimerRow(
   val valueDescription = ExpirationUtil.getExpirationDisplayValue(context, seconds)
 
   Rows.TextRow(
-    text = {
+    text = { _, _ ->
       with(Rows) {
         TextAndLabel(
           text = stringResource(R.string.PrivacySettingsFragment__default_timer_for_new_changes),

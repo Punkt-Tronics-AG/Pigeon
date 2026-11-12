@@ -130,7 +130,7 @@ fun EditAboutScreen(
         itemsIndexed(presets, key = { _, preset -> preset.about }) { index, preset ->
           val about = stringResource(preset.about)
           Rows.TextRow(
-            text = { Text(text = about, style = MaterialTheme.typography.bodyLarge) },
+            text = { _, _ -> Text(text = about, style = MaterialTheme.typography.bodyLarge) },
             icon = { EmojiText(text = preset.emoji, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)) },
             onClick = { onEvent(EditAboutEvent.PresetClicked(emoji = preset.emoji, about = about)) },
             modifier = Modifier.testTag(EditAboutTestTags.preset(index))

@@ -13,7 +13,9 @@ data class EditProfileNameState(
   /** Already capped to the profile name limits by whoever fed it in. */
   val familyName: String = "",
   val saving: Boolean = false,
-  val snackbar: Snackbar = Snackbar.None
+  val snackbar: Snackbar = Snackbar.None,
+  /** Pigeon only: the user's own phone number, shown above the name fields on the MP02. */
+  val pigeonPhoneNumber: String? = null
 ) {
 
   val canSave: Boolean

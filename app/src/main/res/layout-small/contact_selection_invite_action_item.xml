@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:focusable="false"
+    android:visibility="gone"
+    tools:background="@color/black"
+    tools:viewBindingIgnore="true">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/invite_text"
+        style="@style/Mp02.Signal.Text.MaterialTextButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/pigeon_start_margin"
+        android:layout_marginEnd="@dimen/dsl_settings_gutter"
+        android:text="@string/contact_selection_activity__invite_to_signal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/invite_image"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:importantForAccessibility="no"
+        android:src="@drawable/symbol_invite_24"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

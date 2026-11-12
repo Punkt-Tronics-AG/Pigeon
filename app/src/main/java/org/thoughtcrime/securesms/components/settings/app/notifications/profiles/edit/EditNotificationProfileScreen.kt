@@ -171,7 +171,7 @@ fun EditNotificationProfileScreen(
         itemsIndexed(presets, key = { _, preset -> preset.name }) { index, preset ->
           val name = stringResource(preset.name)
           Rows.TextRow(
-            text = {
+            text = { _, _ ->
               Text(text = name, style = MaterialTheme.typography.bodyLarge)
             },
             icon = {

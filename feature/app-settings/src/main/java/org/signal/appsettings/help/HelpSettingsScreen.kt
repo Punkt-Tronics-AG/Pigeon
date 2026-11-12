@@ -28,6 +28,7 @@ import org.signal.core.ui.compose.Rows.TextAndLabel
 import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.ui.compose.SignalPreviewWrapper
+import pigeon.extensions.isSignalVersion
 import org.signal.core.ui.R as CoreUiR
 
 @VisibleForTesting
@@ -61,64 +62,90 @@ fun HelpSettingsScreen(
       scaffoldPadding = contentPadding,
       modifier = Modifier.testTag(HelpSettingsTestTags.SCROLLER)
     ) {
-      item {
-        Rows.LinkRow(
-          text = stringResource(R.string.HelpSettingsFragment__support_center),
-          icon = ImageVector.vectorResource(CoreUiR.drawable.symbol_open_20),
-          onClick = { onEvent(HelpSettingsEvent.SupportCenterClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_SUPPORT_CENTER)
-        )
+      if (isSignalVersion()) {
+        item {
+          Rows.LinkRow(
+            text = stringResource(R.string.HelpSettingsFragment__support_center),
+            icon = ImageVector.vectorResource(CoreUiR.drawable.symbol_open_20),
+            onClick = { onEvent(HelpSettingsEvent.SupportCenterClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_SUPPORT_CENTER)
+          )
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.HelpSettingsFragment__contact_us),
+            onClick = { onEvent(HelpSettingsEvent.ContactUsClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_CONTACT_US)
+          )
+        }
+
+        item {
+          Dividers.Default()
+        }
       }
 
-      item {
-        Rows.TextRow(
-          text = stringResource(R.string.HelpSettingsFragment__contact_us),
-          onClick = { onEvent(HelpSettingsEvent.ContactUsClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_CONTACT_US)
-        )
+      if (isSignalVersion()) {
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.HelpSettingsFragment__version),
+            label = state.versionName,
+            onLongClick = { onEvent(HelpSettingsEvent.VersionLongClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_VERSION)
+          )
+        }
+      } else {
+        item {
+          Rows.TextRow(
+            text = "${stringResource(R.string.HelpSettingsFragment__version)} ${state.versionName}",
+            onClick = {},
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_VERSION)
+          )
+        }
       }
 
-      item {
-        Dividers.Default()
+      if (isSignalVersion()) {
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.HelpSettingsFragment__debug_log),
+            onClick = { onEvent(HelpSettingsEvent.DebugLogClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_DEBUG_LOG)
+          )
+        }
+
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.HelpSettingsFragment__licenses),
+            onClick = { onEvent(HelpSettingsEvent.LicensesClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_LICENSES)
+          )
+        }
       }
 
-      item {
-        Rows.TextRow(
-          text = stringResource(R.string.HelpSettingsFragment__version),
-          label = state.versionName,
-          onLongClick = { onEvent(HelpSettingsEvent.VersionLongClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_VERSION)
-        )
+      if (isSignalVersion()) {
+        item {
+          Rows.LinkRow(
+            text = stringResource(R.string.HelpSettingsFragment__terms_amp_privacy_policy),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+            icon = ImageVector.vectorResource(CoreUiR.drawable.symbol_open_20),
+            onClick = { onEvent(HelpSettingsEvent.TermsAndPrivacyPolicyClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_TERMS_AND_PRIVACY_POLICY)
+          )
+        }
+      } else {
+        item {
+          Rows.TextRow(
+            text = stringResource(R.string.HelpSettingsFragment__terms_amp_privacy_policy),
+            onClick = { onEvent(HelpSettingsEvent.TermsAndPrivacyPolicyClicked) },
+            modifier = Modifier.testTag(HelpSettingsTestTags.ROW_TERMS_AND_PRIVACY_POLICY)
+          )
+        }
       }
 
-      item {
-        Rows.TextRow(
-          text = stringResource(R.string.HelpSettingsFragment__debug_log),
-          onClick = { onEvent(HelpSettingsEvent.DebugLogClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_DEBUG_LOG)
-        )
-      }
-
-      item {
-        Rows.TextRow(
-          text = stringResource(R.string.HelpSettingsFragment__licenses),
-          onClick = { onEvent(HelpSettingsEvent.LicensesClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_LICENSES)
-        )
-      }
-
-      item {
-        Rows.LinkRow(
-          text = stringResource(R.string.HelpSettingsFragment__terms_amp_privacy_policy),
-          textStyle = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
-          icon = ImageVector.vectorResource(CoreUiR.drawable.symbol_open_20),
-          onClick = { onEvent(HelpSettingsEvent.TermsAndPrivacyPolicyClicked) },
-          modifier = Modifier.testTag(HelpSettingsTestTags.ROW_TERMS_AND_PRIVACY_POLICY)
-        )
-      }
-
-      item {
-        LegalNotice()
+      if (isSignalVersion()) {
+        item {
+          LegalNotice()
+        }
       }
     }
   }
